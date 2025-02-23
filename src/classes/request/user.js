@@ -1,6 +1,6 @@
 // #region | API: User
 
-const userRequest = {
+const userReq = {
     /**
      * Fetch user from API.
      * @param {{ userId: string }} params identifier of registered user
@@ -28,7 +28,7 @@ const userRequest = {
         return new Promise((resolve, reject) => {
             const ref = window.API.cachedUsers.get(params.userId);
             if (typeof ref === 'undefined') {
-                userRequest.getUser(params).catch(reject).then(resolve);
+                userReq.getUser(params).catch(reject).then(resolve);
             } else {
                 resolve({
                     cache: true,
@@ -128,4 +128,4 @@ const userRequest = {
 };
 // #endregion
 
-export default userRequest;
+export default userReq;

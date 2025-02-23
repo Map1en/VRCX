@@ -34,7 +34,7 @@ import $utils from './classes/utils.js';
 import _apiInit from './classes/apiInit.js';
 import _apiRequestHandler from './classes/apiRequestHandler.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
-import { userRequest, worldRequest } from './classes/request';
+import { userRequest, worldRequest, instanceRequest } from './classes/request';
 
 // tabs
 import ModerationTab from './views/tabs/Moderation.vue';
@@ -953,140 +953,6 @@ console.log(`isLinux: ${LINUX}`);
     // #region | API: Instance
 
     API.cachedInstances = new Map();
-
-    /**
-     * @param {{worldId: string, instanceId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getInstance = function (params) {
-        return this.call(`instances/${params.worldId}:${params.instanceId}`, {
-            method: 'GET'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('INSTANCE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @typedef {{
-     *     worldId: string,
-     *     type: string,
-     *     region: string,
-     *     ownerId: string,
-     *     roleIds: string[],
-     *     groupAccessType: string,
-     *     queueEnabled: boolean
-     * }} CreateInstanceParameter
-     */
-
-    /**
-     * @param {CreateInstanceParameter} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.createInstance = function (params) {
-        return this.call('instances', {
-            method: 'POST',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('INSTANCE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ worldId: string, instanceId: string, shortName: string }} instance
-     * @returns {Promise<{instance, json: T, params: {}}>}
-     */
-    API.getInstanceShortName = function (instance) {
-        var params = {};
-        if (instance.shortName) {
-            params.shortName = instance.shortName;
-        }
-        return this.call(
-            `instances/${instance.worldId}:${instance.instanceId}/shortName`,
-            {
-                method: 'GET',
-                params
-            }
-        ).then((json) => {
-            var args = {
-                json,
-                instance,
-                params
-            };
-            this.$emit('INSTANCE:SHORTNAME', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ shortName: string }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getInstanceFromShortName = function (params) {
-        return this.call(`instances/s/${params.shortName}`, {
-            method: 'GET'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('INSTANCE', args);
-            return args;
-        });
-    };
-
-    /**
-     * Send invite to current user.
-     * @param {{ worldId: string, instanceId: string, shortName: string }} instance
-     * @returns {Promise<{instance, json: any, params}>}
-     */
-    API.selfInvite = function (instance) {
-        /**
-         * @type {{ shortName?: string }}
-         */
-        var params = {};
-        if (instance.shortName) {
-            params.shortName = instance.shortName;
-        }
-        return this.call(
-            `invite/myself/to/${instance.worldId}:${instance.instanceId}`,
-            {
-                method: 'POST',
-                params
-            }
-        )
-            .then((json) => {
-                var args = {
-                    json,
-                    instance,
-                    params
-                };
-                return args;
-            })
-            .catch((err) => {
-                if (err?.error?.message) {
-                    $app.$message({
-                        message: err.error.message,
-                        type: 'error'
-                    });
-                    throw err;
-                }
-                $app.$message({
-                    message: $t('message.instance.not_allowed'),
-                    type: 'error'
-                });
-                throw err;
-            });
-    };
 
     API.applyInstance = function (json) {
         var ref = this.cachedInstances.get(json.id);
@@ -9414,18 +9280,20 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.verifyShortName = function (location, shortName) {
-        return API.getInstanceFromShortName({ shortName }).then((args) => {
-            var newLocation = args.json.location;
-            var newShortName = args.json.shortName;
-            if (newShortName) {
-                this.showWorldDialog(newLocation, newShortName);
-            } else if (newLocation) {
-                this.showWorldDialog(newLocation);
-            } else {
-                this.showWorldDialog(location);
-            }
-            return args;
-        });
+        return instanceRequest
+            .getInstanceFromShortName({ shortName })
+            .then((args) => {
+                var newLocation = args.json.location;
+                var newShortName = args.json.shortName;
+                if (newShortName) {
+                    this.showWorldDialog(newLocation, newShortName);
+                } else if (newLocation) {
+                    this.showWorldDialog(newLocation);
+                } else {
+                    this.showWorldDialog(location);
+                }
+                return args;
+            });
     };
 
     $app.methods.showGroupDialogShortCode = function (shortCode) {
@@ -10097,7 +9965,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         var L = $utils.parseLocation(D.ref.$location.tag);
         if (updateInstanceOccupants && L.isRealInstance) {
-            API.getInstance({
+            instanceRequest.getInstance({
                 worldId: L.worldId,
                 instanceId: L.instanceId
             });
@@ -10530,12 +10398,14 @@ console.log(`isLinux: ${LINUX}`);
             } else {
                 var L = $utils.parseLocation(instanceId);
                 if (L.isRealInstance) {
-                    API.getInstance({
-                        worldId: L.worldId,
-                        instanceId: L.instanceId
-                    }).then((args) => {
-                        this.currentInstanceWorld.instance = args.ref;
-                    });
+                    instanceRequest
+                        .getInstance({
+                            worldId: L.worldId,
+                            instanceId: L.instanceId
+                        })
+                        .then((args) => {
+                            this.currentInstanceWorld.instance = args.ref;
+                        });
                 }
             }
         }
@@ -11252,7 +11122,7 @@ console.log(`isLinux: ${LINUX}`);
         $app.applyWorldDialogInstances();
         for (var room of D.rooms) {
             if ($utils.isRealInstance(room.tag)) {
-                API.getInstance({
+                instanceRequest.getInstance({
                     worldId: D.id,
                     instanceId: room.id
                 });
@@ -11798,7 +11668,7 @@ console.log(`isLinux: ${LINUX}`);
             if (typeof ref !== 'undefined') {
                 room.ref = ref;
             } else if ($utils.isRealInstance(room.tag)) {
-                API.getInstance({
+                instanceRequest.getInstance({
                     worldId: room.$location.worldId,
                     instanceId: room.$location.instanceId
                 });
@@ -12686,10 +12556,12 @@ console.log(`isLinux: ${LINUX}`);
                         if (receiverUserId === API.currentUser.id) {
                             // can't invite self!?
                             var L = $utils.parseLocation(D.worldId);
-                            API.selfInvite({
-                                instanceId: L.instanceId,
-                                worldId: L.worldId
-                            }).finally(inviteLoop);
+                            instanceRequest
+                                .selfInvite({
+                                    instanceId: L.instanceId,
+                                    worldId: L.worldId
+                                })
+                                .finally(inviteLoop);
                         } else {
                             API.sendInvite(
                                 {
@@ -13113,7 +12985,7 @@ console.log(`isLinux: ${LINUX}`);
             params.ageGate = true;
         }
         try {
-            var args = await API.createInstance(params);
+            var args = await instanceRequest.createInstance(params);
             D.location = args.json.location;
             D.instanceId = args.json.instanceId;
             D.secureOrShortName = args.json.shortName || args.json.secureName;
@@ -13133,17 +13005,19 @@ console.log(`isLinux: ${LINUX}`);
         if (!L.isRealInstance) {
             return;
         }
-        API.selfInvite({
-            instanceId: L.instanceId,
-            worldId: L.worldId,
-            shortName
-        }).then((args) => {
-            this.$message({
-                message: 'Self invite sent',
-                type: 'success'
+        instanceRequest
+            .selfInvite({
+                instanceId: L.instanceId,
+                worldId: L.worldId,
+                shortName
+            })
+            .then((args) => {
+                this.$message({
+                    message: 'Self invite sent',
+                    type: 'success'
+                });
+                return args;
             });
-            return args;
-        });
     };
 
     $app.methods.updateNewInstanceDialog = function (noChanges) {
@@ -13849,7 +13723,7 @@ console.log(`isLinux: ${LINUX}`);
         D.url = this.getLaunchURL(L);
         D.visible = true;
         if (!shortName) {
-            API.getInstanceShortName({
+            instanceRequest.getInstanceShortName({
                 worldId: L.worldId,
                 instanceId: L.instanceId
             });
@@ -13894,7 +13768,7 @@ console.log(`isLinux: ${LINUX}`);
         } else {
             // fetch shortName
             var newShortName = '';
-            var response = await API.getInstanceShortName({
+            var response = await instanceRequest.getInstanceShortName({
                 worldId: L.worldId,
                 instanceId: L.instanceId
             });
@@ -13987,7 +13861,7 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.copyInstanceUrl = async function (location) {
         var L = $utils.parseLocation(location);
-        var args = await API.getInstanceShortName({
+        var args = await instanceRequest.getInstanceShortName({
             worldId: L.worldId,
             instanceId: L.instanceId
         });
@@ -14755,10 +14629,12 @@ console.log(`isLinux: ${LINUX}`);
                     if (receiverUserId === API.currentUser.id) {
                         // can't invite self!?
                         var L = $utils.parseLocation(J.worldId);
-                        API.selfInvite({
-                            instanceId: L.instanceId,
-                            worldId: L.worldId
-                        }).finally(inviteLoop);
+                        instanceRequest
+                            .selfInvite({
+                                instanceId: L.instanceId,
+                                worldId: L.worldId
+                            })
+                            .finally(inviteLoop);
                     } else if ($app.uploadImage) {
                         API.sendInvitePhoto(
                             {
@@ -14916,10 +14792,12 @@ console.log(`isLinux: ${LINUX}`);
                     if (receiverUserId === API.currentUser.id) {
                         // can't invite self!?
                         var L = $utils.parseLocation(J.worldId);
-                        API.selfInvite({
-                            instanceId: L.instanceId,
-                            worldId: L.worldId
-                        }).finally(inviteLoop);
+                        instanceRequest
+                            .selfInvite({
+                                instanceId: L.instanceId,
+                                worldId: L.worldId
+                            })
+                            .finally(inviteLoop);
                     } else if ($app.uploadImage) {
                         API.sendInvitePhoto(
                             {
@@ -17596,7 +17474,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.refreshInstancePlayerCount = function (instance) {
         var L = $utils.parseLocation(instance);
         if (L.isRealInstance) {
-            API.getInstance({
+            instanceRequest.getInstance({
                 worldId: L.worldId,
                 instanceId: L.instanceId
             });
@@ -22162,18 +22040,20 @@ console.log(`isLinux: ${LINUX}`);
         if (!API.queuedInstances.has(instanceId)) {
             var L = $utils.parseLocation(instanceId);
             if (L.isRealInstance) {
-                API.getInstance({
-                    worldId: L.worldId,
-                    instanceId: L.instanceId
-                }).then((args) => {
-                    if (args.json?.queueSize) {
-                        $app.instanceQueueUpdate(
-                            instanceId,
-                            args.json?.queueSize,
-                            args.json?.queueSize
-                        );
-                    }
-                });
+                instanceRequest
+                    .getInstance({
+                        worldId: L.worldId,
+                        instanceId: L.instanceId
+                    })
+                    .then((args) => {
+                        if (args.json?.queueSize) {
+                            $app.instanceQueueUpdate(
+                                instanceId,
+                                args.json?.queueSize,
+                                args.json?.queueSize
+                            );
+                        }
+                    });
             }
             $app.instanceQueueUpdate(instanceId, 0, 0);
         }

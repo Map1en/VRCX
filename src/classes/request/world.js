@@ -1,6 +1,6 @@
 // #region | API: World
 
-const worldRequest = {
+const worldReq = {
     /**
      * @param {{worldId: string}} params
      * @returns {Promise<{json: any, params}>}
@@ -26,7 +26,7 @@ const worldRequest = {
         return new Promise((resolve, reject) => {
             const ref = window.API.cachedWorlds.get(params.worldId);
             if (typeof ref === 'undefined') {
-                worldRequest.getWorld(params).catch(reject).then(resolve);
+                worldReq.getWorld(params).catch(reject).then(resolve);
             } else {
                 resolve({
                     cache: true,
@@ -148,4 +148,4 @@ const worldRequest = {
 
 // #endregion
 
-export default worldRequest;
+export default worldReq;
