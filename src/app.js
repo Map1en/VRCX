@@ -34,7 +34,12 @@ import $utils from './classes/utils.js';
 import _apiInit from './classes/apiInit.js';
 import _apiRequestHandler from './classes/apiRequestHandler.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
-import { userRequest, worldRequest, instanceRequest } from './classes/request';
+import {
+    userRequest,
+    worldRequest,
+    instanceRequest,
+    friendRequest
+} from './classes/request';
 
 // tabs
 import ModerationTab from './views/tabs/Moderation.vue';
@@ -1112,7 +1117,7 @@ console.log(`isLinux: ${LINUX}`);
             retryLoop: for (var j = 0; j < 10; j++) {
                 // handle 429 ratelimit error, retry 10 times
                 try {
-                    var args = await this.getFriends(params);
+                    var args = await friendRequest.getFriends(params);
                     if (!args.json || args.json.length === 0) {
                         break mainLoop;
                     }
@@ -1197,25 +1202,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     /**
-     * Fetch friends of current user.
-     * @param {{ n: number, offset: number, offline: boolean }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getFriends = function (params) {
-        return this.call('auth/user/friends', {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('FRIEND:LIST', args);
-            return args;
-        });
-    };
-
-    /**
      * @param {{ userId: string }} params
      * @returns {Promise<{json: any, params}>}
      */
@@ -1228,40 +1214,6 @@ console.log(`isLinux: ${LINUX}`);
                 params
             };
             this.$emit('FRIEND:DELETE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ userId: string }} params
-     * @returns {Promise<{json: T, params}>}
-     */
-    API.sendFriendRequest = function (params) {
-        return this.call(`user/${params.userId}/friendRequest`, {
-            method: 'POST'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('FRIEND:REQUEST', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ userId: string }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.cancelFriendRequest = function (params) {
-        return this.call(`user/${params.userId}/friendRequest`, {
-            method: 'DELETE'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('FRIEND:REQUEST:CANCEL', args);
             return args;
         });
     };
@@ -7077,54 +7029,56 @@ console.log(`isLinux: ${LINUX}`);
             }
             return;
         }
-        API.getFriendStatus({
-            userId: id
-        }).then((args) => {
-            if (args.json.isFriend && !this.friendLog.has(id)) {
-                if (this.friendNumber === 0) {
-                    this.friendNumber = this.friends.size;
+        friendRequest
+            .getFriendStatus({
+                userId: id
+            })
+            .then((args) => {
+                if (args.json.isFriend && !this.friendLog.has(id)) {
+                    if (this.friendNumber === 0) {
+                        this.friendNumber = this.friends.size;
+                    }
+                    ref.$friendNumber = ++this.friendNumber;
+                    configRepository.setInt(
+                        `VRCX_friendNumber_${API.currentUser.id}`,
+                        this.friendNumber
+                    );
+                    this.addFriend(id, ref.state);
+                    var friendLogHistory = {
+                        created_at: new Date().toJSON(),
+                        type: 'Friend',
+                        userId: id,
+                        displayName: ref.displayName,
+                        friendNumber: ref.$friendNumber
+                    };
+                    this.friendLogTable.data.push(friendLogHistory);
+                    database.addFriendLogHistory(friendLogHistory);
+                    this.queueFriendLogNoty(friendLogHistory);
+                    var friendLogCurrent = {
+                        userId: id,
+                        displayName: ref.displayName,
+                        trustLevel: ref.$trustLevel,
+                        friendNumber: ref.$friendNumber
+                    };
+                    this.friendLog.set(id, friendLogCurrent);
+                    database.setFriendLogCurrent(friendLogCurrent);
+                    this.notifyMenu('friendLog');
+                    this.deleteFriendRequest(id);
+                    this.updateSharedFeed(true);
+                    userRequest
+                        .getUser({
+                            userId: id
+                        })
+                        .then(() => {
+                            if (
+                                this.userDialog.visible &&
+                                id === this.userDialog.id
+                            ) {
+                                this.applyUserDialogLocation(true);
+                            }
+                        });
                 }
-                ref.$friendNumber = ++this.friendNumber;
-                configRepository.setInt(
-                    `VRCX_friendNumber_${API.currentUser.id}`,
-                    this.friendNumber
-                );
-                this.addFriend(id, ref.state);
-                var friendLogHistory = {
-                    created_at: new Date().toJSON(),
-                    type: 'Friend',
-                    userId: id,
-                    displayName: ref.displayName,
-                    friendNumber: ref.$friendNumber
-                };
-                this.friendLogTable.data.push(friendLogHistory);
-                database.addFriendLogHistory(friendLogHistory);
-                this.queueFriendLogNoty(friendLogHistory);
-                var friendLogCurrent = {
-                    userId: id,
-                    displayName: ref.displayName,
-                    trustLevel: ref.$trustLevel,
-                    friendNumber: ref.$friendNumber
-                };
-                this.friendLog.set(id, friendLogCurrent);
-                database.setFriendLogCurrent(friendLogCurrent);
-                this.notifyMenu('friendLog');
-                this.deleteFriendRequest(id);
-                this.updateSharedFeed(true);
-                userRequest
-                    .getUser({
-                        userId: id
-                    })
-                    .then(() => {
-                        if (
-                            this.userDialog.visible &&
-                            id === this.userDialog.id
-                        ) {
-                            this.applyUserDialogLocation(true);
-                        }
-                    });
-            }
-        });
+            });
     };
 
     $app.methods.deleteFriendRequest = function (userId) {
@@ -7145,28 +7099,30 @@ console.log(`isLinux: ${LINUX}`);
         if (typeof ctx === 'undefined') {
             return;
         }
-        API.getFriendStatus({
-            userId: id
-        }).then((args) => {
-            if (!args.json.isFriend && this.friendLog.has(id)) {
-                var friendLogHistory = {
-                    created_at: new Date().toJSON(),
-                    type: 'Unfriend',
-                    userId: id,
-                    displayName: ctx.displayName || id
-                };
-                this.friendLogTable.data.push(friendLogHistory);
-                database.addFriendLogHistory(friendLogHistory);
-                this.queueFriendLogNoty(friendLogHistory);
-                this.friendLog.delete(id);
-                database.deleteFriendLogCurrent(id);
-                if (!this.hideUnfriends) {
-                    this.notifyMenu('friendLog');
+        friendRequest
+            .getFriendStatus({
+                userId: id
+            })
+            .then((args) => {
+                if (!args.json.isFriend && this.friendLog.has(id)) {
+                    var friendLogHistory = {
+                        created_at: new Date().toJSON(),
+                        type: 'Unfriend',
+                        userId: id,
+                        displayName: ctx.displayName || id
+                    };
+                    this.friendLogTable.data.push(friendLogHistory);
+                    database.addFriendLogHistory(friendLogHistory);
+                    this.queueFriendLogNoty(friendLogHistory);
+                    this.friendLog.delete(id);
+                    database.deleteFriendLogCurrent(id);
+                    if (!this.hideUnfriends) {
+                        this.notifyMenu('friendLog');
+                    }
+                    this.updateSharedFeed(true);
+                    this.deleteFriend(id);
                 }
-                this.updateSharedFeed(true);
-                this.deleteFriend(id);
-            }
-        });
+            });
     };
 
     $app.methods.updateFriendships = function (ref) {
@@ -10807,7 +10763,7 @@ console.log(`isLinux: ${LINUX}`);
             case 'Accept Friend Request':
                 var key = API.getFriendRequest(userId);
                 if (key === '') {
-                    API.sendFriendRequest({
+                    friendRequest.sendFriendRequest({
                         userId
                     });
                 } else {
@@ -10819,7 +10775,7 @@ console.log(`isLinux: ${LINUX}`);
             case 'Decline Friend Request':
                 var key = API.getFriendRequest(userId);
                 if (key === '') {
-                    API.cancelFriendRequest({
+                    friendRequest.cancelFriendRequest({
                         userId
                     });
                 } else {
@@ -10829,12 +10785,12 @@ console.log(`isLinux: ${LINUX}`);
                 }
                 break;
             case 'Cancel Friend Request':
-                API.cancelFriendRequest({
+                friendRequest.cancelFriendRequest({
                     userId
                 });
                 break;
             case 'Send Friend Request':
-                API.sendFriendRequest({
+                friendRequest.sendFriendRequest({
                     userId
                 });
                 break;

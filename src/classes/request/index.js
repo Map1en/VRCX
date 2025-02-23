@@ -5,5 +5,6 @@
 import userRequest from './user';
 import worldRequest from './world';
 import instanceRequest from './instance';
+import friendRequest from './friend';
 
-export { userRequest, worldRequest, instanceRequest };
+export { userRequest, worldRequest, instanceRequest, friendRequest };
