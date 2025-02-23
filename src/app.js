@@ -5959,7 +5959,9 @@ console.log(`isLinux: ${LINUX}`);
         this.searchUserParams = {
             n: 10,
             offset: 0,
-            search: this.searchText
+            search: this.searchText,
+            customFields: this.searchUserByBio ? "bio" : "displayName",
+            sort: this.searchUserSortByLastLoggedIn ? "last_login" : "relevance"
         };
         await this.moreSearchUser();
     };
@@ -5992,6 +5994,9 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.data.searchWorldLabs = false;
+
+    $app.data.searchUserByBio = false;
+    $app.data.searchUserSortByLastLoggedIn = false;
 
     $app.methods.searchWorld = function (ref) {
         this.searchWorldOption = '';
