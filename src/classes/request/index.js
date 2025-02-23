@@ -7,11 +7,13 @@ import worldRequest from './world';
 import instanceRequest from './instance';
 import friendRequest from './friend';
 import avatarRequest from './avatar';
+import notificationRequest from './notification';
 
 export {
     userRequest,
     worldRequest,
     instanceRequest,
     friendRequest,
-    avatarRequest
+    avatarRequest,
+    notificationRequest
 };

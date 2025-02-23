@@ -39,7 +39,8 @@ import {
     worldRequest,
     instanceRequest,
     friendRequest,
-    avatarRequest
+    avatarRequest,
+    notificationRequest
 } from './classes/request';
 
 // tabs
@@ -1540,7 +1541,7 @@ console.log(`isLinux: ${LINUX}`);
             };
             var count = 50; // 5000 max
             for (var i = 0; i < count; i++) {
-                var args = await this.getNotifications(params);
+                var args = await notificationRequest.getNotifications(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
@@ -1553,7 +1554,7 @@ console.log(`isLinux: ${LINUX}`);
             };
             var count = 50; // 5000 max
             for (var i = 0; i < count; i++) {
-                var args = await this.getNotificationsV2(params);
+                var args = await notificationRequest.getNotificationsV2(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
@@ -1566,7 +1567,8 @@ console.log(`isLinux: ${LINUX}`);
             };
             var count = 50; // 5000 max
             for (var i = 0; i < count; i++) {
-                var args = await this.getHiddenFriendRequests(params);
+                var args =
+                    await notificationRequest.getHiddenFriendRequests(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
@@ -1579,79 +1581,6 @@ console.log(`isLinux: ${LINUX}`);
             this.isNotificationsLoading = false;
             $app.notificationInitStatus = true;
         }
-    };
-
-    /** @typedef {{
-     *      n: number,
-     *      offset: number,
-     *      sent: boolean,
-     *      type: string,
-     *      //  (ISO8601 or 'five_minutes_ago')
-     *      after: 'five_minutes_ago' | (string & {})
-     }} NotificationFetchParameter */
-
-    /**
-     *
-     * @param {NotificationFetchParameter} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getNotifications = function (params) {
-        return this.call('auth/user/notifications', {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('NOTIFICATION:LIST', args);
-            return args;
-        });
-    };
-
-    API.getHiddenFriendRequests = function (params) {
-        return this.call('auth/user/notifications', {
-            method: 'GET',
-            params: {
-                type: 'friendRequest',
-                hidden: true,
-                ...params
-            }
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('NOTIFICATION:LIST:HIDDEN', args);
-            return args;
-        });
-    };
-
-    API.clearNotifications = function () {
-        return this.call('auth/user/notifications/clear', {
-            method: 'PUT'
-        }).then((json) => {
-            var args = {
-                json
-            };
-            // FIXME: NOTIFICATION:CLEAR 핸들링
-            this.$emit('NOTIFICATION:CLEAR', args);
-            return args;
-        });
-    };
-
-    API.getNotificationsV2 = function (params) {
-        return this.call('notifications', {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('NOTIFICATION:V2:LIST', args);
-            return args;
-        });
     };
 
     API.$on('NOTIFICATION:V2:LIST', function (args) {
@@ -1712,50 +1641,6 @@ console.log(`isLinux: ${LINUX}`);
             });
         }
     });
-
-    API.hideNotificationV2 = function (notificationId) {
-        return this.call(`notifications/${notificationId}`, {
-            method: 'DELETE'
-        }).then((json) => {
-            var args = {
-                json,
-                params: {
-                    notificationId
-                }
-            };
-            this.$emit('NOTIFICATION:V2:HIDE', args);
-            return args;
-        });
-    };
-
-    /**
-    * @param {{
-            notificationId: string,
-            responseType: string,
-            responseData: string
-    }} params
-    * @return { Promise<{json: any, params}> }
-    */
-    API.sendNotificationResponse = function (params) {
-        return this.call(`notifications/${params.notificationId}/respond`, {
-            method: 'POST',
-            params
-        })
-            .then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('NOTIFICATION:RESPONSE', args);
-                return args;
-            })
-            .catch((err) => {
-                // something went wrong, lets assume it's already expired
-                this.$emit('NOTIFICATION:HIDE', { params });
-                API.hideNotificationV2(params.notificationId);
-                throw err;
-            });
-    };
 
     API.$on('NOTIFICATION:RESPONSE', function (args) {
         this.$emit('NOTIFICATION:HIDE', args);
@@ -21993,7 +21878,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             }
         }
-        return API.sendNotificationResponse({
+        return notificationRequest.sendNotificationResponse({
             notificationId,
             responseType,
             responseData
