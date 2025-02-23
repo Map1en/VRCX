@@ -38,7 +38,8 @@ import {
     userRequest,
     worldRequest,
     instanceRequest,
-    friendRequest
+    friendRequest,
+    avatarRequest
 } from './classes/request';
 
 // tabs
@@ -1339,160 +1340,6 @@ console.log(`isLinux: ${LINUX}`);
         ref.name = $app.replaceBioSymbols(ref.name);
         ref.description = $app.replaceBioSymbols(ref.description);
         return ref;
-    };
-
-    /**
-     * @param {{ avatarId: string }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getAvatar = function (params) {
-        return this.call(`avatars/${params.avatarId}`, {
-            method: 'GET'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR', args);
-            return args;
-        });
-    };
-
-    /**
-     * @typedef {{
-     *     n: number,
-     *     offset: number,
-     *     search: string,
-     *     userId: string,
-     *     user: 'me' | 'friends'
-     *     sort: 'created' | 'updated' | 'order' | '_created_at' | '_updated_at',
-     *     order: 'ascending' | 'descending',
-     *     releaseStatus: 'public' | 'private' | 'hidden' | 'all',
-     *     featured: boolean
-     * }} GetAvatarsParameter
-     */
-    /**
-     *
-     * @param {GetAvatarsParameter} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getAvatars = function (params) {
-        return this.call('avatars', {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:LIST', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ id: string, releaseStatus: 'public' | 'private' }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.saveAvatar = function (params) {
-        return this.call(`avatars/${params.id}`, {
-            method: 'PUT',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:SAVE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{avatarId: string }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.selectAvatar = function (params) {
-        return this.call(`avatars/${params.avatarId}/select`, {
-            method: 'PUT',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:SELECT', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ avatarId: string }} params
-     * @return { Promise<{json: any, params}> }
-     */
-    API.selectFallbackAvatar = function (params) {
-        return this.call(`avatars/${params.avatarId}/selectfallback`, {
-            method: 'PUT',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:SELECT', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ avatarId: string }} params
-     * @return { Promise<{json: any, params}> }
-     */
-    API.deleteAvatar = function (params) {
-        return this.call(`avatars/${params.avatarId}`, {
-            method: 'DELETE'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:DELETE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ avatarId: string }} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.createImposter = function (params) {
-        return this.call(`avatars/${params.avatarId}/impostor/enqueue`, {
-            method: 'POST'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:IMPOSTER:CREATE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{ avatarId: string }} params
-     * @returns {Promise<{json: T, params}>}
-     */
-    API.deleteImposter = function (params) {
-        return this.call(`avatars/${params.avatarId}/impostor`, {
-            method: 'DELETE'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('AVATAR:IMPOSTER:DELETE', args);
-            return args;
-        });
     };
 
     API.$on('AVATAR:IMPOSTER:DELETE', function (args) {
@@ -3565,7 +3412,7 @@ console.log(`isLinux: ${LINUX}`);
         };
         var map = new Map();
         API.bulk({
-            fn: 'getAvatars',
+            fn: avatarRequest.getAvatars,
             N: -1,
             params,
             handle: (args) => {
@@ -10721,7 +10568,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         var map = new Map();
         API.bulk({
-            fn: 'getAvatars',
+            fn: avatarRequest.getAvatars,
             N: -1,
             params,
             handle: (args) => {
@@ -11950,7 +11797,8 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
         });
-        API.getAvatar({ avatarId })
+        avatarRequest
+            .getAvatar({ avatarId })
             .then((args) => {
                 var { ref } = args;
                 D.ref = ref;
@@ -12015,15 +11863,17 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.selectAvatarWithoutConfirmation = function (id) {
-        API.selectAvatar({
-            avatarId: id
-        }).then((args) => {
-            this.$message({
-                message: 'Avatar changed',
-                type: 'success'
+        avatarRequest
+            .selectAvatar({
+                avatarId: id
+            })
+            .then((args) => {
+                this.$message({
+                    message: 'Avatar changed',
+                    type: 'success'
+                });
+                return args;
             });
-            return args;
-        });
     };
 
     $app.methods.avatarDialogCommand = function (command) {
@@ -12076,26 +11926,30 @@ console.log(`isLinux: ${LINUX}`);
                                 });
                                 break;
                             case 'Select Avatar':
-                                API.selectAvatar({
-                                    avatarId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Avatar changed',
-                                        type: 'success'
+                                avatarRequest
+                                    .selectAvatar({
+                                        avatarId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'Avatar changed',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Select Fallback Avatar':
-                                API.selectFallbackAvatar({
-                                    avatarId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Fallback avatar changed',
-                                        type: 'success'
+                                avatarRequest
+                                    .selectFallbackAvatar({
+                                        avatarId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'Fallback avatar changed',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Block Avatar':
                                 API.sendAvatarModeration({
@@ -12116,82 +11970,97 @@ console.log(`isLinux: ${LINUX}`);
                                 });
                                 break;
                             case 'Make Public':
-                                API.saveAvatar({
-                                    id: D.id,
-                                    releaseStatus: 'public'
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Avatar updated to public',
-                                        type: 'success'
+                                avatarRequest
+                                    .saveAvatar({
+                                        id: D.id,
+                                        releaseStatus: 'public'
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'Avatar updated to public',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Make Private':
-                                API.saveAvatar({
-                                    id: D.id,
-                                    releaseStatus: 'private'
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Avatar updated to private',
-                                        type: 'success'
+                                avatarRequest
+                                    .saveAvatar({
+                                        id: D.id,
+                                        releaseStatus: 'private'
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message:
+                                                'Avatar updated to private',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Delete':
-                                API.deleteAvatar({
-                                    avatarId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Avatar deleted',
-                                        type: 'success'
+                                avatarRequest
+                                    .deleteAvatar({
+                                        avatarId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'Avatar deleted',
+                                            type: 'success'
+                                        });
+                                        D.visible = false;
+                                        return args;
                                     });
-                                    D.visible = false;
-                                    return args;
-                                });
                                 break;
                             case 'Delete Imposter':
-                                API.deleteImposter({
-                                    avatarId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Imposter deleted',
-                                        type: 'success'
+                                avatarRequest
+                                    .deleteImposter({
+                                        avatarId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'Imposter deleted',
+                                            type: 'success'
+                                        });
+                                        this.showAvatarDialog(D.id);
+                                        return args;
                                     });
-                                    this.showAvatarDialog(D.id);
-                                    return args;
-                                });
                                 break;
                             case 'Create Imposter':
-                                API.createImposter({
-                                    avatarId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Imposter queued for creation',
-                                        type: 'success'
+                                avatarRequest
+                                    .createImposter({
+                                        avatarId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message:
+                                                'Imposter queued for creation',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Regenerate Imposter':
-                                API.deleteImposter({
-                                    avatarId: D.id
-                                })
+                                avatarRequest
+                                    .deleteImposter({
+                                        avatarId: D.id
+                                    })
                                     .then((args) => {
                                         return args;
                                     })
                                     .finally(() => {
-                                        API.createImposter({
-                                            avatarId: D.id
-                                        }).then((args) => {
-                                            this.$message({
-                                                message:
-                                                    'Imposter deleted and queued for creation',
-                                                type: 'success'
+                                        avatarRequest
+                                            .createImposter({
+                                                avatarId: D.id
+                                            })
+                                            .then((args) => {
+                                                this.$message({
+                                                    message:
+                                                        'Imposter deleted and queued for creation',
+                                                    type: 'success'
+                                                });
+                                                return args;
                                             });
-                                            return args;
-                                        });
                                     });
                                 break;
                         }
@@ -13501,7 +13370,7 @@ console.log(`isLinux: ${LINUX}`);
                         tags.push(tag);
                     }
                 }
-                await API.saveAvatar({
+                await avatarRequest.saveAvatar({
                     id: ref.id,
                     tags
                 });
@@ -19722,7 +19591,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.addAvatarToHistory = function (avatarId) {
-        API.getAvatar({ avatarId }).then((args) => {
+        avatarRequest.getAvatar({ avatarId }).then((args) => {
             var { ref } = args;
 
             database.addAvatarToCache(ref);
@@ -20163,7 +20032,7 @@ console.log(`isLinux: ${LINUX}`);
             var avatarId = data[i];
             if (!D.avatarIdList.has(avatarId)) {
                 try {
-                    var args = await API.getAvatar({
+                    var args = await avatarRequest.getAvatar({
                         avatarId
                     });
                     this.avatarImportTable.data.push(args.ref);
@@ -21738,7 +21607,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             }
             try {
-                await API.getAvatar({
+                await avatarRequest.getAvatar({
                     avatarId
                 });
             } catch (err) {

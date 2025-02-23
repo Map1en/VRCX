@@ -6,5 +6,12 @@ import userRequest from './user';
 import worldRequest from './world';
 import instanceRequest from './instance';
 import friendRequest from './friend';
+import avatarRequest from './avatar';
 
-export { userRequest, worldRequest, instanceRequest, friendRequest };
+export {
+    userRequest,
+    worldRequest,
+    instanceRequest,
+    friendRequest,
+    avatarRequest
+};

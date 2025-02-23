@@ -2,7 +2,7 @@ import * as workerTimers from 'worker-timers';
 import configRepository from '../repository/config.js';
 import database from '../repository/database.js';
 import { baseClass, $app, API, $t, $utils } from './baseClass.js';
-import { worldRequest } from './request';
+import { avatarRequest, worldRequest } from './request';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -419,18 +419,20 @@ export default class extends baseClass {
                             action === 'confirm' &&
                             instance.inputValue !== avatar.ref.name
                         ) {
-                            API.saveAvatar({
-                                id: avatar.id,
-                                name: instance.inputValue
-                            }).then((args) => {
-                                this.$message({
-                                    message: $t(
-                                        'prompt.rename_avatar.message.success'
-                                    ),
-                                    type: 'success'
+                            avatarRequest
+                                .saveAvatar({
+                                    id: avatar.id,
+                                    name: instance.inputValue
+                                })
+                                .then((args) => {
+                                    this.$message({
+                                        message: $t(
+                                            'prompt.rename_avatar.message.success'
+                                        ),
+                                        type: 'success'
+                                    });
+                                    return args;
                                 });
-                                return args;
-                            });
                         }
                     }
                 }
@@ -458,18 +460,20 @@ export default class extends baseClass {
                             action === 'confirm' &&
                             instance.inputValue !== avatar.ref.description
                         ) {
-                            API.saveAvatar({
-                                id: avatar.id,
-                                description: instance.inputValue
-                            }).then((args) => {
-                                this.$message({
-                                    message: $t(
-                                        'prompt.change_avatar_description.message.success'
-                                    ),
-                                    type: 'success'
+                            avatarRequest
+                                .saveAvatar({
+                                    id: avatar.id,
+                                    description: instance.inputValue
+                                })
+                                .then((args) => {
+                                    this.$message({
+                                        message: $t(
+                                            'prompt.change_avatar_description.message.success'
+                                        ),
+                                        type: 'success'
+                                    });
+                                    return args;
                                 });
-                                return args;
-                            });
                         }
                     }
                 }
