@@ -34,6 +34,7 @@ import $utils from './classes/utils.js';
 import _apiInit from './classes/apiInit.js';
 import _apiRequestHandler from './classes/apiRequestHandler.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
+import { userRequest, worldRequest } from './classes/request';
 
 // tabs
 import ModerationTab from './views/tabs/Moderation.vue';
@@ -790,127 +791,6 @@ console.log(`isLinux: ${LINUX}`);
         return ref;
     };
 
-    /**
-     * Fetch user from API.
-     * @param {{ userId: string }} params identifier of registered user
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getUser = function (params) {
-        return this.call(`users/${params.userId}`, {
-            method: 'GET'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('USER', args);
-            return args;
-        });
-    };
-
-    /**
-     * Fetch user from cache if they're in it. Otherwise, calls API.
-     * @param {{ userId: string }} params identifier of registered user
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getCachedUser = function (params) {
-        return new Promise((resolve, reject) => {
-            var ref = this.cachedUsers.get(params.userId);
-            if (typeof ref === 'undefined') {
-                this.getUser(params).catch(reject).then(resolve);
-            } else {
-                resolve({
-                    cache: true,
-                    json: ref,
-                    params,
-                    ref
-                });
-            }
-        });
-    };
-
-    /** @typedef {{
-     * n: number,
-     * offset: number,
-     * search: string,
-     * sort: 'nuisanceFactor' | 'created' | '_created_at' | 'last_login',
-     * order: 'ascending', 'descending'
-     }} GetUsersParameters */
-    /**
-     * Fetch multiple users from API.
-     * @param params {GetUsersParameters} filtering and sorting parameters
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getUsers = function (params) {
-        return this.call('users', {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('USER:LIST', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param params {string[]}
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.addUserTags = function (params) {
-        return this.call(`users/${this.currentUser.id}/addTags`, {
-            method: 'POST',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('USER:CURRENT:SAVE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param params {string[]}
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.removeUserTags = function (params) {
-        return this.call(`users/${this.currentUser.id}/removeTags`, {
-            method: 'POST',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('USER:CURRENT:SAVE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param params {{ userId: string }}
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getUserFeedback = function (params) {
-        return this.call(`users/${params.userId}/feedback`, {
-            method: 'GET',
-            params: {
-                n: 100
-            }
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('USER:FEEDBACK', args);
-            return args;
-        });
-    };
-
     // #endregion
     // #region | API: World
 
@@ -985,7 +865,7 @@ console.log(`isLinux: ${LINUX}`);
             return L.worldId;
         }
 
-        const args = await this.getUser({ userId: this.currentUser.id });
+        const args = await userRequest.getUser({ userId: this.currentUser.id });
         const user = args.json;
         let userLocation = user.location;
         if (userLocation === 'traveling') {
@@ -1067,153 +947,6 @@ console.log(`isLinux: ${LINUX}`);
         ref.name = $app.replaceBioSymbols(ref.name);
         ref.description = $app.replaceBioSymbols(ref.description);
         return ref;
-    };
-
-    /**
-     *
-     * @param {{worldId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getWorld = function (params) {
-        return this.call(`worlds/${params.worldId}`, {
-            method: 'GET'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('WORLD', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{worldId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.getCachedWorld = function (params) {
-        return new Promise((resolve, reject) => {
-            var ref = this.cachedWorlds.get(params.worldId);
-            if (typeof ref === 'undefined') {
-                this.getWorld(params).catch(reject).then(resolve);
-            } else {
-                resolve({
-                    cache: true,
-                    json: ref,
-                    params,
-                    ref
-                });
-            }
-        });
-    };
-
-    /**
-     * @typedef {{
-          n: number,
-          offset: number,
-          search: string,
-          userId: string,
-          user: 'me' | 'friend',
-          sort: 'popularity' | 'heat' | 'trust' | 'shuffle' | 'favorites' | 'reportScore' | 'reportCount' | 'publicationDate' | 'labsPublicationDate' | 'created' | '_created_at' | 'updated' | '_updated_at' | 'order',
-          order: 'ascending' | 'descending',
-          releaseStatus: 'public' | 'private' | 'hidden' | 'all',
-          featured: boolean
-     }} WorldSearchParameter
-     */
-    /**
-     *
-     * @param {WorldSearchParameter} params
-     * @param {string?} option sub-path of calling endpoint
-     * @returns {Promise<{json: any, params, option}>}
-     */
-    API.getWorlds = function (params, option) {
-        var endpoint = 'worlds';
-        if (typeof option !== 'undefined') {
-            endpoint = `worlds/${option}`;
-        }
-        return this.call(endpoint, {
-            method: 'GET',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params,
-                option
-            };
-            this.$emit('WORLD:LIST', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{worldId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.deleteWorld = function (params) {
-        return this.call(`worlds/${params.worldId}`, {
-            method: 'DELETE'
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('WORLD:DELETE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{id: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.saveWorld = function (params) {
-        return this.call(`worlds/${params.id}`, {
-            method: 'PUT',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('WORLD:SAVE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{worldId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.publishWorld = function (params) {
-        return this.call(`worlds/${params.worldId}/publish`, {
-            method: 'PUT',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('WORLD:SAVE', args);
-            return args;
-        });
-    };
-
-    /**
-     * @param {{worldId: string}} params
-     * @returns {Promise<{json: any, params}>}
-     */
-    API.unpublishWorld = function (params) {
-        return this.call(`worlds/${params.worldId}/publish`, {
-            method: 'DELETE',
-            params
-        }).then((json) => {
-            var args = {
-                json,
-                params
-            };
-            this.$emit('WORLD:SAVE', args);
-            return args;
-        });
     };
 
     // #endregion
@@ -1409,12 +1142,14 @@ console.log(`isLinux: ${LINUX}`);
         }
         ref.$location = $utils.parseLocation(ref.location);
         if (json.world?.id) {
-            this.getCachedWorld({
-                worldId: json.world.id
-            }).then((args) => {
-                ref.world = args.ref;
-                return args;
-            });
+            worldRequest
+                .getCachedWorld({
+                    worldId: json.world.id
+                })
+                .then((args) => {
+                    ref.world = args.ref;
+                    return args;
+                });
         }
         if (!json.$fetchedAt) {
             ref.$fetchedAt = new Date().toJSON();
@@ -1542,7 +1277,7 @@ console.log(`isLinux: ${LINUX}`);
             if (!friends.some((x) => x.id === userId)) {
                 try {
                     console.log('Fetching remaining friend', userId);
-                    var args = await this.getUser({ userId });
+                    var args = await userRequest.getUser({ userId });
                     friends.push(args.json);
                 } catch (err) {
                     console.error(err);
@@ -1572,7 +1307,7 @@ console.log(`isLinux: ${LINUX}`);
                             friend
                         );
                     }
-                    var args = await this.getUser({
+                    var args = await userRequest.getUser({
                         userId: friend.id
                     });
                     friends[i] = args.json;
@@ -1583,7 +1318,7 @@ console.log(`isLinux: ${LINUX}`);
                             friend.displayName
                         );
                     }
-                    var args = await this.getUser({
+                    var args = await userRequest.getUser({
                         userId: friend.id
                     });
                     friends[i] = args.json;
@@ -4336,12 +4071,14 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.fetchActiveFriend = function (userId) {
         this.pendingActiveFriends.add(userId);
         // FIXME: handle error
-        return API.getUser({
-            userId
-        }).then((args) => {
-            this.pendingActiveFriends.delete(userId);
-            return args;
-        });
+        return userRequest
+            .getUser({
+                userId
+            })
+            .then((args) => {
+                this.pendingActiveFriends.delete(userId);
+                return args;
+            });
     };
 
     API.$on('USER:CURRENT', function (args) {
@@ -4587,7 +4324,7 @@ console.log(`isLinux: ${LINUX}`);
                 // 서버에서 오는 순서라고 보면 될 듯.
                 if (ctx.state === 'online') {
                     if (this.friendLogInitStatus) {
-                        API.getUser({
+                        userRequest.getUser({
                             userId: id
                         });
                     }
@@ -4638,7 +4375,7 @@ console.log(`isLinux: ${LINUX}`);
                         `Fetching offline friend in an instance from getCurrentUser ${ctx.name}`
                     );
                 }
-                API.getUser({
+                userRequest.getUser({
                     userId: id
                 });
             }
@@ -4704,7 +4441,7 @@ console.log(`isLinux: ${LINUX}`);
                             `Fetching friend coming online from getCurrentUser ${ctx.name}`
                         );
                     }
-                    API.getUser({
+                    userRequest.getUser({
                         userId: id
                     });
                     return;
@@ -4838,7 +4575,7 @@ console.log(`isLinux: ${LINUX}`);
         try {
             var L = $utils.parseLocation(location);
             if (L.isRealInstance && L.worldId) {
-                var args = await API.getCachedWorld({
+                var args = await worldRequest.getCachedWorld({
                     worldId: L.worldId
                 });
                 worldName = args.ref.name;
@@ -5685,7 +5422,7 @@ console.log(`isLinux: ${LINUX}`);
                     typeof ref1.userId === 'string' &&
                     !API.cachedUsers.has(ref1.userId)
                 ) {
-                    API.getUser({ userId: ref1.userId });
+                    userRequest.getUser({ userId: ref1.userId });
                 }
             });
 
@@ -6283,6 +6020,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.lastLocationDestination = '';
     $app.data.lastLocationDestinationTime = 0;
 
+    // It's like he's going to be used somewhere, and commenting it out would be an error or something.
     $app.methods.silentSearchUser = function (displayName) {
         console.log('Searching for userId for:', displayName);
         var params = {
@@ -6291,7 +6029,7 @@ console.log(`isLinux: ${LINUX}`);
             fuzzy: false,
             search: displayName
         };
-        API.getUsers(params).then((args) => {
+        userRequest.getUsers(params).then((args) => {
             var map = new Map();
             var nameFound = false;
             for (var json of args.json) {
@@ -6685,7 +6423,8 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         this.isSearchUserLoading = true;
-        await API.getUsers(params)
+        await userRequest
+            .getUsers(params)
             .finally(() => {
                 this.isSearchUserLoading = false;
             })
@@ -6781,7 +6520,8 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         this.isSearchWorldLoading = true;
-        API.getWorlds(params, this.searchWorldOption)
+        worldRequest
+            .getWorlds(params, this.searchWorldOption)
             .finally(() => {
                 this.isSearchWorldLoading = false;
             })
@@ -7463,7 +7203,7 @@ console.log(`isLinux: ${LINUX}`);
         var ref = API.cachedUsers.get(id);
         if (typeof ref === 'undefined') {
             try {
-                API.getUser({
+                userRequest.getUser({
                     userId: id
                 });
             } catch (err) {
@@ -7505,13 +7245,18 @@ console.log(`isLinux: ${LINUX}`);
                 this.notifyMenu('friendLog');
                 this.deleteFriendRequest(id);
                 this.updateSharedFeed(true);
-                API.getUser({
-                    userId: id
-                }).then(() => {
-                    if (this.userDialog.visible && id === this.userDialog.id) {
-                        this.applyUserDialogLocation(true);
-                    }
-                });
+                userRequest
+                    .getUser({
+                        userId: id
+                    })
+                    .then(() => {
+                        if (
+                            this.userDialog.visible &&
+                            id === this.userDialog.id
+                        ) {
+                            this.applyUserDialogLocation(true);
+                        }
+                    });
             }
         });
     };
@@ -7780,37 +7525,39 @@ console.log(`isLinux: ${LINUX}`);
         }
 
         var L = $utils.parseLocation(currentLocation);
-        this.getCachedWorld({
-            worldId: L.worldId
-        }).then((args1) => {
-            this.sendInvite(
-                {
-                    instanceId: L.tag,
-                    worldId: L.tag,
-                    worldName: args1.ref.name,
-                    rsvp: true
-                },
-                ref.senderUserId
-            )
-                .then((_args) => {
-                    var text = `Auto invite sent to ${ref.senderUsername}`;
-                    if (this.errorNoty) {
-                        this.errorNoty.close();
-                    }
-                    this.errorNoty = new Noty({
-                        type: 'info',
-                        text
-                    }).show();
-                    console.log(text);
-                    API.hideNotification({
-                        notificationId: ref.id
+        worldRequest
+            .getCachedWorld({
+                worldId: L.worldId
+            })
+            .then((args1) => {
+                this.sendInvite(
+                    {
+                        instanceId: L.tag,
+                        worldId: L.tag,
+                        worldName: args1.ref.name,
+                        rsvp: true
+                    },
+                    ref.senderUserId
+                )
+                    .then((_args) => {
+                        var text = `Auto invite sent to ${ref.senderUsername}`;
+                        if (this.errorNoty) {
+                            this.errorNoty.close();
+                        }
+                        this.errorNoty = new Noty({
+                            type: 'info',
+                            text
+                        }).show();
+                        console.log(text);
+                        API.hideNotification({
+                            notificationId: ref.id
+                        });
+                        return _args;
+                    })
+                    .catch((err) => {
+                        console.error(err);
                     });
-                    return _args;
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        });
+            });
     });
 
     $app.data.unseenNotifications = [];
@@ -7935,25 +7682,27 @@ console.log(`isLinux: ${LINUX}`);
                         currentLocation = this.lastLocationDestination;
                     }
                     var L = $utils.parseLocation(currentLocation);
-                    API.getCachedWorld({
-                        worldId: L.worldId
-                    }).then((args) => {
-                        API.sendInvite(
-                            {
-                                instanceId: L.tag,
-                                worldId: L.tag,
-                                worldName: args.ref.name,
-                                rsvp: true
-                            },
-                            row.senderUserId
-                        ).then((_args) => {
-                            this.$message('Invite sent');
-                            API.hideNotification({
-                                notificationId: row.id
+                    worldRequest
+                        .getCachedWorld({
+                            worldId: L.worldId
+                        })
+                        .then((args) => {
+                            API.sendInvite(
+                                {
+                                    instanceId: L.tag,
+                                    worldId: L.tag,
+                                    worldName: args.ref.name,
+                                    rsvp: true
+                                },
+                                row.senderUserId
+                            ).then((_args) => {
+                                this.$message('Invite sent');
+                                API.hideNotification({
+                                    notificationId: row.id
+                                });
+                                return _args;
                             });
-                            return _args;
                         });
-                    });
                 }
             }
         });
@@ -10137,9 +9886,10 @@ console.log(`isLinux: ${LINUX}`);
             );
         }
         AppApi.SendIpc('ShowUserDialog', userId);
-        API.getCachedUser({
-            userId
-        })
+        userRequest
+            .getCachedUser({
+                userId
+            })
             .catch((err) => {
                 D.loading = false;
                 D.visible = false;
@@ -10247,7 +9997,7 @@ console.log(`isLinux: ${LINUX}`);
                         // init last acitve tab data - end
 
                         if (args.cache) {
-                            API.getUser(args.params);
+                            userRequest.getUser(args.params);
                         }
                         let inCurrentWorld = false;
                         if (this.lastLocation.playerList.has(D.ref.id)) {
@@ -10356,12 +10106,14 @@ console.log(`isLinux: ${LINUX}`);
         if (L.userId) {
             var ref = API.cachedUsers.get(L.userId);
             if (typeof ref === 'undefined') {
-                API.getUser({
-                    userId: L.userId
-                }).then((args) => {
-                    Vue.set(L, 'user', args.ref);
-                    return args;
-                });
+                userRequest
+                    .getUser({
+                        userId: L.userId
+                    })
+                    .then((args) => {
+                        Vue.set(L, 'user', args.ref);
+                        return args;
+                    });
             } else {
                 L.user = ref;
             }
@@ -10715,55 +10467,61 @@ console.log(`isLinux: ${LINUX}`);
             };
             var L = $utils.parseLocation(instanceId);
             this.currentInstanceLocation = L;
-            API.getWorld({
-                worldId: L.worldId
-            }).then((args) => {
-                this.currentInstanceWorld.ref = args.ref;
-                var { isPC, isQuest, isIos } = this.getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                this.currentInstanceWorld.isPC = isPC;
-                this.currentInstanceWorld.isQuest = isQuest;
-                this.currentInstanceWorld.isIos = isIos;
-                this.currentInstanceWorld.avatarScalingDisabled =
-                    args.ref?.tags.includes('feature_avatar_scaling_disabled');
-                this.currentInstanceWorld.focusViewDisabled =
-                    args.ref?.tags.includes('feature_focus_view_disabled');
-                this.currentInstanceWorld.stickersDisabled =
-                    args.ref?.tags.includes('feature_stickers_disabled');
-                this.checkVRChatCache(args.ref).then((cacheInfo) => {
-                    if (cacheInfo.Item1 > 0) {
-                        this.currentInstanceWorld.inCache = true;
-                        this.currentInstanceWorld.cacheSize = `${(
-                            cacheInfo.Item1 / 1048576
-                        ).toFixed(2)} MB`;
-                    }
+            worldRequest
+                .getWorld({
+                    worldId: L.worldId
+                })
+                .then((args) => {
+                    this.currentInstanceWorld.ref = args.ref;
+                    var { isPC, isQuest, isIos } = this.getAvailablePlatforms(
+                        args.ref.unityPackages
+                    );
+                    this.currentInstanceWorld.isPC = isPC;
+                    this.currentInstanceWorld.isQuest = isQuest;
+                    this.currentInstanceWorld.isIos = isIos;
+                    this.currentInstanceWorld.avatarScalingDisabled =
+                        args.ref?.tags.includes(
+                            'feature_avatar_scaling_disabled'
+                        );
+                    this.currentInstanceWorld.focusViewDisabled =
+                        args.ref?.tags.includes('feature_focus_view_disabled');
+                    this.currentInstanceWorld.stickersDisabled =
+                        args.ref?.tags.includes('feature_stickers_disabled');
+                    this.checkVRChatCache(args.ref).then((cacheInfo) => {
+                        if (cacheInfo.Item1 > 0) {
+                            this.currentInstanceWorld.inCache = true;
+                            this.currentInstanceWorld.cacheSize = `${(
+                                cacheInfo.Item1 / 1048576
+                            ).toFixed(2)} MB`;
+                        }
+                    });
+                    this.getBundleDateSize(args.ref).then((bundleSizes) => {
+                        this.currentInstanceWorld.bundleSizes = bundleSizes;
+                    });
+                    return args;
                 });
-                this.getBundleDateSize(args.ref).then((bundleSizes) => {
-                    this.currentInstanceWorld.bundleSizes = bundleSizes;
-                });
-                return args;
-            });
         } else {
-            API.getCachedWorld({
-                worldId: this.currentInstanceLocation.worldId
-            }).then((args) => {
-                this.currentInstanceWorld.ref = args.ref;
-                var { isPC, isQuest, isIos } = this.getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                this.currentInstanceWorld.isPC = isPC;
-                this.currentInstanceWorld.isQuest = isQuest;
-                this.currentInstanceWorld.isIos = isIos;
-                this.checkVRChatCache(args.ref).then((cacheInfo) => {
-                    if (cacheInfo.Item1 > 0) {
-                        this.currentInstanceWorld.inCache = true;
-                        this.currentInstanceWorld.cacheSize = `${(
-                            cacheInfo.Item1 / 1048576
-                        ).toFixed(2)} MB`;
-                    }
+            worldRequest
+                .getCachedWorld({
+                    worldId: this.currentInstanceLocation.worldId
+                })
+                .then((args) => {
+                    this.currentInstanceWorld.ref = args.ref;
+                    var { isPC, isQuest, isIos } = this.getAvailablePlatforms(
+                        args.ref.unityPackages
+                    );
+                    this.currentInstanceWorld.isPC = isPC;
+                    this.currentInstanceWorld.isQuest = isQuest;
+                    this.currentInstanceWorld.isIos = isIos;
+                    this.checkVRChatCache(args.ref).then((cacheInfo) => {
+                        if (cacheInfo.Item1 > 0) {
+                            this.currentInstanceWorld.inCache = true;
+                            this.currentInstanceWorld.cacheSize = `${(
+                                cacheInfo.Item1 / 1048576
+                            ).toFixed(2)} MB`;
+                        }
+                    });
                 });
-            });
         }
         if ($utils.isRealInstance(instanceId)) {
             var ref = API.cachedInstances.get(instanceId);
@@ -11091,7 +10849,7 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         API.bulk({
-            fn: 'getWorlds',
+            fn: worldRequest.getWorlds,
             N: -1,
             params,
             handle: (args) => {
@@ -11302,18 +11060,20 @@ console.log(`isLinux: ${LINUX}`);
             });
         } else if (command === 'Invite Message') {
             var L = $utils.parseLocation(this.lastLocation.location);
-            API.getCachedWorld({
-                worldId: L.worldId
-            }).then((args) => {
-                this.showSendInviteDialog(
-                    {
-                        instanceId: this.lastLocation.location,
-                        worldId: this.lastLocation.location,
-                        worldName: args.ref.name
-                    },
-                    D.id
-                );
-            });
+            worldRequest
+                .getCachedWorld({
+                    worldId: L.worldId
+                })
+                .then((args) => {
+                    this.showSendInviteDialog(
+                        {
+                            instanceId: this.lastLocation.location,
+                            worldId: this.lastLocation.location,
+                            worldName: args.ref.name
+                        },
+                        D.id
+                    );
+                });
         } else if (command === 'Request Invite Message') {
             this.showSendInviteRequestDialog(
                 {
@@ -11327,21 +11087,23 @@ console.log(`isLinux: ${LINUX}`);
                 currentLocation = this.lastLocationDestination;
             }
             var L = $utils.parseLocation(currentLocation);
-            API.getCachedWorld({
-                worldId: L.worldId
-            }).then((args) => {
-                API.sendInvite(
-                    {
-                        instanceId: L.tag,
-                        worldId: L.tag,
-                        worldName: args.ref.name
-                    },
-                    D.id
-                ).then((_args) => {
-                    this.$message('Invite sent');
-                    return _args;
+            worldRequest
+                .getCachedWorld({
+                    worldId: L.worldId
+                })
+                .then((args) => {
+                    API.sendInvite(
+                        {
+                            instanceId: L.tag,
+                            worldId: L.tag,
+                            worldName: args.ref.name
+                        },
+                        D.id
+                    ).then((_args) => {
+                        this.$message('Invite sent');
+                        return _args;
+                    });
                 });
-            });
         } else if (command === 'Show Avatar Author') {
             var { currentAvatarImageUrl } = D.ref;
             this.showAvatarAuthorDialog(
@@ -11658,9 +11420,10 @@ console.log(`isLinux: ${LINUX}`);
                 D.timeSpent = ref.timeSpent;
             }
         });
-        API.getCachedWorld({
-            worldId: L.worldId
-        })
+        worldRequest
+            .getCachedWorld({
+                worldId: L.worldId
+            })
             .catch((err) => {
                 D.loading = false;
                 D.visible = false;
@@ -11698,7 +11461,8 @@ console.log(`isLinux: ${LINUX}`);
                     this.updateVRChatWorldCache();
                     API.hasWorldPersistData({ worldId: D.id });
                     if (args.cache) {
-                        API.getWorld(args.params)
+                        worldRequest
+                            .getWorld(args.params)
                             .catch((err) => {
                                 throw err;
                             })
@@ -11839,12 +11603,14 @@ console.log(`isLinux: ${LINUX}`);
             if (L.userId) {
                 var ref = API.cachedUsers.get(L.userId);
                 if (typeof ref === 'undefined') {
-                    API.getUser({
-                        userId: L.userId
-                    }).then((args) => {
-                        Vue.set(L, 'user', args.ref);
-                        return args;
-                    });
+                    userRequest
+                        .getUser({
+                            userId: L.userId
+                        })
+                        .then((args) => {
+                            Vue.set(L, 'user', args.ref);
+                            return args;
+                        });
                 } else {
                     L.user = ref;
                 }
@@ -12159,26 +11925,31 @@ console.log(`isLinux: ${LINUX}`);
                                 });
                                 break;
                             case 'Publish':
-                                API.publishWorld({
-                                    worldId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'World has been published',
-                                        type: 'success'
+                                worldRequest
+                                    .publishWorld({
+                                        worldId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'World has been published',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Unpublish':
-                                API.unpublishWorld({
-                                    worldId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'World has been unpublished',
-                                        type: 'success'
+                                worldRequest
+                                    .unpublishWorld({
+                                        worldId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message:
+                                                'World has been unpublished',
+                                            type: 'success'
+                                        });
+                                        return args;
                                     });
-                                    return args;
-                                });
                                 break;
                             case 'Delete Persistent Data':
                                 API.deleteWorldPersistData({
@@ -12193,16 +11964,18 @@ console.log(`isLinux: ${LINUX}`);
                                 });
                                 break;
                             case 'Delete':
-                                API.deleteWorld({
-                                    worldId: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'World has been deleted',
-                                        type: 'success'
+                                worldRequest
+                                    .deleteWorld({
+                                        worldId: D.id
+                                    })
+                                    .then((args) => {
+                                        this.$message({
+                                            message: 'World has been deleted',
+                                            type: 'success'
+                                        });
+                                        D.visible = false;
+                                        return args;
                                     });
-                                    D.visible = false;
-                                    return args;
-                                });
                                 break;
                         }
                     }
@@ -12947,24 +12720,26 @@ console.log(`isLinux: ${LINUX}`);
         }
         this.$nextTick(() => $app.adjustDialogZ(this.$refs.inviteDialog.$el));
         var L = $utils.parseLocation(tag);
-        API.getCachedWorld({
-            worldId: L.worldId
-        }).then((args) => {
-            var D = this.inviteDialog;
-            D.userIds = [];
-            D.worldId = L.tag;
-            D.worldName = args.ref.name;
-            D.friendsInInstance = [];
-            var friendsInCurrentInstance = this.lastLocation.friendList;
-            for (var friend of friendsInCurrentInstance.values()) {
-                var ctx = this.friends.get(friend.userId);
-                if (typeof ctx.ref === 'undefined') {
-                    continue;
+        worldRequest
+            .getCachedWorld({
+                worldId: L.worldId
+            })
+            .then((args) => {
+                var D = this.inviteDialog;
+                D.userIds = [];
+                D.worldId = L.tag;
+                D.worldName = args.ref.name;
+                D.friendsInInstance = [];
+                var friendsInCurrentInstance = this.lastLocation.friendList;
+                for (var friend of friendsInCurrentInstance.values()) {
+                    var ctx = this.friends.get(friend.userId);
+                    if (typeof ctx.ref === 'undefined') {
+                        continue;
+                    }
+                    D.friendsInInstance.push(ctx);
                 }
-                D.friendsInInstance.push(ctx);
-            }
-            D.visible = true;
-        });
+                D.visible = true;
+            });
     };
 
     // #endregion
@@ -13682,23 +13457,25 @@ console.log(`isLinux: ${LINUX}`);
         if (D.stickersDisabled) {
             tags.unshift('feature_stickers_disabled');
         }
-        API.saveWorld({
-            id: this.worldDialog.id,
-            tags
-        }).then((args) => {
-            this.$message({
-                message: 'Tags updated',
-                type: 'success'
+        worldRequest
+            .saveWorld({
+                id: this.worldDialog.id,
+                tags
+            })
+            .then((args) => {
+                this.$message({
+                    message: 'Tags updated',
+                    type: 'success'
+                });
+                D.visible = false;
+                if (
+                    this.worldDialog.visible &&
+                    this.worldDialog.id === args.json.id
+                ) {
+                    this.showWorldDialog(args.json.id);
+                }
+                return args;
             });
-            D.visible = false;
-            if (
-                this.worldDialog.visible &&
-                this.worldDialog.id === args.json.id
-            ) {
-                this.showWorldDialog(args.json.id);
-            }
-            return args;
-        });
     };
 
     // #endregion
@@ -15540,7 +15317,7 @@ console.log(`isLinux: ${LINUX}`);
             i++;
             this.friendsListLoadingProgress = `${i}/${length}`;
             try {
-                await API.getUser({
+                await userRequest.getUser({
                     userId
                 });
             } catch (err) {
@@ -19433,7 +19210,7 @@ console.log(`isLinux: ${LINUX}`);
             case 'local-favorite-world':
                 console.log('local-favorite-world', commandArg);
                 var [id, group] = commandArg.split(':');
-                API.getCachedWorld({ worldId: id }).then((args1) => {
+                worldRequest.getCachedWorld({ worldId: id }).then((args1) => {
                     this.directAccessWorld(id);
                     this.addLocalWorldFavorite(id, group);
                     return args1;
@@ -20280,7 +20057,7 @@ console.log(`isLinux: ${LINUX}`);
             var worldId = data[i];
             if (!D.worldIdList.has(worldId)) {
                 try {
-                    var args = await API.getWorld({
+                    var args = await worldRequest.getWorld({
                         worldId
                     });
                     this.worldImportTable.data.push(args.ref);
@@ -20840,7 +20617,7 @@ console.log(`isLinux: ${LINUX}`);
             var userId = data[i];
             if (!D.userIdList.has(userId)) {
                 try {
-                    var args = await API.getUser({
+                    var args = await userRequest.getUser({
                         userId
                     });
                     this.friendImportTable.data.push(args.ref);
@@ -21021,7 +20798,7 @@ console.log(`isLinux: ${LINUX}`);
                 $app.userDialog.note = note;
             } else {
                 // response is cached sadge :<
-                this.getUser({ userId: targetUserId });
+                userRequest.getUser({ userId: targetUserId });
             }
         }
         var ref = API.cachedUsers.get(targetUserId);
@@ -21690,7 +21467,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             }
             try {
-                await API.getWorld({
+                await worldRequest.getWorld({
                     worldId
                 });
             } catch (err) {
@@ -22810,7 +22587,7 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     $app.methods.getCurrentUserFeedback = function () {
-        return API.getUserFeedback({ userId: API.currentUser.id });
+        return userRequest.getUserFeedback({ userId: API.currentUser.id });
     };
 
     $app.data.changeLogDialog = {
@@ -23289,16 +23066,18 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.saveWorldAllowedDomains = function () {
         var D = this.worldAllowedDomainsDialog;
-        API.saveWorld({
-            id: D.worldId,
-            urlList: D.urlList
-        }).then((args) => {
-            this.$message({
-                message: 'Allowed Video Player Domains updated',
-                type: 'success'
+        worldRequest
+            .saveWorld({
+                id: D.worldId,
+                urlList: D.urlList
+            })
+            .then((args) => {
+                this.$message({
+                    message: 'Allowed Video Player Domains updated',
+                    type: 'success'
+                });
+                return args;
             });
-            return args;
-        });
         D.visible = false;
     };
 
