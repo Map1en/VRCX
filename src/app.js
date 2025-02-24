@@ -50,6 +50,7 @@ import ChartsTab from './views/tabs/Charts.vue';
 // components
 import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import GroupsSidebar from './components/sidebar/GroupsSidebar.vue';
+import PreviousInstanceInfo from './views/dialogs/PreviousInstanceInfo.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -122,13 +123,6 @@ console.log(`isLinux: ${LINUX}`);
     });
     // #endregion
 
-    // #region | date utility library
-    // - dayjs plugin init
-    dayjs.extend(duration);
-    dayjs.extend(utc);
-    dayjs.extend(timezone);
-    // #endregion
-
     // everything in this program is global stored in $app, I hate it, it is what it is
     let $app = {};
     const API = new _apiInit($app);
@@ -192,12 +186,15 @@ console.log(`isLinux: ${LINUX}`);
 
             // components
             // - sidebar(friendsListSidebar)
-            GroupsSidebar
+            GroupsSidebar,
+            // - dialogs
+            PreviousInstanceInfo
         },
         provide() {
             return {
                 API,
-                showUserDialog: this.showUserDialog
+                showUserDialog: this.showUserDialog,
+                adjustDialogZ: this.adjustDialogZ
             };
         },
         el: '#x-app',
@@ -231,9 +228,6 @@ console.log(`isLinux: ${LINUX}`);
             );
             API.$on('SHOW_GROUP_DIALOG', (groupId) =>
                 this.showGroupDialog(groupId)
-            );
-            API.$on('SHOW_LAUNCH_DIALOG', (tag, shortName) =>
-                this.showLaunchDialog(tag, shortName)
             );
             this.updateLoop();
             this.getGameLogTable();
@@ -346,7 +340,7 @@ console.log(`isLinux: ${LINUX}`);
 
     // #endregion
 
-    // #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet
+    // #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet, dayjs
 
     Noty.overrideDefaults({
         animation: {
@@ -372,6 +366,10 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     Vue.use(DataTables);
+
+    dayjs.extend(duration);
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
 
     // #endregion
 
@@ -493,23 +491,24 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    // FIXME: it may performance issue. review here
     API.applyUserLanguage = function (ref) {
+        if (!ref || !ref.tags || !$app.subsetOfLanguages) {
+            return;
+        }
+
         ref.$languages = [];
-        var { tags } = ref;
-        for (var tag of tags) {
-            if (tag.startsWith('language_') === false) {
-                continue;
+        const languagePrefix = 'language_';
+        const prefixLength = languagePrefix.length;
+
+        for (const tag of ref.tags) {
+            if (tag.startsWith(languagePrefix)) {
+                const key = tag.substring(prefixLength);
+                const value = $app.subsetOfLanguages[key];
+
+                if (value !== undefined) {
+                    ref.$languages.push({ key, value });
+                }
             }
-            var key = tag.substr(9);
-            var value = $app.subsetOfLanguages[key];
-            if (typeof value === 'undefined') {
-                continue;
-            }
-            ref.$languages.push({
-                key,
-                value
-            });
         }
     };
 
@@ -3100,7 +3099,8 @@ console.log(`isLinux: ${LINUX}`);
         if (!this.appVersion) {
             return;
         }
-        if (this.appVersion.includes('VRCX Nightly')) {
+        var currentVersion = this.appVersion.replace(' (Linux)', '');
+        if (currentVersion.includes('VRCX Nightly')) {
             this.branch = 'Nightly';
         } else {
             this.branch = 'Stable';
@@ -3175,12 +3175,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.selectMenu = function (index) {
-        // NOTE
-        // 툴팁이 쌓여서 느려지기 때문에 날려줌.
-        // 근데 이 방법이 안전한지는 모르겠음
-        document.querySelectorAll('[role="tooltip"]').forEach((node) => {
-            node.remove();
-        });
         var item = this.$refs.menu.items[index];
         if (item) {
             item.$el.classList.remove('notify');
@@ -3190,27 +3184,6 @@ console.log(`isLinux: ${LINUX}`);
         } else if (index === 'friendsList') {
             this.friendsListSearchChange();
         }
-
-        workerTimers.setTimeout(() => {
-            // fix some weird sorting bug when disabling data tables
-
-            // looks like it's not needed anymore
-            // if (
-            //     typeof this.$refs.playerModerationTableRef?.sortData !==
-            //     'undefined'
-            // ) {
-            //     this.$refs.playerModerationTableRef.sortData.prop = 'created';
-            // }
-
-            if (
-                typeof this.$refs.notificationTableRef?.sortData !== 'undefined'
-            ) {
-                this.$refs.notificationTableRef.sortData.prop = 'created_at';
-            }
-            if (typeof this.$refs.friendLogTableRef?.sortData !== 'undefined') {
-                this.$refs.friendLogTableRef.sortData.prop = 'created_at';
-            }
-        }, 100);
     };
 
     $app.data.twoFactorAuthDialogVisible = false;
@@ -4210,25 +4183,6 @@ console.log(`isLinux: ${LINUX}`);
         }
         var A = a.updated_at.toUpperCase();
         var B = b.updated_at.toUpperCase();
-        if (A < B) {
-            return 1;
-        }
-        if (A > B) {
-            return -1;
-        }
-        return 0;
-    };
-
-    // descending
-    var compareByCreatedAt = function (a, b) {
-        if (
-            typeof a.created_at !== 'string' ||
-            typeof b.created_at !== 'string'
-        ) {
-            return 0;
-        }
-        var A = a.created_at.toUpperCase();
-        var B = b.created_at.toUpperCase();
         if (A < B) {
             return 1;
         }
@@ -5961,8 +5915,8 @@ console.log(`isLinux: ${LINUX}`);
             n: 10,
             offset: 0,
             search: this.searchText,
-            customFields: this.searchUserByBio ? "bio" : "displayName",
-            sort: this.searchUserSortByLastLoggedIn ? "last_login" : "relevance"
+            customFields: this.searchUserByBio ? 'bio' : 'displayName',
+            sort: this.searchUserSortByLastLoggedIn ? 'last_login' : 'relevance'
         };
         await this.moreSearchUser();
     };
@@ -6183,7 +6137,7 @@ console.log(`isLinux: ${LINUX}`);
                     avatarsArray.sort(compareByUpdatedAt);
                     break;
                 case 'created':
-                    avatarsArray.sort(compareByCreatedAt);
+                    avatarsArray.sort($utils.compareByCreatedAt);
                     break;
                 case 'name':
                     avatarsArray.sort(compareByName);
@@ -7538,18 +7492,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_sidePanelWidth',
         300
     );
-    if (await configRepository.getInt('VRCX_asidewidth')) {
-        // migrate to new defaults
-        $app.data.asideWidth = await configRepository.getInt('VRCX_asidewidth');
-        if ($app.data.asideWidth < 300) {
-            $app.data.asideWidth = 300;
-        }
-        await configRepository.setInt(
-            'VRCX_sidePanelWidth',
-            $app.data.asideWidth
-        );
-        await configRepository.remove('VRCX_asidewidth');
-    }
     $app.data.autoUpdateVRCX = await configRepository.getString(
         'VRCX_autoUpdateVRCX',
         'Auto Download'
@@ -10761,8 +10703,9 @@ console.log(`isLinux: ${LINUX}`);
         D.treeData = $utils.buildTreeData(D.ref);
     };
 
-    $app.methods.changeUserDialogAvatarSorting = function () {
-        var D = this.userDialog;
+    $app.methods.changeUserDialogAvatarSorting = function (sortOption) {
+        const D = this.userDialog;
+        D.avatarSorting = sortOption;
         this.sortUserDialogAvatars(D.avatars);
     };
 
@@ -11752,6 +11695,18 @@ console.log(`isLinux: ${LINUX}`);
         });
     };
 
+    $app.methods.selectAvatar = function (id) {
+        avatarRequest.selectAvatar({
+            avatarId: id
+        }).then((args) => {
+            this.$message({
+                message: 'Avatar changed',
+                type: 'success'
+            });
+            return args;
+        });
+    };
+
     $app.methods.selectAvatarWithConfirmation = function (id) {
         this.$confirm(`Continue? Select Avatar`, 'Confirm', {
             confirmButtonText: 'Confirm',
@@ -11794,6 +11749,9 @@ console.log(`isLinux: ${LINUX}`);
             case 'Refresh':
                 this.showAvatarDialog(D.id);
                 break;
+            case 'Share':
+                this.copyAvatarUrl(D.id);
+                break;
             case 'Rename':
                 this.promptRenameAvatar(D);
                 break;
@@ -11833,19 +11791,6 @@ console.log(`isLinux: ${LINUX}`);
                                 API.deleteFavorite({
                                     objectId: D.id
                                 });
-                                break;
-                            case 'Select Avatar':
-                                avatarRequest
-                                    .selectAvatar({
-                                        avatarId: D.id
-                                    })
-                                    .then((args) => {
-                                        this.$message({
-                                            message: 'Avatar changed',
-                                            type: 'success'
-                                        });
-                                        return args;
-                                    });
                                 break;
                             case 'Select Fallback Avatar':
                                 avatarRequest
@@ -14758,18 +14703,20 @@ console.log(`isLinux: ${LINUX}`);
     // };
 
     $app.methods.friendsListSearchChange = function () {
+        let query;
+        let cleanedQuery;
         this.friendsListTable.data = [];
-        var filters = [...this.friendsListSearchFilters];
+        let filters = [...this.friendsListSearchFilters];
         if (filters.length === 0) {
             filters = ['Display Name', 'Rank', 'Status', 'Bio', 'Memo'];
         }
-        var results = [];
+        const results = [];
         if (this.friendsListSearch) {
-            var query = this.friendsListSearch;
-            var cleanedQuery = removeWhitespace(query);
+            query = this.friendsListSearch;
+            cleanedQuery = removeWhitespace(query);
         }
 
-        for (var ctx of this.friends.values()) {
+        for (const ctx of this.friends.values()) {
             if (typeof ctx.ref === 'undefined') {
                 continue;
             }
@@ -14780,7 +14727,7 @@ console.log(`isLinux: ${LINUX}`);
                 continue;
             }
             if (query && filters) {
-                var match = false;
+                let match = false;
                 if (
                     !match &&
                     filters.includes('Display Name') &&
@@ -14835,7 +14782,9 @@ console.log(`isLinux: ${LINUX}`);
             results.push(ctx.ref);
         }
         this.getAllUserStats();
-        this.friendsListTable.data = results;
+        requestAnimationFrame(() => {
+            this.friendsListTable.data = results;
+        });
     };
 
     $app.methods.getAllUserStats = async function () {
@@ -18378,7 +18327,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.setAsideWidth = async function () {
-        document.getElementById('aside').style.width = `${this.asideWidth}px`;
         await configRepository.setInt('VRCX_sidePanelWidth', this.asideWidth);
     };
 
@@ -18936,7 +18884,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
                 array.push(ref);
             }
-            array.sort(compareByCreatedAt);
+            array.sort($utils.compareByCreatedAt);
             this.previousInstancesUserDialogTable.data = array;
             D.loading = false;
             workerTimers.setTimeout(() => D.forceUpdate++, 150);
@@ -19039,7 +18987,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
                 array.push(ref);
             }
-            array.sort(compareByCreatedAt);
+            array.sort($utils.compareByCreatedAt);
             this.previousInstancesWorldDialogTable.data = array;
             D.loading = false;
             workerTimers.setTimeout(() => D.forceUpdate++, 150);
@@ -19069,61 +19017,12 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Previous Instance Info Dialog
 
-    $app.data.previousInstanceInfoDialogTable = {
-        data: [],
-        filters: [
-            {
-                prop: 'displayName',
-                value: ''
-            }
-        ],
-        tableProps: {
-            stripe: true,
-            size: 'mini',
-            defaultSort: {
-                prop: 'created_at',
-                order: 'descending'
-            }
-        },
-        pageSize: 10,
-        paginationProps: {
-            small: true,
-            layout: 'sizes,prev,pager,next,total',
-            pageSizes: [10, 25, 50, 100]
-        }
-    };
-
-    $app.data.previousInstanceInfoDialog = {
-        visible: false,
-        loading: false,
-        forceUpdate: 0,
-        $location: {}
-    };
+    $app.data.previousInstanceInfoDialogVisible = false;
+    $app.data.previousInstanceInfoDialogInstanceId = '';
 
     $app.methods.showPreviousInstanceInfoDialog = function (instanceId) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.previousInstanceInfoDialog.$el)
-        );
-        var D = this.previousInstanceInfoDialog;
-        D.$location = $utils.parseLocation(instanceId);
-        D.visible = true;
-        D.loading = true;
-        this.refreshPreviousInstanceInfoTable();
-    };
-
-    $app.methods.refreshPreviousInstanceInfoTable = function () {
-        var D = this.previousInstanceInfoDialog;
-        database.getPlayersFromInstance(D.$location.tag).then((data) => {
-            var array = [];
-            for (var entry of Array.from(data.values())) {
-                entry.timer = $app.timeToText(entry.time);
-                array.push(entry);
-            }
-            array.sort(compareByCreatedAt);
-            this.previousInstanceInfoDialogTable.data = array;
-            D.loading = false;
-            workerTimers.setTimeout(() => D.forceUpdate++, 150);
-        });
+        this.previousInstanceInfoDialogVisible = true;
+        this.previousInstanceInfoDialogInstanceId = instanceId;
     };
 
     $app.data.dtHour12 = await configRepository.getBool('VRCX_dtHour12', false);
@@ -21593,7 +21492,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.updateLocalFavoriteFriends = function () {
         this.localFavoriteFriends.clear();
         this.localFavoriteFriendsDivideByGroup.clear();
-        for (var ref of API.cachedFavorites.values()) {
+        for (const ref of API.cachedFavorites.values()) {
             if (
                 !ref.$isDeleted &&
                 ref.type === 'friend' &&
@@ -22837,7 +22736,9 @@ console.log(`isLinux: ${LINUX}`);
                     }
                 }
             }
-            if (!locationTag) return;
+            if (!locationTag) {
+                return;
+            }
 
             if (!friendsList[locationTag]) {
                 friendsList[locationTag] = [];
