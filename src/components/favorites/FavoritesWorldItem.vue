@@ -81,7 +81,7 @@
                             circle
                             style="margin-left: 5px"
                             type="default"
-                            @click.stop="$emit('show-favorite-dialog', 'world', favorite.id)"></el-button>
+                            @click.stop="showFavoriteDialog(favorite.id)"></el-button>
                     </el-tooltip>
                 </template>
                 <el-tooltip
@@ -103,7 +103,7 @@
                         circle
                         style="margin-left: 5px"
                         type="default"
-                        @click.stop="$emit('show-favorite-dialog', 'world', favorite.id)"></el-button>
+                        @click.stop="showFavoriteDialog(favorite.id)"></el-button>
                 </el-tooltip>
             </template>
             <template v-else>
@@ -157,7 +157,7 @@
         methods: {
             handleDropdownItemClick(groupAPI) {
                 if (this.isLocalFavorite) {
-                    this.$emit('add-favorite-world', this.localFavFakeRef, groupAPI, true);
+                    this.addFavoriteWorld(this.localFavFakeRef, groupAPI, true);
                 } else {
                     this.moveFavorite(this.localFavFakeRef, groupAPI, 'world');
                 }
@@ -197,6 +197,25 @@
                 //         }
                 //     }
                 // });
+            },
+            addFavoriteWorld(ref, group, message) {
+                // wait API splitting PR Merged
+                return this.API.addFavorite({
+                    type: 'world',
+                    favoriteId: ref.id,
+                    tags: group.name
+                }).then((args) => {
+                    if (message) {
+                        this.$message({
+                            message: 'World added to favorites',
+                            type: 'success'
+                        });
+                    }
+                    return args;
+                });
+            },
+            showFavoriteDialog(favoriteId) {
+                this.$emit('show-favorite-dialog', 'world', favoriteId);
             }
         }
     };
