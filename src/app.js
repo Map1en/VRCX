@@ -3881,7 +3881,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.notifyMenu = function (index) {
         const navRef = this.$refs.menu.$children[0];
         if (this.menuActiveIndex !== index) {
-            const item = navRef.items[this.menuActiveIndex];
+            const item = navRef.items[index];
             if (item) {
                 item.$el.classList.add('notify');
             }
