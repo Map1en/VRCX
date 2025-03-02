@@ -45,6 +45,7 @@ import NavMenu from './views/NavMenu.vue';
 import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import PreviousInstanceInfo from './views/dialogs/PreviousInstanceInfo.vue';
 import Location from './components/common/Location.vue';
+import FavoritesWorldItem from './components/favorites/FavoritesWorldItem.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -181,12 +182,12 @@ console.log(`isLinux: ${LINUX}`);
             NavMenu,
 
             // components
-            // - settings
-            SimpleSwitch,
-
-            // components
             // - common
             Location,
+            // - favorites
+            FavoritesWorldItem,
+            // - settings
+            SimpleSwitch,
 
             // - dialogs
             PreviousInstanceInfo
@@ -7028,25 +7029,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.methods.deleteFavorite = function (objectId) {
-        API.deleteFavorite({
-            objectId
-        });
-        // FIXME: 메시지 수정
-        // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-        //     confirmButtonText: 'Confirm',
-        //     cancelButtonText: 'Cancel',
-        //     type: 'info',
-        //     callback: (action) => {
-        //         if (action === 'confirm') {
-        //             API.deleteFavorite({
-        //                 objectId
-        //             });
-        //         }
-        //     }
-        // });
-    };
-
     $app.methods.deleteFavoriteNoConfirm = function (objectId) {
         if (!objectId) {
             return;
@@ -12664,18 +12646,6 @@ console.log(`isLinux: ${LINUX}`);
                 });
             }
             return args;
-        });
-    };
-
-    $app.methods.moveFavorite = function (ref, group, type) {
-        API.deleteFavorite({
-            objectId: ref.id
-        }).then(() => {
-            API.addFavorite({
-                type,
-                favoriteId: ref.id,
-                tags: group.name
-            });
         });
     };
 

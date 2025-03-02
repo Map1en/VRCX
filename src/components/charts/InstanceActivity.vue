@@ -17,8 +17,7 @@
                     <i
                         slot="reference"
                         class="el-icon-info"
-                        style="margin-left: 5px; font-size: 12px; opacity: 0.7"
-                    ></i>
+                        style="margin-left: 5px; font-size: 12px; opacity: 0.7"></i>
                 </el-popover>
             </div>
 
@@ -36,8 +35,7 @@
                                         v-model.lazy="barWidth"
                                         :max="50"
                                         :min="1"
-                                        @change="changeBarWidth"
-                                    ></el-slider>
+                                        @change="changeBarWidth"></el-slider>
                                 </div>
                             </div>
                             <div>
@@ -54,8 +52,7 @@
                                 <span>{{ $t('view.charts.instance_activity.settings.show_no_friend_instance') }}</span>
                                 <el-switch
                                     v-model="isNoFriendInstanceVisible"
-                                    @change="changeIsNoFriendInstanceVisible"
-                                >
+                                    @change="changeIsNoFriendInstanceVisible">
                                 </el-switch>
                             </div>
                         </div>
@@ -68,8 +65,7 @@
                         <el-button
                             icon="el-icon-arrow-left"
                             :disabled="isPrevDayBtnDisabled"
-                            @click="changeSelectedDateFromBtn(false)"
-                        ></el-button>
+                            @click="changeSelectedDateFromBtn(false)"></el-button>
                     </el-tooltip>
                     <el-tooltip :content="$t('view.charts.instance_activity.next_day')" placement="top">
                         <el-button :disabled="isNextDayBtnDisabled" @click="changeSelectedDateFromBtn(true)"
@@ -85,8 +81,7 @@
                     :picker-options="{
                         disabledDate: (time) => getDatePickerDisabledDate(time)
                     }"
-                    @change="reloadData"
-                ></el-date-picker>
+                    @change="reloadData"></el-date-picker>
             </div>
         </div>
         <div style="position: relative">
@@ -115,8 +110,7 @@
             :is-dark-mode="isDarkMode"
             :dt-hour12="dtHour12"
             :bar-width="barWidth"
-            @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)"
-        />
+            @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
     </div>
 </template>
 
