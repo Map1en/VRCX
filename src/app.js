@@ -53,6 +53,7 @@ import NavMenu from './views/NavMenu.vue';
 import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import PreviousInstanceInfo from './views/dialogs/PreviousInstanceInfo.vue';
 import Location from './components/common/Location.vue';
+import FavoritesWorldTab from './components/favorites/FavoritesWorldTab.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -189,12 +190,12 @@ console.log(`isLinux: ${LINUX}`);
             NavMenu,
 
             // components
-            // - settings
-            SimpleSwitch,
-
-            // components
             // - common
             Location,
+            // - favorites
+            FavoritesWorldTab,
+            // - settings
+            SimpleSwitch,
 
             // - dialogs
             PreviousInstanceInfo
@@ -6096,25 +6097,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.methods.deleteFavorite = function (objectId) {
-        API.deleteFavorite({
-            objectId
-        });
-        // FIXME: 메시지 수정
-        // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-        //     confirmButtonText: 'Confirm',
-        //     cancelButtonText: 'Cancel',
-        //     type: 'info',
-        //     callback: (action) => {
-        //         if (action === 'confirm') {
-        //             API.deleteFavorite({
-        //                 objectId
-        //             });
-        //         }
-        //     }
-        // });
-    };
-
     $app.methods.deleteFavoriteNoConfirm = function (objectId) {
         if (!objectId) {
             return;
@@ -6183,21 +6165,6 @@ console.log(`isLinux: ${LINUX}`);
             return this.favoriteWorlds_;
         }
         return this.favoriteWorldsSorted;
-    };
-
-    $app.computed.groupedByGroupKeyFavoriteWorlds = function () {
-        const groupedByGroupKeyFavoriteWorlds = {};
-
-        this.favoriteWorlds.forEach((world) => {
-            if (world.groupKey) {
-                if (!groupedByGroupKeyFavoriteWorlds[world.groupKey]) {
-                    groupedByGroupKeyFavoriteWorlds[world.groupKey] = [];
-                }
-                groupedByGroupKeyFavoriteWorlds[world.groupKey].push(world);
-            }
-        });
-
-        return groupedByGroupKeyFavoriteWorlds;
     };
 
     $app.computed.favoriteAvatars = function () {
@@ -11805,18 +11772,6 @@ console.log(`isLinux: ${LINUX}`);
         });
     };
 
-    $app.methods.moveFavorite = function (ref, group, type) {
-        API.deleteFavorite({
-            objectId: ref.id
-        }).then(() => {
-            API.addFavorite({
-                type,
-                favoriteId: ref.id,
-                tags: group.name
-            });
-        });
-    };
-
     $app.methods.showFavoriteDialog = function (type, objectId) {
         this.$nextTick(() => $app.adjustDialogZ(this.$refs.favoriteDialog.$el));
         var D = this.favoriteDialog;
@@ -16829,8 +16784,6 @@ console.log(`isLinux: ${LINUX}`);
         this.userDialog.isFavoriteWorldsLoading = false;
     };
 
-    $app.data.worldGroupVisibilityOptions = ['private', 'friends', 'public'];
-
     $app.methods.userFavoriteWorldsStatus = function (visibility) {
         var style = {};
         if (visibility === 'public') {
@@ -16841,33 +16794,6 @@ console.log(`isLinux: ${LINUX}`);
             style.red = true;
         }
         return style;
-    };
-
-    $app.methods.userFavoriteWorldsStatusForFavTab = function (visibility) {
-        let style = '';
-        if (visibility === 'public') {
-            style = '';
-        } else if (visibility === 'friends') {
-            style = 'success';
-        } else {
-            style = 'info';
-        }
-        return style;
-    };
-
-    $app.methods.changeWorldGroupVisibility = function (name, visibility) {
-        var params = {
-            type: 'world',
-            group: name,
-            visibility
-        };
-        API.saveFavoriteGroup(params).then((args) => {
-            this.$message({
-                message: 'Group visibility changed',
-                type: 'success'
-            });
-            return args;
-        });
     };
 
     $app.methods.refreshInstancePlayerCount = function (instance) {
@@ -20545,27 +20471,6 @@ console.log(`isLinux: ${LINUX}`);
         return favoriteGroup.length;
     };
 
-    $app.methods.promptNewLocalWorldFavoriteGroup = function () {
-        this.$prompt(
-            $t('prompt.new_local_favorite_group.description'),
-            $t('prompt.new_local_favorite_group.header'),
-            {
-                distinguishCancelAndClose: true,
-                confirmButtonText: $t('prompt.new_local_favorite_group.ok'),
-                cancelButtonText: $t('prompt.new_local_favorite_group.cancel'),
-                inputPattern: /\S+/,
-                inputErrorMessage: $t(
-                    'prompt.new_local_favorite_group.input_error'
-                ),
-                callback: (action, instance) => {
-                    if (action === 'confirm' && instance.inputValue) {
-                        this.newLocalWorldFavoriteGroup(instance.inputValue);
-                    }
-                }
-            }
-        );
-    };
-
     $app.methods.newLocalWorldFavoriteGroup = function (group) {
         if (this.localWorldFavoriteGroups.includes(group)) {
             $app.$message({
@@ -20583,35 +20488,6 @@ console.log(`isLinux: ${LINUX}`);
             this.localWorldFavoriteGroups.push(group);
         }
         this.sortLocalWorldFavorites();
-    };
-
-    $app.methods.promptLocalWorldFavoriteGroupRename = function (group) {
-        this.$prompt(
-            $t('prompt.local_favorite_group_rename.description'),
-            $t('prompt.local_favorite_group_rename.header'),
-            {
-                distinguishCancelAndClose: true,
-                confirmButtonText: $t(
-                    'prompt.local_favorite_group_rename.save'
-                ),
-                cancelButtonText: $t(
-                    'prompt.local_favorite_group_rename.cancel'
-                ),
-                inputPattern: /\S+/,
-                inputErrorMessage: $t(
-                    'prompt.local_favorite_group_rename.input_error'
-                ),
-                inputValue: group,
-                callback: (action, instance) => {
-                    if (action === 'confirm' && instance.inputValue) {
-                        this.renameLocalWorldFavoriteGroup(
-                            instance.inputValue,
-                            group
-                        );
-                    }
-                }
-            }
-        );
     };
 
     $app.methods.renameLocalWorldFavoriteGroup = function (newName, group) {
@@ -20632,19 +20508,6 @@ console.log(`isLinux: ${LINUX}`);
         delete this.localWorldFavorites[group];
         database.renameWorldFavoriteGroup(newName, group);
         this.sortLocalWorldFavorites();
-    };
-
-    $app.methods.promptLocalWorldFavoriteGroupDelete = function (group) {
-        this.$confirm(`Delete Group? ${group}`, 'Confirm', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'info',
-            callback: (action) => {
-                if (action === 'confirm') {
-                    this.deleteLocalWorldFavoriteGroup(group);
-                }
-            }
-        });
     };
 
     $app.methods.sortLocalWorldFavorites = function () {
@@ -20729,11 +20592,10 @@ console.log(`isLinux: ${LINUX}`);
         this.refreshingLocalFavorites = false;
     };
 
-    $app.data.worldFavoriteSearch = '';
     $app.data.worldFavoriteSearchResults = [];
 
-    $app.methods.searchWorldFavorites = function () {
-        var search = this.worldFavoriteSearch.toLowerCase();
+    $app.methods.searchWorldFavorites = function (worldFavoriteSearch) {
+        var search = worldFavoriteSearch.toLowerCase();
         if (search.length < 3) {
             this.worldFavoriteSearchResults = [];
             return;
@@ -22445,27 +22307,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_hideFriendsInSameInstance',
             this.isHideFriendsInSameInstance
         );
-    };
-
-    // favorites Tab
-    // - local favorites
-    //   - local world & avatar
-    $app.data.localFavoriteShowDelayedContent = [false, false];
-
-    $app.methods.onFavTabClick = function (el) {
-        if (el.index === '0') {
-            this.localFavoriteShowDelayedContent = [false, false];
-        } else {
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    if (el.index === '1') {
-                        this.localFavoriteShowDelayedContent = [true, false];
-                    } else if (el.index === '2') {
-                        this.localFavoriteShowDelayedContent = [false, true];
-                    }
-                });
-            }, 300);
-        }
     };
 
     // #endregion
