@@ -1,9 +1,6 @@
 <template>
     <el-dialog
         class="x-dialog x-world-dialog"
-        :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
         ref="worldDialog"
         :visible.sync="worldDialog.visible"
         :show-close="false"
@@ -187,8 +184,9 @@
                         <div style="margin-top: 5px">
                             <span
                                 v-show="worldDialog.ref.name !== worldDialog.ref.description"
-                                v-text="worldDialog.ref.description"
-                                style="font-size: 12px" />
+                                style="font-size: 12px"
+                                >{{ worldDialog.ref.description }}</span
+                            >
                         </div>
                     </div>
                     <div style="flex: none; margin-left: 10px">
@@ -717,10 +715,54 @@
 <script>
     export default {
         name: 'WorldDialog',
+        inject: ['API', 'showUserDialog', 'userStatusClass', 'userImage'],
         props: {
-            worldDialog: {
-                type: Object,
-                required: true
+            worldDialog: Object,
+            hideTooltips: Boolean,
+            isGameRunning: Boolean,
+            lastLocation: Object,
+            instanceJoinHistory: Map,
+
+            // really ?
+            updateInstanceInfo: Number,
+
+            worldDialogPlatform: String
+        },
+        methods: {
+            showFullscreenImageDialog(imageUrl) {
+                this.$emit('show-fullscreen-image-dialog', imageUrl);
+            },
+            openFolderGeneric(path) {
+                this.$emit('open-folder-generic', path);
+            },
+            deleteVRChatCache(world) {
+                this.$emit('delete-vrchat-cache', world);
+            },
+            worldDialogCommand(command) {
+                this.$emit('world-dialog-command', command);
+            },
+            // todo
+            showLaunchDialog(location) {
+                this.$emit('show-launch-dialog', location);
+            },
+            refreshInstancePlayerCount(tag) {
+                this.$emit('refresh-instance-player-count', tag);
+            },
+            showPreviousInstanceInfoDialog(location) {
+                this.$emit('show-previous-instance-info-dialog', location);
+            },
+            // todo
+            onWorldMemoChange($event) {
+                this.$emit('world-memo-change', $event);
+            },
+            copyWorldId(id) {
+                this.$emit('copy-world-id', id);
+            },
+            copyWorldUrl(id) {
+                this.$emit('copy-world-url', id);
+            },
+            copyWorldName(name) {
+                this.$emit('copy-world-name', name);
             }
         }
     };
