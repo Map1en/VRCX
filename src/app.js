@@ -18276,118 +18276,7 @@ console.log(`isLinux: ${LINUX}`);
         $app.worldImportDialog.visible = false;
         $app.worldImportFavoriteGroup = null;
         $app.worldImportLocalFavoriteGroup = null;
-
-        $app.worldExportDialogVisible = false;
-        $app.worldExportFavoriteGroup = null;
-        $app.worldExportLocalFavoriteGroup = null;
     });
-
-    // #endregion
-    // #region | App: world favorite export
-
-    $app.data.worldExportDialogRef = {};
-    $app.data.worldExportDialogVisible = false;
-    $app.data.worldExportContent = '';
-    $app.data.worldExportFavoriteGroup = null;
-    $app.data.worldExportLocalFavoriteGroup = null;
-
-    $app.methods.showWorldExportDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.worldExportDialogRef.$el)
-        );
-        this.worldExportFavoriteGroup = null;
-        this.worldExportLocalFavoriteGroup = null;
-        this.updateWorldExportDialog();
-        this.worldExportDialogVisible = true;
-    };
-
-    $app.methods.handleCopyWorldExportData = function (event) {
-        event.target.tagName === 'TEXTAREA' && event.target.select();
-        navigator.clipboard
-            .writeText(this.worldExportContent)
-            .then(() => {
-                this.$message({
-                    message: 'Copied successfully!',
-                    type: 'success',
-                    duration: 2000
-                });
-            })
-            .catch((err) => {
-                console.error('Copy failed:', err);
-                this.$message.error('Copy failed!');
-            });
-    };
-
-    $app.methods.updateWorldExportDialog = function () {
-        const formatter = function (str) {
-            if (/[\x00-\x1f,"]/.test(str) === true) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
-
-        function resText(ref) {
-            let resArr = [];
-            propsForQuery.forEach((e) => {
-                resArr.push(formatter(ref?.[e]));
-            });
-            return resArr.join(',');
-        }
-
-        const lines = [this.exportSelectedOptions.join(',')];
-        const propsForQuery = this.exportSelectOptions
-            .filter((option) =>
-                this.exportSelectedOptions.includes(option.label)
-            )
-            .map((option) => option.value);
-
-        if (this.worldExportFavoriteGroup) {
-            API.favoriteWorldGroups.forEach((group) => {
-                if (this.worldExportFavoriteGroup === group) {
-                    $app.favoriteWorlds.forEach((ref) => {
-                        if (group.key === ref.groupKey) {
-                            lines.push(resText(ref.ref));
-                        }
-                    });
-                }
-            });
-        } else if (this.worldExportLocalFavoriteGroup) {
-            const favoriteGroup =
-                this.localWorldFavorites[this.worldExportLocalFavoriteGroup];
-            if (!favoriteGroup) {
-                return;
-            }
-            for (let i = 0; i < favoriteGroup.length; ++i) {
-                const ref = favoriteGroup[i];
-                lines.push(resText(ref));
-            }
-        } else {
-            // export all
-            this.favoriteWorlds.forEach((ref) => {
-                lines.push(resText(ref.ref));
-            });
-            for (let i = 0; i < this.localWorldFavoritesList.length; ++i) {
-                const worldId = this.localWorldFavoritesList[i];
-                const ref = API.cachedWorlds.get(worldId);
-                if (typeof ref !== 'undefined') {
-                    lines.push(resText(ref));
-                }
-            }
-        }
-        this.worldExportContent = lines.join('\n');
-    };
-
-    $app.methods.selectWorldExportGroup = function (group) {
-        this.worldExportFavoriteGroup = group;
-        this.worldExportLocalFavoriteGroup = null;
-        this.updateWorldExportDialog();
-    };
-
-    $app.methods.selectWorldExportLocalGroup = function (group) {
-        this.worldExportLocalFavoriteGroup = group;
-        this.worldExportFavoriteGroup = null;
-        this.updateWorldExportDialog();
-    };
 
     // #endregion
     // #region | App: avatar favorite import
@@ -18562,16 +18451,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.avatarExportContent = '';
     $app.data.avatarExportFavoriteGroup = null;
     $app.data.avatarExportLocalFavoriteGroup = null;
-
-    // Storage of selected filtering options for model and world export
-    $app.data.exportSelectedOptions = ['ID', 'Name'];
-    $app.data.exportSelectOptions = [
-        { label: 'ID', value: 'id' },
-        { label: 'Name', value: 'name' },
-        { label: 'Author ID', value: 'authorId' },
-        { label: 'Author Name', value: 'authorName' },
-        { label: 'Thumbnail', value: 'thumbnailImageUrl' }
-    ];
 
     $app.methods.showAvatarExportDialog = function () {
         this.$nextTick(() =>
@@ -19330,14 +19209,6 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         return false;
-    };
-
-    $app.methods.getLocalWorldFavoriteGroupLength = function (group) {
-        var favoriteGroup = this.localWorldFavorites[group];
-        if (!favoriteGroup) {
-            return 0;
-        }
-        return favoriteGroup.length;
     };
 
     $app.methods.newLocalWorldFavoriteGroup = function (group) {

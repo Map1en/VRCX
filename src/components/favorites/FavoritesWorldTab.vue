@@ -219,17 +219,24 @@
                 </div>
             </el-collapse-item>
         </el-collapse>
+        <world-export-dialog
+            :favorite-worlds="favoriteWorlds"
+            :world-export-dialog-visible="worldExportDialogVisible"
+            :local-world-favorites="localWorldFavorites"
+            :local-world-favorite-groups="localWorldFavoriteGroups" />
     </div>
 </template>
 
 <script>
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
+    import WorldExportDialog from '../../views/dialogs/WorldExportDialog.vue';
     import { favoriteRequest } from '../../classes/request';
 
     export default {
         name: 'FavoritesWorldTab',
         components: {
-            FavoritesWorldItem
+            FavoritesWorldItem,
+            WorldExportDialog
         },
         inject: ['API'],
         props: {
@@ -253,7 +260,8 @@
         data() {
             return {
                 worldGroupVisibilityOptions: ['private', 'friends', 'public'],
-                worldFavoriteSearch: ''
+                worldFavoriteSearch: '',
+                worldExportDialogVisible: false
             };
         },
         computed: {

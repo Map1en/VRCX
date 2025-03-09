@@ -31,7 +31,6 @@
         </el-dropdown>
         <br />
         <el-input
-            v-if="friendExportDialogVisible"
             v-model="friendExportContent"
             type="textarea"
             size="mini"
