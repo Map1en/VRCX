@@ -5898,20 +5898,6 @@ console.log(`isLinux: ${LINUX}`);
         return this.favoriteAvatarsSorted;
     };
 
-    $app.computed.groupedByGroupKeyFavoriteAvatars = function () {
-        const groupedByGroupKeyFavoriteAvatars = {};
-        this.favoriteAvatars.forEach((avatar) => {
-            if (avatar.groupKey) {
-                if (!groupedByGroupKeyFavoriteAvatars[avatar.groupKey]) {
-                    groupedByGroupKeyFavoriteAvatars[avatar.groupKey] = [];
-                }
-                groupedByGroupKeyFavoriteAvatars[avatar.groupKey].push(avatar);
-            }
-        });
-
-        return groupedByGroupKeyFavoriteAvatars;
-    };
-
     // #endregion
     // #region | App: friendLog
 
@@ -10951,7 +10937,7 @@ console.log(`isLinux: ${LINUX}`);
         D.timeSpent = 0;
         D.isFavorite =
             API.cachedFavoritesByObjectId.has(avatarId) ||
-            (this.isLocalUserVrcplusSupporter() &&
+            (API.currentUser.$isVRCPlus &&
                 this.localAvatarFavoritesList.includes(avatarId));
         D.isBlocked = API.cachedAvatarModerations.has(avatarId);
         D.memo = '';
@@ -19642,56 +19628,6 @@ console.log(`isLinux: ${LINUX}`);
             });
         }
         this.refreshingLocalFavorites = false;
-    };
-
-    $app.data.avatarFavoriteSearch = '';
-    $app.data.avatarFavoriteSearchResults = [];
-
-    $app.methods.searchAvatarFavorites = function () {
-        var search = this.avatarFavoriteSearch.toLowerCase();
-        if (search.length < 3) {
-            this.avatarFavoriteSearchResults = [];
-            return;
-        }
-
-        var results = [];
-        for (var i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-            var group = this.localAvatarFavoriteGroups[i];
-            if (!this.localAvatarFavorites[group]) {
-                continue;
-            }
-            for (var j = 0; j < this.localAvatarFavorites[group].length; ++j) {
-                var ref = this.localAvatarFavorites[group][j];
-                if (!ref || !ref.id) {
-                    continue;
-                }
-                if (
-                    ref.name.toLowerCase().includes(search) ||
-                    ref.authorName.toLowerCase().includes(search)
-                ) {
-                    if (!results.some((r) => r.id == ref.id)) {
-                        results.push(ref);
-                    }
-                }
-            }
-        }
-
-        for (var i = 0; i < this.favoriteAvatars.length; ++i) {
-            var ref = this.favoriteAvatars[i].ref;
-            if (!ref) {
-                continue;
-            }
-            if (
-                ref.name.toLowerCase().includes(search) ||
-                ref.authorName.toLowerCase().includes(search)
-            ) {
-                if (!results.some((r) => r.id == ref.id)) {
-                    results.push(ref);
-                }
-            }
-        }
-
-        this.avatarFavoriteSearchResults = results;
     };
 
     // #endregion

@@ -40,13 +40,13 @@ mixin favoritesDialog
                     v-if='hasLocalAvatarFavorite(favoriteDialog.objectId, group)'
                     :key='group'
                     style='display: block; width: 100%; margin: 10px 0'
-                    @click='removeLocalAvatarFavorite(favoriteDialog.objectId, group)') #[i.el-icon-check] {{ group }} ({{ getLocalAvatarFavoriteGroupLength(group) }})
+                    @click='removeLocalAvatarFavorite(favoriteDialog.objectId, group)') #[i.el-icon-check] {{ group }} ({{ group.length }})
                 el-button(
                     v-else
                     :key='group'
                     style='display: block; width: 100%; margin: 10px 0'
                     :disabled='!isLocalUserVrcplusSupporter()'
-                    @click='addLocalAvatarFavorite(favoriteDialog.objectId, group)') {{ group }} ({{ getLocalAvatarFavoriteGroupLength(group) }})
+                    @click='addLocalAvatarFavorite(favoriteDialog.objectId, group)') {{ group }} ({{ group.length }})
 
     //- dialog: export friends list
     el-dialog.x-dialog(
@@ -232,7 +232,7 @@ mixin favoritesDialog
                             el-dropdown-item(
                                 :key='group'
                                 style='display: block; margin: 10px 0'
-                                @click.native='selectAvatarImportLocalGroup(group)') {{ group }} ({{ getLocalAvatarFavoriteGroupLength(group) }})
+                                @click.native='selectAvatarImportLocalGroup(group)') {{ group }} ({{ group.length }})
                 span(v-if='avatarImportDialog.avatarImportFavoriteGroup' style='margin-left: 5px') {{ avatarImportTable.data.length }} / {{ avatarImportDialog.avatarImportFavoriteGroup.capacity - avatarImportDialog.avatarImportFavoriteGroup.count }}
             div
                 el-button(size='small' @click='clearAvatarImportTable') {{ $t('dialog.avatar_import.clear_table') }}

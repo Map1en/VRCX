@@ -15,7 +15,7 @@
                 <span class="name" style="margin-right: 5px; line-height: 10px">
                     {{ $t('view.favorite.sort_by') }}
                 </span>
-                <el-radio-group v-model="sortFavorites" style="margin-right: 12px" @change="saveSortFavoritesOption">
+                <el-radio-group v-model="sortFav" style="margin-right: 12px" @change="saveSortFavoritesOption">
                     <el-radio :label="false">
                         {{ $t('view.settings.appearance.appearance.sort_favorite_by_name') }}
                     </el-radio>
@@ -155,7 +155,7 @@
                 <br />
                 <el-button
                     size="small"
-                    :disabled="!isLocalUserVrcplusSupporter()"
+                    :disabled="!isLocalUserVrcplusSupporter"
                     @click="promptNewLocalAvatarFavoriteGroup">
                     {{ $t('view.favorite.avatars.new_group') }}
                 </el-button>
@@ -251,14 +251,10 @@
         inject: ['API'],
         props: {
             sortFavorites: Boolean,
-            avatarFavoriteSearch: String,
-            avatarFavoriteSearchResults: Array,
             hideTooltips: Boolean,
-            groupedByGroupKeyFavoriteAvatars: Object,
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
             avatarHistoryArray: Array,
-            isLocalUserVrcplusSupporter: Function,
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
@@ -267,10 +263,79 @@
         },
         data() {
             return {
-                avatarExportDialogVisible: false
+                avatarExportDialogVisible: false,
+                avatarFavoriteSearch: '',
+                avatarFavoriteSearchResults: []
             };
         },
+        computed: {
+            sortFav: {
+                get() {
+                    return this.sortFavorites;
+                },
+                set(value) {
+                    this.$emit('update:sort-favorites', value);
+                }
+            },
+            groupedByGroupKeyFavoriteAvatars() {
+                const groupedByGroupKeyFavoriteAvatars = {};
+                this.favoriteAvatars.forEach((avatar) => {
+                    if (avatar.groupKey) {
+                        if (!groupedByGroupKeyFavoriteAvatars[avatar.groupKey]) {
+                            groupedByGroupKeyFavoriteAvatars[avatar.groupKey] = [];
+                        }
+                        groupedByGroupKeyFavoriteAvatars[avatar.groupKey].push(avatar);
+                    }
+                });
+
+                return groupedByGroupKeyFavoriteAvatars;
+            },
+            isLocalUserVrcplusSupporter() {
+                return this.API.currentUser.$isVRCPlus;
+            }
+        },
         methods: {
+            searchAvatarFavorites() {
+                let ref = null;
+                const search = this.avatarFavoriteSearch.toLowerCase();
+                if (search.length < 3) {
+                    this.avatarFavoriteSearchResults = [];
+                    return;
+                }
+
+                const results = [];
+                for (let i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
+                    const group = this.localAvatarFavoriteGroups[i];
+                    if (!this.localAvatarFavorites[group]) {
+                        continue;
+                    }
+                    for (let j = 0; j < this.localAvatarFavorites[group].length; ++j) {
+                        ref = this.localAvatarFavorites[group][j];
+                        if (!ref || !ref.id) {
+                            continue;
+                        }
+                        if (ref.name.toLowerCase().includes(search) || ref.authorName.toLowerCase().includes(search)) {
+                            if (!results.some((r) => r.id === ref.id)) {
+                                results.push(ref);
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0; i < this.favoriteAvatars.length; ++i) {
+                    ref = this.favoriteAvatars[i].ref;
+                    if (!ref) {
+                        continue;
+                    }
+                    if (ref.name.toLowerCase().includes(search) || ref.authorName.toLowerCase().includes(search)) {
+                        if (!results.some((r) => r.id === ref.id)) {
+                            results.push(ref);
+                        }
+                    }
+                }
+
+                this.avatarFavoriteSearchResults = results;
+            },
             showAvatarExportDialog() {
                 this.avatarExportDialogVisible = true;
             },
@@ -278,7 +343,7 @@
                 this.$emit('show-avatar-import-dialog');
             },
             saveSortFavoritesOption() {
-                this.$emit('save-sort-favorites-option', this.sortFavorites);
+                this.$emit('save-sort-favorites-option');
             },
             showAvatarDialog() {
                 this.$emit('show-avatar-dialog', this.favorite.id);
