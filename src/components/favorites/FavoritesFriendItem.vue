@@ -7,33 +7,35 @@
             <div class="detail">
                 <span
                     class="name"
-                    v-text="favorite.ref.displayName"
-                    :style="{ color: favorite.ref.$userColour }"></span>
-                <location-extra
+                    :style="{ color: favorite.ref.$userColour }"
+                    v-text="favorite.ref.displayName"></span>
+                <location
+                    class="extra"
                     v-if="favorite.ref.location !== 'offline'"
                     :location="favorite.ref.location"
                     :traveling="favorite.ref.travelingToLocation"
-                    :link="false"></location-extra>
+                    :link="false"></location>
                 <span v-else v-text="favorite.ref.statusDescription"></span>
             </div>
             <template v-if="editFavoritesMode">
-                <el-dropdown trigger="click" @click.native.stop size="mini" style="margin-left: 5px">
+                <el-dropdown trigger="click" size="mini" style="margin-left: 5px" @click.native.stop>
                     <el-tooltip placement="left" :content="$t('view.favorite.move_tooltip')" :disabled="hideTooltips">
                         <el-button type="default" icon="el-icon-back" size="mini" circle></el-button>
                     </el-tooltip>
                     <el-dropdown-menu slot="dropdown">
-                        <template v-for="groupAPI in API.favoriteFriendGroups" v-if="groupAPI.name !== group.name">
+                        <template v-for="groupAPI in API.favoriteFriendGroups">
                             <el-dropdown-item
+                                v-if="groupAPI.name !== group.name"
                                 :key="groupAPI.name"
                                 style="display: block; margin: 10px 0"
-                                @click.native="moveFavorite(favorite.ref, groupAPI, 'friend')"
-                                :disabled="groupAPI.count >= groupAPI.capacity">
+                                :disabled="groupAPI.count >= groupAPI.capacity"
+                                @click.native="moveFavorite(favorite.ref, groupAPI, 'friend')">
                                 {{ groupAPI.displayName }} ({{ groupAPI.count }} / {{ groupAPI.capacity }})
                             </el-dropdown-item>
                         </template>
                     </el-dropdown-menu>
                 </el-dropdown>
-                <el-button type="text" size="mini" @click.stop style="margin-left: 5px">
+                <el-button type="text" size="mini" style="margin-left: 5px" @click.stop>
                     <el-checkbox v-model="favorite.$selected"></el-checkbox>
                 </el-button>
             </template>
@@ -44,19 +46,19 @@
                     :disabled="hideTooltips">
                     <el-button
                         v-if="shiftHeld"
-                        @click.stop="deleteFavorite(favorite.id)"
                         size="mini"
                         icon="el-icon-close"
                         circle
-                        style="color: #f56c6c; margin-left: 5px"></el-button>
+                        style="color: #f56c6c; margin-left: 5px"
+                        @click.stop="deleteFavorite(favorite.id)"></el-button>
                     <el-button
                         v-else
-                        @click.stop="showFavoriteDialog('friend', favorite.id)"
                         type="default"
                         icon="el-icon-star-on"
                         size="mini"
                         circle
-                        style="margin-left: 5px"></el-button>
+                        style="margin-left: 5px"
+                        @click.stop="showFavoriteDialog('friend', favorite.id)"></el-button>
                 </el-tooltip>
             </template>
         </template>
@@ -69,17 +71,37 @@
                 type="text"
                 icon="el-icon-close"
                 size="mini"
-                @click.stop="deleteFavorite(favorite.id)"
-                style="margin-left: 5px"></el-button>
+                style="margin-left: 5px"
+                @click.stop="deleteFavorite(favorite.id)"></el-button>
         </template>
     </div>
 </template>
 
 <script>
+    import Location from '../common/Location.vue';
     import { favoriteRequest } from '../../classes/request';
     export default {
-        inject: ['showDialog', 'userImage', 'userStatusClass', 'API'],
-        props: {},
+        components: { Location },
+        inject: ['showUserDialog', 'userImage', 'userStatusClass', 'API'],
+        props: {
+            favorite: {
+                type: Object,
+                required: true
+            },
+            hideTooltips: {
+                type: Boolean,
+                default: false
+            },
+            shiftHeld: {
+                type: Boolean,
+                default: false
+            },
+            group: {
+                type: Object,
+                required: true
+            },
+            editFavoritesMode: Boolean
+        },
         methods: {
             moveFavorite(ref, group, type) {
                 favoriteRequest

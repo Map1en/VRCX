@@ -62,6 +62,7 @@ import FriendsListTab from './views/tabs/FriendsList.vue';
 import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import Location from './components/common/Location.vue';
 import FavoritesWorldTab from './components/favorites/FavoritesWorldTab.vue';
+import FavoritesFriendTab from './components/favorites/FavoritesFriendTab.vue';
 
 // dialogs
 import WorldDialog from './views/dialogs/WorldDialog.vue';
@@ -207,6 +208,7 @@ console.log(`isLinux: ${LINUX}`);
             Location,
             // - favorites
             FavoritesWorldTab,
+            FavoritesFriendTab,
             // - settings
             SimpleSwitch,
 
@@ -18821,68 +18823,6 @@ console.log(`isLinux: ${LINUX}`);
         $app.friendExportDialogVisible = false;
         $app.friendExportFavoriteGroup = null;
     });
-
-    // #endregion
-    // #region | App: friend favorite export
-
-    $app.data.friendExportDialogRef = {};
-    $app.data.friendExportDialogVisible = false;
-    $app.data.friendExportContent = '';
-    $app.data.friendExportFavoriteGroup = null;
-
-    $app.methods.showFriendExportDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.friendExportDialogRef.$el)
-        );
-        this.friendExportFavoriteGroup = null;
-        this.updateFriendExportDialog();
-        this.friendExportDialogVisible = true;
-    };
-
-    $app.methods.handleCopyFriendExportData = function (event) {
-        event.target.tagName === 'TEXTAREA' && event.target.select();
-        navigator.clipboard
-            .writeText(this.friendExportContent)
-            .then(() => {
-                this.$message({
-                    message: 'Copied successfully!',
-                    type: 'success',
-                    duration: 2000
-                });
-            })
-            .catch((err) => {
-                console.error('Copy failed:', err);
-                this.$message.error('Copy failed!');
-            });
-    };
-
-    $app.methods.updateFriendExportDialog = function () {
-        var _ = function (str) {
-            if (/[\x00-\x1f,"]/.test(str) === true) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
-        var lines = ['UserID,Name'];
-        API.favoriteFriendGroups.forEach((group) => {
-            if (
-                !this.friendExportFavoriteGroup ||
-                this.friendExportFavoriteGroup === group
-            ) {
-                $app.favoriteFriends.forEach((ref) => {
-                    if (group.key === ref.groupKey) {
-                        lines.push(`${_(ref.id)},${_(ref.name)}`);
-                    }
-                });
-            }
-        });
-        this.friendExportContent = lines.join('\n');
-    };
-
-    $app.methods.selectFriendExportGroup = function (group) {
-        this.friendExportFavoriteGroup = group;
-        this.updateFriendExportDialog();
-    };
 
     // #endregion
     // #region | App: user dialog notes

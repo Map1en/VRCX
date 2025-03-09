@@ -378,38 +378,6 @@ mixin favoritesDialog
                 template(#default='scope')
                     el-button(type='text' icon='el-icon-close' size='mini' @click='deleteItemAvatarImport(scope.row)')
 
-    //- dialog: export friend list
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='friendExportDialogRef'
-        :visible.sync='friendExportDialogVisible'
-        :title='$t("dialog.friend_export.header")'
-        width='650px')
-        el-dropdown(@click.native.stop trigger='click' size='small')
-            el-button(size='mini')
-                span(v-if='friendExportFavoriteGroup') {{ friendExportFavoriteGroup.displayName }} ({{ friendExportFavoriteGroup.count }}/{{ friendExportFavoriteGroup.capacity }}) #[i.el-icon-arrow-down.el-icon--right]
-                span(v-else) All Favorites #[i.el-icon-arrow-down.el-icon--right]
-            el-dropdown-menu(#default='dropdown')
-                el-dropdown-item(style='display: block; margin: 10px 0' @click.native='selectFriendExportGroup(null)') All Favorites
-                template(v-for='groupAPI in API.favoriteFriendGroups')
-                    el-dropdown-item(
-                        :key='groupAPI.name'
-                        style='display: block; margin: 10px 0'
-                        @click.native='selectFriendExportGroup(groupAPI)') {{ groupAPI.displayName }} ({{ groupAPI.count }}/{{ groupAPI.capacity }})
-        br
-        el-input(
-            type='textarea'
-            v-if='friendExportDialogVisible'
-            v-model='friendExportContent'
-            size='mini'
-            rows='15'
-            resize='none'
-            readonly
-            style='margin-top: 15px'
-            @click.native='handleCopyFriendExportData')
-
     //- dialog: Friend import dialog
     el-dialog.x-dialog(
         :before-close='beforeDialogClose'
