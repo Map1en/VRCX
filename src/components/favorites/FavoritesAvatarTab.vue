@@ -232,16 +232,22 @@
                 </div>
             </el-collapse-item>
         </el-collapse>
+        <avatar-export-dialog
+            :avatar-export-dialog-visible="avatarExportDialogVisible"
+            :favorite-avatars="favoriteAvatars"
+            :local-avatar-favorite-groups="localAvatarFavoriteGroups"
+            :local-avatar-favorites="localAvatarFavorites" />
     </div>
 </template>
 
 <script>
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
+    import AvatarExportDialog from '../../views/dialogs/AvatarExportDialog.vue';
 
     export default {
         name: 'FavoritesAvatarTab',
-        components: { FavoritesAvatarItem, FavoritesAvatarLocalHistoryItem },
+        components: { FavoritesAvatarItem, FavoritesAvatarLocalHistoryItem, AvatarExportDialog },
         inject: ['API'],
         props: {
             sortFavorites: Boolean,
@@ -256,11 +262,17 @@
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            getLocalAvatarFavoriteGroupLength: Function
+            getLocalAvatarFavoriteGroupLength: Function,
+            favoriteAvatars: Array
+        },
+        data() {
+            return {
+                avatarExportDialogVisible: false
+            };
         },
         methods: {
             showAvatarExportDialog() {
-                this.$emit('show-avatar-export-dialog');
+                this.avatarExportDialogVisible = true;
             },
             showAvatarImportDialog() {
                 this.$emit('show-avatar-import-dialog');

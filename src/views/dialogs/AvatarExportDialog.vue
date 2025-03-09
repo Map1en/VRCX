@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="avatarExportDialogVisible" :title="$t('dialog.avatar_export.header')" width="650px">
+    <el-dialog :visible.sync="isDialogVisible" :title="$t('dialog.avatar_export.header')" width="650px">
         <el-checkbox-group
             v-model="exportSelectedOptions"
             style="margin-bottom: 10px"
@@ -85,29 +85,137 @@
         inject: ['API'],
         props: {
             avatarExportDialogVisible: Boolean,
-            exportSelectedOptions: Array,
-            exportSelectOptions: Array,
-            avatarExportFavoriteGroup: Object,
-            avatarExportLocalFavoriteGroup: String,
-            getLocalAvatarFavoriteGroupLength: Function
+            favoriteAvatars: Array,
+            localAvatarFavoriteGroups: Array,
+            localAvatarFavorites: Object
         },
         data() {
             return {
-                avatarExportContent: ''
+                avatarExportContent: '',
+                avatarExportFavoriteGroup: null,
+                avatarExportLocalFavoriteGroup: null,
+                exportSelectedOptions: ['ID', 'Name'],
+                exportSelectOptions: [
+                    { label: 'ID', value: 'id' },
+                    { label: 'Name', value: 'name' },
+                    { label: 'Author ID', value: 'authorId' },
+                    { label: 'Author Name', value: 'authorName' },
+                    { label: 'Thumbnail', value: 'thumbnailImageUrl' }
+                ]
             };
         },
+        computed: {
+            isDialogVisible: {
+                get() {
+                    return this.avatarExportDialogVisible;
+                },
+                set(value) {
+                    this.$emit('update:avatarExportDialogVisible', value);
+                }
+            }
+        },
+        watch: {
+            avatarExportDialogVisible(visible) {
+                if (visible) {
+                    this.showAvatarExportDialog();
+                }
+            }
+        },
         methods: {
-            updateAvatarExportDialog() {
-                this.$emit('update-avatar-export-dialog');
+            showAvatarExportDialog() {
+                this.avatarExportFavoriteGroup = null;
+                this.avatarExportLocalFavoriteGroup = null;
+                this.updateAvatarExportDialog();
             },
-            selectAvatarExportGroup() {
-                this.$emit('select-avatar-export-group');
+            handleCopyAvatarExportData(event) {
+                if (event.target.tagName === 'TEXTAREA') {
+                    event.target.select();
+                }
+                navigator.clipboard
+                    .writeText(this.avatarExportContent)
+                    .then(() => {
+                        this.$message({
+                            message: 'Copied successfully!',
+                            type: 'success',
+                            duration: 2000
+                        });
+                    })
+                    .catch((err) => {
+                        console.error('Copy failed:', err);
+                        this.$message.error('Copy failed!');
+                    });
+            },
+            updateAvatarExportDialog() {
+                const formatter = function (str) {
+                    if (/[\x00-\x1f,"]/.test(str) === true) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                    }
+                    return str;
+                };
+                const propsForQuery = this.exportSelectOptions
+                    .filter((option) => this.exportSelectedOptions.includes(option.label))
+                    .map((option) => option.value);
+
+                function resText(ref) {
+                    let resArr = [];
+                    propsForQuery.forEach((e) => {
+                        resArr.push(formatter(ref?.[e]));
+                    });
+                    return resArr.join(',');
+                }
+
+                const lines = [this.exportSelectedOptions.join(',')];
+
+                if (this.avatarExportFavoriteGroup) {
+                    this.API.favoriteAvatarGroups.forEach((group) => {
+                        if (!this.avatarExportFavoriteGroup || this.avatarExportFavoriteGroup === group) {
+                            this.favoriteAvatars.forEach((ref) => {
+                                if (group.key === ref.groupKey) {
+                                    lines.push(resText(ref.ref));
+                                }
+                            });
+                        }
+                    });
+                } else if (this.avatarExportLocalFavoriteGroup) {
+                    const favoriteGroup = this.localAvatarFavorites[this.avatarExportLocalFavoriteGroup];
+                    if (!favoriteGroup) {
+                        return;
+                    }
+                    for (let i = 0; i < favoriteGroup.length; ++i) {
+                        const ref = favoriteGroup[i];
+                        lines.push(resText(ref));
+                    }
+                } else {
+                    // export all
+                    this.favoriteAvatars.forEach((ref) => {
+                        lines.push(resText(ref.ref));
+                    });
+                    for (let i = 0; i < this.localAvatarFavoritesList.length; ++i) {
+                        const avatarId = this.localAvatarFavoritesList[i];
+                        const ref = this.API.cachedAvatars.get(avatarId);
+                        if (typeof ref !== 'undefined') {
+                            lines.push(resText(ref));
+                        }
+                    }
+                }
+                this.avatarExportContent = lines.join('\n');
+            },
+            selectAvatarExportGroup(group) {
+                this.avatarExportFavoriteGroup = group;
+                this.avatarExportLocalFavoriteGroup = null;
+                this.updateAvatarExportDialog();
             },
             selectAvatarExportLocalGroup(group) {
-                this.$emit('select-avatar-export-local-group', group);
+                this.avatarExportLocalFavoriteGroup = group;
+                this.avatarExportFavoriteGroup = null;
+                this.updateAvatarExportDialog();
             },
-            handleCopyAvatarExportData() {
-                this.$emit('handle-copy-avatar-export-data');
+            getLocalAvatarFavoriteGroupLength(group) {
+                const favoriteGroup = this.localAvatarFavorites[group];
+                if (!favoriteGroup) {
+                    return 0;
+                }
+                return favoriteGroup.length;
             }
         }
     };

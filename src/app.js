@@ -18439,125 +18439,7 @@ console.log(`isLinux: ${LINUX}`);
         $app.avatarImportDialog.visible = false;
         $app.avatarImportFavoriteGroup = null;
         $app.avatarImportLocalFavoriteGroup = null;
-
-        $app.avatarExportDialogVisible = false;
-        $app.avatarExportFavoriteGroup = null;
-        $app.avatarExportLocalFavoriteGroup = null;
     });
-
-    // #endregion
-    // #region | App: avatar favorite export
-
-    $app.data.avatarExportDialogRef = {};
-    $app.data.avatarExportDialogVisible = false;
-    $app.data.avatarExportContent = '';
-    $app.data.avatarExportFavoriteGroup = null;
-    $app.data.avatarExportLocalFavoriteGroup = null;
-
-    $app.methods.showAvatarExportDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.avatarExportDialogRef.$el)
-        );
-        this.avatarExportFavoriteGroup = null;
-        this.avatarExportLocalFavoriteGroup = null;
-        this.updateAvatarExportDialog();
-        this.avatarExportDialogVisible = true;
-    };
-
-    $app.methods.handleCopyAvatarExportData = function (event) {
-        event.target.tagName === 'TEXTAREA' && event.target.select();
-        navigator.clipboard
-            .writeText(this.avatarExportContent)
-            .then(() => {
-                this.$message({
-                    message: 'Copied successfully!',
-                    type: 'success',
-                    duration: 2000
-                });
-            })
-            .catch((err) => {
-                console.error('Copy failed:', err);
-                this.$message.error('Copy failed!');
-            });
-    };
-
-    /**
-     * Update the content of the avatar export dialog based on the selected options
-     */
-
-    $app.methods.updateAvatarExportDialog = function () {
-        const formatter = function (str) {
-            if (/[\x00-\x1f,"]/.test(str) === true) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
-
-        function resText(ref) {
-            let resArr = [];
-            propsForQuery.forEach((e) => {
-                resArr.push(formatter(ref?.[e]));
-            });
-            return resArr.join(',');
-        }
-
-        const lines = [this.exportSelectedOptions.join(',')];
-        const propsForQuery = this.exportSelectOptions
-            .filter((option) =>
-                this.exportSelectedOptions.includes(option.label)
-            )
-            .map((option) => option.value);
-
-        if (this.avatarExportFavoriteGroup) {
-            API.favoriteAvatarGroups.forEach((group) => {
-                if (
-                    !this.avatarExportFavoriteGroup ||
-                    this.avatarExportFavoriteGroup === group
-                ) {
-                    $app.favoriteAvatars.forEach((ref) => {
-                        if (group.key === ref.groupKey) {
-                            lines.push(resText(ref.ref));
-                        }
-                    });
-                }
-            });
-        } else if (this.avatarExportLocalFavoriteGroup) {
-            const favoriteGroup =
-                this.localAvatarFavorites[this.avatarExportLocalFavoriteGroup];
-            if (!favoriteGroup) {
-                return;
-            }
-            for (let i = 0; i < favoriteGroup.length; ++i) {
-                const ref = favoriteGroup[i];
-                lines.push(resText(ref));
-            }
-        } else {
-            // export all
-            this.favoriteAvatars.forEach((ref) => {
-                lines.push(resText(ref.ref));
-            });
-            for (let i = 0; i < this.localAvatarFavoritesList.length; ++i) {
-                const avatarId = this.localAvatarFavoritesList[i];
-                const ref = API.cachedAvatars.get(avatarId);
-                if (typeof ref !== 'undefined') {
-                    lines.push(resText(ref));
-                }
-            }
-        }
-        this.avatarExportContent = lines.join('\n');
-    };
-
-    $app.methods.selectAvatarExportGroup = function (group) {
-        this.avatarExportFavoriteGroup = group;
-        this.avatarExportLocalFavoriteGroup = null;
-        this.updateAvatarExportDialog();
-    };
-
-    $app.methods.selectAvatarExportLocalGroup = function (group) {
-        this.avatarExportLocalFavoriteGroup = group;
-        this.avatarExportFavoriteGroup = null;
-        this.updateAvatarExportDialog();
-    };
 
     // #endregion
     // #region | App: friend favorite import
@@ -19555,14 +19437,6 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         return false;
-    };
-
-    $app.methods.getLocalAvatarFavoriteGroupLength = function (group) {
-        var favoriteGroup = this.localAvatarFavorites[group];
-        if (!favoriteGroup) {
-            return 0;
-        }
-        return favoriteGroup.length;
     };
 
     $app.methods.promptNewLocalAvatarFavoriteGroup = function () {
