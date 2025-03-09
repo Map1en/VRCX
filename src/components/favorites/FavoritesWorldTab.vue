@@ -241,17 +241,11 @@
         inject: ['API'],
         props: {
             sortFavorites: Boolean,
-            worldFavoriteSearchResults: Array,
-
             hideTooltips: Boolean,
-
             favoriteWorlds: Array,
-
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
-
             refreshingLocalFavorites: Boolean,
-
             localWorldFavoriteGroups: Array,
             localWorldFavorites: Object
 
@@ -261,7 +255,8 @@
             return {
                 worldGroupVisibilityOptions: ['private', 'friends', 'public'],
                 worldFavoriteSearch: '',
-                worldExportDialogVisible: false
+                worldExportDialogVisible: false,
+                worldFavoriteSearchResults: []
             };
         },
         computed: {
@@ -363,9 +358,6 @@
                     }
                 });
             },
-            searchWorldFavorites() {
-                this.$emit('search-world-favorites', this.worldFavoriteSearch);
-            },
             getLocalWorldFavoriteGroupLength(group) {
                 const favoriteGroup = this.localWorldFavorites[group];
                 if (!favoriteGroup) {
@@ -400,6 +392,47 @@
                         }
                     }
                 });
+            },
+            searchWorldFavorites(worldFavoriteSearch) {
+                let ref = null;
+                const search = worldFavoriteSearch.toLowerCase();
+                if (search.length < 3) {
+                    this.worldFavoriteSearchResults = [];
+                    return;
+                }
+
+                const results = [];
+                for (let i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
+                    const group = this.localWorldFavoriteGroups[i];
+                    if (!this.localWorldFavorites[group]) {
+                        continue;
+                    }
+                    for (let j = 0; j < this.localWorldFavorites[group].length; ++j) {
+                        ref = this.localWorldFavorites[group][j];
+                        if (!ref || !ref.id) {
+                            continue;
+                        }
+                        if (ref.name.toLowerCase().includes(search) || ref.authorName.toLowerCase().includes(search)) {
+                            if (!results.some((r) => r.id === ref.id)) {
+                                results.push(ref);
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0; i < this.favoriteWorlds.length; ++i) {
+                    ref = this.favoriteWorlds[i].ref;
+                    if (!ref) {
+                        continue;
+                    }
+                    if (ref.name.toLowerCase().includes(search) || ref.authorName.toLowerCase().includes(search)) {
+                        if (!results.some((r) => r.id === ref.id)) {
+                            results.push(ref);
+                        }
+                    }
+                }
+
+                this.worldFavoriteSearchResults = results;
             }
         }
     };

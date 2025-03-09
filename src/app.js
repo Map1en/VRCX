@@ -18819,55 +18819,6 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: bulk unfavorite
 
-    $app.data.editFavoritesMode = false;
-
-    $app.methods.showBulkUnfavoriteSelectionConfirm = function () {
-        var elementsTicked = [];
-        // check favorites type
-        for (var ctx of this.favoriteFriends) {
-            if (ctx.$selected) {
-                elementsTicked.push(ctx.id);
-            }
-        }
-        for (var ctx of this.favoriteWorlds) {
-            if (ctx.$selected) {
-                elementsTicked.push(ctx.id);
-            }
-        }
-        for (var ctx of this.favoriteAvatars) {
-            if (ctx.$selected) {
-                elementsTicked.push(ctx.id);
-            }
-        }
-        if (elementsTicked.length === 0) {
-            return;
-        }
-        this.$confirm(
-            `Are you sure you want to unfavorite ${elementsTicked.length} favorites?
-            This action cannot be undone.`,
-            `Delete ${elementsTicked.length} favorites?`,
-            {
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                type: 'info',
-                callback: (action) => {
-                    if (action === 'confirm') {
-                        this.bulkUnfavoriteSelection(elementsTicked);
-                    }
-                }
-            }
-        );
-    };
-
-    $app.methods.bulkUnfavoriteSelection = function (elementsTicked) {
-        for (var id of elementsTicked) {
-            favoriteRequest.deleteFavorite({
-                objectId: id
-            });
-        }
-        this.editFavoritesMode = false;
-    };
-
     $app.methods.bulkCopyFavoriteSelection = function () {
         var idList = '';
         var type = '';
@@ -19182,55 +19133,6 @@ console.log(`isLinux: ${LINUX}`);
             });
         }
         this.refreshingLocalFavorites = false;
-    };
-
-    $app.data.worldFavoriteSearchResults = [];
-
-    $app.methods.searchWorldFavorites = function (worldFavoriteSearch) {
-        var search = worldFavoriteSearch.toLowerCase();
-        if (search.length < 3) {
-            this.worldFavoriteSearchResults = [];
-            return;
-        }
-
-        var results = [];
-        for (var i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-            var group = this.localWorldFavoriteGroups[i];
-            if (!this.localWorldFavorites[group]) {
-                continue;
-            }
-            for (var j = 0; j < this.localWorldFavorites[group].length; ++j) {
-                var ref = this.localWorldFavorites[group][j];
-                if (!ref || !ref.id) {
-                    continue;
-                }
-                if (
-                    ref.name.toLowerCase().includes(search) ||
-                    ref.authorName.toLowerCase().includes(search)
-                ) {
-                    if (!results.some((r) => r.id == ref.id)) {
-                        results.push(ref);
-                    }
-                }
-            }
-        }
-
-        for (var i = 0; i < this.favoriteWorlds.length; ++i) {
-            var ref = this.favoriteWorlds[i].ref;
-            if (!ref) {
-                continue;
-            }
-            if (
-                ref.name.toLowerCase().includes(search) ||
-                ref.authorName.toLowerCase().includes(search)
-            ) {
-                if (!results.some((r) => r.id == ref.id)) {
-                    results.push(ref);
-                }
-            }
-        }
-
-        this.worldFavoriteSearchResults = results;
     };
 
     // #endregion
