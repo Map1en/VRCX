@@ -76,7 +76,7 @@
                             size="mini"
                             circle
                             style="margin-left: 5px"
-                            @click.stop="showFavoriteDialog('avatar', favorite.id)"></el-button>
+                            @click.stop="showFavoriteDialog"></el-button>
                     </el-tooltip>
                 </template>
                 <template v-else>
@@ -90,7 +90,7 @@
                             circle
                             style="margin-left: 5px"
                             icon="el-icon-check"
-                            @click.stop="selectAvatarWithConfirmation(favorite.id)" />
+                            @click.stop="selectAvatarWithConfirmation" />
                     </el-tooltip>
                 </template>
                 <el-tooltip
@@ -112,7 +112,7 @@
                         size="mini"
                         circle
                         style="margin-left: 5px"
-                        @click.stop="showFavoriteDialog('avatar', favorite.id)"
+                        @click.stop="showFavoriteDialog"
                 /></el-tooltip>
             </template>
             <template v-else>
