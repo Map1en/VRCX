@@ -35,7 +35,6 @@
                     :edit-favorites-mode="isEditMode"
                     @show-friend-import-dialog="showFriendImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
-                    @clear-favorite-group="clearFavoriteGroup"
                     @change-favorite-group-name="changeFavoriteGroupName"></favorites-friend-tab>
             </el-tab-pane>
             <el-tab-pane :label="$t('view.favorite.worlds.header')" lazy>
@@ -44,7 +43,6 @@
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @show-world-dialog="showWorldDialog"
                     @change-favorite-group-name="changeFavoriteGroupName"
-                    @clear-favorite-group="clearFavoriteGroup"
                     @new-instance-self-invite="newInstanceSelfInvite"
                     @show-favorite-dialog="showFavoriteDialog"
                     @refresh-local-world-favorite="refreshLocalWorldFavorites"
@@ -204,9 +202,6 @@
             },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
-            },
-            clearFavoriteGroup() {
-                this.$emit('clear-favorite-group');
             },
             changeFavoriteGroupName() {
                 this.$emit('change-favorite-group-name');
