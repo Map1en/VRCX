@@ -30,7 +30,6 @@ mixin favoritesTab
                     @change-favorite-group-name='changeFavoriteGroupName')
             el-tab-pane(:label='$t("view.favorite.worlds.header")' lazy)
                 favorites-world-tab(
-                    @show-world-export-dialog='showWorldExportDialog'
                     @show-world-import-dialog='showWorldImportDialog'
                     @save-sort-favorites-option='saveSortFavoritesOption'
                     @show-world-dialog='showWorldDialog'
@@ -116,93 +115,22 @@ mixin favoritesTab
                                     icon='el-icon-delete'
                                     circle
                                     style='margin-left: 5px')
+
                         .x-friend-list(v-if='group.count' style='margin-top: 10px')
-                            div(
+                            favorites-avatar-item(
                                 style='display: inline-block; width: 300px; margin-right: 15px'
                                 v-for='favorite in groupedByGroupKeyFavoriteAvatars[group.key]'
                                 :key='favorite.id'
+                                :favorite='favorite'
+                                :group='group'
+                                :hide-tooltips='hideTooltips'
+                                :shift-held='shiftHeld'
+                                :edit-favorites-mode='editFavoritesMode'
+                                @handle-select='favorite.$selected = $event'
+                                @show-favorite-dialog='showFavoriteDialog'
+                                @remove-local-avatar-favorite='removeLocalAvatarFavorite'
+                                @select-avatar-with-confirmation='selectAvatarWithConfirmation'
                                 @click='showAvatarDialog(favorite.id)')
-                                .x-friend-item
-                                    template(v-if='favorite.ref')
-                                        .avatar
-                                            img(v-lazy='favorite.ref.thumbnailImageUrl')
-                                        .detail
-                                            span.name(v-text='favorite.ref.name')
-                                            span.extra(v-text='favorite.ref.authorName')
-                                        template(v-if='editFavoritesMode')
-                                            el-dropdown(
-                                                trigger='click'
-                                                @click.native.stop
-                                                size='mini'
-                                                style='margin-left: 5px')
-                                                el-tooltip(
-                                                    placement='top'
-                                                    :content='$t("view.favorite.move_tooltip")'
-                                                    :disabled='hideTooltips')
-                                                    el-button(type='default' icon='el-icon-back' size='mini' circle)
-                                                el-dropdown-menu(#default='dropdown')
-                                                    template(
-                                                        v-if='groupAPI.name !== group.name'
-                                                        v-for='groupAPI in API.favoriteAvatarGroups')
-                                                        el-dropdown-item(
-                                                            :key='groupAPI.name'
-                                                            style='display: block; margin: 10px 0'
-                                                            @click.native='moveFavorite(favorite.ref, groupAPI, "avatar")'
-                                                            :disabled='groupAPI.count >= groupAPI.capacity') {{ groupAPI.displayName }} ({{ groupAPI.count }} / {{ groupAPI.capacity }})
-                                            el-button(type='text' size='mini' @click.stop style='margin-left: 5px')
-                                                el-checkbox(v-model='favorite.$selected')
-                                        template(v-else)
-                                            el-tooltip(
-                                                v-if='favorite.deleted'
-                                                placement='left'
-                                                :content='$t("view.favorite.unavailable_tooltip")')
-                                                i.el-icon-warning(style='color: #f56c6c; margin-left: 5px')
-                                            el-tooltip(
-                                                v-if='favorite.ref.releaseStatus === "private"'
-                                                placement='left'
-                                                :content='$t("view.favorite.private")')
-                                                i.el-icon-warning(style='color: #e6a23c; margin-left: 5px')
-                                            el-tooltip(
-                                                v-if='favorite.ref.releaseStatus !== "private" && !favorite.deleted'
-                                                placement='left'
-                                                :content='$t("view.favorite.select_avatar_tooltip")'
-                                                :disabled='hideTooltips')
-                                                el-button(
-                                                    @click.stop='selectAvatarWithConfirmation(favorite.id)'
-                                                    :disabled='API.currentUser.currentAvatar === favorite.id'
-                                                    size='mini'
-                                                    icon='el-icon-check'
-                                                    circle
-                                                    style='margin-left: 5px')
-                                            el-tooltip(
-                                                placement='right'
-                                                :content='$t("view.favorite.unfavorite_tooltip")'
-                                                :disabled='hideTooltips')
-                                                el-button(
-                                                    v-if='shiftHeld'
-                                                    @click.stop='deleteFavorite(favorite.id)'
-                                                    size='mini'
-                                                    icon='el-icon-close'
-                                                    circle
-                                                    style='color: #f56c6c; margin-left: 5px')
-                                                el-button(
-                                                    v-else
-                                                    @click.stop='showFavoriteDialog("avatar", favorite.id)'
-                                                    type='default'
-                                                    icon='el-icon-star-on'
-                                                    size='mini'
-                                                    circle
-                                                    style='margin-left: 5px')
-                                    template(v-else)
-                                        .avatar
-                                        .detail
-                                            span.name(v-text='favorite.name || favorite.id')
-                                        el-button(
-                                            type='text'
-                                            icon='el-icon-close'
-                                            size='mini'
-                                            @click.stop='deleteFavorite(favorite.id)'
-                                            style='margin-left: 5px')
                         div(
                             v-else
                             style='padding-top: 25px; width: 100%; display: flex; align-items: center; justify-content: center; color: rgb(144, 147, 153)')
@@ -304,78 +232,24 @@ mixin favoritesTab
                                     icon='el-icon-delete'
                                     circle
                                     style='margin-left: 5px')
+
                         .x-friend-list(style='margin-top: 10px' v-if='localAvatarFavorites[group].length')
-                            div(
+                            favorites-avatar-item(
+                                is-local-favorite
                                 style='display: inline-block; width: 300px; margin-right: 15px'
                                 v-for='favorite in localAvatarFavorites[group]'
                                 :key='favorite.id'
+                                :favorite='favorite'
+                                :group='group'
+                                :hide-tooltips='hideTooltips'
+                                :shift-held='shiftHeld'
+                                :edit-favorites-mode='editFavoritesMode'
+                                @handle-select='favorite.$selected = $event'
+                                @show-favorite-dialog='showFavoriteDialog'
+                                @add-favorite-avatar='addFavoriteAvatar'
+                                @remove-local-avatar-favorite='removeLocalAvatarFavorite'
+                                @select-avatar-with-confirmation='selectAvatarWithConfirmation'
                                 @click='showAvatarDialog(favorite.id)')
-                                .x-friend-item
-                                    template(v-if='favorite.name')
-                                        .avatar
-                                            img(v-lazy='favorite.thumbnailImageUrl')
-                                        .detail
-                                            span.name(v-text='favorite.name')
-                                            span.extra(v-text='favorite.authorName')
-                                        template(v-if='editFavoritesMode')
-                                            el-dropdown(
-                                                trigger='click'
-                                                @click.native.stop
-                                                size='mini'
-                                                style='margin-left: 5px')
-                                                el-tooltip(
-                                                    placement='left'
-                                                    :content='$t("view.favorite.copy_tooltip")'
-                                                    :disabled='hideTooltips')
-                                                    el-button(type='default' icon='el-icon-back' size='mini' circle)
-                                                el-dropdown-menu(#default='dropdown')
-                                                    template(v-for='groupAPI in API.favoriteAvatarGroups')
-                                                        el-dropdown-item(
-                                                            :key='groupAPI.name'
-                                                            style='display: block; margin: 10px 0'
-                                                            @click.native='addFavoriteAvatar(favorite, groupAPI, true)'
-                                                            :disabled='groupAPI.count >= groupAPI.capacity') {{ groupAPI.displayName }} ({{ groupAPI.count }} / {{ groupAPI.capacity }})
-                                        template(v-else)
-                                            el-tooltip(
-                                                placement='left'
-                                                :content='$t("view.favorite.select_avatar_tooltip")'
-                                                :disabled='hideTooltips')
-                                                el-button(
-                                                    @click.stop='selectAvatarWithConfirmation(favorite.id)'
-                                                    :disabled='API.currentUser.currentAvatar === favorite.id'
-                                                    size='mini'
-                                                    icon='el-icon-check'
-                                                    circle
-                                                    style='margin-left: 5px')
-                                        el-tooltip(
-                                            placement='right'
-                                            :content='$t("view.favorite.unfavorite_tooltip")'
-                                            :disabled='hideTooltips')
-                                            el-button(
-                                                v-if='shiftHeld'
-                                                @click.stop='removeLocalAvatarFavorite(favorite.id, group)'
-                                                size='mini'
-                                                icon='el-icon-close'
-                                                circle
-                                                style='color: #f56c6c; margin-left: 5px')
-                                            el-button(
-                                                v-else
-                                                @click.stop='showFavoriteDialog("avatar", favorite.id)'
-                                                type='default'
-                                                icon='el-icon-star-on'
-                                                size='mini'
-                                                circle
-                                                style='margin-left: 5px')
-                                    template(v-else)
-                                        .avatar
-                                        .detail
-                                            span(v-text='favorite.id')
-                                        el-button(
-                                            type='text'
-                                            icon='el-icon-close'
-                                            size='mini'
-                                            @click.stop='removeLocalAvatarFavorite(favorite.id, group)'
-                                            style='margin-left: 5px')
                         div(
                             v-else
                             style='padding-top: 25px; width: 100%; display: flex; align-items: center; justify-content: center; color: rgb(144, 147, 153)')

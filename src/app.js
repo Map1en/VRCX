@@ -63,6 +63,7 @@ import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import Location from './components/common/Location.vue';
 import FavoritesWorldTab from './components/favorites/FavoritesWorldTab.vue';
 import FavoritesFriendTab from './components/favorites/FavoritesFriendTab.vue';
+import FavoritesAvatarItem from './components/favorites/FavoritesAvatarItem.vue';
 
 // dialogs
 import WorldDialog from './views/dialogs/WorldDialog.vue';
@@ -209,6 +210,7 @@ console.log(`isLinux: ${LINUX}`);
             // - favorites
             FavoritesWorldTab,
             FavoritesFriendTab,
+            FavoritesAvatarItem,
             // - settings
             SimpleSwitch,
 
@@ -20935,26 +20937,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     // #endregion
-
-    // favWorldItem have to be defined
-    $app.methods.deleteFavorite = function (objectId) {
-        favoriteRequest.deleteFavorite({
-            objectId
-        });
-        // FIXME: 메시지 수정
-        // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-        //     confirmButtonText: 'Confirm',
-        //     cancelButtonText: 'Cancel',
-        //     type: 'info',
-        //     callback: (action) => {
-        //         if (action === 'confirm') {
-        //             API.deleteFavorite({
-        //                 objectId
-        //             });
-        //         }
-        //     }
-        // });
-    };
 
     // #region | Electron
 

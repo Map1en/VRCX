@@ -47,16 +47,14 @@
                     </el-tooltip>
                 </template>
                 <div v-if="group.count" class="x-friend-list" style="margin-top: 10px">
-                    <div
+                    <favorites-friend-item
                         v-for="favorite in groupedByGroupKeyFavoriteFriends[group.key]"
                         :key="favorite.id"
                         style="display: inline-block; width: 300px; margin-right: 15px"
-                        @click="showUserDialog(favorite.id)">
-                        <favorites-friend-item
-                            :favorite="favorite"
-                            :edit-favorites-mode="editFavoritesMode"
-                            :group="group" />
-                    </div>
+                        :favorite="favorite"
+                        :edit-favorites-mode="editFavoritesMode"
+                        :group="group"
+                        @click="showUserDialog(favorite.id)" />
                 </div>
                 <div
                     v-else
