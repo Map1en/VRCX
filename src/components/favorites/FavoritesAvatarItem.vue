@@ -202,7 +202,20 @@
                 this.$emit('show-favorite-dialog', 'avatar', this.favorite.id);
             },
             addFavoriteAvatar(groupAPI) {
-                this.$emit('add-favorite-avatar', this.favorite, groupAPI, true);
+                return favoriteRequest
+                    .addFavorite({
+                        type: 'avatar',
+                        favoriteId: this.favorite.id,
+                        tags: groupAPI.name
+                    })
+                    .then((args) => {
+                        this.$message({
+                            message: 'Avatar added to favorites',
+                            type: 'success'
+                        });
+
+                        return args;
+                    });
             },
             removeLocalAvatarFavorite() {
                 this.$emit('remove-local-avatar-favorite', this.favorite.id, this.group);

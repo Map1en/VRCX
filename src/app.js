@@ -63,7 +63,7 @@ import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import Location from './components/common/Location.vue';
 import FavoritesWorldTab from './components/favorites/FavoritesWorldTab.vue';
 import FavoritesFriendTab from './components/favorites/FavoritesFriendTab.vue';
-import FavoritesAvatarItem from './components/favorites/FavoritesAvatarItem.vue';
+import FavoritesAvatarTab from './components/favorites/FavoritesAvatarTab.vue';
 
 // dialogs
 import WorldDialog from './views/dialogs/WorldDialog.vue';
@@ -210,7 +210,7 @@ console.log(`isLinux: ${LINUX}`);
             // - favorites
             FavoritesWorldTab,
             FavoritesFriendTab,
-            FavoritesAvatarItem,
+            FavoritesAvatarTab,
             // - settings
             SimpleSwitch,
 
@@ -5833,23 +5833,6 @@ console.log(`isLinux: ${LINUX}`);
             });
     };
 
-    $app.methods.clearFavoriteGroup = function (ctx) {
-        // FIXME: 메시지 수정
-        this.$confirm('Continue? Clear Group', 'Confirm', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'info',
-            callback: (action) => {
-                if (action === 'confirm') {
-                    favoriteRequest.clearFavoriteGroup({
-                        type: ctx.type,
-                        group: ctx.name
-                    });
-                }
-            }
-        });
-    };
-
     $app.computed.favoriteFriends = function () {
         if (this.sortFavoriteFriends) {
             this.sortFavoriteFriends = false;
@@ -11401,24 +11384,6 @@ console.log(`isLinux: ${LINUX}`);
                 if (message) {
                     this.$message({
                         message: 'World added to favorites',
-                        type: 'success'
-                    });
-                }
-                return args;
-            });
-    };
-
-    $app.methods.addFavoriteAvatar = function (ref, group, message) {
-        return favoriteRequest
-            .addFavorite({
-                type: 'avatar',
-                favoriteId: ref.id,
-                tags: group.name
-            })
-            .then((args) => {
-                if (message) {
-                    this.$message({
-                        message: 'Avatar added to favorites',
                         type: 'success'
                     });
                 }
@@ -18381,6 +18346,23 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.importAvatarImportTable = async function () {
+        const addFavoriteAvatar = function (ref, group, message) {
+            return favoriteRequest
+                .addFavorite({
+                    type: 'avatar',
+                    favoriteId: ref.id,
+                    tags: group.name
+                })
+                .then((args) => {
+                    if (message) {
+                        this.$message({
+                            message: 'Avatar added to favorites',
+                            type: 'success'
+                        });
+                    }
+                    return args;
+                });
+        };
         var D = this.avatarImportDialog;
         if (!D.avatarImportFavoriteGroup && !D.avatarImportLocalFavoriteGroup) {
             return;
@@ -18395,7 +18377,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
                 var ref = data[i];
                 if (D.avatarImportFavoriteGroup) {
-                    await this.addFavoriteAvatar(
+                    await addFavoriteAvatar(
                         ref,
                         D.avatarImportFavoriteGroup,
                         false

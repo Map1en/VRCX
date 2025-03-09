@@ -116,8 +116,22 @@
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
             },
-            clearFavoriteGroup(group) {
-                this.$emit('clear-favorite-group', group);
+
+            clearFavoriteGroup(ctx) {
+                // FIXME: 메시지 수정
+                this.$confirm('Continue? Clear Group', 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info',
+                    callback: (action) => {
+                        if (action === 'confirm') {
+                            favoriteRequest.clearFavoriteGroup({
+                                type: ctx.type,
+                                group: ctx.name
+                            });
+                        }
+                    }
+                });
             },
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);

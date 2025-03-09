@@ -53,4 +53,22 @@ mixin favoritesTab
             el-tab-pane(:label='$t("view.favorite.avatars.header")' lazy)
                 favorites-avatar-tab(
                     :sort-favorites.sync='sortFavorites'
-                    )
+                    :hide-tooltips='hideTooltips'
+                    :shift-held='shiftHeld'
+                    :edit-favorites-mode='editFavoritesMode'
+                    :avatar-history-array='avatarHistoryArray'
+                    :refreshing-local-favorites='refreshingLocalFavorites'
+                    :local-avatar-favorite-groups='localAvatarFavoriteGroups'
+                    :local-avatar-favorites='localAvatarFavorites'
+                    :favorite-avatars='favoriteAvatars'
+                    @show-avatar-import-dialog='showAvatarImportDialog'
+                    @save-sort-favorites-option='saveSortFavoritesOption'
+                    @show-avatar-dialog='showAvatarDialog'
+                    @show-favorite-dialog='showFavoriteDialog'
+                    @remove-local-avatar-favorite='removeLocalAvatarFavorite'
+                    @select-avatar-with-confirmation='selectAvatarWithConfirmation'
+                    @prompt-clear-avatar-history='promptClearAvatarHistory'
+                    @prompt-new-local-avatar-favorite-group='promptNewLocalAvatarFavoriteGroup'
+                    @refresh-local-avatar-favorites='refreshLocalAvatarFavorites'
+                    @prompt-local-avatar-favorite-group-rename='promptLocalAvatarFavoriteGroupRename'
+                    @prompt-local-avatar-favorite-group-delete='promptLocalAvatarFavoriteGroupDelete')

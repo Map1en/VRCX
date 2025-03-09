@@ -244,6 +244,7 @@
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
     import AvatarExportDialog from '../../views/dialogs/AvatarExportDialog.vue';
+    import { favoriteRequest } from '../../classes/request';
 
     export default {
         name: 'FavoritesAvatarTab',
@@ -354,11 +355,55 @@
             showAvatarDialog() {
                 this.$emit('show-avatar-dialog', this.favorite.id);
             },
-            changeFavoriteGroupName(group) {
-                this.$emit('change-favorite-group-name', group);
+            changeFavoriteGroupName(ctx) {
+                this.$prompt(
+                    $t('prompt.change_favorite_group_name.description'),
+                    $t('prompt.change_favorite_group_name.header'),
+                    {
+                        distinguishCancelAndClose: true,
+                        cancelButtonText: $t('prompt.change_favorite_group_name.cancel'),
+                        confirmButtonText: $t('prompt.change_favorite_group_name.change'),
+                        inputPlaceholder: $t('prompt.change_favorite_group_name.input_placeholder'),
+                        inputValue: ctx.displayName,
+                        inputPattern: /\S+/,
+                        inputErrorMessage: $t('prompt.change_favorite_group_name.input_error'),
+                        callback: (action, instance) => {
+                            if (action === 'confirm') {
+                                favoriteRequest
+                                    .saveFavoriteGroup({
+                                        type: ctx.type,
+                                        group: ctx.name,
+                                        displayName: instance.inputValue
+                                    })
+                                    .then(() => {
+                                        this.$message({
+                                            message: $t('prompt.change_favorite_group_name.message.success'),
+                                            type: 'success'
+                                        });
+                                        // load new group name
+                                        this.API.refreshFavoriteGroups();
+                                    });
+                            }
+                        }
+                    }
+                );
             },
-            clearFavoriteGroup(group) {
-                this.$emit('clear-favorite-group', group);
+
+            clearFavoriteGroup(ctx) {
+                // FIXME: 메시지 수정
+                this.$confirm('Continue? Clear Group', 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info',
+                    callback: (action) => {
+                        if (action === 'confirm') {
+                            favoriteRequest.clearFavoriteGroup({
+                                type: ctx.type,
+                                group: ctx.name
+                            });
+                        }
+                    }
+                });
             },
             showFavoriteDialog(type, id) {
                 this.$emit('show-favorite-dialog', type, id);
@@ -383,9 +428,6 @@
             },
             promptLocalAvatarFavoriteGroupDelete(group) {
                 this.$emit('prompt-local-avatar-favorite-group-delete', group);
-            },
-            addFavoriteAvatar(favorite, groupAPI, message) {
-                this.$emit('add-favorite-avatar', favorite, groupAPI, message);
             }
         }
     };

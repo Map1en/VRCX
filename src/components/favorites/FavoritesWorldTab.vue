@@ -114,7 +114,7 @@
                                     icon="el-icon-delete"
                                     circle
                                     style="margin-left: 5px"
-                                    @click.stop="$emit('clear-favorite-group', group)" />
+                                    @click.stop="clearFavoriteGroup(group)" />
                             </el-tooltip>
                         </el-dropdown>
                     </div>
@@ -384,6 +384,22 @@
             },
             removeLocalWorldFavorite(param1, param2) {
                 this.$emit('remove-local-world-favorite', param1, param2);
+            },
+            clearFavoriteGroup(ctx) {
+                // FIXME: 메시지 수정
+                this.$confirm('Continue? Clear Group', 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info',
+                    callback: (action) => {
+                        if (action === 'confirm') {
+                            favoriteRequest.clearFavoriteGroup({
+                                type: ctx.type,
+                                group: ctx.name
+                            });
+                        }
+                    }
+                });
             }
         }
     };
