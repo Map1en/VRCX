@@ -35,7 +35,7 @@
                     :edit-favorites-mode="isEditMode"
                     @show-friend-import-dialog="showFriendImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
-                    @change-favorite-group-name="changeFavoriteGroupName"></favorites-friend-tab>
+                    @change-favorite-group-name="changeFavoriteGroupName" />
             </el-tab-pane>
             <el-tab-pane :label="$t('view.favorite.worlds.header')" lazy>
                 <favorites-world-tab
@@ -47,8 +47,9 @@
                     @show-favorite-dialog="showFavoriteDialog"
                     @refresh-local-world-favorite="refreshLocalWorldFavorites"
                     @delete-local-world-favorite-group="deleteLocalWorldFavoriteGroup"
-                    @search-world-favorites="searchWorldFavorites"
                     @remove-local-world-favorite="removeLocalWorldFavorite"
+                    @rename-local-world-favorite-group="renameLocalWorldFavoriteGroup"
+                    @new-local-world-favorite-group="newLocalWorldFavoriteGroup"
                     :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :favorite-worlds="favoriteWorlds"
@@ -56,7 +57,7 @@
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
                     :local-world-favorite-groups="localWorldFavoriteGroups"
-                    :local-world-favorites="localWorldFavorites"></favorites-world-tab>
+                    :local-world-favorites="localWorldFavorites" />
             </el-tab-pane>
             <el-tab-pane :label="$t('view.favorite.avatars.header')" lazy>
                 <favorites-avatar-tab
@@ -73,15 +74,14 @@
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @show-avatar-dialog="showAvatarDialog"
                     @show-favorite-dialog="showFavoriteDialog"
+                    @change-favorite-group-name="changeFavoriteGroupName"
                     @remove-local-avatar-favorite="removeLocalAvatarFavorite"
                     @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                     @prompt-clear-avatar-history="promptClearAvatarHistory"
                     @prompt-new-local-avatar-favorite-group="promptNewLocalAvatarFavoriteGroup"
                     @refresh-local-avatar-favorites="refreshLocalAvatarFavorites"
                     @prompt-local-avatar-favorite-group-rename="promptLocalAvatarFavoriteGroupRename"
-                    @prompt-local-avatar-favorite-group-delete="
-                        promptLocalAvatarFavoriteGroupDelete
-                    "></favorites-avatar-tab>
+                    @prompt-local-avatar-favorite-group-delete="promptLocalAvatarFavoriteGroupDelete" />
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -91,7 +91,8 @@
     import FavoritesFriendTab from '../../components/favorites/FavoritesFriendTab.vue';
     import FavoritesWorldTab from '../../components/favorites/FavoritesWorldTab.vue';
     import FavoritesAvatarTab from '../../components/favorites/FavoritesAvatarTab.vue';
-    import { favoriteRequest } from '../../classes/request';
+    import { avatarRequest, favoriteRequest, worldRequest } from '../../classes/request';
+    import * as workerTimers from 'worker-timers';
 
     export default {
         name: 'FavoritesTab',
@@ -112,14 +113,14 @@
             localWorldFavoriteGroups: Array,
             localWorldFavorites: Object,
             avatarHistoryArray: Array,
-            refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
             favoriteAvatars: Array
         },
         data() {
             return {
-                editFavoritesMode: false
+                editFavoritesMode: false,
+                refreshingLocalFavorites: false
             };
         },
         computed: {
@@ -141,13 +142,6 @@
             }
         },
         methods: {
-            clearBulkFavoriteSelection() {
-                this.$emit('clear-bulk-favorite-selection');
-            },
-            bulkCopyFavoriteSelection() {
-                this.$emit('bulk-copy-favorite-selection');
-            },
-
             showBulkUnfavoriteSelectionConfirm() {
                 const elementsTicked = [];
                 // check favorites type
@@ -194,6 +188,91 @@
                 }
                 this.editFavoritesMode = false;
             },
+
+            changeFavoriteGroupName(ctx) {
+                this.$prompt(
+                    $t('prompt.change_favorite_group_name.description'),
+                    $t('prompt.change_favorite_group_name.header'),
+                    {
+                        distinguishCancelAndClose: true,
+                        cancelButtonText: $t('prompt.change_favorite_group_name.cancel'),
+                        confirmButtonText: $t('prompt.change_favorite_group_name.change'),
+                        inputPlaceholder: $t('prompt.change_favorite_group_name.input_placeholder'),
+                        inputValue: ctx.displayName,
+                        inputPattern: /\S+/,
+                        inputErrorMessage: $t('prompt.change_favorite_group_name.input_error'),
+                        callback: (action, instance) => {
+                            if (action === 'confirm') {
+                                favoriteRequest
+                                    .saveFavoriteGroup({
+                                        type: ctx.type,
+                                        group: ctx.name,
+                                        displayName: instance.inputValue
+                                    })
+                                    .then(() => {
+                                        this.$message({
+                                            message: $t('prompt.change_favorite_group_name.message.success'),
+                                            type: 'success'
+                                        });
+                                        // load new group name
+                                        this.API.refreshFavoriteGroups();
+                                    });
+                            }
+                        }
+                    }
+                );
+            },
+
+            async refreshLocalAvatarFavorites() {
+                if (this.refreshingLocalFavorites) {
+                    return;
+                }
+                this.refreshingLocalFavorites = true;
+                for (const avatarId of this.localAvatarFavoritesList) {
+                    if (!this.refreshingLocalFavorites) {
+                        break;
+                    }
+                    try {
+                        await avatarRequest.getAvatar({
+                            avatarId
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    await new Promise((resolve) => {
+                        workerTimers.setTimeout(resolve, 1000);
+                    });
+                }
+                this.refreshingLocalFavorites = false;
+            },
+            async refreshLocalWorldFavorites() {
+                if (this.refreshingLocalFavorites) {
+                    return;
+                }
+                this.refreshingLocalFavorites = true;
+                for (const worldId of this.localWorldFavoritesList) {
+                    if (!this.refreshingLocalFavorites) {
+                        break;
+                    }
+                    try {
+                        await worldRequest.getWorld({
+                            worldId
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    await new Promise((resolve) => {
+                        workerTimers.setTimeout(resolve, 1000);
+                    });
+                }
+                this.refreshingLocalFavorites = false;
+            },
+            clearBulkFavoriteSelection() {
+                this.$emit('clear-bulk-favorite-selection');
+            },
+            bulkCopyFavoriteSelection() {
+                this.$emit('bulk-copy-favorite-selection');
+            },
             getLocalWorldFavorites() {
                 this.$emit('get-local-world-favorites');
             },
@@ -203,44 +282,35 @@
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
             },
-            changeFavoriteGroupName() {
-                this.$emit('change-favorite-group-name');
-            },
             showWorldImportDialog() {
                 this.$emit('show-world-import-dialog');
             },
-            showWorldDialog() {
-                this.$emit('show-world-dialog');
+            showWorldDialog(tag, shortName) {
+                this.$emit('show-world-dialog', tag, shortName);
             },
-            newInstanceSelfInvite() {
-                this.$emit('new-instance-self-invite');
+            newInstanceSelfInvite(worldId) {
+                this.$emit('new-instance-self-invite', worldId);
             },
-            showFavoriteDialog() {
-                this.$emit('show-favorite-dialog');
+            showFavoriteDialog(type, objectId) {
+                this.$emit('show-favorite-dialog', type, objectId);
             },
-            refreshLocalWorldFavorites() {
-                this.$emit('refresh-local-world-favorites');
+            deleteLocalWorldFavoriteGroup(group) {
+                this.$emit('delete-local-world-favorite-group', group);
             },
-            deleteLocalWorldFavoriteGroup() {
-                this.$emit('delete-local-world-favorite-group');
-            },
-            searchWorldFavorites() {
-                this.$emit('search-world-favorites');
-            },
-            removeLocalWorldFavorite() {
-                this.$emit('remove-local-world-favorite');
+            removeLocalWorldFavorite(worldId, group) {
+                this.$emit('remove-local-world-favorite', worldId, group);
             },
             showAvatarImportDialog() {
                 this.$emit('show-avatar-import-dialog');
             },
-            showAvatarDialog() {
-                this.$emit('show-avatar-dialog');
+            showAvatarDialog(avatarId) {
+                this.$emit('show-avatar-dialog', avatarId);
             },
-            removeLocalAvatarFavorite() {
-                this.$emit('remove-local-avatar-favorite');
+            removeLocalAvatarFavorite(avatarId, group) {
+                this.$emit('remove-local-avatar-favorite', avatarId, group);
             },
-            selectAvatarWithConfirmation() {
-                this.$emit('select-avatar-with-confirmation');
+            selectAvatarWithConfirmation(id) {
+                this.$emit('select-avatar-with-confirmation', id);
             },
             promptClearAvatarHistory() {
                 this.$emit('prompt-clear-avatar-history');
@@ -248,14 +318,17 @@
             promptNewLocalAvatarFavoriteGroup() {
                 this.$emit('prompt-new-local-avatar-favorite-group');
             },
-            refreshLocalAvatarFavorites() {
-                this.$emit('refresh-local-avatar-favorites');
+            promptLocalAvatarFavoriteGroupRename(group) {
+                this.$emit('prompt-local-avatar-favorite-group-rename', group);
             },
-            promptLocalAvatarFavoriteGroupRename() {
-                this.$emit('prompt-local-avatar-favorite-group-rename');
+            promptLocalAvatarFavoriteGroupDelete(group) {
+                this.$emit('prompt-local-avatar-favorite-group-delete', group);
             },
-            promptLocalAvatarFavoriteGroupDelete() {
-                this.$emit('prompt-local-avatar-favorite-group-delete');
+            renameLocalWorldFavoriteGroup(inputValue, group) {
+                this.$emit('rename-local-world-favorite-group', inputValue, group);
+            },
+            newLocalWorldFavoriteGroup(inputValue) {
+                this.$emit('new-local-world-favorite-group', inputValue);
             }
         }
     };

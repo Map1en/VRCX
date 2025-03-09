@@ -57,13 +57,11 @@ import ChartsTab from './views/tabs/Charts.vue';
 import SideBar from './views/SideBar.vue';
 import NavMenu from './views/NavMenu.vue';
 import FriendsListTab from './views/tabs/FriendsList.vue';
+import FavoritesTab from './views/tabs/Favorites.vue';
 
 // components
 import SimpleSwitch from './components/settings/SimpleSwitch.vue';
 import Location from './components/common/Location.vue';
-import FavoritesWorldTab from './components/favorites/FavoritesWorldTab.vue';
-import FavoritesFriendTab from './components/favorites/FavoritesFriendTab.vue';
-import FavoritesAvatarTab from './components/favorites/FavoritesAvatarTab.vue';
 
 // dialogs
 import WorldDialog from './views/dialogs/WorldDialog.vue';
@@ -200,6 +198,7 @@ console.log(`isLinux: ${LINUX}`);
             ModerationTab,
             ChartsTab,
             FriendsListTab,
+            FavoritesTab,
             // - others
             SideBar,
             NavMenu,
@@ -207,10 +206,7 @@ console.log(`isLinux: ${LINUX}`);
             // components
             // - common
             Location,
-            // - favorites
-            FavoritesWorldTab,
-            FavoritesFriendTab,
-            FavoritesAvatarTab,
+
             // - settings
             SimpleSwitch,
 
@@ -19014,6 +19010,14 @@ console.log(`isLinux: ${LINUX}`);
         return false;
     };
 
+    $app.methods.getLocalWorldFavoriteGroupLength = function (group) {
+        var favoriteGroup = this.localWorldFavorites[group];
+        if (!favoriteGroup) {
+            return 0;
+        }
+        return favoriteGroup.length;
+    };
+
     $app.methods.newLocalWorldFavoriteGroup = function (group) {
         if (this.localWorldFavoriteGroups.includes(group)) {
             $app.$message({
@@ -19111,29 +19115,6 @@ console.log(`isLinux: ${LINUX}`);
     API.$on('LOGIN', function () {
         $app.getLocalWorldFavorites();
     });
-
-    $app.methods.refreshLocalWorldFavorites = async function () {
-        if (this.refreshingLocalFavorites) {
-            return;
-        }
-        this.refreshingLocalFavorites = true;
-        for (var worldId of this.localWorldFavoritesList) {
-            if (!this.refreshingLocalFavorites) {
-                break;
-            }
-            try {
-                await worldRequest.getWorld({
-                    worldId
-                });
-            } catch (err) {
-                console.error(err);
-            }
-            await new Promise((resolve) => {
-                workerTimers.setTimeout(resolve, 1000);
-            });
-        }
-        this.refreshingLocalFavorites = false;
-    };
 
     // #endregion
     // #region | App: Local Avatar Favorites
@@ -19487,31 +19468,6 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
         });
-    };
-
-    $app.data.refreshingLocalFavorites = false;
-
-    $app.methods.refreshLocalAvatarFavorites = async function () {
-        if (this.refreshingLocalFavorites) {
-            return;
-        }
-        this.refreshingLocalFavorites = true;
-        for (var avatarId of this.localAvatarFavoritesList) {
-            if (!this.refreshingLocalFavorites) {
-                break;
-            }
-            try {
-                await avatarRequest.getAvatar({
-                    avatarId
-                });
-            } catch (err) {
-                console.error(err);
-            }
-            await new Promise((resolve) => {
-                workerTimers.setTimeout(resolve, 1000);
-            });
-        }
-        this.refreshingLocalFavorites = false;
     };
 
     // #endregion
@@ -20604,8 +20560,41 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
 
     // #region | Tab Props
-    $app.computed.sideBarTabProps = function () {
+
+    $app.computed.moderationTabBind = function () {
         return {
+            menuActiveIndex: this.menuActiveIndex,
+            tableData: this.playerModerationTable,
+            shiftHeld: this.shiftHeld,
+            hideTooltips: this.hideTooltips
+        };
+    };
+
+    $app.computed.friendsListTabBind = function () {
+        return {
+            menuActiveIndex: this.menuActiveIndex,
+            friends: this.friends,
+            hideTooltips: this.hideTooltips,
+            randomUserColours: this.randomUserColours,
+            sortStatus: this.sortStatus,
+            languageClass: this.languageClass,
+            confirmDeleteFriend: this.confirmDeleteFriend,
+            friendsListSearch: this.friendsListSearch,
+            stringComparer: this.stringComparer
+        };
+    };
+    $app.computed.friendsListTabEvent = function () {
+        return {
+            'get-all-user-stats': this.getAllUserStats,
+            'lookup-user': this.lookupUser,
+            'update:friendsListSearch': (value) =>
+                (this.friendsListSearch = value)
+        };
+    };
+
+    $app.computed.sideBarTabBind = function () {
+        return {
+            isSideBarTabShow: this.isSideBarTabShow,
             style: { width: `${this.asideWidth}px` },
             vipFriends: this.vipFriends,
             onlineFriends: this.onlineFriends,
@@ -20631,6 +20620,16 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
+    $app.computed.sideBarTabEvent = function () {
+        return {
+            'show-group-dialog': this.showGroupDialog,
+            'quick-search-change': this.quickSearchChange,
+            'direct-access-paste': this.directAccessPaste,
+            'refresh-friends-list': this.refreshFriendsList,
+            'confirm-delete-friend': this.confirmDeleteFriend
+        };
+    };
+
     $app.computed.isSideBarTabShow = function () {
         return !(
             this.menuActiveIndex === 'friendsList' ||
@@ -20638,6 +20637,72 @@ console.log(`isLinux: ${LINUX}`);
         );
     };
 
+    $app.computed.favoritesTabBind = function () {
+        return {
+            menuActiveIndex: this.menuActiveIndex,
+            hideTooltips: this.hideTooltips,
+            shiftHeld: this.shiftHeld,
+            favoriteFriends: this.favoriteFriends,
+            sortFavorites: this.sortFavorites,
+            groupedByGroupKeyFavoriteFriends:
+                this.groupedByGroupKeyFavoriteFriends,
+            favoriteWorlds: this.favoriteWorlds,
+            localWorldFavoriteGroups: this.localWorldFavoriteGroups,
+            localWorldFavorites: this.localWorldFavorites,
+            avatarHistoryArray: this.avatarHistoryArray,
+            localAvatarFavoriteGroups: this.localAvatarFavoriteGroups,
+            localAvatarFavorites: this.localAvatarFavorites,
+            favoriteAvatars: this.favoriteAvatars
+        };
+    };
+
+    $app.computed.favoritesTabEvent = function () {
+        return {
+            'clear-bulk-favorite-selection': this.clearBulkFavoriteSelection,
+            'bulk-copy-favorite-selection': this.bulkCopyFavoriteSelection,
+            'get-local-world-favorites': this.getLocalWorldFavorites,
+            'show-friend-import-dialog': this.showFriendImportDialog,
+            'save-sort-favorites-option': this.saveSortFavoritesOption,
+            'show-world-import-dialog': this.showWorldImportDialog,
+            'show-world-dialog': this.showWorldDialog,
+            'new-instance-self-invite': this.newInstanceSelfInvite,
+            'show-favorite-dialog': this.showFavoriteDialog,
+            'delete-local-world-favorite-group':
+                this.deleteLocalWorldFavoriteGroup,
+            'remove-local-world-favorite': this.removeLocalWorldFavorite,
+            'show-avatar-import-dialog': this.showAvatarImportDialog,
+            'show-avatar-dialog': this.showAvatarDialog,
+            'remove-local-avatar-favorite': this.removeLocalAvatarFavorite,
+            'select-avatar-with-confirmation':
+                this.selectAvatarWithConfirmation,
+            'prompt-clear-avatar-history': this.promptClearAvatarHistory,
+            'prompt-new-local-avatar-favorite-group':
+                this.promptNewLocalAvatarFavoriteGroup,
+            'prompt-local-avatar-favorite-group-rename':
+                this.promptLocalAvatarFavoriteGroupRename,
+            'prompt-local-avatar-favorite-group-delete':
+                this.promptLocalAvatarFavoriteGroupDelete,
+            'new-local-world-favorite-group': this.newLocalWorldFavoriteGroup,
+            'rename-local-world-favorite-group':
+                this.renameLocalWorldFavoriteGroup
+        };
+    };
+
+    $app.computed.chartsTabBind = function () {
+        return {
+            getWorldName: this.getWorldName,
+            isDarkMode: this.isDarkMode,
+            dtHour12: this.dtHour12,
+            friendsMap: this.friends,
+            localFavoriteFriends: this.localFavoriteFriends
+        };
+    };
+    $app.computed.chartsTabEvent = function () {
+        return {
+            'open-previous-instance-info-dialog':
+                this.showPreviousInstanceInfoDialog
+        };
+    };
     // #endregion
 
     // #region | Electron

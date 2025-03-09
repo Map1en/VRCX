@@ -103,7 +103,7 @@
                                     icon="el-icon-edit"
                                     circle
                                     style="margin-left: 5px"
-                                    @click.stop="$emit('change-favorite-group-name', group)" />
+                                    @click.stop="changeFavoriteGroupName(group)" />
                             </el-tooltip>
                             <el-tooltip
                                 placement="right"
@@ -248,8 +248,6 @@
             refreshingLocalFavorites: Boolean,
             localWorldFavoriteGroups: Array,
             localWorldFavorites: Object
-
-            // removeLocalWorldFavorite: Function
         },
         data() {
             return {
@@ -284,6 +282,9 @@
             }
         },
         methods: {
+            changeFavoriteGroupName(group) {
+                this.$emit('change-favorite-group-name', group);
+            },
             userFavoriteWorldsStatusForFavTab(visibility) {
                 let style = '';
                 if (visibility === 'public') {
@@ -321,7 +322,7 @@
                         inputErrorMessage: $t('prompt.new_local_favorite_group.input_error'),
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {
-                                this.newLocalWorldFavoriteGroup(instance.inputValue);
+                                this.$emit('new-local-world-favorite-group', instance.inputValue);
                             }
                         }
                     }
@@ -340,7 +341,7 @@
                         inputValue: group,
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {
-                                this.renameLocalWorldFavoriteGroup(instance.inputValue, group);
+                                this.$emit('rename-local-world-favorite-group', instance.inputValue, group);
                             }
                         }
                     }
