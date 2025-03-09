@@ -87,7 +87,8 @@
             avatarExportDialogVisible: Boolean,
             favoriteAvatars: Array,
             localAvatarFavoriteGroups: Array,
-            localAvatarFavorites: Object
+            localAvatarFavorites: Object,
+            localAvatarFavoritesList: Array
         },
         data() {
             return {
@@ -110,7 +111,7 @@
                     return this.avatarExportDialogVisible;
                 },
                 set(value) {
-                    this.$emit('update:avatarExportDialogVisible', value);
+                    this.$emit('update:avatar-export-dialog-visible', value);
                 }
             }
         },

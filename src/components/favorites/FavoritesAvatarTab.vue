@@ -151,26 +151,23 @@
                     ">
                     <span>No Data</span>
                 </div>
-                <span style="display: block; margin-top: 20px">{{ $t('view.favorite.avatars.local_favorites') }}</span>
-                <br />
-                <el-button
-                    size="small"
-                    :disabled="!isLocalUserVrcplusSupporter"
-                    @click="promptNewLocalAvatarFavoriteGroup">
-                    {{ $t('view.favorite.avatars.new_group') }}
-                </el-button>
-                <el-button
-                    v-if="!refreshingLocalFavorites"
-                    size="small"
-                    style="margin-left: 5px"
-                    @click="refreshLocalAvatarFavorites">
-                    {{ $t('view.favorite.avatars.refresh') }}
-                </el-button>
-                <el-button v-else size="small" style="margin-left: 5px" @click="refreshingLocalFavorites = false">
-                    <i class="el-icon-loading" style="margin-right: 5px"></i>
-                    <span>{{ $t('view.favorite.avatars.cancel_refresh') }}</span>
-                </el-button>
             </el-collapse-item>
+            <span style="display: block; margin-top: 20px">{{ $t('view.favorite.avatars.local_favorites') }}</span>
+            <br />
+            <el-button size="small" :disabled="!isLocalUserVrcplusSupporter" @click="promptNewLocalAvatarFavoriteGroup">
+                {{ $t('view.favorite.avatars.new_group') }}
+            </el-button>
+            <el-button
+                v-if="!refreshingLocalFavorites"
+                size="small"
+                style="margin-left: 5px"
+                @click="refreshLocalAvatarFavorites">
+                {{ $t('view.favorite.avatars.refresh') }}
+            </el-button>
+            <el-button v-else size="small" style="margin-left: 5px" @click="refreshingLocalFavorites = false">
+                <i class="el-icon-loading" style="margin-right: 5px"></i>
+                <span>{{ $t('view.favorite.avatars.cancel_refresh') }}</span>
+            </el-button>
             <el-collapse-item
                 v-for="group in localAvatarFavoriteGroups"
                 v-if="localAvatarFavorites[group]"
@@ -232,10 +229,11 @@
             </el-collapse-item>
         </el-collapse>
         <avatar-export-dialog
-            :avatar-export-dialog-visible="avatarExportDialogVisible"
+            :avatar-export-dialog-visible.sync="avatarExportDialogVisible"
             :favorite-avatars="favoriteAvatars"
             :local-avatar-favorite-groups="localAvatarFavoriteGroups"
-            :local-avatar-favorites="localAvatarFavorites" />
+            :local-avatar-favorites="localAvatarFavorites"
+            :local-avatar-favorites-list="localAvatarFavoritesList" />
     </div>
 </template>
 
@@ -258,7 +256,8 @@
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            favoriteAvatars: Array
+            favoriteAvatars: Array,
+            localAvatarFavoritesList: Array
         },
         data() {
             return {

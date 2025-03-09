@@ -20652,12 +20652,15 @@ console.log(`isLinux: ${LINUX}`);
             avatarHistoryArray: this.avatarHistoryArray,
             localAvatarFavoriteGroups: this.localAvatarFavoriteGroups,
             localAvatarFavorites: this.localAvatarFavorites,
-            favoriteAvatars: this.favoriteAvatars
+            favoriteAvatars: this.favoriteAvatars,
+            localAvatarFavoritesList: this.localAvatarFavoritesList,
+            localWorldFavoritesList: this.localWorldFavoritesList
         };
     };
 
     $app.computed.favoritesTabEvent = function () {
         return {
+            'update:sort-favorites': (value) => (this.sortFavorites = value),
             'clear-bulk-favorite-selection': this.clearBulkFavoriteSelection,
             'bulk-copy-favorite-selection': this.bulkCopyFavoriteSelection,
             'get-local-world-favorites': this.getLocalWorldFavorites,

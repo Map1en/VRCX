@@ -1,7 +1,7 @@
 <template>
     <div v-show="menuActiveIndex === 'favorite'" class="x-container">
         <div style="font-size: 13px; position: absolute; display: flex; right: 0; z-index: 1; margin-right: 15px">
-            <div v-if="isEditMode" style="display: inline-block; margin-right: 10px">
+            <div v-if="editFavoritesMode" style="display: inline-block; margin-right: 10px">
                 <el-button size="small" @click="clearBulkFavoriteSelection">{{ $t('view.favorite.clear') }}</el-button>
                 <el-button size="small" @click="bulkCopyFavoriteSelection">{{ $t('view.favorite.copy') }}</el-button>
                 <el-button size="small" @click="showBulkUnfavoriteSelectionConfirm">{{
@@ -10,7 +10,7 @@
             </div>
             <div style="display: flex; align-items: center; margin-right: 10px">
                 <span class="name">{{ $t('view.favorite.edit_mode') }}</span>
-                <el-switch v-model="isEditMode" style="margin-left: 5px"></el-switch>
+                <el-switch v-model="editFavoritesMode" style="margin-left: 5px"></el-switch>
             </div>
             <el-tooltip placement="bottom" :content="$t('view.favorite.refresh_tooltip')" :disabled="hideTooltips">
                 <el-button
@@ -32,7 +32,7 @@
                     :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
-                    :edit-favorites-mode="isEditMode"
+                    :edit-favorites-mode="editFavoritesMode"
                     @show-friend-import-dialog="showFriendImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName" />
@@ -53,23 +53,25 @@
                     :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :favorite-worlds="favoriteWorlds"
-                    :edit-favorites-mode="isEditMode"
+                    :edit-favorites-mode="editFavoritesMode"
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
                     :local-world-favorite-groups="localWorldFavoriteGroups"
-                    :local-world-favorites="localWorldFavorites" />
+                    :local-world-favorites="localWorldFavorites"
+                    :local-world-favorites-list="localWorldFavoritesList" />
             </el-tab-pane>
             <el-tab-pane :label="$t('view.favorite.avatars.header')" lazy>
                 <favorites-avatar-tab
                     :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :shift-held="shiftHeld"
-                    :edit-favorites-mode="isEditMode"
+                    :edit-favorites-mode="editFavoritesMode"
                     :avatar-history-array="avatarHistoryArray"
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     :local-avatar-favorite-groups="localAvatarFavoriteGroups"
                     :local-avatar-favorites="localAvatarFavorites"
                     :favorite-avatars="favoriteAvatars"
+                    :local-avatar-favorites-list="localAvatarFavoritesList"
                     @show-avatar-import-dialog="showAvatarImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @show-avatar-dialog="showAvatarDialog"
@@ -115,7 +117,9 @@
             avatarHistoryArray: Array,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            favoriteAvatars: Array
+            favoriteAvatars: Array,
+            localAvatarFavoritesList: Array,
+            localWorldFavoritesList: Array
         },
         data() {
             return {
@@ -124,20 +128,12 @@
             };
         },
         computed: {
-            isEditMode: {
-                get() {
-                    return this.editFavoritesMode;
-                },
-                set(value) {
-                    this.$emit('update:editFavoritesMode', value);
-                }
-            },
             isSortByTime: {
                 get() {
                     return this.sortFavorites;
                 },
                 set(value) {
-                    this.$emit('update:sortFavorites', value);
+                    this.$emit('update:sort-favorites', value);
                 }
             }
         },

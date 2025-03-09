@@ -62,7 +62,7 @@
                     return this.friendExportDialogVisible;
                 },
                 set(value) {
-                    this.$emit('update:friendExportDialogVisible', value);
+                    this.$emit('update:friend-export-dialog-visible', value);
                 }
             }
         },

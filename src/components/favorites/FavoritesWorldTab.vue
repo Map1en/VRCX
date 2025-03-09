@@ -2,9 +2,7 @@
     <div>
         <div style="display: flex; align-items: center; justify-content: space-between">
             <div>
-                <el-button size="small" @click="$emit('show-world-export-dialog')">{{
-                    $t('view.favorite.export')
-                }}</el-button>
+                <el-button size="small" @click="showExportDialog">{{ $t('view.favorite.export') }}</el-button>
                 <el-button size="small" style="margin-left: 5px" @click="$emit('show-world-import-dialog')">{{
                     $t('view.favorite.import')
                 }}</el-button>
@@ -221,9 +219,10 @@
         </el-collapse>
         <world-export-dialog
             :favorite-worlds="favoriteWorlds"
-            :world-export-dialog-visible="worldExportDialogVisible"
+            :world-export-dialog-visible.sync="worldExportDialogVisible"
             :local-world-favorites="localWorldFavorites"
-            :local-world-favorite-groups="localWorldFavoriteGroups" />
+            :local-world-favorite-groups="localWorldFavoriteGroups"
+            :local-world-favorites-list="localWorldFavoritesList" />
     </div>
 </template>
 
@@ -247,7 +246,8 @@
             shiftHeld: Boolean,
             refreshingLocalFavorites: Boolean,
             localWorldFavoriteGroups: Array,
-            localWorldFavorites: Object
+            localWorldFavorites: Object,
+            localWorldFavoritesList: Array
         },
         data() {
             return {
@@ -282,6 +282,9 @@
             }
         },
         methods: {
+            showExportDialog() {
+                this.worldExportDialogVisible = true;
+            },
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);
             },

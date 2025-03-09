@@ -79,6 +79,7 @@
 <script>
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
     import FriendExportDialog from '../../views/dialogs/FriendExportDialog.vue';
+    import { favoriteRequest } from '../../classes/request';
 
     export default {
         name: 'FavoritesFriendTab',

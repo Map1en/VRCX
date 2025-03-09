@@ -89,7 +89,8 @@
             favoriteWorlds: Array,
             worldExportDialogVisible: Boolean,
             localWorldFavorites: Object,
-            localWorldFavoriteGroups: Array
+            localWorldFavoriteGroups: Array,
+            localWorldFavoritesList: Array
         },
         data() {
             return {
