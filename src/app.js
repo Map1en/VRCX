@@ -19747,6 +19747,14 @@ console.log(`isLinux: ${LINUX}`);
         );
     }
 
+    $app.methods.getLocalAvatarFavoriteGroupLength = function (group) {
+        var favoriteGroup = this.localAvatarFavorites[group];
+        if (!favoriteGroup) {
+            return 0;
+        }
+        return favoriteGroup.length;
+    };
+
     $app.methods.saveChatboxUserBlacklist = async function () {
         await configRepository.setString(
             'VRCX_chatboxUserBlacklist',

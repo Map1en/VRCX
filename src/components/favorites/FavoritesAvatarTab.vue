@@ -258,7 +258,6 @@
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            getLocalAvatarFavoriteGroupLength: Function,
             favoriteAvatars: Array
         },
         data() {
@@ -295,6 +294,13 @@
             }
         },
         methods: {
+            getLocalAvatarFavoriteGroupLength(group) {
+                const favoriteGroup = this.localAvatarFavorites[group];
+                if (!favoriteGroup) {
+                    return 0;
+                }
+                return favoriteGroup.length;
+            },
             searchAvatarFavorites() {
                 let ref = null;
                 const search = this.avatarFavoriteSearch.toLowerCase();
