@@ -4,9 +4,9 @@
         :visible="visible"
         :title="$t('dialog.previous_instances.info')"
         width="800px"
-        @close="$emit('update:visible', false)"
         :fullscreen="fullscreen"
-        destroy-on-close>
+        destroy-on-close
+        @close="$emit('update:visible', false)">
         <div style="display: flex; align-items: center; justify-content: space-between">
             <location :location="location.tag" style="font-size: 14px"></location>
             <el-input
@@ -64,7 +64,7 @@
     import Location from '../../../components/common/Location.vue';
 
     export default {
-        name: 'PreviousInstanceInfoDialog',
+        name: 'PreviousInstancesInfoDialog',
         components: {
             Location
         },
@@ -113,19 +113,6 @@
                 fullscreen: false
             };
         },
-        watch: {
-            visible(value) {
-                if (value) {
-                    this.$nextTick(() => {
-                        this.init();
-                        this.refreshPreviousInstanceInfoTable();
-                    });
-                    utils.loadEcharts().then((echarts) => {
-                        this.echarts = echarts;
-                    });
-                }
-            }
-        },
         computed: {
             activityDetailData() {
                 return this.dataTable.data.map((item) => ({
@@ -137,13 +124,26 @@
                 }));
             }
         },
+        watch: {
+            visible(value) {
+                if (value) {
+                    this.$nextTick(() => {
+                        this.init();
+                        this.refreshPreviousInstancesInfoTable();
+                    });
+                    utils.loadEcharts().then((echarts) => {
+                        this.echarts = echarts;
+                    });
+                }
+            }
+        },
         methods: {
             init() {
                 this.adjustDialogZ(this.$refs.dialog.$el);
                 this.loading = true;
                 this.location = utils.parseLocation(this.instanceId);
             },
-            refreshPreviousInstanceInfoTable() {
+            refreshPreviousInstancesInfoTable() {
                 database.getPlayersFromInstance(this.location.tag).then((data) => {
                     const array = [];
                     for (const entry of Array.from(data.values())) {

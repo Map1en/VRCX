@@ -66,12 +66,13 @@ import Location from './components/common/Location.vue';
 
 // dialogs
 import WorldDialog from './views/dialogs/world/WorldDialog.vue';
-import PreviousInstanceInfoDialog from './views/dialogs/previousInstances/PreviousInstanceInfoDialog.vue';
+import PreviousInstancesInfoDialog from './views/dialogs/previousInstances/PreviousInstancesInfoDialog.vue';
 import FriendImportDialog from './views/dialogs/favorites/FriendImportDialog.vue';
 import WorldImportDialog from './views/dialogs/favorites/WorldImportDialog.vue';
 import AvatarImportDialog from './views/dialogs/favorites/AvatarImportDialog.vue';
 import LaunchDialog from './views/dialogs/launch/LaunchDialog.vue';
 import NewInstanceDialog from './views/dialogs/newInstance/NewInstanceDialog.vue';
+import PreviousInstancesUserDialog from './views/dialogs/previousInstances/PreviousInstancesUserDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -218,7 +219,8 @@ console.log(`isLinux: ${LINUX}`);
 
             // - dialogs
             //  - previous instances
-            PreviousInstanceInfoDialog,
+            PreviousInstancesInfoDialog,
+            PreviousInstancesUserDialog,
             //  - world
             WorldDialog,
             //  - favorites
@@ -249,8 +251,8 @@ console.log(`isLinux: ${LINUX}`);
                 dialogMouseUp: this.dialogMouseUp,
                 showWorldDialog: this.showWorldDialog,
                 showAvatarDialog: this.showAvatarDialog,
-                showPreviousInstanceInfoDialog:
-                    this.showPreviousInstanceInfoDialog,
+                showPreviousInstancesInfoDialog:
+                    this.showPreviousInstancesInfoDialog,
                 showInviteDialog: this.showInviteDialog,
                 showLaunchDialog: this.showLaunchDialog
             };
@@ -6489,7 +6491,7 @@ console.log(`isLinux: ${LINUX}`);
         var { notificationId } = args.params;
         $app.removeFromArray($app.unseenNotifications, notificationId);
         if ($app.unseenNotifications.length === 0) {
-            const item = this.$refs.menu.$children[0]?.items['notification'];
+            const item = $app.$refs.menu.$children[0]?.items['notification'];
             if (item) {
                 item.$el.classList.remove('notify');
             }
@@ -17201,105 +17203,33 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Previous Instances User Dialog
 
-    $app.data.previousInstancesUserDialogTable = {
-        data: [],
-        filters: [
-            {
-                prop: 'worldName',
-                value: ''
-            }
-        ],
-        tableProps: {
-            stripe: true,
-            size: 'mini',
-            defaultSort: {
-                prop: 'created_at',
-                order: 'descending'
-            }
-        },
-        pageSize: 10,
-        paginationProps: {
-            small: true,
-            layout: 'sizes,prev,pager,next,total',
-            pageSizes: [10, 25, 50, 100]
-        }
-    };
-
     $app.data.previousInstancesUserDialog = {
         visible: false,
-        loading: false,
-        forceUpdate: 0,
+        openFlg: false,
         userRef: {}
     };
 
     $app.methods.showPreviousInstancesUserDialog = function (userRef) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.previousInstancesUserDialog.$el)
-        );
         var D = this.previousInstancesUserDialog;
         D.userRef = userRef;
         D.visible = true;
-        D.loading = true;
-        this.refreshPreviousInstancesUserTable();
+        // trigger watcher
+        D.openFlg = true;
+        this.$nextTick(() => (D.openFlg = false));
     };
 
-    $app.methods.refreshPreviousInstancesUserTable = function () {
-        var D = this.previousInstancesUserDialog;
-        database.getpreviousInstancesByUserId(D.userRef).then((data) => {
-            var array = [];
-            for (var ref of data.values()) {
-                ref.$location = $utils.parseLocation(ref.location);
-                if (ref.time > 0) {
-                    ref.timer = $app.timeToText(ref.time);
-                } else {
-                    ref.timer = '';
-                }
-                array.push(ref);
-            }
-            array.sort($utils.compareByCreatedAt);
-            this.previousInstancesUserDialogTable.data = array;
-            D.loading = false;
-            workerTimers.setTimeout(() => D.forceUpdate++, 150);
-        });
-    };
-
-    $app.methods.getDisplayNameFromUserId = function (userId) {
-        var displayName = userId;
-        var ref = API.cachedUsers.get(userId);
-        if (
-            typeof ref !== 'undefined' &&
-            typeof ref.displayName !== 'undefined'
-        ) {
-            displayName = ref.displayName;
-        }
-        return displayName;
-    };
-
-    $app.methods.deleteGameLogUserInstance = function (row) {
-        database.deleteGameLogInstance({
-            id: this.previousInstancesUserDialog.userRef.id,
-            displayName: this.previousInstancesUserDialog.userRef.displayName,
-            location: row.location
-        });
-        $app.removeFromArray(this.previousInstancesUserDialogTable.data, row);
-    };
-
-    $app.methods.deleteGameLogUserInstancePrompt = function (row) {
-        this.$confirm(
-            'Continue? Delete User From GameLog Instance',
-            'Confirm',
-            {
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                type: 'info',
-                callback: (action) => {
-                    if (action === 'confirm') {
-                        this.deleteGameLogUserInstance(row);
-                    }
-                }
-            }
-        );
-    };
+    // no place use this
+    // $app.methods.getDisplayNameFromUserId = function (userId) {
+    //     var displayName = userId;
+    //     var ref = API.cachedUsers.get(userId);
+    //     if (
+    //         typeof ref !== 'undefined' &&
+    //         typeof ref.displayName !== 'undefined'
+    //     ) {
+    //         displayName = ref.displayName;
+    //     }
+    //     return displayName;
+    // };
 
     // #endregion
     // #region | App: Previous Instances World Dialog
@@ -17387,14 +17317,14 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     // #endregion
-    // #region | App: Previous Instance Info Dialog
+    // #region | App: Previous Instances Info Dialog
 
-    $app.data.previousInstanceInfoDialogVisible = false;
-    $app.data.previousInstanceInfoDialogInstanceId = '';
+    $app.data.previousInstancesInfoDialogVisible = false;
+    $app.data.previousInstancesInfoDialogInstanceId = '';
 
-    $app.methods.showPreviousInstanceInfoDialog = function (instanceId) {
-        this.previousInstanceInfoDialogVisible = true;
-        this.previousInstanceInfoDialogInstanceId = instanceId;
+    $app.methods.showPreviousInstancesInfoDialog = function (instanceId) {
+        this.previousInstancesInfoDialogVisible = true;
+        this.previousInstancesInfoDialogInstanceId = instanceId;
     };
 
     $app.data.dtHour12 = await configRepository.getBool('VRCX_dtHour12', false);
@@ -20057,7 +19987,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.chartsTabEvent = function () {
         return {
             'open-previous-instance-info-dialog':
-                this.showPreviousInstanceInfoDialog
+                this.showPreviousInstancesInfoDialog
         };
     };
 

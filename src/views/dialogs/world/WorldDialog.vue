@@ -368,7 +368,7 @@
                                         style="margin-left: 5px"
                                         plain
                                         circle
-                                        @click="showPreviousInstanceInfoDialog(room.location)" />
+                                        @click="showPreviousInstancesInfoDialog(room.location)" />
                                 </el-tooltip>
                                 <last-join :location="room.$location.tag" :currentlocation="lastLocation.location" />
                                 <instance-info
@@ -749,7 +749,7 @@
             'userStatusClass',
             'userImage',
             'adjustDialogZ',
-            'showPreviousInstanceInfoDialog',
+            'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
             'showFullscreenImageDialog'
         ],

@@ -67,7 +67,7 @@
             {{ $t('dialog.launch.start_as_desktop') }}
         </el-checkbox>
         <template slot="footer">
-            <el-button size="small" @click="showPreviousInstanceInfoDialog(launchDialog.location)">
+            <el-button size="small" @click="showPreviousInstancesInfoDialog(launchDialog.location)">
                 {{ $t('dialog.launch.info') }}
             </el-button>
             <el-button
@@ -98,7 +98,7 @@
             'beforeDialogClose',
             'dialogMouseDown',
             'dialogMouseUp',
-            'showPreviousInstanceInfoDialog',
+            'showPreviousInstancesInfoDialog',
             'showInviteDialog',
             'adjustDialogZ'
         ],
