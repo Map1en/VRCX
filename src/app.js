@@ -19989,6 +19989,56 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
+    $app.computed.previousInstancesUserDialogBind = function () {
+        return {
+            'previous-instances-user-dialog': this.previousInstancesUserDialog,
+            'shift-held': this.shiftHeld
+        };
+    };
+
+    $app.computed.previousInstancesUserDialogEvent = function () {
+        return {
+            'update:previous-instances-user-dialog': (val) => {
+                this.previousInstancesUserDialog = val;
+            }
+        };
+    };
+
+    $app.computed.previousInstancesWorldDialogBind = function () {
+        return {
+            'previous-instances-world-dialog':
+                this.previousInstancesWorldDialog,
+            'shift-held': this.shiftHeld
+        };
+    };
+
+    $app.computed.previousInstancesWorldDialogEvent = function () {
+        return {
+            'update:previous-instances-world-dialog': (val) => {
+                this.previousInstancesWorldDialog = val;
+            }
+        };
+    };
+
+    $app.computed.previousInstancesInfoDialogBind = function () {
+        return {
+            visible: this.previousInstancesInfoDialogVisible,
+            'instance-id': this.previousInstancesInfoDialogInstanceId,
+            'game-log-is-friend': this.gameLogIsFriend,
+            'game-log-is-favorite': this.gameLogIsFavorite,
+            'lookup-user': this.lookupUser,
+            'is-dark-mode': this.isDarkMode
+        };
+    };
+
+    $app.computed.previousInstancesInfoDialogEvent = function () {
+        return {
+            'update:visible': (val) => {
+                this.previousInstancesInfoDialogVisible = val;
+            }
+        };
+    };
+
     // #endregion
 
     // #region | Electron

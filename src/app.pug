@@ -116,23 +116,31 @@ doctype html
     include ./mixins/dialogs/settings.pug
     +settings
 
-    include ./mixins/dialogs/previousInstances.pug
-    +previousInstances
-
     include ./mixins/dialogs/tags.pug
     +tags
 
     include ./mixins/dialogs/boops.pug
     +boops
 
+    //- previous instances
+    previous-instances-info-dialog(v-bind='previousInstancesInfoDialogBind' v-on='previousInstancesInfoDialogEvent')
+
+    previous-instances-user-dialog(v-bind='previousInstancesUserDialogBind' v-on='previousInstancesUserDialogEvent')
+
+    previous-instances-world-dialog(v-bind='previousInstancesWorldDialogBind' v-on='previousInstancesWorldDialogEvent')
+
     //- favorites
     friend-import-dialog(v-bind='friendImportDialogBind' v-on='friendImportDialogEvent')
+
     world-import-dialog(v-bind='worldImportDialogBind' v-on='worldImportDialogEvent')
+
     avatar-import-dialog(v-bind='avatarImportDialogBind' v-on='avatarImportDialogEvent')
 
     //- favorites dialog
     favorite-dialog(v-bind='favoriteDialogBind' v-on='favoriteDialogEvent')
+
     export-friends-list-dialog(v-bind='exportFriendsListDialogBind' v-on='exportFriendsListDialogEvent')
+
     export-avatars-list-dialog(v-bind='exportAvatarsListDialogBind' v-on='exportAvatarsListDialogEvent')
 
     //- launch
