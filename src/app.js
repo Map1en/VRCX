@@ -74,6 +74,7 @@ import LaunchDialog from './views/dialogs/launch/LaunchDialog.vue';
 import NewInstanceDialog from './views/dialogs/newInstance/NewInstanceDialog.vue';
 import PreviousInstancesUserDialog from './views/dialogs/previousInstances/PreviousInstancesUserDialog.vue';
 import PreviousInstancesWorldDialog from './views/dialogs/previousInstances/PreviousInstancesWorldDialog.vue';
+import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -229,6 +230,8 @@ console.log(`isLinux: ${LINUX}`);
             FriendImportDialog,
             WorldImportDialog,
             AvatarImportDialog,
+            //  - favorites dialog
+            FavoriteDialog,
             //  - launch
             LaunchDialog,
             //  - new instance
@@ -11412,50 +11415,14 @@ console.log(`isLinux: ${LINUX}`);
         loading: false,
         type: '',
         objectId: '',
-        groups: [],
         currentGroup: {}
     };
 
-    API.$on('LOGOUT', function () {
-        $app.favoriteDialog.visible = false;
-    });
-
-    $app.methods.addFavorite = function (group) {
-        var D = this.favoriteDialog;
-        D.loading = true;
-        favoriteRequest
-            .addFavorite({
-                type: D.type,
-                favoriteId: D.objectId,
-                tags: group.name
-            })
-            .then(() => {
-                D.visible = false;
-                new Noty({
-                    type: 'success',
-                    text: 'Favorite added'
-                }).show();
-            })
-            .finally(() => {
-                D.loading = false;
-            });
-    };
-
     $app.methods.showFavoriteDialog = function (type, objectId) {
-        this.$nextTick(() => $app.adjustDialogZ(this.$refs.favoriteDialog.$el));
-        var D = this.favoriteDialog;
+        const D = this.favoriteDialog;
         D.type = type;
         D.objectId = objectId;
-        if (type === 'friend') {
-            D.groups = API.favoriteFriendGroups;
-            D.visible = true;
-        } else if (type === 'world') {
-            D.groups = API.favoriteWorldGroups;
-            D.visible = true;
-        } else if (type === 'avatar') {
-            D.groups = API.favoriteAvatarGroups;
-            D.visible = true;
-        }
+        D.visible = true;
         this.updateFavoriteDialog(objectId);
     };
 
@@ -18357,10 +18324,6 @@ console.log(`isLinux: ${LINUX}`);
 
     // #endregion
     // #region | App: Local Avatar Favorites
-
-    $app.methods.isLocalUserVrcplusSupporter = function () {
-        return API.currentUser.$isVRCPlus;
-    };
 
     $app.data.localAvatarFavoriteGroups = [];
     $app.data.localAvatarFavoritesList = [];

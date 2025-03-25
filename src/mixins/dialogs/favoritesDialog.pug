@@ -1,52 +1,17 @@
 mixin favoritesDialog
-    //- dialog: favorite
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='favoriteDialog'
-        :visible.sync='favoriteDialog.visible'
-        :title='$t("dialog.favorite.header")'
-        width='300px')
-        div(v-if='favoriteDialog.visible' v-loading='favoriteDialog.loading')
-            span(style='display: block; text-align: center') {{ $t('dialog.favorite.vrchat_favorites') }}
-            template(v-if='favoriteDialog.currentGroup && favoriteDialog.currentGroup.key')
-                el-button(
-                    style='display: block; width: 100%; margin: 10px 0'
-                    @click='deleteFavoriteNoConfirm(favoriteDialog.objectId)') #[i.el-icon-check] {{ favoriteDialog.currentGroup.displayName }} ({{ favoriteDialog.currentGroup.count }} / {{ favoriteDialog.currentGroup.capacity }})
-            template(v-else)
-                el-button(
-                    v-for='group in favoriteDialog.groups'
-                    :key='group.key'
-                    style='display: block; width: 100%; margin: 10px 0'
-                    @click='addFavorite(group)') {{ group.displayName }} ({{ group.count }} / {{ group.capacity }})
-        div(v-if='favoriteDialog.visible && favoriteDialog.type === "world"' style='margin-top: 20px')
-            span(style='display: block; text-align: center') {{ $t('dialog.favorite.local_favorites') }}
-            template(v-for='group in localWorldFavoriteGroups')
-                el-button(
-                    v-if='hasLocalWorldFavorite(favoriteDialog.objectId, group)'
-                    :key='group'
-                    style='display: block; width: 100%; margin: 10px 0'
-                    @click='removeLocalWorldFavorite(favoriteDialog.objectId, group)') #[i.el-icon-check] {{ group }} ({{ getLocalWorldFavoriteGroupLength(group) }})
-                el-button(
-                    v-else
-                    style='display: block; width: 100%; margin: 10px 0'
-                    :key='group'
-                    @click='addLocalWorldFavorite(favoriteDialog.objectId, group)') {{ group }} ({{ getLocalWorldFavoriteGroupLength(group) }})
-        div(v-if='favoriteDialog.visible && favoriteDialog.type === "avatar"' style='margin-top: 20px')
-            span(style='display: block; text-align: center') {{ $t('dialog.favorite.local_avatar_favorites') }}
-            template(v-for='group in localAvatarFavoriteGroups')
-                el-button(
-                    v-if='hasLocalAvatarFavorite(favoriteDialog.objectId, group)'
-                    :key='group'
-                    style='display: block; width: 100%; margin: 10px 0'
-                    @click='removeLocalAvatarFavorite(favoriteDialog.objectId, group)') #[i.el-icon-check] {{ group }} ({{ getLocalAvatarFavoriteGroupLength(group) }})
-                el-button(
-                    v-else
-                    :key='group'
-                    style='display: block; width: 100%; margin: 10px 0'
-                    :disabled='!isLocalUserVrcplusSupporter()'
-                    @click='addLocalAvatarFavorite(favoriteDialog.objectId, group)') {{ group }} ({{ getLocalAvatarFavoriteGroupLength(group) }})
+    favorite-dialog(
+        :favorite-dialog.sync='favoriteDialog'
+        :local-avatar-favorite-groups='localAvatarFavoriteGroups'
+        :local-world-favorite-groups='localWorldFavoriteGroups'
+        :has-local-world-favorite='hasLocalWorldFavorite'
+        :get-local-world-favorite-group-length='getLocalWorldFavoriteGroupLength'
+        @add-local-world-favorite='addLocalWorldFavorite'
+        @remove-local-world-favorite='removeLocalWorldFavorite'
+        :has-local-avatar-favorite='hasLocalAvatarFavorite'
+        :get-local-avatar-favorite-group-length='getLocalAvatarFavoriteGroupLength'
+        @add-local-avatar-favorite='addLocalAvatarFavorite'
+        @remove-local-avatar-favorite='removeLocalAvatarFavorite'
+        @delete-favorite-no-confirm='deleteFavoriteNoConfirm')
 
     //- dialog: export friends list
     el-dialog.x-dialog(
