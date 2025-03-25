@@ -735,12 +735,50 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
+
+        <!--  Nested Hmm-->
+        <!--  dialog: change Allowed Video Player Domains  -->
+        <el-dialog
+            ref="worldAllowedDomainsDialog"
+            :visible.sync="worldAllowedDomainsDialog.visible"
+            :title="$t('dialog.allowed_video_player_domains.header')"
+            width="600px"
+            destroy-on-close
+            append-to-body>
+            <div>
+                <el-input
+                    v-for="(domain, index) in worldAllowedDomainsDialog.urlList"
+                    :key="index"
+                    v-model="worldAllowedDomainsDialog.urlList[index]"
+                    :value="domain"
+                    size="small"
+                    style="margin-top: 5px">
+                    <el-button
+                        slot="append"
+                        icon="el-icon-delete"
+                        @click="worldAllowedDomainsDialog.urlList.splice(index, 1)"></el-button>
+                </el-input>
+                <el-button size="mini" style="margin-top: 5px" @click="worldAllowedDomainsDialog.urlList.push('')">
+                    {{ $t('dialog.allowed_video_player_domains.add_domain') }}
+                </el-button>
+            </div>
+            <template #footer>
+                <el-button
+                    type="primary"
+                    size="small"
+                    :disabled="!worldAllowedDomainsDialog.worldId"
+                    @click="saveWorldAllowedDomains">
+                    {{ $t('dialog.allowed_video_player_domains.save') }}
+                </el-button>
+            </template>
+        </el-dialog>
     </el-dialog>
 </template>
 
 <script>
     import utils from '../../../classes/utils';
     import database from '../../../repository/database.js';
+    import { worldRequest } from '../../../classes/request';
     export default {
         name: 'WorldDialog',
         inject: [
@@ -766,7 +804,12 @@
         },
         data() {
             return {
-                treeData: []
+                treeData: [],
+                worldAllowedDomainsDialog: {
+                    visible: false,
+                    worldId: '',
+                    urlList: []
+                }
             };
         },
         computed: {
@@ -841,6 +884,8 @@
             worldDialogCommand(command) {
                 if (command === 'Share') {
                     this.copyWorldUrl();
+                } else if (command === 'Change Allowed Domains') {
+                    this.showWorldAllowedDomainsDialog();
                 } else {
                     this.$emit('world-dialog-command', command);
                 }
@@ -920,6 +965,29 @@
                             type: 'error'
                         });
                     });
+            },
+            showWorldAllowedDomainsDialog() {
+                // this.$nextTick(() => this.adjustDialogZ(this.$refs.worldAllowedDomainsDialog.$el));
+                const D = this.worldAllowedDomainsDialog;
+                D.worldId = this.worldDialog.id;
+                D.urlList = this.worldDialog.ref?.urlList ?? [];
+                D.visible = true;
+            },
+            saveWorldAllowedDomains() {
+                const D = this.worldAllowedDomainsDialog;
+                worldRequest
+                    .saveWorld({
+                        id: D.worldId,
+                        urlList: D.urlList
+                    })
+                    .then((args) => {
+                        this.$message({
+                            message: 'Allowed Video Player Domains updated',
+                            type: 'success'
+                        });
+                        return args;
+                    });
+                D.visible = false;
             }
         }
     };
