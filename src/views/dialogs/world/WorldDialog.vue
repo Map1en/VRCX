@@ -1,10 +1,13 @@
 <template>
     <el-dialog
         ref="worldDialog"
+        :before-close="beforeDialogClose"
         class="x-dialog x-world-dialog"
         :visible.sync="worldDialog.visible"
         :show-close="false"
-        width="770px">
+        width="770px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <div v-loading="worldDialog.loading">
             <div style="display: flex">
                 <el-popover placement="right" width="500px" trigger="click">
@@ -739,12 +742,14 @@
         <!--  Nested Hmm-->
         <!--  dialog: change Allowed Video Player Domains  -->
         <el-dialog
-            ref="worldAllowedDomainsDialog"
+            :before-close="beforeDialogClose"
             :visible.sync="worldAllowedDomainsDialog.visible"
             :title="$t('dialog.allowed_video_player_domains.header')"
             width="600px"
             destroy-on-close
-            append-to-body>
+            append-to-body
+            @mousedown.native="dialogMouseDown"
+            @mouseup.native="dialogMouseUp">
             <div>
                 <el-input
                     v-for="(domain, index) in worldAllowedDomainsDialog.urlList"
@@ -789,7 +794,10 @@
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
-            'showFullscreenImageDialog'
+            'showFullscreenImageDialog',
+            'beforeDialogClose',
+            'dialogMouseDown',
+            'dialogMouseUp'
         ],
         props: {
             worldDialog: Object,
@@ -967,7 +975,6 @@
                     });
             },
             showWorldAllowedDomainsDialog() {
-                // this.$nextTick(() => this.adjustDialogZ(this.$refs.worldAllowedDomainsDialog.$el));
                 const D = this.worldAllowedDomainsDialog;
                 D.worldId = this.worldDialog.id;
                 D.urlList = this.worldDialog.ref?.urlList ?? [];

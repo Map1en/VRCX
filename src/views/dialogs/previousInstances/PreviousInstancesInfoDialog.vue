@@ -1,11 +1,14 @@
 <template>
     <el-dialog
         ref="dialog"
+        :before-close="beforeDialogClose"
         :visible="visible"
         :title="$t('dialog.previous_instances.info')"
         width="800px"
         :fullscreen="fullscreen"
         destroy-on-close
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp"
         @close="$emit('update:visible', false)">
         <div style="display: flex; align-items: center; justify-content: space-between">
             <location :location="location.tag" style="font-size: 14px"></location>
@@ -68,7 +71,7 @@
         components: {
             Location
         },
-        inject: ['adjustDialogZ'],
+        inject: ['adjustDialogZ', 'beforeDialogClose', 'dialogMouseDown', 'dialogMouseUp'],
         props: {
             visible: {
                 type: Boolean,
