@@ -740,8 +740,12 @@
         </div>
 
         <!--  Nested Hmm-->
-        <!--  dialog: change Allowed Video Player Domains  -->
         <world-allowed-domains-dialog :world-allowed-domains-dialog.sync="worldAllowedDomainsDialog" />
+        <set-world-tags-dialog
+            :is-set-world-tags-dialog-visible.sync="isSetWorldTagsDialogVisible"
+            :old-tags="worldDialog.ref?.tags"
+            :world-id="worldDialog.id"
+            :is-world-dialog-visible="worldDialog.visible" />
     </el-dialog>
 </template>
 
@@ -749,10 +753,11 @@
     import utils from '../../../classes/utils';
     import database from '../../../repository/database.js';
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
+    import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
 
     export default {
         name: 'WorldDialog',
-        components: { WorldAllowedDomainsDialog },
+        components: { SetWorldTagsDialog, WorldAllowedDomainsDialog },
         inject: [
             'API',
             'showUserDialog',
@@ -784,7 +789,8 @@
                     visible: false,
                     worldId: '',
                     urlList: []
-                }
+                },
+                isSetWorldTagsDialogVisible: false
             };
         },
         computed: {
@@ -796,7 +802,6 @@
                     this.worldDialog.ref.labsPublicationDate !== 'none'
                 );
             },
-
             timeInLab() {
                 return utils.timeToText(
                     new Date(this.worldDialog.ref?.publicationDate) -
@@ -861,6 +866,8 @@
                     this.copyWorldUrl();
                 } else if (command === 'Change Allowed Domains') {
                     this.showWorldAllowedDomainsDialog();
+                } else if (command === 'Change Tags') {
+                    this.isSetWorldTagsDialogVisible = true;
                 } else {
                     this.$emit('world-dialog-command', command);
                 }
