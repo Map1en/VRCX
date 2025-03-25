@@ -86,9 +86,6 @@ doctype html
     include ./mixins/dialogs/groupDialog.pug
     +groupDialog
 
-    include ./mixins/dialogs/favoritesDialog.pug
-    +favoritesDialog
-
     include ./mixins/dialogs/images.pug
     +images
 
@@ -128,14 +125,20 @@ doctype html
     include ./mixins/dialogs/boops.pug
     +boops
 
+    //- favorites
     friend-import-dialog(v-bind='friendImportDialogBind' v-on='friendImportDialogEvent')
-
     world-import-dialog(v-bind='worldImportDialogBind' v-on='worldImportDialogEvent')
-
     avatar-import-dialog(v-bind='avatarImportDialogBind' v-on='avatarImportDialogEvent')
 
+    //- favorites dialog
+    favorite-dialog(v-bind='favoriteDialogBind' v-on='favoriteDialogEvent')
+    export-friends-list-dialog(v-bind='exportFriendsListDialogBind' v-on='exportFriendsListDialogEvent')
+    export-avatars-list-dialog(v-bind='exportAvatarsListDialogBind' v-on='exportAvatarsListDialogEvent')
+
+    //- launch
     launch-dialog(v-bind='launchDialogBind' v-on='launchDialogEvent')
 
+    //- new instance
     new-instance-dialog(v-bind='newInstanceDialogBind')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

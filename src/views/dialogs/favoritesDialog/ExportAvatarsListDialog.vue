@@ -7,8 +7,8 @@
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <el-input
-            v-loading="loading"
             v-model="exportAvatarsListCsv"
+            v-loading="loading"
             type="textarea"
             size="mini"
             rows="15"

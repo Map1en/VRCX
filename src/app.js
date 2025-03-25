@@ -19931,6 +19931,64 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
+    $app.computed.favoriteDialogBind = function () {
+        return {
+            'favorite-dialog': this.favoriteDialog,
+            'local-avatar-favorite-groups': this.localAvatarFavoriteGroups,
+            'local-world-favorite-groups': this.localWorldFavoriteGroups,
+            'has-local-world-favorite': this.hasLocalWorldFavorite,
+            'get-local-world-favorite-group-length':
+                this.getLocalWorldFavoriteGroupLength,
+            'has-local-avatar-favorite': this.hasLocalAvatarFavorite,
+            'get-local-avatar-favorite-group-length':
+                this.getLocalAvatarFavoriteGroupLength
+        };
+    };
+
+    $app.computed.favoriteDialogEvent = function () {
+        return {
+            'update:favorite-dialog': (val) => {
+                this.favoriteDialog = val;
+            },
+            'add-local-world-favorite': this.addLocalWorldFavorite,
+            'remove-local-world-favorite': this.removeLocalWorldFavorite,
+            'add-local-avatar-favorite': this.addLocalAvatarFavorite,
+            'remove-local-avatar-favorite': this.removeLocalAvatarFavorite,
+            'delete-favorite-no-confirm': this.deleteFavoriteNoConfirm
+        };
+    };
+
+    $app.computed.exportFriendsListDialogBind = function () {
+        return {
+            friends: this.friends,
+            'is-export-friends-list-dialog-visible':
+                this.isExportFriendsListDialogVisible
+        };
+    };
+
+    $app.computed.exportFriendsListDialogEvent = function () {
+        return {
+            'update:is-export-friends-list-dialog-visible': (val) => {
+                this.isExportFriendsListDialogVisible = val;
+            }
+        };
+    };
+
+    $app.computed.exportAvatarsListDialogBind = function () {
+        return {
+            'is-export-avatars-list-dialog-visible':
+                this.isExportAvatarsListDialogVisible
+        };
+    };
+
+    $app.computed.exportAvatarsListDialogEvent = function () {
+        return {
+            'update:is-export-avatars-list-dialog-visible': (val) => {
+                this.isExportAvatarsListDialogVisible = val;
+            }
+        };
+    };
+
     // #endregion
 
     // #region | Electron

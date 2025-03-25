@@ -76,7 +76,7 @@
                             size="mini"
                             circle
                             style="margin-left: 5px"
-                            @click.stop="showFavoriteDialog('avatar', $event)"></el-button>
+                            @click.stop="showFavoriteDialog('avatar', favorite.id)"></el-button>
                     </el-tooltip>
                 </template>
                 <template v-else>
@@ -112,7 +112,7 @@
                         size="mini"
                         circle
                         style="margin-left: 5px"
-                        @click.stop="showFavoriteDialog('avatar', $event)"
+                        @click.stop="showFavoriteDialog('avatar', favorite.id)"
                 /></el-tooltip>
             </template>
             <template v-else>
