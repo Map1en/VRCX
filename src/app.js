@@ -75,6 +75,7 @@ import NewInstanceDialog from './views/dialogs/newInstance/NewInstanceDialog.vue
 import PreviousInstancesUserDialog from './views/dialogs/previousInstances/PreviousInstancesUserDialog.vue';
 import PreviousInstancesWorldDialog from './views/dialogs/previousInstances/PreviousInstancesWorldDialog.vue';
 import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
+import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsList.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -232,6 +233,7 @@ console.log(`isLinux: ${LINUX}`);
             AvatarImportDialog,
             //  - favorites dialog
             FavoriteDialog,
+            ExportFriendsListDialog,
             //  - launch
             LaunchDialog,
             //  - new instance
@@ -2795,39 +2797,10 @@ console.log(`isLinux: ${LINUX}`);
         }).show();
     };
 
-    $app.data.exportFriendsListDialog = false;
-    $app.data.exportFriendsListCsv = '';
-    $app.data.exportFriendsListJson = '';
+    $app.data.isExportFriendsListDialogVisible = false;
 
     $app.methods.showExportFriendsListDialog = function () {
-        var { friends } = API.currentUser;
-        if (Array.isArray(friends) === false) {
-            return;
-        }
-        var lines = ['UserID,DisplayName,Memo'];
-        var _ = function (str) {
-            if (/[\x00-\x1f,"]/.test(str) === true) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
-        var friendsList = [];
-        for (var userId of friends) {
-            var ref = this.friends.get(userId);
-            var name = (typeof ref !== 'undefined' && ref.name) || '';
-            var memo =
-                (typeof ref !== 'undefined' && ref.memo.replace(/\n/g, ' ')) ||
-                '';
-            lines.push(`${_(userId)},${_(name)},${_(memo)}`);
-            friendsList.push(userId);
-        }
-        this.exportFriendsListJson = JSON.stringify(
-            { friends: friendsList },
-            null,
-            4
-        );
-        this.exportFriendsListCsv = lines.join('\n');
-        this.exportFriendsListDialog = true;
+        this.isExportFriendsListDialogVisible = true;
     };
 
     $app.data.exportAvatarsListDialog = false;

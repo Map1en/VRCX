@@ -5,45 +5,17 @@ mixin favoritesDialog
         :local-world-favorite-groups='localWorldFavoriteGroups'
         :has-local-world-favorite='hasLocalWorldFavorite'
         :get-local-world-favorite-group-length='getLocalWorldFavoriteGroupLength'
-        @add-local-world-favorite='addLocalWorldFavorite'
-        @remove-local-world-favorite='removeLocalWorldFavorite'
         :has-local-avatar-favorite='hasLocalAvatarFavorite'
         :get-local-avatar-favorite-group-length='getLocalAvatarFavoriteGroupLength'
+        @add-local-world-favorite='addLocalWorldFavorite'
+        @remove-local-world-favorite='removeLocalWorldFavorite'
         @add-local-avatar-favorite='addLocalAvatarFavorite'
         @remove-local-avatar-favorite='removeLocalAvatarFavorite'
         @delete-favorite-no-confirm='deleteFavoriteNoConfirm')
 
-    //- dialog: export friends list
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        :visible.sync='exportFriendsListDialog'
-        :title='$t("dialog.export_friends_list.header")'
-        width='650px')
-        el-tabs(type='card')
-            el-tab-pane(:label='$t("dialog.export_friends_list.csv")')
-                el-input(
-                    type='textarea'
-                    v-if='exportFriendsListDialog'
-                    v-model='exportFriendsListCsv'
-                    size='mini'
-                    rows='15'
-                    resize='none'
-                    readonly
-                    style='margin-top: 15px'
-                    @click.native='$event.target.tagName === "TEXTAREA" && $event.target.select()')
-            el-tab-pane(:label='$t("dialog.export_friends_list.json")')
-                el-input(
-                    type='textarea'
-                    v-if='exportFriendsListDialog'
-                    v-model='exportFriendsListJson'
-                    size='mini'
-                    rows='15'
-                    resize='none'
-                    readonly
-                    style='margin-top: 15px'
-                    @click.native='$event.target.tagName === "TEXTAREA" && $event.target.select()')
+    export-friends-list-dialog(
+        :friends='friends'
+        :is-export-friends-list-dialog-visible.sync='isExportFriendsListDialogVisible')
 
     //- dialog: export avatars list
     el-dialog.x-dialog(
