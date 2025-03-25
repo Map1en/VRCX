@@ -256,7 +256,8 @@ console.log(`isLinux: ${LINUX}`);
                 showPreviousInstancesInfoDialog:
                     this.showPreviousInstancesInfoDialog,
                 showInviteDialog: this.showInviteDialog,
-                showLaunchDialog: this.showLaunchDialog
+                showLaunchDialog: this.showLaunchDialog,
+                showFavoriteDialog: this.showFavoriteDialog
             };
         },
         el: '#root',
@@ -19912,7 +19913,6 @@ console.log(`isLinux: ${LINUX}`);
             'show-world-import-dialog': this.showWorldImportDialog,
             'show-world-dialog': this.showWorldDialog,
             'new-instance-self-invite': this.newInstanceSelfInvite,
-            'show-favorite-dialog': this.showFavoriteDialog,
             'delete-local-world-favorite-group':
                 this.deleteLocalWorldFavoriteGroup,
             'remove-local-world-favorite': this.removeLocalWorldFavorite,
