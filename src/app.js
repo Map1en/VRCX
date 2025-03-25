@@ -76,6 +76,7 @@ import PreviousInstancesUserDialog from './views/dialogs/previousInstances/Previ
 import PreviousInstancesWorldDialog from './views/dialogs/previousInstances/PreviousInstancesWorldDialog.vue';
 import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsList.vue';
+import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvatarsListDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -234,6 +235,7 @@ console.log(`isLinux: ${LINUX}`);
             //  - favorites dialog
             FavoriteDialog,
             ExportFriendsListDialog,
+            ExportAvatarsListDialog,
             //  - launch
             LaunchDialog,
             //  - new instance
@@ -2803,55 +2805,10 @@ console.log(`isLinux: ${LINUX}`);
         this.isExportFriendsListDialogVisible = true;
     };
 
-    $app.data.exportAvatarsListDialog = false;
-    $app.data.exportAvatarsListCsv = '';
+    $app.data.isExportAvatarsListDialogVisible = false;
 
     $app.methods.showExportAvatarsListDialog = function () {
-        for (var ref of API.cachedAvatars.values()) {
-            if (ref.authorId === API.currentUser.id) {
-                API.cachedAvatars.delete(ref.id);
-            }
-        }
-        var params = {
-            n: 50,
-            offset: 0,
-            sort: 'updated',
-            order: 'descending',
-            releaseStatus: 'all',
-            user: 'me'
-        };
-        var map = new Map();
-        API.bulk({
-            fn: avatarRequest.getAvatars,
-            N: -1,
-            params,
-            handle: (args) => {
-                for (var json of args.json) {
-                    var $ref = API.cachedAvatars.get(json.id);
-                    if (typeof $ref !== 'undefined') {
-                        map.set($ref.id, $ref);
-                    }
-                }
-            },
-            done: () => {
-                var avatars = Array.from(map.values());
-                if (Array.isArray(avatars) === false) {
-                    return;
-                }
-                var lines = ['AvatarID,AvatarName'];
-                var _ = function (str) {
-                    if (/[\x00-\x1f,"]/.test(str) === true) {
-                        return `"${str.replace(/"/g, '""')}"`;
-                    }
-                    return str;
-                };
-                for (var avatar of avatars) {
-                    lines.push(`${_(avatar.id)},${_(avatar.name)}`);
-                }
-                this.exportAvatarsListCsv = lines.join('\n');
-                this.exportAvatarsListDialog = true;
-            }
-        });
+        this.isExportAvatarsListDialogVisible = true;
     };
 
     API.$on('USER:2FA', function () {
