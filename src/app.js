@@ -73,6 +73,7 @@ import AvatarImportDialog from './views/dialogs/favorites/AvatarImportDialog.vue
 import LaunchDialog from './views/dialogs/launch/LaunchDialog.vue';
 import NewInstanceDialog from './views/dialogs/newInstance/NewInstanceDialog.vue';
 import PreviousInstancesUserDialog from './views/dialogs/previousInstances/PreviousInstancesUserDialog.vue';
+import PreviousInstancesWorldDialog from './views/dialogs/previousInstances/PreviousInstancesWorldDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -221,6 +222,7 @@ console.log(`isLinux: ${LINUX}`);
             //  - previous instances
             PreviousInstancesInfoDialog,
             PreviousInstancesUserDialog,
+            PreviousInstancesWorldDialog,
             //  - world
             WorldDialog,
             //  - favorites
@@ -17260,60 +17262,17 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.previousInstancesWorldDialog = {
         visible: false,
-        loading: false,
-        forceUpdate: 0,
+        openFlg: false,
         worldRef: {}
     };
 
     $app.methods.showPreviousInstancesWorldDialog = function (worldRef) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.previousInstancesWorldDialog.$el)
-        );
         var D = this.previousInstancesWorldDialog;
         D.worldRef = worldRef;
         D.visible = true;
-        D.loading = true;
-        this.refreshPreviousInstancesWorldTable();
-    };
-
-    $app.methods.refreshPreviousInstancesWorldTable = function () {
-        var D = this.previousInstancesWorldDialog;
-        database.getpreviousInstancesByWorldId(D.worldRef).then((data) => {
-            var array = [];
-            for (var ref of data.values()) {
-                ref.$location = $utils.parseLocation(ref.location);
-                if (ref.time > 0) {
-                    ref.timer = $app.timeToText(ref.time);
-                } else {
-                    ref.timer = '';
-                }
-                array.push(ref);
-            }
-            array.sort($utils.compareByCreatedAt);
-            this.previousInstancesWorldDialogTable.data = array;
-            D.loading = false;
-            workerTimers.setTimeout(() => D.forceUpdate++, 150);
-        });
-    };
-
-    $app.methods.deleteGameLogWorldInstance = function (row) {
-        database.deleteGameLogInstanceByInstanceId({
-            location: row.location
-        });
-        $app.removeFromArray(this.previousInstancesWorldDialogTable.data, row);
-    };
-
-    $app.methods.deleteGameLogWorldInstancePrompt = function (row) {
-        this.$confirm('Continue? Delete GameLog Instance', 'Confirm', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'info',
-            callback: (action) => {
-                if (action === 'confirm') {
-                    this.deleteGameLogWorldInstance(row);
-                }
-            }
-        });
+        // trigger watcher
+        D.openFlg = true;
+        this.$nextTick(() => (D.openFlg = false));
     };
 
     // #endregion

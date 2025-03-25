@@ -197,7 +197,7 @@
                     if (resLocation === this.launchDialog.tag) {
                         const resShortName = res.json.shortName;
                         const secureOrShortName = res.json.shortName || res.json.secureName;
-                        const parsedL = utils.parseLocation(location);
+                        const parsedL = utils.parseLocation(resLocation);
                         parsedL.shortName = resShortName;
                         this.launchDialog.shortName = resShortName;
                         this.launchDialog.secureOrShortName = secureOrShortName;

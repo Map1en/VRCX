@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        ref="previousInstancesUserDialog"
+        ref="previousInstancesWorldDialog"
         :before-close="beforeDialogClose"
         :visible.sync="isVisible"
         :title="$t('dialog.previous_instances.header')"
@@ -8,31 +8,33 @@
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <div style="display: flex; align-items: center; justify-content: space-between">
-            <span style="font-size: 14px" v-text="previousInstancesUserDialog.userRef.displayName"></span>
+            <span style="font-size: 14px" v-text="previousInstancesWorldDialog.worldRef.name"></span>
             <el-input
-                v-model="previousInstancesUserDialogTable.filters[0].value"
+                v-model="previousInstancesWorldDialogTable.filters[0].value"
                 :placeholder="$t('dialog.previous_instances.search_placeholder')"
                 style="display: block; width: 150px"></el-input>
         </div>
-        <data-tables v-loading="loading" v-bind="previousInstancesUserDialogTable" style="margin-top: 10px">
+        <data-tables v-loading="loading" v-bind="previousInstancesWorldDialogTable" style="margin-top: 10px">
             <el-table-column :label="$t('table.previous_instances.date')" prop="created_at" sortable width="170">
                 <template slot-scope="scope">
                     <span>{{ scope.row.created_at | formatDate('long') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.world')" prop="name" sortable>
+            <el-table-column :label="$t('table.previous_instances.instance_name')" prop="name">
                 <template slot-scope="scope">
-                    <location
-                        :location="scope.row.location"
-                        :hint="scope.row.worldName"
-                        :grouphint="scope.row.groupName"></location>
+                    <location-world
+                        :locationobject="scope.row.$location"
+                        :grouphint="scope.row.groupName"
+                        :currentuserid="API.currentUser.id"
+                        @show-launch-dialog="showLaunchDialog"></location-world>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.instance_creator')" prop="location" width="170">
+            <el-table-column :label="$t('table.previous_instances.instance_creator')" prop="location">
                 <template slot-scope="scope">
                     <display-name
                         :userid="scope.row.$location.userId"
-                        :location="scope.row.$location.tag"></display-name>
+                        :location="scope.row.$location.tag"
+                        :force-update-key="previousInstancesWorldDialog.forceUpdate"></display-name>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('table.previous_instances.time')" prop="time" width="100" sortable>
@@ -44,11 +46,6 @@
                 <template slot-scope="scope">
                     <el-button
                         type="text"
-                        icon="el-icon-switch-button"
-                        size="mini"
-                        @click="showLaunchDialog(scope.row.location)"></el-button>
-                    <el-button
-                        type="text"
                         icon="el-icon-s-data"
                         size="mini"
                         @click="showPreviousInstancesInfoDialog(scope.row.location)"></el-button>
@@ -58,13 +55,13 @@
                         type="text"
                         icon="el-icon-close"
                         size="mini"
-                        @click="deleteGameLogUserInstance(scope.row)"></el-button>
+                        @click="deleteGameLogWorldInstance(scope.row)"></el-button>
                     <el-button
                         v-else
                         type="text"
                         icon="el-icon-close"
                         size="mini"
-                        @click="deleteGameLogUserInstancePrompt(scope.row)"></el-button>
+                        @click="deleteGameLogWorldInstancePrompt(scope.row)"></el-button>
                 </template>
             </el-table-column>
         </data-tables>
@@ -74,58 +71,32 @@
 <script>
     import utils from '../../../classes/utils';
     import database from '../../../repository/database';
-    import Location from '../../../components/common/Location.vue';
 
     export default {
-        name: 'PreviousInstancesUserDialog',
-        components: {
-            Location
-        },
+        name: 'PreviousInstancesWorldDialog',
         inject: [
+            'API',
+            'showLaunchDialog',
+            'showPreviousInstancesInfoDialog',
+            'adjustDialogZ',
             'beforeDialogClose',
             'dialogMouseDown',
-            'dialogMouseUp',
-            'adjustDialogZ',
-            'showLaunchDialog',
-            'showPreviousInstancesInfoDialog'
+            'dialogMouseUp'
         ],
         props: {
-            previousInstancesUserDialog: {
+            previousInstancesWorldDialog: {
                 type: Object,
-                default: () => ({
-                    visible: false,
-                    userRef: {},
-                    loading: false,
-                    forceUpdate: 0,
-                    previousInstances: [],
-                    previousInstancesTable: {
-                        data: [],
-                        filters: [
-                            {
-                                prop: 'displayName',
-                                value: ''
-                            }
-                        ],
-                        tableProps: {
-                            stripe: true,
-                            size: 'mini',
-                            height: '400px'
-                        }
-                    }
-                })
+                required: true
             },
-            shiftHeld: {
-                type: Boolean,
-                default: false
-            }
+            shiftHeld: Boolean
         },
         data() {
             return {
-                previousInstancesUserDialogTable: {
+                previousInstancesWorldDialogTable: {
                     data: [],
                     filters: [
                         {
-                            prop: 'worldName',
+                            prop: 'groupName',
                             value: ''
                         }
                     ],
@@ -150,30 +121,31 @@
         computed: {
             isVisible: {
                 get() {
-                    return this.previousInstancesUserDialog.visible;
+                    return this.previousInstancesWorldDialog.visible;
                 },
                 set(value) {
-                    this.$emit('update:previous-instances-user-dialog', {
-                        ...this.previousInstancesUserDialog,
+                    this.$emit('update:previous-instances-world-dialog', {
+                        ...this.previousInstancesWorldDialog,
                         visible: value
                     });
                 }
             }
         },
         watch: {
-            'previousInstancesUserDialog.openFlg'() {
-                if (this.previousInstancesUserDialog.visible) {
+            'previousInstancesWorldDialog.openFlg'() {
+                if (this.previousInstancesWorldDialog.visible) {
                     this.$nextTick(() => {
-                        this.adjustDialogZ(this.$refs.previousInstancesUserDialog.$el);
+                        this.adjustDialogZ(this.$refs.previousInstancesWorldDialog.$el);
                     });
-                    this.refreshPreviousInstancesUserTable();
+                    this.refreshPreviousInstancesWorldTable();
                 }
             }
         },
         methods: {
-            refreshPreviousInstancesUserTable() {
+            refreshPreviousInstancesWorldTable() {
                 this.loading = true;
-                database.getpreviousInstancesByUserId(this.previousInstancesUserDialog.userRef).then((data) => {
+                const D = this.previousInstancesWorldDialog;
+                database.getpreviousInstancesByWorldId(D.worldRef).then((data) => {
                     const array = [];
                     for (const ref of data.values()) {
                         ref.$location = utils.parseLocation(ref.location);
@@ -185,26 +157,25 @@
                         array.push(ref);
                     }
                     array.sort(utils.compareByCreatedAt);
-                    this.previousInstancesUserDialogTable.data = array;
+                    this.previousInstancesWorldDialogTable.data = array;
                     this.loading = false;
                 });
             },
-            deleteGameLogUserInstance(row) {
-                database.deleteGameLogInstance({
-                    id: this.previousInstancesUserDialog.userRef.id,
-                    displayName: this.previousInstancesUserDialog.userRef.displayName,
+            deleteGameLogWorldInstance(row) {
+                database.deleteGameLogInstanceByInstanceId({
                     location: row.location
                 });
-                utils.removeFromArray(this.previousInstancesUserDialogTable.data, row);
+                utils.removeFromArray(this.previousInstancesWorldDialogTable.data, row);
             },
-            deleteGameLogUserInstancePrompt(row) {
-                this.$confirm('Continue? Delete User From GameLog Instance', 'Confirm', {
+
+            deleteGameLogWorldInstancePrompt(row) {
+                this.$confirm('Continue? Delete GameLog Instance', 'Confirm', {
                     confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel',
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            this.deleteGameLogUserInstance(row);
+                            this.deleteGameLogWorldInstance(row);
                         }
                     }
                 });
