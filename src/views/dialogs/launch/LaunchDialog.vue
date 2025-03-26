@@ -108,10 +108,6 @@
             checkCanInvite: {
                 type: Function,
                 required: true
-            },
-            getLaunchURL: {
-                type: Function,
-                required: true
             }
         },
         data() {
@@ -182,7 +178,7 @@
                 } else {
                     D.location = L.worldId;
                 }
-                D.url = this.getLaunchURL(L);
+                D.url = utils.getLaunchURL(L);
                 if (!shortName) {
                     const res = await instanceRequest.getInstanceShortName({
                         worldId: L.worldId,
@@ -204,7 +200,7 @@
                         if (resShortName) {
                             this.launchDialog.shortUrl = `https://vrch.at/${resShortName}`;
                         }
-                        this.launchDialog.url = this.getLaunchURL(parsedL);
+                        this.launchDialog.url = utils.getLaunchURL(parsedL);
                     }
                 }
             },

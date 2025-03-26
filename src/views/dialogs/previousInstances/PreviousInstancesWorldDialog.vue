@@ -5,6 +5,7 @@
         :visible.sync="isVisible"
         :title="$t('dialog.previous_instances.header')"
         width="1000px"
+        append-to-body
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <div style="display: flex; align-items: center; justify-content: space-between">

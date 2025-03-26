@@ -71,9 +71,7 @@ import FriendImportDialog from './views/dialogs/favorites/FriendImportDialog.vue
 import WorldImportDialog from './views/dialogs/favorites/WorldImportDialog.vue';
 import AvatarImportDialog from './views/dialogs/favorites/AvatarImportDialog.vue';
 import LaunchDialog from './views/dialogs/launch/LaunchDialog.vue';
-import NewInstanceDialog from './views/dialogs/newInstance/NewInstanceDialog.vue';
 import PreviousInstancesUserDialog from './views/dialogs/previousInstances/PreviousInstancesUserDialog.vue';
-import PreviousInstancesWorldDialog from './views/dialogs/previousInstances/PreviousInstancesWorldDialog.vue';
 import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsList.vue';
 import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvatarsListDialog.vue';
@@ -225,7 +223,6 @@ console.log(`isLinux: ${LINUX}`);
             //  - previous instances
             PreviousInstancesInfoDialog,
             PreviousInstancesUserDialog,
-            PreviousInstancesWorldDialog,
             //  - world
             WorldDialog,
             //  - favorites
@@ -237,9 +234,7 @@ console.log(`isLinux: ${LINUX}`);
             ExportFriendsListDialog,
             ExportAvatarsListDialog,
             //  - launch
-            LaunchDialog,
-            //  - new instance
-            NewInstanceDialog
+            LaunchDialog
         },
         provide() {
             return {
@@ -264,7 +259,8 @@ console.log(`isLinux: ${LINUX}`);
                     this.showPreviousInstancesInfoDialog,
                 showInviteDialog: this.showInviteDialog,
                 showLaunchDialog: this.showLaunchDialog,
-                showFavoriteDialog: this.showFavoriteDialog
+                showFavoriteDialog: this.showFavoriteDialog,
+                displayPreviousImages: this.displayPreviousImages
             };
         },
         el: '#root',
@@ -9445,13 +9441,6 @@ console.log(`isLinux: ${LINUX}`);
         return { pc, android, ios };
     };
 
-    $app.methods.replaceVrcPackageUrl = function (url) {
-        if (!url) {
-            return '';
-        }
-        return url.replace('https://api.vrchat.cloud/', 'https://vrchat.com/');
-    };
-
     $app.methods.selectCurrentInstanceRow = function (val) {
         if (val === null) {
             return;
@@ -10669,29 +10658,11 @@ console.log(`isLinux: ${LINUX}`);
             return;
         }
         switch (command) {
-            case 'Refresh':
-                this.showWorldDialog(D.id);
-                break;
-            case 'New Instance':
-                this.showNewInstanceDialog(D.$location.tag);
-                break;
             case 'New Instance and Self Invite':
                 this.newInstanceSelfInvite(D.id);
                 break;
-            case 'Add Favorite':
-                this.showFavoriteDialog('world', D.id);
-                break;
             case 'Rename':
                 this.promptRenameWorld(D);
-                break;
-            case 'Change Image':
-                this.displayPreviousImages('World', 'Change');
-                break;
-            case 'Previous Images':
-                this.displayPreviousImages('World', 'Display');
-                break;
-            case 'Previous Instances':
-                this.showPreviousInstancesWorldDialog(D.ref);
                 break;
             case 'Change Description':
                 this.promptChangeWorldDescription(D);
@@ -10704,109 +10675,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             case 'Change YouTube Preview':
                 this.promptChangeWorldYouTubePreview(D);
-                break;
-            case 'Download Unity Package':
-                this.openExternalLink(
-                    this.replaceVrcPackageUrl(
-                        this.worldDialog.ref.unityPackageUrl
-                    )
-                );
-                break;
-            default:
-                this.$confirm(`Continue? ${command}`, 'Confirm', {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action !== 'confirm') {
-                            return;
-                        }
-                        switch (command) {
-                            case 'Delete Favorite':
-                                favoriteRequest.deleteFavorite({
-                                    objectId: D.id
-                                });
-                                break;
-                            case 'Make Home':
-                                API.saveCurrentUser({
-                                    homeLocation: D.id
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Home world updated',
-                                        type: 'success'
-                                    });
-                                    return args;
-                                });
-                                break;
-                            case 'Reset Home':
-                                API.saveCurrentUser({
-                                    homeLocation: ''
-                                }).then((args) => {
-                                    this.$message({
-                                        message: 'Home world has been reset',
-                                        type: 'success'
-                                    });
-                                    return args;
-                                });
-                                break;
-                            case 'Publish':
-                                worldRequest
-                                    .publishWorld({
-                                        worldId: D.id
-                                    })
-                                    .then((args) => {
-                                        this.$message({
-                                            message: 'World has been published',
-                                            type: 'success'
-                                        });
-                                        return args;
-                                    });
-                                break;
-                            case 'Unpublish':
-                                worldRequest
-                                    .unpublishWorld({
-                                        worldId: D.id
-                                    })
-                                    .then((args) => {
-                                        this.$message({
-                                            message:
-                                                'World has been unpublished',
-                                            type: 'success'
-                                        });
-                                        return args;
-                                    });
-                                break;
-                            case 'Delete Persistent Data':
-                                miscRequest
-                                    .deleteWorldPersistData({
-                                        worldId: D.id
-                                    })
-                                    .then((args) => {
-                                        this.$message({
-                                            message:
-                                                'Persistent data has been deleted',
-                                            type: 'success'
-                                        });
-                                        return args;
-                                    });
-                                break;
-                            case 'Delete':
-                                worldRequest
-                                    .deleteWorld({
-                                        worldId: D.id
-                                    })
-                                    .then((args) => {
-                                        this.$message({
-                                            message: 'World has been deleted',
-                                            type: 'success'
-                                        });
-                                        D.visible = false;
-                                        return args;
-                                    });
-                                break;
-                        }
-                    }
-                });
                 break;
         }
     };
@@ -11071,7 +10939,7 @@ console.log(`isLinux: ${LINUX}`);
                 this.showSetAvatarTagsDialog(D.id);
                 break;
             case 'Download Unity Package':
-                this.openExternalLink(
+                $utils.openExternalLink(
                     this.replaceVrcPackageUrl(
                         this.avatarDialog.ref.unityPackageUrl
                     )
@@ -11783,14 +11651,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.data.newInstanceDialogLocationTag = '';
-
-    $app.methods.showNewInstanceDialog = async function (tag) {
-        // trigger watcher
-        this.newInstanceDialogLocationTag = '';
-        this.$nextTick(() => (this.newInstanceDialogLocationTag = tag));
-    };
-
     $app.methods.makeHome = function (tag) {
         this.$confirm('Continue? Make Home', 'Confirm', {
             confirmButtonText: 'Confirm',
@@ -12185,25 +12045,6 @@ console.log(`isLinux: ${LINUX}`);
             shortName
         };
         this.$nextTick(() => (this.launchDialogData.loading = false));
-    };
-
-    $app.methods.getLaunchURL = function (instance) {
-        var L = instance;
-        if (L.instanceId) {
-            if (L.shortName) {
-                return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-                    L.worldId
-                )}&instanceId=${encodeURIComponent(
-                    L.instanceId
-                )}&shortName=${encodeURIComponent(L.shortName)}`;
-            }
-            return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-                L.worldId
-            )}&instanceId=${encodeURIComponent(L.instanceId)}`;
-        }
-        return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-            L.worldId
-        )}`;
     };
 
     $app.methods.launchGame = async function (
@@ -16948,48 +16789,6 @@ console.log(`isLinux: ${LINUX}`);
     // };
 
     // #endregion
-    // #region | App: Previous Instances World Dialog
-
-    $app.data.previousInstancesWorldDialogTable = {
-        data: [],
-        filters: [
-            {
-                prop: 'groupName',
-                value: ''
-            }
-        ],
-        tableProps: {
-            stripe: true,
-            size: 'mini',
-            defaultSort: {
-                prop: 'created_at',
-                order: 'descending'
-            }
-        },
-        pageSize: 10,
-        paginationProps: {
-            small: true,
-            layout: 'sizes,prev,pager,next,total',
-            pageSizes: [10, 25, 50, 100]
-        }
-    };
-
-    $app.data.previousInstancesWorldDialog = {
-        visible: false,
-        openFlg: false,
-        worldRef: {}
-    };
-
-    $app.methods.showPreviousInstancesWorldDialog = function (worldRef) {
-        var D = this.previousInstancesWorldDialog;
-        D.worldRef = worldRef;
-        D.visible = true;
-        // trigger watcher
-        D.openFlg = true;
-        this.$nextTick(() => (D.openFlg = false));
-    };
-
-    // #endregion
     // #region | App: Previous Instances Info Dialog
 
     $app.data.previousInstancesInfoDialogVisible = false;
@@ -19686,8 +19485,7 @@ console.log(`isLinux: ${LINUX}`);
         return {
             'check-can-invite': this.checkCanInvite,
             'launch-dialog-data': this.launchDialogData,
-            'hide-tooltips': this.hideTooltips,
-            'get-launch-u-r-l': this.getLaunchURL
+            'hide-tooltips': this.hideTooltips
         };
     };
 
@@ -19696,21 +19494,6 @@ console.log(`isLinux: ${LINUX}`);
             'update:launch-dialog-data': (event) =>
                 (this.launchDialogData = event),
             'launch-game': this.launchGame
-        };
-    };
-
-    $app.computed.newInstanceDialogBind = function () {
-        return {
-            'new-instance-dialog-location-tag':
-                this.newInstanceDialogLocationTag,
-            'create-new-instance': this.createNewInstance,
-            'instance-content-settings': this.instanceContentSettings,
-            'offline-friends': this.offlineFriends,
-            'active-friends': this.activeFriends,
-            'online-friends': this.onlineFriends,
-            'vip-friends': this.vipFriends,
-            'get-launch-u-r-l': this.getLaunchURL,
-            'has-group-permission': this.hasGroupPermission
         };
     };
 
@@ -19787,22 +19570,6 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
-    $app.computed.previousInstancesWorldDialogBind = function () {
-        return {
-            'previous-instances-world-dialog':
-                this.previousInstancesWorldDialog,
-            'shift-held': this.shiftHeld
-        };
-    };
-
-    $app.computed.previousInstancesWorldDialogEvent = function () {
-        return {
-            'update:previous-instances-world-dialog': (val) => {
-                this.previousInstancesWorldDialog = val;
-            }
-        };
-    };
-
     $app.computed.previousInstancesInfoDialogBind = function () {
         return {
             visible: this.previousInstancesInfoDialogVisible,
@@ -19826,22 +19593,31 @@ console.log(`isLinux: ${LINUX}`);
         return {
             'world-dialog': this.worldDialog,
             'hide-tooltips': this.hideTooltips,
+            'shift-held': this.shiftHeld,
             'is-game-running': this.isGameRunning,
             'last-location': this.lastLocation,
             'instance-join-history': this.instanceJoinHistory,
             'update-instance-info': this.updateInstanceInfo,
-            'is-age-gated-instances-visible': this.isAgeGatedInstancesVisible
+            'is-age-gated-instances-visible': this.isAgeGatedInstancesVisible,
+            'create-new-instance': this.createNewInstance,
+            'instance-content-settings': this.instanceContentSettings,
+            'offline-friends': this.offlineFriends,
+            'active-friends': this.activeFriends,
+            'online-friends': this.onlineFriends,
+            'vip-friends': this.vipFriends,
+            'has-group-permission': this.hasGroupPermission
         };
     };
 
     $app.computed.worldDialogEvent = function () {
         return {
+            'update:world-dialog': (val) => {
+                this.worldDialog = val;
+            },
             'open-folder-generic': this.openFolderGeneric,
             'delete-vrchat-cache': this.deleteVRChatCache,
             'world-dialog-command': this.worldDialogCommand,
             'refresh-instance-player-count': this.refreshInstancePlayerCount,
-            'show-previous-instances-world-dialog':
-                this.showPreviousInstancesWorldDialog,
             'download-and-save-json': this.downloadAndSaveJson
         };
     };
