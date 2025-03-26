@@ -19822,6 +19822,30 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
+    $app.computed.worldDialogBind = function () {
+        return {
+            'world-dialog': this.worldDialog,
+            'hide-tooltips': this.hideTooltips,
+            'is-game-running': this.isGameRunning,
+            'last-location': this.lastLocation,
+            'instance-join-history': this.instanceJoinHistory,
+            'update-instance-info': this.updateInstanceInfo,
+            'is-age-gated-instances-visible': this.isAgeGatedInstancesVisible
+        };
+    };
+
+    $app.computed.worldDialogEvent = function () {
+        return {
+            'open-folder-generic': this.openFolderGeneric,
+            'delete-vrchat-cache': this.deleteVRChatCache,
+            'world-dialog-command': this.worldDialogCommand,
+            'refresh-instance-player-count': this.refreshInstancePlayerCount,
+            'show-previous-instances-world-dialog':
+                this.showPreviousInstancesWorldDialog,
+            'download-and-save-json': this.downloadAndSaveJson
+        };
+    };
+
     // #endregion
 
     // #region | Electron

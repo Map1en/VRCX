@@ -77,9 +77,6 @@ doctype html
     include ./mixins/dialogs/userDialog.pug
     +userDialog
 
-    include ./mixins/dialogs/worldDialog.pug
-    +worldDialog
-
     include ./mixins/dialogs/avatarDialog.pug
     +avatarDialog
 
@@ -148,5 +145,8 @@ doctype html
 
     //- new instance
     new-instance-dialog(v-bind='newInstanceDialogBind')
+
+    //- world
+    world-dialog(v-bind='worldDialogBind' v-on='worldDialogEvent')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

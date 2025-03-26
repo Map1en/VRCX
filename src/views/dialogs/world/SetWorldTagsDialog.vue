@@ -128,13 +128,6 @@
                 }
             };
         },
-        watch: {
-            isSetWorldTagsDialogVisible(val) {
-                if (val) {
-                    this.showSetWorldTagsDialog();
-                }
-            }
-        },
         computed: {
             isVisible: {
                 get() {
@@ -142,6 +135,13 @@
                 },
                 set(val) {
                     this.$emit('update:is-set-world-tags-dialog-visible', val);
+                }
+            }
+        },
+        watch: {
+            isSetWorldTagsDialogVisible(val) {
+                if (val) {
+                    this.showSetWorldTagsDialog();
                 }
             }
         },
