@@ -1141,7 +1141,11 @@ console.log(`isLinux: ${LINUX}`);
         ) {
             $app.applyGroupDialogInstances();
         }
-        // hacky workaround to force update instance info
+
+        // FIXME:
+        // because use $refs to update data, can not trigger vue's reactivity system, so view will not update
+        // will fix this when refactor the core code, maybe
+        // old comment: hacky workaround to force update instance info
         $app.updateInstanceInfo++;
     });
 

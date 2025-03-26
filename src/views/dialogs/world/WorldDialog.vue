@@ -767,7 +767,7 @@
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import PreviousInstancesWorldDialog from '../previousInstances/PreviousInstancesWorldDialog.vue';
-    import NewInstanceDialog from '../newInstance/NewInstanceDialog.vue';
+    import NewInstanceDialog from './NewInstanceDialog.vue';
     import { favoriteRequest, miscRequest, worldRequest } from '../../../classes/request';
 
     export default {
