@@ -13811,7 +13811,7 @@ console.log(`isLinux: ${LINUX}`);
         document.getElementById('AvatarImageUploadButton').click();
     };
 
-    // images.pug line 63
+    // images.pug line 63, useless now
     // $app.methods.deleteAvatarImage = function () {
     //     this.changeAvatarImageDialogLoading = true;
     //     var parmas = {
