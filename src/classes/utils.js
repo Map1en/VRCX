@@ -448,5 +448,13 @@ export default {
         return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
             L.worldId
         )}`;
+    },
+    getFaviconUrl(resource) {
+        try {
+            const url = new URL(resource);
+            return `https://icons.duckduckgo.com/ip2/${url.host}.ico`;
+        } catch (err) {
+            return '';
+        }
     }
 };

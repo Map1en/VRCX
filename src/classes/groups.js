@@ -189,50 +189,12 @@ export default class extends baseClass {
             }
         });
 
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.cancelGroupRequest = function (params) {
-            return this.call(`groups/${params.groupId}/requests`, {
-                method: 'DELETE'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:CANCELJOINREQUEST', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:CANCELJOINREQUEST', function (args) {
             var groupId = args.params.groupId;
             if ($app.groupDialog.visible && $app.groupDialog.id === groupId) {
                 $app.getGroupDialogGroup(groupId);
             }
         });
-
-        /*
-            groupId: string,
-            params: {
-                isRepresenting: bool
-            }
-        */
-        API.setGroupRepresentation = function (groupId, params) {
-            return this.call(`groups/${groupId}/representation`, {
-                method: 'PUT',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    groupId,
-                    params
-                };
-                this.$emit('GROUP:SETREPRESENTATION', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:SETREPRESENTATION', function (args) {
             if (
@@ -2396,24 +2358,6 @@ export default class extends baseClass {
                     }
                 }
             );
-        },
-
-        cancelGroupRequest(groupId) {
-            return API.cancelGroupRequest({
-                groupId
-            });
-        },
-
-        setGroupRepresentation(groupId) {
-            return API.setGroupRepresentation(groupId, {
-                isRepresenting: true
-            });
-        },
-
-        clearGroupRepresentation(groupId) {
-            return API.setGroupRepresentation(groupId, {
-                isRepresenting: false
-            });
         },
 
         setGroupVisibility(groupId, visibility) {

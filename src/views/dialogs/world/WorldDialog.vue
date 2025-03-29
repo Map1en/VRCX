@@ -787,7 +787,8 @@
             'dialogMouseUp',
             'displayPreviousImages',
             'showWorldDialog',
-            'showFavoriteDialog'
+            'showFavoriteDialog',
+            'openExternalLink'
         ],
         props: {
             worldDialog: Object,
@@ -1034,7 +1035,7 @@
                         this.isSetWorldTagsDialogVisible = true;
                         break;
                     case 'Download Unity Package':
-                        utils.openExternalLink(this.replaceVrcPackageUrl(this.worldDialog.ref.unityPackageUrl));
+                        this.openExternalLink(this.replaceVrcPackageUrl(this.worldDialog.ref.unityPackageUrl));
                         break;
                     case 'Change Image':
                         this.displayPreviousImages('World', 'Change');

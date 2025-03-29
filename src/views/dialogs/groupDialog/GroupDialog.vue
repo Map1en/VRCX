@@ -1151,7 +1151,155 @@
 </template>
 
 <script>
+    import utils from '../../../classes/utils';
+    import { groupRequest } from '../../../classes/request';
+
     export default {
-        name: 'GroupDialog'
+        name: 'GroupDialog',
+        inject: [
+            'beforeDialogClose',
+            'dialogMouseDown',
+            'dialogMouseUp',
+            'showFullscreenImageDialog',
+            'languageClass',
+            'showUserDialog',
+            'userStatusClass',
+            'userImage',
+            'openExternalLink'
+        ],
+        props: {
+            groupDialog: {
+                type: Object,
+                required: true
+            },
+            hideTooltips: {
+                type: Boolean,
+                default: false
+            },
+            joinGroup: {
+                type: Function,
+                required: true
+            },
+            groupDialogCommand: {
+                type: Function,
+                required: true
+            },
+            hasGroupPermission: {
+                type: Function,
+                required: true
+            },
+            groupDialogTabClick: {
+                type: Function,
+                required: true
+            },
+            refreshInstancePlayerCount: {
+                type: Function,
+                required: true
+            },
+            lastLocation: {
+                type: Object,
+                required: true
+            },
+            updateInstanceInfo: {
+                type: Number,
+                required: true
+            },
+            showGroupPostEditDialog: {
+                type: Function,
+                required: true
+            },
+            confirmDeleteGroupPost: {
+                type: Function,
+                required: true
+            },
+            copyGroupUrl: {
+                type: Function,
+                required: true
+            },
+            copyGroupId: {
+                type: Function,
+                required: true
+            },
+            updateGroupPostSearch: {
+                type: Function,
+                required: true
+            },
+            isGroupMembersLoading: {
+                type: Boolean,
+                default: false
+            },
+            loadAllGroupMembers: {
+                type: Function,
+                required: true
+            },
+            downloadAndSaveJson: {
+                type: Function,
+                required: true
+            },
+            groupDialogSortingOptions: {
+                type: Array,
+                required: true
+            },
+            setGroupMemberSortOrder: {
+                type: Function,
+                required: true
+            },
+            groupDialogFilterOptions: {
+                type: Array,
+                required: true
+            },
+            setGroupMemberFilter: {
+                type: Function,
+                required: true
+            },
+            groupMembersSearch: {
+                type: Function,
+                required: true
+            },
+            loadMoreGroupMembers: {
+                type: Function,
+                required: true
+            },
+            isGroupMembersDone: {
+                type: Boolean,
+                default: false
+            },
+            isGroupGalleryLoading: {
+                type: Boolean,
+                default: false
+            },
+            getGroupGalleries: {
+                type: Function,
+                required: true
+            },
+            groupGalleryStatus: {
+                type: Function,
+                required: true
+            },
+            refreshGroupDialogTreeData: {
+                type: Function,
+                required: true
+            }
+        },
+        methods: {
+            getFaviconUrl(link) {
+                return utils.getFaviconUrl(link);
+            },
+            setGroupRepresentation(groupId) {
+                return groupRequest.setGroupRepresentation(groupId, {
+                    isRepresenting: true
+                });
+            },
+            clearGroupRepresentation(groupId) {
+                return groupRequest.setGroupRepresentation(groupId, {
+                    isRepresenting: false
+                });
+            },
+            cancelGroupRequest(groupId) {
+                return groupRequest.cancelGroupRequest({
+                    groupId
+                });
+            }
+        }
     };
 </script>

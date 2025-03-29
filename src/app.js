@@ -248,7 +248,6 @@ console.log(`isLinux: ${LINUX}`);
                 userImageFull: this.userImageFull,
                 showFullscreenImageDialog: this.showFullscreenImageDialog,
                 statusClass: this.statusClass,
-                getFaviconUrl: this.getFaviconUrl,
                 openExternalLink: this.openExternalLink,
                 beforeDialogClose: this.beforeDialogClose,
                 dialogMouseDown: this.dialogMouseDown,
@@ -260,7 +259,8 @@ console.log(`isLinux: ${LINUX}`);
                 showInviteDialog: this.showInviteDialog,
                 showLaunchDialog: this.showLaunchDialog,
                 showFavoriteDialog: this.showFavoriteDialog,
-                displayPreviousImages: this.displayPreviousImages
+                displayPreviousImages: this.displayPreviousImages,
+                languageClass: this.languageClass
             };
         },
         el: '#root',
@@ -8461,14 +8461,14 @@ console.log(`isLinux: ${LINUX}`);
         await this.sortCurrentUserGroups();
     };
 
-    $app.methods.getFaviconUrl = function (resource) {
-        try {
-            var url = new URL(resource);
-            return `https://icons.duckduckgo.com/ip2/${url.host}.ico`;
-        } catch (err) {
-            return '';
-        }
-    };
+    // $app.methods.getFaviconUrl = function (resource) {
+    //     try {
+    //         var url = new URL(resource);
+    //         return `https://icons.duckduckgo.com/ip2/${url.host}.ico`;
+    //     } catch (err) {
+    //         return '';
+    //     }
+    // };
 
     API.$on('LOGOUT', function () {
         $app.userDialog.visible = false;
@@ -10943,7 +10943,7 @@ console.log(`isLinux: ${LINUX}`);
                 this.showSetAvatarTagsDialog(D.id);
                 break;
             case 'Download Unity Package':
-                $utils.openExternalLink(
+                this.openExternalLink(
                     this.replaceVrcPackageUrl(
                         this.avatarDialog.ref.unityPackageUrl
                     )
@@ -19299,7 +19299,6 @@ console.log(`isLinux: ${LINUX}`);
             hideTooltips: this.hideTooltips,
             randomUserColours: this.randomUserColours,
             sortStatus: this.sortStatus,
-            languageClass: this.languageClass,
             confirmDeleteFriend: this.confirmDeleteFriend,
             friendsListSearch: this.friendsListSearch,
             stringComparer: this.stringComparer
