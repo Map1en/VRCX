@@ -1,6 +1,5 @@
 const groupReq = {
     /**
-     *
      * @param {string} groupId
      * @param {{isRepresenting: bool}} params
      * @returns
@@ -19,6 +18,7 @@ const groupReq = {
             return args;
         });
     },
+
     /**
      * @param {{ groupId: string }} params
      * @return { Promise<{json: any, params}> }
@@ -32,6 +32,26 @@ const groupReq = {
                 params
             };
             window.API.$emit('GROUP:CANCELJOINREQUEST', args);
+            return args;
+        });
+    },
+
+    /**
+     * @param {{ groupId: string, postId: string }} params
+     * @return { Promise<{json: any, params}> }
+     */
+    deleteGroupPost(params) {
+        return window.API.call(
+            `groups/${params.groupId}/posts/${params.postId}`,
+            {
+                method: 'DELETE'
+            }
+        ).then((json) => {
+            const args = {
+                json,
+                params
+            };
+            window.API.$emit('GROUP:POST:DELETE', args);
             return args;
         });
     }

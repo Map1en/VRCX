@@ -12196,22 +12196,6 @@ console.log(`isLinux: ${LINUX}`);
         this.copyToClipboard(displayName);
     };
 
-    $app.methods.copyGroupId = function (groupId) {
-        this.$message({
-            message: 'Group ID copied to clipboard',
-            type: 'success'
-        });
-        this.copyToClipboard(groupId);
-    };
-
-    $app.methods.copyGroupUrl = function (groupUrl) {
-        this.$message({
-            message: 'Group URL copied to clipboard',
-            type: 'success'
-        });
-        this.copyToClipboard(groupUrl);
-    };
-
     $app.methods.copyImageUrl = function (imageUrl) {
         this.$message({
             message: 'ImageUrl copied to clipboard',
@@ -18649,6 +18633,8 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
+    // use in avatar, user, group dialog
+    // TODO: better in utils
     $app.methods.downloadAndSaveJson = function (fileName, data) {
         if (!fileName || !data) {
             return;

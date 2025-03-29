@@ -1180,10 +1180,6 @@
                 type: Function,
                 required: true
             },
-            groupDialogCommand: {
-                type: Function,
-                required: true
-            },
             hasGroupPermission: {
                 type: Function,
                 required: true
@@ -1205,18 +1201,6 @@
                 required: true
             },
             showGroupPostEditDialog: {
-                type: Function,
-                required: true
-            },
-            confirmDeleteGroupPost: {
-                type: Function,
-                required: true
-            },
-            copyGroupUrl: {
-                type: Function,
-                required: true
-            },
-            copyGroupId: {
                 type: Function,
                 required: true
             },
@@ -1272,10 +1256,6 @@
                 type: Function,
                 required: true
             },
-            groupGalleryStatus: {
-                type: Function,
-                required: true
-            },
             refreshGroupDialogTreeData: {
                 type: Function,
                 required: true
@@ -1299,6 +1279,55 @@
                 return groupRequest.cancelGroupRequest({
                     groupId
                 });
+            },
+            confirmDeleteGroupPost(post) {
+                this.$confirm('Are you sure you want to delete this post?', 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info',
+                    callback: (action) => {
+                        if (action === 'confirm') {
+                            groupRequest.deleteGroupPost({
+                                groupId: post.groupId,
+                                postId: post.id
+                            });
+                        }
+                    }
+                });
+            },
+            copyGroupId(groupId) {
+                this.$message({
+                    message: 'Group ID copied to clipboard',
+                    type: 'success'
+                });
+                this.copyToClipboard(groupId);
+            },
+            copyGroupUrl(groupUrl) {
+                this.$message({
+                    message: 'Group URL copied to clipboard',
+                    type: 'success'
+                });
+                this.copyToClipboard(groupUrl);
+            },
+            groupGalleryStatus(gallery) {
+                const style = {};
+                if (!gallery.membersOnly) {
+                    style.blue = true;
+                } else if (!gallery.roleIdsToView) {
+                    style.green = true;
+                } else {
+                    style.red = true;
+                }
+                return style;
+            },
+            groupDialogCommand(command) {
+                switch (command) {
+                    case 'Share':
+                        this.copyGroupUrl(this.groupDialog.ref.$url);
+                        break;
+                    default:
+                    // emit the command to parent component
+                }
             }
         }
     };

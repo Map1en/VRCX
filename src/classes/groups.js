@@ -560,26 +560,6 @@ export default class extends baseClass {
             $app.updateGroupPostSearch();
         });
 
-        /**
-         * @param {{ groupId: string, postId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.deleteGroupPost = function (params) {
-            return this.call(
-                `groups/${params.groupId}/posts/${params.postId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:POST:DELETE', args);
-                return args;
-            });
-        };
-
         API.editGroupPost = function (params) {
             return this.call(
                 `groups/${params.groupId}/posts/${params.postId}`,
@@ -1701,26 +1681,6 @@ export default class extends baseClass {
     };
 
     _methods = {
-        confirmDeleteGroupPost(post) {
-            this.$confirm(
-                'Are you sure you want to delete this post?',
-                'Confirm',
-                {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            API.deleteGroupPost({
-                                groupId: post.groupId,
-                                postId: post.id
-                            });
-                        }
-                    }
-                }
-            );
-        },
-
         blockGroup(groupId) {
             this.$confirm(
                 'Are you sure you want to block this group?',
@@ -2241,6 +2201,7 @@ export default class extends baseClass {
                     this.showGroupDialog(D.id);
                     break;
                 case 'Share':
+                    //
                     this.copyGroupUrl(D.ref.$url);
                     break;
                 case 'Moderation Tools':
@@ -2645,18 +2606,6 @@ export default class extends baseClass {
             } catch (err) {
                 console.error(err);
             }
-        },
-
-        groupGalleryStatus(gallery) {
-            var style = {};
-            if (!gallery.membersOnly) {
-                style.blue = true;
-            } else if (!gallery.roleIdsToView) {
-                style.green = true;
-            } else {
-                style.red = true;
-            }
-            return style;
         },
 
         showInviteGroupDialog(groupId, userId) {
