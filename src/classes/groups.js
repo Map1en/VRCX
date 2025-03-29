@@ -2671,7 +2671,9 @@ export default class extends baseClass {
 
         async getGroupGalleries() {
             this.groupDialog.galleries = {};
-            this.$refs.groupDialogGallery.currentName = '0'; // select first tab
+            if (this.$refs.groupDialogGallery) {
+                this.$refs.groupDialogGallery.currentName = '0'; // select first tab
+            }
             this.isGroupGalleryLoading = true;
             for (var i = 0; i < this.groupDialog.ref.galleries.length; i++) {
                 var gallery = this.groupDialog.ref.galleries[i];
