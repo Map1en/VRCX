@@ -1327,9 +1327,9 @@ export default class extends baseClass {
             ) {
                 this.groupMemberModeration.visible = false;
             }
-            this.$nextTick(() =>
-                $app.adjustDialogZ(this.$refs.groupDialog.$el)
-            );
+            // this.$nextTick(() =>
+            //     $app.adjustDialogZ(this.$refs.groupDialog.$el)
+            // );
             var D = this.groupDialog;
             D.visible = true;
             D.loading = true;
@@ -1412,18 +1412,18 @@ export default class extends baseClass {
                                 groupId
                             });
                         }
-                        if (this.$refs.groupDialogTabs.currentName === '0') {
+                        if (this.$refs.groupDialogTabs?.currentName === '0') {
                             this.groupDialogLastActiveTab = $t(
                                 'dialog.group.info.header'
                             );
                         } else if (
-                            this.$refs.groupDialogTabs.currentName === '1'
+                            this.$refs.groupDialogTabs?.currentName === '1'
                         ) {
                             this.groupDialogLastActiveTab = $t(
                                 'dialog.group.posts.header'
                             );
                         } else if (
-                            this.$refs.groupDialogTabs.currentName === '2'
+                            this.$refs.groupDialogTabs?.currentName === '2'
                         ) {
                             this.groupDialogLastActiveTab = $t(
                                 'dialog.group.members.header'
@@ -1433,7 +1433,7 @@ export default class extends baseClass {
                                 this.getGroupDialogGroupMembers();
                             }
                         } else if (
-                            this.$refs.groupDialogTabs.currentName === '3'
+                            this.$refs.groupDialogTabs?.currentName === '3'
                         ) {
                             this.groupDialogLastActiveTab = $t(
                                 'dialog.group.gallery.header'
@@ -1443,7 +1443,7 @@ export default class extends baseClass {
                                 this.getGroupGalleries();
                             }
                         } else if (
-                            this.$refs.groupDialogTabs.currentName === '4'
+                            this.$refs.groupDialogTabs?.currentName === '4'
                         ) {
                             this.groupDialogLastActiveTab = $t(
                                 'dialog.group.json.header'

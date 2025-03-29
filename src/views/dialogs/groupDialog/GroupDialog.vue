@@ -881,7 +881,7 @@
                                     trigger="click"
                                     size="small"
                                     style="margin-right: 5px"
-                                    :disabled="isGroupMembersLoading || groupDialog.memberSearch.length"
+                                    :disabled="isGroupMembersLoading || !!groupDialog.memberSearch.length"
                                     @click.native.stop>
                                     <el-button size="mini">
                                         <span
@@ -902,7 +902,7 @@
                                     trigger="click"
                                     size="small"
                                     style="margin-right: 5px"
-                                    :disabled="isGroupMembersLoading || groupDialog.memberSearch.length"
+                                    :disabled="isGroupMembersLoading || !!groupDialog.memberSearch.length"
                                     @click.native.stop>
                                     <el-button size="mini">
                                         <span
@@ -1247,20 +1247,18 @@
                 });
             },
             copyGroupId(groupId) {
-                //
                 this.$message({
                     message: 'Group ID copied to clipboard',
                     type: 'success'
                 });
-                this.copyToClipboard(groupId);
+                utils.copyToClipboard(groupId);
             },
             copyGroupUrl(groupUrl) {
-                //
                 this.$message({
                     message: 'Group URL copied to clipboard',
                     type: 'success'
                 });
-                this.copyToClipboard(groupUrl);
+                utils.copyToClipboard(groupUrl);
             },
             groupGalleryStatus(gallery) {
                 const style = {};
