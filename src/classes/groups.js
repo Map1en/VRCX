@@ -1,7 +1,12 @@
 import * as workerTimers from 'worker-timers';
 import configRepository from '../repository/config.js';
 import { baseClass, $app, API, $t, $utils } from './baseClass.js';
-import { userRequest, worldRequest, instanceRequest } from './request';
+import {
+    userRequest,
+    worldRequest,
+    instanceRequest,
+    groupRequest
+} from './request';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -11,25 +16,6 @@ export default class extends baseClass {
     init() {
         API.cachedGroups = new Map();
         API.currentUserGroups = new Map();
-
-        /**
-         * @param {{ groupId: string }} params
-         */
-        API.getGroup = function (params) {
-            return this.call(`groups/${params.groupId}`, {
-                method: 'GET',
-                params: {
-                    includeRoles: params.includeRoles || false
-                }
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP', function (args) {
             args.ref = this.applyGroup(args.json);
@@ -44,23 +30,6 @@ export default class extends baseClass {
             D.inGroup = ref.membershipStatus === 'member';
             D.ref = ref;
         });
-
-        /**
-         * @param {{ userId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getRepresentedGroup = function (params) {
-            return this.call(`users/${params.userId}/groups/represented`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:REPRESENTED', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:REPRESENTED', function (args) {
             var json = args.json;
@@ -79,23 +48,6 @@ export default class extends baseClass {
             });
         });
 
-        /**
-         * @param {{ userId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroups = function (params) {
-            return this.call(`users/${params.userId}/groups`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:LIST', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:LIST', function (args) {
             for (var json of args.json) {
                 json.$memberId = json.id;
@@ -109,23 +61,6 @@ export default class extends baseClass {
                 });
             }
         });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.joinGroup = function (params) {
-            return this.call(`groups/${params.groupId}/join`, {
-                method: 'POST'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:JOIN', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:JOIN', function (args) {
             var json = {
@@ -156,23 +91,6 @@ export default class extends baseClass {
                 $app.getGroupDialogGroup(groupId);
             }
         });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.leaveGroup = function (params) {
-            return this.call(`groups/${params.groupId}/leave`, {
-                method: 'POST'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:LEAVE', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:LEAVE', function (args) {
             var groupId = args.params.groupId;
@@ -206,24 +124,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-         * @param {{ query: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.groupStrictsearch = function (params) {
-            return this.call(`groups/strictsearch`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:STRICTSEARCH', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:STRICTSEARCH', function (args) {
             for (var json of args.json) {
                 this.$emit('GROUP', {
@@ -234,31 +134,6 @@ export default class extends baseClass {
                 });
             }
         });
-
-        /*
-            userId: string,
-            groupId: string,
-            params: {
-                visibility: string,
-                isSubscribedToAnnouncements: bool,
-                managerNotes: string
-            }
-        */
-        API.setGroupMemberProps = function (userId, groupId, params) {
-            return this.call(`groups/${groupId}/members/${userId}`, {
-                method: 'PUT',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    userId,
-                    groupId,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:PROPS', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:MEMBER:PROPS', function (args) {
             if (args.userId !== this.currentUser.id) {
@@ -319,54 +194,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-        * @param {{
-                userId: string,
-                groupId: string,
-                roleId: string
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.addGroupMemberRole = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}/roles/${params.roleId}`,
-                {
-                    method: 'PUT'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
-                return args;
-            });
-        };
-
-        /**
-        * @param {{
-                userId: string,
-                groupId: string,
-                roleId: string
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.removeGroupMemberRole = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}/roles/${params.roleId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:MEMBER:ROLE:CHANGE', function (args) {
             if ($app.groupDialog.id === args.params.groupId) {
                 for (var i = 0; i < $app.groupDialog.members.length; ++i) {
@@ -398,19 +225,6 @@ export default class extends baseClass {
             }
         });
 
-        API.getGroupPermissions = function (params) {
-            return this.call(`users/${params.userId}/groups/permissions`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:PERMISSIONS', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:PERMISSIONS', function (args) {
             if (args.params.userId !== this.currentUser.id) {
                 return;
@@ -425,45 +239,6 @@ export default class extends baseClass {
             }
         });
 
-        // /**
-        // * @param {{ groupId: string }} params
-        // * @return { Promise<{json: any, params}> }
-        // */
-        // API.getGroupAnnouncement = function (params) {
-        //     return this.call(`groups/${params.groupId}/announcement`, {
-        //         method: 'GET'
-        //     }).then((json) => {
-        //         var args = {
-        //             json,
-        //             params
-        //         };
-        //         this.$emit('GROUP:ANNOUNCEMENT', args);
-        //         return args;
-        //     });
-        // };
-
-        /**
-        * @param {{
-                groupId: string,
-                n: number,
-                offset: number
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.getGroupPosts = function (params) {
-            return this.call(`groups/${params.groupId}/posts`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:POSTS', args);
-                return args;
-            });
-        };
-
         /**
          * @param {{ groupId: string }} params
          * @return { Promise<{json: any, params}> }
@@ -474,7 +249,7 @@ export default class extends baseClass {
             var n = 100;
             var total = 0;
             do {
-                var args = await this.getGroupPosts({
+                var args = await groupRequest.getGroupPosts({
                     groupId: params.groupId,
                     n,
                     offset
@@ -560,82 +335,6 @@ export default class extends baseClass {
             $app.updateGroupPostSearch();
         });
 
-        API.editGroupPost = function (params) {
-            return this.call(
-                `groups/${params.groupId}/posts/${params.postId}`,
-                {
-                    method: 'PUT',
-                    params
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:POST', args);
-                return args;
-            });
-        };
-
-        API.createGroupPost = function (params) {
-            return this.call(`groups/${params.groupId}/posts`, {
-                method: 'POST',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:POST', args);
-                return args;
-            });
-        };
-
-        /**
-        * @param {{
-                groupId: string,
-                userId: string
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.getGroupMember = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}`,
-                {
-                    method: 'GET'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER', args);
-                return args;
-            });
-        };
-
-        /**
-        * @param {{
-                groupId: string,
-                n: number,
-                offset: number
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.getGroupMembers = function (params) {
-            return this.call(`groups/${params.groupId}/members`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBERS', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:MEMBERS', function (args) {
             for (var json of args.json) {
                 this.$emit('GROUP:MEMBER', {
@@ -651,29 +350,6 @@ export default class extends baseClass {
             args.ref = this.applyGroupMember(args.json);
         });
 
-        /**
-        * @param {{
-                groupId: string,
-                query: string,
-                n: number,
-                offset: number
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.getGroupMembersSearch = function (params) {
-            return this.call(`groups/${params.groupId}/members/search`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBERS:SEARCH', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:MEMBERS:SEARCH', function (args) {
             for (var json of args.json.results) {
                 this.$emit('GROUP:MEMBER', {
@@ -684,48 +360,6 @@ export default class extends baseClass {
                 });
             }
         });
-
-        /**
-        * @param {{
-                groupId: string
-        * }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.blockGroup = function (params) {
-            return this.call(`groups/${params.groupId}/block`, {
-                method: 'POST'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:BLOCK', args);
-                return args;
-            });
-        };
-
-        /**
-        * @param {{
-                groupId: string,
-                userId: string
-        * }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.unblockGroup = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:UNBLOCK', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:BLOCK', function (args) {
             if (
@@ -745,193 +379,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-        * @param {{
-                groupId: string,
-                userId: string
-        * }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.sendGroupInvite = function (params) {
-            return this.call(`groups/${params.groupId}/invites`, {
-                method: 'POST',
-                params: {
-                    userId: params.userId
-                }
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITE', args);
-                return args;
-            });
-        };
-
-        /**
-        * @param {{
-                groupId: string,
-                userId: string
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.kickGroupMember = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:KICK', args);
-                return args;
-            });
-        };
-
-        /**
-         * @param {{ groupId: string, userId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.banGroupMember = function (params) {
-            return this.call(`groups/${params.groupId}/bans`, {
-                method: 'POST',
-                params: {
-                    userId: params.userId
-                }
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:BAN', args);
-                return args;
-            });
-        };
-
-        /**
-         * @param {{ groupId: string, userId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.unbanGroupMember = function (params) {
-            return this.call(`groups/${params.groupId}/bans/${params.userId}`, {
-                method: 'DELETE'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:MEMBER:UNBAN', args);
-                return args;
-            });
-        };
-
-        API.deleteSentGroupInvite = function (params) {
-            return this.call(
-                `groups/${params.groupId}/invites/${params.userId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITE:DELETE', args);
-                return args;
-            });
-        };
-
-        API.deleteBlockedGroupRequest = function (params) {
-            return this.call(
-                `groups/${params.groupId}/members/${params.userId}`,
-                {
-                    method: 'DELETE'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:BLOCKED:DELETE', args);
-                return args;
-            });
-        };
-
-        API.acceptGroupInviteRequest = function (params) {
-            return this.call(
-                `groups/${params.groupId}/requests/${params.userId}`,
-                {
-                    method: 'PUT',
-                    params: {
-                        action: 'accept'
-                    }
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITE:ACCEPT', args);
-                return args;
-            });
-        };
-
-        API.rejectGroupInviteRequest = function (params) {
-            return this.call(
-                `groups/${params.groupId}/requests/${params.userId}`,
-                {
-                    method: 'PUT',
-                    params: {
-                        action: 'reject'
-                    }
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITE:REJECT', args);
-                return args;
-            });
-        };
-
-        API.blockGroupInviteRequest = function (params) {
-            return this.call(
-                `groups/${params.groupId}/requests/${params.userId}`,
-                {
-                    method: 'PUT',
-                    params: {
-                        action: 'reject',
-                        block: true
-                    }
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITE:BLOCK', args);
-                return args;
-            });
-        };
-
-        API.getGroupBans = function (params) {
-            return this.call(`groups/${params.groupId}/bans`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:BANS', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:BANS', function (args) {
             if ($app.groupMemberModeration.id !== args.params.groupId) {
                 return;
@@ -943,23 +390,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroupAuditLogTypes = function (params) {
-            return this.call(`groups/${params.groupId}/auditLogTypes`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:AUDITLOGTYPES', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:AUDITLOGTYPES', function (args) {
             if ($app.groupMemberModeration.id !== args.params.groupId) {
                 return;
@@ -967,24 +397,6 @@ export default class extends baseClass {
 
             $app.groupMemberModeration.auditLogTypes = args.json;
         });
-
-        /**
-         * @param {{ groupId: string, eventTypes: array }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroupLogs = function (params) {
-            return this.call(`groups/${params.groupId}/auditLogs`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:LOGS', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:LOGS', function (args) {
             if ($app.groupMemberModeration.id !== args.params.groupId) {
@@ -1001,24 +413,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroupInvites = function (params) {
-            return this.call(`groups/${params.groupId}/invites`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INVITES', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:INVITES', function (args) {
             if ($app.groupMemberModeration.id !== args.params.groupId) {
                 return;
@@ -1029,24 +423,6 @@ export default class extends baseClass {
                 $app.groupInvitesModerationTable.data.push(ref);
             }
         });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroupJoinRequests = function (params) {
-            return this.call(`groups/${params.groupId}/requests`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:JOINREQUESTS', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:JOINREQUESTS', function (args) {
             if ($app.groupMemberModeration.id !== args.params.groupId) {
@@ -1065,26 +441,6 @@ export default class extends baseClass {
                 }
             }
         });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getGroupInstances = function (params) {
-            return this.call(
-                `users/${this.currentUser.id}/instances/groups/${params.groupId}`,
-                {
-                    method: 'GET'
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:INSTANCES', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:INSTANCES', function (args) {
             if ($app.groupDialog.id === args.params.groupId) {
@@ -1116,50 +472,6 @@ export default class extends baseClass {
             }
         });
 
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-
-        API.getGroupRoles = function (params) {
-            return this.call(`groups/${params.groupId}/roles`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                // useless code?
-                // this.$emit('GROUP:ROLES', args);
-                return args;
-            });
-        };
-
-        API.getRequestedGroups = function () {
-            return this.call(`users/${this.currentUser.id}/groups/requested`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json
-                };
-                this.$emit('GROUP:REQUESTED', args);
-                return args;
-            });
-        };
-
-        API.getUsersGroupInstances = function () {
-            return this.call(`users/${this.currentUser.id}/instances/groups`, {
-                method: 'GET'
-            }).then((json) => {
-                var args = {
-                    json
-                };
-                this.$emit('GROUP:USER:INSTANCES', args);
-                return args;
-            });
-        };
-
         API.$on('GROUP:USER:INSTANCES', function (args) {
             $app.groupInstances = [];
             for (const json of args.json.instances) {
@@ -1176,7 +488,7 @@ export default class extends baseClass {
                 const ref = this.cachedGroups.get(json.ownerId);
                 if (typeof ref === 'undefined') {
                     if ($app.friendLogInitStatus) {
-                        this.getGroup({ groupId: json.ownerId });
+                        groupRequest.getGroup({ groupId: json.ownerId });
                     }
                     return;
                 }
@@ -1186,30 +498,6 @@ export default class extends baseClass {
                 });
             }
         });
-
-        /**
-        * @param {{
-                query: string,
-                n: number,
-                offset: number,
-                order: string,
-                sortBy: string
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.groupSearch = function (params) {
-            return this.call(`groups`, {
-                method: 'GET',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:SEARCH', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:SEARCH', function (args) {
             for (var json of args.json) {
@@ -1230,7 +518,7 @@ export default class extends baseClass {
             return new Promise((resolve, reject) => {
                 var ref = this.cachedGroups.get(params.groupId);
                 if (typeof ref === 'undefined') {
-                    this.getGroup(params).catch(reject).then(resolve);
+                    groupRequest.getGroup(params).catch(reject).then(resolve);
                 } else {
                     resolve({
                         cache: true,
@@ -1440,35 +728,6 @@ export default class extends baseClass {
             $app.inviteGroupDialog.visible = false;
             $app.groupPostEditDialog.visible = false;
         });
-
-        /**
-        * @param {{
-                groupId: string,
-                galleryId: string,
-                n: number,
-                offset: number
-        }} params
-        * @return { Promise<{json: any, params}> }
-        */
-        API.getGroupGallery = function (params) {
-            return this.call(
-                `groups/${params.groupId}/galleries/${params.galleryId}`,
-                {
-                    method: 'GET',
-                    params: {
-                        n: params.n,
-                        offset: params.offset
-                    }
-                }
-            ).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('GROUP:GALLERY', args);
-                return args;
-            });
-        };
 
         API.$on('GROUP:GALLERY', function (args) {
             for (var json of args.json) {
@@ -1691,7 +950,7 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            API.blockGroup({
+                            groupRequest.blockGroup({
                                 groupId
                             });
                         }
@@ -1710,7 +969,7 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            API.unblockGroup({
+                            groupRequest.unblockGroup({
                                 groupId,
                                 userId: API.currentUser.id
                             });
@@ -1731,7 +990,7 @@ export default class extends baseClass {
             this.isGroupMembersLoading = true;
             try {
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupBans(params);
+                    var args = await groupRequest.getGroupBans(params);
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -1765,7 +1024,7 @@ export default class extends baseClass {
             this.isGroupMembersLoading = true;
             try {
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupLogs(params);
+                    var args = await groupRequest.getGroupLogs(params);
                     params.offset += params.n;
                     if (!args.json.hasNext) {
                         break;
@@ -1811,7 +1070,7 @@ export default class extends baseClass {
             this.isGroupMembersLoading = true;
             try {
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupInvites(params);
+                    var args = await groupRequest.getGroupInvites(params);
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -1841,7 +1100,7 @@ export default class extends baseClass {
             this.isGroupMembersLoading = true;
             try {
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupJoinRequests(params);
+                    var args = await groupRequest.getGroupJoinRequests(params);
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -1872,7 +1131,7 @@ export default class extends baseClass {
             this.isGroupMembersLoading = true;
             try {
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupJoinRequests(params);
+                    var args = await groupRequest.getGroupJoinRequests(params);
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -2023,7 +1282,7 @@ export default class extends baseClass {
                         console.log(
                             `Fetching group with missing roles ${groupId}`
                         );
-                        const args = await API.getGroup({
+                        const args = await groupRequest.getGroup({
                             groupId,
                             includeRoles: true
                         });
@@ -2042,7 +1301,9 @@ export default class extends baseClass {
         },
 
         async getCurrentUserGroups() {
-            var args = await API.getGroups({ userId: API.currentUser.id });
+            var args = await groupRequest.getGroups({
+                userId: API.currentUser.id
+            });
             API.currentUserGroups.clear();
             for (var group of args.json) {
                 var ref = API.applyGroup(group);
@@ -2050,7 +1311,9 @@ export default class extends baseClass {
                     API.currentUserGroups.set(group.id, ref);
                 }
             }
-            await API.getGroupPermissions({ userId: API.currentUser.id });
+            await groupRequest.getGroupPermissions({
+                userId: API.currentUser.id
+            });
             this.saveCurrentUserGroups();
         },
 
@@ -2122,7 +1385,8 @@ export default class extends baseClass {
 
         getGroupDialogGroup(groupId) {
             var D = this.groupDialog;
-            return API.getGroup({ groupId, includeRoles: true })
+            return groupRequest
+                .getGroup({ groupId, includeRoles: true })
                 .catch((err) => {
                     throw err;
                 })
@@ -2144,7 +1408,7 @@ export default class extends baseClass {
                             groupId
                         });
                         if (D.inGroup) {
-                            API.getGroupInstances({
+                            groupRequest.getGroupInstances({
                                 groupId
                             });
                         }
@@ -2211,7 +1475,7 @@ export default class extends baseClass {
                     this.showGroupPostEditDialog(D.id, null);
                     break;
                 case 'Leave Group':
-                    this.leaveGroup(D.id);
+                    this.leaveGroupPrompt(D.id);
                     break;
                 case 'Block Group':
                     this.blockGroup(D.id);
@@ -2276,34 +1540,6 @@ export default class extends baseClass {
             });
         },
 
-        joinGroup(groupId) {
-            if (!groupId) {
-                return null;
-            }
-            return API.joinGroup({
-                groupId
-            }).then((args) => {
-                if (args.json.membershipStatus === 'member') {
-                    this.$message({
-                        message: 'Group joined',
-                        type: 'success'
-                    });
-                } else if (args.json.membershipStatus === 'requested') {
-                    this.$message({
-                        message: 'Group join request sent',
-                        type: 'success'
-                    });
-                }
-                return args;
-            });
-        },
-
-        leaveGroup(groupId) {
-            return API.leaveGroup({
-                groupId
-            });
-        },
-
         leaveGroupPrompt(groupId) {
             this.$confirm(
                 'Are you sure you want to leave this group?',
@@ -2314,7 +1550,9 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            this.leaveGroup(groupId);
+                            groupRequest.leaveGroup({
+                                groupId
+                            });
                         }
                     }
                 }
@@ -2322,27 +1560,31 @@ export default class extends baseClass {
         },
 
         setGroupVisibility(groupId, visibility) {
-            return API.setGroupMemberProps(API.currentUser.id, groupId, {
-                visibility
-            }).then((args) => {
-                this.$message({
-                    message: 'Group visibility updated',
-                    type: 'success'
+            return groupRequest
+                .setGroupMemberProps(API.currentUser.id, groupId, {
+                    visibility
+                })
+                .then((args) => {
+                    this.$message({
+                        message: 'Group visibility updated',
+                        type: 'success'
+                    });
+                    return args;
                 });
-                return args;
-            });
         },
 
         setGroupSubscription(groupId, subscribe) {
-            return API.setGroupMemberProps(API.currentUser.id, groupId, {
-                isSubscribedToAnnouncements: subscribe
-            }).then((args) => {
-                this.$message({
-                    message: 'Group subscription updated',
-                    type: 'success'
+            return groupRequest
+                .setGroupMemberProps(API.currentUser.id, groupId, {
+                    isSubscribedToAnnouncements: subscribe
+                })
+                .then((args) => {
+                    this.$message({
+                        message: 'Group subscription updated',
+                        type: 'success'
+                    });
+                    return args;
                 });
-                return args;
-            });
         },
 
         onGroupJoined(groupId) {
@@ -2359,11 +1601,13 @@ export default class extends baseClass {
                     name: '',
                     iconUrl: ''
                 });
-                API.getGroup({ groupId, includeRoles: true }).then((args) => {
-                    API.applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
-                    this.saveCurrentUserGroups();
-                    return args;
-                });
+                groupRequest
+                    .getGroup({ groupId, includeRoles: true })
+                    .then((args) => {
+                        API.applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
+                        this.saveCurrentUserGroups();
+                        return args;
+                    });
             }
         },
 
@@ -2388,12 +1632,13 @@ export default class extends baseClass {
                 return;
             }
             this.isGroupMembersLoading = true;
-            API.getGroupMembersSearch({
-                groupId: D.id,
-                query: search,
-                n: 100,
-                offset: 0
-            })
+            groupRequest
+                .getGroupMembersSearch({
+                    groupId: D.id,
+                    query: search,
+                    n: 100,
+                    offset: 0
+                })
                 .then((args) => {
                     if (D.id === args.params.groupId) {
                         D.memberSearchResults = args.json.results;
@@ -2462,19 +1707,21 @@ export default class extends baseClass {
                 this.loadMoreGroupMembersParams.roleId = D.memberFilter.id;
             }
             if (D.inGroup) {
-                await API.getGroupMember({
-                    groupId: D.id,
-                    userId: API.currentUser.id
-                }).then((args) => {
-                    if (args.json) {
-                        args.json.user = API.currentUser;
-                        if (D.memberFilter.id === null) {
-                            // when flitered by role don't include self
-                            D.members.push(args.json);
+                await groupRequest
+                    .getGroupMember({
+                        groupId: D.id,
+                        userId: API.currentUser.id
+                    })
+                    .then((args) => {
+                        if (args.json) {
+                            args.json.user = API.currentUser;
+                            if (D.memberFilter.id === null) {
+                                // when flitered by role don't include self
+                                D.members.push(args.json);
+                            }
                         }
-                    }
-                    return args;
-                });
+                        return args;
+                    });
             }
             await this.loadMoreGroupMembers();
         },
@@ -2487,7 +1734,8 @@ export default class extends baseClass {
             var params = this.loadMoreGroupMembersParams;
             D.memberSearch = '';
             this.isGroupMembersLoading = true;
-            await API.getGroupMembers(params)
+            await groupRequest
+                .getGroupMembers(params)
                 .finally(() => {
                     this.isGroupMembersLoading = false;
                 })
@@ -2553,12 +1801,14 @@ export default class extends baseClass {
         },
 
         getCurrentUserRepresentedGroup() {
-            return API.getRepresentedGroup({
-                userId: API.currentUser.id
-            }).then((args) => {
-                this.userDialog.representedGroup = args.json;
-                return args;
-            });
+            return groupRequest
+                .getRepresentedGroup({
+                    userId: API.currentUser.id
+                })
+                .then((args) => {
+                    this.userDialog.representedGroup = args.json;
+                    return args;
+                });
         },
 
         hasGroupPermission(ref, permission) {
@@ -2597,7 +1847,7 @@ export default class extends baseClass {
                 };
                 var count = 50; // 5000 max
                 for (var i = 0; i < count; i++) {
-                    var args = await API.getGroupGallery(params);
+                    var args = await groupRequest.getGroupGallery(params);
                     params.offset += 100;
                     if (args.json.length < 100) {
                         break;
@@ -2658,10 +1908,11 @@ export default class extends baseClass {
                             return;
                         }
                         var receiverUserId = D.userIds.shift();
-                        API.sendGroupInvite({
-                            groupId: D.groupId,
-                            userId: receiverUserId
-                        })
+                        groupRequest
+                            .sendGroupInvite({
+                                groupId: D.groupId,
+                                userId: receiverUserId
+                            })
                             .then(inviteLoop)
                             .catch(() => {
                                 D.loading = false;
@@ -2679,7 +1930,8 @@ export default class extends baseClass {
                 return;
             }
             D.loading = true;
-            API.getGroup({ groupId })
+            groupRequest
+                .getGroup({ groupId })
                 .then((args) => {
                     if (
                         this.hasGroupPermission(
@@ -2749,7 +2001,7 @@ export default class extends baseClass {
             if (this.gallerySelectDialog.selectedFileId) {
                 params.imageId = this.gallerySelectDialog.selectedFileId;
             }
-            API.editGroupPost(params).then((args) => {
+            groupRequest.editGroupPost(params).then((args) => {
                 this.$message({
                     message: 'Group post edited',
                     type: 'success'
@@ -2773,7 +2025,7 @@ export default class extends baseClass {
             if (this.gallerySelectDialog.selectedFileId) {
                 params.imageId = this.gallerySelectDialog.selectedFileId;
             }
-            API.createGroupPost(params).then((args) => {
+            groupRequest.createGroupPost(params).then((args) => {
                 this.$message({
                     message: 'Group post created',
                     type: 'success'
@@ -2816,7 +2068,7 @@ export default class extends baseClass {
             API.getCachedGroup({ groupId }).then((args) => {
                 D.groupRef = args.ref;
                 if (this.hasGroupPermission(D.groupRef, 'group-audit-view')) {
-                    API.getGroupAuditLogTypes({ groupId });
+                    groupRequest.getGroupAuditLogTypes({ groupId });
                 }
             });
             this.groupMemberModerationTableForceUpdate = 0;
@@ -3043,7 +2295,7 @@ export default class extends baseClass {
                 }
                 console.log(`Kicking ${user.userId} ${i + 1}/${memberCount}`);
                 try {
-                    await API.kickGroupMember({
+                    await groupRequest.kickGroupMember({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3078,7 +2330,7 @@ export default class extends baseClass {
                 }
                 console.log(`Banning ${user.userId} ${i + 1}/${memberCount}`);
                 try {
-                    await API.banGroupMember({
+                    await groupRequest.banGroupMember({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3114,7 +2366,7 @@ export default class extends baseClass {
                 }
                 console.log(`Unbanning ${user.userId} ${i + 1}/${memberCount}`);
                 try {
-                    await API.unbanGroupMember({
+                    await groupRequest.unbanGroupMember({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3151,7 +2403,7 @@ export default class extends baseClass {
                     `Deleting group invite ${user.userId} ${i + 1}/${memberCount}`
                 );
                 try {
-                    await API.deleteSentGroupInvite({
+                    await groupRequest.deleteSentGroupInvite({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3188,7 +2440,7 @@ export default class extends baseClass {
                     `Deleting blocked group request ${user.userId} ${i + 1}/${memberCount}`
                 );
                 try {
-                    await API.deleteBlockedGroupRequest({
+                    await groupRequest.deleteBlockedGroupRequest({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3225,7 +2477,7 @@ export default class extends baseClass {
                     `Accepting group join request ${user.userId} ${i + 1}/${memberCount}`
                 );
                 try {
-                    await API.acceptGroupInviteRequest({
+                    await groupRequest.acceptGroupInviteRequest({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3262,7 +2514,7 @@ export default class extends baseClass {
                     `Rejecting group join request ${user.userId} ${i + 1}/${memberCount}`
                 );
                 try {
-                    await API.rejectGroupInviteRequest({
+                    await groupRequest.rejectGroupInviteRequest({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3299,7 +2551,7 @@ export default class extends baseClass {
                     `Blocking group join request ${user.userId} ${i + 1}/${memberCount}`
                 );
                 try {
-                    await API.blockGroupInviteRequest({
+                    await groupRequest.blockGroupInviteRequest({
                         groupId: D.id,
                         userId: user.userId
                     });
@@ -3338,7 +2590,7 @@ export default class extends baseClass {
                     }/${memberCount}`
                 );
                 try {
-                    await API.setGroupMemberProps(user.userId, D.id, {
+                    await groupRequest.setGroupMemberProps(user.userId, D.id, {
                         managerNotes: D.note
                     });
                 } catch (err) {
@@ -3385,7 +2637,7 @@ export default class extends baseClass {
                         }/${memberCount}`
                     );
                     try {
-                        await API.addGroupMemberRole({
+                        await groupRequest.addGroupMemberRole({
                             groupId: D.id,
                             userId: user.userId,
                             roleId
@@ -3434,7 +2686,7 @@ export default class extends baseClass {
                         }/${memberCount}`
                     );
                     try {
-                        await API.removeGroupMemberRole({
+                        await groupRequest.removeGroupMemberRole({
                             groupId: D.id,
                             userId: user.userId,
                             roleId
@@ -3491,7 +2743,7 @@ export default class extends baseClass {
             // banned members don't have a user object
 
             var member = {};
-            var memberArgs = await API.getGroupMember({
+            var memberArgs = await groupRequest.getGroupMember({
                 groupId: D.id,
                 userId
             });

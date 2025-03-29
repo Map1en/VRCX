@@ -49,7 +49,8 @@ import {
     inviteMessagesRequest,
     miscRequest,
     imageRequest,
-    vrcPlusImageRequest
+    vrcPlusImageRequest,
+    groupRequest
 } from './classes/request';
 
 // tabs
@@ -5559,7 +5560,8 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         this.isSearchGroupLoading = true;
-        await API.groupSearch(params)
+        await groupRequest
+            .groupSearch(params)
             .finally(() => {
                 this.isSearchGroupLoading = false;
             })
@@ -8263,7 +8265,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.showGroupDialogShortCode = function (shortCode) {
-        API.groupStrictsearch({ query: shortCode }).then((args) => {
+        groupRequest.groupStrictsearch({ query: shortCode }).then((args) => {
             for (var group of args.json) {
                 if (`${group.shortCode}.${group.discriminator}` === shortCode) {
                     this.showGroupDialog(group.id);
@@ -8912,14 +8914,18 @@ console.log(`isLinux: ${LINUX}`);
                                     }
                                 });
                         }
-                        API.getRepresentedGroup({ userId }).then((args1) => {
-                            D.representedGroup = args1.json;
-                            D.representedGroup.$thumbnailUrl =
-                                this.getSmallThumbnailUrl(args1.json.iconUrl);
-                            if (!args1.json || !args1.json.isRepresenting) {
-                                D.isRepresentedGroupLoading = false;
-                            }
-                        });
+                        groupRequest
+                            .getRepresentedGroup({ userId })
+                            .then((args1) => {
+                                D.representedGroup = args1.json;
+                                D.representedGroup.$thumbnailUrl =
+                                    this.getSmallThumbnailUrl(
+                                        args1.json.iconUrl
+                                    );
+                                if (!args1.json || !args1.json.isRepresenting) {
+                                    D.isRepresentedGroupLoading = false;
+                                }
+                            });
                         D.loading = false;
                     });
                 }
@@ -15145,7 +15151,7 @@ console.log(`isLinux: ${LINUX}`);
             mutualGroups: [],
             remainingGroups: []
         };
-        var args = await API.getGroups({ userId });
+        var args = await groupRequest.getGroups({ userId });
         if (userId !== this.userDialog.id) {
             this.userDialog.isGroupsLoading = false;
             return;

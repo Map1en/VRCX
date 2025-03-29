@@ -1176,10 +1176,6 @@
                 type: Boolean,
                 default: false
             },
-            joinGroup: {
-                type: Function,
-                required: true
-            },
             hasGroupPermission: {
                 type: Function,
                 required: true
@@ -1328,6 +1324,29 @@
                     default:
                     // emit the command to parent component
                 }
+            },
+            joinGroup(groupId) {
+                if (!groupId) {
+                    return null;
+                }
+                return groupRequest
+                    .joinGroup({
+                        groupId
+                    })
+                    .then((args) => {
+                        if (args.json.membershipStatus === 'member') {
+                            this.$message({
+                                message: 'Group joined',
+                                type: 'success'
+                            });
+                        } else if (args.json.membershipStatus === 'requested') {
+                            this.$message({
+                                message: 'Group join request sent',
+                                type: 'success'
+                            });
+                        }
+                        return args;
+                    });
             }
         }
     };
