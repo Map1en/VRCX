@@ -76,6 +76,7 @@ import PreviousInstancesUserDialog from './views/dialogs/previousInstances/Previ
 import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsListDialog.vue';
 import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvatarsListDialog.vue';
+import GroupDialog from './views/dialogs/groupDialog/GroupDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -226,6 +227,8 @@ console.log(`isLinux: ${LINUX}`);
             PreviousInstancesUserDialog,
             //  - world
             WorldDialog,
+            //  - group
+            GroupDialog,
             //  - favorites
             FriendImportDialog,
             WorldImportDialog,
@@ -18744,6 +18747,9 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
+    $app.data.groupDialogSortingOptions = {};
+    $app.data.groupDialogFilterOptions = {};
+
     $app.methods.applyGroupDialogSortingStrings = function () {
         this.groupDialogSortingOptions = {
             joinedAtDesc: {
@@ -19614,6 +19620,39 @@ console.log(`isLinux: ${LINUX}`);
             'world-dialog-command': this.worldDialogCommand,
             'refresh-instance-player-count': this.refreshInstancePlayerCount,
             'download-and-save-json': this.downloadAndSaveJson
+        };
+    };
+
+    $app.computed.groupDialogBind = function () {
+        return {
+            'group-dialog': this.groupDialog,
+            'hide-tooltips': this.hideTooltips,
+            'has-group-permission': this.hasGroupPermission,
+            'last-location': this.lastLocation,
+            'update-instance-info': this.updateInstanceInfo,
+            'is-group-members-loading': this.isGroupMembersLoading,
+            'group-dialog-sorting-options': this.groupDialogSortingOptions,
+            'group-dialog-filter-options': this.groupDialogFilterOptions,
+            'is-group-members-done': this.isGroupMembersDone,
+            'is-group-gallery-loading': this.isGroupGalleryLoading
+        };
+    };
+
+    $app.computed.groupDialogEvent = function () {
+        return {
+            'group-dialog-tab-click': this.groupDialogTabClick,
+            'refresh-instance-player-count': this.refreshInstancePlayerCount,
+            'show-group-post-edit-dialog': this.showGroupPostEditDialog,
+            'update-group-post-search': this.updateGroupPostSearch,
+            'load-all-group-members': this.loadAllGroupMembers,
+            'download-and-save-json': this.downloadAndSaveJson,
+            'set-group-member-sort-order': this.setGroupMemberSortOrder,
+            'set-group-member-filter': this.setGroupMemberFilter,
+            'group-members-search': this.groupMembersSearch,
+            'load-more-group-members': this.loadMoreGroupMembers,
+            'get-group-galleries': this.getGroupGalleries,
+            'refresh-group-dialog-tree-data': this.refreshGroupDialogTreeData,
+            'group-dialog-command': this.groupDialogCommand
         };
     };
 

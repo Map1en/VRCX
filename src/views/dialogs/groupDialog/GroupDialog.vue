@@ -1087,8 +1087,8 @@
                         v-loading="isGroupGalleryLoading"
                         type="card"
                         style="margin-top: 10px">
-                        <template v-for="(gallery, index) in groupDialog.ref.galleries" :key="index">
-                            <el-tab-pane>
+                        <template v-for="(gallery, index) in groupDialog.ref.galleries">
+                            <el-tab-pane :key="index">
                                 <span slot="label">
                                     <span style="font-weight: bold; font-size: 16px" v-text="gallery.name" />
                                     <i
@@ -1153,10 +1153,13 @@
 <script>
     import utils from '../../../classes/utils';
     import { groupRequest } from '../../../classes/request';
+    import Location from '../../../components/common/Location.vue';
 
     export default {
         name: 'GroupDialog',
+        components: { Location },
         inject: [
+            'API',
             'beforeDialogClose',
             'dialogMouseDown',
             'dialogMouseUp',
@@ -1180,14 +1183,6 @@
                 type: Function,
                 required: true
             },
-            groupDialogTabClick: {
-                type: Function,
-                required: true
-            },
-            refreshInstancePlayerCount: {
-                type: Function,
-                required: true
-            },
             lastLocation: {
                 type: Object,
                 required: true
@@ -1196,48 +1191,16 @@
                 type: Number,
                 required: true
             },
-            showGroupPostEditDialog: {
-                type: Function,
-                required: true
-            },
-            updateGroupPostSearch: {
-                type: Function,
-                required: true
-            },
             isGroupMembersLoading: {
                 type: Boolean,
                 default: false
             },
-            loadAllGroupMembers: {
-                type: Function,
-                required: true
-            },
-            downloadAndSaveJson: {
-                type: Function,
-                required: true
-            },
             groupDialogSortingOptions: {
-                type: Array,
-                required: true
-            },
-            setGroupMemberSortOrder: {
-                type: Function,
+                type: Object,
                 required: true
             },
             groupDialogFilterOptions: {
-                type: Array,
-                required: true
-            },
-            setGroupMemberFilter: {
-                type: Function,
-                required: true
-            },
-            groupMembersSearch: {
-                type: Function,
-                required: true
-            },
-            loadMoreGroupMembers: {
-                type: Function,
+                type: Object,
                 required: true
             },
             isGroupMembersDone: {
@@ -1247,14 +1210,6 @@
             isGroupGalleryLoading: {
                 type: Boolean,
                 default: false
-            },
-            getGroupGalleries: {
-                type: Function,
-                required: true
-            },
-            refreshGroupDialogTreeData: {
-                type: Function,
-                required: true
             }
         },
         methods: {
@@ -1292,6 +1247,7 @@
                 });
             },
             copyGroupId(groupId) {
+                //
                 this.$message({
                     message: 'Group ID copied to clipboard',
                     type: 'success'
@@ -1299,6 +1255,7 @@
                 this.copyToClipboard(groupId);
             },
             copyGroupUrl(groupUrl) {
+                //
                 this.$message({
                     message: 'Group URL copied to clipboard',
                     type: 'success'
@@ -1322,7 +1279,7 @@
                         this.copyGroupUrl(this.groupDialog.ref.$url);
                         break;
                     default:
-                    // emit the command to parent component
+                        this.$emit('group-dialog-command', command);
                 }
             },
             joinGroup(groupId) {
@@ -1347,6 +1304,42 @@
                         }
                         return args;
                     });
+            },
+            groupDialogTabClick(...args) {
+                this.$emit('group-dialog-tab-click', ...args);
+            },
+            refreshInstancePlayerCount(tag) {
+                this.$emit('refresh-instance-player-count', tag);
+            },
+            showGroupPostEditDialog(groupId, post) {
+                this.$emit('show-group-post-edit-dialog', groupId, post);
+            },
+            updateGroupPostSearch() {
+                this.$emit('update-group-post-search');
+            },
+            loadAllGroupMembers() {
+                this.$emit('load-all-group-members');
+            },
+            downloadAndSaveJson(filename, data) {
+                this.$emit('download-and-save-json', filename, data);
+            },
+            setGroupMemberSortOrder(order) {
+                this.$emit('set-group-member-sort-order', order);
+            },
+            setGroupMemberFilter(filter) {
+                this.$emit('set-group-member-filter', filter);
+            },
+            groupMembersSearch() {
+                this.$emit('group-members-search');
+            },
+            loadMoreGroupMembers() {
+                this.$emit('load-more-group-members');
+            },
+            getGroupGalleries() {
+                this.$emit('get-group-galleries');
+            },
+            refreshGroupDialogTreeData() {
+                this.$emit('refresh-group-dialog-tree-data');
             }
         }
     };
