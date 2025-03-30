@@ -626,37 +626,39 @@
                         <div class="x-friend-item" style="width: 350px; cursor: default">
                             <div class="detail">
                                 <span class="name">{{ $t('dialog.group.info.url') }}</span>
-                                <span class="extra">{{ groupDialog.ref.$url }}</span>
-                                <el-tooltip
-                                    placement="top"
-                                    :content="$t('dialog.group.info.url_tooltip')"
-                                    :disabled="hideTooltips">
-                                    <el-button
-                                        type="default"
-                                        size="mini"
-                                        icon="el-icon-s-order"
-                                        circle
-                                        style="margin-left: 5px"
-                                        @click="copyGroupUrl(groupDialog.ref.$url)" />
-                                </el-tooltip>
+                                <span class="extra"
+                                    >{{ groupDialog.ref.$url }}
+                                    <el-tooltip
+                                        placement="top"
+                                        :content="$t('dialog.group.info.url_tooltip')"
+                                        :disabled="hideTooltips">
+                                        <el-button
+                                            type="default"
+                                            size="mini"
+                                            icon="el-icon-s-order"
+                                            circle
+                                            style="margin-left: 5px"
+                                            @click="copyGroupUrl(groupDialog.ref.$url)" /> </el-tooltip
+                                ></span>
                             </div>
                         </div>
                         <div class="x-friend-item" style="width: 350px; cursor: default">
                             <div class="detail">
                                 <span class="name">{{ $t('dialog.group.info.id') }}</span>
-                                <span class="extra">{{ groupDialog.id }}</span>
-                                <el-tooltip
-                                    placement="top"
-                                    :content="$t('dialog.group.info.id_tooltip')"
-                                    :disabled="hideTooltips">
-                                    <el-button
-                                        type="default"
-                                        size="mini"
-                                        icon="el-icon-s-order"
-                                        circle
-                                        style="margin-left: 5px"
-                                        @click="copyGroupId(groupDialog.id)" />
-                                </el-tooltip>
+                                <span class="extra"
+                                    >{{ groupDialog.id }}
+                                    <el-tooltip
+                                        placement="top"
+                                        :content="$t('dialog.group.info.id_tooltip')"
+                                        :disabled="hideTooltips">
+                                        <el-button
+                                            type="default"
+                                            size="mini"
+                                            icon="el-icon-s-order"
+                                            circle
+                                            style="margin-left: 5px"
+                                            @click="copyGroupId(groupDialog.id)" /> </el-tooltip
+                                ></span>
                             </div>
                         </div>
                         <div
@@ -1327,13 +1329,13 @@
                         this.$emit('group-dialog-command', command);
                 }
             },
-            joinGroup(groupId) {
-                if (!groupId) {
+            joinGroup(id) {
+                if (!id) {
                     return null;
                 }
                 return groupRequest
                     .joinGroup({
-                        groupId
+                        groupId: id
                     })
                     .then((args) => {
                         // API.$on('GROUP:JOIN', function (args) {
@@ -1360,7 +1362,10 @@
                             }
                         });
                         if (this.groupDialog.visible && this.groupDialog.id === groupId) {
-                            this.groupDialog.inGroup = json.membershipStatus === 'member';
+                            this.updateGroupDialogData({
+                                inGroup: json.membershipStatus === 'member'
+                            });
+                            // this.groupDialog.inGroup = json.membershipStatus === 'member';
                             this.getGroupDialogGroup(groupId);
                         }
                         // });
@@ -1384,11 +1389,13 @@
                 // if (this.groupDialogLastActiveTab === obj.label) {
                 //     return;
                 // }
-                if (obj.label === $t('dialog.group.info.header')) {
-                    //
-                } else if (obj.label === $t('dialog.group.posts.header')) {
-                    //
-                } else if (obj.label === $t('dialog.group.members.header')) {
+                // if (obj.label === $t('dialog.group.info.header')) {
+                //     //
+                // } else if (obj.label === $t('dialog.group.posts.header')) {
+                //     //
+                // } else
+
+                if (obj.label === $t('dialog.group.members.header')) {
                     if (this.groupDialogLastMembers !== groupId) {
                         this.groupDialogLastMembers = groupId;
                         this.getGroupDialogGroupMembers();

@@ -15142,6 +15142,7 @@ console.log(`isLinux: ${LINUX}`);
         return style;
     };
 
+    // TODO: launch, invite, refresh, etc. buttons, better to split into one component
     $app.methods.refreshInstancePlayerCount = function (instance) {
         var L = $utils.parseLocation(instance);
         if (L.isRealInstance) {
