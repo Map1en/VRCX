@@ -509,15 +509,10 @@ export default class extends baseClass {
                 });
             }
         };
-
-        API.$on('LOGOUT', function () {
-            $app.inviteGroupDialog.visible = false;
-        });
     }
 
     _data = {
         currentUserGroupsInit: false,
-        groupDialogLastActiveTab: '',
         groupDialogLastMembers: '',
         groupDialogLastGallery: '',
         groupMembersSearchTimer: null,
@@ -1291,22 +1286,7 @@ export default class extends baseClass {
                                     // });
                                 });
                         }
-                        if (this.$refs.groupDialogTabs?.currentName === '0') {
-                            this.groupDialogLastActiveTab = $t(
-                                'dialog.group.info.header'
-                            );
-                        } else if (
-                            this.$refs.groupDialogTabs?.currentName === '1'
-                        ) {
-                            this.groupDialogLastActiveTab = $t(
-                                'dialog.group.posts.header'
-                            );
-                        } else if (
-                            this.$refs.groupDialogTabs?.currentName === '2'
-                        ) {
-                            this.groupDialogLastActiveTab = $t(
-                                'dialog.group.members.header'
-                            );
+                        if (this.$refs.groupDialogTabs?.currentName === '2') {
                             if (this.groupDialogLastMembers !== groupId) {
                                 this.groupDialogLastMembers = groupId;
                                 this.getGroupDialogGroupMembers();
@@ -1314,9 +1294,6 @@ export default class extends baseClass {
                         } else if (
                             this.$refs.groupDialogTabs?.currentName === '3'
                         ) {
-                            this.groupDialogLastActiveTab = $t(
-                                'dialog.group.gallery.header'
-                            );
                             if (this.groupDialogLastGallery !== groupId) {
                                 this.groupDialogLastGallery = groupId;
                                 this.getGroupGalleries();
@@ -1324,9 +1301,6 @@ export default class extends baseClass {
                         } else if (
                             this.$refs.groupDialogTabs?.currentName === '4'
                         ) {
-                            this.groupDialogLastActiveTab = $t(
-                                'dialog.group.json.header'
-                            );
                             this.refreshGroupDialogTreeData();
                         }
                     }
@@ -1690,19 +1664,6 @@ export default class extends baseClass {
                 });
         },
 
-        hasGroupPermission(ref, permission) {
-            if (
-                ref &&
-                ref.myMember &&
-                ref.myMember.permissions &&
-                (ref.myMember.permissions.includes('*') ||
-                    ref.myMember.permissions.includes(permission))
-            ) {
-                return true;
-            }
-            return false;
-        },
-
         async getGroupGalleries() {
             this.groupDialog.galleries = {};
             if (this.$refs.groupDialogGallery) {
@@ -1755,10 +1716,7 @@ export default class extends baseClass {
         },
 
         showInviteGroupDialog(groupId, userId) {
-            this.$nextTick(() =>
-                $app.adjustDialogZ(this.$refs.inviteGroupDialog.$el)
-            );
-            var D = this.inviteGroupDialog;
+            const D = this.inviteGroupDialog;
             D.userIds = '';
             D.groups = [];
             D.groupId = groupId;
@@ -1766,88 +1724,6 @@ export default class extends baseClass {
             D.userId = userId;
             D.userObject = {};
             D.visible = true;
-            if (groupId) {
-                API.getCachedGroup({
-                    groupId
-                })
-                    .then((args) => {
-                        D.groupName = args.ref.name;
-                    })
-                    .catch(() => {
-                        D.groupId = '';
-                    });
-                this.isAllowedToInviteToGroup();
-            }
-
-            if (userId) {
-                userRequest.getCachedUser({ userId }).then((args) => {
-                    D.userObject = args.ref;
-                });
-                D.userIds = [userId];
-            }
-        },
-
-        sendGroupInvite() {
-            this.$confirm('Continue? Invite User(s) To Group', 'Confirm', {
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                type: 'info',
-                callback: (action) => {
-                    var D = this.inviteGroupDialog;
-                    if (action !== 'confirm' || D.loading === true) {
-                        return;
-                    }
-                    D.loading = true;
-                    var inviteLoop = () => {
-                        if (D.userIds.length === 0) {
-                            D.loading = false;
-                            return;
-                        }
-                        var receiverUserId = D.userIds.shift();
-                        groupRequest
-                            .sendGroupInvite({
-                                groupId: D.groupId,
-                                userId: receiverUserId
-                            })
-                            .then(inviteLoop)
-                            .catch(() => {
-                                D.loading = false;
-                            });
-                    };
-                    inviteLoop();
-                }
-            });
-        },
-
-        isAllowedToInviteToGroup() {
-            var D = this.inviteGroupDialog;
-            var groupId = D.groupId;
-            if (!groupId) {
-                return;
-            }
-            D.loading = true;
-            groupRequest
-                .getGroup({ groupId })
-                .then((args) => {
-                    if (
-                        this.hasGroupPermission(
-                            args.ref,
-                            'group-invites-manage'
-                        )
-                    ) {
-                        return args;
-                    }
-                    // not allowed to invite
-                    D.groupId = '';
-                    this.$message({
-                        type: 'error',
-                        message: 'You are not allowed to invite to this group'
-                    });
-                    return args;
-                })
-                .finally(() => {
-                    D.loading = false;
-                });
         },
 
         setGroupMemberModerationTable(data) {
@@ -1882,7 +1758,7 @@ export default class extends baseClass {
             D.selectedAuditLogTypes = [];
             API.getCachedGroup({ groupId }).then((args) => {
                 D.groupRef = args.ref;
-                if (this.hasGroupPermission(D.groupRef, 'group-audit-view')) {
+                if ($utils.hasGroupPermission(D.groupRef, 'group-audit-view')) {
                     groupRequest
                         .getGroupAuditLogTypes({ groupId })
                         .then((args) => {

@@ -320,7 +320,7 @@ export default class extends baseClass {
                         // check group perms
                         var groupId = this.instance.ownerId;
                         var group = API.cachedGroups.get(groupId);
-                        this.canCloseInstance = $app.hasGroupPermission(
+                        this.canCloseInstance = utils.hasGroupPermission(
                             group,
                             'group-instance-moderate'
                         );

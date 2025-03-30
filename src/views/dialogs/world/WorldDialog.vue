@@ -756,8 +756,7 @@
             :offline-friends="offlineFriends"
             :active-friends="activeFriends"
             :online-friends="onlineFriends"
-            :vip-friends="vipFriends"
-            :has-group-permission="hasGroupPermission" />
+            :vip-friends="vipFriends" />
     </el-dialog>
 </template>
 
@@ -805,7 +804,6 @@
             activeFriends: Array,
             onlineFriends: Array,
             vipFriends: Array,
-            hasGroupPermission: Function,
 
             // TODO: Remove
             updateInstanceInfo: Number

@@ -508,10 +508,6 @@
             'adjustDialogZ'
         ],
         props: {
-            hasGroupPermission: {
-                type: Function,
-                required: true
-            },
             vipFriends: {
                 type: Array,
                 required: true
@@ -872,6 +868,9 @@
                     });
                     console.error(error.message);
                 }
+            },
+            hasGroupPermission(ref, permission) {
+                return utils.hasGroupPermission(ref, permission);
             }
         }
     };

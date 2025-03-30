@@ -1188,10 +1188,6 @@
                 type: Boolean,
                 default: false
             },
-            hasGroupPermission: {
-                type: Function,
-                required: true
-            },
             lastLocation: {
                 type: Object,
                 required: true
@@ -1223,6 +1219,14 @@
             gallerySelectDialog: {
                 type: Object,
                 default: () => ({})
+            },
+            groupDialogLastMembers: {
+                type: String,
+                default: ''
+            },
+            groupDialogLastGallery: {
+                type: String,
+                default: ''
             }
         },
         data() {
@@ -1266,6 +1270,7 @@
                         // API.$on('GROUP:SETREPRESENTATION', function (args) {
                         if (this.groupDialog.visible && this.groupDialog.id === args.groupId) {
                             this.updateGroupDialogData({
+                                ...this.groupDialog,
                                 ref: { ...this.groupDialog.ref, isRepresenting: args.params.isRepresenting }
                             });
                         }
@@ -1400,6 +1405,7 @@
                         });
                         if (this.groupDialog.visible && this.groupDialog.id === groupId) {
                             this.updateGroupDialogData({
+                                ...this.groupDialog,
                                 inGroup: json.membershipStatus === 'member'
                             });
                             // this.groupDialog.inGroup = json.membershipStatus === 'member';
@@ -1420,32 +1426,21 @@
                         return args;
                     });
             },
-
             groupDialogTabClick(obj) {
                 const groupId = this.groupDialog.id;
-                // if (this.groupDialogLastActiveTab === obj.label) {
-                //     return;
-                // }
-                // if (obj.label === $t('dialog.group.info.header')) {
-                //     //
-                // } else if (obj.label === $t('dialog.group.posts.header')) {
-                //     //
-                // } else
-
                 if (obj.label === $t('dialog.group.members.header')) {
                     if (this.groupDialogLastMembers !== groupId) {
-                        this.groupDialogLastMembers = groupId;
+                        this.$emit('update:group-dialog-last-members', groupId);
                         this.getGroupDialogGroupMembers();
                     }
                 } else if (obj.label === $t('dialog.group.gallery.header')) {
                     if (this.groupDialogLastGallery !== groupId) {
-                        this.groupDialogLastGallery = groupId;
+                        this.$emit('update:group-dialog-last-gallery', groupId);
                         this.getGroupGalleries();
                     }
                 } else if (obj.label === $t('dialog.group.json.header')) {
                     this.refreshGroupDialogTreeData();
                 }
-                // this.groupDialogLastActiveTab = obj.label;
             },
             showGroupPostEditDialog(groupId, post) {
                 const D = this.groupPostEditDialog;
@@ -1475,9 +1470,12 @@
                 });
                 D.visible = true;
             },
+            hasGroupPermission(ref, permission) {
+                return utils.hasGroupPermission(ref, permission);
+            },
             updateGroupDialogData(obj) {
                 // Be careful with the deep merge
-                this.$emit('update:group-dialog', { ...this.groupDialog, ...obj });
+                this.$emit('update:group-dialog', obj);
             },
             getGroupDialogGroup(groupId) {
                 this.$emit('get-group-dialog-group', groupId);

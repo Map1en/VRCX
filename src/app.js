@@ -77,6 +77,7 @@ import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsListDialog.vue';
 import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvatarsListDialog.vue';
 import GroupDialog from './views/dialogs/groupDialog/GroupDialog.vue';
+import InviteGroupDialog from './views/dialogs/groupDialog/InviteGroupDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -229,6 +230,7 @@ console.log(`isLinux: ${LINUX}`);
             WorldDialog,
             //  - group
             GroupDialog,
+            InviteGroupDialog,
             //  - favorites
             FriendImportDialog,
             WorldImportDialog,
@@ -11664,7 +11666,7 @@ console.log(`isLinux: ${LINUX}`);
         if (
             D.ageGate &&
             type === 'group' &&
-            this.hasGroupPermission(
+            $utils.hasGroupPermission(
                 D.groupRef,
                 'group-instance-age-gated-create'
             )
@@ -19644,7 +19646,6 @@ console.log(`isLinux: ${LINUX}`);
         return {
             'group-dialog': this.groupDialog,
             'hide-tooltips': this.hideTooltips,
-            'has-group-permission': this.hasGroupPermission,
             'last-location': this.lastLocation,
             'update-instance-info': this.updateInstanceInfo,
             'is-group-members-loading': this.isGroupMembersLoading,
@@ -19652,7 +19653,9 @@ console.log(`isLinux: ${LINUX}`);
             'group-dialog-filter-options': this.groupDialogFilterOptions,
             'is-group-members-done': this.isGroupMembersDone,
             'is-group-gallery-loading': this.isGroupGalleryLoading,
-            'gallery-select-dialog': this.gallerySelectDialog
+            'gallery-select-dialog': this.gallerySelectDialog,
+            'group-dialog-last-members': this.groupDialogLastMembers,
+            'group-dialog-last-gallery': this.groupDialogLastGallery
         };
     };
 
@@ -19672,7 +19675,32 @@ console.log(`isLinux: ${LINUX}`);
             'get-group-dialog-group': this.getGroupDialogGroup,
             'clear-image-gallery-select': this.clearImageGallerySelect,
             'update:gallery-select-dialog': (val) =>
-                (this.gallerySelectDialog = val)
+                (this.gallerySelectDialog = val),
+            'update:group-dialog-last-members': (val) =>
+                (this.groupDialogLastMembers = val),
+            'update:group-dialog-last-gallery': (val) =>
+                (this.groupDialogLastGallery = val),
+            'update:group-dialog': (val) => {
+                this.groupDialog = val;
+            }
+        };
+    };
+
+    $app.computed.inviteGroupDialogBind = function () {
+        return {
+            'dialog-data': this.inviteGroupDialog,
+            'vip-friends': this.vipFriends,
+            'online-friends': this.onlineFriends,
+            'offline-friends': this.offlineFriends,
+            'active-friends': this.activeFriends
+        };
+    };
+
+    $app.computed.inviteGroupDialogEvent = function () {
+        return {
+            'update:dialog-data': (val) => {
+                this.inviteGroupDialog = val;
+            }
         };
     };
 
