@@ -264,7 +264,8 @@ console.log(`isLinux: ${LINUX}`);
                 showLaunchDialog: this.showLaunchDialog,
                 showFavoriteDialog: this.showFavoriteDialog,
                 displayPreviousImages: this.displayPreviousImages,
-                languageClass: this.languageClass
+                languageClass: this.languageClass,
+                showGroupDialog: this.showGroupDialog
             };
         },
         el: '#root',
@@ -291,14 +292,8 @@ console.log(`isLinux: ${LINUX}`);
                 this.enableAppLauncher,
                 this.enableAppLauncherAutoClose
             );
-            API.$on('SHOW_USER_DIALOG', (userId) =>
-                this.showUserDialog(userId)
-            );
             API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
                 this.verifyShortName('', tag)
-            );
-            API.$on('SHOW_GROUP_DIALOG', (groupId) =>
-                this.showGroupDialog(groupId)
             );
             this.updateLoop();
             this.getGameLogTable();
@@ -5569,6 +5564,16 @@ console.log(`isLinux: ${LINUX}`);
                 this.isSearchGroupLoading = false;
             })
             .then((args) => {
+                // API.$on('GROUP:SEARCH', function (args) {
+                for (const json of args.json) {
+                    API.$emit('GROUP', {
+                        json,
+                        params: {
+                            groupId: json.id
+                        }
+                    });
+                }
+                // });
                 var map = new Map();
                 for (var json of args.json) {
                     var ref = API.cachedGroups.get(json.id);
@@ -8269,7 +8274,17 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.showGroupDialogShortCode = function (shortCode) {
         groupRequest.groupStrictsearch({ query: shortCode }).then((args) => {
-            for (var group of args.json) {
+            for (const group of args.json) {
+                // API.$on('GROUP:STRICTSEARCH', function (args) {
+                // for (var json of args.json) {
+                API.$emit('GROUP', {
+                    group,
+                    params: {
+                        groupId: group.id
+                    }
+                });
+                // }
+                // });
                 if (`${group.shortCode}.${group.discriminator}` === shortCode) {
                     this.showGroupDialog(group.id);
                 }
@@ -19640,7 +19655,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.computed.groupDialogEvent = function () {
         return {
-            'group-dialog-tab-click': this.groupDialogTabClick,
             'refresh-instance-player-count': this.refreshInstancePlayerCount,
             'show-group-post-edit-dialog': this.showGroupPostEditDialog,
             'update-group-post-search': this.updateGroupPostSearch,
@@ -19652,7 +19666,8 @@ console.log(`isLinux: ${LINUX}`);
             'load-more-group-members': this.loadMoreGroupMembers,
             'get-group-galleries': this.getGroupGalleries,
             'refresh-group-dialog-tree-data': this.refreshGroupDialogTreeData,
-            'group-dialog-command': this.groupDialogCommand
+            'group-dialog-command': this.groupDialogCommand,
+            'get-group-dialog-group': this.getGroupDialogGroup
         };
     };
 

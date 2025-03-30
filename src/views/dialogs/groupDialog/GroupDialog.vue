@@ -1226,10 +1226,29 @@
                     isRepresenting: false
                 });
             },
-            cancelGroupRequest(groupId) {
-                return groupRequest.cancelGroupRequest({
-                    groupId
-                });
+            afterSetGroupRepresentation(args) {
+                // API.$on('GROUP:SETREPRESENTATION', function (args) {
+                if (this.groupDialog.visible && this.groupDialog.id === args.groupId) {
+                    this.updateGroupDialogData({
+                        ref: { ...this.groupDialog.ref, isRepresenting: args.params.isRepresenting }
+                    });
+                    // this.groupDialog.ref.isRepresenting = args.params.isRepresenting;
+                }
+                // });
+            },
+            cancelGroupRequest(id) {
+                groupRequest
+                    .cancelGroupRequest({
+                        groupId: id
+                    })
+                    .then((args) => {
+                        // API.$on('GROUP:CANCELJOINREQUEST', function (args) {
+                        const groupId = args.params.groupId;
+                        if (this.groupDialog.visible && this.groupDialog.id === groupId) {
+                            this.getGroupDialogGroup(groupId);
+                        }
+                        // });
+                    });
             },
             confirmDeleteGroupPost(post) {
                 this.$confirm('Are you sure you want to delete this post?', 'Confirm', {
@@ -1238,10 +1257,37 @@
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            groupRequest.deleteGroupPost({
-                                groupId: post.groupId,
-                                postId: post.id
-                            });
+                            groupRequest
+                                .deleteGroupPost({
+                                    groupId: post.groupId,
+                                    postId: post.id
+                                })
+                                .then((args) => {
+                                    // API.$on('GROUP:POST:DELETE', function (args) {
+                                    var D = this.groupDialog;
+                                    if (D.id !== args.params.groupId) {
+                                        return;
+                                    }
+
+                                    var postId = args.params.postId;
+                                    // remove existing post
+                                    for (var post of D.posts) {
+                                        if (post.id === postId) {
+                                            utils.removeFromArray(D.posts, post);
+                                            break;
+                                        }
+                                    }
+                                    // remove/update announcement
+                                    if (postId === D.announcement.id) {
+                                        if (D.posts.length > 0) {
+                                            D.announcement = D.posts[0];
+                                        } else {
+                                            D.announcement = {};
+                                        }
+                                    }
+                                    this.updateGroupPostSearch();
+                                    // });
+                                });
                         }
                     }
                 });
@@ -1260,6 +1306,7 @@
                 });
                 utils.copyToClipboard(groupUrl);
             },
+
             groupGalleryStatus(gallery) {
                 const style = {};
                 if (!gallery.membersOnly) {
@@ -1289,6 +1336,34 @@
                         groupId
                     })
                     .then((args) => {
+                        // API.$on('GROUP:JOIN', function (args) {
+                        const json = {
+                            $memberId: args.json.id,
+                            id: args.json.groupId,
+                            membershipStatus: args.json.membershipStatus,
+                            myMember: {
+                                isRepresenting: args.json.isRepresenting,
+                                id: args.json.id,
+                                roleIds: args.json.roleIds,
+                                joinedAt: args.json.joinedAt,
+                                membershipStatus: args.json.membershipStatus,
+                                visibility: args.json.visibility,
+                                isSubscribedToAnnouncements: args.json.isSubscribedToAnnouncements
+                            }
+                        };
+                        const groupId = json.id;
+                        this.API.$emit('GROUP', {
+                            json,
+                            params: {
+                                groupId,
+                                userId: args.params.userId
+                            }
+                        });
+                        if (this.groupDialog.visible && this.groupDialog.id === groupId) {
+                            this.groupDialog.inGroup = json.membershipStatus === 'member';
+                            this.getGroupDialogGroup(groupId);
+                        }
+                        // });
                         if (args.json.membershipStatus === 'member') {
                             this.$message({
                                 message: 'Group joined',
@@ -1303,8 +1378,40 @@
                         return args;
                     });
             },
-            groupDialogTabClick(...args) {
-                this.$emit('group-dialog-tab-click', ...args);
+
+            groupDialogTabClick(obj) {
+                const groupId = this.groupDialog.id;
+                // if (this.groupDialogLastActiveTab === obj.label) {
+                //     return;
+                // }
+                if (obj.label === $t('dialog.group.info.header')) {
+                    //
+                } else if (obj.label === $t('dialog.group.posts.header')) {
+                    //
+                } else if (obj.label === $t('dialog.group.members.header')) {
+                    if (this.groupDialogLastMembers !== groupId) {
+                        this.groupDialogLastMembers = groupId;
+                        this.getGroupDialogGroupMembers();
+                    }
+                } else if (obj.label === $t('dialog.group.gallery.header')) {
+                    if (this.groupDialogLastGallery !== groupId) {
+                        this.groupDialogLastGallery = groupId;
+                        this.getGroupGalleries();
+                    }
+                } else if (obj.label === $t('dialog.group.json.header')) {
+                    this.refreshGroupDialogTreeData();
+                }
+                // this.groupDialogLastActiveTab = obj.label;
+            },
+            updateGroupDialogData(obj) {
+                // Be careful with the deep merge
+                this.$emit('update:group-dialog', { ...this.groupDialog, ...obj });
+            },
+            getGroupDialogGroup(groupId) {
+                this.$emit('get-group-dialog-group', groupId);
+            },
+            getGroupDialogGroupMembers() {
+                this.$emit('get-group-dialog-group-members');
             },
             refreshInstancePlayerCount(tag) {
                 this.$emit('refresh-instance-player-count', tag);

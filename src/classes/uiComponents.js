@@ -169,7 +169,7 @@ export default class extends baseClass {
                     if (!L.groupId) {
                         return;
                     }
-                    API.$emit('SHOW_GROUP_DIALOG', L.groupId);
+                    this.showGroupDialog(L.groupId);
                 }
             },
             watch: {
@@ -339,7 +339,7 @@ export default class extends baseClass {
                     }
                 },
                 showUserDialog(userId) {
-                    API.$emit('SHOW_USER_DIALOG', userId);
+                    this.showUserDialog(userId);
                 }
             },
             watch: {

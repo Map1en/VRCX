@@ -62,79 +62,6 @@ export default class extends baseClass {
             }
         });
 
-        API.$on('GROUP:JOIN', function (args) {
-            var json = {
-                $memberId: args.json.id,
-                id: args.json.groupId,
-                membershipStatus: args.json.membershipStatus,
-                myMember: {
-                    isRepresenting: args.json.isRepresenting,
-                    id: args.json.id,
-                    roleIds: args.json.roleIds,
-                    joinedAt: args.json.joinedAt,
-                    membershipStatus: args.json.membershipStatus,
-                    visibility: args.json.visibility,
-                    isSubscribedToAnnouncements:
-                        args.json.isSubscribedToAnnouncements
-                }
-            };
-            var groupId = json.id;
-            this.$emit('GROUP', {
-                json,
-                params: {
-                    groupId,
-                    userId: args.params.userId
-                }
-            });
-            if ($app.groupDialog.visible && $app.groupDialog.id === groupId) {
-                $app.groupDialog.inGroup = json.membershipStatus === 'member';
-                $app.getGroupDialogGroup(groupId);
-            }
-        });
-
-        API.$on('GROUP:LEAVE', function (args) {
-            var groupId = args.params.groupId;
-            if ($app.groupDialog.visible && $app.groupDialog.id === groupId) {
-                $app.groupDialog.inGroup = false;
-                $app.getGroupDialogGroup(groupId);
-            }
-            if (
-                $app.userDialog.visible &&
-                $app.userDialog.id === this.currentUser.id &&
-                $app.userDialog.representedGroup.id === groupId
-            ) {
-                $app.getCurrentUserRepresentedGroup();
-            }
-        });
-
-        API.$on('GROUP:CANCELJOINREQUEST', function (args) {
-            var groupId = args.params.groupId;
-            if ($app.groupDialog.visible && $app.groupDialog.id === groupId) {
-                $app.getGroupDialogGroup(groupId);
-            }
-        });
-
-        API.$on('GROUP:SETREPRESENTATION', function (args) {
-            if (
-                $app.groupDialog.visible &&
-                $app.groupDialog.id === args.groupId
-            ) {
-                $app.groupDialog.ref.isRepresenting =
-                    args.params.isRepresenting;
-            }
-        });
-
-        API.$on('GROUP:STRICTSEARCH', function (args) {
-            for (var json of args.json) {
-                this.$emit('GROUP', {
-                    json,
-                    params: {
-                        groupId: json.id
-                    }
-                });
-            }
-        });
-
         API.$on('GROUP:MEMBER:PROPS', function (args) {
             if (args.userId !== this.currentUser.id) {
                 return;
@@ -310,31 +237,6 @@ export default class extends baseClass {
             $app.updateGroupPostSearch();
         });
 
-        API.$on('GROUP:POST:DELETE', function (args) {
-            var D = $app.groupDialog;
-            if (D.id !== args.params.groupId) {
-                return;
-            }
-
-            var postId = args.params.postId;
-            // remove existing post
-            for (var post of D.posts) {
-                if (post.id === postId) {
-                    $app.removeFromArray(D.posts, post);
-                    break;
-                }
-            }
-            // remove/update announcement
-            if (postId === D.announcement.id) {
-                if (D.posts.length > 0) {
-                    D.announcement = D.posts[0];
-                } else {
-                    D.announcement = {};
-                }
-            }
-            $app.updateGroupPostSearch();
-        });
-
         API.$on('GROUP:MEMBERS', function (args) {
             for (var json of args.json) {
                 this.$emit('GROUP:MEMBER', {
@@ -348,80 +250,6 @@ export default class extends baseClass {
 
         API.$on('GROUP:MEMBER', function (args) {
             args.ref = this.applyGroupMember(args.json);
-        });
-
-        API.$on('GROUP:MEMBERS:SEARCH', function (args) {
-            for (var json of args.json.results) {
-                this.$emit('GROUP:MEMBER', {
-                    json,
-                    params: {
-                        groupId: args.params.groupId
-                    }
-                });
-            }
-        });
-
-        API.$on('GROUP:BLOCK', function (args) {
-            if (
-                $app.groupDialog.visible &&
-                $app.groupDialog.id === args.params.groupId
-            ) {
-                $app.showGroupDialog(args.params.groupId);
-            }
-        });
-
-        API.$on('GROUP:UNBLOCK', function (args) {
-            if (
-                $app.groupDialog.visible &&
-                $app.groupDialog.id === args.params.groupId
-            ) {
-                $app.showGroupDialog(args.params.groupId);
-            }
-        });
-
-        API.$on('GROUP:BANS', function (args) {
-            if ($app.groupMemberModeration.id !== args.params.groupId) {
-                return;
-            }
-
-            for (var json of args.json) {
-                var ref = this.applyGroupMember(json);
-                $app.groupBansModerationTable.data.push(ref);
-            }
-        });
-
-        API.$on('GROUP:AUDITLOGTYPES', function (args) {
-            if ($app.groupMemberModeration.id !== args.params.groupId) {
-                return;
-            }
-
-            $app.groupMemberModeration.auditLogTypes = args.json;
-        });
-
-        API.$on('GROUP:LOGS', function (args) {
-            if ($app.groupMemberModeration.id !== args.params.groupId) {
-                return;
-            }
-
-            for (var json of args.json.results) {
-                const existsInData = $app.groupLogsModerationTable.data.some(
-                    (dataItem) => dataItem.id === json.id
-                );
-                if (!existsInData) {
-                    $app.groupLogsModerationTable.data.push(json);
-                }
-            }
-        });
-
-        API.$on('GROUP:INVITES', function (args) {
-            if ($app.groupMemberModeration.id !== args.params.groupId) {
-                return;
-            }
-
-            for (var json of args.json) {
-                var ref = this.applyGroupMember(json);
-                $app.groupInvitesModerationTable.data.push(ref);
-            }
         });
 
         API.$on('GROUP:JOINREQUESTS', function (args) {
@@ -439,36 +267,6 @@ export default class extends baseClass {
                     var ref = this.applyGroupMember(json);
                     $app.groupBlockedModerationTable.data.push(ref);
                 }
-            }
-        });
-
-        API.$on('GROUP:INSTANCES', function (args) {
-            if ($app.groupDialog.id === args.params.groupId) {
-                $app.applyGroupDialogInstances(args.json.instances);
-            }
-        });
-
-        API.$on('GROUP:INSTANCES', function (args) {
-            for (var json of args.json.instances) {
-                this.$emit('INSTANCE', {
-                    json,
-                    params: {
-                        fetchedAt: args.json.fetchedAt
-                    }
-                });
-                worldRequest
-                    .getCachedWorld({
-                        worldId: json.world.id
-                    })
-                    .then((args1) => {
-                        json.world = args1.ref;
-                        return args1;
-                    });
-                // get queue size etc
-                instanceRequest.getInstance({
-                    worldId: json.worldId,
-                    instanceId: json.instanceId
-                });
             }
         });
 
@@ -495,17 +293,6 @@ export default class extends baseClass {
                 $app.groupInstances.push({
                     group: ref,
                     instance: this.applyInstance(json)
-                });
-            }
-        });
-
-        API.$on('GROUP:SEARCH', function (args) {
-            for (var json of args.json) {
-                this.$emit('GROUP', {
-                    json,
-                    params: {
-                        groupId: json.id
-                    }
                 });
             }
         });
@@ -728,17 +515,6 @@ export default class extends baseClass {
             $app.inviteGroupDialog.visible = false;
             $app.groupPostEditDialog.visible = false;
         });
-
-        API.$on('GROUP:GALLERY', function (args) {
-            for (var json of args.json) {
-                if ($app.groupDialog.id === json.groupId) {
-                    if (!$app.groupDialog.galleries[json.galleryId]) {
-                        $app.groupDialog.galleries[json.galleryId] = [];
-                    }
-                    $app.groupDialog.galleries[json.galleryId].push(json);
-                }
-            }
-        });
     }
 
     _data = {
@@ -950,9 +726,23 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            groupRequest.blockGroup({
-                                groupId
-                            });
+                            groupRequest
+                                .blockGroup({
+                                    groupId
+                                })
+                                .then((args) => {
+                                    // API.$on('GROUP:BLOCK', function (args) {
+                                    if (
+                                        this.groupDialog.visible &&
+                                        this.groupDialog.id ===
+                                            args.params.groupId
+                                    ) {
+                                        this.showGroupDialog(
+                                            args.params.groupId
+                                        );
+                                    }
+                                    // });
+                                });
                         }
                     }
                 }
@@ -969,10 +759,24 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            groupRequest.unblockGroup({
-                                groupId,
-                                userId: API.currentUser.id
-                            });
+                            groupRequest
+                                .unblockGroup({
+                                    groupId,
+                                    userId: API.currentUser.id
+                                })
+                                .then((args) => {
+                                    // API.$on('GROUP:UNBLOCK', function (args) {
+                                    if (
+                                        this.groupDialog.visible &&
+                                        this.groupDialog.id ===
+                                            args.params.groupId
+                                    ) {
+                                        this.showGroupDialog(
+                                            args.params.groupId
+                                        );
+                                    }
+                                    // });
+                                });
                         }
                     }
                 }
@@ -991,6 +795,22 @@ export default class extends baseClass {
             try {
                 for (var i = 0; i < count; i++) {
                     var args = await groupRequest.getGroupBans(params);
+                    if (args) {
+                        // API.$on('GROUP:BANS', function (args) {
+                        if (
+                            this.groupMemberModeration.id !==
+                            args.params.groupId
+                        ) {
+                            return;
+                        }
+
+                        for (const json of args.json) {
+                            var ref = this.applyGroupMember(json);
+                            this.groupBansModerationTable.data.push(ref);
+                        }
+                        // });
+                    }
+
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -1025,6 +845,26 @@ export default class extends baseClass {
             try {
                 for (var i = 0; i < count; i++) {
                     var args = await groupRequest.getGroupLogs(params);
+                    if (args) {
+                        // API.$on('GROUP:LOGS', function (args) {
+                        if (
+                            this.groupMemberModeration.id !==
+                            args.params.groupId
+                        ) {
+                            return;
+                        }
+
+                        for (var json of args.json.results) {
+                            const existsInData =
+                                this.groupLogsModerationTable.data.some(
+                                    (dataItem) => dataItem.id === json.id
+                                );
+                            if (!existsInData) {
+                                this.groupLogsModerationTable.data.push(json);
+                            }
+                        }
+                        // });
+                    }
                     params.offset += params.n;
                     if (!args.json.hasNext) {
                         break;
@@ -1071,6 +911,21 @@ export default class extends baseClass {
             try {
                 for (var i = 0; i < count; i++) {
                     var args = await groupRequest.getGroupInvites(params);
+                    if (args) {
+                        // API.$on('GROUP:INVITES', function (args) {
+                        if (
+                            this.groupMemberModeration.id !==
+                            args.params.groupId
+                        ) {
+                            return;
+                        }
+
+                        for (const json of args.json) {
+                            const ref = this.applyGroupMember(json);
+                            this.groupInvitesModerationTable.data.push(ref);
+                        }
+                        // });
+                    }
                     params.offset += params.n;
                     if (args.json.length < params.n) {
                         break;
@@ -1408,9 +1263,46 @@ export default class extends baseClass {
                             groupId
                         });
                         if (D.inGroup) {
-                            groupRequest.getGroupInstances({
-                                groupId
-                            });
+                            groupRequest
+                                .getGroupInstances({
+                                    groupId
+                                })
+                                .then((args) => {
+                                    // API.$on('GROUP:INSTANCES', function (args) {
+                                    if (
+                                        this.groupDialog.id ===
+                                        args.params.groupId
+                                    ) {
+                                        this.applyGroupDialogInstances(
+                                            args.json.instances
+                                        );
+                                    }
+                                    // });
+
+                                    // API.$on('GROUP:INSTANCES', function (args) {
+                                    for (const json of args.json.instances) {
+                                        this.$emit('INSTANCE', {
+                                            json,
+                                            params: {
+                                                fetchedAt: args.json.fetchedAt
+                                            }
+                                        });
+                                        worldRequest
+                                            .getCachedWorld({
+                                                worldId: json.world.id
+                                            })
+                                            .then((args1) => {
+                                                json.world = args1.ref;
+                                                return args1;
+                                            });
+                                        // get queue size etc
+                                        instanceRequest.getInstance({
+                                            worldId: json.worldId,
+                                            instanceId: json.instanceId
+                                        });
+                                    }
+                                    // });
+                                });
                         }
                         if (this.$refs.groupDialogTabs?.currentName === '0') {
                             this.groupDialogLastActiveTab = $t(
@@ -1464,10 +1356,6 @@ export default class extends baseClass {
                 case 'Refresh':
                     this.showGroupDialog(D.id);
                     break;
-                case 'Share':
-                    //
-                    this.copyGroupUrl(D.ref.$url);
-                    break;
                 case 'Moderation Tools':
                     this.showGroupMemberModerationDialog(D.id);
                     break;
@@ -1504,31 +1392,6 @@ export default class extends baseClass {
             }
         },
 
-        groupDialogTabClick(obj) {
-            var groupId = this.groupDialog.id;
-            if (this.groupDialogLastActiveTab === obj.label) {
-                return;
-            }
-            if (obj.label === $t('dialog.group.info.header')) {
-                //
-            } else if (obj.label === $t('dialog.group.posts.header')) {
-                //
-            } else if (obj.label === $t('dialog.group.members.header')) {
-                if (this.groupDialogLastMembers !== groupId) {
-                    this.groupDialogLastMembers = groupId;
-                    this.getGroupDialogGroupMembers();
-                }
-            } else if (obj.label === $t('dialog.group.gallery.header')) {
-                if (this.groupDialogLastGallery !== groupId) {
-                    this.groupDialogLastGallery = groupId;
-                    this.getGroupGalleries();
-                }
-            } else if (obj.label === $t('dialog.group.json.header')) {
-                this.refreshGroupDialogTreeData();
-            }
-            this.groupDialogLastActiveTab = obj.label;
-        },
-
         refreshGroupDialogTreeData() {
             var D = this.groupDialog;
             D.treeData = $utils.buildTreeData({
@@ -1550,9 +1413,31 @@ export default class extends baseClass {
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            groupRequest.leaveGroup({
-                                groupId
-                            });
+                            groupRequest
+                                .leaveGroup({
+                                    groupId
+                                })
+                                .then((args) => {
+                                    // API.$on('GROUP:LEAVE', function (args) {
+                                    const groupId = args.params.groupId;
+                                    if (
+                                        this.groupDialog.visible &&
+                                        this.groupDialog.id === groupId
+                                    ) {
+                                        this.groupDialog.inGroup = false;
+                                        this.getGroupDialogGroup(groupId);
+                                    }
+                                    if (
+                                        this.userDialog.visible &&
+                                        this.userDialog.id ===
+                                            this.currentUser.id &&
+                                        this.userDialog.representedGroup.id ===
+                                            groupId
+                                    ) {
+                                        this.getCurrentUserRepresentedGroup();
+                                    }
+                                    // });
+                                });
                         }
                     }
                 }
@@ -1640,6 +1525,16 @@ export default class extends baseClass {
                     offset: 0
                 })
                 .then((args) => {
+                    // API.$on('GROUP:MEMBERS:SEARCH', function (args) {
+                    for (const json of args.json.results) {
+                        API.$emit('GROUP:MEMBER', {
+                            json,
+                            params: {
+                                groupId: args.params.groupId
+                            }
+                        });
+                    }
+                    // });
                     if (D.id === args.params.groupId) {
                         D.memberSearchResults = args.json.results;
                         this.setGroupMemberModerationTable(args.json.results);
@@ -1848,6 +1743,23 @@ export default class extends baseClass {
                 var count = 50; // 5000 max
                 for (var i = 0; i < count; i++) {
                     var args = await groupRequest.getGroupGallery(params);
+                    if (args) {
+                        // API.$on('GROUP:GALLERY', function (args) {
+                        for (const json of args.json) {
+                            if (this.groupDialog.id === json.groupId) {
+                                if (
+                                    !this.groupDialog.galleries[json.galleryId]
+                                ) {
+                                    this.groupDialog.galleries[json.galleryId] =
+                                        [];
+                                }
+                                this.groupDialog.galleries[json.galleryId].push(
+                                    json
+                                );
+                            }
+                        }
+                        // });
+                    }
                     params.offset += 100;
                     if (args.json.length < 100) {
                         break;
@@ -2068,7 +1980,21 @@ export default class extends baseClass {
             API.getCachedGroup({ groupId }).then((args) => {
                 D.groupRef = args.ref;
                 if (this.hasGroupPermission(D.groupRef, 'group-audit-view')) {
-                    groupRequest.getGroupAuditLogTypes({ groupId });
+                    groupRequest
+                        .getGroupAuditLogTypes({ groupId })
+                        .then((args) => {
+                            // API.$on('GROUP:AUDITLOGTYPES', function (args) {
+                            if (
+                                this.groupMemberModeration.id !==
+                                args.params.groupId
+                            ) {
+                                return;
+                            }
+
+                            this.groupMemberModeration.auditLogTypes =
+                                args.json;
+                            // });
+                        });
                 }
             });
             this.groupMemberModerationTableForceUpdate = 0;

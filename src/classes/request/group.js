@@ -14,7 +14,6 @@ const groupReq = {
                 groupId,
                 params
             };
-            window.API.$emit('GROUP:SETREPRESENTATION', args);
             return args;
         });
     },
@@ -31,7 +30,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:CANCELJOINREQUEST', args);
             return args;
         });
     },
@@ -51,7 +49,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:POST:DELETE', args);
             return args;
         });
     },
@@ -133,7 +130,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:LEAVE', args);
             return args;
         });
     },
@@ -150,7 +146,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:STRICTSEARCH', args);
             return args;
         });
     },
@@ -347,7 +342,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:MEMBERS:SEARCH', args);
             return args;
         });
     },
@@ -365,7 +359,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:BLOCK', args);
             return args;
         });
     },
@@ -387,7 +380,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:UNBLOCK', args);
             return args;
         });
     },
@@ -431,7 +423,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:MEMBER:KICK', args);
+            // useless code
+            // window.API.$emit('GROUP:MEMBER:KICK', args);
             return args;
         });
     },
@@ -450,7 +443,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:MEMBER:BAN', args);
+            // useless code
+            // window.API.$emit('GROUP:MEMBER:BAN', args);
             return args;
         });
     },
@@ -465,7 +459,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:MEMBER:UNBAN', args);
+            // useless code
+            // window.API.$emit('GROUP:MEMBER:UNBAN', args);
             return args;
         });
     },
@@ -484,7 +479,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITE:DELETE', args);
+            // useless code
+            // window.API.$emit('GROUP:INVITE:DELETE', args);
             return args;
         });
     },
@@ -499,7 +495,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:BLOCKED:DELETE', args);
+            // useless code
+            // window.API.$emit('GROUP:BLOCKED:DELETE', args);
             return args;
         });
     },
@@ -517,7 +514,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITE:ACCEPT', args);
+            // useless code
+            // window.API.$emit('GROUP:INVITE:ACCEPT', args);
             return args;
         });
     },
@@ -535,7 +533,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITE:REJECT', args);
+            // useless code
+            // window.API.$emit('GROUP:INVITE:REJECT', args);
             return args;
         });
     },
@@ -554,7 +553,8 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITE:BLOCK', args);
+            // useless code
+            // window.API.$emit('GROUP:INVITE:BLOCK', args);
             return args;
         });
     },
@@ -567,7 +567,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:BANS', args);
             return args;
         });
     },
@@ -583,7 +582,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:AUDITLOGTYPES', args);
             return args;
         });
     },
@@ -600,7 +598,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:LOGS', args);
             return args;
         });
     },
@@ -617,7 +614,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITES', args);
             return args;
         });
     },
@@ -653,7 +649,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INSTANCES', args);
             return args;
         });
     },
@@ -709,7 +704,6 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:SEARCH', args);
             return args;
         });
     },
@@ -737,26 +731,27 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:GALLERY', args);
-            return args;
-        });
-    },
-
-    // no place to use this
-    getRequestedGroups() {
-        return window.API.call(
-            `users/${window.API.currentUser.id}/groups/requested`,
-            {
-                method: 'GET'
-            }
-        ).then((json) => {
-            const args = {
-                json
-            };
-            window.API.$emit('GROUP:REQUESTED', args);
             return args;
         });
     }
+
+    // no place to use this
+    // getRequestedGroups() {
+    //     return window.API.call(
+    //         `users/${window.API.currentUser.id}/groups/requested`,
+    //         {
+    //             method: 'GET'
+    //         }
+    //     ).then((json) => {
+    //         const args = {
+    //             json
+    //         };
+    //         window.API.$emit('GROUP:REQUESTED', args);
+    //         return args;
+    //     });
+    // }
+
+    // ----------------- left over code -----------------
     // /**
     // * @param {{ groupId: string }} params
     // * @return { Promise<{json: any, params}> }
