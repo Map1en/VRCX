@@ -511,9 +511,7 @@ export default class extends baseClass {
         };
 
         API.$on('LOGOUT', function () {
-            $app.groupDialog.visible = false;
             $app.inviteGroupDialog.visible = false;
-            $app.groupPostEditDialog.visible = false;
         });
     }
 
@@ -566,17 +564,6 @@ export default class extends baseClass {
             userId: '',
             userIds: [],
             userObject: {}
-        },
-        groupPostEditDialog: {
-            visible: false,
-            groupRef: {},
-            title: '',
-            text: '',
-            sendNotification: true,
-            visibility: 'group',
-            roleIds: [],
-            postId: '',
-            groupId: ''
         },
         groupMemberModeration: {
             visible: false,
@@ -1359,9 +1346,6 @@ export default class extends baseClass {
                 case 'Moderation Tools':
                     this.showGroupMemberModerationDialog(D.id);
                     break;
-                case 'Create Post':
-                    this.showGroupPostEditDialog(D.id, null);
-                    break;
                 case 'Leave Group':
                     this.leaveGroupPrompt(D.id);
                     break;
@@ -1864,87 +1848,6 @@ export default class extends baseClass {
                 .finally(() => {
                     D.loading = false;
                 });
-        },
-
-        showGroupPostEditDialog(groupId, post) {
-            this.$nextTick(() =>
-                $app.adjustDialogZ(this.$refs.groupPostEditDialog.$el)
-            );
-            var D = this.groupPostEditDialog;
-            D.sendNotification = true;
-            D.groupRef = {};
-            D.title = '';
-            D.text = '';
-            D.visibility = 'group';
-            D.roleIds = [];
-            D.postId = '';
-            D.groupId = groupId;
-            $app.gallerySelectDialog.selectedFileId = '';
-            $app.gallerySelectDialog.selectedImageUrl = '';
-            if (post) {
-                D.title = post.title;
-                D.text = post.text;
-                D.visibility = post.visibility;
-                D.roleIds = post.roleIds;
-                D.postId = post.id;
-                $app.gallerySelectDialog.selectedFileId = post.imageId;
-                $app.gallerySelectDialog.selectedImageUrl = post.imageUrl;
-            }
-            API.getCachedGroup({ groupId }).then((args) => {
-                D.groupRef = args.ref;
-            });
-            D.visible = true;
-        },
-
-        editGroupPost() {
-            var D = this.groupPostEditDialog;
-            if (!D.groupId || !D.postId) {
-                return;
-            }
-            var params = {
-                groupId: D.groupId,
-                postId: D.postId,
-                title: D.title,
-                text: D.text,
-                roleIds: D.roleIds,
-                visibility: D.visibility,
-                imageId: null
-            };
-            if (this.gallerySelectDialog.selectedFileId) {
-                params.imageId = this.gallerySelectDialog.selectedFileId;
-            }
-            groupRequest.editGroupPost(params).then((args) => {
-                this.$message({
-                    message: 'Group post edited',
-                    type: 'success'
-                });
-                return args;
-            });
-            D.visible = false;
-        },
-
-        createGroupPost() {
-            var D = this.groupPostEditDialog;
-            var params = {
-                groupId: D.groupId,
-                title: D.title,
-                text: D.text,
-                roleIds: D.roleIds,
-                visibility: D.visibility,
-                sendNotification: D.sendNotification,
-                imageId: null
-            };
-            if (this.gallerySelectDialog.selectedFileId) {
-                params.imageId = this.gallerySelectDialog.selectedFileId;
-            }
-            groupRequest.createGroupPost(params).then((args) => {
-                this.$message({
-                    message: 'Group post created',
-                    type: 'success'
-                });
-                return args;
-            });
-            D.visible = false;
         },
 
         setGroupMemberModerationTable(data) {

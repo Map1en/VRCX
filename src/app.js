@@ -265,7 +265,8 @@ console.log(`isLinux: ${LINUX}`);
                 showFavoriteDialog: this.showFavoriteDialog,
                 displayPreviousImages: this.displayPreviousImages,
                 languageClass: this.languageClass,
-                showGroupDialog: this.showGroupDialog
+                showGroupDialog: this.showGroupDialog,
+                showGallerySelectDialog: this.showGallerySelectDialog
             };
         },
         el: '#root',
@@ -19650,14 +19651,14 @@ console.log(`isLinux: ${LINUX}`);
             'group-dialog-sorting-options': this.groupDialogSortingOptions,
             'group-dialog-filter-options': this.groupDialogFilterOptions,
             'is-group-members-done': this.isGroupMembersDone,
-            'is-group-gallery-loading': this.isGroupGalleryLoading
+            'is-group-gallery-loading': this.isGroupGalleryLoading,
+            'gallery-select-dialog': this.gallerySelectDialog
         };
     };
 
     $app.computed.groupDialogEvent = function () {
         return {
             'refresh-instance-player-count': this.refreshInstancePlayerCount,
-            'show-group-post-edit-dialog': this.showGroupPostEditDialog,
             'update-group-post-search': this.updateGroupPostSearch,
             'load-all-group-members': this.loadAllGroupMembers,
             'download-and-save-json': this.downloadAndSaveJson,
@@ -19668,7 +19669,10 @@ console.log(`isLinux: ${LINUX}`);
             'get-group-galleries': this.getGroupGalleries,
             'refresh-group-dialog-tree-data': this.refreshGroupDialogTreeData,
             'group-dialog-command': this.groupDialogCommand,
-            'get-group-dialog-group': this.getGroupDialogGroup
+            'get-group-dialog-group': this.getGroupDialogGroup,
+            'clear-image-gallery-select': this.clearImageGallerySelect,
+            'update:gallery-select-dialog': (val) =>
+                (this.gallerySelectDialog = val)
         };
     };
 

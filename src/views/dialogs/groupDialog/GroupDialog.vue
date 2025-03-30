@@ -1149,6 +1149,11 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
+        <!--Nested-->
+        <group-post-edit-dialog
+            :gallery-select-dialog="gallerySelectDialog"
+            :dialog-data.sync="groupPostEditDialog"
+            @clear-image-gallery-select="clearImageGallerySelect" />
     </el-dialog>
 </template>
 
@@ -1156,10 +1161,11 @@
     import utils from '../../../classes/utils';
     import { groupRequest } from '../../../classes/request';
     import Location from '../../../components/common/Location.vue';
+    import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
     export default {
         name: 'GroupDialog',
-        components: { Location },
+        components: { Location, GroupPostEditDialog },
         inject: [
             'API',
             'beforeDialogClose',
@@ -1170,7 +1176,8 @@
             'showUserDialog',
             'userStatusClass',
             'userImage',
-            'openExternalLink'
+            'openExternalLink',
+            'adjustDialogZ'
         ],
         props: {
             groupDialog: {
@@ -1212,6 +1219,32 @@
             isGroupGalleryLoading: {
                 type: Boolean,
                 default: false
+            },
+            gallerySelectDialog: {
+                type: Object,
+                default: () => ({})
+            }
+        },
+        data() {
+            return {
+                groupPostEditDialog: {
+                    visible: false,
+                    groupRef: {},
+                    title: '',
+                    text: '',
+                    sendNotification: true,
+                    visibility: 'group',
+                    roleIds: [],
+                    postId: '',
+                    groupId: ''
+                }
+            };
+        },
+        watch: {
+            'groupDialog.loading'(val) {
+                if (val) {
+                    this.$nextTick(() => this.adjustDialogZ(this.$refs.groupDialog.$el));
+                }
             }
         },
         methods: {
@@ -1219,24 +1252,25 @@
                 return utils.getFaviconUrl(link);
             },
             setGroupRepresentation(groupId) {
-                return groupRequest.setGroupRepresentation(groupId, {
-                    isRepresenting: true
-                });
+                this.handleGroupRepresentationChange(groupId, true);
             },
             clearGroupRepresentation(groupId) {
-                return groupRequest.setGroupRepresentation(groupId, {
-                    isRepresenting: false
-                });
+                this.handleGroupRepresentationChange(groupId, false);
             },
-            afterSetGroupRepresentation(args) {
-                // API.$on('GROUP:SETREPRESENTATION', function (args) {
-                if (this.groupDialog.visible && this.groupDialog.id === args.groupId) {
-                    this.updateGroupDialogData({
-                        ref: { ...this.groupDialog.ref, isRepresenting: args.params.isRepresenting }
+            handleGroupRepresentationChange(groupId, isSet) {
+                groupRequest
+                    .setGroupRepresentation(groupId, {
+                        isRepresenting: isSet
+                    })
+                    .then((args) => {
+                        // API.$on('GROUP:SETREPRESENTATION', function (args) {
+                        if (this.groupDialog.visible && this.groupDialog.id === args.groupId) {
+                            this.updateGroupDialogData({
+                                ref: { ...this.groupDialog.ref, isRepresenting: args.params.isRepresenting }
+                            });
+                        }
+                        // });
                     });
-                    // this.groupDialog.ref.isRepresenting = args.params.isRepresenting;
-                }
-                // });
             },
             cancelGroupRequest(id) {
                 groupRequest
@@ -1266,16 +1300,16 @@
                                 })
                                 .then((args) => {
                                     // API.$on('GROUP:POST:DELETE', function (args) {
-                                    var D = this.groupDialog;
+                                    const D = this.groupDialog;
                                     if (D.id !== args.params.groupId) {
                                         return;
                                     }
 
-                                    var postId = args.params.postId;
+                                    const postId = args.params.postId;
                                     // remove existing post
-                                    for (var post of D.posts) {
-                                        if (post.id === postId) {
-                                            utils.removeFromArray(D.posts, post);
+                                    for (const item of D.posts) {
+                                        if (item.id === postId) {
+                                            utils.removeFromArray(D.posts, item);
                                             break;
                                         }
                                     }
@@ -1324,6 +1358,9 @@
                 switch (command) {
                     case 'Share':
                         this.copyGroupUrl(this.groupDialog.ref.$url);
+                        break;
+                    case 'Create Post':
+                        this.showGroupPostEditDialog(this.groupDialog.id, null);
                         break;
                     default:
                         this.$emit('group-dialog-command', command);
@@ -1410,6 +1447,34 @@
                 }
                 // this.groupDialogLastActiveTab = obj.label;
             },
+            showGroupPostEditDialog(groupId, post) {
+                const D = this.groupPostEditDialog;
+                D.sendNotification = true;
+                D.groupRef = {};
+                D.title = '';
+                D.text = '';
+                D.visibility = 'group';
+                D.roleIds = [];
+                D.postId = '';
+                D.groupId = groupId;
+                this.$emit('update:gallery-select-dialog', { ...D, selectedFileId: '', selectedImageUrl: '' });
+                if (post) {
+                    D.title = post.title;
+                    D.text = post.text;
+                    D.visibility = post.visibility;
+                    D.roleIds = post.roleIds;
+                    D.postId = post.id;
+                    this.$emit('update:gallery-select-dialog', {
+                        ...D,
+                        selectedFileId: post.imageId,
+                        selectedImageUrl: post.imageUrl
+                    });
+                }
+                this.API.getCachedGroup({ groupId }).then((args) => {
+                    D.groupRef = args.ref;
+                });
+                D.visible = true;
+            },
             updateGroupDialogData(obj) {
                 // Be careful with the deep merge
                 this.$emit('update:group-dialog', { ...this.groupDialog, ...obj });
@@ -1422,9 +1487,6 @@
             },
             refreshInstancePlayerCount(tag) {
                 this.$emit('refresh-instance-player-count', tag);
-            },
-            showGroupPostEditDialog(groupId, post) {
-                this.$emit('show-group-post-edit-dialog', groupId, post);
             },
             updateGroupPostSearch() {
                 this.$emit('update-group-post-search');
@@ -1452,6 +1514,9 @@
             },
             refreshGroupDialogTreeData() {
                 this.$emit('refresh-group-dialog-tree-data');
+            },
+            clearImageGallerySelect() {
+                this.$emit('clear-image-gallery-select');
             }
         }
     };

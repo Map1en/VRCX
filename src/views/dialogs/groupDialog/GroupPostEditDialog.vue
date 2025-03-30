@@ -1,12 +1,13 @@
 <template>
     <el-dialog
-        :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
         ref="groupPostEditDialog"
+        :before-close="beforeDialogClose"
         :visible.sync="groupPostEditDialog.visible"
         :title="$t('dialog.group_post_edit.header')"
-        width="650px">
+        width="650px"
+        append-to-body
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <div v-if="groupPostEditDialog.visible">
             <h3 v-text="groupPostEditDialog.groupRef.name"></h3>
             <el-form :model="groupPostEditDialog" label-width="150px">
@@ -82,13 +83,13 @@
                                     style="height: 500px"
                                     @click="showFullscreenImageDialog(gallerySelectDialog.selectedImageUrl)" />
                             </el-popover>
-                            <el-button size="mini" @click="clearImageGallerySelect" style="vertical-align: top">
+                            <el-button size="mini" style="vertical-align: top" @click="clearImageGallerySelect">
                                 {{ $t('dialog.invite_message.clear_selected_image') }}
                             </el-button>
                         </div>
                     </template>
                     <template v-else>
-                        <el-button size="mini" @click="showGallerySelectDialog" style="margin-right: 5px">
+                        <el-button size="mini" style="margin-right: 5px" @click="showGallerySelectDialog">
                             {{ $t('dialog.invite_message.select_image') }}
                         </el-button>
                     </template>
@@ -110,33 +111,89 @@
 </template>
 
 <script>
+    import { groupRequest } from '../../../classes/request';
+
     export default {
         name: 'GroupPostEditDialog',
-        inject: ['beforeDialogClose', 'showFullscreenImageDialog', 'dialogMouseDown', 'dialogMouseUp'],
+        inject: [
+            'beforeDialogClose',
+            'showFullscreenImageDialog',
+            'dialogMouseDown',
+            'dialogMouseUp',
+            'showGallerySelectDialog'
+        ],
         props: {
-            groupPostEditDialog: {
+            dialogData: {
                 type: Object,
                 required: true
             },
             gallerySelectDialog: {
                 type: Object,
                 required: true
+            }
+        },
+        computed: {
+            groupPostEditDialog: {
+                get() {
+                    return this.dialogData;
+                },
+                set(value) {
+                    this.$emit('update:dialog-data', value);
+                }
+            }
+        },
+        methods: {
+            editGroupPost() {
+                const D = this.groupPostEditDialog;
+                if (!D.groupId || !D.postId) {
+                    return;
+                }
+                const params = {
+                    groupId: D.groupId,
+                    postId: D.postId,
+                    title: D.title,
+                    text: D.text,
+                    roleIds: D.roleIds,
+                    visibility: D.visibility,
+                    imageId: null
+                };
+                if (this.gallerySelectDialog.selectedFileId) {
+                    params.imageId = this.gallerySelectDialog.selectedFileId;
+                }
+                groupRequest.editGroupPost(params).then((args) => {
+                    this.$message({
+                        message: 'Group post edited',
+                        type: 'success'
+                    });
+                    return args;
+                });
+                D.visible = false;
             },
-            clearImageGallerySelect: {
-                type: Function,
-                required: true
+            createGroupPost() {
+                const D = this.groupPostEditDialog;
+                const params = {
+                    groupId: D.groupId,
+                    title: D.title,
+                    text: D.text,
+                    roleIds: D.roleIds,
+                    visibility: D.visibility,
+                    sendNotification: D.sendNotification,
+                    imageId: null
+                };
+                if (this.gallerySelectDialog.selectedFileId) {
+                    params.imageId = this.gallerySelectDialog.selectedFileId;
+                }
+                groupRequest.createGroupPost(params).then((args) => {
+                    this.$message({
+                        message: 'Group post created',
+                        type: 'success'
+                    });
+                    return args;
+                });
+                D.visible = false;
             },
-            showGallerySelectDialog: {
-                type: Function,
-                required: true
-            },
-            editGroupPost: {
-                type: Function,
-                required: true
-            },
-            createGroupPost: {
-                type: Function,
-                required: true
+            clearImageGallerySelect() {
+                this.$emit('clear-image-gallery-select');
             }
         }
     };
