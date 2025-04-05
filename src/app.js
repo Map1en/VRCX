@@ -49,7 +49,8 @@ import {
     inviteMessagesRequest,
     miscRequest,
     imageRequest,
-    vrcPlusImageRequest
+    vrcPlusImageRequest,
+    groupRequest
 } from './classes/request';
 
 // tabs
@@ -75,6 +76,8 @@ import PreviousInstancesUserDialog from './views/dialogs/previousInstances/Previ
 import FavoriteDialog from './views/dialogs/favoritesDialog/FavoriteDialog.vue';
 import ExportFriendsListDialog from './views/dialogs/favoritesDialog/ExportFriendsListDialog.vue';
 import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvatarsListDialog.vue';
+import GroupDialog from './views/dialogs/groupDialog/GroupDialog.vue';
+import InviteGroupDialog from './views/dialogs/groupDialog/InviteGroupDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -225,6 +228,9 @@ console.log(`isLinux: ${LINUX}`);
             PreviousInstancesUserDialog,
             //  - world
             WorldDialog,
+            //  - group
+            GroupDialog,
+            InviteGroupDialog,
             //  - favorites
             FriendImportDialog,
             WorldImportDialog,
@@ -248,7 +254,6 @@ console.log(`isLinux: ${LINUX}`);
                 userImageFull: this.userImageFull,
                 showFullscreenImageDialog: this.showFullscreenImageDialog,
                 statusClass: this.statusClass,
-                getFaviconUrl: this.getFaviconUrl,
                 openExternalLink: this.openExternalLink,
                 beforeDialogClose: this.beforeDialogClose,
                 dialogMouseDown: this.dialogMouseDown,
@@ -260,7 +265,10 @@ console.log(`isLinux: ${LINUX}`);
                 showInviteDialog: this.showInviteDialog,
                 showLaunchDialog: this.showLaunchDialog,
                 showFavoriteDialog: this.showFavoriteDialog,
-                displayPreviousImages: this.displayPreviousImages
+                displayPreviousImages: this.displayPreviousImages,
+                languageClass: this.languageClass,
+                showGroupDialog: this.showGroupDialog,
+                showGallerySelectDialog: this.showGallerySelectDialog
             };
         },
         el: '#root',
@@ -287,14 +295,8 @@ console.log(`isLinux: ${LINUX}`);
                 this.enableAppLauncher,
                 this.enableAppLauncherAutoClose
             );
-            API.$on('SHOW_USER_DIALOG', (userId) =>
-                this.showUserDialog(userId)
-            );
             API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
                 this.verifyShortName('', tag)
-            );
-            API.$on('SHOW_GROUP_DIALOG', (groupId) =>
-                this.showGroupDialog(groupId)
             );
             this.updateLoop();
             this.getGameLogTable();
@@ -4169,13 +4171,13 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.gameLogTable.pageSize = $app.data.tablePageSize;
     $app.data.feedTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupMemberModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupBansModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupLogsModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupInvitesModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupJoinRequestsModerationTable.pageSize =
-        $app.data.tablePageSize;
-    $app.data.groupBlockedModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupMemberModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupBansModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupLogsModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupInvitesModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupJoinRequestsModerationTable.pageSize =
+    //     $app.data.tablePageSize;
+    // $app.data.groupBlockedModerationTable.pageSize = $app.data.tablePageSize;
 
     $app.data.dontLogMeOut = false;
 
@@ -5559,11 +5561,22 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         this.isSearchGroupLoading = true;
-        await API.groupSearch(params)
+        await groupRequest
+            .groupSearch(params)
             .finally(() => {
                 this.isSearchGroupLoading = false;
             })
             .then((args) => {
+                // API.$on('GROUP:SEARCH', function (args) {
+                for (const json of args.json) {
+                    API.$emit('GROUP', {
+                        json,
+                        params: {
+                            groupId: json.id
+                        }
+                    });
+                }
+                // });
                 var map = new Map();
                 for (var json of args.json) {
                     var ref = API.cachedGroups.get(json.id);
@@ -8263,8 +8276,18 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.showGroupDialogShortCode = function (shortCode) {
-        API.groupStrictsearch({ query: shortCode }).then((args) => {
-            for (var group of args.json) {
+        groupRequest.groupStrictsearch({ query: shortCode }).then((args) => {
+            for (const group of args.json) {
+                // API.$on('GROUP:STRICTSEARCH', function (args) {
+                // for (var json of args.json) {
+                API.$emit('GROUP', {
+                    group,
+                    params: {
+                        groupId: group.id
+                    }
+                });
+                // }
+                // });
                 if (`${group.shortCode}.${group.discriminator}` === shortCode) {
                     this.showGroupDialog(group.id);
                 }
@@ -8461,14 +8484,14 @@ console.log(`isLinux: ${LINUX}`);
         await this.sortCurrentUserGroups();
     };
 
-    $app.methods.getFaviconUrl = function (resource) {
-        try {
-            var url = new URL(resource);
-            return `https://icons.duckduckgo.com/ip2/${url.host}.ico`;
-        } catch (err) {
-            return '';
-        }
-    };
+    // $app.methods.getFaviconUrl = function (resource) {
+    //     try {
+    //         var url = new URL(resource);
+    //         return `https://icons.duckduckgo.com/ip2/${url.host}.ico`;
+    //     } catch (err) {
+    //         return '';
+    //     }
+    // };
 
     API.$on('LOGOUT', function () {
         $app.userDialog.visible = false;
@@ -8912,14 +8935,18 @@ console.log(`isLinux: ${LINUX}`);
                                     }
                                 });
                         }
-                        API.getRepresentedGroup({ userId }).then((args1) => {
-                            D.representedGroup = args1.json;
-                            D.representedGroup.$thumbnailUrl =
-                                this.getSmallThumbnailUrl(args1.json.iconUrl);
-                            if (!args1.json || !args1.json.isRepresenting) {
-                                D.isRepresentedGroupLoading = false;
-                            }
-                        });
+                        groupRequest
+                            .getRepresentedGroup({ userId })
+                            .then((args1) => {
+                                D.representedGroup = args1.json;
+                                D.representedGroup.$thumbnailUrl =
+                                    this.getSmallThumbnailUrl(
+                                        args1.json.iconUrl
+                                    );
+                                if (!args1.json || !args1.json.isRepresenting) {
+                                    D.isRepresentedGroupLoading = false;
+                                }
+                            });
                         D.loading = false;
                     });
                 }
@@ -10943,7 +10970,7 @@ console.log(`isLinux: ${LINUX}`);
                 this.showSetAvatarTagsDialog(D.id);
                 break;
             case 'Download Unity Package':
-                $utils.openExternalLink(
+                this.openExternalLink(
                     this.replaceVrcPackageUrl(
                         this.avatarDialog.ref.unityPackageUrl
                     )
@@ -11639,7 +11666,7 @@ console.log(`isLinux: ${LINUX}`);
         if (
             D.ageGate &&
             type === 'group' &&
-            this.hasGroupPermission(
+            $utils.hasGroupPermission(
                 D.groupRef,
                 'group-instance-age-gated-create'
             )
@@ -12194,22 +12221,6 @@ console.log(`isLinux: ${LINUX}`);
             type: 'success'
         });
         this.copyToClipboard(displayName);
-    };
-
-    $app.methods.copyGroupId = function (groupId) {
-        this.$message({
-            message: 'Group ID copied to clipboard',
-            type: 'success'
-        });
-        this.copyToClipboard(groupId);
-    };
-
-    $app.methods.copyGroupUrl = function (groupUrl) {
-        this.$message({
-            message: 'Group URL copied to clipboard',
-            type: 'success'
-        });
-        this.copyToClipboard(groupUrl);
     };
 
     $app.methods.copyImageUrl = function (imageUrl) {
@@ -15134,6 +15145,7 @@ console.log(`isLinux: ${LINUX}`);
         return style;
     };
 
+    // TODO: launch, invite, refresh, etc. buttons, better to split into one component
     $app.methods.refreshInstancePlayerCount = function (instance) {
         var L = $utils.parseLocation(instance);
         if (L.isRealInstance) {
@@ -15161,7 +15173,7 @@ console.log(`isLinux: ${LINUX}`);
             mutualGroups: [],
             remainingGroups: []
         };
-        var args = await API.getGroups({ userId });
+        var args = await groupRequest.getGroups({ userId });
         if (userId !== this.userDialog.id) {
             this.userDialog.isGroupsLoading = false;
             return;
@@ -18649,6 +18661,8 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
+    // use in avatar, user, group dialog
+    // TODO: better in utils
     $app.methods.downloadAndSaveJson = function (fileName, data) {
         if (!fileName || !data) {
             return;
@@ -18751,6 +18765,9 @@ console.log(`isLinux: ${LINUX}`);
             }
         };
     };
+
+    $app.data.groupDialogSortingOptions = {};
+    $app.data.groupDialogFilterOptions = {};
 
     $app.methods.applyGroupDialogSortingStrings = function () {
         this.groupDialogSortingOptions = {
@@ -19299,7 +19316,6 @@ console.log(`isLinux: ${LINUX}`);
             hideTooltips: this.hideTooltips,
             randomUserColours: this.randomUserColours,
             sortStatus: this.sortStatus,
-            languageClass: this.languageClass,
             confirmDeleteFriend: this.confirmDeleteFriend,
             friendsListSearch: this.friendsListSearch,
             stringComparer: this.stringComparer
@@ -19623,6 +19639,71 @@ console.log(`isLinux: ${LINUX}`);
             'world-dialog-command': this.worldDialogCommand,
             'refresh-instance-player-count': this.refreshInstancePlayerCount,
             'download-and-save-json': this.downloadAndSaveJson
+        };
+    };
+
+    $app.computed.groupDialogBind = function () {
+        return {
+            'group-dialog': this.groupDialog,
+            'hide-tooltips': this.hideTooltips,
+            'last-location': this.lastLocation,
+            'update-instance-info': this.updateInstanceInfo,
+            'is-group-members-loading': this.isGroupMembersLoading,
+            'group-dialog-sorting-options': this.groupDialogSortingOptions,
+            'group-dialog-filter-options': this.groupDialogFilterOptions,
+            'is-group-members-done': this.isGroupMembersDone,
+            'is-group-gallery-loading': this.isGroupGalleryLoading,
+            'gallery-select-dialog': this.gallerySelectDialog,
+            'group-dialog-last-members': this.groupDialogLastMembers,
+            'group-dialog-last-gallery': this.groupDialogLastGallery,
+            'random-user-colours': this.randomUserColours
+        };
+    };
+
+    $app.computed.groupDialogEvent = function () {
+        return {
+            'refresh-instance-player-count': this.refreshInstancePlayerCount,
+            'update-group-post-search': this.updateGroupPostSearch,
+            'load-all-group-members': this.loadAllGroupMembers,
+            'download-and-save-json': this.downloadAndSaveJson,
+            'set-group-member-sort-order': this.setGroupMemberSortOrder,
+            'set-group-member-filter': this.setGroupMemberFilter,
+            // 'group-members-search': this.groupMembersSearch,
+            'load-more-group-members': this.loadMoreGroupMembers,
+            'get-group-galleries': this.getGroupGalleries,
+            'refresh-group-dialog-tree-data': this.refreshGroupDialogTreeData,
+            'group-dialog-command': this.groupDialogCommand,
+            'get-group-dialog-group': this.getGroupDialogGroup,
+            'clear-image-gallery-select': this.clearImageGallerySelect,
+            'update:gallery-select-dialog': (val) =>
+                (this.gallerySelectDialog = val),
+            'update:group-dialog-last-members': (val) =>
+                (this.groupDialogLastMembers = val),
+            'update:group-dialog-last-gallery': (val) =>
+                (this.groupDialogLastGallery = val),
+            'update:group-dialog': (val) => {
+                this.groupDialog = val;
+            },
+            'update:is-group-members-loading': (val) =>
+                (this.isGroupMembersLoading = val)
+        };
+    };
+
+    $app.computed.inviteGroupDialogBind = function () {
+        return {
+            'dialog-data': this.inviteGroupDialog,
+            'vip-friends': this.vipFriends,
+            'online-friends': this.onlineFriends,
+            'offline-friends': this.offlineFriends,
+            'active-friends': this.activeFriends
+        };
+    };
+
+    $app.computed.inviteGroupDialogEvent = function () {
+        return {
+            'update:dialog-data': (val) => {
+                this.inviteGroupDialog = val;
+            }
         };
     };
 
