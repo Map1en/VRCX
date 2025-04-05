@@ -4171,13 +4171,13 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.gameLogTable.pageSize = $app.data.tablePageSize;
     $app.data.feedTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupMemberModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupBansModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupLogsModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupInvitesModerationTable.pageSize = $app.data.tablePageSize;
-    $app.data.groupJoinRequestsModerationTable.pageSize =
-        $app.data.tablePageSize;
-    $app.data.groupBlockedModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupMemberModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupBansModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupLogsModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupInvitesModerationTable.pageSize = $app.data.tablePageSize;
+    // $app.data.groupJoinRequestsModerationTable.pageSize =
+    //     $app.data.tablePageSize;
+    // $app.data.groupBlockedModerationTable.pageSize = $app.data.tablePageSize;
 
     $app.data.dontLogMeOut = false;
 
@@ -19655,7 +19655,8 @@ console.log(`isLinux: ${LINUX}`);
             'is-group-gallery-loading': this.isGroupGalleryLoading,
             'gallery-select-dialog': this.gallerySelectDialog,
             'group-dialog-last-members': this.groupDialogLastMembers,
-            'group-dialog-last-gallery': this.groupDialogLastGallery
+            'group-dialog-last-gallery': this.groupDialogLastGallery,
+            'random-user-colours': this.randomUserColours
         };
     };
 
@@ -19667,7 +19668,7 @@ console.log(`isLinux: ${LINUX}`);
             'download-and-save-json': this.downloadAndSaveJson,
             'set-group-member-sort-order': this.setGroupMemberSortOrder,
             'set-group-member-filter': this.setGroupMemberFilter,
-            'group-members-search': this.groupMembersSearch,
+            // 'group-members-search': this.groupMembersSearch,
             'load-more-group-members': this.loadMoreGroupMembers,
             'get-group-galleries': this.getGroupGalleries,
             'refresh-group-dialog-tree-data': this.refreshGroupDialogTreeData,
@@ -19682,7 +19683,9 @@ console.log(`isLinux: ${LINUX}`);
                 (this.groupDialogLastGallery = val),
             'update:group-dialog': (val) => {
                 this.groupDialog = val;
-            }
+            },
+            'update:is-group-members-loading': (val) =>
+                (this.isGroupMembersLoading = val)
         };
     };
 

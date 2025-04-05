@@ -1154,6 +1154,16 @@
             :gallery-select-dialog="gallerySelectDialog"
             :dialog-data.sync="groupPostEditDialog"
             @clear-image-gallery-select="clearImageGallerySelect" />
+        <group-member-moderation-dialog
+            :group-dialog="groupDialog"
+            :is-group-members-loading="isGroupMembersLoading"
+            :load-all-group-members="loadAllGroupMembers"
+            :group-dialog-filter-options="groupDialogFilterOptions"
+            :group-dialog-sorting-options="groupDialogSortingOptions"
+            :random-user-colours="randomUserColours"
+            :group-member-moderation="groupMemberModeration"
+            :group-member-moderation-table-data="groupMemberModerationTableData"
+            @update:is-group-members-loading="updateIsGroupMembersLoading" />
     </el-dialog>
 </template>
 
@@ -1162,10 +1172,11 @@
     import { groupRequest } from '../../../classes/request';
     import Location from '../../../components/common/Location.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
+    import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
 
     export default {
         name: 'GroupDialog',
-        components: { Location, GroupPostEditDialog },
+        components: { Location, GroupPostEditDialog, GroupMemberModerationDialog },
         inject: [
             'API',
             'beforeDialogClose',
@@ -1227,6 +1238,10 @@
             groupDialogLastGallery: {
                 type: String,
                 default: ''
+            },
+            randomUserColours: {
+                type: Boolean,
+                default: true
             }
         },
         data() {
@@ -1241,6 +1256,24 @@
                     roleIds: [],
                     postId: '',
                     groupId: ''
+                },
+                groupMembersSearchTimer: null,
+                groupMembersSearchPending: false,
+                groupMemberModerationTableData: [],
+                groupMemberModeration: {
+                    visible: false,
+                    loading: false,
+                    id: '',
+                    groupRef: {},
+                    auditLogTypes: [],
+                    selectedAuditLogTypes: [],
+                    note: '',
+                    selectedUsers: new Map(),
+                    selectedUsersArray: [],
+                    selectedRoles: [],
+                    progressCurrent: 0,
+                    progressTotal: 0,
+                    selectUserId: ''
                 }
             };
         },
@@ -1261,6 +1294,71 @@
             clearGroupRepresentation(groupId) {
                 this.handleGroupRepresentationChange(groupId, false);
             },
+            updateIsGroupMembersLoading(value) {
+                this.$emit('update:is-group-members-loading', value);
+            },
+            groupMembersSearch() {
+                if (this.groupMembersSearchTimer) {
+                    this.groupMembersSearchPending = true;
+                } else {
+                    this.groupMembersSearchExecute();
+                    this.groupMembersSearchTimer = setTimeout(() => {
+                        if (this.groupMembersSearchPending) {
+                            this.groupMembersSearchExecute();
+                        }
+                        this.groupMembersSearchTimer = null;
+                    }, 500);
+                }
+            },
+            groupMembersSearchExecute() {
+                try {
+                    // todo
+                    this.groupMembersSearchDebounce();
+                } catch (err) {
+                    console.error(err);
+                }
+                this.groupMembersSearchTimer = null;
+                this.groupMembersSearchPending = false;
+            },
+            groupMembersSearchDebounce() {
+                const D = this.groupDialog;
+                const search = D.memberSearch;
+                D.memberSearchResults = [];
+                if (!search || search.length < 3) {
+                    this.setGroupMemberModerationTable(D.members);
+                    return;
+                }
+                this.updateIsGroupMembersLoading(true);
+                // this.isGroupMembersLoading = true;
+                groupRequest
+                    .getGroupMembersSearch({
+                        groupId: D.id,
+                        query: search,
+                        n: 100,
+                        offset: 0
+                    })
+                    .then((args) => {
+                        // API.$on('GROUP:MEMBERS:SEARCH', function (args) {
+                        for (const json of args.json.results) {
+                            this.API.$emit('GROUP:MEMBER', {
+                                json,
+                                params: {
+                                    groupId: args.params.groupId
+                                }
+                            });
+                        }
+                        // });
+                        if (D.id === args.params.groupId) {
+                            D.memberSearchResults = args.json.results;
+                            // this.setGroupMemberModerationTable(args.json.results);
+                        }
+                    })
+                    .finally(() => {
+                        this.updateIsGroupMembersLoading(false);
+                        // this.isGroupMembersLoading = false;
+                    });
+            },
+
             handleGroupRepresentationChange(groupId, isSet) {
                 groupRequest
                     .setGroupRepresentation(groupId, {
@@ -1367,9 +1465,43 @@
                     case 'Create Post':
                         this.showGroupPostEditDialog(this.groupDialog.id, null);
                         break;
+                    case 'Moderation Tools':
+                        this.showGroupMemberModerationDialog(this.groupDialog.id);
+                        break;
                     default:
                         this.$emit('group-dialog-command', command);
                 }
+            },
+            showGroupMemberModerationDialog(groupId) {
+                // this.$nextTick(() => $app.adjustDialogZ(this.$refs.groupMemberModeration.$el));
+                if (groupId !== this.groupDialog.id) {
+                    return;
+                }
+                const D = this.groupMemberModeration;
+                D.id = groupId;
+                D.selectedUsers.clear();
+                D.selectedUsersArray = [];
+                D.selectedRoles = [];
+                D.groupRef = {};
+                D.auditLogTypes = [];
+                D.selectedAuditLogTypes = [];
+                this.API.getCachedGroup({ groupId }).then((args) => {
+                    D.groupRef = args.ref;
+                    if (utils.hasGroupPermission(D.groupRef, 'group-audit-view')) {
+                        groupRequest.getGroupAuditLogTypes({ groupId }).then((args) => {
+                            // API.$on('GROUP:AUDITLOGTYPES', function (args) {
+                            if (this.groupMemberModeration.id !== args.params.groupId) {
+                                return;
+                            }
+
+                            this.groupMemberModeration.auditLogTypes = args.json;
+                            // });
+                        });
+                    }
+                });
+                this.groupMemberModerationTableForceUpdate = 0;
+                D.visible = true;
+                // this.setGroupMemberModerationTable(this.groupDialog.members);
             },
             joinGroup(id) {
                 if (!id) {
@@ -1501,9 +1633,6 @@
             setGroupMemberFilter(filter) {
                 this.$emit('set-group-member-filter', filter);
             },
-            groupMembersSearch() {
-                this.$emit('group-members-search');
-            },
             loadMoreGroupMembers() {
                 this.$emit('load-more-group-members');
             },
@@ -1519,3 +1648,9 @@
         }
     };
 </script>
+
+<!--<style scoped>-->
+<!--    ::v-deep .el-dialog {-->
+<!--        margin-bottom: 0;-->
+<!--    }-->
+<!--</style>-->

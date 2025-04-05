@@ -630,7 +630,7 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:JOINREQUESTS', args);
+            // window.API.$emit('GROUP:JOINREQUESTS', args);
             return args;
         });
     },

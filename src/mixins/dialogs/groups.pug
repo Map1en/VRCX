@@ -532,27 +532,27 @@ mixin groups
     //            style='margin-left: 5px') {{ $t('dialog.group_member_moderation.cancel') }}
 
     //- dialog: export logs
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        :visible.sync='isGroupLogsExportDialogVisible'
-        :title='$t("dialog.group_member_moderation.export_logs")'
-        width='650px'
-        ref='groupLogsExportDialogRef')
-        el-checkbox-group(
-            v-model='checkedGroupLogsExportLogsOptions'
-            @change='updateGrouptLogsExporContent()'
-            style='margin-bottom: 10px')
-            template(v-for='option in checkGroupsLogsExportLogsOptions')
-                el-checkbox(:key='option.label' :label='option.label') {{ $t(option.text) }}
-        br
-        el-input(
-            type='textarea'
-            v-model='groupLogsExportContent'
-            size='mini'
-            rows='15'
-            resize='none'
-            readonly
-            style='margin-top: 15px'
-            @click.native='handleCopyGroupLogsExportContent')
+    //- el-dialog.x-dialog(
+    //-     :before-close='beforeDialogClose'
+    //-     @mousedown.native='dialogMouseDown'
+    //-     @mouseup.native='dialogMouseUp'
+    //-     :visible.sync='isGroupLogsExportDialogVisible'
+    //-     :title='$t("dialog.group_member_moderation.export_logs")'
+    //-     width='650px'
+    //-     ref='groupLogsExportDialogRef')
+    //-     el-checkbox-group(
+    //-         v-model='checkedGroupLogsExportLogsOptions'
+    //-         @change='updateGrouptLogsExporContent()'
+    //-         style='margin-bottom: 10px')
+    //-         template(v-for='option in checkGroupsLogsExportLogsOptions')
+    //-             el-checkbox(:key='option.label' :label='option.label') {{ $t(option.text) }}
+    //-     br
+    //-     el-input(
+    //-         type='textarea'
+    //-         v-model='groupLogsExportContent'
+    //-         size='mini'
+    //-         rows='15'
+    //-         resize='none'
+    //-         readonly
+    //-         style='margin-top: 15px'
+    //-         @click.native='handleCopyGroupLogsExportContent')
