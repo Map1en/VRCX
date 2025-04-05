@@ -821,7 +821,7 @@
     import utils from '../../../classes/utils';
 
     export default {
-        name: 'GroupModerationDialog',
+        name: 'GroupMemberModerationDialog',
         inject: [
             'beforeDialogClose',
             'groupMemberModeration',
