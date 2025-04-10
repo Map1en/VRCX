@@ -573,28 +573,28 @@ export default class extends baseClass {
             }
             this.sharedFeed.moderationAgainstTable.wrist = wristArr;
             this.sharedFeed.pendingUpdate = true;
-        },
-
-        saveSharedFeedFilters() {
-            configRepository.setString(
-                'sharedFeedFilters',
-                JSON.stringify(this.sharedFeedFilters)
-            );
-            this.updateSharedFeed(true);
-        },
-
-        async resetNotyFeedFilters() {
-            this.sharedFeedFilters.noty = {
-                ...this.sharedFeedFiltersDefaults.noty
-            };
-            this.saveSharedFeedFilters();
-        },
-
-        async resetWristFeedFilters() {
-            this.sharedFeedFilters.wrist = {
-                ...this.sharedFeedFiltersDefaults.wrist
-            };
-            this.saveSharedFeedFilters();
         }
+
+        // saveSharedFeedFilters() {
+        //     configRepository.setString(
+        //         'sharedFeedFilters',
+        //         JSON.stringify(this.sharedFeedFilters)
+        //     );
+        //     this.updateSharedFeed(true);
+        // },
+
+        // async resetNotyFeedFilters() {
+        //     this.sharedFeedFilters.noty = {
+        //         ...this.sharedFeedFiltersDefaults.noty
+        //     };
+        //     this.saveSharedFeedFilters();
+        // },
+
+        // async resetWristFeedFilters() {
+        //     this.sharedFeedFilters.wrist = {
+        //         ...this.sharedFeedFiltersDefaults.wrist
+        //     };
+        //     this.saveSharedFeedFilters();
+        // }
     };
 }
