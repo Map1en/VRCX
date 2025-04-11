@@ -64,7 +64,7 @@ doctype html
         FriendsListTab(v-bind='friendsListTabBind' v-on='friendsListTabEvent')
 
         //- charts
-        keep-alive
+        KeepAlive
             ChartsTab(v-if='menuActiveIndex === "charts"' v-bind='chartsTabBind' v-on='chartsTabEvent')
 
         //- settings
@@ -139,5 +139,8 @@ doctype html
 
     //- avatar
     AvatarDialog(v-bind='avatarDialogBind' v-on='avatarDialogEvent')
+
+    //- settings
+    NotyFeedFiltersDialog(v-bind='notyFeedFiltersDialogBind' v-on='notyFeedFiltersDialogEvent')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

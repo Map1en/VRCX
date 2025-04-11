@@ -80,6 +80,7 @@ import ExportAvatarsListDialog from './views/dialogs/favoritesDialog/ExportAvata
 import GroupDialog from './views/dialogs/groupDialog/GroupDialog.vue';
 import InviteGroupDialog from './views/dialogs/groupDialog/InviteGroupDialog.vue';
 import AvatarDialog from './views/dialogs/avatarDialog/AvatarDialog.vue';
+import NotyFeedFiltersDialog from './views/dialogs/settings/NotyFeedFiltersDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -252,7 +253,9 @@ console.log(`isLinux: ${LINUX}`);
             ExportFriendsListDialog,
             ExportAvatarsListDialog,
             //  - launch
-            LaunchDialog
+            LaunchDialog,
+            //  - settings
+            NotyFeedFiltersDialog
         },
         provide() {
             return {
@@ -11445,15 +11448,10 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Noty feed filters
 
-    $app.data.notyFeedFiltersDialog = {
-        visible: false
-    };
+    $app.data.notyFeedFiltersDialogVisible = false;
 
     $app.methods.showNotyFeedFiltersDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.notyFeedFiltersDialog.$el)
-        );
-        this.notyFeedFiltersDialog.visible = true;
+        this.notyFeedFiltersDialogVisible = true;
     };
 
     // #endregion
@@ -11464,9 +11462,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.showWristFeedFiltersDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.wristFeedFiltersDialog.$el)
-        );
         this.wristFeedFiltersDialog.visible = true;
     };
 
@@ -18875,6 +18870,24 @@ console.log(`isLinux: ${LINUX}`);
         return {
             openFolderGeneric: this.openFolderGeneric,
             deleteVRChatCache: this.deleteVRChatCache
+        };
+    };
+
+    $app.computed.notyFeedFiltersDialogBind = function () {
+        return {
+            notyFeedFiltersDialogVisible: this.notyFeedFiltersDialogVisible,
+            photonLoggingEnabled: this.photonLoggingEnabled,
+            sharedFeedFilters: this.sharedFeedFilters,
+            sharedFeedFiltersDefaults: this.sharedFeedFiltersDefaults
+        };
+    };
+
+    $app.computed.notyFeedFiltersDialogEvent = function () {
+        return {
+            'update:notyFeedFiltersDialogVisible': (val) => {
+                this.notyFeedFiltersDialogVisible = val;
+            },
+            updateSharedFeed: this.updateSharedFeed
         };
     };
 
