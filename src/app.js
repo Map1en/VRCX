@@ -81,6 +81,7 @@ import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import InviteGroupDialog from './components/dialogs/GroupDialog/InviteGroupDialog.vue';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
+import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -255,7 +256,8 @@ console.log(`isLinux: ${LINUX}`);
             //  - launch
             LaunchDialog,
             //  - settings
-            FeedFiltersDialog
+            FeedFiltersDialog,
+            LaunchOptionsDialog
         },
         provide() {
             return {
@@ -11368,67 +11370,10 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Launch Options Dialog
 
-    $app.data.launchOptionsDialog = {
-        visible: false,
-        launchArguments: await configRepository.getString('launchArguments'),
-        vrcLaunchPathOverride: await configRepository.getString(
-            'vrcLaunchPathOverride'
-        )
-    };
-
-    API.$on('LOGIN', async function () {
-        var D = $app.launchOptionsDialog;
-        if (
-            D.vrcLaunchPathOverride === null ||
-            D.vrcLaunchPathOverride === 'null'
-        ) {
-            D.vrcLaunchPathOverride = '';
-            await configRepository.setString(
-                'vrcLaunchPathOverride',
-                D.vrcLaunchPathOverride
-            );
-        }
-    });
-
-    API.$on('LOGOUT', function () {
-        $app.launchOptionsDialog.visible = false;
-    });
-
-    $app.methods.updateLaunchOptions = function () {
-        var D = this.launchOptionsDialog;
-        D.launchArguments = String(D.launchArguments)
-            .replace(/\s+/g, ' ')
-            .trim();
-        configRepository.setString('launchArguments', D.launchArguments);
-        if (
-            D.vrcLaunchPathOverride &&
-            D.vrcLaunchPathOverride.endsWith('.exe') &&
-            !D.vrcLaunchPathOverride.endsWith('launch.exe')
-        ) {
-            this.$message({
-                message:
-                    'Invalid path, you must enter VRChat folder or launch.exe',
-                type: 'error'
-            });
-            return;
-        }
-        configRepository.setString(
-            'vrcLaunchPathOverride',
-            D.vrcLaunchPathOverride
-        );
-        this.$message({
-            message: 'Updated launch options',
-            type: 'success'
-        });
-        D.visible = false;
-    };
+    $app.data.isLaunchOptionsDialogVisible = false;
 
     $app.methods.showLaunchOptions = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.launchOptionsDialog.$el)
-        );
-        var D = this.launchOptionsDialog;
-        D.visible = true;
+        this.isLaunchOptionsDialogVisible = true;
     };
 
     // #endregion
