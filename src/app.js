@@ -80,6 +80,7 @@ import ExportAvatarsListDialog from './views/Profile/dialogs/ExportAvatarsListDi
 import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import InviteGroupDialog from './components/dialogs/GroupDialog/InviteGroupDialog.vue';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
+import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -236,7 +237,7 @@ console.log(`isLinux: ${LINUX}`);
             //  - previous instances
             PreviousInstancesInfoDialog,
             PreviousInstancesUserDialog,
-            //  - WorldDialog
+            //  - world
             WorldDialog,
             //  - group
             GroupDialog,
@@ -252,7 +253,9 @@ console.log(`isLinux: ${LINUX}`);
             ExportFriendsListDialog,
             ExportAvatarsListDialog,
             //  - launch
-            LaunchDialog
+            LaunchDialog,
+            //  - settings
+            FeedFiltersDialog
         },
         provide() {
             return {
@@ -11444,30 +11447,15 @@ console.log(`isLinux: ${LINUX}`);
 
     // #endregion
     // #region | App: Noty feed filters
-
-    $app.data.notyFeedFiltersDialog = {
-        visible: false
-    };
-
-    $app.methods.showNotyFeedFiltersDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.notyFeedFiltersDialog.$el)
-        );
-        this.notyFeedFiltersDialog.visible = true;
-    };
-
-    // #endregion
     // #region | App: Wrist feed filters
 
-    $app.data.wristFeedFiltersDialog = {
-        visible: false
-    };
+    $app.data.feedFiltersDialogMode = '';
 
+    $app.methods.showNotyFeedFiltersDialog = function () {
+        this.feedFiltersDialogMode = 'noty';
+    };
     $app.methods.showWristFeedFiltersDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.wristFeedFiltersDialog.$el)
-        );
-        this.wristFeedFiltersDialog.visible = true;
+        this.feedFiltersDialogMode = 'wrist';
     };
 
     // #endregion
@@ -18875,6 +18863,25 @@ console.log(`isLinux: ${LINUX}`);
         return {
             openFolderGeneric: this.openFolderGeneric,
             deleteVRChatCache: this.deleteVRChatCache
+        };
+    };
+
+    $app.computed.feedFiltersDialogBind = function () {
+        return {
+            feedFiltersDialogMode: this.feedFiltersDialogMode,
+            photonLoggingEnabled: this.photonLoggingEnabled,
+            sharedFeedFilters: this.sharedFeedFilters,
+            sharedFeedFiltersDefaults: this.sharedFeedFiltersDefaults
+        };
+    };
+
+    $app.computed.feedFiltersDialogEvent = function () {
+        return {
+            'update:feedFiltersDialogMode': (val) => {
+                console.log;
+                this.feedFiltersDialogMode = val;
+            },
+            updateSharedFeed: this.updateSharedFeed
         };
     };
 
