@@ -80,9 +80,6 @@ doctype html
     include ./mixins/dialogs/images.pug
     +images
 
-    include ./mixins/dialogs/openSourceSoftwareNotice.pug
-    +openSourceSoftwareNotice
-
     include ./mixins/dialogs/currentUser.pug
     +currentUser
 
@@ -138,5 +135,7 @@ doctype html
     FeedFiltersDialog(v-bind='feedFiltersDialogBind' v-on='feedFiltersDialogEvent')
 
     LaunchOptionsDialog(:is-launch-options-dialog-visible.sync='isLaunchOptionsDialogVisible')
+
+    OpenSourceSoftwareNoticeDialog(:oss-dialog.sync='ossDialog')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

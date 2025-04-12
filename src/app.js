@@ -82,6 +82,7 @@ import InviteGroupDialog from './components/dialogs/GroupDialog/InviteGroupDialo
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
+import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -257,7 +258,8 @@ console.log(`isLinux: ${LINUX}`);
             LaunchDialog,
             //  - settings
             FeedFiltersDialog,
-            LaunchOptionsDialog
+            LaunchOptionsDialog,
+            OpenSourceSoftwareNoticeDialog
         },
         provide() {
             return {
