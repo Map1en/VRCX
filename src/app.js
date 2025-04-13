@@ -83,6 +83,7 @@ import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
+import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -259,7 +260,8 @@ console.log(`isLinux: ${LINUX}`);
             //  - settings
             FeedFiltersDialog,
             LaunchOptionsDialog,
-            OpenSourceSoftwareNoticeDialog
+            OpenSourceSoftwareNoticeDialog,
+            ChangelogDialog
         },
         provide() {
             return {
@@ -18050,9 +18052,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.showChangeLogDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.changeLogDialog.$el)
-        );
         this.changeLogDialog.visible = true;
         this.checkForVRCXUpdate();
     };
