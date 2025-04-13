@@ -84,6 +84,7 @@ import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
 import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
+import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -261,7 +262,8 @@ console.log(`isLinux: ${LINUX}`);
             FeedFiltersDialog,
             LaunchOptionsDialog,
             OpenSourceSoftwareNoticeDialog,
-            ChangelogDialog
+            ChangelogDialog,
+            VRCXUpdateDialog
         },
         provide() {
             return {
@@ -18828,6 +18830,30 @@ console.log(`isLinux: ${LINUX}`);
                 this.feedFiltersDialogMode = val;
             },
             updateSharedFeed: this.updateSharedFeed
+        };
+    };
+
+    $app.computed.vrcxUpdateDialogBind = function () {
+        return {
+            VRCXUpdateDialog: this.VRCXUpdateDialog,
+            appVersion: this.appVersion,
+            checkingForVRCXUpdate: this.checkingForVRCXUpdate,
+            updateInProgress: this.updateInProgress,
+            updateProgress: this.updateProgress,
+            updateProgressText: this.updateProgressText,
+            pendingVRCXInstall: this.pendingVRCXInstall,
+            branch: this.branch,
+            branches: this.branches
+        };
+    };
+
+    $app.computed.vrcxUpdateDialogEvent = function () {
+        return {
+            loadBranchVersions: this.loadBranchVersions,
+            cancelUpdate: this.cancelUpdate,
+            installVRCXUpdate: this.installVRCXUpdate,
+            restartVRCX: this.restartVRCX,
+            'update:branch': (val) => (this.branch = val)
         };
     };
 
