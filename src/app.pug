@@ -86,9 +86,6 @@ doctype html
     include ./mixins/dialogs/invites.pug
     +invites
 
-    include ./mixins/dialogs/screenshotMetadata.pug
-    +screenshotMetadata
-
     include ./mixins/dialogs/settings.pug
     +settings
 
@@ -138,5 +135,7 @@ doctype html
     ChangelogDialog(:change-log-dialog.sync='changeLogDialog')
 
     VRCXUpdateDialog(v-bind='vrcxUpdateDialogBind' v-on='vrcxUpdateDialogEvent')
+
+    ScreenshotMetadataDialog(v-bind='screenshotMetadataDialogBind' v-on='screenshotMetadataDialogEvent')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

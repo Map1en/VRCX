@@ -85,6 +85,7 @@ import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vu
 import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
 import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
+import ScreenshotMetadataDialog from './views/settings/dialogs/ScreenshotMetadataDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -263,7 +264,8 @@ console.log(`isLinux: ${LINUX}`);
             LaunchOptionsDialog,
             OpenSourceSoftwareNoticeDialog,
             ChangelogDialog,
-            VRCXUpdateDialog
+            VRCXUpdateDialog,
+            ScreenshotMetadataDialog
         },
         provide() {
             return {
@@ -410,14 +412,6 @@ console.log(`isLinux: ${LINUX}`);
             }
         } else if (e.altKey && e.key === 'R') {
             $app.refreshCustomCss();
-        }
-
-        let carouselNavigation = { ArrowLeft: 0, ArrowRight: 2 }[e.key];
-        if (
-            typeof carouselNavigation !== 'undefined' &&
-            $app.screenshotMetadataDialog?.visible
-        ) {
-            $app.screenshotMetadataCarouselChange(carouselNavigation);
         }
 
         if (!e.shiftKey) {
@@ -13654,130 +13648,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.methods.getAndDisplayScreenshotFromFile = async function () {
-        var filePath = '';
-        if (LINUX) {
-            filePath = await window.electron.openFileDialog(); // PNG filter is applied in main.js
-        } else {
-            filePath = await AppApi.OpenFileSelectorDialog(
-                await AppApi.GetVRChatPhotosLocation(),
-                '.png',
-                'PNG Files (*.png)|*.png'
-            );
-        }
-
-        if (filePath === '') {
-            return;
-        }
-
-        this.screenshotMetadataResetSearch();
-        this.getAndDisplayScreenshot(filePath);
-    };
-
-    $app.methods.getAndDisplayScreenshot = function (
-        path,
-        needsCarouselFiles = true
-    ) {
-        AppApi.GetScreenshotMetadata(path).then((metadata) =>
-            this.displayScreenshotMetadata(metadata, needsCarouselFiles)
-        );
-    };
-
-    $app.methods.openScreenshotFileDialog = async function () {
-        if (LINUX) {
-            const filePath = await window.electron.openFileDialog();
-            if (filePath) {
-                this.screenshotMetadataResetSearch();
-                this.getAndDisplayScreenshot(filePath);
-            }
-        } else {
-            AppApi.OpenScreenshotFileDialog();
-        }
-    };
-
-    $app.methods.getAndDisplayLastScreenshot = function () {
-        this.screenshotMetadataResetSearch();
-        AppApi.GetLastScreenshot().then((path) => {
-            if (!path) {
-                return;
-            }
-            this.getAndDisplayScreenshot(path);
-        });
-    };
-
-    /**
-     * Function receives an unmodified json string grabbed from the screenshot file
-     * Error checking and and verification of data is done in .NET already; In the case that the data/file is invalid, a JSON object with the token "error" will be returned containing a description of the problem.
-     * Example: {"error":"Invalid file selected. Please select a valid VRChat screenshot."}
-     * See docs/screenshotMetadata.json for schema
-     * @param {string} metadata - JSON string grabbed from PNG file
-     * @param {string} needsCarouselFiles - Whether or not to get the last/next files for the carousel
-     * @returns {void}
-     */
-    $app.methods.displayScreenshotMetadata = async function (
-        json,
-        needsCarouselFiles = true
-    ) {
-        var D = this.screenshotMetadataDialog;
-        var metadata = JSON.parse(json);
-        if (!metadata?.sourceFile) {
-            D.metadata = {};
-            D.metadata.error =
-                'Invalid file selected. Please select a valid VRChat screenshot.';
-            return;
-        }
-
-        // Get extra data for display dialog like resolution, file size, etc
-        D.loading = true;
-        var extraData = await AppApi.GetExtraScreenshotData(
-            metadata.sourceFile,
-            needsCarouselFiles
-        );
-        D.loading = false;
-        var extraDataObj = JSON.parse(extraData);
-        Object.assign(metadata, extraDataObj);
-
-        // console.log("Displaying screenshot metadata", json, "extra data", extraDataObj, "path", json.filePath)
-
-        D.metadata = metadata;
-
-        var regex = metadata.fileName.match(
-            /VRChat_((\d{3,})x(\d{3,})_(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})\.(\d{1,})|(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})\.(\d{3})_(\d{3,})x(\d{3,}))/
-        );
-        if (regex) {
-            if (typeof regex[2] !== 'undefined' && regex[4].length === 4) {
-                // old format
-                // VRChat_3840x2160_2022-02-02_03-21-39.771
-                var date = `${regex[4]}-${regex[5]}-${regex[6]}`;
-                var time = `${regex[7]}:${regex[8]}:${regex[9]}`;
-                D.metadata.dateTime = Date.parse(`${date} ${time}`);
-                // D.metadata.resolution = `${regex[2]}x${regex[3]}`;
-            } else if (
-                typeof regex[11] !== 'undefined' &&
-                regex[11].length === 4
-            ) {
-                // new format
-                // VRChat_2023-02-16_10-39-25.274_3840x2160
-                var date = `${regex[11]}-${regex[12]}-${regex[13]}`;
-                var time = `${regex[14]}:${regex[15]}:${regex[16]}`;
-                D.metadata.dateTime = Date.parse(`${date} ${time}`);
-                // D.metadata.resolution = `${regex[18]}x${regex[19]}`;
-            }
-        }
-        if (metadata.timestamp) {
-            D.metadata.dateTime = Date.parse(metadata.timestamp);
-        }
-        if (!D.metadata.dateTime) {
-            D.metadata.dateTime = Date.parse(metadata.creationDate);
-        }
-
-        if (this.fullscreenImageDialog?.visible) {
-            this.showFullscreenImageDialog(D.metadata.filePath);
-        } else {
-            this.openScreenshotMetadataDialog();
-        }
-    };
-
     $app.data.screenshotMetadataDialog = {
         visible: false,
         loading: false,
@@ -13788,225 +13658,17 @@ console.log(`isLinux: ${LINUX}`);
         isUploading: false
     };
 
-    $app.methods.openScreenshotMetadataDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.screenshotMetadataDialog.$el)
-        );
-        var D = this.screenshotMetadataDialog;
-        D.visible = true;
-    };
-
     $app.methods.showScreenshotMetadataDialog = function () {
-        var D = this.screenshotMetadataDialog;
-        if (!D.metadata.filePath) {
-            this.getAndDisplayLastScreenshot();
-        }
-        this.openScreenshotMetadataDialog();
+        this.screenshotMetadataDialog.visible = true;
     };
 
-    $app.methods.screenshotMetadataResetSearch = function () {
-        var D = this.screenshotMetadataDialog;
-
-        D.search = '';
-        D.searchIndex = null;
-        D.searchResults = null;
-    };
-
-    $app.data.screenshotMetadataSearchInputs = 0;
-    $app.methods.screenshotMetadataSearch = function () {
-        var D = this.screenshotMetadataDialog;
-
-        // Don't search if user is still typing
-        this.screenshotMetadataSearchInputs++;
-        let current = this.screenshotMetadataSearchInputs;
-        setTimeout(() => {
-            if (current !== this.screenshotMetadataSearchInputs) {
-                return;
-            }
-            this.screenshotMetadataSearchInputs = 0;
-
-            if (D.search === '') {
-                this.screenshotMetadataResetSearch();
-                if (D.metadata.filePath !== null) {
-                    // Re-retrieve the current screenshot metadata and get previous/next files for regular carousel directory navigation
-                    this.getAndDisplayScreenshot(D.metadata.filePath, true);
-                }
-                return;
-            }
-
-            var searchType = D.searchTypes.indexOf(D.searchType); // Matches the search type enum in .NET
-            D.loading = true;
-            AppApi.FindScreenshotsBySearch(D.search, searchType)
-                .then((json) => {
-                    var results = JSON.parse(json);
-
-                    if (results.length === 0) {
-                        D.metadata = {};
-                        D.metadata.error = 'No results found';
-
-                        D.searchIndex = null;
-                        D.searchResults = null;
-                        return;
-                    }
-
-                    D.searchIndex = 0;
-                    D.searchResults = results;
-
-                    // console.log("Search results", results)
-                    this.getAndDisplayScreenshot(results[0], false);
-                })
-                .finally(() => {
-                    D.loading = false;
-                });
-        }, 500);
-    };
-
-    $app.methods.screenshotMetadataCarouselChangeSearch = function (index) {
-        var D = this.screenshotMetadataDialog;
-        var searchIndex = D.searchIndex;
-        var filesArr = D.searchResults;
-
-        if (searchIndex === null) {
-            return;
-        }
-
-        if (index === 0) {
-            if (searchIndex > 0) {
-                this.getAndDisplayScreenshot(filesArr[searchIndex - 1], false);
-                searchIndex--;
-            } else {
-                this.getAndDisplayScreenshot(
-                    filesArr[filesArr.length - 1],
-                    false
-                );
-                searchIndex = filesArr.length - 1;
-            }
-        } else if (index === 2) {
-            if (searchIndex < filesArr.length - 1) {
-                this.getAndDisplayScreenshot(filesArr[searchIndex + 1], false);
-                searchIndex++;
-            } else {
-                this.getAndDisplayScreenshot(filesArr[0], false);
-                searchIndex = 0;
-            }
-        }
-
-        if (typeof this.$refs.screenshotMetadataCarousel !== 'undefined') {
-            this.$refs.screenshotMetadataCarousel.setActiveItem(1);
-        }
-
-        D.searchIndex = searchIndex;
-    };
-
-    $app.methods.screenshotMetadataCarouselChange = function (index) {
-        var D = this.screenshotMetadataDialog;
-        var searchIndex = D.searchIndex;
-
-        if (searchIndex !== null) {
-            this.screenshotMetadataCarouselChangeSearch(index);
-            return;
-        }
-
-        if (index === 0) {
-            if (D.metadata.previousFilePath) {
-                this.getAndDisplayScreenshot(D.metadata.previousFilePath);
-            } else {
-                this.getAndDisplayScreenshot(D.metadata.filePath);
-            }
-        }
-        if (index === 2) {
-            if (D.metadata.nextFilePath) {
-                this.getAndDisplayScreenshot(D.metadata.nextFilePath);
-            } else {
-                this.getAndDisplayScreenshot(D.metadata.filePath);
-            }
-        }
-        if (typeof this.$refs.screenshotMetadataCarousel !== 'undefined') {
-            this.$refs.screenshotMetadataCarousel.setActiveItem(1);
-        }
-
-        if (this.fullscreenImageDialog.visible) {
-            // TODO
-        }
-    };
-
-    $app.methods.uploadScreenshotToGallery = function () {
-        var D = this.screenshotMetadataDialog;
-        if (D.metadata.fileSizeBytes > 10000000) {
-            $app.$message({
-                message: $t('message.file.too_large'),
-                type: 'error'
-            });
-            return;
-        }
-        D.isUploading = true;
-        AppApi.GetFileBase64(D.metadata.filePath)
-            .then((base64Body) => {
-                vrcPlusImageRequest
-                    .uploadGalleryImage(base64Body)
-                    .then((args) => {
-                        $app.$message({
-                            message: $t('message.gallery.uploaded'),
-                            type: 'success'
-                        });
-                        return args;
-                    })
-                    .finally(() => {
-                        D.isUploading = false;
-                    });
-            })
-            .catch((err) => {
-                $app.$message({
-                    message: $t('message.gallery.failed'),
-                    type: 'error'
-                });
-                console.error(err);
-                D.isUploading = false;
-            });
-    };
-
+    $app.data.currentlyDroppingFile = null;
     /**
      * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
      * @param {string} filePath - The full path to the file being dragged into the window
      */
     $app.methods.dragEnterCef = function (filePath) {
         this.currentlyDroppingFile = filePath;
-    };
-
-    $app.methods.handleDrop = function (event) {
-        if (this.currentlyDroppingFile === null) {
-            return;
-        }
-        console.log('Dropped file into viewer: ', this.currentlyDroppingFile);
-
-        this.screenshotMetadataResetSearch();
-        this.getAndDisplayScreenshot(this.currentlyDroppingFile);
-
-        event.preventDefault();
-    };
-
-    $app.methods.copyImageToClipboard = function (path) {
-        if (!path) {
-            return;
-        }
-        AppApi.CopyImageToClipboard(path).then(() => {
-            this.$message({
-                message: 'Image copied to clipboard',
-                type: 'success'
-            });
-        });
-    };
-
-    $app.methods.openImageFolder = function (path) {
-        if (!path) {
-            return;
-        }
-        AppApi.OpenFolderAndSelectItem(path).then(() => {
-            this.$message({
-                message: 'Opened image folder',
-                type: 'success'
-            });
-        });
     };
 
     // YouTube API
@@ -18854,6 +18516,20 @@ console.log(`isLinux: ${LINUX}`);
             installVRCXUpdate: this.installVRCXUpdate,
             restartVRCX: this.restartVRCX,
             'update:branch': (val) => (this.branch = val)
+        };
+    };
+
+    $app.computed.screenshotMetadataDialogBind = function () {
+        return {
+            screenshotMetadataDialog: this.screenshotMetadataDialog,
+            currentlyDroppingFile: this.currentlyDroppingFile,
+            fullscreenImageDialog: this.fullscreenImageDialog
+        };
+    };
+
+    $app.computed.screenshotMetadataDialogEvent = function () {
+        return {
+            lookupUser: this.lookupUser
         };
     };
 
