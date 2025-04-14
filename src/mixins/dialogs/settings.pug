@@ -146,24 +146,24 @@ mixin settings
                 el-button(type='primary' size='small' @click='testYouTubeApiKey' style='margin-left: auto') {{ $t('dialog.youtube_api.save') }}
 
     //- dialog: Discord username list
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        :visible.sync='discordNamesDialogVisible'
-        :title='$t("dialog.discord_names.header")'
-        width='650px')
-        div(style='font-size: 12px')
-            | {{ $t('dialog.discord_names.description') }}
-        el-input(
-            type='textarea'
-            v-if='discordNamesDialogVisible'
-            v-model='discordNamesContent'
-            size='mini'
-            rows='15'
-            resize='none'
-            readonly
-            style='margin-top: 15px')
+    //- el-dialog.x-dialog(
+    //-     :before-close='beforeDialogClose'
+    //-     @mousedown.native='dialogMouseDown'
+    //-     @mouseup.native='dialogMouseUp'
+    //-     :visible.sync='discordNamesDialogVisible'
+    //-     :title='$t("dialog.discord_names.header")'
+    //-     width='650px')
+    //-     div(style='font-size: 12px')
+    //-         | {{ $t('dialog.discord_names.description') }}
+    //-     el-input(
+    //-         type='textarea'
+    //-         v-if='discordNamesDialogVisible'
+    //-         v-model='discordNamesContent'
+    //-         size='mini'
+    //-         rows='15'
+    //-         resize='none'
+    //-         readonly
+    //-         style='margin-top: 15px')
 
     //- dialog: Note export dialog
     el-dialog.x-dialog(

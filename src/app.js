@@ -86,6 +86,7 @@ import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceS
 import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import ScreenshotMetadataDialog from './views/settings/dialogs/ScreenshotMetadataDialog.vue';
+import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -265,7 +266,8 @@ console.log(`isLinux: ${LINUX}`);
             OpenSourceSoftwareNoticeDialog,
             ChangelogDialog,
             VRCXUpdateDialog,
-            ScreenshotMetadataDialog
+            ScreenshotMetadataDialog,
+            DiscordNamesDialog
         },
         provide() {
             return {
@@ -13246,50 +13248,8 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.data.discordNamesDialogVisible = false;
-    $app.data.discordNamesContent = '';
 
     $app.methods.showDiscordNamesDialog = function () {
-        var { friends } = API.currentUser;
-        if (Array.isArray(friends) === false) {
-            return;
-        }
-        var lines = ['DisplayName,DiscordName'];
-        var _ = function (str) {
-            if (/[\x00-\x1f,"]/.test(str) === true) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
-        for (var userId of friends) {
-            var { ref } = this.friends.get(userId);
-            var discord = '';
-            if (typeof ref === 'undefined') {
-                continue;
-            }
-            var name = ref.displayName;
-            if (ref.statusDescription) {
-                var statusRegex = /(?:discord|dc|dis)(?: |=|:|˸|;)(.*)/gi.exec(
-                    ref.statusDescription
-                );
-                if (statusRegex) {
-                    discord = statusRegex[1];
-                }
-            }
-            if (!discord && ref.bio) {
-                var bioRegex = /(?:discord|dc|dis)(?: |=|:|˸|;)(.*)/gi.exec(
-                    ref.bio
-                );
-                if (bioRegex) {
-                    discord = bioRegex[1];
-                }
-            }
-            if (!discord) {
-                continue;
-            }
-            discord = discord.trim();
-            lines.push(`${_(name)},${_(discord)}`);
-        }
-        this.discordNamesContent = lines.join('\n');
         this.discordNamesDialogVisible = true;
     };
 
