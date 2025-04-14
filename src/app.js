@@ -87,6 +87,7 @@ import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import ScreenshotMetadataDialog from './views/settings/dialogs/ScreenshotMetadataDialog.vue';
 import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
+import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -267,7 +268,8 @@ console.log(`isLinux: ${LINUX}`);
             ChangelogDialog,
             VRCXUpdateDialog,
             ScreenshotMetadataDialog,
-            DiscordNamesDialog
+            DiscordNamesDialog,
+            EditInviteMessageDialog
         },
         provide() {
             return {
@@ -11818,51 +11820,11 @@ console.log(`isLinux: ${LINUX}`);
         messageType,
         inviteMessage
     ) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.editInviteMessageDialog.$el)
-        );
         var D = this.editInviteMessageDialog;
         D.newMessage = inviteMessage.message;
         D.visible = true;
         D.inviteMessage = inviteMessage;
         D.messageType = messageType;
-    };
-
-    $app.methods.saveEditInviteMessage = function () {
-        var D = this.editInviteMessageDialog;
-        D.visible = false;
-        if (D.inviteMessage.message !== D.newMessage) {
-            var slot = D.inviteMessage.slot;
-            var messageType = D.messageType;
-            var params = {
-                message: D.newMessage
-            };
-            inviteMessagesRequest
-                .editInviteMessage(params, messageType, slot)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
-                    if (args.json[slot].message === D.inviteMessage.message) {
-                        this.$message({
-                            message:
-                                "VRChat API didn't update message, try again",
-                            type: 'error'
-                        });
-                        throw new Error(
-                            "VRChat API didn't update message, try again"
-                        );
-                    } else {
-                        this.$message('Invite message updated');
-                    }
-                    return args;
-                });
-        }
-    };
-
-    $app.methods.cancelEditInviteMessage = function () {
-        this.editInviteMessageDialog.visible = false;
     };
 
     // #endregion
