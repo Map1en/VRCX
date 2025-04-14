@@ -85,10 +85,11 @@ import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vu
 import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
 import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
-import ScreenshotMetadataDialog from './views/settings/dialogs/ScreenshotMetadataDialog.vue';
+import ScreenshotMetadataDialog from './views/Settings/dialogs/ScreenshotMetadataDialog.vue';
 import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
 import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
 import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
+import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -271,7 +272,8 @@ console.log(`isLinux: ${LINUX}`);
             ScreenshotMetadataDialog,
             DiscordNamesDialog,
             EditInviteMessageDialog,
-            NoteExportDialog
+            NoteExportDialog,
+            VRChatConfigDialog
         },
         provide() {
             return {
@@ -13264,221 +13266,13 @@ console.log(`isLinux: ${LINUX}`);
 
     // VRChat Config JSON
 
-    $app.data.VRChatConfigFile = {};
-    $app.data.VRChatConfigList = {};
-
-    $app.methods.readVRChatConfigFile = async function () {
-        this.VRChatConfigFile = {};
-        var config = await AppApi.ReadConfigFile();
-        if (config) {
-            try {
-                this.VRChatConfigFile = JSON.parse(config);
-                if (
-                    typeof this.VRChatConfigFile
-                        .picture_output_split_by_date === 'undefined'
-                ) {
-                    this.VRChatConfigFile.picture_output_split_by_date = true;
-                }
-            } catch {
-                this.$message({
-                    message: 'Invalid JSON in config.json',
-                    type: 'error'
-                });
-                throw new Error('Invalid JSON in config.json');
-            }
-        }
-    };
-
-    $app.methods.WriteVRChatConfigFile = function () {
-        var json = JSON.stringify(this.VRChatConfigFile, null, '\t');
-        AppApi.WriteConfigFile(json);
-    };
-
-    $app.data.VRChatConfigDialog = {
-        visible: false
-    };
-
-    API.$on('LOGIN', function () {
-        $app.VRChatConfigDialog.visible = false;
-    });
+    $app.data.isVRChatConfigDialogVisible = false;
 
     $app.methods.showVRChatConfig = async function () {
-        this.VRChatConfigList = {
-            cache_size: {
-                name: $t('dialog.config_json.max_cache_size'),
-                default: '30',
-                type: 'number',
-                min: 30
-            },
-            cache_expiry_delay: {
-                name: $t('dialog.config_json.cache_expiry_delay'),
-                default: '30',
-                type: 'number',
-                min: 30
-            },
-            cache_directory: {
-                name: $t('dialog.config_json.cache_directory'),
-                default: '%AppData%\\..\\LocalLow\\VRChat\\VRChat',
-                folderBrowser: true
-            },
-            picture_output_folder: {
-                name: $t('dialog.config_json.picture_directory'),
-                // my pictures folder
-                default: `%UserProfile%\\Pictures\\VRChat`,
-                folderBrowser: true
-            },
-            // dynamic_bone_max_affected_transform_count: {
-            //     name: 'Dynamic Bones Limit Max Transforms (0 disable all transforms)',
-            //     default: '32',
-            //     type: 'number',
-            //     min: 0
-            // },
-            // dynamic_bone_max_collider_check_count: {
-            //     name: 'Dynamic Bones Limit Max Collider Collisions (0 disable all colliders)',
-            //     default: '8',
-            //     type: 'number',
-            //     min: 0
-            // },
-            fpv_steadycam_fov: {
-                name: $t('dialog.config_json.fpv_steadycam_fov'),
-                default: '50',
-                type: 'number',
-                min: 30,
-                max: 110
-            }
-        };
-        await this.readVRChatConfigFile();
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.VRChatConfigDialog.$el)
-        );
-        this.VRChatConfigDialog.visible = true;
+        this.isVRChatConfigDialogVisible = true;
         if (!this.VRChatUsedCacheSize) {
             this.getVRChatCacheSize();
         }
-    };
-
-    $app.methods.openConfigFolderBrowser = async function (value) {
-        var oldPath = this.VRChatConfigFile[value];
-        var newPath = await this.folderSelectorDialog(oldPath);
-        if (newPath) {
-            this.VRChatConfigFile[value] = newPath;
-        }
-        this.redrawVRChatConfigDialog();
-    };
-
-    $app.methods.redrawVRChatConfigDialog = function () {
-        this.VRChatConfigDialog.visible = false;
-        this.VRChatConfigDialog.visible = true;
-    };
-
-    $app.methods.saveVRChatConfigFile = function () {
-        for (var item in this.VRChatConfigFile) {
-            if (item === 'picture_output_split_by_date') {
-                // this one is default true, it's special
-                if (this.VRChatConfigFile[item]) {
-                    delete this.VRChatConfigFile[item];
-                }
-            } else if (this.VRChatConfigFile[item] === '') {
-                delete this.VRChatConfigFile[item];
-            } else if (
-                typeof this.VRChatConfigFile[item] === 'boolean' &&
-                this.VRChatConfigFile[item] === false
-            ) {
-                delete this.VRChatConfigFile[item];
-            } else if (
-                typeof this.VRChatConfigFile[item] === 'string' &&
-                !isNaN(this.VRChatConfigFile[item])
-            ) {
-                this.VRChatConfigFile[item] = parseInt(
-                    this.VRChatConfigFile[item],
-                    10
-                );
-            }
-        }
-        this.VRChatConfigDialog.visible = false;
-        this.WriteVRChatConfigFile();
-    };
-
-    $app.data.VRChatScreenshotResolutions = [
-        { name: '1280x720 (720p)', width: 1280, height: 720 },
-        { name: '1920x1080 (1080p Default)', width: '', height: '' },
-        { name: '2560x1440 (1440p)', width: 2560, height: 1440 },
-        { name: '3840x2160 (4K)', width: 3840, height: 2160 }
-    ];
-
-    $app.data.VRChatCameraResolutions = [
-        { name: '1280x720 (720p)', width: 1280, height: 720 },
-        { name: '1920x1080 (1080p Default)', width: '', height: '' },
-        { name: '2560x1440 (1440p)', width: 2560, height: 1440 },
-        { name: '3840x2160 (4K)', width: 3840, height: 2160 },
-        { name: '7680x4320 (8K)', width: 7680, height: 4320 }
-    ];
-
-    $app.methods.getVRChatResolution = function (res) {
-        switch (res) {
-            case '1280x720':
-                return '1280x720 (720p)';
-            case '1920x1080':
-                return '1920x1080 (1080p)';
-            case '2560x1440':
-                return '2560x1440 (2K)';
-            case '3840x2160':
-                return '3840x2160 (4K)';
-            case '7680x4320':
-                return '7680x4320 (8K)';
-        }
-        return `${res} (Custom)`;
-    };
-
-    $app.methods.getVRChatCameraResolution = function () {
-        if (
-            this.VRChatConfigFile.camera_res_height &&
-            this.VRChatConfigFile.camera_res_width
-        ) {
-            var res = `${this.VRChatConfigFile.camera_res_width}x${this.VRChatConfigFile.camera_res_height}`;
-            return this.getVRChatResolution(res);
-        }
-        return '1920x1080 (1080p)';
-    };
-
-    $app.methods.getVRChatScreenshotResolution = function () {
-        if (
-            this.VRChatConfigFile.screenshot_res_height &&
-            this.VRChatConfigFile.screenshot_res_width
-        ) {
-            var res = `${this.VRChatConfigFile.screenshot_res_width}x${this.VRChatConfigFile.screenshot_res_height}`;
-            return this.getVRChatResolution(res);
-        }
-        return '1920x1080 (1080p)';
-    };
-
-    $app.methods.setVRChatCameraResolution = function (res) {
-        this.VRChatConfigFile.camera_res_height = res.height;
-        this.VRChatConfigFile.camera_res_width = res.width;
-        this.redrawVRChatConfigDialog();
-    };
-
-    $app.methods.setVRChatScreenshotResolution = function (res) {
-        this.VRChatConfigFile.screenshot_res_height = res.height;
-        this.VRChatConfigFile.screenshot_res_width = res.width;
-        this.redrawVRChatConfigDialog();
-    };
-
-    $app.methods.getVRChatSpoutResolution = function () {
-        if (
-            this.VRChatConfigFile.camera_spout_res_height &&
-            this.VRChatConfigFile.camera_spout_res_width
-        ) {
-            var res = `${this.VRChatConfigFile.camera_spout_res_width}x${this.VRChatConfigFile.camera_spout_res_height}`;
-            return this.getVRChatResolution(res);
-        }
-        return '1920x1080 (1080p)';
-    };
-
-    $app.methods.setVRChatSpoutResolution = function (res) {
-        this.VRChatConfigFile.camera_spout_res_height = res.height;
-        this.VRChatConfigFile.camera_spout_res_width = res.width;
-        this.redrawVRChatConfigDialog();
     };
 
     // Auto Launch Shortcuts
@@ -13739,24 +13533,6 @@ console.log(`isLinux: ${LINUX}`);
         this.updateVRChatAvatarCache();
     };
 
-    $app.methods.showDeleteAllVRChatCacheConfirm = function () {
-        this.$confirm(`Continue? Delete all VRChat cache`, 'Confirm', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'info',
-            callback: (action) => {
-                if (action === 'confirm') {
-                    this.deleteAllVRChatCache();
-                }
-            }
-        });
-    };
-
-    $app.methods.deleteAllVRChatCache = async function () {
-        await AssetBundleManager.DeleteAllCache();
-        this.getVRChatCacheSize();
-    };
-
     $app.methods.autoVRChatCacheManagement = function () {
         if (this.autoSweepVRChatCache) {
             this.sweepVRChatCache();
@@ -13766,7 +13542,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.sweepVRChatCache = async function () {
         var output = await AssetBundleManager.SweepCache();
         console.log('SweepCache', output);
-        if (this.VRChatConfigDialog.visible) {
+        if (this.isVRChatConfigDialogVisible) {
             this.getVRChatCacheSize();
         }
     };
@@ -13822,9 +13598,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.getVRChatCacheSize = async function () {
         this.VRChatCacheSizeLoading = true;
         var totalCacheSize = 20;
-        if (this.VRChatConfigFile.cache_size) {
-            totalCacheSize = this.VRChatConfigFile.cache_size;
-        }
         this.VRChatTotalCacheSize = totalCacheSize;
         var usedCacheSize = await AssetBundleManager.GetCacheSize();
         this.VRChatUsedCacheSize = (usedCacheSize / 1073741824).toFixed(2);
@@ -18371,6 +18144,26 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.screenshotMetadataDialogEvent = function () {
         return {
             lookupUser: this.lookupUser
+        };
+    };
+
+    $app.computed.vrchatConfigDialogBind = function () {
+        return {
+            isVRChatConfigDialogVisible: this.isVRChatConfigDialogVisible,
+            VRChatUsedCacheSize: this.VRChatUsedCacheSize,
+            VRChatTotalCacheSize: this.VRChatTotalCacheSize,
+            VRChatCacheSizeLoading: this.VRChatCacheSizeLoading,
+            folderSelectorDialog: this.folderSelectorDialog,
+            hideTooltips: this.hideTooltips
+        };
+    };
+
+    $app.computed.vrchatConfigDialogEvent = function () {
+        return {
+            'update:isVRChatConfigDialogVisible': (val) =>
+                (this.isVRChatConfigDialogVisible = val),
+            getVRChatCacheSize: this.getVRChatCacheSize,
+            sweepVRChatCache: this.sweepVRChatCache
         };
     };
 
