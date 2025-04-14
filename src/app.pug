@@ -142,4 +142,6 @@ doctype html
 
     EditInviteMessageDialog(:edit-invite-message-dialog.sync="editInviteMessageDialog")
 
+    NoteExportDialog(:is-note-export-dialog-visible.sync="isNoteExportDialogVisible" :friends="friends")
+
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

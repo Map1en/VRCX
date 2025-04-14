@@ -88,6 +88,7 @@ import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import ScreenshotMetadataDialog from './views/settings/dialogs/ScreenshotMetadataDialog.vue';
 import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
 import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
+import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -269,7 +270,8 @@ console.log(`isLinux: ${LINUX}`);
             VRCXUpdateDialog,
             ScreenshotMetadataDialog,
             DiscordNamesDialog,
-            EditInviteMessageDialog
+            EditInviteMessageDialog,
+            NoteExportDialog
         },
         provide() {
             return {
@@ -16183,93 +16185,10 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: note export
 
-    $app.data.noteExportDialog = {
-        visible: false,
-        loading: false,
-        progress: 0,
-        progressTotal: 0,
-        errors: ''
-    };
-    $app.data.noteExportTable = {
-        data: [],
-        tableProps: {
-            stripe: true,
-            size: 'mini'
-        },
-        layout: 'table'
-    };
-
-    API.$on('LOGIN', function () {
-        $app.noteExportTable.data = [];
-        $app.noteExportDialog.visible = false;
-        $app.noteExportDialog.loading = false;
-        $app.noteExportDialog.progress = 0;
-        $app.noteExportDialog.progressTotal = 0;
-        $app.noteExportDialog.errors = '';
-    });
+    $app.data.isNoteExportDialogVisible = false;
 
     $app.methods.showNoteExportDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.noteExportDialog.$el)
-        );
-        var D = this.noteExportDialog;
-        D.progress = 0;
-        D.progressTotal = 0;
-        D.loading = false;
-        D.visible = true;
-    };
-
-    $app.methods.updateNoteExportDialog = function () {
-        var data = [];
-        this.friends.forEach((ctx) => {
-            var newMemo = ctx.memo.replace(/[\r\n]/g, ' ');
-            if (ctx.memo && ctx.ref && ctx.ref.note !== newMemo.slice(0, 256)) {
-                data.push({
-                    id: ctx.id,
-                    name: ctx.name,
-                    memo: newMemo,
-                    ref: ctx.ref
-                });
-            }
-        });
-        this.noteExportTable.data = data;
-    };
-
-    $app.methods.removeFromNoteExportTable = function (ref) {
-        $app.removeFromArray(this.noteExportTable.data, ref);
-    };
-
-    $app.methods.exportNoteExport = async function () {
-        var D = this.noteExportDialog;
-        D.loading = true;
-        var data = [...this.noteExportTable.data].reverse();
-        D.progressTotal = data.length;
-        try {
-            for (var i = data.length - 1; i >= 0; i--) {
-                if (D.visible && D.loading) {
-                    var ctx = data[i];
-                    await miscRequest.saveNote({
-                        targetUserId: ctx.id,
-                        note: ctx.memo.slice(0, 256)
-                    });
-                    $app.removeFromArray(this.noteExportTable.data, ctx);
-                    D.progress++;
-                    await new Promise((resolve) => {
-                        workerTimers.setTimeout(resolve, 5000);
-                    });
-                }
-            }
-        } catch (err) {
-            D.errors = `Name: ${ctx.name}\n${err}\n\n`;
-        } finally {
-            D.progress = 0;
-            D.progressTotal = 0;
-            D.loading = false;
-        }
-    };
-
-    $app.methods.cancelNoteExport = function () {
-        this.noteExportDialog.loading = false;
+        this.isNoteExportDialogVisible = true;
     };
 
     // user generated content
