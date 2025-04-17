@@ -86,9 +86,6 @@ doctype html
     include ./mixins/dialogs/invites.pug
     +invites
 
-    include ./mixins/dialogs/settings.pug
-    +settings
-
     include ./mixins/dialogs/boops.pug
     +boops
 
@@ -157,5 +154,8 @@ doctype html
         :backupVrcRegistry='backupVrcRegistry')
 
     PrimaryPasswordDialog(:enablePrimaryPasswordDialog.sync='enablePrimaryPasswordDialog' @setPrimaryPassword="setPrimaryPassword")
+
+    //- player list
+    ChatboxBlacklistDialog(:chatboxBlacklistDialog="chatboxBlacklistDialog" :chatboxUserBlacklist="chatboxUserBlacklist" @deleteChatboxUserBlacklist="deleteChatboxUserBlacklist")
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

@@ -95,6 +95,7 @@ import NotificationPositionDialog from './views/Settings/dialogs/NotificationPos
 import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
 import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
+import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -268,6 +269,8 @@ console.log(`isLinux: ${LINUX}`);
             ExportAvatarsListDialog,
             //  - launch
             LaunchDialog,
+            //  - player list
+            ChatboxBlacklistDialog,
             //  - profile
             DiscordNamesDialog,
             //  - settings
@@ -16735,42 +16738,18 @@ console.log(`isLinux: ${LINUX}`);
 
     // #endregion
     // #region | App: ChatBox Blacklist
-    $app.data.chatboxBlacklist = [
-        'NP: ',
-        'Now Playing',
-        'Now playing',
-        "▶️ '",
-        '( ▶️ ',
-        "' - '",
-        "' by '",
-        '[Spotify] '
-    ];
-    if (await configRepository.getString('VRCX_chatboxBlacklist')) {
-        $app.data.chatboxBlacklist = JSON.parse(
-            await configRepository.getString('VRCX_chatboxBlacklist')
-        );
-    }
+
     $app.data.chatboxBlacklistDialog = {
         visible: false,
         loading: false
     };
 
-    API.$on('LOGOUT', function () {
-        $app.chatboxBlacklistDialog.visible = false;
-    });
-
-    $app.methods.saveChatboxBlacklist = async function () {
-        await configRepository.setString(
-            'VRCX_chatboxBlacklist',
-            JSON.stringify(this.chatboxBlacklist)
-        );
-    };
-
     $app.methods.showChatboxBlacklistDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.chatboxBlacklistDialog.$el)
-        );
-        var D = this.chatboxBlacklistDialog;
+        // TODO：adjust z-index
+        // this.$nextTick(() =>
+        //     $app.adjustDialogZ(this.$refs.chatboxBlacklistDialog.$el)
+        // );
+        const D = this.chatboxBlacklistDialog;
         D.visible = true;
     };
 
