@@ -90,6 +90,7 @@ import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
 import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
 import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
+import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -273,7 +274,8 @@ console.log(`isLinux: ${LINUX}`);
             DiscordNamesDialog,
             EditInviteMessageDialog,
             NoteExportDialog,
-            VRChatConfigDialog
+            VRChatConfigDialog,
+            YouTubeApiDialog
         },
         provide() {
             return {
@@ -13391,42 +13393,7 @@ console.log(`isLinux: ${LINUX}`);
 
     // YouTube API
 
-    $app.data.youTubeApiDialog = {
-        visible: false
-    };
-
-    API.$on('LOGOUT', function () {
-        $app.youTubeApiDialog.visible = false;
-    });
-
-    $app.methods.testYouTubeApiKey = async function () {
-        if (!this.youTubeApiKey) {
-            this.$message({
-                message: 'YouTube API key removed',
-                type: 'success'
-            });
-            this.youTubeApiDialog.visible = false;
-            return;
-        }
-        var data = await this.lookupYouTubeVideo('dQw4w9WgXcQ');
-        if (!data) {
-            this.youTubeApiKey = '';
-            this.$message({
-                message: 'Invalid YouTube API key',
-                type: 'error'
-            });
-        } else {
-            await configRepository.setString(
-                'VRCX_youtubeAPIKey',
-                this.youTubeApiKey
-            );
-            this.$message({
-                message: 'YouTube API key valid!',
-                type: 'success'
-            });
-            this.youTubeApiDialog.visible = false;
-        }
-    };
+    $app.data.isYouTubeApiDialogVisible = false;
 
     $app.methods.changeYouTubeApi = async function (configKey = '') {
         if (configKey === 'VRCX_youtubeAPI') {
@@ -13448,11 +13415,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.showYouTubeApiDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.youTubeApiDialog.$el)
-        );
-        var D = this.youTubeApiDialog;
-        D.visible = true;
+        this.isYouTubeApiDialogVisible = true;
     };
 
     // Launch Command Settings handling

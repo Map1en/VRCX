@@ -121,29 +121,29 @@ mixin settings
     //-                     @click='saveVRChatConfigFile') {{ $t('dialog.config_json.save') }}
 
     //- dialog: YouTube Api Dialog
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='youTubeApiDialog'
-        :visible.sync='youTubeApiDialog.visible'
-        :title='$t("dialog.youtube_api.header")'
-        width='400px')
-        div(style='font-size: 12px')
-            | {{ $t('dialog.youtube_api.description') }} #[br]
-        el-input(
-            type='textarea'
-            v-model='youTubeApiKey'
-            :placeholder='$t("dialog.youtube_api.placeholder")'
-            maxlength='39'
-            show-word-limit
-            style='display: block; margin-top: 10px')
-        template(#footer)
-            div(style='display: flex')
-                el-button(
-                    size='small'
-                    @click='openExternalLink("https://rapidapi.com/blog/how-to-get-youtube-api-key/")') {{ $t('dialog.youtube_api.guide') }}
-                el-button(type='primary' size='small' @click='testYouTubeApiKey' style='margin-left: auto') {{ $t('dialog.youtube_api.save') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='youTubeApiDialog'
+    //    :visible.sync='youTubeApiDialog.visible'
+    //    :title='$t("dialog.youtube_api.header")'
+    //    width='400px')
+    //    div(style='font-size: 12px')
+    //        | {{ $t('dialog.youtube_api.description') }} #[br]
+    //    el-input(
+    //        type='textarea'
+    //        v-model='youTubeApiKey'
+    //        :placeholder='$t("dialog.youtube_api.placeholder")'
+    //        maxlength='39'
+    //        show-word-limit
+    //        style='display: block; margin-top: 10px')
+    //    template(#footer)
+    //        div(style='display: flex')
+    //            el-button(
+    //                size='small'
+    //                @click='openExternalLink("https://rapidapi.com/blog/how-to-get-youtube-api-key/")') {{ $t('dialog.youtube_api.guide') }}
+    //            el-button(type='primary' size='small' @click='testYouTubeApiKey' style='margin-left: auto') {{ $t('dialog.youtube_api.save') }}
 
     //- dialog: Discord username list
     //- el-dialog.x-dialog(
