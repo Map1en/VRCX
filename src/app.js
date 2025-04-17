@@ -91,6 +91,7 @@ import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDi
 import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
 import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
+import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -275,7 +276,8 @@ console.log(`isLinux: ${LINUX}`);
             EditInviteMessageDialog,
             NoteExportDialog,
             VRChatConfigDialog,
-            YouTubeApiDialog
+            YouTubeApiDialog,
+            NotificationPositionDialog
         },
         provide() {
             return {
@@ -7941,7 +7943,8 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_notificationPosition',
         'topCenter'
     );
-    $app.methods.changeNotificationPosition = async function () {
+    $app.methods.changeNotificationPosition = async function (value) {
+        this.notificationPosition = value;
         await configRepository.setString(
             'VRCX_notificationPosition',
             this.notificationPosition
@@ -11389,15 +11392,10 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Notification position
 
-    $app.data.notificationPositionDialog = {
-        visible: false
-    };
+    $app.data.isNotificationPositionDialogVisible = false;
 
     $app.methods.showNotificationPositionDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.notificationPositionDialog.$el)
-        );
-        this.notificationPositionDialog.visible = true;
+        this.isNotificationPositionDialogVisible = true;
     };
 
     // #endregion
