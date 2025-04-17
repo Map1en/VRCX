@@ -336,25 +336,25 @@ mixin settings
     //                @click='notificationPositionDialog.visible = false') {{ $t('dialog.notification_position.ok') }}
 
     //- dialog: avatar database provider
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='avatarProviderDialog'
-        :visible.sync='avatarProviderDialog.visible'
-        :title='$t("dialog.avatar_database_provider.header")'
-        width='600px')
-        div
-            el-input(
-                v-for='(provider, index) in avatarRemoteDatabaseProviderList'
-                :key='index'
-                :value='provider'
-                v-model='avatarRemoteDatabaseProviderList[index]'
-                @change='saveAvatarProviderList'
-                size='small'
-                style='margin-top: 5px')
-                el-button(slot='append' icon='el-icon-delete' @click='removeAvatarProvider(provider)')
-            el-button(@click='avatarRemoteDatabaseProviderList.push("")' size='mini' style='margin-top: 5px') {{ $t('dialog.avatar_database_provider.add_provider') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='avatarProviderDialog'
+    //    :visible.sync='avatarProviderDialog.visible'
+    //    :title='$t("dialog.avatar_database_provider.header")'
+    //    width='600px')
+    //    div
+    //        el-input(
+    //            v-for='(provider, index) in avatarRemoteDatabaseProviderList'
+    //            :key='index'
+    //            :value='provider'
+    //            v-model='avatarRemoteDatabaseProviderList[index]'
+    //            @change='saveAvatarProviderList'
+    //            size='small'
+    //            style='margin-top: 5px')
+    //            el-button(slot='append' icon='el-icon-delete' @click='removeAvatarProvider(provider)')
+    //        el-button(@click='avatarRemoteDatabaseProviderList.push("")' size='mini' style='margin-top: 5px') {{ $t('dialog.avatar_database_provider.add_provider') }}
 
     //- dialog: Registry Auto Backup
     el-dialog.x-dialog(

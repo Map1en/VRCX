@@ -68,13 +68,13 @@
         }
     });
 
-    const emit = defineEmits(['update:isNotificationPositionDialogVisible', 'change-notification-position']);
+    const emit = defineEmits(['update:isNotificationPositionDialogVisible', 'changeNotificationPosition']);
 
     function closeDialog() {
         emit('update:isNotificationPositionDialogVisible', false);
     }
 
     function changeNotificationPosition(value) {
-        emit('change-notification-position', value);
+        emit('changeNotificationPosition', value);
     }
 </script>

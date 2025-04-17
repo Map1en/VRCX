@@ -146,8 +146,10 @@ doctype html
 
     VRChatConfigDialog(v-bind='vrchatConfigDialogBind' v-on='vrchatConfigDialogEvent')
 
-    YouTubeApiDialog(:is-you-tube-api-dialog-visible.sync='isYouTubeApiDialogVisible' :lookup-you-tube-video='lookupYouTubeVideo' :you-tube-api-key.sync='youTubeApiKey')
+    YouTubeApiDialog(v-bind='youTubeApiDialogBind' v-on='youTubeApiDialogEvent')
 
-    NotificationPositionDialog(:is-notification-position-dialog-visible.sync='isNotificationPositionDialogVisible' :notification-position.sync='notificationPosition' @change-notification-position='changeNotificationPosition')
+    NotificationPositionDialog(v-bind='notificationPositionDialogBind' v-on='notificationPositionDialogEvent')
+
+    AvatarProviderDialog(v-bind='avatarProviderDialogBind' v-on='avatarProviderDialogEvent')
 
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")

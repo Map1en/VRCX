@@ -92,6 +92,7 @@ import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
 import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
+import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -277,7 +278,8 @@ console.log(`isLinux: ${LINUX}`);
             NoteExportDialog,
             VRChatConfigDialog,
             YouTubeApiDialog,
-            NotificationPositionDialog
+            NotificationPositionDialog,
+            AvatarProviderDialog
         },
         provide() {
             return {
@@ -15974,16 +15976,10 @@ console.log(`isLinux: ${LINUX}`);
 
     // avatar database provider
 
-    $app.data.avatarProviderDialog = {
-        visible: false
-    };
+    $app.data.isAvatarProviderDialogVisible = false;
 
     $app.methods.showAvatarProviderDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.avatarProviderDialog.$el)
-        );
-        var D = this.avatarProviderDialog;
-        D.visible = true;
+        this.isAvatarProviderDialogVisible = true;
     };
 
     $app.methods.addAvatarProvider = function (url) {
@@ -18125,6 +18121,57 @@ console.log(`isLinux: ${LINUX}`);
                 (this.isVRChatConfigDialogVisible = val),
             getVRChatCacheSize: this.getVRChatCacheSize,
             sweepVRChatCache: this.sweepVRChatCache
+        };
+    };
+
+    $app.computed.youTubeApiDialogBind = function () {
+        return {
+            isYouTubeApiDialogVisible: this.isYouTubeApiDialogVisible,
+            lookupYouTubeVideo: this.lookupYouTubeVideo,
+            youTubeApiKey: this.youTubeApiKey
+        };
+    };
+
+    $app.computed.youTubeApiDialogEvent = function () {
+        return {
+            'update:isYouTubeApiDialogVisible': (val) =>
+                (this.isYouTubeApiDialogVisible = val),
+            'update:youTubeApiKey': (val) => (this.youTubeApiKey = val)
+        };
+    };
+
+    $app.computed.notificationPositionDialogBind = function () {
+        return {
+            isNotificationPositionDialogVisible:
+                this.isNotificationPositionDialogVisible,
+            notificationPosition: this.notificationPosition
+        };
+    };
+
+    $app.computed.notificationPositionDialogEvent = function () {
+        return {
+            'update:isNotificationPositionDialogVisible': (val) =>
+                (this.isNotificationPositionDialogVisible = val),
+            'update:notificationPosition': (val) =>
+                (this.notificationPosition = val),
+            changeNotificationPosition: this.changeNotificationPosition
+        };
+    };
+
+    $app.computed.avatarProviderDialogBind = function () {
+        return {
+            isAvatarProviderDialogVisible: this.isAvatarProviderDialogVisible,
+            avatarRemoteDatabaseProviderList:
+                this.avatarRemoteDatabaseProviderList
+        };
+    };
+
+    $app.computed.avatarProviderDialogEvent = function () {
+        return {
+            'update:isAvatarProviderDialogVisible': (val) =>
+                (this.isAvatarProviderDialogVisible = val),
+            saveAvatarProviderList: this.saveAvatarProviderList,
+            removeAvatarProvider: this.removeAvatarProvider
         };
     };
 
