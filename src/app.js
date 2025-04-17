@@ -94,6 +94,7 @@ import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
 import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
 import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
+import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -267,6 +268,8 @@ console.log(`isLinux: ${LINUX}`);
             ExportAvatarsListDialog,
             //  - launch
             LaunchDialog,
+            //  - profile
+            DiscordNamesDialog,
             //  - settings
             FeedFiltersDialog,
             LaunchOptionsDialog,
@@ -274,14 +277,14 @@ console.log(`isLinux: ${LINUX}`);
             ChangelogDialog,
             VRCXUpdateDialog,
             ScreenshotMetadataDialog,
-            DiscordNamesDialog,
             EditInviteMessageDialog,
             NoteExportDialog,
             VRChatConfigDialog,
             YouTubeApiDialog,
             NotificationPositionDialog,
             AvatarProviderDialog,
-            RegistryBackupDialog
+            RegistryBackupDialog,
+            PrimaryPasswordDialog
         },
         provide() {
             return {

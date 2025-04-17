@@ -156,4 +156,6 @@ doctype html
         :isRegistryBackupDialogVisible.sync='isRegistryBackupDialogVisible'
         :backupVrcRegistry='backupVrcRegistry')
 
+    PrimaryPasswordDialog(:enablePrimaryPasswordDialog.sync='enablePrimaryPasswordDialog' @setPrimaryPassword="setPrimaryPassword")
+
     //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")
