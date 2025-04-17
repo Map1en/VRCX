@@ -93,6 +93,7 @@ import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue'
 import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
 import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
+import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -279,7 +280,8 @@ console.log(`isLinux: ${LINUX}`);
             VRChatConfigDialog,
             YouTubeApiDialog,
             NotificationPositionDialog,
-            AvatarProviderDialog
+            AvatarProviderDialog,
+            RegistryBackupDialog
         },
         provide() {
             return {
@@ -7592,16 +7594,13 @@ console.log(`isLinux: ${LINUX}`);
             this.autoAcceptInviteRequests
         );
     };
-    $app.data.vrcRegistryAutoBackup = await configRepository.getBool(
-        'VRCX_vrcRegistryAutoBackup',
-        true
-    );
-    $app.methods.saveVrcRegistryAutoBackup = async function () {
-        await configRepository.setBool(
-            'VRCX_vrcRegistryAutoBackup',
-            this.vrcRegistryAutoBackup
-        );
+
+    $app.data.isRegistryBackupDialogVisible = false;
+
+    $app.methods.showRegistryBackupDialog = function () {
+        this.isRegistryBackupDialogVisible = true;
     };
+
     $app.data.sidebarSortMethod1 = '';
     $app.data.sidebarSortMethod2 = '';
     $app.data.sidebarSortMethod3 = '';

@@ -357,58 +357,58 @@ mixin settings
     //        el-button(@click='avatarRemoteDatabaseProviderList.push("")' size='mini' style='margin-top: 5px') {{ $t('dialog.avatar_database_provider.add_provider') }}
 
     //- dialog: Registry Auto Backup
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @closed='clearVrcRegistryDialog'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='registryBackupDialog'
-        :visible.sync='registryBackupDialog.visible'
-        :title='$t("dialog.registry_backup.header")'
-        width='600px')
-        div(v-if='registryBackupDialog.visible' style='margin-top: 10px')
-            div(style='display: flex; align-items: center; justify-content: space-between; font-size: 12px')
-                span.name(style='margin-right: 24px') {{ $t('dialog.registry_backup.auto_backup') }}
-                el-switch(v-model='vrcRegistryAutoBackup' @change='saveVrcRegistryAutoBackup')
-            data-tables(v-bind='registryBackupTable' style='margin-top: 10px')
-                el-table-column(:label='$t("dialog.registry_backup.name")' prop='name')
-                el-table-column(:label='$t("dialog.registry_backup.date")' prop='date')
-                    template(#default='scope')
-                        span {{ scope.row.date | formatDate('long') }}
-                el-table-column(:label='$t("dialog.registry_backup.action")' width='90' align='right')
-                    template(#default='scope')
-                        el-tooltip(
-                            placement='top'
-                            :content='$t("dialog.registry_backup.restore")'
-                            :disabled='hideTooltips')
-                            el-button(
-                                type='text'
-                                icon='el-icon-upload2'
-                                size='mini'
-                                @click='restoreVrcRegistryBackup(scope.row)')
-                        el-tooltip(
-                            placement='top'
-                            :content='$t("dialog.registry_backup.save_to_file")'
-                            :disabled='hideTooltips')
-                            el-button(
-                                type='text'
-                                icon='el-icon-download'
-                                size='mini'
-                                @click='saveVrcRegistryBackupToFile(scope.row)')
-                        el-tooltip(
-                            placement='top'
-                            :content='$t("dialog.registry_backup.delete")'
-                            :disabled='hideTooltips')
-                            el-button(
-                                type='text'
-                                icon='el-icon-delete'
-                                size='mini'
-                                @click='deleteVrcRegistryBackup(scope.row)')
-            div(style='display: flex; align-items: center; justify-content: space-between; margin-top: 10px')
-                el-button(type='danger' @click='deleteVrcRegistry' size='small') {{ $t('dialog.registry_backup.reset') }}
-                div
-                    el-button(@click='promptVrcRegistryBackupName' size='small') {{ $t('dialog.registry_backup.backup') }}
-                    el-button(@click='restoreVrcRegistryFromFile' size='small') {{ $t('dialog.registry_backup.restore_from_file') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @closed='clearVrcRegistryDialog'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='registryBackupDialog'
+    //    :visible.sync='registryBackupDialog.visible'
+    //    :title='$t("dialog.registry_backup.header")'
+    //    width='600px')
+    //    div(v-if='registryBackupDialog.visible' style='margin-top: 10px')
+    //        div(style='display: flex; align-items: center; justify-content: space-between; font-size: 12px')
+    //            span.name(style='margin-right: 24px') {{ $t('dialog.registry_backup.auto_backup') }}
+    //            el-switch(v-model='vrcRegistryAutoBackup' @change='saveVrcRegistryAutoBackup')
+    //        data-tables(v-bind='registryBackupTable' style='margin-top: 10px')
+    //            el-table-column(:label='$t("dialog.registry_backup.name")' prop='name')
+    //            el-table-column(:label='$t("dialog.registry_backup.date")' prop='date')
+    //                template(#default='scope')
+    //                    span {{ scope.row.date | formatDate('long') }}
+    //            el-table-column(:label='$t("dialog.registry_backup.action")' width='90' align='right')
+    //                template(#default='scope')
+    //                    el-tooltip(
+    //                        placement='top'
+    //                        :content='$t("dialog.registry_backup.restore")'
+    //                        :disabled='hideTooltips')
+    //                        el-button(
+    //                            type='text'
+    //                            icon='el-icon-upload2'
+    //                            size='mini'
+    //                            @click='restoreVrcRegistryBackup(scope.row)')
+    //                    el-tooltip(
+    //                        placement='top'
+    //                        :content='$t("dialog.registry_backup.save_to_file")'
+    //                        :disabled='hideTooltips')
+    //                        el-button(
+    //                            type='text'
+    //                            icon='el-icon-download'
+    //                            size='mini'
+    //                            @click='saveVrcRegistryBackupToFile(scope.row)')
+    //                    el-tooltip(
+    //                        placement='top'
+    //                        :content='$t("dialog.registry_backup.delete")'
+    //                        :disabled='hideTooltips')
+    //                        el-button(
+    //                            type='text'
+    //                            icon='el-icon-delete'
+    //                            size='mini'
+    //                            @click='deleteVrcRegistryBackup(scope.row)')
+    //        div(style='display: flex; align-items: center; justify-content: space-between; margin-top: 10px')
+    //            el-button(type='danger' @click='deleteVrcRegistry' size='small') {{ $t('dialog.registry_backup.reset') }}
+    //            div
+    //                el-button(@click='promptVrcRegistryBackupName' size='small') {{ $t('dialog.registry_backup.backup') }}
+    //                el-button(@click='restoreVrcRegistryFromFile' size='small') {{ $t('dialog.registry_backup.restore_from_file') }}
 
     //- dialog: Enable primary password
     el-dialog.x-dialog(
