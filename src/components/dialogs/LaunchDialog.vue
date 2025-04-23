@@ -88,9 +88,9 @@
 </template>
 
 <script>
-    import utils from '../classes/utils';
-    import configRepository from '../service/config';
-    import { instanceRequest } from '../api';
+    import utils from '../../classes/utils';
+    import configRepository from '../../service/config';
+    import { instanceRequest } from '../../api';
 
     export default {
         name: 'LaunchDialog',

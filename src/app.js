@@ -72,7 +72,7 @@ import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesD
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
 import WorldImportDialog from './views/Favorites/dialogs/WorldImportDialog.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
-import LaunchDialog from './components/LaunchDialog.vue';
+import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesUserDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesUserDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDialog.vue';
@@ -10997,9 +10997,9 @@ console.log(`isLinux: ${LINUX}`);
         friendsInInstance: []
     };
 
-    API.$on('LOGOUT', function () {
-        $app.inviteDialog.visible = false;
-    });
+    // API.$on('LOGOUT', function () {
+    //     $app.inviteDialog.visible = false;
+    // });
 
     $app.methods.addFriendsInInstanceToInvite = function () {
         var D = this.inviteDialog;
