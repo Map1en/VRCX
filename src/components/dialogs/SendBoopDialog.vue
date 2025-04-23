@@ -171,8 +171,9 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { photonEmojis } from '../../../composables/shared/constants/photon.js';
-    import { miscRequest, notificationRequest } from '../../../api';
+    import { photonEmojis } from '../../composables/shared/constants/photon.js';
+    import { notificationRequest } from '../../api';
+    // import { miscRequest } from '../../api';
 
     const { t } = useI18n();
 
@@ -222,6 +223,22 @@
 
     const fileId = ref('');
 
+    // $app.data.sendBoopDialog = {
+    //     visible: false,
+    //     userId: ''
+    // };
+    // $app.methods.showSendBoopDialog = function (userId) {
+    //     this.$nextTick(() =>
+    //         $app.adjustDialogZ(this.$refs.sendBoopDialog.$el)
+    //     );
+    //     const D = this.sendBoopDialog;
+    //     D.userId = userId;
+    //     D.visible = true;
+    //     if (this.emojiTable.length === 0 && API.currentUser.$isVRCPlus) {
+    //         this.refreshEmojiTable();
+    //     }
+    // };
+
     function closeDialog() {
         emit('update:sendBoopDialog', {
             ...props.sendBoopDialog,
@@ -244,7 +261,7 @@
         if (fileId.value) {
             params.emojiId = fileId.value;
         }
-        miscRequest.sendBoop(params);
+        // miscRequest.sendBoop(params);
         D.visible = false;
     }
 

@@ -96,7 +96,6 @@ import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.
 import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
-import SendBoopDialog from './views/Notifications/dialogs/SendBoopDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -286,9 +285,7 @@ console.log(`isLinux: ${LINUX}`);
             NotificationPositionDialog,
             AvatarProviderDialog,
             RegistryBackupDialog,
-            PrimaryPasswordDialog,
-            //  - misc
-            SendBoopDialog
+            PrimaryPasswordDialog
         },
         provide() {
             return {
@@ -9958,8 +9955,8 @@ console.log(`isLinux: ${LINUX}`);
             this.showGalleryDialog();
         } else if (command === 'Invite To Group') {
             this.showInviteGroupDialog('', D.id);
-        } else if (command === 'Send Boop') {
-            this.showSendBoopDialog(D.id);
+            // } else if (command === 'Send Boop') {
+            //     this.showSendBoopDialog(D.id);
         } else if (command === 'Hide Avatar') {
             if (D.isHideAvatar) {
                 this.setPlayerModeration(D.id, 0);
@@ -17640,24 +17637,6 @@ console.log(`isLinux: ${LINUX}`);
         return $utils.convertFileUrlToImageUrl(url);
     };
 
-    // #region | Temporary space
-
-    $app.data.sendBoopDialog = {
-        visible: false,
-        userId: ''
-    };
-    $app.methods.showSendBoopDialog = function (userId) {
-        // this.$nextTick(() =>
-        //     $app.adjustDialogZ(this.$refs.sendBoopDialog.$el)
-        // );
-        const D = this.sendBoopDialog;
-        D.userId = userId;
-        D.visible = true;
-        if (this.emojiTable.length === 0 && API.currentUser.$isVRCPlus) {
-            this.refreshEmojiTable();
-        }
-    };
-
     // #endregion
 
     // #region | Tab Props
@@ -18190,18 +18169,6 @@ console.log(`isLinux: ${LINUX}`);
                 (this.isAvatarProviderDialogVisible = val),
             saveAvatarProviderList: this.saveAvatarProviderList,
             removeAvatarProvider: this.removeAvatarProvider
-        };
-    };
-
-    $app.computed.SendBoopDialogBind = function () {
-        return {
-            emojiTable: this.emojiTable,
-            vipFriends: this.vipFriends,
-            onlineFriends: this.onlineFriends,
-            offlineFriends: this.offlineFriends,
-            activeFriends: this.activeFriends,
-            generateEmojiStyle: this.generateEmojiStyle,
-            notificationTable: this.notificationTable
         };
     };
 
