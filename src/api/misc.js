@@ -173,6 +173,28 @@ const miscReq = {
             window.API.$emit('BADGE:UPDATE', args);
             return args;
         });
+    },
+
+    /**
+     * @params {{
+     userId: string,
+     emojiId: string
+     }} params
+     * @returns {Promise<{json: any, params}>}
+     */
+    sendBoop(params) {
+        return window.API.call(`users/${params.userId}/boop`, {
+            method: 'POST',
+            params
+        }).then((json) => {
+            const args = {
+                json,
+                params
+            };
+            // useless
+            // this.$emit('BOOP:SEND', args);
+            return args;
+        });
     }
 };
 
