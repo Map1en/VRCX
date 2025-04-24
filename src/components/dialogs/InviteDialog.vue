@@ -6,38 +6,38 @@
         @mouseup.native="dialogMouseUp"
         ref="inviteDialog"
         :visible.sync="inviteDialog.visible"
-        :title="$t('dialog.invite.header')"
+        :title="t('dialog.invite.header')"
         width="500px">
         <div v-if="inviteDialog.visible" v-loading="inviteDialog.loading">
             <location :location="inviteDialog.worldId" :link="false"></location>
             <br />
             <el-button size="mini" @click="addSelfToInvite" style="margin-top: 10px">{{
-                $t('dialog.invite.add_self')
+                t('dialog.invite.add_self')
             }}</el-button>
             <el-button
                 size="mini"
                 @click="addFriendsInInstanceToInvite"
                 :disabled="inviteDialog.friendsInInstance.length === 0"
                 style="margin-top: 10px"
-                >{{ $t('dialog.invite.add_friends_in_instance') }}</el-button
+                >{{ t('dialog.invite.add_friends_in_instance') }}</el-button
             >
             <el-button
                 size="mini"
                 @click="addFavoriteFriendsToInvite"
                 :disabled="vipFriends.length === 0"
                 style="margin-top: 10px"
-                >{{ $t('dialog.invite.add_favorite_friends') }}</el-button
+                >{{ t('dialog.invite.add_favorite_friends') }}</el-button
             >
 
             <el-select
                 v-model="inviteDialog.userIds"
                 multiple
                 clearable
-                :placeholder="$t('dialog.invite.select_placeholder')"
+                :placeholder="t('dialog.invite.select_placeholder')"
                 filterable
                 :disabled="inviteDialog.loading"
                 style="width: 100%; margin-top: 15px">
-                <el-option-group v-if="API.currentUser" :label="$t('side_panel.me')">
+                <el-option-group v-if="API.currentUser" :label="t('side_panel.me')">
                     <el-option
                         class="x-friend-item"
                         :label="API.currentUser.displayName"
@@ -54,7 +54,7 @@
 
                 <el-option-group
                     v-if="inviteDialog.friendsInInstance.length"
-                    :label="$t('dialog.invite.friends_in_instance')">
+                    :label="t('dialog.invite.friends_in_instance')">
                     <el-option
                         class="x-friend-item"
                         v-for="friend in inviteDialog.friendsInInstance"
@@ -76,7 +76,7 @@
                     </el-option>
                 </el-option-group>
 
-                <el-option-group v-if="vipFriends.length" :label="$t('side_panel.favorite')">
+                <el-option-group v-if="vipFriends.length" :label="t('side_panel.favorite')">
                     <el-option
                         class="x-friend-item"
                         v-for="friend in vipFriends"
@@ -98,7 +98,7 @@
                     </el-option>
                 </el-option-group>
 
-                <el-option-group v-if="onlineFriends.length" :label="$t('side_panel.online')">
+                <el-option-group v-if="onlineFriends.length" :label="t('side_panel.online')">
                     <el-option
                         class="x-friend-item"
                         v-for="friend in onlineFriends"
@@ -120,7 +120,7 @@
                     </el-option>
                 </el-option-group>
 
-                <el-option-group v-if="activeFriends.length" :label="$t('side_panel.active')">
+                <el-option-group v-if="activeFriends.length" :label="t('side_panel.active')">
                     <el-option
                         class="x-friend-item"
                         v-for="friend in activeFriends"
@@ -147,14 +147,14 @@
                 size="small"
                 :disabled="inviteDialog.loading || !inviteDialog.userIds.length"
                 @click="showSendInviteDialog()"
-                >{{ $t('dialog.invite.invite_with_message') }}</el-button
+                >{{ t('dialog.invite.invite_with_message') }}</el-button
             >
             <el-button
                 type="primary"
                 size="small"
                 :disabled="inviteDialog.loading || !inviteDialog.userIds.length"
                 @click="sendInvite()"
-                >{{ $t('dialog.invite.invite') }}</el-button
+                >{{ t('dialog.invite.invite') }}</el-button
             >
         </template>
     </el-dialog>
@@ -162,6 +162,9 @@
 
 <script setup>
     import { inject } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
+
+    const { t } = useI18n();
 
     const beforeDialogClose = inject('beforeDialogClose');
     const dialogMouseDown = inject('dialogMouseDown');
