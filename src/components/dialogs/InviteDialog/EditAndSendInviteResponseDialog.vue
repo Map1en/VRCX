@@ -1,19 +1,19 @@
 <template>
     <el-dialog
+        ref="editAndSendInviteResponseDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
-        ref="editAndSendInviteResponseDialog"
         :visible.sync="editAndSendInviteResponseDialog.visible"
         :title="t('dialog.edit_send_invite_response_message.header')"
-        width="400px">
+        width="400px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <div style="font-size: 12px">
             <span>{{ t('dialog.edit_send_invite_response_message.description') }}</span>
         </div>
         <el-input
-            type="textarea"
             v-model="editAndSendInviteResponseDialog.newMessage"
+            type="textarea"
             size="mini"
             maxlength="64"
             show-word-limit

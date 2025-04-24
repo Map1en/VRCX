@@ -1,13 +1,13 @@
 <template>
     <el-dialog
+        ref="sendInviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
-        ref="sendInviteDialog"
         :visible.sync="sendInviteDialogVisible"
         :title="t('dialog.invite_message.header')"
-        width="800px">
+        width="800px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <template v-if="API.currentUser.$isVRCPlus">
             <!--            <template v-if="gallerySelectDialog.selectedFileId">-->
             <!--                <div style="display: inline-block; flex: none; margin-right: 5px">-->
@@ -40,8 +40,8 @@
         <data-tables
             v-if="sendInviteDialogVisible"
             v-bind="inviteMessageTable"
-            @row-click="showSendInviteConfirmDialog"
-            style="margin-top: 10px; cursor: pointer">
+            style="margin-top: 10px; cursor: pointer"
+            @row-click="showSendInviteConfirmDialog">
             <el-table-column
                 :label="t('table.profile.invite_messages.slot')"
                 prop="slot"

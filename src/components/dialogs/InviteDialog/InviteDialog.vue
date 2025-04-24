@@ -1,31 +1,31 @@
 <template>
     <el-dialog
+        ref="inviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
-        ref="inviteDialog"
         :visible.sync="inviteDialog.visible"
         :title="t('dialog.invite.header')"
-        width="500px">
+        width="500px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <div v-if="inviteDialog.visible" v-loading="inviteDialog.loading">
             <location :location="inviteDialog.worldId" :link="false"></location>
             <br />
-            <el-button size="mini" @click="addSelfToInvite" style="margin-top: 10px">{{
+            <el-button size="mini" style="margin-top: 10px" @click="addSelfToInvite">{{
                 t('dialog.invite.add_self')
             }}</el-button>
             <el-button
                 size="mini"
-                @click="addFriendsInInstanceToInvite"
                 :disabled="inviteDialog.friendsInInstance.length === 0"
                 style="margin-top: 10px"
+                @click="addFriendsInInstanceToInvite"
                 >{{ t('dialog.invite.add_friends_in_instance') }}</el-button
             >
             <el-button
                 size="mini"
-                @click="addFavoriteFriendsToInvite"
                 :disabled="vipFriends.length === 0"
                 style="margin-top: 10px"
+                @click="addFavoriteFriendsToInvite"
                 >{{ t('dialog.invite.add_favorite_friends') }}</el-button
             >
 
@@ -56,9 +56,9 @@
                     v-if="inviteDialog.friendsInInstance.length"
                     :label="t('dialog.invite.friends_in_instance')">
                     <el-option
-                        class="x-friend-item"
                         v-for="friend in inviteDialog.friendsInInstance"
                         :key="friend.id"
+                        class="x-friend-item"
                         :label="friend.name"
                         :value="friend.id"
                         style="height: auto">
@@ -78,9 +78,9 @@
 
                 <el-option-group v-if="vipFriends.length" :label="t('side_panel.favorite')">
                     <el-option
-                        class="x-friend-item"
                         v-for="friend in vipFriends"
                         :key="friend.id"
+                        class="x-friend-item"
                         :label="friend.name"
                         :value="friend.id"
                         style="height: auto">
@@ -100,9 +100,9 @@
 
                 <el-option-group v-if="onlineFriends.length" :label="t('side_panel.online')">
                     <el-option
-                        class="x-friend-item"
                         v-for="friend in onlineFriends"
                         :key="friend.id"
+                        class="x-friend-item"
                         :label="friend.name"
                         :value="friend.id"
                         style="height: auto">
@@ -122,9 +122,9 @@
 
                 <el-option-group v-if="activeFriends.length" :label="t('side_panel.active')">
                     <el-option
-                        class="x-friend-item"
                         v-for="friend in activeFriends"
                         :key="friend.id"
+                        class="x-friend-item"
                         :label="friend.name"
                         :value="friend.id"
                         style="height: auto">

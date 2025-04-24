@@ -1,18 +1,18 @@
 <template>
     <el-dialog
+        ref="sendInviteResponseConfirmDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
-        ref="sendInviteResponseConfirmDialog"
         :visible.sync="sendInviteResponseConfirmDialog.visible"
         :title="t('dialog.invite_response_message.header')"
-        width="400px">
+        width="400px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <div style="font-size: 12px">
             <span>{{ t('dialog.invite_response_message.confirmation') }}</span>
         </div>
 
-        <template v-slot:footer>
+        <template #footer>
             <el-button type="small" @click="cancelInviteResponseConfirm">{{
                 t('dialog.invite_response_message.cancel')
             }}</el-button>

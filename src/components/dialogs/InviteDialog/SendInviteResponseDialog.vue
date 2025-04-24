@@ -1,13 +1,13 @@
 <template>
     <el-dialog
+        ref="sendInviteResponseDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
-        ref="sendInviteResponseDialog"
         :visible.sync="sendInviteResponseDialogVisible"
         :title="t('dialog.invite_response_message.header')"
-        width="800px">
+        width="800px"
+        @mousedown.native="dialogMouseDown"
+        @mouseup.native="dialogMouseUp">
         <template v-if="API.currentUser.$isVRCPlus">
             <input class="inviteImageUploadButton" type="file" accept="image/*" @change="inviteImageUpload" />
         </template>
@@ -15,8 +15,8 @@
         <data-tables
             v-if="sendInviteResponseDialogVisible"
             v-bind="inviteResponseMessageTable"
-            @row-click="showSendInviteResponseConfirmDialog"
-            style="margin-top: 10px; cursor: pointer">
+            style="margin-top: 10px; cursor: pointer"
+            @row-click="showSendInviteResponseConfirmDialog">
             <el-table-column
                 :label="t('table.profile.invite_messages.slot')"
                 prop="slot"
