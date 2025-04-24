@@ -269,41 +269,41 @@ mixin invites
     //        el-button(type='small' @click='API.refreshInviteMessageTableData("message")') {{ $t('dialog.invite_message.refresh') }}
 
     //- dialog Table: Send Invite Request Message
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='sendInviteRequestDialog'
-        :visible.sync='sendInviteRequestDialogVisible'
-        :title='$t("dialog.invite_request_message.header")'
-        width='800px')
-        template(v-if='API.currentUser.$isVRCPlus')
-            input.inviteImageUploadButton(type='file' accept='image/*' @change='inviteImageUpload')
-        data-tables(
-            v-if='sendInviteRequestDialogVisible'
-            v-bind='inviteRequestMessageTable'
-            @row-click='showSendInviteConfirmDialog'
-            style='margin-top: 10px; cursor: pointer')
-            el-table-column(:label='$t("table.profile.invite_messages.slot")' prop='slot' sortable='custom' width='70')
-            el-table-column(:label='$t("table.profile.invite_messages.message")' prop='message')
-            el-table-column(
-                :label='$t("table.profile.invite_messages.cool_down")'
-                prop='updatedAt'
-                sortable='custom'
-                width='110'
-                align='right')
-                template(#default='scope')
-                    countdown-timer(:datetime='scope.row.updatedAt' :hours='1')
-            el-table-column(:label='$t("table.profile.invite_messages.action")' width='70' align='right')
-                template(#default='scope')
-                    el-button(
-                        type='text'
-                        icon='el-icon-edit'
-                        size='mini'
-                        @click='showEditAndSendInviteDialog("request", scope.row)')
-        template(#footer)
-            el-button(type='small' @click='cancelSendInviteRequest') {{ $t('dialog.invite_request_message.cancel') }}
-            el-button(type='small' @click='API.refreshInviteMessageTableData("request")') {{ $t('dialog.invite_request_message.refresh') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='sendInviteRequestDialog'
+    //    :visible.sync='sendInviteRequestDialogVisible'
+    //    :title='$t("dialog.invite_request_message.header")'
+    //    width='800px')
+    //    template(v-if='API.currentUser.$isVRCPlus')
+    //        input.inviteImageUploadButton(type='file' accept='image/*' @change='inviteImageUpload')
+    //    data-tables(
+    //        v-if='sendInviteRequestDialogVisible'
+    //        v-bind='inviteRequestMessageTable'
+    //        @row-click='showSendInviteConfirmDialog'
+    //        style='margin-top: 10px; cursor: pointer')
+    //        el-table-column(:label='$t("table.profile.invite_messages.slot")' prop='slot' sortable='custom' width='70')
+    //        el-table-column(:label='$t("table.profile.invite_messages.message")' prop='message')
+    //        el-table-column(
+    //            :label='$t("table.profile.invite_messages.cool_down")'
+    //            prop='updatedAt'
+    //            sortable='custom'
+    //            width='110'
+    //            align='right')
+    //            template(#default='scope')
+    //                countdown-timer(:datetime='scope.row.updatedAt' :hours='1')
+    //        el-table-column(:label='$t("table.profile.invite_messages.action")' width='70' align='right')
+    //            template(#default='scope')
+    //                el-button(
+    //                    type='text'
+    //                    icon='el-icon-edit'
+    //                    size='mini'
+    //                    @click='showEditAndSendInviteDialog("request", scope.row)')
+    //    template(#footer)
+    //        el-button(type='small' @click='cancelSendInviteRequest') {{ $t('dialog.invite_request_message.cancel') }}
+    //        el-button(type='small' @click='API.refreshInviteMessageTableData("request")') {{ $t('dialog.invite_request_message.refresh') }}
 
     //- dialog: Send Invite Message Confirm
     el-dialog.x-dialog(
