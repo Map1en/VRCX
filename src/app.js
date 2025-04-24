@@ -101,6 +101,7 @@ import SendInviteResponseDialog from './views/Notifications/dialogs/SendInviteRe
 import SendInviteRequestResponseDialog from './views/Notifications/dialogs/SendInviteRequestResponseDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
+import SafeDialog from './components/dialogs/SafeDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -486,6 +487,8 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     Vue.use(DataTables);
+
+    Vue.component('safe-dialog', SafeDialog);
 
     dayjs.extend(duration);
     dayjs.extend(utc);
