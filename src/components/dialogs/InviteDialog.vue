@@ -159,3 +159,74 @@
         </template>
     </el-dialog>
 </template>
+
+<script setup>
+    import { inject } from 'vue';
+
+    const beforeDialogClose = inject('beforeDialogClose');
+    const dialogMouseDown = inject('dialogMouseDown');
+    const dialogMouseUp = inject('dialogMouseUp');
+    const userStatusClass = inject('userStatusClass');
+    const userImage = inject('userImage');
+    const API = inject('API');
+
+    const props = defineProps({
+        inviteDialog: {
+            type: Object,
+            required: true
+        },
+        vipFriends: {
+            type: Array,
+            required: true
+        },
+        onlineFriends: {
+            type: Array,
+            required: true
+        },
+        activeFriends: {
+            type: Array,
+            required: true
+        }
+    });
+
+    function addSelfToInvite() {
+        if (API.currentUser) {
+            props.inviteDialog.userIds.push(API.currentUser.id);
+        }
+    }
+
+    function addFriendsInInstanceToInvite() {
+        props.inviteDialog.friendsInInstance.forEach((friend) => {
+            if (friend.ref) {
+                props.inviteDialog.userIds.push(friend.ref.id);
+            }
+        });
+    }
+
+    function addFavoriteFriendsToInvite() {
+        props.inviteDialog.vipFriends.forEach((friend) => {
+            if (friend.ref) {
+                props.inviteDialog.userIds.push(friend.ref.id);
+            }
+        });
+    }
+
+    function showSendInviteDialog() {
+        props.inviteDialog.showSendInviteDialog = true;
+        props.inviteDialog.visible = false;
+    }
+
+    function sendInvite() {
+        props.inviteDialog.loading = true;
+        props.inviteDialog
+            .sendInvite()
+            .then(() => {
+                props.inviteDialog.loading = false;
+                props.inviteDialog.visible = false;
+            })
+            .catch((error) => {
+                console.error(error);
+                props.inviteDialog.loading = false;
+            });
+    }
+</script>
