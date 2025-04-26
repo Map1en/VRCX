@@ -99,6 +99,7 @@ import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistD
 import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
 import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/EditAndSendInviteResponseDialog.vue';
 import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInviteResponseDialog.vue';
+import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/SendInviteRequestResponseDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -292,7 +293,8 @@ console.log(`isLinux: ${LINUX}`);
             //  - invite
             InviteDialog,
             EditAndSendInviteResponseDialog,
-            SendInviteResponseDialog
+            SendInviteResponseDialog,
+            SendInviteRequestResponseDialog
         },
         provide() {
             return {
@@ -11899,10 +11901,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.sendInviteRequestResponseDialogVisible = false;
 
-    $app.methods.cancelSendInviteRequestResponse = function () {
-        this.sendInviteRequestResponseDialogVisible = false;
-    };
-
     $app.methods.showSendInviteRequestResponseDialog = function (invite) {
         this.sendInviteResponseDialog = {
             invite
@@ -18052,6 +18050,27 @@ console.log(`isLinux: ${LINUX}`);
         return {
             'update:sendInviteResponseDialogVisible': (val) =>
                 (this.sendInviteResponseDialogVisible = val),
+            showEditAndSendInviteResponseDialog:
+                this.showEditAndSendInviteResponseDialog,
+            inviteImageUpload: this.inviteImageUpload,
+            showSendInviteResponseConfirmDialog:
+                this.showSendInviteResponseConfirmDialog
+        };
+    };
+
+    $app.computed.sendInviteRequestResponseDialogBind = function () {
+        return {
+            sendInviteRequestResponseDialogVisible:
+                this.sendInviteRequestResponseDialogVisible,
+            inviteRequestResponseMessageTable:
+                this.inviteRequestResponseMessageTable
+        };
+    };
+
+    $app.computed.sendInviteRequestResponseDialogEvent = function () {
+        return {
+            'update:sendInviteRequestResponseDialogVisible': (val) =>
+                (this.sendInviteRequestResponseDialogVisible = val),
             showEditAndSendInviteResponseDialog:
                 this.showEditAndSendInviteResponseDialog,
             inviteImageUpload: this.inviteImageUpload,

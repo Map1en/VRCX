@@ -3,9 +3,10 @@
         ref="sendInviteRequestResponseDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        :visible.sync="sendInviteRequestResponseDialogVisible"
+        :visible="sendInviteRequestResponseDialogVisible"
         :title="t('dialog.invite_request_response_message.header')"
         width="800px"
+        @close="cancelSendInviteRequestResponse"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <template v-if="API.currentUser.$isVRCPlus">
@@ -74,22 +75,26 @@
         }
     });
 
+    const emit = defineEmits([
+        'update:sendInviteRequestResponseDialogVisible',
+        'inviteImageUpload',
+        'showSendInviteResponseConfirmDialog',
+        'showEditAndSendInviteResponseDialog'
+    ]);
+
     function inviteImageUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            API.uploadInviteImage(file);
-        }
+        emit('inviteImageUpload', event);
     }
 
     function showSendInviteResponseConfirmDialog(row) {
-        API.showSendInviteResponseConfirmDialog(row);
+        emit('showSendInviteResponseConfirmDialog', row);
     }
 
     function showEditAndSendInviteResponseDialog(type, row) {
-        API.showEditAndSendInviteResponseDialog(type, row);
+        emit('showSendInviteResponseConfirmDialog', type, row);
     }
 
     function cancelSendInviteRequestResponse() {
-        API.cancelSendInviteRequestResponse();
+        emit('update:sendInviteRequestResponseDialogVisible', false);
     }
 </script>
