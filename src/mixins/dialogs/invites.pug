@@ -111,28 +111,28 @@ mixin invites
     //            @click='sendInvite()') {{ $t('dialog.invite.invite') }}
 
     //- dialog: Edit And Send Invite Response Message
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='editAndSendInviteResponseDialog'
-        :visible.sync='editAndSendInviteResponseDialog.visible'
-        :title='$t("dialog.edit_send_invite_response_message.header")'
-        width='400px')
-        div(style='font-size: 12px')
-            span {{ $t('dialog.edit_send_invite_response_message.description') }}
-        el-input(
-            type='textarea'
-            v-model='editAndSendInviteResponseDialog.newMessage'
-            size='mini'
-            maxlength='64'
-            show-word-limit
-            :autosize='{ minRows: 2, maxRows: 5 }'
-            placeholder=''
-            style='margin-top: 10px')
-        template(#footer)
-            el-button(type='small' @click='cancelEditAndSendInviteResponse') {{ $t('dialog.edit_send_invite_response_message.cancel') }}
-            el-button(type='primary' size='small' @click='saveEditAndSendInviteResponse') {{ $t('dialog.edit_send_invite_response_message.send') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='editAndSendInviteResponseDialog'
+    //    :visible.sync='editAndSendInviteResponseDialog.visible'
+    //    :title='$t("dialog.edit_send_invite_response_message.header")'
+    //    width='400px')
+    //    div(style='font-size: 12px')
+    //        span {{ $t('dialog.edit_send_invite_response_message.description') }}
+    //    el-input(
+    //        type='textarea'
+    //        v-model='editAndSendInviteResponseDialog.newMessage'
+    //        size='mini'
+    //        maxlength='64'
+    //        show-word-limit
+    //        :autosize='{ minRows: 2, maxRows: 5 }'
+    //        placeholder=''
+    //        style='margin-top: 10px')
+    //    template(#footer)
+    //        el-button(type='small' @click='cancelEditAndSendInviteResponse') {{ $t('dialog.edit_send_invite_response_message.cancel') }}
+    //        el-button(type='primary' size='small' @click='saveEditAndSendInviteResponse') {{ $t('dialog.edit_send_invite_response_message.send') }}
 
     //- dialog Table: Send Invite Response Message
     el-dialog.x-dialog(

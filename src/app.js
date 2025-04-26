@@ -97,6 +97,7 @@ import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
+import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/EditAndSendInviteResponseDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -288,7 +289,8 @@ console.log(`isLinux: ${LINUX}`);
             RegistryBackupDialog,
             PrimaryPasswordDialog,
             //  - invite
-            InviteDialog
+            InviteDialog,
+            EditAndSendInviteResponseDialog
         },
         provide() {
             return {
@@ -11804,85 +11806,6 @@ console.log(`isLinux: ${LINUX}`);
         };
     };
 
-    $app.methods.saveEditAndSendInviteResponse = async function () {
-        var D = this.editAndSendInviteResponseDialog;
-        D.visible = false;
-        var messageType = D.messageType;
-        var slot = D.inviteMessage.slot;
-        if (D.inviteMessage.message !== D.newMessage) {
-            var params = {
-                message: D.newMessage
-            };
-            await inviteMessagesRequest
-                .editInviteMessage(params, messageType, slot)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
-                    if (args.json[slot].message === D.inviteMessage.message) {
-                        this.$message({
-                            message:
-                                "VRChat API didn't update message, try again",
-                            type: 'error'
-                        });
-                        throw new Error(
-                            "VRChat API didn't update message, try again"
-                        );
-                    } else {
-                        this.$message('Invite message updated');
-                    }
-                    return args;
-                });
-        }
-        var I = this.sendInviteResponseDialog;
-        var params = {
-            responseSlot: slot,
-            rsvp: true
-        };
-        if ($app.uploadImage) {
-            notificationRequest
-                .sendInviteResponsePhoto(params, I.invite.id)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    notificationRequest.hideNotification({
-                        notificationId: I.invite.id
-                    });
-                    this.$message({
-                        message: 'Invite response message sent',
-                        type: 'success'
-                    });
-                    this.sendInviteResponseDialogVisible = false;
-                    this.sendInviteRequestResponseDialogVisible = false;
-                    return args;
-                });
-        } else {
-            notificationRequest
-                .sendInviteResponse(params, I.invite.id)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    notificationRequest.hideNotification({
-                        notificationId: I.invite.id
-                    });
-                    this.$message({
-                        message: 'Invite response message sent',
-                        type: 'success'
-                    });
-                    this.sendInviteResponseDialogVisible = false;
-                    this.sendInviteRequestResponseDialogVisible = false;
-                    return args;
-                });
-        }
-    };
-
-    $app.methods.cancelEditAndSendInviteResponse = function () {
-        this.editAndSendInviteResponseDialog.visible = false;
-    };
-
     $app.data.sendInviteResponseDialog = {
         message: '',
         messageSlot: 0,
@@ -11894,11 +11817,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.sendInviteResponseConfirmDialog = {
         visible: false
     };
-
-    API.$on('LOGIN', function () {
-        $app.sendInviteResponseDialogVisible = false;
-        $app.sendInviteResponseConfirmDialog.visible = false;
-    });
 
     $app.methods.showSendInviteResponseDialog = function (invite) {
         this.sendInviteResponseDialog = {
@@ -18109,6 +18027,23 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.inviteDialogEvent = function () {
         return {
             showSendInviteDialog: this.showSendInviteDialog
+        };
+    };
+
+    $app.computed.editAndSendInviteResponseDialogBind = function () {
+        return {
+            editAndSendInviteResponseDialog:
+                this.editAndSendInviteResponseDialog,
+            uploadImage: this.uploadImage
+        };
+    };
+
+    $app.computed.editAndSendInviteResponseDialogEvent = function () {
+        return {
+            'update:sendInviteResponseDialogVisible': (val) =>
+                (this.sendInviteResponseDialogVisible = true),
+            'update:sendInviteRequestResponseDialogVisible': (val) =>
+                (this.sendInviteRequestResponseDialogVisible = val)
         };
     };
 

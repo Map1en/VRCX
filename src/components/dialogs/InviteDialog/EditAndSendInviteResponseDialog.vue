@@ -33,32 +33,110 @@
 </template>
 
 <script setup>
-    import { inject } from 'vue';
+    import { inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { inviteMessagesRequest, notificationRequest } from '../../../api';
 
     const { t } = useI18n();
+    const instance = getCurrentInstance();
+    const $message = instance.proxy.$message;
 
     const beforeDialogClose = inject('beforeDialogClose');
     const dialogMouseDown = inject('dialogMouseDown');
     const dialogMouseUp = inject('dialogMouseUp');
+    const API = inject('API');
 
     const props = defineProps({
         editAndSendInviteResponseDialog: {
             type: Object,
             required: true
+        },
+        uploadImage: {
+            type: String
         }
     });
 
+    const emit = defineEmits([
+        'update:sendInviteResponseDialogVisible',
+        'update:sendInviteRequestResponseDialogVisible'
+    ]);
+
     function cancelEditAndSendInviteResponse() {
-        editAndSendInviteResponseDialog.visible = false;
+        props.editAndSendInviteResponseDialog.visible = false;
     }
 
-    function saveEditAndSendInviteResponse() {
-        if (editAndSendInviteResponseDialog.newMessage) {
-            editAndSendInviteResponseDialog.visible = false;
-            editAndSendInviteResponseDialog.callback(editAndSendInviteResponseDialog.newMessage);
+    async function saveEditAndSendInviteResponse() {
+        const D = this.editAndSendInviteResponseDialog;
+        D.visible = false;
+        const messageType = D.messageType;
+        const slot = D.inviteMessage.slot;
+        if (D.inviteMessage.message !== D.newMessage) {
+            const params = {
+                message: D.newMessage
+            };
+            await inviteMessagesRequest
+                .editInviteMessage(params, messageType, slot)
+                .catch((err) => {
+                    throw err;
+                })
+                .then((args) => {
+                    API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
+                    if (args.json[slot].message === D.inviteMessage.message) {
+                        this.$message({
+                            message: "VRChat API didn't update message, try again",
+                            type: 'error'
+                        });
+                        throw new Error("VRChat API didn't update message, try again");
+                    } else {
+                        this.$message('Invite message updated');
+                    }
+                    return args;
+                });
+        }
+        const I = this.sendInviteResponseDialog;
+        const params = {
+            responseSlot: slot,
+            rsvp: true
+        };
+        if (props.uploadImage) {
+            notificationRequest
+                .sendInviteResponsePhoto(params, I.invite.id)
+                .catch((err) => {
+                    throw err;
+                })
+                .then((args) => {
+                    notificationRequest.hideNotification({
+                        notificationId: I.invite.id
+                    });
+                    $message({
+                        message: 'Invite response message sent',
+                        type: 'success'
+                    });
+
+                    emit('update:sendInviteResponseDialogVisible', false);
+                    emit('update:sendInviteRequestResponseDialogVisible', false);
+
+                    return args;
+                });
         } else {
-            editAndSendInviteResponseDialog.visible = true;
+            notificationRequest
+                .sendInviteResponse(params, I.invite.id)
+                .catch((err) => {
+                    throw err;
+                })
+                .then((args) => {
+                    notificationRequest.hideNotification({
+                        notificationId: I.invite.id
+                    });
+                    $message({
+                        message: 'Invite response message sent',
+                        type: 'success'
+                    });
+                    emit('update:sendInviteResponseDialogVisible', false);
+                    emit('update:sendInviteRequestResponseDialogVisible', false);
+
+                    return args;
+                });
         }
     }
 </script>
