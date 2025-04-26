@@ -96,6 +96,7 @@ import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.
 import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
+import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -285,7 +286,9 @@ console.log(`isLinux: ${LINUX}`);
             NotificationPositionDialog,
             AvatarProviderDialog,
             RegistryBackupDialog,
-            PrimaryPasswordDialog
+            PrimaryPasswordDialog,
+            //  - invite
+            InviteDialog
         },
         provide() {
             return {
@@ -10997,84 +11000,6 @@ console.log(`isLinux: ${LINUX}`);
         friendsInInstance: []
     };
 
-    // API.$on('LOGOUT', function () {
-    //     $app.inviteDialog.visible = false;
-    // });
-
-    $app.methods.addFriendsInInstanceToInvite = function () {
-        var D = this.inviteDialog;
-        for (var friend of D.friendsInInstance) {
-            if (!D.userIds.includes(friend.id)) {
-                D.userIds.push(friend.id);
-            }
-        }
-    };
-
-    $app.methods.addFavoriteFriendsToInvite = function () {
-        var D = this.inviteDialog;
-        for (var friend of this.vipFriends) {
-            if (!D.userIds.includes(friend.id)) {
-                D.userIds.push(friend.id);
-            }
-        }
-    };
-
-    $app.methods.addSelfToInvite = function () {
-        var D = this.inviteDialog;
-        if (!D.userIds.includes(API.currentUser.id)) {
-            D.userIds.push(API.currentUser.id);
-        }
-    };
-
-    $app.methods.sendInvite = function () {
-        this.$confirm('Continue? Invite', 'Confirm', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'info',
-            callback: (action) => {
-                var D = this.inviteDialog;
-                if (action !== 'confirm' || D.loading === true) {
-                    return;
-                }
-                D.loading = true;
-                var inviteLoop = () => {
-                    if (D.userIds.length > 0) {
-                        var receiverUserId = D.userIds.shift();
-                        if (receiverUserId === API.currentUser.id) {
-                            // can't invite self!?
-                            var L = $utils.parseLocation(D.worldId);
-                            instanceRequest
-                                .selfInvite({
-                                    instanceId: L.instanceId,
-                                    worldId: L.worldId
-                                })
-                                .finally(inviteLoop);
-                        } else {
-                            notificationRequest
-                                .sendInvite(
-                                    {
-                                        instanceId: D.worldId,
-                                        worldId: D.worldId,
-                                        worldName: D.worldName
-                                    },
-                                    receiverUserId
-                                )
-                                .finally(inviteLoop);
-                        }
-                    } else {
-                        D.loading = false;
-                        D.visible = false;
-                        this.$message({
-                            message: 'Invite sent',
-                            type: 'success'
-                        });
-                    }
-                };
-                inviteLoop();
-            }
-        });
-    };
-
     $app.methods.showInviteDialog = function (tag) {
         if (!$utils.isRealInstance(tag)) {
             return;
@@ -18169,6 +18094,21 @@ console.log(`isLinux: ${LINUX}`);
                 (this.isAvatarProviderDialogVisible = val),
             saveAvatarProviderList: this.saveAvatarProviderList,
             removeAvatarProvider: this.removeAvatarProvider
+        };
+    };
+
+    $app.computed.inviteDialogBind = function () {
+        return {
+            inviteDialog: this.inviteDialog,
+            vipFriends: this.vipFriends,
+            onlineFriends: this.onlineFriends,
+            activeFriends: this.activeFriends
+        };
+    };
+
+    $app.computed.inviteDialogEvent = function () {
+        return {
+            showSendInviteDialog: this.showSendInviteDialog
         };
     };
 

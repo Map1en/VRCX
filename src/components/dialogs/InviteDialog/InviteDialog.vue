@@ -161,10 +161,16 @@
 </template>
 
 <script setup>
-    import { inject } from 'vue';
+    import { inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import Location from '../../Location.vue';
+    import { instanceRequest, notificationRequest } from '../../../api';
+    import utils from '../../../classes/utils';
 
     const { t } = useI18n();
+    const instance = getCurrentInstance();
+    const $message = instance.proxy.$message;
+    const $confirm = instance.proxy.$confirm;
 
     const beforeDialogClose = inject('beforeDialogClose');
     const dialogMouseDown = inject('dialogMouseDown');
@@ -192,44 +198,83 @@
         }
     });
 
+    const emit = defineEmits(['showSendInviteDialog']);
+
     function addSelfToInvite() {
-        if (API.currentUser) {
-            props.inviteDialog.userIds.push(API.currentUser.id);
+        const D = props.inviteDialog;
+        if (!D.userIds.includes(API.currentUser.id)) {
+            D.userIds.push(API.currentUser.id);
         }
     }
 
     function addFriendsInInstanceToInvite() {
-        props.inviteDialog.friendsInInstance.forEach((friend) => {
-            if (friend.ref) {
-                props.inviteDialog.userIds.push(friend.ref.id);
+        const D = props.inviteDialog;
+        for (const friend of D.friendsInInstance) {
+            if (!D.userIds.includes(friend.id)) {
+                D.userIds.push(friend.id);
             }
-        });
+        }
     }
 
     function addFavoriteFriendsToInvite() {
-        props.inviteDialog.vipFriends.forEach((friend) => {
-            if (friend.ref) {
-                props.inviteDialog.userIds.push(friend.ref.id);
+        const D = props.inviteDialog;
+        for (const friend of props.vipFriends) {
+            if (!D.userIds.includes(friend.id)) {
+                D.userIds.push(friend.id);
             }
-        });
+        }
     }
 
     function showSendInviteDialog() {
-        props.inviteDialog.showSendInviteDialog = true;
-        props.inviteDialog.visible = false;
+        emit('showSendInviteDialog');
     }
 
     function sendInvite() {
-        props.inviteDialog.loading = true;
-        props.inviteDialog
-            .sendInvite()
-            .then(() => {
-                props.inviteDialog.loading = false;
-                props.inviteDialog.visible = false;
-            })
-            .catch((error) => {
-                console.error(error);
-                props.inviteDialog.loading = false;
-            });
+        $confirm('Continue? Invite', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                const D = props.inviteDialog;
+                if (action !== 'confirm' || D.loading === true) {
+                    return;
+                }
+                D.loading = true;
+                const inviteLoop = () => {
+                    if (D.userIds.length > 0) {
+                        const receiverUserId = D.userIds.shift();
+                        if (receiverUserId === API.currentUser.id) {
+                            // can't invite self!?
+                            const L = utils.parseLocation(D.worldId);
+                            instanceRequest
+                                .selfInvite({
+                                    instanceId: L.instanceId,
+                                    worldId: L.worldId
+                                })
+                                .finally(inviteLoop);
+                        } else {
+                            notificationRequest
+                                .sendInvite(
+                                    {
+                                        instanceId: D.worldId,
+                                        worldId: D.worldId,
+                                        worldName: D.worldName
+                                    },
+                                    receiverUserId
+                                )
+                                .finally(inviteLoop);
+                        }
+                    } else {
+                        D.loading = false;
+                        D.visible = false;
+                        $message({
+                            message: 'Invite sent',
+                            type: 'success'
+                        });
+                    }
+                };
+                inviteLoop();
+            }
+        });
     }
 </script>
