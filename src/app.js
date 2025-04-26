@@ -103,6 +103,7 @@ import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/S
 import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/SendInviteResponseConfirmDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
+import SendInviteConfirmDialog from './components/dialogs/InviteDialog/SendInviteConfirmDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -300,7 +301,8 @@ console.log(`isLinux: ${LINUX}`);
             SendInviteRequestResponseDialog,
             SendInviteResponseConfirmDialog,
             SendInviteDialog,
-            SendInviteRequestDialog
+            SendInviteRequestDialog,
+            SendInviteConfirmDialog
         },
         provide() {
             return {
@@ -11854,10 +11856,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sendInviteResponseDialog.messageSlot = val.slot;
     };
 
-    $app.methods.cancelInviteResponseConfirm = function () {
-        this.sendInviteResponseConfirmDialog.visible = false;
-    };
-
     // #endregion
     // #region | App: Invite Request Response Message Dialog
 
@@ -12093,138 +12091,10 @@ console.log(`isLinux: ${LINUX}`);
         this.sendInviteDialog.messageSlot = val.slot;
     };
 
-    $app.methods.cancelSendInvite = function () {
-        this.sendInviteDialogVisible = false;
-    };
-
-    $app.methods.cancelInviteConfirm = function () {
-        this.sendInviteConfirmDialog.visible = false;
-    };
-
-    $app.methods.sendInviteConfirm = function () {
-        var D = this.sendInviteDialog;
-        var J = this.inviteDialog;
-        if (J.visible) {
-            var inviteLoop = () => {
-                if (J.userIds.length > 0) {
-                    var receiverUserId = J.userIds.shift();
-                    if (receiverUserId === API.currentUser.id) {
-                        // can't invite self!?
-                        var L = $utils.parseLocation(J.worldId);
-                        instanceRequest
-                            .selfInvite({
-                                instanceId: L.instanceId,
-                                worldId: L.worldId
-                            })
-                            .finally(inviteLoop);
-                    } else if ($app.uploadImage) {
-                        notificationRequest
-                            .sendInvitePhoto(
-                                {
-                                    instanceId: J.worldId,
-                                    worldId: J.worldId,
-                                    worldName: J.worldName,
-                                    messageSlot: D.messageSlot
-                                },
-                                receiverUserId
-                            )
-                            .finally(inviteLoop);
-                    } else {
-                        notificationRequest
-                            .sendInvite(
-                                {
-                                    instanceId: J.worldId,
-                                    worldId: J.worldId,
-                                    worldName: J.worldName,
-                                    messageSlot: D.messageSlot
-                                },
-                                receiverUserId
-                            )
-                            .finally(inviteLoop);
-                    }
-                } else {
-                    J.loading = false;
-                    J.visible = false;
-                    this.$message({
-                        message: 'Invite message sent',
-                        type: 'success'
-                    });
-                }
-            };
-            inviteLoop();
-        } else if (D.messageType === 'invite') {
-            D.params.messageSlot = D.messageSlot;
-            if ($app.uploadImage) {
-                notificationRequest
-                    .sendInvitePhoto(D.params, D.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Invite photo message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            } else {
-                notificationRequest
-                    .sendInvite(D.params, D.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Invite message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            }
-        } else if (D.messageType === 'requestInvite') {
-            D.params.requestSlot = D.messageSlot;
-            if ($app.uploadImage) {
-                notificationRequest
-                    .sendRequestInvitePhoto(D.params, D.userId)
-                    .catch((err) => {
-                        this.clearInviteImageUpload();
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Request invite photo message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            } else {
-                notificationRequest
-                    .sendRequestInvite(D.params, D.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Request invite message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            }
-        }
-        this.sendInviteDialogVisible = false;
-        this.sendInviteRequestDialogVisible = false;
-        this.sendInviteConfirmDialog.visible = false;
-    };
-
     // #endregion
     // #region | App: Invite Request Message Dialog
 
     $app.data.sendInviteRequestDialogVisible = false;
-
-    $app.methods.cancelSendInviteRequest = function () {
-        this.sendInviteRequestDialogVisible = false;
-    };
 
     $app.methods.showSendInviteRequestDialog = function (params, userId) {
         this.sendInviteDialog = {

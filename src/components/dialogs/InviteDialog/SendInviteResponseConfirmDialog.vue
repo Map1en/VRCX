@@ -3,9 +3,10 @@
         ref="sendInviteResponseConfirmDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        :visible.sync="sendInviteResponseConfirmDialog.visible"
+        :visible="sendInviteResponseConfirmDialog.visible"
         :title="t('dialog.invite_response_message.header')"
         width="400px"
+        @close="cancelInviteResponseConfirm"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <div style="font-size: 12px">
@@ -43,6 +44,14 @@
         },
         uploadImage: {
             type: String
+        },
+        sendInviteResponseDialogVisible: {
+            type: Boolean,
+            default: false
+        },
+        sendInviteRequestResponseDialogVisible: {
+            type: Boolean,
+            default: false
         }
     });
 

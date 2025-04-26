@@ -306,19 +306,19 @@ mixin invites
     //        el-button(type='small' @click='API.refreshInviteMessageTableData("request")') {{ $t('dialog.invite_request_message.refresh') }}
 
     // - dialog: Send Invite Message Confirm
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='sendInviteConfirmDialog'
-        :visible.sync='sendInviteConfirmDialog.visible'
-        :title='$t("dialog.invite_message.header")'
-        width='400px')
-        div(style='font-size: 12px')
-            span {{ $t('dialog.invite_message.confirmation') }}
-        template(#footer)
-            el-button(type='small' @click='cancelInviteConfirm') {{ $t('dialog.invite_message.cancel') }}
-            el-button(type='primary' size='small' @click='sendInviteConfirm') {{ $t('dialog.invite_message.confirm') }}
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='sendInviteConfirmDialog'
+    //    :visible.sync='sendInviteConfirmDialog.visible'
+    //    :title='$t("dialog.invite_message.header")'
+    //    width='400px')
+    //    div(style='font-size: 12px')
+    //        span {{ $t('dialog.invite_message.confirmation') }}
+    //    template(#footer)
+    //        el-button(type='small' @click='cancelInviteConfirm') {{ $t('dialog.invite_message.cancel') }}
+    //        el-button(type='primary' size='small' @click='sendInviteConfirm') {{ $t('dialog.invite_message.confirm') }}
 
     // - dialog: Edit And Send Invite Message
     el-dialog.x-dialog(
