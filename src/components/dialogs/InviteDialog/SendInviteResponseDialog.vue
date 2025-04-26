@@ -76,19 +76,26 @@
         }
     });
 
+    const emit = defineEmits([
+        'update:sendInviteResponseDialogVisible',
+        'showEditAndSendInviteResponseDialog',
+        'inviteImageUpload',
+        'showSendInviteResponseConfirmDialog'
+    ]);
+
     function cancelSendInviteResponse() {
-        API.closeDialog('sendInviteResponseDialog');
+        emit('update:sendInviteResponseDialogVisible', false);
     }
 
     function showEditAndSendInviteResponseDialog(type, row) {
-        API.showDialog('editAndSendInviteResponseDialog', { type, row });
+        emit('showEditAndSendInviteResponseDialog', type, row);
     }
 
-    function inviteImageUpload() {
-        //
+    function inviteImageUpload(event) {
+        emit('inviteImageUpload', event);
     }
 
     function showSendInviteResponseConfirmDialog(row) {
-        API.showDialog('sendInviteResponseConfirmDialog', { row });
+        emit('showSendInviteResponseConfirmDialog', row);
     }
 </script>

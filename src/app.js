@@ -98,6 +98,7 @@ import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialo
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
 import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/EditAndSendInviteResponseDialog.vue';
+import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInviteResponseDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -290,7 +291,8 @@ console.log(`isLinux: ${LINUX}`);
             PrimaryPasswordDialog,
             //  - invite
             InviteDialog,
-            EditAndSendInviteResponseDialog
+            EditAndSendInviteResponseDialog,
+            SendInviteResponseDialog
         },
         provide() {
             return {
@@ -11006,7 +11008,7 @@ console.log(`isLinux: ${LINUX}`);
         if (!$utils.isRealInstance(tag)) {
             return;
         }
-        this.$nextTick(() => $app.adjustDialogZ(this.$refs.inviteDialog.$el));
+        // this.$nextTick(() => $app.adjustDialogZ(this.$refs.inviteDialog.$el));
         var L = $utils.parseLocation(tag);
         worldRequest
             .getCachedWorld({
@@ -11844,10 +11846,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sendInviteResponseDialog.messageSlot = val.slot;
     };
 
-    $app.methods.cancelSendInviteResponse = function () {
-        this.sendInviteResponseDialogVisible = false;
-    };
-
     $app.methods.cancelInviteResponseConfirm = function () {
         this.sendInviteResponseConfirmDialog.visible = false;
     };
@@ -11904,11 +11902,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.cancelSendInviteRequestResponse = function () {
         this.sendInviteRequestResponseDialogVisible = false;
     };
-
-    API.$on('LOGIN', function () {
-        $app.sendInviteRequestResponseDialogVisible = false;
-        $app.showSendInviteResponseConfirmDialog.visible = false;
-    });
 
     $app.methods.showSendInviteRequestResponseDialog = function (invite) {
         this.sendInviteResponseDialog = {
@@ -18044,6 +18037,26 @@ console.log(`isLinux: ${LINUX}`);
                 (this.sendInviteResponseDialogVisible = true),
             'update:sendInviteRequestResponseDialogVisible': (val) =>
                 (this.sendInviteRequestResponseDialogVisible = val)
+        };
+    };
+
+    $app.computed.sendInviteResponseDialogBind = function () {
+        return {
+            sendInviteResponseDialogVisible:
+                this.sendInviteResponseDialogVisible,
+            inviteResponseMessageTable: this.inviteResponseMessageTable
+        };
+    };
+
+    $app.computed.sendInviteResponseDialogEvent = function () {
+        return {
+            'update:sendInviteResponseDialogVisible': (val) =>
+                (this.sendInviteResponseDialogVisible = val),
+            showEditAndSendInviteResponseDialog:
+                this.showEditAndSendInviteResponseDialog,
+            inviteImageUpload: this.inviteImageUpload,
+            showSendInviteResponseConfirmDialog:
+                this.showSendInviteResponseConfirmDialog
         };
     };
 

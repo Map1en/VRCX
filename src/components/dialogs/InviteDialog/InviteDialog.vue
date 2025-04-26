@@ -6,6 +6,7 @@
         :visible.sync="inviteDialog.visible"
         :title="t('dialog.invite.header')"
         width="500px"
+        append-to-body
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <div v-if="inviteDialog.visible" v-loading="inviteDialog.loading">
