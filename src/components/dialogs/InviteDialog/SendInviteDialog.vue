@@ -1,11 +1,11 @@
 <template>
     <el-dialog
-        ref="sendInviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
         :visible="sendInviteDialogVisible"
         :title="t('dialog.invite_message.header')"
         width="800px"
+        append-to-body
         @close="cancelSendInvite"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
@@ -64,7 +64,7 @@
                         type="text"
                         icon="el-icon-edit"
                         size="mini"
-                        @click="showEditAndSendInviteDialog('message', scope.row)"></el-button>
+                        @click.stop="showEditAndSendInviteDialog('message', scope.row)"></el-button>
                 </template>
             </el-table-column>
         </data-tables>
@@ -77,12 +77,26 @@
                 {{ t('dialog.invite_message.refresh') }}
             </el-button>
         </template>
+        <SendInviteConfirmDialog
+            :visible.sync="isSendInviteConfirmDialogVisible"
+            :send-invite-dialog="sendInviteDialog"
+            :invite-dialog="inviteDialog"
+            :upload-image="uploadImage"
+            @closeInviteDialog="closeInviteDialog" />
+        <EditAndSendInviteDialog
+            :edit-and-send-invite-dialog.sync="editAndSendInviteDialog"
+            :send-invite-dialog="sendInviteDialog"
+            :invite-dialog="inviteDialog"
+            :upload-image="uploadImage"
+            @closeInviteDialog="closeInviteDialog" />
     </el-dialog>
 </template>
 
 <script setup>
-    import { inject } from 'vue';
+    import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
+    import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
 
     const { t } = useI18n();
 
@@ -91,7 +105,7 @@
     const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
-    defineProps({
+    const props = defineProps({
         sendInviteDialogVisible: {
             type: Boolean,
             default: false
@@ -99,29 +113,58 @@
         inviteMessageTable: {
             type: Object,
             default: () => ({})
+        },
+        sendInviteDialog: {
+            type: Object,
+            required: true
+        },
+        inviteDialog: {
+            type: Object,
+            required: true
+        },
+        uploadImage: {
+            type: String,
+            default: ''
         }
     });
 
-    const emit = defineEmits([
-        'inviteImageUpload',
-        'showSendInviteConfirmDialog',
-        'showEditAndSendInviteDialog',
-        'update:sendInviteDialogVisible'
-    ]);
+    const emit = defineEmits(['inviteImageUpload', 'update:sendInviteDialogVisible', 'closeInviteDialog']);
+
+    const isSendInviteConfirmDialogVisible = ref(false);
+
+    const editAndSendInviteDialog = ref({
+        visible: false,
+        messageType: '',
+        newMessage: '',
+        inviteMessage: {}
+    });
 
     function inviteImageUpload(event) {
         emit('inviteImageUpload', event);
     }
 
-    function showSendInviteConfirmDialog(row) {
-        emit('showSendInviteConfirmDialog', row);
+    function showSendInviteConfirmDialog(val) {
+        isSendInviteConfirmDialogVisible.value = true;
+        //
+        props.sendInviteDialog.messageSlot = val.slot;
     }
 
-    function showEditAndSendInviteDialog(type, row) {
-        emit('showEditAndSendInviteDialog', type, row);
+    function showEditAndSendInviteDialog(messageType, inviteMessage) {
+        // todo
+        editAndSendInviteDialog.value = {
+            newMessage: inviteMessage.message,
+            visible: true,
+            messageType,
+            inviteMessage
+        };
     }
 
     function cancelSendInvite() {
         emit('update:sendInviteDialogVisible', false);
+    }
+
+    function closeInviteDialog() {
+        cancelSendInvite();
+        emit('closeInviteDialog');
     }
 </script>

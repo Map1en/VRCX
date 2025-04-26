@@ -1,11 +1,11 @@
 <template>
     <el-dialog
-        ref="sendInviteConfirmDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        :visible="sendInviteConfirmDialog.visible"
+        :visible="visible"
         :title="t('dialog.invite_message.header')"
         width="400px"
+        append-to-body
         @close="cancelInviteConfirm"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
@@ -40,8 +40,8 @@
     const API = inject('API');
 
     const props = defineProps({
-        sendInviteConfirmDialog: {
-            type: Object,
+        visible: {
+            type: Boolean,
             required: true
         },
         sendInviteDialog: {
@@ -54,25 +54,13 @@
         },
         uploadImage: {
             type: String
-        },
-        sendInviteDialogVisible: {
-            type: Boolean,
-            default: false
-        },
-        sendInviteRequestDialogVisible: {
-            type: Boolean,
-            required: false
         }
     });
 
-    const emit = defineEmits([
-        'update:sendInviteConfirmDialog',
-        'update:sendInviteDialogVisible',
-        'update:sendInviteRequestDialogVisible'
-    ]);
+    const emit = defineEmits(['update:visible', 'closeInviteDialog']);
 
     function cancelInviteConfirm() {
-        emit('update:sendInviteConfirmDialog', { visible: false });
+        emit('update:visible', false);
     }
 
     function sendInviteConfirm() {
@@ -187,7 +175,6 @@
             }
         }
         cancelInviteConfirm();
-        emit('update:sendInviteDialogVisible', false);
-        emit('update:sendInviteRequestDialogVisible', false);
+        emit('closeInviteDialog');
     }
 </script>

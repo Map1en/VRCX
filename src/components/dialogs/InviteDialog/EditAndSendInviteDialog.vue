@@ -1,11 +1,11 @@
 <template>
     <el-dialog
-        ref="editAndSendInviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
         :visible="editAndSendInviteDialog.visible"
         :title="t('dialog.edit_send_invite_message.header')"
         width="400px"
+        append-to-body
         @close="cancelEditAndSendInvite"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
@@ -64,22 +64,10 @@
         },
         uploadImage: {
             type: String
-        },
-        sendInviteDialogVisible: {
-            type: Boolean,
-            default: false
-        },
-        sendInviteRequestDialogVisible: {
-            type: Boolean,
-            default: false
         }
     });
 
-    const emit = defineEmits([
-        'update:editAndSendInviteDialog',
-        'update:sendInviteDialogVisible',
-        'update:sendInviteRequestDialogVisible'
-    ]);
+    const emit = defineEmits(['update:editAndSendInviteDialog', 'closeInviteDialog']);
 
     function cancelEditAndSendInvite() {
         emit('update:editAndSendInviteDialog', { ...props.editAndSendInviteDialog, visible: false });
@@ -224,7 +212,6 @@
             }
         }
 
-        emit('update:sendInviteDialogVisible', false);
-        emit('update:sendInviteRequestDialogVisible', false);
+        emit('closeInviteDialog');
     }
 </script>

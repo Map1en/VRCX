@@ -1,11 +1,11 @@
 <template>
     <el-dialog
-        ref="sendInviteRequestDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
         :visible="sendInviteRequestDialogVisible"
         :title="t('dialog.invite_request_message.header')"
         width="800px"
+        append-to-body
         @close="cancelSendInviteRequest"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
@@ -40,7 +40,7 @@
                         type="text"
                         icon="el-icon-edit"
                         size="mini"
-                        @click="showEditAndSendInviteDialog('request', scope.row)"></el-button>
+                        @click.stop="showEditAndSendInviteDialog('request', scope.row)"></el-button>
                 </template>
             </el-table-column>
         </data-tables>
@@ -53,12 +53,26 @@
                 t('dialog.invite_request_message.refresh')
             }}</el-button>
         </template>
+        <SendInviteConfirmDialog
+            :visible.sync="isSendInviteConfirmDialogVisible"
+            :send-invite-dialog="sendInviteDialog"
+            :invite-dialog="inviteDialog"
+            :upload-image="uploadImage"
+            @closeInviteDialog="closeInviteDialog" />
+        <EditAndSendInviteDialog
+            :edit-and-send-invite-dialog.sync="editAndSendInviteDialog"
+            :send-invite-dialog="sendInviteDialog"
+            :invite-dialog="inviteDialog"
+            :upload-image="uploadImage"
+            @closeInviteDialog="closeInviteDialog" />
     </el-dialog>
 </template>
 
 <script setup>
-    import { inject } from 'vue';
+    import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
+    import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
 
     const { t } = useI18n();
 
@@ -67,7 +81,7 @@
     const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
-    defineProps({
+    const props = defineProps({
         sendInviteRequestDialogVisible: {
             type: Boolean,
             default: false
@@ -75,29 +89,56 @@
         inviteRequestMessageTable: {
             type: Object,
             default: () => ({})
+        },
+        sendInviteDialog: {
+            type: Object,
+            default: () => ({})
+        },
+        inviteDialog: {
+            type: Object,
+            default: () => ({})
+        },
+        uploadImage: {
+            type: String,
+            default: ''
         }
     });
 
-    const emit = defineEmits([
-        'inviteImageUpload',
-        'showSendInviteConfirmDialog',
-        'showEditAndSendInviteDialog',
-        'update:sendInviteRequestDialogVisible'
-    ]);
+    const emit = defineEmits(['inviteImageUpload', 'update:sendInviteRequestDialogVisible', 'closeInviteDialog']);
+
+    const isSendInviteConfirmDialogVisible = ref(false);
+
+    const editAndSendInviteDialog = ref({
+        visible: false,
+        messageType: '',
+        newMessage: '',
+        inviteMessage: {}
+    });
 
     function inviteImageUpload(event) {
         emit('inviteImageUpload', event);
     }
 
-    function showSendInviteConfirmDialog(row) {
-        emit('showSendInviteConfirmDialog', row);
+    function showSendInviteConfirmDialog(val) {
+        isSendInviteConfirmDialogVisible.value = true;
+        //
+        props.sendInviteDialog.messageSlot = val.slot;
     }
 
-    function showEditAndSendInviteDialog(type, row) {
-        emit('showEditAndSendInviteDialog', type, row);
+    function showEditAndSendInviteDialog(messageType, inviteMessage) {
+        editAndSendInviteDialog.value = {
+            newMessage: inviteMessage.message,
+            visible: true,
+            messageType,
+            inviteMessage
+        };
     }
 
     function cancelSendInviteRequest() {
         emit('update:sendInviteRequestDialogVisible', false);
+    }
+
+    function closeInviteDialog() {
+        cancelSendInviteRequest();
     }
 </script>

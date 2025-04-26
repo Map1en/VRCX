@@ -97,14 +97,12 @@ import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
-import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/EditAndSendInviteResponseDialog.vue';
-import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInviteResponseDialog.vue';
-import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/SendInviteRequestResponseDialog.vue';
-import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/SendInviteResponseConfirmDialog.vue';
+import EditAndSendInviteResponseDialog from './views/Notifications/dialogs/EditAndSendInviteResponseDialog.vue';
+import SendInviteResponseDialog from './views/Notifications/dialogs/SendInviteResponseDialog.vue';
+import SendInviteRequestResponseDialog from './views/Notifications/dialogs/SendInviteRequestResponseDialog.vue';
+import SendInviteResponseConfirmDialog from './views/Notifications/dialogs/SendInviteResponseConfirmDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
-import SendInviteConfirmDialog from './components/dialogs/InviteDialog/SendInviteConfirmDialog.vue';
-import EditAndSendInviteDialog from './components/dialogs/InviteDialog/EditAndSendInviteDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -302,9 +300,7 @@ console.log(`isLinux: ${LINUX}`);
             SendInviteRequestResponseDialog,
             SendInviteResponseConfirmDialog,
             SendInviteDialog,
-            SendInviteRequestDialog,
-            SendInviteConfirmDialog,
-            EditAndSendInviteDialog
+            SendInviteRequestDialog
         },
         provide() {
             return {
@@ -9908,6 +9904,7 @@ console.log(`isLinux: ${LINUX}`);
                     worldId: L.worldId
                 })
                 .then((args) => {
+                    // TODO: nest component
                     this.showSendInviteDialog(
                         {
                             instanceId: this.lastLocation.location,
@@ -9918,6 +9915,7 @@ console.log(`isLinux: ${LINUX}`);
                     );
                 });
         } else if (command === 'Request Invite Message') {
+            // TODO: nest component
             this.showSendInviteRequestDialog(
                 {
                     platform: 'standalonewindows'
@@ -11044,6 +11042,10 @@ console.log(`isLinux: ${LINUX}`);
             });
     };
 
+    $app.methods.closeInviteDialog = function () {
+        this.inviteDialog.visible = false;
+    };
+
     // #endregion
     // #region | App: Social Status Dialog
 
@@ -11878,28 +11880,6 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Invite Message Dialog
 
-    $app.data.editAndSendInviteDialog = {
-        visible: false,
-        messageType: '',
-        newMessage: '',
-        inviteMessage: {}
-    };
-
-    $app.methods.showEditAndSendInviteDialog = function (
-        messageType,
-        inviteMessage
-    ) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.editAndSendInviteDialog.$el)
-        );
-        this.editAndSendInviteDialog = {
-            newMessage: inviteMessage.message,
-            visible: true,
-            messageType,
-            inviteMessage
-        };
-    };
-
     $app.data.sendInviteDialog = {
         message: '',
         messageSlot: 0,
@@ -11910,15 +11890,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.sendInviteDialogVisible = false;
 
-    $app.data.sendInviteConfirmDialog = {
-        visible: false
-    };
-
-    API.$on('LOGIN', function () {
-        $app.sendInviteDialogVisible = false;
-        $app.sendInviteConfirmDialog.visible = false;
-    });
-
     $app.methods.showSendInviteDialog = function (params, userId) {
         this.sendInviteDialog = {
             params,
@@ -11926,22 +11897,8 @@ console.log(`isLinux: ${LINUX}`);
             messageType: 'invite'
         };
         inviteMessagesRequest.refreshInviteMessageTableData('message');
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.sendInviteDialog.$el)
-        );
         this.clearInviteImageUpload();
         this.sendInviteDialogVisible = true;
-    };
-
-    $app.methods.showSendInviteConfirmDialog = function (val) {
-        if (this.editAndSendInviteDialog.visible === true || val === null) {
-            return;
-        }
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.sendInviteConfirmDialog.$el)
-        );
-        this.sendInviteConfirmDialog.visible = true;
-        this.sendInviteDialog.messageSlot = val.slot;
     };
 
     // #endregion
@@ -11956,9 +11913,6 @@ console.log(`isLinux: ${LINUX}`);
             messageType: 'requestInvite'
         };
         inviteMessagesRequest.refreshInviteMessageTableData('request');
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.sendInviteRequestDialog.$el)
-        );
         this.clearInviteImageUpload();
         this.sendInviteRequestDialogVisible = true;
     };

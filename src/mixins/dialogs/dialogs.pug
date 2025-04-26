@@ -226,29 +226,17 @@ mixin dialogs
     SendInviteDialog(
         :sendInviteDialogVisible.sync='sendInviteDialogVisible'
         :inviteMessageTable='inviteMessageTable'
+        :inviteDialog='inviteDialog'
+        :uploadImage='uploadImage'
+        :sendInviteDialog='sendInviteDialog'
         @inviteImageUpload='inviteImageUpload'
-        @showSendInviteConfirmDialog='showSendInviteConfirmDialog'
-        @showEditAndSendInviteDialog='showEditAndSendInviteDialog')
+        @closeInviteDialog='closeInviteDialog')
 
     SendInviteRequestDialog(
         :sendInviteRequestDialogVisible.sync='sendInviteRequestDialogVisible'
         :inviteRequestMessageTable='inviteRequestMessageTable'
+        :sendInviteDialog='sendInviteDialog'
+        :inviteDialog='inviteDialog'
+        :uploadImage='uploadImage'
         @inviteImageUpload='inviteImageUpload'
-        @showSendInviteConfirmDialog='showSendInviteConfirmDialog'
-        @showEditAndSendInviteDialog='showEditAndSendInviteDialog')
-
-    SendInviteConfirmDialog(
-        :sendInviteConfirmDialog.sync='sendInviteConfirmDialog'
-        :sendInviteDialog='sendInviteDialog'
-        :inviteDialog='inviteDialog'
-        :uploadImage='uploadImage'
-        :sendInviteDialogVisible.sync='sendInviteDialogVisible'
-        :sendInviteRequestDialogVisible.sync='sendInviteRequestDialogVisible')
-
-    EditAndSendInviteDialog(
-        :editAndSendInviteDialog.sync='editAndSendInviteDialog'
-        :sendInviteDialog='sendInviteDialog'
-        :inviteDialog='inviteDialog'
-        :uploadImage='uploadImage'
-        :sendInviteDialogVisible.sync='sendInviteDialogVisible'
-        :sendInviteRequestDialogVisible.sync='sendInviteRequestDialogVisible')
+        @closeInviteDialog='closeInviteDialog')

@@ -1,6 +1,5 @@
 <template>
     <el-dialog
-        ref="inviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
         :visible.sync="inviteDialog.visible"
@@ -147,14 +146,14 @@
             <el-button
                 size="small"
                 :disabled="inviteDialog.loading || !inviteDialog.userIds.length"
-                @click="showSendInviteDialog()"
+                @click="showSendInviteDialog"
                 >{{ t('dialog.invite.invite_with_message') }}</el-button
             >
             <el-button
                 type="primary"
                 size="small"
                 :disabled="inviteDialog.loading || !inviteDialog.userIds.length"
-                @click="sendInvite()"
+                @click="sendInvite"
                 >{{ t('dialog.invite.invite') }}</el-button
             >
         </template>
@@ -199,7 +198,7 @@
         }
     });
 
-    const emit = defineEmits(['showSendInviteDialog']);
+    const emit = defineEmits(['showSendInviteDialog', 'inviteImageUpload']);
 
     function addSelfToInvite() {
         const D = props.inviteDialog;
