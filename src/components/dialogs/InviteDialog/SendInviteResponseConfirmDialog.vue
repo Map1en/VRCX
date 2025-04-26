@@ -24,20 +24,79 @@
 </template>
 
 <script setup>
-    import { inject } from 'vue';
+    import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { notificationRequest } from '../../../api';
     const { t } = useI18n();
+
+    const instance = getCurrentInstance();
+    const $message = instance.proxy.$message;
 
     const beforeDialogClose = inject('beforeDialogClose');
     const dialogMouseDown = inject('dialogMouseDown');
     const dialogMouseUp = inject('dialogMouseUp');
 
+    const props = defineProps({
+        sendInviteResponseConfirmDialog: {
+            type: Object,
+            required: true
+        },
+        uploadImage: {
+            type: String
+        }
+    });
+
+    const emit = defineEmits([
+        'update:sendInviteResponseConfirmDialog',
+        'update:sendInviteResponseDialogVisible',
+        'update:sendInviteRequestResponseDialogVisible'
+    ]);
+
     function cancelInviteResponseConfirm() {
-        sendInviteResponseConfirmDialog.visible = false;
+        emit('update:sendInviteResponseConfirmDialog', { visible: false });
     }
 
     function sendInviteResponseConfirm() {
-        sendInviteResponseConfirmDialog.visible = false;
-        sendInviteResponseConfirmDialog.callback();
+        const D = props.sendInviteResponseDialog;
+        const params = {
+            responseSlot: D.messageSlot,
+            rsvp: true
+        };
+        if (props.uploadImage) {
+            notificationRequest
+                .sendInviteResponsePhoto(params, D.invite.id, D.messageType)
+                .catch((err) => {
+                    throw err;
+                })
+                .then((args) => {
+                    notificationRequest.hideNotification({
+                        notificationId: D.invite.id
+                    });
+                    $message({
+                        message: 'Invite response photo message sent',
+                        type: 'success'
+                    });
+                    return args;
+                });
+        } else {
+            notificationRequest
+                .sendInviteResponse(params, D.invite.id, D.messageType)
+                .catch((err) => {
+                    throw err;
+                })
+                .then((args) => {
+                    notificationRequest.hideNotification({
+                        notificationId: D.invite.id
+                    });
+                    $message({
+                        message: 'Invite response message sent',
+                        type: 'success'
+                    });
+                    return args;
+                });
+        }
+        emit('update:sendInviteResponseDialogVisible', false);
+        emit('update:sendInviteRequestResponseDialogVisible', false);
+        emit('update:sendInviteResponseConfirmDialog', { visible: false });
     }
 </script>

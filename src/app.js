@@ -100,6 +100,7 @@ import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
 import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/EditAndSendInviteResponseDialog.vue';
 import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInviteResponseDialog.vue';
 import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/SendInviteRequestResponseDialog.vue';
+import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/SendInviteResponseConfirmDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -294,7 +295,8 @@ console.log(`isLinux: ${LINUX}`);
             InviteDialog,
             EditAndSendInviteResponseDialog,
             SendInviteResponseDialog,
-            SendInviteRequestResponseDialog
+            SendInviteRequestResponseDialog,
+            SendInviteResponseConfirmDialog
         },
         provide() {
             return {
@@ -11852,50 +11854,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sendInviteResponseConfirmDialog.visible = false;
     };
 
-    $app.methods.sendInviteResponseConfirm = function () {
-        var D = this.sendInviteResponseDialog;
-        var params = {
-            responseSlot: D.messageSlot,
-            rsvp: true
-        };
-        if ($app.uploadImage) {
-            notificationRequest
-                .sendInviteResponsePhoto(params, D.invite.id, D.messageType)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    notificationRequest.hideNotification({
-                        notificationId: D.invite.id
-                    });
-                    this.$message({
-                        message: 'Invite response photo message sent',
-                        type: 'success'
-                    });
-                    return args;
-                });
-        } else {
-            notificationRequest
-                .sendInviteResponse(params, D.invite.id, D.messageType)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    notificationRequest.hideNotification({
-                        notificationId: D.invite.id
-                    });
-                    this.$message({
-                        message: 'Invite response message sent',
-                        type: 'success'
-                    });
-                    return args;
-                });
-        }
-        this.sendInviteResponseDialogVisible = false;
-        this.sendInviteRequestResponseDialogVisible = false;
-        this.sendInviteResponseConfirmDialog.visible = false;
-    };
-
     // #endregion
     // #region | App: Invite Request Response Message Dialog
 
@@ -18076,6 +18034,25 @@ console.log(`isLinux: ${LINUX}`);
             inviteImageUpload: this.inviteImageUpload,
             showSendInviteResponseConfirmDialog:
                 this.showSendInviteResponseConfirmDialog
+        };
+    };
+
+    $app.computed.sendInviteResponseConfirmDialogBind = function () {
+        return {
+            sendInviteResponseConfirmDialog:
+                this.sendInviteResponseConfirmDialog,
+            uploadImage: this.uploadImage
+        };
+    };
+
+    $app.computed.sendInviteResponseConfirmDialogEvent = function () {
+        return {
+            'update:sendInviteResponseConfirmDialog': (val) =>
+                (this.sendInviteResponseConfirmDialog = val),
+            'update:sendInviteResponseDialogVisible': (val) =>
+                (this.sendInviteResponseDialogVisible = val),
+            'update:sendInviteRequestResponseDialogVisible': (val) =>
+                (this.sendInviteRequestResponseDialogVisible = val)
         };
     };
 

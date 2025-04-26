@@ -63,6 +63,7 @@
     const beforeDialogClose = inject('beforeDialogClose');
     const dialogMouseDown = inject('dialogMouseDown');
     const dialogMouseUp = inject('dialogMouseUp');
+    const API = inject('API');
 
     const props = defineProps({
         sendInviteRequestResponseDialogVisible: {
