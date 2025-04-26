@@ -3,9 +3,10 @@
         ref="sendInviteRequestDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        :visible.sync="sendInviteRequestDialogVisible"
+        :visible="sendInviteRequestDialogVisible"
         :title="t('dialog.invite_request_message.header')"
         width="800px"
+        @close="cancelSendInviteRequest"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <template v-if="API.currentUser.$isVRCPlus">
@@ -66,7 +67,7 @@
     const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
-    const props = defineProps({
+    defineProps({
         sendInviteRequestDialogVisible: {
             type: Boolean,
             default: false
@@ -77,19 +78,26 @@
         }
     });
 
-    function inviteImageUpload() {
-        //
+    const emit = defineEmits([
+        'inviteImageUpload',
+        'showSendInviteConfirmDialog',
+        'showEditAndSendInviteDialog',
+        'update:sendInviteRequestDialogVisible'
+    ]);
+
+    function inviteImageUpload(event) {
+        emit('inviteImageUpload', event);
     }
 
     function showSendInviteConfirmDialog(row) {
-        API.showSendInviteConfirmDialog('request', row);
+        emit('showSendInviteConfirmDialog', row);
     }
 
     function showEditAndSendInviteDialog(type, row) {
-        API.showEditAndSendInviteDialog(type, row);
+        emit('showEditAndSendInviteDialog', type, row);
     }
 
     function cancelSendInviteRequest() {
-        API.cancelSendInviteRequest();
+        emit('update:sendInviteRequestDialogVisible', false);
     }
 </script>

@@ -102,6 +102,7 @@ import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInvi
 import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/SendInviteRequestResponseDialog.vue';
 import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/SendInviteResponseConfirmDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
+import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -298,7 +299,8 @@ console.log(`isLinux: ${LINUX}`);
             SendInviteResponseDialog,
             SendInviteRequestResponseDialog,
             SendInviteResponseConfirmDialog,
-            SendInviteDialog
+            SendInviteDialog,
+            SendInviteRequestDialog
         },
         provide() {
             return {

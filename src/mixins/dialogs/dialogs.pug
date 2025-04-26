@@ -229,3 +229,10 @@ mixin dialogs
         @inviteImageUpload='inviteImageUpload'
         @showSendInviteConfirmDialog='showSendInviteConfirmDialog'
         @showEditAndSendInviteDialog='showEditAndSendInviteDialog')
+
+    SendInviteRequestDialog(
+        :sendInviteRequestDialogVisible.sync='sendInviteRequestDialogVisible'
+        :inviteRequestMessageTable='inviteRequestMessageTable'
+        @inviteImageUpload='inviteImageUpload'
+        @showSendInviteConfirmDialog='showSendInviteConfirmDialog'
+        @showEditAndSendInviteDialog='showEditAndSendInviteDialog')
