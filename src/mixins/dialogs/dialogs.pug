@@ -1,0 +1,224 @@
+mixin dialogs
+    //- previous instances
+    PreviousInstancesInfoDialog(
+        :visible.sync='previousInstancesInfoDialogVisible'
+        :instanceId='previousInstancesInfoDialogInstanceId'
+        :gameLogIsFriend='gameLogIsFriend'
+        :gameLogIsFavorite='gameLogIsFavorite'
+        :lookupUser='lookupUser'
+        :isDarkMode='isDarkMode')
+
+    PreviousInstancesUserDialog(:previousInstancesUserDialog.sync='previousInstancesUserDialog' :shiftHeld='shiftHeld')
+
+    //- favorites
+    FriendImportDialog(
+        :friendImportDialogVisible.sync='friendImportDialogVisible'
+        :friendImportDialogInput.sync='friendImportDialogInput')
+
+    WorldImportDialog(
+        :worldImportDialogVisible.sync='worldImportDialogVisible'
+        :worldImportDialogInput.sync='worldImportDialogInput'
+        :getLocalWorldFavoriteGroupLength='getLocalWorldFavoriteGroupLength'
+        :localWorldFavoriteGroups='localWorldFavoriteGroups'
+        @addLocalWorldFavorite='addLocalWorldFavorite')
+
+    AvatarImportDialog(
+        :avatarImportDialogVisible.sync='avatarImportDialogVisible'
+        :avatarImportDialogInput.sync='avatarImportDialogInput'
+        :getLocalAvatarFavoriteGroupLength='getLocalAvatarFavoriteGroupLength'
+        :localAvatarFavoriteGroups='localAvatarFavoriteGroups'
+        @addLocalAvatarFavorite='addLocalAvatarFavorite')
+
+    //- favorites dialog
+    ChooseFavoriteGroupDialog(
+        :favoriteDialog.sync='favoriteDialog'
+        :localAvatarFavoriteGroups='localAvatarFavoriteGroups'
+        :localWorldFavoriteGroups='localWorldFavoriteGroups'
+        :hasLocalWorldFavorite='hasLocalWorldFavorite'
+        :getLocalWorldFavoriteGroupLength='getLocalWorldFavoriteGroupLength'
+        :hasLocalAvatarFavorite='hasLocalAvatarFavorite'
+        :getLocalAvatarFavoriteGroupLength='getLocalAvatarFavoriteGroupLength'
+        @addLocalWorldFavorite='addLocalWorldFavorite'
+        @removeLocalWorldFavorite='removeLocalWorldFavorite'
+        @addLocalAvatarFavorite='addLocalAvatarFavorite'
+        @removeLocalAvatarFavorite='removeLocalAvatarFavorite'
+        @deleteFavoriteNoConfirm='deleteFavoriteNoConfirm')
+
+    ExportFriendsListDialog(
+        :friends='friends'
+        :isExportFriendsListDialogVisible.sync='isExportFriendsListDialogVisible')
+
+    ExportAvatarsListDialog(:isExportAvatarsListDialogVisible.sync='isExportAvatarsListDialogVisible')
+
+    //- launch
+    LaunchDialog(
+        :checkCanInvite='checkCanInvite'
+        :launchDialogData.sync='launchDialogData'
+        :hideTooltips='hideTooltips'
+        @launchGame='launchGame')
+
+    WorldDialog(
+        :worldDialog.sync='worldDialog'
+        :hideTooltips='hideTooltips'
+        :shiftHeld='shiftHeld'
+        :isGameRunning='isGameRunning'
+        :lastLocation='lastLocation'
+        :instanceJoinHistory='instanceJoinHistory'
+        :updateInstanceInfo='updateInstanceInfo'
+        :isAgeGatedInstancesVisible='isAgeGatedInstancesVisible'
+        :createNewInstance='createNewInstance'
+        :instanceContentSettings='instanceContentSettings'
+        :offlineFriends='offlineFriends'
+        :activeFriends='activeFriends'
+        :onlineFriends='onlineFriends'
+        :vipFriends='vipFriends'
+        :hasGroupPermission='hasGroupPermission'
+        @openFolderGeneric='openFolderGeneric'
+        @deleteVRChatCache='deleteVRChatCache'
+        @worldDialogCommand='worldDialogCommand'
+        @refreshInstancePlayerCount='refreshInstancePlayerCount')
+
+    GroupDialog(
+        :groupDialog.sync='groupDialog'
+        :hideTooltips='hideTooltips'
+        :lastLocation='lastLocation'
+        :updateInstanceInfo='updateInstanceInfo'
+        :groupDialogSortingOptions='groupDialogSortingOptions'
+        :groupDialogFilterOptions='groupDialogFilterOptions'
+        :isGroupGalleryLoading='isGroupGalleryLoading'
+        :gallerySelectDialog.sync='gallerySelectDialog'
+        :randomUserColours='randomUserColours'
+        @refreshInstancePlayerCount='refreshInstancePlayerCount'
+        @updateGroupPostSearch='updateGroupPostSearch'
+        @groupDialogCommand='groupDialogCommand'
+        @getGroupDialogGroup='getGroupDialogGroup'
+        @clearImageGallerySelect='clearImageGallerySelect')
+
+    InviteGroupDialog(
+        :dialogData.sync='inviteGroupDialog'
+        :vipFriends='vipFriends'
+        :onlineFriends='onlineFriends'
+        :offlineFriends='offlineFriends'
+        :activeFriends='activeFriends')
+
+    AvatarDialog(
+        :avatarDialog='avatarDialog'
+        :hideTooltips='hideTooltips'
+        :isGameRunning='isGameRunning'
+        @openFolderGeneric='openFolderGeneric'
+        @deleteVRChatCache='deleteVRChatCache')
+
+    //- settings
+    FeedFiltersDialog(
+        :feedFiltersDialogMode.sync='feedFiltersDialogMode'
+        :photonLoggingEnabled='photonLoggingEnabled'
+        :sharedFeedFilters='sharedFeedFilters'
+        :sharedFeedFiltersDefaults='sharedFeedFiltersDefaults'
+        @updateSharedFeed='updateSharedFeed')
+
+    LaunchOptionsDialog(:isLaunchOptionsDialogVisible.sync='isLaunchOptionsDialogVisible')
+
+    OpenSourceSoftwareNoticeDialog(:ossDialog.sync='ossDialog')
+
+    ChangelogDialog(:changeLogDialog.sync='changeLogDialog')
+
+    VRCXUpdateDialog(
+        :VRCXUpdateDialog='VRCXUpdateDialog'
+        :appVersion='appVersion'
+        :checkingForVRCXUpdate='checkingForVRCXUpdate'
+        :updateInProgress='updateInProgress'
+        :updateProgress='updateProgress'
+        :updateProgressText='updateProgressText'
+        :pendingVRCXInstall='pendingVRCXInstall'
+        :branch.sync='branch'
+        :branches='branches'
+        @loadBranchVersions='loadBranchVersions'
+        @cancelUpdate='cancelUpdate'
+        @installVRCXUpdate='installVRCXUpdate'
+        @restartVRCX='restartVRCX')
+
+    ScreenshotMetadataDialog(
+        :screenshotMetadataDialog='screenshotMetadataDialog'
+        :currentlyDroppingFile='currentlyDroppingFile'
+        :fullscreenImageDialog='fullscreenImageDialog'
+        @lookupUser='lookupUser')
+
+    DiscordNamesDialog(:discordNamesDialogVisible.sync='discordNamesDialogVisible' :friends='friends')
+
+    EditInviteMessageDialog(:editInviteMessageDialog.sync='editInviteMessageDialog')
+
+    NoteExportDialog(:isNoteExportDialogVisible.sync='isNoteExportDialogVisible' :friends='friends')
+
+    VRChatConfigDialog(
+        :isVRChatConfigDialogVisible.sync='isVRChatConfigDialogVisible'
+        :VRChatUsedCacheSize='VRChatUsedCacheSize'
+        :VRChatTotalCacheSize='VRChatTotalCacheSize'
+        :VRChatCacheSizeLoading='VRChatCacheSizeLoading'
+        :folderSelectorDialog='folderSelectorDialog'
+        :hideTooltips='hideTooltips'
+        @getVRChatCacheSize='getVRChatCacheSize'
+        @sweepVRChatCache='sweepVRChatCache')
+
+    YouTubeApiDialog(
+        :isYouTubeApiDialogVisible.sync='isYouTubeApiDialogVisible'
+        :lookupYouTubeVideo='lookupYouTubeVideo'
+        :youTubeApiKey.sync='youTubeApiKey')
+
+    NotificationPositionDialog(
+        :isNotificationPositionDialogVisible.sync='isNotificationPositionDialogVisible'
+        :notificationPosition.sync='notificationPosition'
+        @changeNotificationPosition='changeNotificationPosition')
+
+    AvatarProviderDialog(
+        :isAvatarProviderDialogVisible.sync='isAvatarProviderDialogVisible'
+        :avatarRemoteDatabaseProviderList='avatarRemoteDatabaseProviderList'
+        @saveAvatarProviderList='saveAvatarProviderList'
+        @removeAvatarProvider='removeAvatarProvider')
+
+    RegistryBackupDialog(
+        :isRegistryBackupDialogVisible.sync='isRegistryBackupDialogVisible'
+        :backupVrcRegistry='backupVrcRegistry')
+
+    PrimaryPasswordDialog(
+        :enablePrimaryPasswordDialog.sync='enablePrimaryPasswordDialog'
+        @setPrimaryPassword='setPrimaryPassword')
+
+    //- player list
+    ChatboxBlacklistDialog(
+        :chatboxBlacklistDialog='chatboxBlacklistDialog'
+        :chatboxUserBlacklist='chatboxUserBlacklist'
+        @deleteChatboxUserBlacklist='deleteChatboxUserBlacklist')
+
+    //- invite
+    InviteDialog(
+        :inviteDialog='inviteDialog'
+        :vipFriends='vipFriends'
+        :onlineFriends='onlineFriends'
+        :activeFriends='activeFriends'
+        @showSendInviteDialog='showSendInviteDialog')
+
+    EditAndSendInviteResponseDialog(
+        :editAndSendInviteResponseDialog='editAndSendInviteResponseDialog'
+        :uploadImage='uploadImage'
+        :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
+        :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible')
+
+    SendInviteResponseDialog(
+        :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
+        :inviteResponseMessageTable='inviteResponseMessageTable'
+        @showEditAndSendInviteResponseDialog='showEditAndSendInviteResponseDialog'
+        @inviteImageUpload='inviteImageUpload'
+        @showSendInviteResponseConfirmDialog='showSendInviteResponseConfirmDialog')
+
+    SendInviteRequestResponseDialog(
+        :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible'
+        :inviteRequestResponseMessageTable='inviteRequestResponseMessageTable'
+        @showEditAndSendInviteResponseDialog='showEditAndSendInviteResponseDialog'
+        @inviteImageUpload='inviteImageUpload'
+        @showSendInviteResponseConfirmDialog='showSendInviteResponseConfirmDialog')
+
+    SendInviteResponseConfirmDialog(
+        :sendInviteResponseConfirmDialog.sync='sendInviteResponseConfirmDialog'
+        :uploadImage='uploadImage'
+        :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
+        :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible')
