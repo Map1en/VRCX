@@ -104,6 +104,7 @@ import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/S
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
 import SendInviteConfirmDialog from './components/dialogs/InviteDialog/SendInviteConfirmDialog.vue';
+import EditAndSendInviteDialog from './components/dialogs/InviteDialog/EditAndSendInviteDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -302,7 +303,8 @@ console.log(`isLinux: ${LINUX}`);
             SendInviteResponseConfirmDialog,
             SendInviteDialog,
             SendInviteRequestDialog,
-            SendInviteConfirmDialog
+            SendInviteConfirmDialog,
+            EditAndSendInviteDialog
         },
         provide() {
             return {
@@ -11896,155 +11898,6 @@ console.log(`isLinux: ${LINUX}`);
             messageType,
             inviteMessage
         };
-    };
-
-    $app.methods.saveEditAndSendInvite = async function () {
-        var D = this.editAndSendInviteDialog;
-        D.visible = false;
-        var messageType = D.messageType;
-        var slot = D.inviteMessage.slot;
-        if (D.inviteMessage.message !== D.newMessage) {
-            var params = {
-                message: D.newMessage
-            };
-            await inviteMessagesRequest
-                .editInviteMessage(params, messageType, slot)
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args) => {
-                    API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
-                    if (args.json[slot].message === D.inviteMessage.message) {
-                        this.$message({
-                            message:
-                                "VRChat API didn't update message, try again",
-                            type: 'error'
-                        });
-                        throw new Error(
-                            "VRChat API didn't update message, try again"
-                        );
-                    } else {
-                        this.$message('Invite message updated');
-                    }
-                    return args;
-                });
-        }
-        var I = this.sendInviteDialog;
-        var J = this.inviteDialog;
-        if (J.visible) {
-            var inviteLoop = () => {
-                if (J.userIds.length > 0) {
-                    var receiverUserId = J.userIds.shift();
-                    if (receiverUserId === API.currentUser.id) {
-                        // can't invite self!?
-                        var L = $utils.parseLocation(J.worldId);
-                        instanceRequest
-                            .selfInvite({
-                                instanceId: L.instanceId,
-                                worldId: L.worldId
-                            })
-                            .finally(inviteLoop);
-                    } else if ($app.uploadImage) {
-                        notificationRequest
-                            .sendInvitePhoto(
-                                {
-                                    instanceId: J.worldId,
-                                    worldId: J.worldId,
-                                    worldName: J.worldName,
-                                    messageSlot: slot
-                                },
-                                receiverUserId
-                            )
-                            .finally(inviteLoop);
-                    } else {
-                        notificationRequest
-                            .sendInvite(
-                                {
-                                    instanceId: J.worldId,
-                                    worldId: J.worldId,
-                                    worldName: J.worldName,
-                                    messageSlot: slot
-                                },
-                                receiverUserId
-                            )
-                            .finally(inviteLoop);
-                    }
-                } else {
-                    J.loading = false;
-                    J.visible = false;
-                    this.$message({
-                        message: 'Invite sent',
-                        type: 'success'
-                    });
-                }
-            };
-            inviteLoop();
-        } else if (I.messageType === 'invite') {
-            I.params.messageSlot = slot;
-            if ($app.uploadImage) {
-                notificationRequest
-                    .sendInvitePhoto(I.params, I.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Invite photo message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            } else {
-                notificationRequest
-                    .sendInvite(I.params, I.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Invite message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            }
-        } else if (I.messageType === 'requestInvite') {
-            I.params.requestSlot = slot;
-            if ($app.uploadImage) {
-                notificationRequest
-                    .sendRequestInvitePhoto(I.params, I.userId)
-                    .catch((err) => {
-                        this.clearInviteImageUpload();
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Request invite photo message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            } else {
-                notificationRequest
-                    .sendRequestInvite(I.params, I.userId)
-                    .catch((err) => {
-                        throw err;
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Request invite message sent',
-                            type: 'success'
-                        });
-                        return args;
-                    });
-            }
-        }
-        this.sendInviteDialogVisible = false;
-        this.sendInviteRequestDialogVisible = false;
-    };
-
-    $app.methods.cancelEditAndSendInvite = function () {
-        this.editAndSendInviteDialog.visible = false;
     };
 
     $app.data.sendInviteDialog = {
