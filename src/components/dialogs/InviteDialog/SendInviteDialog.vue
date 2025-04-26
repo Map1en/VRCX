@@ -3,9 +3,10 @@
         ref="sendInviteDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
-        :visible.sync="sendInviteDialogVisible"
+        :visible="sendInviteDialogVisible"
         :title="t('dialog.invite_message.header')"
         width="800px"
+        @close="cancelSendInvite"
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <template v-if="API.currentUser.$isVRCPlus">
@@ -38,7 +39,6 @@
         </template>
 
         <data-tables
-            v-if="sendInviteDialogVisible"
             v-bind="inviteMessageTable"
             style="margin-top: 10px; cursor: pointer"
             @row-click="showSendInviteConfirmDialog">
@@ -79,6 +79,7 @@
         </template>
     </el-dialog>
 </template>
+
 <script setup>
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
@@ -90,7 +91,7 @@
     const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
-    const props = defineProps({
+    defineProps({
         sendInviteDialogVisible: {
             type: Boolean,
             default: false
@@ -101,22 +102,26 @@
         }
     });
 
+    const emit = defineEmits([
+        'inviteImageUpload',
+        'showSendInviteConfirmDialog',
+        'showEditAndSendInviteDialog',
+        'update:sendInviteDialogVisible'
+    ]);
+
     function inviteImageUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            API.uploadInviteImage(file);
-        }
+        emit('inviteImageUpload', event);
     }
 
     function showSendInviteConfirmDialog(row) {
-        API.showSendInviteConfirmDialog(row);
+        emit('showSendInviteConfirmDialog', row);
     }
 
     function showEditAndSendInviteDialog(type, row) {
-        API.showEditAndSendInviteDialog(type, row);
+        emit('showEditAndSendInviteDialog', type, row);
     }
 
     function cancelSendInvite() {
-        API.cancelSendInvite();
+        emit('update:sendInviteDialogVisible', false);
     }
 </script>

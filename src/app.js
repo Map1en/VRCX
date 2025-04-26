@@ -101,6 +101,7 @@ import EditAndSendInviteResponseDialog from './components/dialogs/InviteDialog/E
 import SendInviteResponseDialog from './components/dialogs/InviteDialog/SendInviteResponseDialog.vue';
 import SendInviteRequestResponseDialog from './components/dialogs/InviteDialog/SendInviteRequestResponseDialog.vue';
 import SendInviteResponseConfirmDialog from './components/dialogs/InviteDialog/SendInviteResponseConfirmDialog.vue';
+import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
@@ -296,7 +297,8 @@ console.log(`isLinux: ${LINUX}`);
             EditAndSendInviteResponseDialog,
             SendInviteResponseDialog,
             SendInviteRequestResponseDialog,
-            SendInviteResponseConfirmDialog
+            SendInviteResponseConfirmDialog,
+            SendInviteDialog
         },
         provide() {
             return {
@@ -12221,11 +12223,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.cancelSendInviteRequest = function () {
         this.sendInviteRequestDialogVisible = false;
     };
-
-    API.$on('LOGIN', function () {
-        $app.sendInviteRequestDialogVisible = false;
-        $app.showSendInviteConfirmDialog.visible = false;
-    });
 
     $app.methods.showSendInviteRequestDialog = function (params, userId) {
         this.sendInviteDialog = {
