@@ -1,14 +1,11 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible="changeAvatarImageDialogVisible"
         :title="t('dialog.change_content_image.avatar')"
         width="850px"
         append-to-body
-        @close="closeDialog"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        @close="closeDialog">
         <div v-loading="changeAvatarImageDialogLoading">
             <input
                 id="AvatarImageUploadButton"
@@ -41,7 +38,7 @@
                 </div>
             </div>
         </div>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -55,9 +52,6 @@
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
     const props = defineProps({

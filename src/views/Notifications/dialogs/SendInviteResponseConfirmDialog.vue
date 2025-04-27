@@ -1,14 +1,11 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible="sendInviteResponseConfirmDialog.visible"
         :title="t('dialog.invite_response_message.header')"
         width="400px"
         append-to-body
-        @close="cancelInviteResponseConfirm"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        @close="cancelInviteResponseConfirm">
         <div style="font-size: 12px">
             <span>{{ t('dialog.invite_response_message.confirmation') }}</span>
         </div>
@@ -21,21 +18,17 @@
                 t('dialog.invite_response_message.confirm')
             }}</el-button>
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
-    import { getCurrentInstance, inject } from 'vue';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { notificationRequest } from '../../../api';
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
 
     const props = defineProps({
         sendInviteResponseConfirmDialog: {

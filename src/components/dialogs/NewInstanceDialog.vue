@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         ref="newInstanceDialog"
-        :before-close="beforeDialogClose"
         :visible.sync="newInstanceDialog.visible"
         :title="$t('dialog.new_instance.header')"
         width="650px"
-        append-to-body
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        append-to-body>
         <el-tabs v-model="newInstanceDialog.selectedTab" type="card" @tab-click="newInstanceTabClick">
             <el-tab-pane :label="$t('dialog.new_instance.normal')">
                 <el-form :model="newInstanceDialog" label-width="150px">
@@ -486,7 +483,7 @@
                 >{{ $t('dialog.new_instance.launch') }}</el-button
             >
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script>
@@ -496,17 +493,7 @@
 
     export default {
         name: 'NewInstanceDialog',
-        inject: [
-            'API',
-            'userImage',
-            'userStatusClass',
-            'beforeDialogClose',
-            'dialogMouseDown',
-            'dialogMouseUp',
-            'showInviteDialog',
-            'showLaunchDialog',
-            'adjustDialogZ'
-        ],
+        inject: ['API', 'userImage', 'userStatusClass', 'showInviteDialog', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
             vipFriends: {
                 type: Array,

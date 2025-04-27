@@ -1,14 +1,11 @@
 <template>
-    <el-dialog
+    <safe-dialog
         ref="groupDialogRef"
-        :before-close="beforeDialogClose"
         :visible.sync="groupDialog.visible"
         :show-close="false"
         width="770px"
         top="10vh"
-        class="x-dialog x-group-dialog"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        class="x-dialog x-group-dialog">
         <div class="group-banner-image">
             <el-popover placement="right" width="500px" trigger="click">
                 <img
@@ -1167,7 +1164,7 @@
             @load-all-group-members="loadAllGroupMembers"
             @set-group-member-filter="setGroupMemberFilter"
             @set-group-member-sort-order="setGroupMemberSortOrder" />
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -1181,9 +1178,6 @@
     import * as workerTimers from 'worker-timers';
 
     const API = inject('API');
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const languageClass = inject('languageClass');
     const showUserDialog = inject('showUserDialog');

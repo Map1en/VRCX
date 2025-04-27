@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         ref="worldDialog"
-        :before-close="beforeDialogClose"
         class="x-dialog x-world-dialog"
         :visible.sync="isDialogVisible"
         :show-close="false"
-        width="770px"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        width="770px">
         <div v-loading="worldDialog.loading">
             <div style="display: flex">
                 <el-popover placement="right" width="500px" trigger="click">
@@ -761,7 +758,7 @@
             :active-friends="activeFriends"
             :online-friends="onlineFriends"
             :vip-friends="vipFriends" />
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script>
@@ -785,9 +782,6 @@
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
             'showFullscreenImageDialog',
-            'beforeDialogClose',
-            'dialogMouseDown',
-            'dialogMouseUp',
             'displayPreviousImages',
             'showWorldDialog',
             'showFavoriteDialog',

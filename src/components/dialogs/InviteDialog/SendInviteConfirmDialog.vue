@@ -1,14 +1,11 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible="visible"
         :title="t('dialog.invite_message.header')"
         width="400px"
         append-to-body
-        @close="cancelInviteConfirm"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        @close="cancelInviteConfirm">
         <div style="font-size: 12px">
             <span>{{ t('dialog.invite_message.confirmation') }}</span>
         </div>
@@ -21,7 +18,7 @@
                 {{ t('dialog.invite_message.confirm') }}
             </el-button>
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -34,9 +31,6 @@
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
 
     const props = defineProps({

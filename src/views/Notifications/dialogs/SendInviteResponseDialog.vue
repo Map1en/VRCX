@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible="sendInviteResponseDialogVisible"
         :title="t('dialog.invite_response_message.header')"
         width="800px"
-        @close="cancelSendInviteResponse"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        @close="cancelSendInviteResponse">
         <template v-if="API.currentUser.$isVRCPlus">
             <input class="inviteImageUploadButton" type="file" accept="image/*" @change="inviteImageUpload" />
         </template>
@@ -60,7 +57,7 @@
             :send-invite-response-dialog.sync="sendInviteResponseConfirmDialog"
             :upload-image="uploadImage"
             :send-invite-response-confirm-dialog="sendInviteResponseDialog" />
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -71,9 +68,6 @@
 
     const { t } = useI18n();
 
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const API = inject('API');
     defineProps({
         sendInviteResponseDialogVisible: {

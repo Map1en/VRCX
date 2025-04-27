@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible.sync="changeWorldImageDialogVisible"
         :title="$t('dialog.change_content_image.world')"
         width="850px"
-        append-to-body
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        append-to-body>
         <div v-if="changeWorldImageDialogVisible" v-loading="changeWorldImageDialogLoading">
             <input
                 id="WorldImageUploadButton"
@@ -44,9 +41,7 @@
                 </div>
             </div>
         </div>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
-<script setup>
-    import { inject } from 'vue';
-</script>
+<script setup></script>

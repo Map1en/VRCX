@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible.sync="inviteDialog.visible"
         :title="t('dialog.invite.header')"
         width="500px"
-        append-to-body
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        append-to-body>
         <div v-if="inviteDialog.visible" v-loading="inviteDialog.loading">
             <location :location="inviteDialog.worldId" :link="false"></location>
             <br />
@@ -157,7 +154,7 @@
                 >{{ t('dialog.invite.invite') }}</el-button
             >
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -172,9 +169,6 @@
     const $message = instance.proxy.$message;
     const $confirm = instance.proxy.$confirm;
 
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
     const API = inject('API');

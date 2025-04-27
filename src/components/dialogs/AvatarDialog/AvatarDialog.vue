@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         ref="avatarDialogRef"
         class="x-dialog x-avatar-dialog"
-        :before-close="beforeDialogClose"
         :visible.sync="avatarDialog.visible"
         :show-close="false"
-        width="600px"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        width="600px">
         <div v-loading="avatarDialog.loading">
             <div style="display: flex">
                 <el-popover placement="right" width="500px" trigger="click">
@@ -512,7 +509,7 @@
             :avatar-dialog="avatarDialog"
             :previous-images-file-id="previousImagesFileId"
             @refresh="displayPreviousImages" />
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -527,9 +524,6 @@
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
 
     const API = inject('API');
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');

@@ -1,13 +1,10 @@
 <template>
-    <el-dialog
+    <safe-dialog
         class="x-dialog"
-        :before-close="beforeDialogClose"
         :visible="sendBoopDialog.visible"
         :title="t('dialog.boop_dialog.header')"
         width="450px"
-        @close="closeDialog"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        @close="closeDialog">
         <el-select
             v-model="sendBoopDialog.userId"
             :placeholder="t('dialog.new_instance.instance_creator_placeholder')"
@@ -165,7 +162,7 @@
                 t('dialog.boop_dialog.send')
             }}</el-button>
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script setup>
@@ -177,9 +174,6 @@
 
     const { t } = useI18n();
 
-    const beforeDialogClose = inject('beforeDialogClose');
-    const dialogMouseDown = inject('dialogMouseDown');
-    const dialogMouseUp = inject('dialogMouseUp');
     const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
     const showGalleryDialog = inject('showGalleryDialog');

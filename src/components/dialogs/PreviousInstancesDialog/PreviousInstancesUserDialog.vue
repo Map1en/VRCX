@@ -1,12 +1,9 @@
 <template>
-    <el-dialog
+    <safe-dialog
         ref="previousInstancesUserDialog"
-        :before-close="beforeDialogClose"
         :visible.sync="isVisible"
         :title="$t('dialog.previous_instances.header')"
-        width="1000px"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        width="1000px">
         <div style="display: flex; align-items: center; justify-content: space-between">
             <span style="font-size: 14px" v-text="previousInstancesUserDialog.userRef.displayName"></span>
             <el-input
@@ -68,7 +65,7 @@
                 </template>
             </el-table-column>
         </data-tables>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script>
@@ -81,14 +78,7 @@
         components: {
             Location
         },
-        inject: [
-            'beforeDialogClose',
-            'dialogMouseDown',
-            'dialogMouseUp',
-            'adjustDialogZ',
-            'showLaunchDialog',
-            'showPreviousInstancesInfoDialog'
-        ],
+        inject: ['adjustDialogZ', 'showLaunchDialog', 'showPreviousInstancesInfoDialog'],
         props: {
             previousInstancesUserDialog: {
                 type: Object,

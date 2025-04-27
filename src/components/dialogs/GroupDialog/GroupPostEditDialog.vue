@@ -1,13 +1,9 @@
 <template>
-    <el-dialog
-        ref="groupPostEditDialog"
-        :before-close="beforeDialogClose"
+    <safe-dialog
         :visible.sync="groupPostEditDialog.visible"
         :title="$t('dialog.group_post_edit.header')"
         width="650px"
-        append-to-body
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+        append-to-body>
         <div v-if="groupPostEditDialog.visible">
             <h3 v-text="groupPostEditDialog.groupRef.name"></h3>
             <el-form :model="groupPostEditDialog" label-width="150px">
@@ -107,7 +103,7 @@
                 {{ $t('dialog.group_post_edit.create_post') }}
             </el-button>
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script>
@@ -115,13 +111,7 @@
 
     export default {
         name: 'GroupPostEditDialog',
-        inject: [
-            'beforeDialogClose',
-            'showFullscreenImageDialog',
-            'dialogMouseDown',
-            'dialogMouseUp',
-            'showGallerySelectDialog'
-        ],
+        inject: ['showFullscreenImageDialog', 'showGallerySelectDialog'],
         props: {
             dialogData: {
                 type: Object,

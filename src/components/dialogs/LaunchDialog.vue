@@ -1,12 +1,5 @@
 <template>
-    <el-dialog
-        ref="launchDialog"
-        :before-close="beforeDialogClose"
-        :visible.sync="isVisible"
-        :title="$t('dialog.launch.header')"
-        width="450px"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp">
+    <safe-dialog ref="launchDialog" :visible.sync="isVisible" :title="$t('dialog.launch.header')" width="450px">
         <el-form :model="launchDialog" label-width="100px">
             <el-form-item :label="$t('dialog.launch.url')">
                 <el-input
@@ -84,7 +77,7 @@
                 {{ $t('dialog.launch.launch') }}
             </el-button>
         </template>
-    </el-dialog>
+    </safe-dialog>
 </template>
 
 <script>
@@ -94,14 +87,7 @@
 
     export default {
         name: 'LaunchDialog',
-        inject: [
-            'beforeDialogClose',
-            'dialogMouseDown',
-            'dialogMouseUp',
-            'showPreviousInstancesInfoDialog',
-            'showInviteDialog',
-            'adjustDialogZ'
-        ],
+        inject: ['showPreviousInstancesInfoDialog', 'showInviteDialog', 'adjustDialogZ'],
         props: {
             hideTooltips: Boolean,
             launchDialogData: { type: Object, required: true },
