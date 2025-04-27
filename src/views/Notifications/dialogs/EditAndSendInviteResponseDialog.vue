@@ -1,11 +1,11 @@
 <template>
     <el-dialog
-        ref="editAndSendInviteResponseDialog"
         class="x-dialog"
         :before-close="beforeDialogClose"
         :visible.sync="editAndSendInviteResponseDialog.visible"
         :title="t('dialog.edit_send_invite_response_message.header')"
         width="400px"
+        append-to-body
         @mousedown.native="dialogMouseDown"
         @mouseup.native="dialogMouseUp">
         <div style="font-size: 12px">
@@ -53,20 +53,21 @@
         },
         uploadImage: {
             type: String
+        },
+        sendInviteResponseDialog: {
+            type: Object,
+            default: () => ({})
         }
     });
 
-    const emit = defineEmits([
-        'update:sendInviteResponseDialogVisible',
-        'update:sendInviteRequestResponseDialogVisible'
-    ]);
+    const emit = defineEmits(['closeInviteDialog', 'update:editAndSendInviteResponseDialog']);
 
     function cancelEditAndSendInviteResponse() {
-        props.editAndSendInviteResponseDialog.visible = false;
+        emit('update:editAndSendInviteResponseDialog', { ...props.editAndSendInviteResponseDialog, visible: false });
     }
 
     async function saveEditAndSendInviteResponse() {
-        const D = this.editAndSendInviteResponseDialog;
+        const D = props.editAndSendInviteResponseDialog;
         D.visible = false;
         const messageType = D.messageType;
         const slot = D.inviteMessage.slot;
@@ -82,18 +83,18 @@
                 .then((args) => {
                     API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
                     if (args.json[slot].message === D.inviteMessage.message) {
-                        this.$message({
+                        $message({
                             message: "VRChat API didn't update message, try again",
                             type: 'error'
                         });
                         throw new Error("VRChat API didn't update message, try again");
                     } else {
-                        this.$message('Invite message updated');
+                        $message('Invite message updated');
                     }
                     return args;
                 });
         }
-        const I = this.sendInviteResponseDialog;
+        const I = props.sendInviteResponseDialog;
         const params = {
             responseSlot: slot,
             rsvp: true
@@ -113,8 +114,7 @@
                         type: 'success'
                     });
 
-                    emit('update:sendInviteResponseDialogVisible', false);
-                    emit('update:sendInviteRequestResponseDialogVisible', false);
+                    emit('closeInviteDialog');
 
                     return args;
                 });
@@ -132,8 +132,7 @@
                         message: 'Invite response message sent',
                         type: 'success'
                     });
-                    emit('update:sendInviteResponseDialogVisible', false);
-                    emit('update:sendInviteRequestResponseDialogVisible', false);
+                    emit('closeInviteDialog');
 
                     return args;
                 });

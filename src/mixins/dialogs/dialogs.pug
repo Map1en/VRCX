@@ -197,31 +197,17 @@ mixin dialogs
         :activeFriends='activeFriends'
         @showSendInviteDialog='showSendInviteDialog')
 
-    EditAndSendInviteResponseDialog(
-        :editAndSendInviteResponseDialog='editAndSendInviteResponseDialog'
-        :uploadImage='uploadImage'
-        :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
-        :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible')
-
     SendInviteResponseDialog(
         :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
         :inviteResponseMessageTable='inviteResponseMessageTable'
-        @showEditAndSendInviteResponseDialog='showEditAndSendInviteResponseDialog'
-        @inviteImageUpload='inviteImageUpload'
-        @showSendInviteResponseConfirmDialog='showSendInviteResponseConfirmDialog')
+        :uploadImage='uploadImage'
+        @inviteImageUpload='inviteImageUpload')
 
     SendInviteRequestResponseDialog(
         :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible'
         :inviteRequestResponseMessageTable='inviteRequestResponseMessageTable'
-        @showEditAndSendInviteResponseDialog='showEditAndSendInviteResponseDialog'
-        @inviteImageUpload='inviteImageUpload'
-        @showSendInviteResponseConfirmDialog='showSendInviteResponseConfirmDialog')
-
-    SendInviteResponseConfirmDialog(
-        :sendInviteResponseConfirmDialog.sync='sendInviteResponseConfirmDialog'
         :uploadImage='uploadImage'
-        :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
-        :sendInviteRequestResponseDialogVisible.sync='sendInviteRequestResponseDialogVisible')
+        @inviteImageUpload='inviteImageUpload')
 
     SendInviteDialog(
         :sendInviteDialogVisible.sync='sendInviteDialogVisible'

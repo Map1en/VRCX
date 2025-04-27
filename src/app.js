@@ -97,10 +97,8 @@ import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import InviteDialog from './components/dialogs/InviteDialog/InviteDialog.vue';
-import EditAndSendInviteResponseDialog from './views/Notifications/dialogs/EditAndSendInviteResponseDialog.vue';
 import SendInviteResponseDialog from './views/Notifications/dialogs/SendInviteResponseDialog.vue';
 import SendInviteRequestResponseDialog from './views/Notifications/dialogs/SendInviteRequestResponseDialog.vue';
-import SendInviteResponseConfirmDialog from './views/Notifications/dialogs/SendInviteResponseConfirmDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
 
@@ -295,10 +293,9 @@ console.log(`isLinux: ${LINUX}`);
             PrimaryPasswordDialog,
             //  - invite
             InviteDialog,
-            EditAndSendInviteResponseDialog,
+
             SendInviteResponseDialog,
             SendInviteRequestResponseDialog,
-            SendInviteResponseConfirmDialog,
             SendInviteDialog,
             SendInviteRequestDialog
         },
@@ -11800,28 +11797,6 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Edit and Send Invite Response Message Dialog
 
-    $app.data.editAndSendInviteResponseDialog = {
-        visible: false,
-        inviteMessage: {},
-        messageType: '',
-        newMessage: ''
-    };
-
-    $app.methods.showEditAndSendInviteResponseDialog = function (
-        messageType,
-        inviteMessage
-    ) {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.editAndSendInviteResponseDialog.$el)
-        );
-        this.editAndSendInviteResponseDialog = {
-            newMessage: inviteMessage.message,
-            visible: true,
-            messageType,
-            inviteMessage
-        };
-    };
-
     $app.data.sendInviteResponseDialog = {
         message: '',
         messageSlot: 0,
@@ -11839,25 +11814,8 @@ console.log(`isLinux: ${LINUX}`);
             invite
         };
         inviteMessagesRequest.refreshInviteMessageTableData('response');
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.sendInviteResponseDialog.$el)
-        );
         this.clearInviteImageUpload();
         this.sendInviteResponseDialogVisible = true;
-    };
-
-    $app.methods.showSendInviteResponseConfirmDialog = function (val) {
-        if (
-            this.editAndSendInviteResponseDialog.visible === true ||
-            val === null
-        ) {
-            return;
-        }
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.sendInviteResponseConfirmDialog.$el)
-        );
-        this.sendInviteResponseConfirmDialog.visible = true;
-        this.sendInviteResponseDialog.messageSlot = val.slot;
     };
 
     // #endregion
