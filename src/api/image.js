@@ -14,7 +14,7 @@ const imageReq = {
             method: 'PUT'
         });
         window.$app.avatarDialog.loading = false;
-        window.$app.changeAvatarImageDialogLoading = false;
+        // window.$app.changeAvatarImageDialogLoading = false;
     },
 
     async uploadAvatarImage(params, fileId) {
@@ -28,14 +28,15 @@ const imageReq = {
                     params,
                     fileId
                 };
-                window.API.$emit('AVATARIMAGE:INIT', args);
+                // window.API.$emit('AVATARIMAGE:INIT', args);
                 return args;
             });
         } catch (err) {
             console.error(err);
             window.API.uploadAvatarFailCleanup(fileId);
+            throw err;
         }
-        return void 0;
+        // return void 0;
     },
 
     async uploadAvatarImageFileStart(params) {
@@ -50,7 +51,7 @@ const imageReq = {
                     json,
                     params
                 };
-                window.API.$emit('AVATARIMAGE:FILESTART', args);
+                // window.API.$emit('AVATARIMAGE:FILESTART', args);
                 return args;
             });
         } catch (err) {
@@ -75,7 +76,7 @@ const imageReq = {
                 json,
                 params
             };
-            window.API.$emit('AVATARIMAGE:FILEFINISH', args);
+            // window.API.$emit('AVATARIMAGE:FILEFINISH', args);
             return args;
         });
     },
@@ -92,7 +93,7 @@ const imageReq = {
                     json,
                     params
                 };
-                window.API.$emit('AVATARIMAGE:SIGSTART', args);
+                // window.API.$emit('AVATARIMAGE:SIGSTART', args);
                 return args;
             });
         } catch (err) {
@@ -117,7 +118,7 @@ const imageReq = {
                 json,
                 params
             };
-            window.API.$emit('AVATARIMAGE:SIGFINISH', args);
+            // window.API.$emit('AVATARIMAGE:SIGFINISH', args);
             return args;
         });
     },
@@ -131,7 +132,7 @@ const imageReq = {
                 json,
                 params
             };
-            window.API.$emit('AVATARIMAGE:SET', args);
+            // window.API.$emit('AVATARIMAGE:SET', args);
             window.API.$emit('AVATAR', args);
             return args;
         });

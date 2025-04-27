@@ -11997,206 +11997,6 @@ console.log(`isLinux: ${LINUX}`);
         return response;
     };
 
-    // Upload avatar image
-
-    $app.methods.onFileChangeAvatarImage = function (e) {
-        var clearFile = function () {
-            if (document.querySelector('#AvatarImageUploadButton')) {
-                document.querySelector('#AvatarImageUploadButton').value = '';
-            }
-        };
-        var files = e.target.files || e.dataTransfer.files;
-        if (
-            !files.length ||
-            !this.avatarDialog.visible ||
-            this.avatarDialog.loading
-        ) {
-            clearFile();
-            return;
-        }
-        if (files[0].size >= 100000000) {
-            // 100MB
-            $app.$message({
-                message: $t('message.file.too_large'),
-                type: 'error'
-            });
-            clearFile();
-            return;
-        }
-        if (!files[0].type.match(/image.*/)) {
-            $app.$message({
-                message: $t('message.file.not_image'),
-                type: 'error'
-            });
-            clearFile();
-            return;
-        }
-        this.avatarDialog.loading = true;
-        this.changeAvatarImageDialogLoading = true;
-        var r = new FileReader();
-        r.onload = async function (file) {
-            var base64File = await $app.resizeImageToFitLimits(btoa(r.result));
-            // 10MB
-            var fileMd5 = await $app.genMd5(base64File);
-            var fileSizeInBytes = parseInt(file.total, 10);
-            var base64SignatureFile = await $app.genSig(base64File);
-            var signatureMd5 = await $app.genMd5(base64SignatureFile);
-            var signatureSizeInBytes = parseInt(
-                await $app.genLength(base64SignatureFile),
-                10
-            );
-            var avatarId = $app.avatarDialog.id;
-            var { imageUrl } = $app.avatarDialog.ref;
-            var fileId = $utils.extractFileId(imageUrl);
-            if (!fileId) {
-                $app.$message({
-                    message: $t('message.avatar.image_invalid'),
-                    type: 'error'
-                });
-                clearFile();
-                return;
-            }
-            $app.avatarImage = {
-                base64File,
-                fileMd5,
-                base64SignatureFile,
-                signatureMd5,
-                fileId,
-                avatarId
-            };
-            var params = {
-                fileMd5,
-                fileSizeInBytes,
-                signatureMd5,
-                signatureSizeInBytes
-            };
-            imageRequest.uploadAvatarImage(params, fileId);
-        };
-        r.readAsBinaryString(files[0]);
-        clearFile();
-    };
-
-    API.$on('AVATARIMAGE:INIT', function (args) {
-        var fileId = args.json.id;
-        var fileVersion =
-            args.json.versions[args.json.versions.length - 1].version;
-        var params = {
-            fileId,
-            fileVersion
-        };
-        imageRequest.uploadAvatarImageFileStart(params);
-    });
-
-    API.$on('AVATARIMAGE:FILESTART', function (args) {
-        var { url } = args.json;
-        var { fileId, fileVersion } = args.params;
-        var params = {
-            url,
-            fileId,
-            fileVersion
-        };
-        this.uploadAvatarImageFileAWS(params);
-    });
-
-    API.uploadAvatarImageFileAWS = function (params) {
-        return webApiService
-            .execute({
-                url: params.url,
-                uploadFilePUT: true,
-                fileData: $app.avatarImage.base64File,
-                fileMIME: 'image/png',
-                headers: {
-                    'Content-MD5': $app.avatarImage.fileMd5
-                }
-            })
-            .then((json) => {
-                if (json.status !== 200) {
-                    $app.avatarDialog.loading = false;
-                    $app.changeAvatarImageDialogLoading = false;
-                    this.$throw('Avatar image upload failed', json, params.url);
-                }
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('AVATARIMAGE:FILEAWS', args);
-                return args;
-            });
-    };
-
-    API.$on('AVATARIMAGE:FILEAWS', function (args) {
-        var { fileId, fileVersion } = args.params;
-        var params = {
-            fileId,
-            fileVersion
-        };
-        imageRequest.uploadAvatarImageFileFinish(params);
-    });
-
-    API.$on('AVATARIMAGE:FILEFINISH', function (args) {
-        var { fileId, fileVersion } = args.params;
-        var params = {
-            fileId,
-            fileVersion
-        };
-        imageRequest.uploadAvatarImageSigStart(params);
-    });
-
-    API.$on('AVATARIMAGE:SIGSTART', function (args) {
-        var { url } = args.json;
-        var { fileId, fileVersion } = args.params;
-        var params = {
-            url,
-            fileId,
-            fileVersion
-        };
-        this.uploadAvatarImageSigAWS(params);
-    });
-
-    API.uploadAvatarImageSigAWS = function (params) {
-        return webApiService
-            .execute({
-                url: params.url,
-                uploadFilePUT: true,
-                fileData: $app.avatarImage.base64SignatureFile,
-                fileMIME: 'application/x-rsync-signature',
-                headers: {
-                    'Content-MD5': $app.avatarImage.signatureMd5
-                }
-            })
-            .then((json) => {
-                if (json.status !== 200) {
-                    $app.avatarDialog.loading = false;
-                    $app.changeAvatarImageDialogLoading = false;
-                    this.$throw('Avatar image upload failed', json, params.url);
-                }
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('AVATARIMAGE:SIGAWS', args);
-                return args;
-            });
-    };
-
-    API.$on('AVATARIMAGE:SIGAWS', function (args) {
-        var { fileId, fileVersion } = args.params;
-        var params = {
-            fileId,
-            fileVersion
-        };
-        imageRequest.uploadAvatarImageSigFinish(params);
-    });
-
-    API.$on('AVATARIMAGE:SIGFINISH', function (args) {
-        var { fileId, fileVersion } = args.params;
-        var parmas = {
-            id: $app.avatarImage.avatarId,
-            imageUrl: `${API.endpointDomain}/file/${fileId}/${fileVersion}/file`
-        };
-        imageRequest.setAvatarImage(parmas);
-    });
-
     // Upload world image
 
     $app.methods.onFileChangeWorldImage = function (e) {
@@ -12397,20 +12197,6 @@ console.log(`isLinux: ${LINUX}`);
         imageRequest.setWorldImage(parmas);
     });
 
-    API.$on('AVATARIMAGE:SET', function (args) {
-        $app.avatarDialog.loading = false;
-        $app.changeAvatarImageDialogLoading = false;
-        if (args.json.imageUrl === args.params.imageUrl) {
-            $app.$message({
-                message: $t('message.avatar.image_changed'),
-                type: 'success'
-            });
-            $app.displayPreviousImages('Avatar', 'Change');
-        } else {
-            this.$throw(0, 'Avatar image change failed', args.params.imageUrl);
-        }
-    });
-
     API.$on('WORLDIMAGE:SET', function (args) {
         $app.worldDialog.loading = false;
         $app.changeWorldImageDialogLoading = false;
@@ -12431,9 +12217,10 @@ console.log(`isLinux: ${LINUX}`);
         this.previousImagesTableFileId = '';
         this.previousImagesTable = [];
         var imageUrl = '';
-        if (type === 'Avatar') {
-            var { imageUrl } = this.avatarDialog.ref;
-        } else if (type === 'World') {
+        // if (type === 'Avatar') {
+        //     var { imageUrl } = this.avatarDialog.ref;
+        // } else
+        if (type === 'World') {
             var { imageUrl } = this.worldDialog.ref;
         } else if (type === 'User') {
             imageUrl = this.userDialog.ref.currentAvatarImageUrl;
@@ -12451,24 +12238,25 @@ console.log(`isLinux: ${LINUX}`);
                 $app.adjustDialogZ(this.$refs.previousImagesDialog.$el)
             );
         }
-        if (type === 'Avatar') {
-            if (command === 'Change') {
-                this.changeAvatarImageDialogVisible = true;
-                this.$nextTick(() =>
-                    $app.adjustDialogZ(this.$refs.changeAvatarImageDialog.$el)
-                );
-            }
-            imageRequest.getAvatarImages(params).then((args) => {
-                this.previousImagesTableFileId = args.json.id;
-                var images = [];
-                args.json.versions.forEach((item) => {
-                    if (!item.deleted) {
-                        images.unshift(item);
-                    }
-                });
-                this.checkPreviousImageAvailable(images);
-            });
-        } else if (type === 'World') {
+        // if (type === 'Avatar') {
+        //     if (command === 'Change') {
+        //         this.changeAvatarImageDialogVisible = true;
+        //         this.$nextTick(() =>
+        //             $app.adjustDialogZ(this.$refs.changeAvatarImageDialog.$el)
+        //         );
+        //     }
+        //     imageRequest.getAvatarImages(params).then((args) => {
+        //         this.previousImagesTableFileId = args.json.id;
+        //         var images = [];
+        //         args.json.versions.forEach((item) => {
+        //             if (!item.deleted) {
+        //                 images.unshift(item);
+        //             }
+        //         });
+        //         this.checkPreviousImageAvailable(images);
+        //     });
+        // } else
+        if (type === 'World') {
             if (command === 'Change') {
                 this.changeWorldImageDialogVisible = true;
                 this.$nextTick(() =>
@@ -12517,8 +12305,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.data.previousImagesDialogVisible = false;
-    $app.data.changeAvatarImageDialogVisible = false;
-    $app.data.changeAvatarImageDialogLoading = false;
     $app.data.changeWorldImageDialogVisible = false;
     $app.data.changeWorldImageDialogLoading = false;
     $app.data.previousImagesTable = [];
@@ -12552,46 +12338,6 @@ console.log(`isLinux: ${LINUX}`);
         API.cachedAvatarNames.set(fileId, avatarInfo);
         return avatarInfo;
     };
-
-    $app.methods.setAvatarImage = function (image) {
-        this.changeAvatarImageDialogLoading = true;
-        var parmas = {
-            id: this.avatarDialog.id,
-            imageUrl: `${API.endpointDomain}/file/${this.previousImagesTableFileId}/${image.version}/file`
-        };
-        imageRequest.setAvatarImage(parmas).finally(() => {
-            this.changeAvatarImageDialogLoading = false;
-            this.changeAvatarImageDialogVisible = false;
-        });
-    };
-
-    $app.methods.uploadAvatarImage = function () {
-        document.getElementById('AvatarImageUploadButton').click();
-    };
-
-    // images.pug line 63, useless now
-    // $app.methods.deleteAvatarImage = function () {
-    //     this.changeAvatarImageDialogLoading = true;
-    //     var parmas = {
-    //         fileId: this.previousImagesTableFileId,
-    //         version: this.previousImagesTable[0].version
-    //     };
-    //     vrcPlusIconRequest
-    //         .deleteFileVersion(parmas)
-    //         .then((args) => {
-    //             this.previousImagesTableFileId = args.json.id;
-    //             var images = [];
-    //             args.json.versions.forEach((item) => {
-    //                 if (!item.deleted) {
-    //                     images.unshift(item);
-    //                 }
-    //             });
-    //             this.checkPreviousImageAvailable(images);
-    //         })
-    //         .finally(() => {
-    //             this.changeAvatarImageDialogLoading = false;
-    //         });
-    // };
 
     $app.methods.setWorldImage = function (image) {
         this.changeWorldImageDialogLoading = true;

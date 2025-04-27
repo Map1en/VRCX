@@ -506,6 +506,12 @@
         </div>
         <SetAvatarTagsDialog :set-avatar-tags-dialog="setAvatarTagsDialog" />
         <SetAvatarStylesDialog :set-avatar-styles-dialog="setAvatarStylesDialog" />
+        <ChangeAvatarImageDialog
+            :change-avatar-image-dialog-visible.sync="changeAvatarImageDialogVisible"
+            :previous-images-table="previousImagesTable"
+            :avatar-dialog="avatarDialog"
+            :previous-images-file-id="previousImagesFileId"
+            @refresh="displayPreviousImages" />
     </el-dialog>
 </template>
 
@@ -513,11 +519,12 @@
     import { inject, computed, getCurrentInstance, reactive, nextTick, watch, ref } from 'vue';
     import utils from '../../../classes/utils';
     import database from '../../../service/database';
-    import { avatarModerationRequest, avatarRequest, favoriteRequest, miscRequest } from '../../../api';
+    import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
     import { useI18n } from 'vue-i18n-bridge';
 
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
+    import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
 
     const API = inject('API');
     const beforeDialogClose = inject('beforeDialogClose');
@@ -525,7 +532,6 @@
     const dialogMouseUp = inject('dialogMouseUp');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showUserDialog = inject('showUserDialog');
-    const displayPreviousImages = inject('displayPreviousImages');
     const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const openExternalLink = inject('openExternalLink');
@@ -533,11 +539,15 @@
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
-    const $message = instance.proxy.$message;
-    const $confirm = instance.proxy.$confirm;
-    const $prompt = instance.proxy.$prompt;
+    const { $message, $confirm, $prompt } = instance.proxy;
 
-    const emit = defineEmits(['openFolderGeneric', 'deleteVRChatCache']);
+    const emit = defineEmits([
+        'openFolderGeneric',
+        'deleteVRChatCache',
+        'openPreviousImagesDialog',
+        'checkPreviousImageAvailable',
+        'update:previousImagesTable'
+    ]);
 
     const props = defineProps({
         avatarDialog: {
@@ -551,10 +561,16 @@
         isGameRunning: {
             type: Boolean,
             default: false
+        },
+        previousImagesTable: {
+            type: Array,
+            default: () => []
         }
     });
 
     const avatarDialogRef = ref(null);
+    const changeAvatarImageDialogVisible = ref(false);
+    const previousImagesFileId = ref('');
 
     const treeData = ref([]);
     const timeSpent = ref(0);
@@ -677,10 +693,10 @@
                 promptRenameAvatar(D);
                 break;
             case 'Change Image':
-                displayPreviousImages('Avatar', 'Change');
+                displayPreviousImages('Change');
                 break;
             case 'Previous Images':
-                displayPreviousImages('Avatar', 'Display');
+                displayPreviousImages('Display');
                 break;
             case 'Change Description':
                 promptChangeAvatarDescription(D);
@@ -856,6 +872,39 @@
                 });
                 break;
         }
+    }
+
+    function displayPreviousImages(command) {
+        emit('update:previousImagesTable', []);
+        previousImagesFileId.value = '';
+        const { imageUrl } = props.avatarDialog.ref;
+        const fileId = utils.extractFileId(imageUrl);
+        if (!fileId) {
+            return;
+        }
+        const params = {
+            fileId
+        };
+        if (command === 'Display') {
+            // TODO: when userDialog splitting is done, remove this
+            // this.previousImagesDialogVisible = true;
+            emit('openPreviousImagesDialog');
+        }
+
+        if (command === 'Change') {
+            changeAvatarImageDialogVisible.value = true;
+        }
+        imageRequest.getAvatarImages(params).then((args) => {
+            previousImagesFileId.value = args.json.id;
+
+            const images = [];
+            args.json.versions.forEach((item) => {
+                if (!item.deleted) {
+                    images.unshift(item);
+                }
+            });
+            emit('checkPreviousImageAvailable', images);
+        });
     }
 
     function selectAvatar(id) {

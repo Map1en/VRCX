@@ -105,8 +105,11 @@ mixin dialogs
         :avatarDialog='avatarDialog'
         :hideTooltips='hideTooltips'
         :isGameRunning='isGameRunning'
+        :previousImagesTable.sync='previousImagesTable'
         @openFolderGeneric='openFolderGeneric'
-        @deleteVRChatCache='deleteVRChatCache')
+        @deleteVRChatCache='deleteVRChatCache'
+        @openPreviousImagesDialog='previousImagesDialogVisible = true'
+        @checkPreviousImageAvailable='checkPreviousImageAvailable')
 
     //- settings
     FeedFiltersDialog(
