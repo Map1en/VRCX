@@ -313,9 +313,6 @@ console.log(`isLinux: ${LINUX}`);
                 showFullscreenImageDialog: this.showFullscreenImageDialog,
                 statusClass: this.statusClass,
                 openExternalLink: this.openExternalLink,
-                beforeDialogClose: this.beforeDialogClose,
-                dialogMouseDown: this.dialogMouseDown,
-                dialogMouseUp: this.dialogMouseUp,
                 showWorldDialog: this.showWorldDialog,
                 showAvatarDialog: this.showAvatarDialog,
                 showPreviousInstancesInfoDialog:
