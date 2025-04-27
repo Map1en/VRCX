@@ -130,6 +130,8 @@
             clearFile();
             return;
         }
+
+        // validate file
         if (files[0].size >= 100000000) {
             // 100MB
             $message({
@@ -147,51 +149,65 @@
             clearFile();
             return;
         }
-        changeAvatarImageDialogLoading.value = true;
+
         const r = new FileReader();
         r.onload = async function (file) {
-            const base64File = await resizeImageToFitLimits(btoa(r.result));
-            // 10MB
-            const fileMd5 = await genMd5(base64File);
-            const fileSizeInBytes = parseInt(file.total, 10);
-            const base64SignatureFile = await genSig(base64File);
-            const signatureMd5 = await genMd5(base64SignatureFile);
-            const signatureSizeInBytes = parseInt(await genLength(base64SignatureFile), 10);
-            const avatarId = props.avatarDialog.id;
-            const { imageUrl } = props.avatarDialog.ref;
-            const fileId = utils.extractFileId(imageUrl);
-            if (!fileId) {
-                $message({
-                    message: t('message.avatar.image_invalid'),
-                    type: 'error'
-                });
-                clearFile();
-                return;
-            }
+            try {
+                const base64File = await resizeImageToFitLimits(btoa(r.result));
+                // 10MB
+                const fileMd5 = await genMd5(base64File);
+                const fileSizeInBytes = parseInt(file.total, 10);
+                const base64SignatureFile = await genSig(base64File);
+                const signatureMd5 = await genMd5(base64SignatureFile);
+                const signatureSizeInBytes = parseInt(await genLength(base64SignatureFile), 10);
 
-            avatarImage.value = {
-                base64File,
-                fileMd5,
-                base64SignatureFile,
-                signatureMd5,
-                fileId,
-                avatarId
-            };
-            const params = {
-                fileMd5,
-                fileSizeInBytes,
-                signatureMd5,
-                signatureSizeInBytes
-            };
-            imageRequest
-                .uploadAvatarImage(params, fileId)
-                .then((args) => {
-                    avatarImageInit(args).then((args) => avatarImageFileStart(args));
-                })
-                .catch(() => (changeAvatarImageDialogLoading.value = false));
+                const avatarId = props.avatarDialog.id;
+                const { imageUrl } = props.avatarDialog.ref;
+
+                const fileId = utils.extractFileId(imageUrl);
+                if (!fileId) {
+                    $message({
+                        message: t('message.avatar.image_invalid'),
+                        type: 'error'
+                    });
+                    clearFile();
+                    return;
+                }
+
+                avatarImage.value = {
+                    base64File,
+                    fileMd5,
+                    base64SignatureFile,
+                    signatureMd5,
+                    fileId,
+                    avatarId
+                };
+                const params = {
+                    fileMd5,
+                    fileSizeInBytes,
+                    signatureMd5,
+                    signatureSizeInBytes
+                };
+
+                // Upload chaining
+                await initiateUpload(params, fileId);
+            } catch (error) {
+                console.error('Avatar image upload process failed:', error);
+            } finally {
+                changeAvatarImageDialogLoading.value = false;
+                clearFile();
+            }
         };
+
+        changeAvatarImageDialogLoading.value = true;
         r.readAsBinaryString(files[0]);
-        clearFile();
+    }
+
+    // ------------ Upload Process Start ------------
+
+    async function initiateUpload(params, fileId) {
+        const res = await imageRequest.uploadAvatarImage(params, fileId);
+        return avatarImageInit(res);
     }
 
     async function avatarImageInit(args) {
@@ -203,10 +219,10 @@
             fileVersion
         };
         const res = await imageRequest.uploadAvatarImageFileStart(params);
-        return res;
+        return avatarImageFileStart(res);
     }
 
-    function avatarImageFileStart(args) {
+    async function avatarImageFileStart(args) {
         // API.$on('AVATARIMAGE:FILESTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
@@ -215,35 +231,29 @@
             fileId,
             fileVersion
         };
-        uploadAvatarImageFileAWS(params);
+        return uploadAvatarImageFileAWS(params);
     }
 
-    function uploadAvatarImageFileAWS(params) {
-        return webApiService
-            .execute({
-                url: params.url,
-                uploadFilePUT: true,
+    async function uploadAvatarImageFileAWS(params) {
+        const json = await webApiService.execute({
+            url: params.url,
+            uploadFilePUT: true,
+            fileData: avatarImage.value.base64File,
+            fileMIME: 'image/png',
+            headers: {
+                'Content-MD5': avatarImage.value.fileMd5
+            }
+        });
 
-                fileData: avatarImage.value.base64File,
-                fileMIME: 'image/png',
-
-                headers: {
-                    'Content-MD5': avatarImage.value.fileMd5
-                }
-            })
-            .then((json) => {
-                if (json.status !== 200) {
-                    // props.avatarDialog.loading = false;
-                    changeAvatarImageDialogLoading.value = false;
-                    API.$throw('Avatar image upload failed', json, params.url);
-                }
-                const args = {
-                    json,
-                    params
-                };
-                avatarImageFileAWS(args);
-                return args;
-            });
+        if (json.status !== 200) {
+            changeAvatarImageDialogLoading.value = false;
+            API.$throw('Avatar image upload failed', json, params.url);
+        }
+        const args = {
+            json,
+            params
+        };
+        return avatarImageFileAWS(args);
     }
 
     async function avatarImageFileAWS(args) {
@@ -254,7 +264,7 @@
             fileVersion
         };
         const res = await imageRequest.uploadAvatarImageFileFinish(params);
-        avatarImageFileFinish(res);
+        return avatarImageFileFinish(res);
     }
 
     async function avatarImageFileFinish(args) {
@@ -265,10 +275,10 @@
             fileVersion
         };
         const res = await imageRequest.uploadAvatarImageSigStart(params);
-        avatarImageSigStart(res);
+        return avatarImageSigStart(res);
     }
 
-    function avatarImageSigStart(args) {
+    async function avatarImageSigStart(args) {
         // API.$on('AVATARIMAGE:SIGSTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
@@ -277,34 +287,29 @@
             fileId,
             fileVersion
         };
-        uploadAvatarImageSigAWS(params);
+        return uploadAvatarImageSigAWS(params);
     }
 
-    function uploadAvatarImageSigAWS(params) {
-        return webApiService
-            .execute({
-                url: params.url,
-                uploadFilePUT: true,
+    async function uploadAvatarImageSigAWS(params) {
+        const json = await webApiService.execute({
+            url: params.url,
+            uploadFilePUT: true,
+            fileData: avatarImage.value.base64SignatureFile,
+            fileMIME: 'application/x-rsync-signature',
+            headers: {
+                'Content-MD5': avatarImage.value.signatureMd5
+            }
+        });
 
-                fileData: avatarImage.value.base64SignatureFile,
-                fileMIME: 'application/x-rsync-signature',
-
-                headers: {
-                    'Content-MD5': avatarImage.value.signatureMd5
-                }
-            })
-            .then((json) => {
-                if (json.status !== 200) {
-                    changeAvatarImageDialogLoading.value = false;
-                    API.$throw('Avatar image upload failed', json, params.url);
-                }
-                const args = {
-                    json,
-                    params
-                };
-                avatarImageSigAWS(args);
-                return args;
-            });
+        if (json.status !== 200) {
+            changeAvatarImageDialogLoading.value = false;
+            API.$throw('Avatar image upload failed', json, params.url);
+        }
+        const args = {
+            json,
+            params
+        };
+        return avatarImageSigAWS(args);
     }
 
     async function avatarImageSigAWS(args) {
@@ -315,7 +320,7 @@
             fileVersion
         };
         const res = await imageRequest.uploadAvatarImageSigFinish(params);
-        avatarImageSigFinish(res);
+        return avatarImageSigFinish(res);
     }
 
     async function avatarImageSigFinish(args) {
@@ -326,10 +331,10 @@
             imageUrl: `${API.endpointDomain}/file/${fileId}/${fileVersion}/file`
         };
         const res = await imageRequest.setAvatarImage(parmas);
-        avatarImageSet(res);
+        return avatarImageSet(res);
     }
 
-    function avatarImageSet(args) {
+    async function avatarImageSet(args) {
         // API.$on('AVATARIMAGE:SET')
         changeAvatarImageDialogLoading.value = false;
         if (args.json.imageUrl === args.params.imageUrl) {
@@ -342,6 +347,8 @@
             API.$throw(0, 'Avatar image change failed', args.params.imageUrl);
         }
     }
+
+    // ------------ Upload Process End ------------
 
     function uploadAvatarImage() {
         document.getElementById('AvatarImageUploadButton').click();
