@@ -37,41 +37,41 @@ mixin images
     //                img.image(v-lazy='image.file.url')
 
     //- dialog: Change world image
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='changeWorldImageDialog'
-        :visible.sync='changeWorldImageDialogVisible'
-        :title='$t("dialog.change_content_image.world")'
-        width='850px')
-        div(v-if='changeWorldImageDialogVisible' v-loading='changeWorldImageDialogLoading')
-            input#WorldImageUploadButton(
-                type='file'
-                accept='image/*'
-                @change='onFileChangeWorldImage'
-                style='display: none')
-            span {{ $t('dialog.change_content_image.description') }}
-            br
-            el-button-group(style='padding-bottom: 10px; padding-top: 10px')
-                el-button(
-                    type='default'
-                    size='small'
-                    @click='displayPreviousImages("World", "Change")'
-                    icon='el-icon-refresh') {{ $t('dialog.change_content_image.refresh') }}
-                el-button(type='default' size='small' @click='uploadWorldImage' icon='el-icon-upload2') {{ $t('dialog.change_content_image.upload') }}
-                //- el-button(type="default" size="small" @click="deleteWorldImage" icon="el-icon-delete") Delete Latest Image
-            br
-            div(
-                style='display: inline-block'
-                v-for='image in previousImagesTable'
-                :key='image.version'
-                v-if='image.file')
-                .x-change-image-item(
-                    @click='setWorldImage(image)'
-                    style='cursor: pointer'
-                    :class='{ "current-image": compareCurrentImage(image) }')
-                    img.image(v-lazy='image.file.url')
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='changeWorldImageDialog'
+    //    :visible.sync='changeWorldImageDialogVisible'
+    //    :title='$t("dialog.change_content_image.world")'
+    //    width='850px')
+    //    div(v-if='changeWorldImageDialogVisible' v-loading='changeWorldImageDialogLoading')
+    //        input#WorldImageUploadButton(
+    //            type='file'
+    //            accept='image/*'
+    //            @change='onFileChangeWorldImage'
+    //            style='display: none')
+    //        span {{ $t('dialog.change_content_image.description') }}
+    //        br
+    //        el-button-group(style='padding-bottom: 10px; padding-top: 10px')
+    //            el-button(
+    //                type='default'
+    //                size='small'
+    //                @click='displayPreviousImages("World", "Change")'
+    //                icon='el-icon-refresh') {{ $t('dialog.change_content_image.refresh') }}
+    //            el-button(type='default' size='small' @click='uploadWorldImage' icon='el-icon-upload2') {{ $t('dialog.change_content_image.upload') }}
+    //            //- el-button(type="default" size="small" @click="deleteWorldImage" icon="el-icon-delete") Delete Latest Image
+    //        br
+    //        div(
+    //            style='display: inline-block'
+    //            v-for='image in previousImagesTable'
+    //            :key='image.version'
+    //            v-if='image.file')
+    //            .x-change-image-item(
+    //                @click='setWorldImage(image)'
+    //                style='cursor: pointer'
+    //                :class='{ "current-image": compareCurrentImage(image) }')
+    //                img.image(v-lazy='image.file.url')
 
     //- dialog: Display previous avatar/world images
     el-dialog.x-dialog(
