@@ -764,6 +764,9 @@
             :previous-images-file-id="previousImagesFileId"
             :world-dialog="worldDialog"
             @refresh="displayPreviousImages" />
+        <PreviousImagesDialog
+            :previous-images-dialog-visible.sync="previousImagesDialogVisible"
+            :previous-images-table="previousImagesTable" />
     </safe-dialog>
 </template>
 
@@ -776,10 +779,12 @@
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
     import { favoriteRequest, imageRequest, miscRequest, worldRequest } from '../../../api';
+    import PreviousImagesDialog from '../PreviousImagesDialog.vue';
 
     export default {
         name: 'WorldDialog',
         components: {
+            PreviousImagesDialog,
             SetWorldTagsDialog,
             WorldAllowedDomainsDialog,
             PreviousInstancesWorldDialog,
@@ -814,8 +819,6 @@
             activeFriends: Array,
             onlineFriends: Array,
             vipFriends: Array,
-            previousImagesTable: Array,
-            previousImagesDialogVisible: Boolean,
 
             // TODO: Remove
             updateInstanceInfo: Number
@@ -836,7 +839,9 @@
                 },
                 newInstanceDialogLocationTag: '',
                 changeWorldImageDialogVisible: false,
-                previousImagesFileId: ''
+                previousImagesFileId: '',
+                previousImagesDialogVisible: false,
+                previousImagesTable: []
             };
         },
         computed: {
@@ -919,7 +924,7 @@
         methods: {
             displayPreviousImages(command) {
                 this.previousImagesFileId = '';
-                this.$emit('update:previousImagesTable', []);
+                this.previousImagesTable = [];
                 const { imageUrl } = this.worldDialog.ref;
 
                 const fileId = utils.extractFileId(imageUrl);
@@ -930,7 +935,7 @@
                     fileId
                 };
                 if (command === 'Display') {
-                    this.$emit('update:previousImagesDialogVisible', false);
+                    this.previousImagesDialogVisible = true;
                 }
                 if (command === 'Change') {
                     this.changeWorldImageDialogVisible = true;
@@ -943,8 +948,24 @@
                             images.unshift(item);
                         }
                     });
-                    this.$emit('checkPreviousImageAvailable', images);
+                    this.checkPreviousImageAvailable(images);
                 });
+            },
+            async checkPreviousImageAvailable(images) {
+                this.previousImagesTable = [];
+                for (const image of images) {
+                    if (image.file && image.file.url) {
+                        const response = await fetch(image.file.url, {
+                            method: 'HEAD',
+                            redirect: 'follow'
+                        }).catch((error) => {
+                            console.log(error);
+                        });
+                        if (response.status === 200) {
+                            this.previousImagesTable.push(image);
+                        }
+                    }
+                }
             },
             showNewInstanceDialog(tag) {
                 // trigger watcher

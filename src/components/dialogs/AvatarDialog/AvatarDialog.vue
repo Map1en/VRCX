@@ -509,6 +509,9 @@
             :avatar-dialog="avatarDialog"
             :previous-images-file-id="previousImagesFileId"
             @refresh="displayPreviousImages" />
+        <PreviousImagesDialog
+            :previous-images-dialog-visible.sync="previousImagesDialogVisible"
+            :previous-images-table="previousImagesTable" />
     </safe-dialog>
 </template>
 
@@ -522,6 +525,7 @@
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
+    import PreviousImagesDialog from '../PreviousImagesDialog.vue';
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
@@ -535,13 +539,7 @@
     const instance = getCurrentInstance();
     const { $message, $confirm, $prompt } = instance.proxy;
 
-    const emit = defineEmits([
-        'openFolderGeneric',
-        'deleteVRChatCache',
-        'openPreviousImagesDialog',
-        'checkPreviousImageAvailable',
-        'update:previousImagesTable'
-    ]);
+    const emit = defineEmits(['openFolderGeneric', 'deleteVRChatCache', 'openPreviousImagesDialog']);
 
     const props = defineProps({
         avatarDialog: {
@@ -556,10 +554,6 @@
             type: Boolean,
             default: false
         },
-        previousImagesTable: {
-            type: Array,
-            default: () => []
-        },
         replaceBioSymbols: {
             type: Function,
             default: (str) => str
@@ -569,6 +563,8 @@
     const avatarDialogRef = ref(null);
     const changeAvatarImageDialogVisible = ref(false);
     const previousImagesFileId = ref('');
+    const previousImagesDialogVisible = ref(false);
+    const previousImagesTable = ref([]);
 
     const treeData = ref([]);
     const timeSpent = ref(0);
@@ -873,7 +869,7 @@
     }
 
     function displayPreviousImages(command) {
-        emit('update:previousImagesTable', []);
+        previousImagesTable.value = [];
         previousImagesFileId.value = '';
         const { imageUrl } = props.avatarDialog.ref;
         const fileId = utils.extractFileId(imageUrl);
@@ -884,10 +880,8 @@
             fileId
         };
         if (command === 'Display') {
-            // TODO: when userDialog splitting is done, remove this
-            emit('openPreviousImagesDialog');
+            previousImagesDialogVisible.value = true;
         }
-
         if (command === 'Change') {
             changeAvatarImageDialogVisible.value = true;
         }
@@ -901,8 +895,25 @@
                     images.unshift(item);
                 }
             });
-            emit('checkPreviousImageAvailable', images);
+            checkPreviousImageAvailable(images);
         });
+    }
+
+    async function checkPreviousImageAvailable(images) {
+        previousImagesTable.value = [];
+        for (const image of images) {
+            if (image.file && image.file.url) {
+                const response = await fetch(image.file.url, {
+                    method: 'HEAD',
+                    redirect: 'follow'
+                }).catch((error) => {
+                    console.log(error);
+                });
+                if (response.status === 200) {
+                    previousImagesTable.value.push(image);
+                }
+            }
+        }
     }
 
     function storeAvatarImage(args) {

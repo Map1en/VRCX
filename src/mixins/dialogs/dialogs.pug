@@ -73,9 +73,6 @@ mixin dialogs
         :onlineFriends='onlineFriends'
         :vipFriends='vipFriends'
         :hasGroupPermission='hasGroupPermission'
-        :previousImagesTable.sync='previousImagesTable'
-        :previousImagesDialogVisible.sync='previousImagesDialogVisible'
-        @checkPreviousImageAvailable='checkPreviousImageAvailable'
         @openFolderGeneric='openFolderGeneric'
         @deleteVRChatCache='deleteVRChatCache'
         @worldDialogCommand='worldDialogCommand'
@@ -108,12 +105,9 @@ mixin dialogs
         :avatarDialog='avatarDialog'
         :hideTooltips='hideTooltips'
         :isGameRunning='isGameRunning'
-        :previousImagesTable.sync='previousImagesTable'
         :replaceBioSymbols='replaceBioSymbols'
         @openFolderGeneric='openFolderGeneric'
-        @deleteVRChatCache='deleteVRChatCache'
-        @openPreviousImagesDialog='previousImagesDialogVisible = true'
-        @checkPreviousImageAvailable='checkPreviousImageAvailable')
+        @deleteVRChatCache='deleteVRChatCache')
 
     //- settings
     FeedFiltersDialog(

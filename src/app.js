@@ -11986,9 +11986,11 @@ console.log(`isLinux: ${LINUX}`);
         // if (type === 'Avatar') {
         //     var { imageUrl } = this.avatarDialog.ref;
         // } else
-        if (type === 'World') {
-            var { imageUrl } = this.worldDialog.ref;
-        } else if (type === 'User') {
+        // if (type === 'World') {
+        //     var { imageUrl } = this.worldDialog.ref;
+        // } else
+
+        if (type === 'User') {
             imageUrl = this.userDialog.ref.currentAvatarImageUrl;
         }
         var fileId = $utils.extractFileId(imageUrl);
@@ -11999,6 +12001,7 @@ console.log(`isLinux: ${LINUX}`);
             fileId
         };
         if (command === 'Display') {
+            // todo userdialog
             this.previousImagesDialogVisible = true;
             this.$nextTick(() =>
                 $app.adjustDialogZ(this.$refs.previousImagesDialog.$el)
@@ -12022,24 +12025,25 @@ console.log(`isLinux: ${LINUX}`);
         //         this.checkPreviousImageAvailable(images);
         //     });
         // } else
-        if (type === 'World') {
-            if (command === 'Change') {
-                this.changeWorldImageDialogVisible = true;
-                this.$nextTick(() =>
-                    $app.adjustDialogZ(this.$refs.changeWorldImageDialog.$el)
-                );
-            }
-            imageRequest.getWorldImages(params).then((args) => {
-                this.previousImagesTableFileId = args.json.id;
-                var images = [];
-                args.json.versions.forEach((item) => {
-                    if (!item.deleted) {
-                        images.unshift(item);
-                    }
-                });
-                this.checkPreviousImageAvailable(images);
-            });
-        } else if (type === 'User') {
+        // if (type === 'World') {
+        //     if (command === 'Change') {
+        //         this.changeWorldImageDialogVisible = true;
+        //         this.$nextTick(() =>
+        //             $app.adjustDialogZ(this.$refs.changeWorldImageDialog.$el)
+        //         );
+        //     }
+        //     imageRequest.getWorldImages(params).then((args) => {
+        //         this.previousImagesTableFileId = args.json.id;
+        //         var images = [];
+        //         args.json.versions.forEach((item) => {
+        //             if (!item.deleted) {
+        //                 images.unshift(item);
+        //             }
+        //         });
+        //         this.checkPreviousImageAvailable(images);
+        //     });
+        // } else
+        if (type === 'User') {
             imageRequest.getAvatarImages(params).then((args) => {
                 this.previousImagesTableFileId = args.json.id;
                 var images = [];
@@ -12070,6 +12074,7 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
+    // todo: userdialog
     $app.data.previousImagesDialogVisible = false;
     $app.data.previousImagesTable = [];
 

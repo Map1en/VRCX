@@ -74,26 +74,26 @@ mixin images
     //                img.image(v-lazy='image.file.url')
 
     //- dialog: Display previous avatar/world images
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='previousImagesDialog'
-        :visible.sync='previousImagesDialogVisible'
-        :title='$t("dialog.previous_images.header")'
-        width='800px')
-        div(v-if='previousImagesDialogVisible')
-            div(
-                style='display: inline-block'
-                v-for='image in previousImagesTable'
-                :key='image.version'
-                v-if='image.file')
-                el-popover.x-change-image-item(placement='right' width='500px' trigger='click')
-                    img.x-link(slot='reference' v-lazy='image.file.url')
-                    img.x-link(
-                        v-lazy='image.file.url'
-                        style='width: 500px; height: 375px'
-                        @click='showFullscreenImageDialog(image.file.url)')
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='previousImagesDialog'
+    //    :visible.sync='previousImagesDialogVisible'
+    //    :title='$t("dialog.previous_images.header")'
+    //    width='800px')
+    //    div(v-if='previousImagesDialogVisible')
+    //        div(
+    //            style='display: inline-block'
+    //            v-for='image in previousImagesTable'
+    //            :key='image.version'
+    //            v-if='image.file')
+    //            el-popover.x-change-image-item(placement='right' width='500px' trigger='click')
+    //                img.x-link(slot='reference' v-lazy='image.file.url')
+    //                img.x-link(
+    //                    v-lazy='image.file.url'
+    //                    style='width: 500px; height: 375px'
+    //                    @click='showFullscreenImageDialog(image.file.url)')
 
     //- dialog: gallery select
     el-dialog.x-dialog(
