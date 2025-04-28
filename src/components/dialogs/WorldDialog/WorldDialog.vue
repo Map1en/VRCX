@@ -758,6 +758,12 @@
             :active-friends="activeFriends"
             :online-friends="onlineFriends"
             :vip-friends="vipFriends" />
+        <ChangeWorldImageDialog
+            :change-world-image-dialog-visible.sync="changeWorldImageDialogVisible"
+            :previous-images-table="previousImagesTable"
+            :previous-images-file-id="previousImagesFileId"
+            :world-dialog="worldDialog"
+            @refresh="displayPreviousImages" />
     </safe-dialog>
 </template>
 
@@ -768,11 +774,18 @@
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
-    import { favoriteRequest, miscRequest, worldRequest } from '../../../api';
+    import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
+    import { favoriteRequest, imageRequest, miscRequest, worldRequest } from '../../../api';
 
     export default {
         name: 'WorldDialog',
-        components: { SetWorldTagsDialog, WorldAllowedDomainsDialog, PreviousInstancesWorldDialog, NewInstanceDialog },
+        components: {
+            SetWorldTagsDialog,
+            WorldAllowedDomainsDialog,
+            PreviousInstancesWorldDialog,
+            NewInstanceDialog,
+            ChangeWorldImageDialog
+        },
         inject: [
             'API',
             'showUserDialog',
@@ -782,7 +795,6 @@
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
             'showFullscreenImageDialog',
-            'displayPreviousImages',
             'showWorldDialog',
             'showFavoriteDialog',
             'openExternalLink'
@@ -802,6 +814,8 @@
             activeFriends: Array,
             onlineFriends: Array,
             vipFriends: Array,
+            previousImagesTable: Array,
+            previousImagesDialogVisible: Boolean,
 
             // TODO: Remove
             updateInstanceInfo: Number
@@ -820,7 +834,9 @@
                     openFlg: false,
                     worldRef: {}
                 },
-                newInstanceDialogLocationTag: ''
+                newInstanceDialogLocationTag: '',
+                changeWorldImageDialogVisible: false,
+                previousImagesFileId: ''
             };
         },
         computed: {
@@ -901,6 +917,35 @@
             }
         },
         methods: {
+            displayPreviousImages(command) {
+                this.previousImagesFileId = '';
+                this.$emit('update:previousImagesTable', []);
+                const { imageUrl } = this.worldDialog.ref;
+
+                const fileId = utils.extractFileId(imageUrl);
+                if (!fileId) {
+                    return;
+                }
+                const params = {
+                    fileId
+                };
+                if (command === 'Display') {
+                    this.$emit('update:previousImagesDialogVisible', false);
+                }
+                if (command === 'Change') {
+                    this.changeWorldImageDialogVisible = true;
+                }
+                imageRequest.getWorldImages(params).then((args) => {
+                    this.previousImagesFileId = args.json.id;
+                    const images = [];
+                    args.json.versions.forEach((item) => {
+                        if (!item.deleted) {
+                            images.unshift(item);
+                        }
+                    });
+                    this.$emit('checkPreviousImageAvailable', images);
+                });
+            },
             showNewInstanceDialog(tag) {
                 // trigger watcher
                 this.newInstanceDialogLocationTag = '';
@@ -1034,10 +1079,10 @@
                         this.openExternalLink(this.replaceVrcPackageUrl(this.worldDialog.ref.unityPackageUrl));
                         break;
                     case 'Change Image':
-                        this.displayPreviousImages('World', 'Change');
+                        this.displayPreviousImages('Change');
                         break;
                     case 'Previous Images':
-                        this.displayPreviousImages('World', 'Display');
+                        this.displayPreviousImages('Display');
                         break;
                     case 'Refresh':
                         this.showWorldDialog(D.id);
