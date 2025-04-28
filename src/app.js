@@ -101,6 +101,8 @@ import SendInviteResponseDialog from './views/Notifications/dialogs/SendInviteRe
 import SendInviteRequestResponseDialog from './views/Notifications/dialogs/SendInviteRequestResponseDialog.vue';
 import SendInviteDialog from './components/dialogs/InviteDialog/SendInviteDialog.vue';
 import SendInviteRequestDialog from './components/dialogs/InviteDialog/SendInviteRequestDialog.vue';
+import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
+
 import SafeDialog from './components/dialogs/SafeDialog.vue';
 
 // main app classes
@@ -298,7 +300,9 @@ console.log(`isLinux: ${LINUX}`);
             SendInviteResponseDialog,
             SendInviteRequestResponseDialog,
             SendInviteDialog,
-            SendInviteRequestDialog
+            SendInviteRequestDialog,
+
+            FullscreenImageDialog
         },
         provide() {
             return {
@@ -15921,49 +15925,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.methods.downloadAndSaveImage = async function (url, fileName) {
-        if (!url) {
-            return;
-        }
-        this.$message({
-            message: 'Downloading image...',
-            type: 'info'
-        });
-        try {
-            var response = await webApiService.execute({
-                url,
-                method: 'GET'
-            });
-            if (
-                response.status !== 200 ||
-                !response.data.startsWith('data:image/png')
-            ) {
-                throw new Error(`Error: ${response.data}`);
-            }
-            var link = document.createElement('a');
-            link.href = response.data;
-            var fileId = $utils.extractFileId(url);
-            if (!fileName && fileId) {
-                fileName = `${fileId}.png`;
-            }
-            if (!fileName) {
-                fileName = `${url.split('/').pop()}.png`;
-            }
-            if (!fileName) {
-                fileName = 'image.png';
-            }
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch {
-            new Noty({
-                type: 'error',
-                text: $app.escapeTag(`Failed to download image. ${url}`)
-            }).show();
-        }
-    };
-
     $app.methods.setPlayerModeration = function (userId, type) {
         var D = this.userDialog;
         AppApi.SetVRChatUserModeration(API.currentUser.id, userId, type).then(
@@ -16178,10 +16139,7 @@ console.log(`isLinux: ${LINUX}`);
         if (!imageUrl) {
             return;
         }
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.fullscreenImageDialog.$el)
-        );
-        var D = this.fullscreenImageDialog;
+        const D = this.fullscreenImageDialog;
         D.imageUrl = imageUrl;
         D.fileName = fileName;
         D.visible = true;

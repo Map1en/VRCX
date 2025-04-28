@@ -460,12 +460,12 @@ const _utils = {
             return '';
         }
     },
-    copyToClipboard(text) {
+    copyToClipboard(text, message = 'Copied successfully!') {
         navigator.clipboard
             .writeText(text)
             .then(() => {
                 window.$app.$message({
-                    message: 'Copied successfully!',
+                    message: message,
                     type: 'success'
                 });
             })
