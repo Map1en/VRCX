@@ -86,13 +86,11 @@ mixin dialogs
         :groupDialogSortingOptions='groupDialogSortingOptions'
         :groupDialogFilterOptions='groupDialogFilterOptions'
         :isGroupGalleryLoading='isGroupGalleryLoading'
-        :gallerySelectDialog.sync='gallerySelectDialog'
         :randomUserColours='randomUserColours'
         @refreshInstancePlayerCount='refreshInstancePlayerCount'
         @updateGroupPostSearch='updateGroupPostSearch'
         @groupDialogCommand='groupDialogCommand'
-        @getGroupDialogGroup='getGroupDialogGroup'
-        @clearImageGallerySelect='clearImageGallerySelect')
+        @getGroupDialogGroup='getGroupDialogGroup')
 
     InviteGroupDialog(
         :dialogData.sync='inviteGroupDialog'

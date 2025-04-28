@@ -1148,10 +1148,7 @@
             </el-tabs>
         </div>
         <!--Nested-->
-        <GroupPostEditDialog
-            :gallery-select-dialog="gallerySelectDialog"
-            :dialog-data.sync="groupPostEditDialog"
-            @clear-image-gallery-select="clearImageGallerySelect" />
+        <GroupPostEditDialog :dialog-data.sync="groupPostEditDialog" :selected-gallery-file="selectedGalleryFile" />
         <GroupMemberModerationDialog
             :group-dialog="groupDialog"
             :is-group-members-loading.sync="isGroupMembersLoading"
@@ -1216,10 +1213,6 @@
             type: Object,
             required: true
         },
-        gallerySelectDialog: {
-            type: Object,
-            default: () => ({})
-        },
         randomUserColours: {
             type: Boolean,
             default: true
@@ -1228,16 +1221,10 @@
 
     const emit = defineEmits([
         'update:group-dialog',
-        'update:gallery-select-dialog',
-        'update:group-member-moderation',
-        'group-dialog-command',
-        'update:group-dialog',
+        'groupDialogCommand',
         'get-group-dialog-group',
-        'get-group-dialog-group-members',
-        'refresh-instance-player-count',
-        'update-group-post-search',
-        'set-group-member-sort-order',
-        'clear-image-gallery-select'
+        'refreshInstancePlayerCount',
+        'updateGroupPostSearch'
     ]);
 
     const groupDialogRef = ref(null);
@@ -1248,6 +1235,10 @@
     const groupDialogGalleryCurrentName = ref('0');
     const groupDialogTabCurrentName = ref('0');
     const isGroupGalleryLoading = ref(false);
+    const selectedGalleryFile = ref({
+        selectedFileId: '',
+        selectedImageUrl: ''
+    });
     const groupPostEditDialog = reactive({
         visible: false,
         groupRef: {},
@@ -1460,7 +1451,7 @@
                 showGroupMemberModerationDialog(props.groupDialog.id);
                 break;
             default:
-                emit('group-dialog-command', command);
+                emit('groupDialogCommand', command);
         }
     }
 
@@ -1563,18 +1554,21 @@
         D.roleIds = [];
         D.postId = '';
         D.groupId = groupId;
-        emit('update:gallery-select-dialog', { ...D, selectedFileId: '', selectedImageUrl: '' });
+        selectedGalleryFile.value = {
+            selectedFileId: '',
+            selectedImageUrl: ''
+        };
+
         if (post) {
             D.title = post.title;
             D.text = post.text;
             D.visibility = post.visibility;
             D.roleIds = post.roleIds;
             D.postId = post.id;
-            emit('update:gallery-select-dialog', {
-                ...D,
+            selectedGalleryFile.value = {
                 selectedFileId: post.imageId,
                 selectedImageUrl: post.imageUrl
-            });
+            };
         }
         API.getCachedGroup({ groupId }).then((args) => {
             D.groupRef = args.ref;
@@ -1768,15 +1762,12 @@
         emit('get-group-dialog-group', groupId);
     }
     function refreshInstancePlayerCount(tag) {
-        emit('refresh-instance-player-count', tag);
+        emit('refreshInstancePlayerCount', tag);
     }
     function updateGroupPostSearch() {
-        emit('update-group-post-search');
+        emit('updateGroupPostSearch');
     }
     function downloadAndSaveJson(fileName, data) {
         utils.downloadAndSaveJson(fileName, data);
-    }
-    function clearImageGallerySelect() {
-        emit('clear-image-gallery-select');
     }
 </script>

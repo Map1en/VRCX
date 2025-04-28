@@ -103,24 +103,39 @@
                 {{ $t('dialog.group_post_edit.create_post') }}
             </el-button>
         </template>
+        <GallerySelectDialog
+            :gallery-select-dialog="gallerySelectDialog"
+            :gallery-table="galleryTable"
+            @refresh-gallery-table="refreshGalleryTable" />
     </safe-dialog>
 </template>
 
 <script>
-    import { groupRequest } from '../../../api';
+    import { groupRequest, vrcPlusIconRequest } from '../../../api';
+    import GallerySelectDialog from './GallerySelectDialog.vue';
 
     export default {
         name: 'GroupPostEditDialog',
-        inject: ['showFullscreenImageDialog', 'showGallerySelectDialog'],
+        components: {
+            GallerySelectDialog
+        },
+        inject: ['showFullscreenImageDialog'],
         props: {
             dialogData: {
                 type: Object,
                 required: true
             },
-            gallerySelectDialog: {
-                type: Object,
-                required: true
-            }
+            selectedGalleryFile: { type: Object, default: () => ({}) }
+        },
+        data() {
+            return {
+                gallerySelectDialog: {
+                    visible: false,
+                    selectedFileId: '',
+                    selectedImageUrl: ''
+                },
+                galleryTable: []
+            };
         },
         computed: {
             groupPostEditDialog: {
@@ -133,6 +148,22 @@
             }
         },
         methods: {
+            showGallerySelectDialog() {
+                const D = this.gallerySelectDialog;
+                D.visible = true;
+                this.refreshGalleryTable();
+            },
+            async refreshGalleryTable() {
+                const params = {
+                    n: 100,
+                    tag: 'gallery'
+                };
+                const args = await vrcPlusIconRequest.getFileList(params);
+                // API.$on('FILES:LIST')
+                if (args.params.tag === 'gallery') {
+                    this.galleryTable = args.json.reverse();
+                }
+            },
             editGroupPost() {
                 const D = this.groupPostEditDialog;
                 if (!D.groupId || !D.postId) {
@@ -183,7 +214,9 @@
                 D.visible = false;
             },
             clearImageGallerySelect() {
-                this.$emit('clear-image-gallery-select');
+                const D = this.gallerySelectDialog;
+                D.selectedFileId = '';
+                D.selectedImageUrl = '';
             }
         }
     };

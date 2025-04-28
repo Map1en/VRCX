@@ -11707,7 +11707,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.clearInviteImageUpload = function () {
-        this.clearImageGallerySelect();
         var buttonList = document.querySelectorAll('.inviteImageUploadButton');
         buttonList.forEach((button) => (button.value = ''));
         this.uploadImage = '';
@@ -12986,10 +12985,6 @@ console.log(`isLinux: ${LINUX}`);
         };
         r.readAsBinaryString(files[0]);
         clearFile();
-    };
-
-    $app.methods.displayGalleryUpload = function () {
-        document.getElementById('GalleryUploadButton').click();
     };
 
     API.$on('GALLERYIMAGE:ADD', function (args) {
@@ -16151,35 +16146,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.showChangeLogDialog = function () {
         this.changeLogDialog.visible = true;
         this.checkForVRCXUpdate();
-    };
-
-    $app.data.gallerySelectDialog = {
-        visible: false,
-        selectedFileId: '',
-        selectedImageUrl: ''
-    };
-
-    $app.methods.showGallerySelectDialog = function () {
-        this.$nextTick(() =>
-            $app.adjustDialogZ(this.$refs.gallerySelectDialog.$el)
-        );
-        var D = this.gallerySelectDialog;
-        D.visible = true;
-        this.refreshGalleryTable();
-    };
-
-    $app.methods.selectImageGallerySelect = function (imageUrl, fileId) {
-        var D = this.gallerySelectDialog;
-        D.selectedFileId = fileId;
-        D.selectedImageUrl = imageUrl;
-        D.visible = false;
-        console.log(imageUrl, fileId);
-    };
-
-    $app.methods.clearImageGallerySelect = function () {
-        var D = this.gallerySelectDialog;
-        D.selectedFileId = '';
-        D.selectedImageUrl = '';
     };
 
     $app.methods.reportUserForHacking = function (userId) {

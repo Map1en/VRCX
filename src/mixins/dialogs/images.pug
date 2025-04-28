@@ -96,38 +96,38 @@ mixin images
     //                    @click='showFullscreenImageDialog(image.file.url)')
 
     //- dialog: gallery select
-    el-dialog.x-dialog(
-        :before-close='beforeDialogClose'
-        @mousedown.native='dialogMouseDown'
-        @mouseup.native='dialogMouseUp'
-        ref='gallerySelectDialog'
-        :visible.sync='gallerySelectDialog.visible'
-        :title='$t("dialog.gallery_select.header")'
-        width='100%')
-        div(v-if='gallerySelectDialog.visible')
-            span(slot='label') {{ $t('dialog.gallery_select.gallery') }}
-            span(style='color: #909399; font-size: 12px; margin-left: 5px') {{ galleryTable.length }}/64
-            br
-            input#GalleryUploadButton(type='file' accept='image/*' @change='onFileChangeGallery' style='display: none')
-            el-button-group
-                el-button(type='default' size='small' @click='selectImageGallerySelect("", "")' icon='el-icon-close') {{ $t('dialog.gallery_select.none') }}
-                el-button(type='default' size='small' @click='refreshGalleryTable' icon='el-icon-refresh') {{ $t('dialog.gallery_select.refresh') }}
-                el-button(
-                    type='default'
-                    size='small'
-                    @click='displayGalleryUpload'
-                    icon='el-icon-upload2'
-                    :disabled='!API.currentUser.$isVRCPlus') {{ $t('dialog.gallery_select.upload') }}
-            br
-            .x-friend-item(
-                v-if='image.versions && image.versions.length > 0'
-                v-for='image in galleryTable'
-                :key='image.id'
-                style='display: inline-block; margin-top: 10px; width: unset; cursor: default')
-                .vrcplus-icon(
-                    v-if='image.versions[image.versions.length - 1].file.url'
-                    @click='selectImageGallerySelect(image.versions[image.versions.length - 1].file.url, image.id)')
-                    img.avatar(v-lazy='image.versions[image.versions.length - 1].file.url')
+    //el-dialog.x-dialog(
+    //    :before-close='beforeDialogClose'
+    //    @mousedown.native='dialogMouseDown'
+    //    @mouseup.native='dialogMouseUp'
+    //    ref='gallerySelectDialog'
+    //    :visible.sync='gallerySelectDialog.visible'
+    //    :title='$t("dialog.gallery_select.header")'
+    //    width='100%')
+    //    div(v-if='gallerySelectDialog.visible')
+    //        span(slot='label') {{ $t('dialog.gallery_select.gallery') }}
+    //        span(style='color: #909399; font-size: 12px; margin-left: 5px') {{ galleryTable.length }}/64
+    //        br
+    //        input#GalleryUploadButton(type='file' accept='image/*' @change='onFileChangeGallery' style='display: none')
+    //        el-button-group
+    //            el-button(type='default' size='small' @click='selectImageGallerySelect("", "")' icon='el-icon-close') {{ $t('dialog.gallery_select.none') }}
+    //            el-button(type='default' size='small' @click='refreshGalleryTable' icon='el-icon-refresh') {{ $t('dialog.gallery_select.refresh') }}
+    //            el-button(
+    //                type='default'
+    //                size='small'
+    //                @click='displayGalleryUpload'
+    //                icon='el-icon-upload2'
+    //                :disabled='!API.currentUser.$isVRCPlus') {{ $t('dialog.gallery_select.upload') }}
+    //        br
+    //        .x-friend-item(
+    //            v-if='image.versions && image.versions.length > 0'
+    //            v-for='image in galleryTable'
+    //            :key='image.id'
+    //            style='display: inline-block; margin-top: 10px; width: unset; cursor: default')
+    //            .vrcplus-icon(
+    //                v-if='image.versions[image.versions.length - 1].file.url'
+    //                @click='selectImageGallerySelect(image.versions[image.versions.length - 1].file.url, image.id)')
+    //                img.avatar(v-lazy='image.versions[image.versions.length - 1].file.url')
 
     //- dialog: full screen image
     el-dialog.x-dialog(
