@@ -3,7 +3,7 @@
         ref="elDialogRef"
         :visible="props.visible"
         v-bind="attrs"
-        :close-on-click-modal="false"
+        :close-on-click-modal="attrs['close-on-click-modal'] === 'true'"
         @open="handleOpen"
         @close="handleClose">
         <slot></slot>
