@@ -1,9 +1,6 @@
 <template>
     <safe-dialog
         class="x-dialog x-user-dialog"
-        :before-close="beforeDialogClose"
-        @mousedown.native="dialogMouseDown"
-        @mouseup.native="dialogMouseUp"
         ref="userDialog"
         :visible.sync="userDialog.visible"
         :show-close="false"
@@ -46,31 +43,31 @@
                             <el-tooltip v-if="userDialog.ref.status" placement="top">
                                 <template #content>
                                     <span v-if="userDialog.ref.state === 'active'">{{
-                                        $t('dialog.user.status.active')
+                                        t('dialog.user.status.active')
                                     }}</span>
                                     <span v-else-if="userDialog.ref.state === 'offline'">{{
-                                        $t('dialog.user.status.offline')
+                                        t('dialog.user.status.offline')
                                     }}</span>
                                     <span v-else-if="userDialog.ref.status === 'active'">{{
-                                        $t('dialog.user.status.online')
+                                        t('dialog.user.status.online')
                                     }}</span>
                                     <span v-else-if="userDialog.ref.status === 'join me'">{{
-                                        $t('dialog.user.status.join_me')
+                                        t('dialog.user.status.join_me')
                                     }}</span>
                                     <span v-else-if="userDialog.ref.status === 'ask me'">{{
-                                        $t('dialog.user.status.ask_me')
+                                        t('dialog.user.status.ask_me')
                                     }}</span>
                                     <span v-else-if="userDialog.ref.status === 'busy'">{{
-                                        $t('dialog.user.status.busy')
+                                        t('dialog.user.status.busy')
                                     }}</span>
-                                    <span v-else>{{ $t('dialog.user.status.offline') }}</span>
+                                    <span v-else>{{ t('dialog.user.status.offline') }}</span>
                                 </template>
                                 <i class="x-user-status" :class="userStatusClass(userDialog.ref)"></i>
                             </el-tooltip>
                             <template v-if="userDialog.previousDisplayNames.length > 0">
                                 <el-tooltip placement="bottom">
                                     <template #content>
-                                        <span>{{ $t('dialog.user.previous_display_names') }}</span>
+                                        <span>{{ t('dialog.user.previous_display_names') }}</span>
                                         <div
                                             v-for="displayName in userDialog.previousDisplayNames"
                                             :key="displayName"
@@ -94,7 +91,7 @@
                             <el-tooltip
                                 v-if="userDialog.ref.pronouns"
                                 placement="top"
-                                :content="$t('dialog.user.pronouns')"
+                                :content="t('dialog.user.pronouns')"
                                 :disabled="hideTooltips">
                                 <span
                                     class="x-grey"
@@ -146,7 +143,7 @@
                                 class="x-tag-friend"
                                 style="margin-right: 5px; margin-top: 5px">
                                 {{
-                                    $t('dialog.user.tags.friend_no', {
+                                    t('dialog.user.tags.friend_no', {
                                         number: userDialog.ref.$friendNumber ? userDialog.ref.$friendNumber : ''
                                     })
                                 }}
@@ -176,7 +173,7 @@
                                 size="mini"
                                 class="x-tag-vip"
                                 style="margin-right: 5px; margin-top: 5px">
-                                {{ $t('dialog.user.tags.vrchat_team') }}
+                                {{ t('dialog.user.tags.vrchat_team') }}
                             </el-tag>
                             <el-tag
                                 v-if="userDialog.ref.last_platform === 'standalonewindows'"
@@ -274,7 +271,7 @@
                                                 class="x-grey"
                                                 v-if="badge.assignedAt"
                                                 style="font-family: monospace; font-size: 12px">
-                                                {{ $t('dialog.user.badges.assigned') }}:
+                                                {{ t('dialog.user.badges.assigned') }}:
                                                 {{ badge.assignedAt | formatDate('long') }}
                                             </span>
                                             <template v-if="userDialog.id === API.currentUser.id">
@@ -283,14 +280,14 @@
                                                     @change="toggleBadgeVisibility(badge)"
                                                     v-model="badge.hidden"
                                                     style="margin-top: 5px">
-                                                    {{ $t('dialog.user.badges.hidden') }}
+                                                    {{ t('dialog.user.badges.hidden') }}
                                                 </el-checkbox>
                                                 <br />
                                                 <el-checkbox
                                                     @change="toggleBadgeShowcased(badge)"
                                                     v-model="badge.showcased"
                                                     style="margin-top: 5px">
-                                                    {{ $t('dialog.user.badges.showcased') }}
+                                                    {{ t('dialog.user.badges.showcased') }}
                                                 </el-checkbox>
                                             </template>
                                         </div>
@@ -333,7 +330,7 @@
                             <el-tooltip
                                 v-if="userDialog.isFavorite"
                                 placement="top"
-                                :content="$t('dialog.user.actions.unfavorite_tooltip')"
+                                :content="t('dialog.user.actions.unfavorite_tooltip')"
                                 :disabled="hideTooltips">
                                 <el-button
                                     @click="userDialogCommand('Add Favorite')"
@@ -344,7 +341,7 @@
                             <el-tooltip
                                 v-else
                                 placement="top"
-                                :content="$t('dialog.user.actions.favorite_tooltip')"
+                                :content="t('dialog.user.actions.favorite_tooltip')"
                                 :disabled="hideTooltips">
                                 <el-button
                                     type="default"
@@ -367,44 +364,44 @@
                                 style="margin-left: 5px"></el-button>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item icon="el-icon-refresh" command="Refresh">{{
-                                    $t('dialog.user.actions.refresh')
+                                    t('dialog.user.actions.refresh')
                                 }}</el-dropdown-item>
                                 <el-dropdown-item icon="el-icon-share" command="Share">{{
-                                    $t('dialog.user.actions.share')
+                                    t('dialog.user.actions.share')
                                 }}</el-dropdown-item>
                                 <template v-if="userDialog.ref.id === API.currentUser.id">
                                     <el-dropdown-item icon="el-icon-picture-outline" command="Manage Gallery" divided>{{
-                                        $t('dialog.user.actions.manage_gallery_icon')
+                                        t('dialog.user.actions.manage_gallery_icon')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-s-custom" command="Show Avatar Author">{{
-                                        $t('dialog.user.actions.show_avatar_author')
+                                        t('dialog.user.actions.show_avatar_author')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-s-custom" command="Show Fallback Avatar Details">{{
-                                        $t('dialog.user.actions.show_fallback_avatar')
+                                        t('dialog.user.actions.show_fallback_avatar')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-edit" command="Edit Social Status" divided>{{
-                                        $t('dialog.user.actions.edit_status')
+                                        t('dialog.user.actions.edit_status')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-edit" command="Edit Language">{{
-                                        $t('dialog.user.actions.edit_language')
+                                        t('dialog.user.actions.edit_language')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-edit" command="Edit Bio">{{
-                                        $t('dialog.user.actions.edit_bio')
+                                        t('dialog.user.actions.edit_bio')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-edit" command="Edit Pronouns">{{
-                                        $t('dialog.user.actions.edit_pronouns')
+                                        t('dialog.user.actions.edit_pronouns')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-switch-button" command="Logout" divided>{{
-                                        $t('dialog.user.actions.logout')
+                                        t('dialog.user.actions.logout')
                                     }}</el-dropdown-item>
                                 </template>
                                 <template v-else>
                                     <template v-if="userDialog.isFriend">
                                         <el-dropdown-item icon="el-icon-postcard" command="Request Invite" divided>{{
-                                            $t('dialog.user.actions.request_invite')
+                                            t('dialog.user.actions.request_invite')
                                         }}</el-dropdown-item>
                                         <el-dropdown-item icon="el-icon-postcard" command="Request Invite Message">{{
-                                            $t('dialog.user.actions.request_invite_with_message')
+                                            t('dialog.user.actions.request_invite_with_message')
                                         }}</el-dropdown-item>
                                         <template
                                             v-if="
@@ -413,48 +410,48 @@
                                                 checkCanInvite(lastLocation.location)
                                             ">
                                             <el-dropdown-item icon="el-icon-message" command="Invite">{{
-                                                $t('dialog.user.actions.invite')
+                                                t('dialog.user.actions.invite')
                                             }}</el-dropdown-item>
                                             <el-dropdown-item icon="el-icon-message" command="Invite Message">{{
-                                                $t('dialog.user.actions.invite_with_message')
+                                                t('dialog.user.actions.invite_with_message')
                                             }}</el-dropdown-item>
                                         </template>
                                     </template>
                                     <template v-else-if="userDialog.incomingRequest">
                                         <el-dropdown-item icon="el-icon-check" command="Accept Friend Request">{{
-                                            $t('dialog.user.actions.accept_friend_request')
+                                            t('dialog.user.actions.accept_friend_request')
                                         }}</el-dropdown-item>
                                         <el-dropdown-item icon="el-icon-close" command="Decline Friend Request">{{
-                                            $t('dialog.user.actions.decline_friend_request')
+                                            t('dialog.user.actions.decline_friend_request')
                                         }}</el-dropdown-item>
                                     </template>
                                     <el-dropdown-item
                                         v-else-if="userDialog.outgoingRequest"
                                         icon="el-icon-close"
                                         command="Cancel Friend Request">
-                                        {{ $t('dialog.user.actions.cancel_friend_request') }}
+                                        {{ t('dialog.user.actions.cancel_friend_request') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item v-else icon="el-icon-plus" command="Send Friend Request">{{
-                                        $t('dialog.user.actions.send_friend_request')
+                                        t('dialog.user.actions.send_friend_request')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-message" command="Invite To Group">{{
-                                        $t('dialog.user.actions.invite_to_group')
+                                        t('dialog.user.actions.invite_to_group')
                                     }}</el-dropdown-item>
-                                    <!--//- el-dropdown-item(icon="el-icon-thumb" command="Send Boop" :disabled="!API.currentUser.isBoopingEnabled") {{ $t('dialog.user.actions.send_boop') }}-->
+                                    <!--//- el-dropdown-item(icon="el-icon-thumb" command="Send Boop" :disabled="!API.currentUser.isBoopingEnabled") {{ t('dialog.user.actions.send_boop') }}-->
                                     <el-dropdown-item icon="el-icon-s-custom" command="Show Avatar Author" divided>{{
-                                        $t('dialog.user.actions.show_avatar_author')
+                                        t('dialog.user.actions.show_avatar_author')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-s-custom" command="Show Fallback Avatar Details">{{
-                                        $t('dialog.user.actions.show_fallback_avatar')
+                                        t('dialog.user.actions.show_fallback_avatar')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-tickets" command="Previous Instances">{{
-                                        $t('dialog.user.actions.show_previous_instances')
+                                        t('dialog.user.actions.show_previous_instances')
                                     }}</el-dropdown-item>
                                     <el-dropdown-item
                                         v-if="userDialog.ref.currentAvatarImageUrl"
                                         icon="el-icon-picture-outline"
                                         command="Previous Images">
-                                        {{ $t('dialog.user.actions.show_previous_images') }}
+                                        {{ t('dialog.user.actions.show_previous_images') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-if="userDialog.isBlock"
@@ -462,7 +459,7 @@
                                         command="Moderation Unblock"
                                         divided
                                         style="color: #f56c6c">
-                                        {{ $t('dialog.user.actions.moderation_unblock') }}
+                                        {{ t('dialog.user.actions.moderation_unblock') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-else
@@ -470,61 +467,61 @@
                                         command="Moderation Block"
                                         divided
                                         :disabled="userDialog.ref.$isModerator">
-                                        {{ $t('dialog.user.actions.moderation_block') }}
+                                        {{ t('dialog.user.actions.moderation_block') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-if="userDialog.isMute"
                                         icon="el-icon-microphone"
                                         command="Moderation Unmute"
                                         style="color: #f56c6c">
-                                        {{ $t('dialog.user.actions.moderation_unmute') }}
+                                        {{ t('dialog.user.actions.moderation_unmute') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-else
                                         icon="el-icon-turn-off-microphone"
                                         command="Moderation Mute"
                                         :disabled="userDialog.ref.$isModerator">
-                                        {{ $t('dialog.user.actions.moderation_mute') }}
+                                        {{ t('dialog.user.actions.moderation_mute') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-if="userDialog.isMuteChat"
                                         icon="el-icon-chat-line-round"
                                         command="Moderation Enable Chatbox"
                                         style="color: #f56c6c">
-                                        {{ $t('dialog.user.actions.moderation_enable_chatbox') }}
+                                        {{ t('dialog.user.actions.moderation_enable_chatbox') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-else
                                         icon="el-icon-chat-dot-round"
                                         command="Moderation Disable Chatbox">
-                                        {{ $t('dialog.user.actions.moderation_disable_chatbox') }}
+                                        {{ t('dialog.user.actions.moderation_disable_chatbox') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-user-solid" command="Show Avatar">
                                         <i class="el-icon-check el-icon--left" v-if="userDialog.isShowAvatar"></i>
-                                        <span>{{ $t('dialog.user.actions.moderation_show_avatar') }}</span>
+                                        <span>{{ t('dialog.user.actions.moderation_show_avatar') }}</span>
                                     </el-dropdown-item>
                                     <el-dropdown-item icon="el-icon-user" command="Hide Avatar">
                                         <i class="el-icon-check el-icon--left" v-if="userDialog.isHideAvatar"></i>
-                                        <span>{{ $t('dialog.user.actions.moderation_hide_avatar') }}</span>
+                                        <span>{{ t('dialog.user.actions.moderation_hide_avatar') }}</span>
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-if="userDialog.isInteractOff"
                                         icon="el-icon-thumb"
                                         command="Moderation Enable Avatar Interaction"
                                         style="color: #f56c6c">
-                                        {{ $t('dialog.user.actions.moderation_enable_avatar_interaction') }}
+                                        {{ t('dialog.user.actions.moderation_enable_avatar_interaction') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         v-else
                                         icon="el-icon-circle-close"
                                         command="Moderation Disable Avatar Interaction">
-                                        {{ $t('dialog.user.actions.moderation_disable_avatar_interaction') }}
+                                        {{ t('dialog.user.actions.moderation_disable_avatar_interaction') }}
                                     </el-dropdown-item>
                                     <el-dropdown-item
                                         icon="el-icon-s-flag"
                                         command="Report Hacking"
                                         :disabled="userDialog.ref.$isModerator">
-                                        {{ $t('dialog.user.actions.report_hacking') }}
+                                        {{ t('dialog.user.actions.report_hacking') }}
                                     </el-dropdown-item>
                                     <template v-if="userDialog.isFriend">
                                         <el-dropdown-item
@@ -532,7 +529,7 @@
                                             command="Unfriend"
                                             divided
                                             style="color: #f56c6c">
-                                            {{ $t('dialog.user.actions.unfriend') }}
+                                            {{ t('dialog.user.actions.unfriend') }}
                                         </el-dropdown-item>
                                     </template>
                                 </template>
@@ -543,7 +540,7 @@
             </div>
 
             <el-tabs ref="userDialogTabs" @tab-click="userDialogTabClick">
-                <el-tab-pane :label="$t('dialog.user.info.header')">
+                <el-tab-pane :label="t('dialog.user.info.header')">
                     <template v-if="isFriendOnline(userDialog.friend) || API.currentUser.id === userDialog.id">
                         <div
                             v-if="userDialog.ref.location"
@@ -561,7 +558,7 @@
                                         @show-launch-dialog="showLaunchDialog"></launch>
                                     <el-tooltip
                                         placement="top"
-                                        :content="$t('dialog.user.info.self_invite_tooltip')"
+                                        :content="t('dialog.user.info.self_invite_tooltip')"
                                         :disabled="hideTooltips">
                                         <invite-yourself
                                             :location="userDialog.$location.tag"
@@ -570,7 +567,7 @@
                                     </el-tooltip>
                                     <el-tooltip
                                         placement="top"
-                                        :content="$t('dialog.user.info.refresh_instance_info')"
+                                        :content="t('dialog.user.info.refresh_instance_info')"
                                         :disabled="hideTooltips">
                                         <el-button
                                             @click="refreshInstancePlayerCount(userDialog.$location.tag)"
@@ -607,7 +604,7 @@
                                                 class="name"
                                                 v-text="userDialog.$location.user.displayName"
                                                 :style="{ color: userDialog.$location.user.$userColour }"></span>
-                                            <span class="extra">{{ $t('dialog.user.info.instance_creator') }}</span>
+                                            <span class="extra">{{ t('dialog.user.info.instance_creator') }}</span>
                                         </div>
                                     </template>
                                     <span v-else v-text="userDialog.$location.userId"></span>
@@ -641,7 +638,7 @@
                     <div class="x-friend-list" style="max-height: none">
                         <div v-if="!hideUserNotes" class="x-friend-item" style="width: 100%; cursor: default">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.note') }}</span>
+                                <span class="name">{{ t('dialog.user.info.note') }}</span>
                                 <el-input
                                     v-model="userDialog.note"
                                     type="textarea"
@@ -651,7 +648,7 @@
                                     :autosize="{ minRows: 1, maxRows: 20 }"
                                     @change="checkNote(userDialog.ref, userDialog.note)"
                                     @input="cleanNote(userDialog.note)"
-                                    :placeholder="$t('dialog.user.info.note_placeholder')"
+                                    :placeholder="t('dialog.user.info.note_placeholder')"
                                     size="mini"
                                     resize="none"></el-input>
                                 <div style="float: right">
@@ -675,7 +672,7 @@
                         </div>
                         <div v-if="!hideUserMemos" class="x-friend-item" style="width: 100%; cursor: default">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.memo') }}</span>
+                                <span class="name">{{ t('dialog.user.info.memo') }}</span>
                                 <el-input
                                     class="extra"
                                     v-model="userDialog.memo"
@@ -683,7 +680,7 @@
                                     type="textarea"
                                     :rows="2"
                                     :autosize="{ minRows: 1, maxRows: 20 }"
-                                    :placeholder="$t('dialog.user.info.memo_placeholder')"
+                                    :placeholder="t('dialog.user.info.memo_placeholder')"
                                     size="mini"
                                     resize="none"></el-input>
                             </div>
@@ -697,9 +694,9 @@
                                         userDialog.ref.profilePicOverride &&
                                         userDialog.ref.currentAvatarImageUrl
                                     ">
-                                    {{ $t('dialog.user.info.avatar_info_last_seen') }}
+                                    {{ t('dialog.user.info.avatar_info_last_seen') }}
                                 </span>
-                                <span class="name" v-else>{{ $t('dialog.user.info.avatar_info') }}</span>
+                                <span class="name" v-else>{{ t('dialog.user.info.avatar_info') }}</span>
                                 <div class="extra">
                                     <avatar-info
                                         :imageurl="userDialog.ref.currentAvatarImageUrl"
@@ -713,7 +710,7 @@
                                             !hideTooltips
                                         "
                                         placement="top"
-                                        :content="$t('dialog.user.info.vrcplus_hides_avatar')">
+                                        :content="t('dialog.user.info.vrcplus_hides_avatar')">
                                         <i class="el-icon-warning"></i>
                                     </el-tooltip>
                                 </div>
@@ -722,7 +719,7 @@
                         <div class="x-friend-item" style="width: 100%; cursor: default">
                             <div class="detail">
                                 <span class="name" style="margin-bottom: 5px">{{
-                                    $t('dialog.user.info.represented_group')
+                                    t('dialog.user.info.represented_group')
                                 }}</span>
                                 <div
                                     class="extra"
@@ -779,7 +776,7 @@
                         </div>
                         <div class="x-friend-item" style="width: 100%; cursor: default">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.bio') }}</span>
+                                <span class="name">{{ t('dialog.user.info.bio') }}</span>
                                 <pre
                                     class="extra"
                                     style="
@@ -824,12 +821,12 @@
                             <div class="x-friend-item" style="cursor: default">
                                 <div class="detail">
                                     <span class="name">
-                                        {{ $t('dialog.user.info.last_seen') }}
+                                        {{ t('dialog.user.info.last_seen') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
@@ -839,16 +836,16 @@
                             <el-tooltip
                                 :disabled="hideTooltips"
                                 placement="top"
-                                :content="$t('dialog.user.info.open_previouse_instance')">
+                                :content="t('dialog.user.info.open_previouse_instance')">
                                 <div class="x-friend-item" @click="showPreviousInstancesUserDialog(userDialog.ref)">
                                     <div class="detail">
                                         <span class="name">
-                                            {{ $t('dialog.user.info.join_count') }}
+                                            {{ t('dialog.user.info.join_count') }}
                                             <el-tooltip
                                                 v-if="!hideTooltips"
                                                 placement="top"
                                                 style="margin-left: 5px"
-                                                :content="$t('dialog.user.info.accuracy_notice')">
+                                                :content="t('dialog.user.info.accuracy_notice')">
                                                 <i class="el-icon-warning"></i>
                                             </el-tooltip>
                                         </span>
@@ -860,12 +857,12 @@
                             <div class="x-friend-item" style="cursor: default">
                                 <div class="detail">
                                     <span class="name">
-                                        {{ $t('dialog.user.info.time_together') }}
+                                        {{ t('dialog.user.info.time_together') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
@@ -878,16 +875,16 @@
                             <el-tooltip
                                 :disabled="hideTooltips || API.currentUser.id !== userDialog.id"
                                 placement="top"
-                                :content="$t('dialog.user.info.open_previouse_instance')">
+                                :content="t('dialog.user.info.open_previouse_instance')">
                                 <div class="x-friend-item" @click="showPreviousInstancesUserDialog(userDialog.ref)">
                                     <div class="detail">
                                         <span class="name">
-                                            {{ $t('dialog.user.info.play_time') }}
+                                            {{ t('dialog.user.info.play_time') }}
                                             <el-tooltip
                                                 v-if="!hideTooltips"
                                                 placement="top"
                                                 style="margin-left: 5px"
-                                                :content="$t('dialog.user.info.accuracy_notice')">
+                                                :content="t('dialog.user.info.accuracy_notice')">
                                                 <i class="el-icon-warning"></i>
                                             </el-tooltip>
                                         </span>
@@ -906,22 +903,22 @@
                                     <span
                                         class="name"
                                         v-if="userDialog.ref.state === 'online' && userDialog.ref.$online_for">
-                                        {{ $t('dialog.user.info.online_for') }}
+                                        {{ t('dialog.user.info.online_for') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
                                     <span class="name" v-else>
-                                        {{ $t('dialog.user.info.offline_for') }}
+                                        {{ t('dialog.user.info.offline_for') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
@@ -933,19 +930,19 @@
                             <el-tooltip :placement="API.currentUser.id !== userDialog.id ? 'bottom' : 'top'">
                                 <template #content>
                                     <span
-                                        >{{ $t('dialog.user.info.last_login') }}
+                                        >{{ t('dialog.user.info.last_login') }}
                                         {{ userDialog.ref.last_login | formatDate('short') }}</span
                                     >
                                 </template>
                                 <div class="detail">
-                                    <span class="name">{{ $t('dialog.user.info.last_activity') }}</span>
+                                    <span class="name">{{ t('dialog.user.info.last_activity') }}</span>
                                     <span class="extra">{{ userDialog.ref.last_activity | formatDate('long') }}</span>
                                 </div>
                             </el-tooltip>
                         </div>
                         <div class="x-friend-item" style="cursor: default">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.date_joined') }}</span>
+                                <span class="name">{{ t('dialog.user.info.date_joined') }}</span>
                                 <span class="extra" v-text="userDialog.ref.date_joined"></span>
                             </div>
                         </div>
@@ -959,22 +956,22 @@
                                 </template>
                                 <div class="detail">
                                     <span class="name" v-if="userDialog.unFriended">
-                                        {{ $t('dialog.user.info.unfriended') }}
+                                        {{ t('dialog.user.info.unfriended') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
                                     <span class="name" v-else>
-                                        {{ $t('dialog.user.info.friended') }}
+                                        {{ t('dialog.user.info.friended') }}
                                         <el-tooltip
                                             v-if="!hideTooltips"
                                             placement="top"
                                             style="margin-left: 5px"
-                                            :content="$t('dialog.user.info.accuracy_notice')">
+                                            :content="t('dialog.user.info.accuracy_notice')">
                                             <i class="el-icon-warning"></i>
                                         </el-tooltip>
                                     </span>
@@ -985,36 +982,36 @@
                         <template v-if="API.currentUser.id === userDialog.id">
                             <div class="x-friend-item" @click="toggleAvatarCopying">
                                 <div class="detail">
-                                    <span class="name">{{ $t('dialog.user.info.avatar_cloning') }}</span>
+                                    <span class="name">{{ t('dialog.user.info.avatar_cloning') }}</span>
                                     <span
                                         class="extra"
                                         v-if="API.currentUser.allowAvatarCopying"
                                         style="color: #67c23a"
-                                        >{{ $t('dialog.user.info.avatar_cloning_allow') }}</span
+                                        >{{ t('dialog.user.info.avatar_cloning_allow') }}</span
                                     >
                                     <span class="extra" v-else style="color: #f56c6c">{{
-                                        $t('dialog.user.info.avatar_cloning_deny')
+                                        t('dialog.user.info.avatar_cloning_deny')
                                     }}</span>
                                 </div>
                             </div>
                             <!--//- .x-friend-item(@click="toggleAllowBooping")-->
                             <!--//-     .detail-->
-                            <!--//-         span.name {{ $t('dialog.user.info.booping') }}-->
-                            <!--//-         span.extra(v-if="API.currentUser.isBoopingEnabled" style="color:#67C23A") {{ $t('dialog.user.info.avatar_cloning_allow') }}-->
-                            <!--//-         span.extra(v-else style="color:#F56C6C") {{ $t('dialog.user.info.avatar_cloning_deny') }}-->
+                            <!--//-         span.name {{ t('dialog.user.info.booping') }}-->
+                            <!--//-         span.extra(v-if="API.currentUser.isBoopingEnabled" style="color:#67C23A") {{ t('dialog.user.info.avatar_cloning_allow') }}-->
+                            <!--//-         span.extra(v-else style="color:#F56C6C") {{ t('dialog.user.info.avatar_cloning_deny') }}-->
                         </template>
                         <template v-else>
                             <div class="x-friend-item" style="cursor: default">
                                 <div class="detail">
-                                    <span class="name">{{ $t('dialog.user.info.avatar_cloning') }}</span>
+                                    <span class="name">{{ t('dialog.user.info.avatar_cloning') }}</span>
                                     <span
                                         class="extra"
                                         v-if="userDialog.ref.allowAvatarCopying"
                                         style="color: #67c23a"
-                                        >{{ $t('dialog.user.info.avatar_cloning_allow') }}</span
+                                        >{{ t('dialog.user.info.avatar_cloning_allow') }}</span
                                     >
                                     <span class="extra" v-else style="color: #f56c6c">{{
-                                        $t('dialog.user.info.avatar_cloning_deny')
+                                        t('dialog.user.info.avatar_cloning_deny')
                                     }}</span>
                                 </div>
                             </div>
@@ -1025,7 +1022,7 @@
                             @click="showWorldDialog(API.currentUser.homeLocation)"
                             style="width: 100%">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.home_location') }}</span>
+                                <span class="name">{{ t('dialog.user.info.home_location') }}</span>
                                 <span class="extra">
                                     <span v-text="userDialog.$homeLocationName"></span>
                                     <el-button
@@ -1040,12 +1037,12 @@
                         </div>
                         <div class="x-friend-item" style="width: 100%; cursor: default">
                             <div class="detail">
-                                <span class="name">{{ $t('dialog.user.info.id') }}</span>
+                                <span class="name">{{ t('dialog.user.info.id') }}</span>
                                 <span class="extra">
                                     {{ userDialog.id }}
                                     <el-tooltip
                                         placement="top"
-                                        :content="$t('dialog.user.info.id_tooltip')"
+                                        :content="t('dialog.user.info.id_tooltip')"
                                         :disabled="hideTooltips">
                                         <el-dropdown
                                             trigger="click"
@@ -1059,14 +1056,14 @@
                                                 circle></el-button>
                                             <el-dropdown-menu slot="dropdown">
                                                 <el-dropdown-item @click.native="copyUserId(userDialog.id)">{{
-                                                    $t('dialog.user.info.copy_id')
+                                                    t('dialog.user.info.copy_id')
                                                 }}</el-dropdown-item>
                                                 <el-dropdown-item @click.native="copyUserURL(userDialog.id)">{{
-                                                    $t('dialog.user.info.copy_url')
+                                                    t('dialog.user.info.copy_url')
                                                 }}</el-dropdown-item>
                                                 <el-dropdown-item
                                                     @click.native="copyUserDisplayName(userDialog.ref.displayName)"
-                                                    >{{ $t('dialog.user.info.copy_display_name') }}</el-dropdown-item
+                                                    >{{ t('dialog.user.info.copy_display_name') }}</el-dropdown-item
                                                 >
                                             </el-dropdown-menu>
                                         </el-dropdown>
@@ -1077,7 +1074,7 @@
                     </div>
                 </el-tab-pane>
 
-                <el-tab-pane :label="$t('dialog.user.groups.header')" lazy>
+                <el-tab-pane :label="t('dialog.user.groups.header')" lazy>
                     <div style="display: flex; align-items: center; justify-content: space-between">
                         <div style="display: flex; align-items: center">
                             <el-button
@@ -1089,17 +1086,17 @@
                                 circle>
                             </el-button>
                             <span style="margin-left: 5px">{{
-                                $t('dialog.user.groups.total_count', { count: userGroups.groups.length })
+                                t('dialog.user.groups.total_count', { count: userGroups.groups.length })
                             }}</span>
                             <template v-if="userDialogGroupEditMode">
                                 <span style="margin-left: 10px; color: #909399; font-size: 10px">{{
-                                    $t('dialog.user.groups.hold_shift')
+                                    t('dialog.user.groups.hold_shift')
                                 }}</span>
                             </template>
                         </div>
                         <div style="display: flex; align-items: center">
                             <template v-if="!userDialogGroupEditMode">
-                                <span style="margin-right: 5px">{{ $t('dialog.user.groups.sort_by') }}</span>
+                                <span style="margin-right: 5px">{{ t('dialog.user.groups.sort_by') }}</span>
                                 <el-dropdown
                                     @click.native.stop
                                     trigger="click"
@@ -1132,7 +1129,7 @@
                                 @click="exitEditModeCurrentUserGroups"
                                 icon="el-icon-edit"
                                 style="margin-right: 5px; height: 29px; padding: 7px 15px">
-                                {{ $t('dialog.user.groups.exit_edit_mode') }}
+                                {{ t('dialog.user.groups.exit_edit_mode') }}
                             </el-button>
                             <el-button
                                 v-else-if="API.currentUser.id === userDialog.id"
@@ -1140,7 +1137,7 @@
                                 @click="editModeCurrentUserGroups"
                                 icon="el-icon-edit"
                                 style="margin-right: 5px; height: 29px; padding: 7px 15px">
-                                {{ $t('dialog.user.groups.edit_mode') }}
+                                {{ t('dialog.user.groups.edit_mode') }}
                             </el-button>
                         </div>
                     </div>
@@ -1196,13 +1193,13 @@
                                             <el-tooltip
                                                 v-if="group.isRepresenting"
                                                 placement="top"
-                                                :content="$t('dialog.group.members.representing')">
+                                                :content="t('dialog.group.members.representing')">
                                                 <i class="el-icon-collection-tag" style="margin-right: 5px"></i>
                                             </el-tooltip>
                                             <el-tooltip v-if="group.myMember.visibility !== 'visible'" placement="top">
                                                 <template #content>
                                                     <span
-                                                        >{{ $t('dialog.group.members.visibility') }}
+                                                        >{{ t('dialog.group.members.visibility') }}
                                                         {{ group.myMember.visibility }}</span
                                                     >
                                                 </template>
@@ -1219,13 +1216,13 @@
                                         style="margin-right: 5px">
                                         <el-button size="mini">
                                             <span v-if="group.myMember.visibility === 'visible'">{{
-                                                $t('dialog.group.tags.visible')
+                                                t('dialog.group.tags.visible')
                                             }}</span>
                                             <span v-else-if="group.myMember.visibility === 'friends'">{{
-                                                $t('dialog.group.tags.friends')
+                                                t('dialog.group.tags.friends')
                                             }}</span>
                                             <span v-else-if="group.myMember.visibility === 'hidden'">{{
-                                                $t('dialog.group.tags.hidden')
+                                                t('dialog.group.tags.hidden')
                                             }}</span>
                                             <span v-else>{{ group.myMember.visibility }}</span>
                                             <i class="el-icon-arrow-down el-icon--right" style="margin-left: 5px"></i>
@@ -1235,19 +1232,19 @@
                                                 ><i
                                                     class="el-icon-check"
                                                     v-if="group.myMember.visibility === 'visible'"></i>
-                                                {{ $t('dialog.group.actions.visibility_everyone') }}</el-dropdown-item
+                                                {{ t('dialog.group.actions.visibility_everyone') }}</el-dropdown-item
                                             >
                                             <el-dropdown-item @click.native="setGroupVisibility(group.id, 'friends')"
                                                 ><i
                                                     class="el-icon-check"
                                                     v-if="group.myMember.visibility === 'friends'"></i>
-                                                {{ $t('dialog.group.actions.visibility_friends') }}</el-dropdown-item
+                                                {{ t('dialog.group.actions.visibility_friends') }}</el-dropdown-item
                                             >
                                             <el-dropdown-item @click.native="setGroupVisibility(group.id, 'hidden')"
                                                 ><i
                                                     class="el-icon-check"
                                                     v-if="group.myMember.visibility === 'hidden'"></i>
-                                                {{ $t('dialog.group.actions.visibility_hidden') }}</el-dropdown-item
+                                                {{ t('dialog.group.actions.visibility_hidden') }}</el-dropdown-item
                                             >
                                         </el-dropdown-menu>
                                     </el-dropdown>
@@ -1255,15 +1252,15 @@
                                     <!--//- el-dropdown(@click.native.stop trigger="click" size="small" style="margin-right:5px")-->
                                     <!--//-     el-tooltip(placement="top" :disabled="hideTooltips")-->
                                     <!--//-         template(#content)-->
-                                    <!--//-             span(v-if="group.myMember.isSubscribedToAnnouncements") {{ $t('dialog.group.actions.unsubscribe') }}-->
-                                    <!--//-             span(v-else) {{ $t('dialog.group.actions.subscribe') }}-->
+                                    <!--//-             span(v-if="group.myMember.isSubscribedToAnnouncements") {{ t('dialog.group.actions.unsubscribe') }}-->
+                                    <!--//-             span(v-else) {{ t('dialog.group.actions.subscribe') }}-->
                                     <!--//-         el-button(v-if="group.myMember.isSubscribedToAnnouncements" @click.stop="setGroupSubscription(group.id, false)" circle size="mini")-->
                                     <!--//-             i.el-icon-chat-line-square-->
                                     <!--//-         el-button(v-else circle @click.stop="setGroupSubscription(group.id, true)" size="mini")-->
                                     <!--//-             i.el-icon-chat-square(style="color:#f56c6c")-->
                                     <el-tooltip
                                         placement="right"
-                                        :content="$t('dialog.user.groups.leave_group_tooltip')"
+                                        :content="t('dialog.user.groups.leave_group_tooltip')"
                                         :disabled="hideTooltips">
                                         <el-button
                                             v-if="shiftHeld"
@@ -1288,7 +1285,7 @@
                         <template v-else>
                             <template v-if="userGroups.ownGroups.length > 0">
                                 <span style="font-weight: bold; font-size: 16px">{{
-                                    $t('dialog.user.groups.own_groups')
+                                    t('dialog.user.groups.own_groups')
                                 }}</span>
                                 <span style="color: #909399; font-size: 12px; margin-left: 5px"
                                     >{{ userGroups.ownGroups.length }}/{{
@@ -1312,13 +1309,13 @@
                                                 <el-tooltip
                                                     v-if="group.isRepresenting"
                                                     placement="top"
-                                                    :content="$t('dialog.group.members.representing')">
+                                                    :content="t('dialog.group.members.representing')">
                                                     <i class="el-icon-collection-tag" style="margin-right: 5px"></i>
                                                 </el-tooltip>
                                                 <el-tooltip v-if="group.memberVisibility !== 'visible'" placement="top">
                                                     <template #content>
                                                         <span
-                                                            >{{ $t('dialog.group.members.visibility') }}
+                                                            >{{ t('dialog.group.members.visibility') }}
                                                             {{ group.memberVisibility }}</span
                                                         >
                                                     </template>
@@ -1332,7 +1329,7 @@
                             </template>
                             <template v-if="userGroups.mutualGroups.length > 0">
                                 <span style="font-weight: bold; font-size: 16px">{{
-                                    $t('dialog.user.groups.mutual_groups')
+                                    t('dialog.user.groups.mutual_groups')
                                 }}</span>
                                 <span style="color: #909399; font-size: 12px; margin-left: 5px">{{
                                     userGroups.mutualGroups.length
@@ -1354,13 +1351,13 @@
                                                 <el-tooltip
                                                     v-if="group.isRepresenting"
                                                     placement="top"
-                                                    :content="$t('dialog.group.members.representing')">
+                                                    :content="t('dialog.group.members.representing')">
                                                     <i class="el-icon-collection-tag" style="margin-right: 5px"></i>
                                                 </el-tooltip>
                                                 <el-tooltip v-if="group.memberVisibility !== 'visible'" placement="top">
                                                     <template #content>
                                                         <span
-                                                            >{{ $t('dialog.group.members.visibility') }}
+                                                            >{{ t('dialog.group.members.visibility') }}
                                                             {{ group.memberVisibility }}</span
                                                         >
                                                     </template>
@@ -1374,7 +1371,7 @@
                             </template>
                             <template v-if="userGroups.remainingGroups.length > 0">
                                 <span style="font-weight: bold; font-size: 16px">{{
-                                    $t('dialog.user.groups.groups')
+                                    t('dialog.user.groups.groups')
                                 }}</span>
                                 <span style="color: #909399; font-size: 12px; margin-left: 5px">
                                     {{ userGroups.remainingGroups.length }}
@@ -1405,13 +1402,13 @@
                                                 <el-tooltip
                                                     v-if="group.isRepresenting"
                                                     placement="top"
-                                                    :content="$t('dialog.group.members.representing')">
+                                                    :content="t('dialog.group.members.representing')">
                                                     <i class="el-icon-collection-tag" style="margin-right: 5px"></i>
                                                 </el-tooltip>
                                                 <el-tooltip v-if="group.memberVisibility !== 'visible'" placement="top">
                                                     <template #content>
                                                         <span
-                                                            >{{ $t('dialog.group.members.visibility') }}
+                                                            >{{ t('dialog.group.members.visibility') }}
                                                             {{ group.memberVisibility }}</span
                                                         >
                                                     </template>
@@ -1427,7 +1424,7 @@
                     </div>
                 </el-tab-pane>
 
-                <el-tab-pane :label="$t('dialog.user.worlds.header')" lazy>
+                <el-tab-pane :label="t('dialog.user.worlds.header')" lazy>
                     <div style="display: flex; align-items: center; justify-content: space-between">
                         <div style="display: flex; align-items: center">
                             <el-button
@@ -1439,11 +1436,11 @@
                                 circle>
                             </el-button>
                             <span style="margin-left: 5px">{{
-                                $t('dialog.user.worlds.total_count', { count: userDialog.worlds.length })
+                                t('dialog.user.worlds.total_count', { count: userDialog.worlds.length })
                             }}</span>
                         </div>
                         <div style="display: flex; align-items: center">
-                            <span style="margin-right: 5px">{{ $t('dialog.user.worlds.sort_by') }}</span>
+                            <span style="margin-right: 5px">{{ t('dialog.user.worlds.sort_by') }}</span>
                             <el-dropdown
                                 @click.native.stop
                                 trigger="click"
@@ -1465,7 +1462,7 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
-                            <span style="margin: 0 5px">{{ $t('dialog.user.worlds.order_by') }}</span>
+                            <span style="margin: 0 5px">{{ t('dialog.user.worlds.order_by') }}</span>
                             <el-dropdown
                                 @click.native.stop
                                 trigger="click"
@@ -1509,7 +1506,7 @@
                     </div>
                 </el-tab-pane>
 
-                <el-tab-pane :label="$t('dialog.user.favorite_worlds.header')" lazy>
+                <el-tab-pane :label="t('dialog.user.favorite_worlds.header')" lazy>
                     <el-button
                         v-if="userFavoriteWorlds && userFavoriteWorlds.length > 0"
                         type="default"
@@ -1567,7 +1564,7 @@
                     </el-tabs>
                 </el-tab-pane>
 
-                <el-tab-pane :label="$t('dialog.user.avatars.header')" lazy>
+                <el-tab-pane :label="t('dialog.user.avatars.header')" lazy>
                     <div style="display: flex; align-items: center; justify-content: space-between">
                         <div style="display: flex; align-items: center">
                             <el-button
@@ -1589,12 +1586,12 @@
                                 circle>
                             </el-button>
                             <span style="margin-left: 5px">{{
-                                $t('dialog.user.avatars.total_count', { count: userDialogAvatars.length })
+                                t('dialog.user.avatars.total_count', { count: userDialogAvatars.length })
                             }}</span>
                         </div>
                         <div>
                             <template v-if="userDialog.ref.id === API.currentUser.id">
-                                <span style="margin-right: 5px">{{ $t('dialog.user.avatars.sort_by') }}</span>
+                                <span style="margin-right: 5px">{{ t('dialog.user.avatars.sort_by') }}</span>
                                 <el-dropdown
                                     @click.native.stop
                                     trigger="click"
@@ -1603,23 +1600,23 @@
                                     :disabled="userDialog.isWorldsLoading">
                                     <el-button size="mini">
                                         <span
-                                            >{{ $t(`dialog.user.avatars.sort_by_${userDialog.avatarSorting}`) }}
+                                            >{{ t(`dialog.user.avatars.sort_by_${userDialog.avatarSorting}`) }}
                                             <i class="el-icon-arrow-down el-icon--right"></i
                                         ></span>
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item
-                                            v-text="$t('dialog.user.avatars.sort_by_name')"
+                                            v-text="t('dialog.user.avatars.sort_by_name')"
                                             @click.native="changeUserDialogAvatarSorting('name')">
                                         </el-dropdown-item>
                                         <el-dropdown-item
-                                            v-text="$t('dialog.user.avatars.sort_by_update')"
+                                            v-text="t('dialog.user.avatars.sort_by_update')"
                                             @click.native="changeUserDialogAvatarSorting('update')">
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
                                 <span style="margin-right: 5px; margin-left: 10px">{{
-                                    $t('dialog.user.avatars.group_by')
+                                    t('dialog.user.avatars.group_by')
                                 }}</span>
                                 <el-dropdown
                                     @click.native.stop
@@ -1629,21 +1626,21 @@
                                     :disabled="userDialog.isWorldsLoading">
                                     <el-button size="mini">
                                         <span
-                                            >{{ $t(`dialog.user.avatars.${userDialog.avatarReleaseStatus}`) }}
+                                            >{{ t(`dialog.user.avatars.${userDialog.avatarReleaseStatus}`) }}
                                             <i class="el-icon-arrow-down el-icon--right"></i
                                         ></span>
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item
-                                            v-text="$t('dialog.user.avatars.all')"
+                                            v-text="t('dialog.user.avatars.all')"
                                             @click.native="userDialog.avatarReleaseStatus = 'all'">
                                         </el-dropdown-item>
                                         <el-dropdown-item
-                                            v-text="$t('dialog.user.avatars.public')"
+                                            v-text="t('dialog.user.avatars.public')"
                                             @click.native="userDialog.avatarReleaseStatus = 'public'">
                                         </el-dropdown-item>
                                         <el-dropdown-item
-                                            v-text="$t('dialog.user.avatars.private')"
+                                            v-text="t('dialog.user.avatars.private')"
                                             @click.native="userDialog.avatarReleaseStatus = 'private'">
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
@@ -1680,7 +1677,7 @@
                     </div>
                 </el-tab-pane>
 
-                <el-tab-pane :label="$t('dialog.user.json.header')" lazy style="height: 50vh">
+                <el-tab-pane :label="t('dialog.user.json.header')" lazy style="height: 50vh">
                     <el-button
                         type="default"
                         @click="refreshUserDialogTreeData()"
@@ -1709,3 +1706,252 @@
         </div>
     </safe-dialog>
 </template>
+
+<script setup>
+    import { inject, getCurrentInstance } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
+    import utils from '../../../classes/utils';
+    const { t } = useI18n();
+
+    const { proxy } = getCurrentInstance();
+    const { $message } = proxy;
+
+    const API = inject('API');
+    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
+    const languageClass = inject('languageClass');
+    const userImage = inject('userImage');
+    const showLaunchDialog = inject('showLaunchDialog');
+    const showUserDialog = inject('showUserDialog');
+    const showGroupDialog = inject('showGroupDialog');
+    const openExternalLink = inject('openExternalLink');
+    const showWorldDialog = inject('showWorldDialog');
+    const showAvatarDialog = inject('showAvatarDialog');
+
+    const props = defineProps({
+        userDialog: {
+            type: Object,
+            default: () => ({})
+        },
+        userGroups: {
+            type: Object,
+            default: () => ({})
+        },
+        userFavoriteWorlds: {
+            type: Array,
+            default: () => []
+        },
+        hideTooltips: {
+            type: Boolean,
+            default: false
+        },
+        lastLocation: {
+            type: Object,
+            default: () => ({})
+        },
+        isGameRunning: {
+            type: Boolean,
+            default: false
+        },
+        checkCanInvite: {
+            type: Function,
+            default: () => {}
+        },
+        updateInstanceInfo: {
+            type: Number,
+            default: () => {}
+        },
+        hideUserNotes: {
+            type: Boolean,
+            default: false
+        },
+        hideUserMemos: {
+            type: Boolean,
+            default: false
+        },
+        userOnlineForTimestamp: {
+            type: Function,
+            default: () => {}
+        },
+        userOnlineFor: {
+            type: Function,
+            default: () => {}
+        },
+        userDialogGroupEditMode: {
+            type: Boolean,
+            default: false
+        },
+        userDialogGroupSortingOptions: {
+            type: Array,
+            default: () => []
+        },
+
+        userDialogGroupEditGroups: {
+            type: Array,
+            default: () => []
+        },
+        userDialogWorldSortingOptions: {
+            type: Array,
+            default: () => []
+        },
+        userDialogWorldOrderOptions: {
+            type: Array,
+            default: () => []
+        },
+        userFavoriteWorldsStatus: {
+            type: Function,
+            default: () => {}
+        },
+        userDialogAvatars: {
+            type: Array,
+            default: () => []
+        }
+    });
+
+    function toggleBadgeVisibility(arg) {
+        API.toggleBadgeVisible(props.userDialog.id);
+    }
+
+    function toggleBadgeShowcased(arg) {
+        API.toggleBadgeShowcased(props.userDialog.id);
+    }
+
+    function userDialogCommand(command) {
+        API.userDialogCommand(props.userDialog.id, command);
+    }
+
+    function userDialogTabClick(args) {}
+
+    function isRealInstance(args) {
+        return utils.isRealInstance(args);
+    }
+
+    function refreshInstancePlayerCount(args) {}
+
+    function checkNote(args) {
+        return API.checkNotes(args);
+    }
+
+    function deleteNote(args) {
+        API.deleteNote(args);
+    }
+
+    function onUserMemoChange(args) {
+        API.onUserMemoChange(args);
+    }
+
+    function showBioDialog() {
+        API.showBioDialog(props.userDialog.id);
+    }
+
+    function getFaviconUrl(args) {
+        return utils.getFaviconUrl(args);
+    }
+
+    function showPreviousInstancesUserDialog(args) {
+        API.showPreviousInstancesUserDialog(args);
+    }
+
+    function timeToText(args) {
+        return utils.timeToText(args);
+    }
+
+    // function userOnlineForTimestamp(args) {
+    //     //
+    // }
+
+    function toggleAvatarCopying() {
+        API.toggleAvatarCopying(props.userDialog.id);
+    }
+
+    function resetHome() {
+        API.resetHome(props.userDialog.id);
+    }
+
+    function copyUserId(args) {
+        utils.copyToClipboard(args, 'User ID copied to clipboard');
+    }
+
+    function copyUserURL(args) {
+        utils.copyToClipboard(args, 'User URL copied to clipboard');
+    }
+
+    function copyUserDisplayName(args) {
+        utils.copyToClipboard(args, 'User Display Name copied to clipboard');
+    }
+
+    function getUserGroups(args) {
+        API.getUserGroups(args);
+    }
+
+    function setUserDialogGroupSorting(args) {
+        API.setUserDialogGroupSorting(args);
+    }
+
+    function exitEditModeCurrentUserGroups(args) {
+        API.exitEditModeCurrentUserGroups(args);
+    }
+
+    function editModeCurrentUserGroups(args) {
+        API.editModeCurrentUserGroups(args);
+    }
+
+    function moveGroupUp(args) {
+        API.moveGroupUp(args);
+    }
+
+    function moveGroupDown(args) {
+        API.moveGroupDown(args);
+    }
+
+    function moveGroupTop(args) {
+        API.moveGroupTop(args);
+    }
+
+    function moveGroupBottom(args) {
+        API.moveGroupBottom(args);
+    }
+
+    function setGroupVisibility(args) {
+        API.setGroupVisibility(args);
+    }
+
+    function leaveGroupPrompt(args) {
+        API.leaveGroupPrompt(args);
+    }
+
+    function refreshUserDialogWorlds() {
+        API.refreshUserDialogWorlds(props.userDialog.id);
+    }
+
+    function setUserDialogWorldSorting(args) {
+        API.setUserDialogWorldSorting(args);
+    }
+
+    function setUserDialogWorldOrder(args) {
+        API.setUserDialogWorldOrder(args);
+    }
+
+    function getUserFavoriteWorlds(args) {
+        API.getUserFavoriteWorlds(args);
+    }
+
+    function refreshUserDialogAvatars() {
+        API.refreshUserDialogAvatars(props.userDialog.id);
+    }
+
+    function setUserDialogAvatarsRemote() {
+        API.setUserDialogAvatarsRemote(props.userDialog.id);
+    }
+
+    function changeUserDialogAvatarSorting(args) {
+        API.changeUserDialogAvatarSorting(args);
+    }
+
+    function refreshUserDialogTreeData() {
+        API.refreshUserDialogTreeData(props.userDialog.id);
+    }
+
+    function downloadAndSaveJson() {
+        API.downloadAndSaveJson(props.userDialog.id, props.userDialog.ref);
+    }
+</script>
