@@ -3,7 +3,8 @@
         ref="inviteGroupDialog"
         :visible.sync="inviteGroupDialog.visible"
         :title="$t('dialog.invite_to_group.header')"
-        width="450px">
+        width="450px"
+        append-to-body>
         <div v-if="inviteGroupDialog.visible" v-loading="inviteGroupDialog.loading">
             <span>{{ $t('dialog.invite_to_group.description') }}</span>
             <br />
@@ -166,8 +167,8 @@
 </template>
 
 <script>
-    import { groupRequest, userRequest } from '../../../api';
-    import utils from '../../../classes/utils';
+    import { groupRequest, userRequest } from '../../api';
+    import utils from '../../classes/utils';
 
     export default {
         name: 'InviteGroupDialog',

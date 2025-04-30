@@ -4,7 +4,6 @@
         :visible="changeWorldImageDialogVisible"
         :title="t('dialog.change_content_image.world')"
         width="850px"
-        close-on-click-modal="true"
         append-to-body
         @close="closeDialog">
         <div v-loading="changeWorldImageDialogLoading">

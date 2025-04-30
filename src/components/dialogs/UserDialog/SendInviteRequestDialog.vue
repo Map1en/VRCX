@@ -1,7 +1,7 @@
 <template>
     <safe-dialog
         class="x-dialog"
-        :visible="sendInviteRequestDialogVisible"
+        :visible.sync="sendInviteRequestDialogVisible"
         :title="t('dialog.invite_request_message.header')"
         width="800px"
         append-to-body
@@ -11,7 +11,6 @@
         </template>
 
         <data-tables
-            v-if="sendInviteRequestDialogVisible"
             v-bind="inviteRequestMessageTable"
             style="margin-top: 10px; cursor: pointer"
             @row-click="showSendInviteConfirmDialog">
@@ -68,8 +67,8 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
-    import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
+    import EditAndSendInviteDialog from '../InviteDialog/EditAndSendInviteDialog.vue';
+    import SendInviteConfirmDialog from '../InviteDialog/SendInviteConfirmDialog.vue';
 
     const { t } = useI18n();
 
@@ -90,6 +89,7 @@
         },
         inviteDialog: {
             type: Object,
+            require: false,
             default: () => ({})
         },
         uploadImage: {

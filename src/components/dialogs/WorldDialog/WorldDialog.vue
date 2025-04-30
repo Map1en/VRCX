@@ -757,7 +757,10 @@
             :offline-friends="offlineFriends"
             :active-friends="activeFriends"
             :online-friends="onlineFriends"
-            :vip-friends="vipFriends" />
+            :vip-friends="vipFriends"
+            :invite-message-table="inviteMessageTable"
+            :upload-image="uploadImage"
+            :last-location="lastLocation" />
         <ChangeWorldImageDialog
             :change-world-image-dialog-visible.sync="changeWorldImageDialogVisible"
             :previous-images-table="previousImagesTable"
@@ -771,15 +774,16 @@
 </template>
 
 <script>
+    import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
     import utils from '../../../classes/utils';
+    import { refreshInstancePlayerCount as _refreshInstancePlayerCount } from '../../../composables/instance/utils';
     import database from '../../../service/database.js';
-    import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
-    import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
-    import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
-    import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
-    import { favoriteRequest, imageRequest, miscRequest, worldRequest } from '../../../api';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
+    import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
+    import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
+    import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
+    import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
 
     export default {
         name: 'WorldDialog',
@@ -819,6 +823,8 @@
             activeFriends: Array,
             onlineFriends: Array,
             vipFriends: Array,
+            inviteMessageTable: Object,
+            uploadImage: String,
 
             // TODO: Remove
             updateInstanceInfo: Number
@@ -1006,26 +1012,30 @@
                                         });
                                         break;
                                     case 'Make Home':
-                                        this.API.saveCurrentUser({
-                                            homeLocation: D.id
-                                        }).then((args) => {
-                                            this.$message({
-                                                message: 'Home world updated',
-                                                type: 'success'
+                                        userRequest
+                                            .saveCurrentUser({
+                                                homeLocation: D.id
+                                            })
+                                            .then((args) => {
+                                                this.$message({
+                                                    message: 'Home world updated',
+                                                    type: 'success'
+                                                });
+                                                return args;
                                             });
-                                            return args;
-                                        });
                                         break;
                                     case 'Reset Home':
-                                        this.API.saveCurrentUser({
-                                            homeLocation: ''
-                                        }).then((args) => {
-                                            this.$message({
-                                                message: 'Home world has been reset',
-                                                type: 'success'
+                                        userRequest
+                                            .saveCurrentUser({
+                                                homeLocation: ''
+                                            })
+                                            .then((args) => {
+                                                this.$message({
+                                                    message: 'Home world has been reset',
+                                                    type: 'success'
+                                                });
+                                                return args;
                                             });
-                                            return args;
-                                        });
                                         break;
                                     case 'Publish':
                                         worldRequest
@@ -1115,12 +1125,12 @@
                         this.showFavoriteDialog('world', D.id);
                         break;
                     default:
-                        this.$emit('world-dialog-command', command);
+                        this.$emit('worldDialogCommand', command);
                         break;
                 }
             },
             refreshInstancePlayerCount(tag) {
-                this.$emit('refresh-instance-player-count', tag);
+                _refreshInstancePlayerCount(tag);
             },
             onWorldMemoChange() {
                 const worldId = this.worldDialog.id;

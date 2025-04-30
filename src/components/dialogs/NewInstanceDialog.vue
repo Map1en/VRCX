@@ -483,17 +483,27 @@
                 >{{ $t('dialog.new_instance.launch') }}</el-button
             >
         </template>
+        <InviteDialog
+            :invite-dialog="inviteDialog"
+            :vip-friends="vipFriends"
+            :online-friends="onlineFriends"
+            :active-friends="activeFriends"
+            :invite-message-table="inviteMessageTable"
+            :upload-image="uploadImage"
+            @close-invite-dialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
 <script>
-    import { groupRequest, instanceRequest } from '../../api';
+    import { groupRequest, instanceRequest, worldRequest } from '../../api';
     import utils from '../../classes/utils';
     import configRepository from '../../service/config';
+    import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {
         name: 'NewInstanceDialog',
-        inject: ['API', 'userImage', 'userStatusClass', 'showInviteDialog', 'showLaunchDialog', 'adjustDialogZ'],
+        components: { InviteDialog },
+        inject: ['API', 'userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
             vipFriends: {
                 type: Array,
@@ -522,6 +532,18 @@
             newInstanceDialogLocationTag: {
                 type: String,
                 required: true
+            },
+            inviteMessageTable: {
+                type: Object,
+                default: () => ({})
+            },
+            uploadImage: {
+                type: String,
+                default: ''
+            },
+            lastLocation: {
+                type: Object,
+                default: () => ({})
             }
         },
         data() {
@@ -553,6 +575,14 @@
                     groupRef: {},
                     contentSettings: this.instanceContentSettings,
                     selectedContentSettings: []
+                },
+                inviteDialog: {
+                    visible: false,
+                    loading: false,
+                    worldId: '',
+                    worldName: '',
+                    userIds: [],
+                    friendsInInstance: []
                 }
             };
         },
@@ -565,6 +595,35 @@
             this.initializeNewInstanceDialog();
         },
         methods: {
+            closeInviteDialog() {
+                this.inviteDialog.visible = false;
+            },
+            showInviteDialog(tag) {
+                if (!utils.isRealInstance(tag)) {
+                    return;
+                }
+                const L = utils.parseLocation(tag);
+                worldRequest
+                    .getCachedWorld({
+                        worldId: L.worldId
+                    })
+                    .then((args) => {
+                        const D = this.inviteDialog;
+                        D.userIds = [];
+                        D.worldId = L.tag;
+                        D.worldName = args.ref.name;
+                        D.friendsInInstance = [];
+                        const friendsInCurrentInstance = this.lastLocation.friendList;
+                        for (const friend of friendsInCurrentInstance.values()) {
+                            const ctx = this.friends.get(friend.userId);
+                            if (typeof ctx.ref === 'undefined') {
+                                continue;
+                            }
+                            D.friendsInInstance.push(ctx);
+                        }
+                        D.visible = true;
+                    });
+            },
             initNewInstanceDialog(tag) {
                 if (!utils.isRealInstance(tag)) {
                     return;

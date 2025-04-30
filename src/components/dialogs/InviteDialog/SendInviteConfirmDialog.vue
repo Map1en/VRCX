@@ -44,7 +44,8 @@
         },
         inviteDialog: {
             type: Object,
-            required: true
+            required: false,
+            default: () => ({})
         },
         uploadImage: {
             type: String
@@ -60,7 +61,7 @@
     function sendInviteConfirm() {
         const D = props.sendInviteDialog;
         const J = props.inviteDialog;
-        if (J.visible) {
+        if (J?.visible) {
             const inviteLoop = () => {
                 if (J.userIds.length > 0) {
                     const receiverUserId = J.userIds.shift();

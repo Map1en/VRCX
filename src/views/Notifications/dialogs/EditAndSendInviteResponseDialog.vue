@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, notificationRequest } from '../../../api';
 
@@ -109,7 +109,6 @@
                     });
 
                     emit('closeInviteDialog');
-
                     return args;
                 });
         } else {
@@ -127,7 +126,6 @@
                         type: 'success'
                     });
                     emit('closeInviteDialog');
-
                     return args;
                 });
         }

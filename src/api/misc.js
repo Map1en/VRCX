@@ -46,7 +46,7 @@ const miscReq = {
                 json,
                 params
             };
-            window.API.$emit('FEEDBACK:REPORT:USER', args);
+            // window.API.$emit('FEEDBACK:REPORT:USER', args);
             return args;
         });
     },
@@ -170,7 +170,7 @@ const miscReq = {
                 json,
                 params
             };
-            window.API.$emit('BADGE:UPDATE', args);
+            // window.API.$emit('BADGE:UPDATE', args);
             return args;
         });
     }

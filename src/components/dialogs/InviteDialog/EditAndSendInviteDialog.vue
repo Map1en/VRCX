@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
     import utils from '../../../classes/utils';
@@ -54,7 +54,8 @@
         },
         inviteDialog: {
             type: Object,
-            required: true
+            required: false,
+            default: () => ({})
         },
         uploadImage: {
             type: String
@@ -97,7 +98,7 @@
         }
         const I = props.sendInviteDialog;
         const J = props.inviteDialog;
-        if (J.visible) {
+        if (J?.visible) {
             const inviteLoop = () => {
                 if (J.userIds.length > 0) {
                     const receiverUserId = J.userIds.shift();

@@ -516,16 +516,16 @@
 </template>
 
 <script setup>
-    import { inject, computed, getCurrentInstance, reactive, nextTick, watch, ref } from 'vue';
-    import utils from '../../../classes/utils';
-    import database from '../../../service/database';
-    import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
+    import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-
-    import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
-    import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
-    import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
+    import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
+    import utils from '../../../classes/utils';
+    import { storeAvatarImage } from '../../../composables/avatar/utils';
+    import database from '../../../service/database';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
+    import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
+    import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
+    import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
@@ -553,10 +553,6 @@
         isGameRunning: {
             type: Boolean,
             default: false
-        },
-        replaceBioSymbols: {
-            type: Function,
-            default: (str) => str
         }
     });
 
@@ -914,26 +910,6 @@
                 }
             }
         }
-    }
-
-    function storeAvatarImage(args) {
-        const refCreatedAt = args.json.versions[0];
-        const fileCreatedAt = refCreatedAt.created_at;
-        const fileId = args.params.fileId;
-        let avatarName = '';
-        const imageName = args.json.name;
-        const avatarNameRegex = /Avatar - (.*) - Image -/gi.exec(imageName);
-        if (avatarNameRegex) {
-            avatarName = props.replaceBioSymbols(avatarNameRegex[1]);
-        }
-        const ownerId = args.json.ownerId;
-        const avatarInfo = {
-            ownerId,
-            avatarName,
-            fileCreatedAt
-        };
-        API.cachedAvatarNames.set(fileId, avatarInfo);
-        // return avatarInfo;
     }
 
     function selectAvatar(id) {

@@ -4,7 +4,6 @@
         :visible.sync="gallerySelectDialog.visible"
         :title="t('dialog.gallery_select.header')"
         width="100%"
-        close-on-click-modal="true"
         append-to-body>
         <div>
             <span>{{ t('dialog.gallery_select.gallery') }}</span>

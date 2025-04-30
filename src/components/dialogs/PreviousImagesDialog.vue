@@ -3,7 +3,6 @@
         class="x-dialog"
         :visible="previousImagesDialogVisible"
         :title="t('dialog.previous_images.header')"
-        close-on-click-modal="true"
         width="800px"
         append-to-body
         @close="closeDialog">

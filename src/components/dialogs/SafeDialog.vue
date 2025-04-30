@@ -3,7 +3,7 @@
         ref="elDialogRef"
         :visible="props.visible"
         v-bind="attrs"
-        :close-on-click-modal="attrs['close-on-click-modal'] === 'true'"
+        :close-on-click-modal="false"
         @open="handleOpen"
         @close="handleClose">
         <slot></slot>
@@ -59,7 +59,7 @@
 
     const handleWrapperMouseUp = (event) => {
         if (event.target === wrapperElement.value && mouseDownOnWrapper.value) {
-            emit('update:visible', false);
+            handleClose();
         }
         mouseDownOnWrapper.value = false;
     };

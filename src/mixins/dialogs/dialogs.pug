@@ -8,8 +8,6 @@ mixin dialogs
         :lookupUser='lookupUser'
         :isDarkMode='isDarkMode')
 
-    PreviousInstancesUserDialog(:previousInstancesUserDialog.sync='previousInstancesUserDialog' :shiftHeld='shiftHeld')
-
     //- favorites
     FriendImportDialog(
         :friendImportDialogVisible.sync='friendImportDialogVisible'
@@ -55,7 +53,71 @@ mixin dialogs
         :checkCanInvite='checkCanInvite'
         :launchDialogData.sync='launchDialogData'
         :hideTooltips='hideTooltips'
+        :vipFriends='vipFriends'
+        :onlineFriends='onlineFriends'
+        :activeFriends='activeFriends'
+        :inviteMessageTable='inviteMessageTable'
+        :uploadImage='uploadImage'
+        :lastLocation='lastLocation'
         @launchGame='launchGame')
+
+    UserDialog(
+        :userDialog='userDialog'
+        :languageDialog='languageDialog'
+        :hideTooltips='hideTooltips'
+        :lastLocation='lastLocation'
+        :lastLocationDestination='lastLocationDestination'
+        :isGameRunning='isGameRunning'
+        :checkCanInvite='checkCanInvite'
+        :updateInstanceInfo='updateInstanceInfo'
+        :hideUserNotes='hideUserNotes'
+        :hideUserMemos='hideUserMemos'
+        :userOnlineFor='userOnlineFor'
+        :userDialogWorldSortingOptions='userDialogWorldSortingOptions'
+        :userDialogWorldOrderOptions='userDialogWorldOrderOptions'
+        :avatarRemoteDatabase='avatarRemoteDatabase'
+        :friendLogTable='friendLogTable'
+        :lookupAvatars='lookupAvatars'
+        :updateInGameGroupOrder='updateInGameGroupOrder'
+        :inviteMessageTable='inviteMessageTable'
+        :uploadImage='uploadImage'
+        :inviteRequestMessageTable='inviteRequestMessageTable'
+        :inGameGroupOrder='inGameGroupOrder'
+        :shiftHeld='shiftHeld'
+        :vipFriends='vipFriends'
+        :onlineFriends='onlineFriends'
+        :offlineFriends='offlineFriends'
+        :activeFriends='activeFriends'
+        :galleryDialogVisible='galleryDialogVisible'
+        :galleryDialogGalleryLoading='galleryDialogGalleryLoading'
+        :galleryDialogIconsLoading='galleryDialogIconsLoading'
+        :galleryDialogEmojisLoading='galleryDialogEmojisLoading'
+        :galleryDialogStickersLoading='galleryDialogStickersLoading'
+        :galleryDialogPrintsLoading='galleryDialogPrintsLoading'
+        :galleryTable='galleryTable'
+        :VRCPlusIconsTable='VRCPlusIconsTable'
+        :emojiTable='emojiTable'
+        :stickerTable='stickerTable'
+        :printUploadNote='printUploadNote'
+        :printCropBorder='printCropBorder'
+        :printTable='printTable'
+        @refreshGalleryTable='refreshGalleryTable'
+        @refreshEmojiTable='refreshEmojiTable'
+        @refreshStickerTable='refreshStickerTable'
+        @refreshVRCPlusIconsTable='refreshVRCPlusIconsTable'
+        @refreshPrintTable='refreshPrintTable'
+        @sortUserDialogAvatars='sortUserDialogAvatars'
+        @logout='logout'
+        @showAvatarAuthorDialog='showAvatarAuthorDialog'
+        @showGalleryDialog='showGalleryDialog'
+        @saveCurrentUserGroups='saveCurrentUserGroups'
+        @refreshUserDialogAvatars='refreshUserDialogAvatars'
+        @refreshUserDialogTreeData='refreshUserDialogTreeData'
+        @saveUserMemo='saveUserMemo'
+        @setGroupVisibility='setGroupVisibility'
+        @leaveGroupPrompt='leaveGroupPrompt'
+        @clearInviteImageUpload='clearInviteImageUpload'
+        @closeGalleryDialog='galleryDialogVisible = false')
 
     WorldDialog(
         :worldDialog.sync='worldDialog'
@@ -73,10 +135,11 @@ mixin dialogs
         :onlineFriends='onlineFriends'
         :vipFriends='vipFriends'
         :hasGroupPermission='hasGroupPermission'
+        :inviteMessageTable='inviteMessageTable'
+        :uploadImage='uploadImage'
         @openFolderGeneric='openFolderGeneric'
         @deleteVRChatCache='deleteVRChatCache'
-        @worldDialogCommand='worldDialogCommand'
-        @refreshInstancePlayerCount='refreshInstancePlayerCount')
+        @worldDialogCommand='worldDialogCommand')
 
     GroupDialog(
         :groupDialog.sync='groupDialog'
@@ -87,7 +150,6 @@ mixin dialogs
         :groupDialogFilterOptions='groupDialogFilterOptions'
         :isGroupGalleryLoading='isGroupGalleryLoading'
         :randomUserColours='randomUserColours'
-        @refreshInstancePlayerCount='refreshInstancePlayerCount'
         @updateGroupPostSearch='updateGroupPostSearch'
         @groupDialogCommand='groupDialogCommand'
         @getGroupDialogGroup='getGroupDialogGroup')
@@ -103,7 +165,6 @@ mixin dialogs
         :avatarDialog='avatarDialog'
         :hideTooltips='hideTooltips'
         :isGameRunning='isGameRunning'
-        :replaceBioSymbols='replaceBioSymbols'
         @openFolderGeneric='openFolderGeneric'
         @deleteVRChatCache='deleteVRChatCache')
 
@@ -189,13 +250,6 @@ mixin dialogs
         @deleteChatboxUserBlacklist='deleteChatboxUserBlacklist')
 
     //- invite
-    InviteDialog(
-        :inviteDialog='inviteDialog'
-        :vipFriends='vipFriends'
-        :onlineFriends='onlineFriends'
-        :activeFriends='activeFriends'
-        @showSendInviteDialog='showSendInviteDialog')
-
     SendInviteResponseDialog(
         :sendInviteResponseDialogVisible.sync='sendInviteResponseDialogVisible'
         :inviteResponseMessageTable='inviteResponseMessageTable'
@@ -207,23 +261,5 @@ mixin dialogs
         :inviteRequestResponseMessageTable='inviteRequestResponseMessageTable'
         :uploadImage='uploadImage'
         @inviteImageUpload='inviteImageUpload')
-
-    SendInviteDialog(
-        :sendInviteDialogVisible.sync='sendInviteDialogVisible'
-        :inviteMessageTable='inviteMessageTable'
-        :inviteDialog='inviteDialog'
-        :uploadImage='uploadImage'
-        :sendInviteDialog='sendInviteDialog'
-        @inviteImageUpload='inviteImageUpload'
-        @closeInviteDialog='closeInviteDialog')
-
-    SendInviteRequestDialog(
-        :sendInviteRequestDialogVisible.sync='sendInviteRequestDialogVisible'
-        :inviteRequestMessageTable='inviteRequestMessageTable'
-        :sendInviteDialog='sendInviteDialog'
-        :inviteDialog='inviteDialog'
-        :uploadImage='uploadImage'
-        @inviteImageUpload='inviteImageUpload'
-        @closeInviteDialog='closeInviteDialog')
 
     FullscreenImageDialog(:fullscreenImageDialog='fullscreenImageDialog')

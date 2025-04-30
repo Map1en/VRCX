@@ -3,7 +3,8 @@
         ref="previousInstancesUserDialog"
         :visible.sync="isVisible"
         :title="$t('dialog.previous_instances.header')"
-        width="1000px">
+        width="1000px"
+        append-to-body>
         <div style="display: flex; align-items: center; justify-content: space-between">
             <span style="font-size: 14px" v-text="previousInstancesUserDialog.userRef.displayName"></span>
             <el-input

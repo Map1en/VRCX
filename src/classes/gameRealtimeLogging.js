@@ -1109,10 +1109,10 @@ export default class extends baseClass {
                     type: 'ChangeStatus',
                     status: photonUser.status,
                     previousStatus: ref.status,
-                    statusDescription: this.replaceBioSymbols(
+                    statusDescription: $utils.replaceBioSymbols(
                         photonUser.statusDescription
                     ),
-                    previousStatusDescription: this.replaceBioSymbols(
+                    previousStatusDescription: $utils.replaceBioSymbols(
                         ref.statusDescription
                     ),
                     created_at: Date.parse(gameLogDate)
@@ -1126,8 +1126,8 @@ export default class extends baseClass {
                 return;
             }
             var avatar = user.avatarDict;
-            avatar.name = this.replaceBioSymbols(avatar.name);
-            avatar.description = this.replaceBioSymbols(avatar.description);
+            avatar.name = $utils.replaceBioSymbols(avatar.name);
+            avatar.description = $utils.replaceBioSymbols(avatar.description);
             var platform = '';
             if (user.last_platform === 'android') {
                 platform = 'Android';
@@ -1309,8 +1309,10 @@ export default class extends baseClass {
                 oldAvatarId !== avatar.id &&
                 photonId !== this.photonLobbyCurrentUser
             ) {
-                avatar.name = this.replaceBioSymbols(avatar.name);
-                avatar.description = this.replaceBioSymbols(avatar.description);
+                avatar.name = $utils.replaceBioSymbols(avatar.name);
+                avatar.description = $utils.replaceBioSymbols(
+                    avatar.description
+                );
                 $utils.checkVRChatCache(avatar).then((cacheInfo) => {
                     var inCache = false;
                     if (cacheInfo.Item1 > 0) {

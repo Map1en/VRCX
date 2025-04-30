@@ -77,23 +77,57 @@
                 {{ $t('dialog.launch.launch') }}
             </el-button>
         </template>
+        <InviteDialog
+            :invite-dialog="inviteDialog"
+            :vip-friends="vipFriends"
+            :online-friends="onlineFriends"
+            :active-friends="activeFriends"
+            :invite-message-table="inviteMessageTable"
+            :upload-image="uploadImage"
+            @close-invite-dialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
 <script>
+    import { instanceRequest, worldRequest } from '../../api';
     import utils from '../../classes/utils';
     import configRepository from '../../service/config';
-    import { instanceRequest } from '../../api';
+    import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {
         name: 'LaunchDialog',
-        inject: ['showPreviousInstancesInfoDialog', 'showInviteDialog', 'adjustDialogZ'],
+        components: { InviteDialog },
+        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             hideTooltips: Boolean,
             launchDialogData: { type: Object, required: true },
             checkCanInvite: {
                 type: Function,
                 required: true
+            },
+            vipFriends: {
+                type: Array,
+                default: () => []
+            },
+            onlineFriends: {
+                type: Array,
+                default: () => []
+            },
+            activeFriends: {
+                type: Array,
+                default: () => []
+            },
+            inviteMessageTable: {
+                type: Object,
+                default: () => ({})
+            },
+            uploadImage: {
+                type: String,
+                default: ''
+            },
+            lastLocation: {
+                type: Object,
+                default: () => ({})
             }
         },
         data() {
@@ -107,6 +141,14 @@
                     shortName: '',
                     shortUrl: '',
                     secureOrShortName: ''
+                },
+                inviteDialog: {
+                    visible: false,
+                    loading: false,
+                    worldId: '',
+                    worldName: '',
+                    userIds: [],
+                    friendsInInstance: []
                 }
             };
         },
@@ -133,6 +175,35 @@
             this.getConfig();
         },
         methods: {
+            closeInviteDialog() {
+                this.inviteDialog.visible = false;
+            },
+            showInviteDialog(tag) {
+                if (!utils.isRealInstance(tag)) {
+                    return;
+                }
+                const L = utils.parseLocation(tag);
+                worldRequest
+                    .getCachedWorld({
+                        worldId: L.worldId
+                    })
+                    .then((args) => {
+                        const D = this.inviteDialog;
+                        D.userIds = [];
+                        D.worldId = L.tag;
+                        D.worldName = args.ref.name;
+                        D.friendsInInstance = [];
+                        const friendsInCurrentInstance = this.lastLocation.friendList;
+                        for (const friend of friendsInCurrentInstance.values()) {
+                            const ctx = this.friends.get(friend.userId);
+                            if (typeof ctx.ref === 'undefined') {
+                                continue;
+                            }
+                            D.friendsInInstance.push(ctx);
+                        }
+                        D.visible = true;
+                    });
+            },
             launchGame(location, shortName, desktop) {
                 this.$emit('launch-game', location, shortName, desktop);
                 this.isVisible = false;

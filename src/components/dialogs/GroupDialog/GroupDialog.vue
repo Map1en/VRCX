@@ -1161,22 +1161,30 @@
             @load-all-group-members="loadAllGroupMembers"
             @set-group-member-filter="setGroupMemberFilter"
             @set-group-member-sort-order="setGroupMemberSortOrder" />
+        <InviteGroupDialog
+            :dialog-data.sync="inviteGroupDialog"
+            :vip-friends="vipFriends"
+            :online-friends="onlineFriends"
+            :offline-friends="offlineFriends"
+            :active-friends="activeFriends" />
     </safe-dialog>
 </template>
 
 <script setup>
-    import { getCurrentInstance, nextTick, reactive, ref, watch, inject } from 'vue';
+    import { getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../../classes/utils';
-    import { groupRequest } from '../../../api';
-    import Location from '../../Location.vue';
-    import GroupPostEditDialog from './GroupPostEditDialog.vue';
-    import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import * as workerTimers from 'worker-timers';
+    import { groupRequest } from '../../../api';
+    import utils from '../../../classes/utils';
+    import { refreshInstancePlayerCount } from '../../../composables/instance/utils';
+    import { languageClass } from '../../../composables/user/utils';
+    import Location from '../../Location.vue';
+    import InviteGroupDialog from '../InviteGroupDialog.vue';
+    import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
+    import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const languageClass = inject('languageClass');
     const showUserDialog = inject('showUserDialog');
     const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
@@ -1216,6 +1224,22 @@
         randomUserColours: {
             type: Boolean,
             default: true
+        },
+        vipFriends: {
+            type: Array,
+            default: () => []
+        },
+        onlineFriends: {
+            type: Array,
+            default: () => []
+        },
+        offlineFriends: {
+            type: Array,
+            default: () => []
+        },
+        activeFriends: {
+            type: Array,
+            default: () => []
         }
     });
 
@@ -1223,7 +1247,6 @@
         'update:group-dialog',
         'groupDialogCommand',
         'get-group-dialog-group',
-        'refreshInstancePlayerCount',
         'updateGroupPostSearch'
     ]);
 
@@ -1258,6 +1281,16 @@
         auditLogTypes: []
     });
 
+    const inviteGroupDialog = ref({
+        visible: false,
+        loading: false,
+        groupId: '',
+        groupName: '',
+        userId: '',
+        userIds: [],
+        userObject: {}
+    });
+
     let loadMoreGroupMembersParams = {};
 
     watch(
@@ -1277,6 +1310,17 @@
             }
         }
     );
+
+    function showInviteGroupDialog(groupId, userId) {
+        const D = inviteGroupDialog.value;
+        D.userIds = '';
+        D.groups = [];
+        D.groupId = groupId;
+        D.groupName = groupId;
+        D.userId = userId;
+        D.userObject = {};
+        D.visible = true;
+    }
 
     function getFaviconUrl(link) {
         return utils.getFaviconUrl(link);
@@ -1440,6 +1484,10 @@
     }
 
     function groupDialogCommand(command) {
+        const D = props.groupDialog;
+        if (D.visible === false) {
+            return;
+        }
         switch (command) {
             case 'Share':
                 copyToClipboard(props.groupDialog.ref.$url);
@@ -1449,6 +1497,9 @@
                 break;
             case 'Moderation Tools':
                 showGroupMemberModerationDialog(props.groupDialog.id);
+                break;
+            case 'Invite To Group':
+                showInviteGroupDialog(D.id, '');
                 break;
             default:
                 emit('groupDialogCommand', command);
@@ -1760,9 +1811,6 @@
     }
     function getGroupDialogGroup(groupId) {
         emit('get-group-dialog-group', groupId);
-    }
-    function refreshInstancePlayerCount(tag) {
-        emit('refreshInstancePlayerCount', tag);
     }
     function updateGroupPostSearch() {
         emit('updateGroupPostSearch');

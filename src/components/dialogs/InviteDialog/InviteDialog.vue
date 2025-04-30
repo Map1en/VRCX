@@ -154,15 +154,23 @@
                 >{{ t('dialog.invite.invite') }}</el-button
             >
         </template>
+        <SendInviteDialog
+            :send-invite-dialog-visible.sync="sendInviteDialogVisible"
+            :invite-message-table="inviteMessageTable"
+            :send-invite-dialog="sendInviteDialog"
+            :invite-dialog="inviteDialog"
+            :upload-image="uploadImage"
+            @close-invite-dialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import Location from '../../Location.vue';
-    import { instanceRequest, notificationRequest } from '../../../api';
+    import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
     import utils from '../../../classes/utils';
+    import Location from '../../Location.vue';
+    import SendInviteDialog from './SendInviteDialog.vue';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -189,10 +197,41 @@
         activeFriends: {
             type: Array,
             required: true
+        },
+        // SendInviteDialog
+        inviteMessageTable: {
+            type: Object,
+            default: () => ({})
+        },
+        uploadImage: {
+            type: String,
+            default: ''
         }
     });
 
-    const emit = defineEmits(['showSendInviteDialog', 'inviteImageUpload']);
+    const emit = defineEmits(['clearInviteImageUpload', 'inviteImageUpload', 'closeInviteDialog']);
+
+    const sendInviteDialogVisible = ref(false);
+    const sendInviteDialog = ref({ message: '', messageSlot: 0, userId: '', messageType: '', params: {} });
+
+    function closeInviteDialog() {
+        emit('closeInviteDialog');
+    }
+
+    function showSendInviteDialog(params, userId) {
+        sendInviteDialog.value = {
+            params,
+            userId,
+            messageType: 'invite'
+        };
+        inviteMessagesRequest.refreshInviteMessageTableData('message');
+        clearInviteImageUpload();
+        sendInviteDialogVisible.value = true;
+    }
+
+    function clearInviteImageUpload() {
+        emit('clearInviteImageUpload');
+    }
 
     function addSelfToInvite() {
         const D = props.inviteDialog;
@@ -217,10 +256,6 @@
                 D.userIds.push(friend.id);
             }
         }
-    }
-
-    function showSendInviteDialog() {
-        emit('showSendInviteDialog');
     }
 
     function sendInvite() {
