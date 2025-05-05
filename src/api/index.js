@@ -21,6 +21,7 @@ import inviteMessagesRequest from './inviteMessages';
 import imageRequest from './image';
 import miscRequest from './misc';
 import groupRequest from './group';
+import loginRequest from './login';
 
 window.request = {
     userRequest,
@@ -37,7 +38,8 @@ window.request = {
     inviteMessagesRequest,
     imageRequest,
     miscRequest,
-    groupRequest
+    groupRequest,
+    loginRequest
 };
 
 export {
@@ -55,5 +57,6 @@ export {
     inviteMessagesRequest,
     imageRequest,
     miscRequest,
-    groupRequest
+    groupRequest,
+    loginRequest
 };

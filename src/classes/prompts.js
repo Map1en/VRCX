@@ -1,8 +1,8 @@
 import * as workerTimers from 'worker-timers';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
-import { baseClass, $app, API, $t, $utils } from './baseClass.js';
-import { avatarRequest, favoriteRequest, worldRequest } from '../api';
+import { $app, $t, API, baseClass } from './baseClass.js';
+import { loginRequest, worldRequest } from '../api';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -28,9 +28,10 @@ export default class extends baseClass {
                     inputErrorMessage: $t('prompt.totp.input_error'),
                     callback: (action, instance) => {
                         if (action === 'confirm') {
-                            API.verifyTOTP({
-                                code: instance.inputValue.trim()
-                            })
+                            loginRequest
+                                .verifyTOTP({
+                                    code: instance.inputValue.trim()
+                                })
                                 .catch((err) => {
                                     $app.clearCookiesTryLogin();
                                     throw err;
@@ -68,9 +69,10 @@ export default class extends baseClass {
                     inputErrorMessage: $t('prompt.otp.input_error'),
                     callback: (action, instance) => {
                         if (action === 'confirm') {
-                            API.verifyOTP({
-                                code: instance.inputValue.trim()
-                            })
+                            loginRequest
+                                .verifyOTP({
+                                    code: instance.inputValue.trim()
+                                })
                                 .catch((err) => {
                                     $app.clearCookiesTryLogin();
                                     throw err;
@@ -109,9 +111,10 @@ export default class extends baseClass {
                     inputErrorMessage: $t('prompt.email_otp.input_error'),
                     callback: (action, instance) => {
                         if (action === 'confirm') {
-                            API.verifyEmailOTP({
-                                code: instance.inputValue.trim()
-                            })
+                            loginRequest
+                                .verifyEmailOTP({
+                                    code: instance.inputValue.trim()
+                                })
                                 .catch((err) => {
                                     this.promptEmailOTP();
                                     throw err;

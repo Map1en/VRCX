@@ -59,60 +59,6 @@ export default class extends baseClass {
             });
         };
 
-        /**
-         * @param {{ code: string }} params One-time password
-         * @returns {Promise<{json: any, params}>}
-         */
-        API.verifyOTP = function (params) {
-            return this.call('auth/twofactorauth/otp/verify', {
-                method: 'POST',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('OTP', args);
-                return args;
-            });
-        };
-
-        /**
-         * @param {{ code: string }} params One-time token
-         * @returns {Promise<{json: any, params}>}
-         */
-        API.verifyTOTP = function (params) {
-            return this.call('auth/twofactorauth/totp/verify', {
-                method: 'POST',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('TOTP', args);
-                return args;
-            });
-        };
-
-        /**
-         * @param {{ code: string }} params One-time token
-         * @returns {Promise<{json: any, params}>}
-         */
-        API.verifyEmailOTP = function (params) {
-            return this.call('auth/twofactorauth/emailotp/verify', {
-                method: 'POST',
-                params
-            }).then((json) => {
-                var args = {
-                    json,
-                    params
-                };
-                this.$emit('EMAILOTP', args);
-                return args;
-            });
-        };
-
         API.$on('AUTOLOGIN', function () {
             if (this.attemptingAutoLogin) {
                 return;
