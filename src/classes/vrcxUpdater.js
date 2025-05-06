@@ -1,5 +1,7 @@
-import { baseClass, $app, API, $t, $utils } from './baseClass.js';
 import * as workerTimers from 'worker-timers';
+import configRepository from '../service/config';
+import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
+import { $app, $t, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -218,6 +220,7 @@ export default class extends baseClass {
         },
 
         async checkForVRCXUpdate() {
+            const { setLatestAppVersion } = useVRCXUpdaterStore();
             var currentVersion = this.appVersion.replace(' (Linux)', '');
             if (
                 !currentVersion ||
@@ -262,7 +265,7 @@ export default class extends baseClass {
                     json.body
                 );
                 var releaseName = json.name;
-                this.latestAppVersion = releaseName;
+                setLatestAppVersion(releaseName);
                 this.VRCXUpdateDialog.updatePendingIsLatest = false;
                 if (releaseName === this.pendingVRCXInstall) {
                     // update already downloaded

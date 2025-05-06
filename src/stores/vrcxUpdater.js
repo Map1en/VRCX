@@ -5,12 +5,14 @@ import configRepository from '../service/config';
 export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     const state = reactive({
         appVersion: '',
-        autoUpdateVRCX: 'Auto Download'
+        autoUpdateVRCX: 'Auto Download',
+        latestAppVersion: ''
     });
 
     async function initSettings() {
         const autoUpdateVRCX = await configRepository.getString(
-            'VRCX_autoUpdateVRCX'
+            'VRCX_autoUpdateVRCX',
+            'Auto Download'
         );
 
         if (autoUpdateVRCX === 'Auto Install') {
@@ -26,9 +28,15 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
 
     const autoUpdateVRCX = computed(() => state.autoUpdateVRCX);
 
+    const latestAppVersion = computed(() => state.latestAppVersion);
+
     async function setAutoUpdateVRCX(value) {
         state.autoUpdateVRCX = value;
         await configRepository.setString('VRCX_autoUpdateVRCX', value);
+    }
+
+    function setLatestAppVersion(value) {
+        state.latestAppVersion = value;
     }
 
     return {
@@ -36,6 +44,8 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         initSettings,
         appVersion,
         autoUpdateVRCX,
-        setAutoUpdateVRCX
+        latestAppVersion,
+        setAutoUpdateVRCX,
+        setLatestAppVersion
     };
 });

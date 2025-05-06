@@ -68,7 +68,8 @@ import {
 import { displayLocation } from './composables/instance/utils';
 
 // pinia
-import { createPinia, PiniaVuePlugin, mapState } from 'pinia';
+import { createPinia, PiniaVuePlugin, mapState, mapActions } from 'pinia';
+import { useGeneralSettingsStore } from './stores/generalSettings';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
 
 import LoginPage from './views/Login/Login.vue';
@@ -264,15 +265,32 @@ console.log(`isLinux: ${LINUX}`);
             isSteamVRRunning: false,
             isHmdAfk: false,
             isRunningUnderWine: false,
-            latestAppVersion: '',
             shiftHeld: false
         },
         i18n,
         computed: {
-            ...mapState(useVRCXUpdaterStore, ['appVersion', 'autoUpdateVRCX'])
+            ...mapState(useVRCXUpdaterStore, [
+                'appVersion',
+                'autoUpdateVRCX',
+                'latestAppVersion'
+            ]),
+            ...mapState(useGeneralSettingsStore, [
+                'isStartAtWindowsStartup',
+                'isStartAsMinimizedState',
+                'isCloseToTray',
+                'disableGpuAcceleration',
+                'disableVrOverlayGpuAcceleration'
+            ])
         },
         methods: {
-            ...$utils
+            ...$utils,
+            ...mapActions(useGeneralSettingsStore, [
+                'setIsStartAtWindowsStartup',
+                'setIsStartAsMinimizedState',
+                'setIsCloseToTray',
+                'setDisableGpuAcceleration',
+                'setDisableVrOverlayGpuAcceleration'
+            ])
         },
         watch: {},
         components: {
@@ -371,7 +389,10 @@ console.log(`isLinux: ${LINUX}`);
         el: '#root',
         async created() {
             const VRCXUpdaterStore = useVRCXUpdaterStore();
+            const generalSettingsStore = useGeneralSettingsStore();
+            // Promise.all
             await VRCXUpdaterStore.initSettings();
+            await generalSettingsStore.initSettings();
         },
         beforeMount() {
             this.changeThemeMode();
@@ -6655,21 +6676,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.data.isStartAtWindowsStartup = await configRepository.getBool(
-        'VRCX_StartAtWindowsStartup',
-        false
-    );
-    $app.data.isStartAsMinimizedState =
-        (await VRCXStorage.Get('VRCX_StartAsMinimizedState')) === 'true';
-    $app.data.isCloseToTray =
-        (await VRCXStorage.Get('VRCX_CloseToTray')) === 'true';
-    if (await configRepository.getBool('VRCX_CloseToTray')) {
-        // move back to JSON
-        $app.data.isCloseToTray =
-            await configRepository.getBool('VRCX_CloseToTray');
-        VRCXStorage.Set('VRCX_CloseToTray', $app.data.isCloseToTray.toString());
-        await configRepository.remove('VRCX_CloseToTray');
-    }
     if (!(await VRCXStorage.Get('VRCX_DatabaseLocation'))) {
         await VRCXStorage.Set('VRCX_DatabaseLocation', '');
     }
@@ -6685,23 +6691,18 @@ console.log(`isLinux: ${LINUX}`);
         await VRCXStorage.Set('VRCX_DisableVrOverlayGpuAcceleration', 'false');
     }
     $app.data.proxyServer = await VRCXStorage.Get('VRCX_ProxyServer');
-    $app.data.disableGpuAcceleration =
-        (await VRCXStorage.Get('VRCX_DisableGpuAcceleration')) === 'true';
     $app.data.locationX = await VRCXStorage.Get('VRCX_LocationX');
     $app.data.locationY = await VRCXStorage.Get('VRCX_LocationY');
     $app.data.sizeWidth = await VRCXStorage.Get('VRCX_SizeWidth');
     $app.data.sizeHeight = await VRCXStorage.Get('VRCX_SizeHeight');
     $app.data.windowState = await VRCXStorage.Get('VRCX_WindowState');
-    $app.data.disableVrOverlayGpuAcceleration =
-        (await VRCXStorage.Get('VRCX_DisableVrOverlayGpuAcceleration')) ===
-        'true';
     $app.data.disableWorldDatabase =
         (await VRCXStorage.Get('VRCX_DisableWorldDatabase')) === 'true';
 
     $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         switch (configKey) {
             case 'VRCX_StartAtWindowsStartup':
-                this.isStartAtWindowsStartup = !this.isStartAtWindowsStartup;
+                this.setIsStartAtWindowsStartup(!this.isStartAtWindowsStartup);
                 break;
             case 'VRCX_saveInstancePrints':
                 this.saveInstancePrints = !this.saveInstancePrints;
@@ -6714,29 +6715,25 @@ console.log(`isLinux: ${LINUX}`);
                 this.saveInstanceStickers = !this.saveInstanceStickers;
                 break;
             case 'VRCX_StartAsMinimizedState':
-                this.isStartAsMinimizedState = !this.isStartAsMinimizedState;
+                this.setIsStartAsMinimizedState(!this.isStartAsMinimizedState);
                 break;
             case 'VRCX_CloseToTray':
-                this.isCloseToTray = !this.isCloseToTray;
+                this.setIsCloseToTray(!this.isCloseToTray);
                 break;
             case 'VRCX_DisableWorldDatabase':
                 this.disableWorldDatabase = !this.disableWorldDatabase;
                 break;
             case 'VRCX_DisableGpuAcceleration':
-                this.disableGpuAcceleration = !this.disableGpuAcceleration;
+                this.setDisableGpuAcceleration(!this.disableGpuAcceleration);
                 break;
             case 'VRCX_DisableVrOverlayGpuAcceleration':
-                this.disableVrOverlayGpuAcceleration =
-                    !this.disableVrOverlayGpuAcceleration;
+                this.setDisableVrOverlayGpuAcceleration(
+                    !this.disableVrOverlayGpuAcceleration
+                );
                 break;
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_StartAtWindowsStartup',
-            this.isStartAtWindowsStartup
-        );
 
         await configRepository.setBool(
             'VRCX_saveInstancePrints',
@@ -6754,24 +6751,8 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         VRCXStorage.Set(
-            'VRCX_StartAsMinimizedState',
-            this.isStartAsMinimizedState.toString()
-        );
-
-        VRCXStorage.Set('VRCX_CloseToTray', this.isCloseToTray.toString());
-
-        VRCXStorage.Set(
             'VRCX_DisableWorldDatabase',
             this.disableWorldDatabase.toString()
-        );
-
-        VRCXStorage.Set(
-            'VRCX_DisableGpuAcceleration',
-            this.disableGpuAcceleration.toString()
-        );
-        VRCXStorage.Set(
-            'VRCX_DisableVrOverlayGpuAcceleration',
-            this.disableVrOverlayGpuAcceleration.toString()
         );
 
         if (LINUX) {

@@ -1657,10 +1657,21 @@
 <script setup>
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useGeneralSettingsStore } from '../../stores/generalSettings';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
-    const { appVersion, autoUpdateVRCX, setAutoUpdateVRCX } = VRCXUpdaterStore;
+    const { appVersion, autoUpdateVRCX, latestAppVersion, setAutoUpdateVRCX } = VRCXUpdaterStore;
+
+    const generalSettingsStore = useGeneralSettingsStore();
+    const {
+        isStartAtWindowsStartup,
+        isStartAsMinimizedState,
+        isCloseToTray,
+        disableGpuAcceleration,
+        disableVrOverlayGpuAcceleration
+    } = generalSettingsStore;
 
     const { t } = useI18n();
 
@@ -1671,30 +1682,6 @@
         menuActiveIndex: {
             type: String,
             default: ''
-        },
-        latestAppVersion: {
-            type: String,
-            default: ''
-        },
-        isStartAtWindowsStartup: {
-            type: Boolean,
-            default: false
-        },
-        isStartAsMinimizedState: {
-            type: Boolean,
-            default: false
-        },
-        isCloseToTray: {
-            type: Boolean,
-            default: false
-        },
-        disableGpuAcceleration: {
-            type: Boolean,
-            default: false
-        },
-        disableVrOverlayGpuAcceleration: {
-            type: Boolean,
-            default: false
         },
         localFavoriteFriendsGroups: {
             type: Boolean,
