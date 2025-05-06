@@ -57,7 +57,11 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.general.vrcx_updater.update_action') }}</span>
                         <br />
-                        <el-radio-group v-model="autoUpdateVRCX" size="mini" style="margin-top: 5px">
+                        <el-radio-group
+                            :value="autoUpdateVRCX"
+                            size="mini"
+                            style="margin-top: 5px"
+                            @change="saveAutoUpdateVRCX">
                             <el-radio-button label="Off">{{
                                 t('view.settings.general.vrcx_updater.auto_update_off')
                             }}</el-radio-button>
@@ -1653,6 +1657,10 @@
 <script setup>
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
+    const { appVersion, autoUpdateVRCX, setAutoUpdateVRCX } = VRCXUpdaterStore;
 
     const { t } = useI18n();
 
@@ -1664,17 +1672,9 @@
             type: String,
             default: ''
         },
-        appVersion: {
-            type: String,
-            default: ''
-        },
         latestAppVersion: {
             type: String,
             default: ''
-        },
-        autoUpdateVRCX: {
-            type: Boolean,
-            default: false
         },
         isStartAtWindowsStartup: {
             type: Boolean,
@@ -2333,5 +2333,13 @@
 
     function getSqliteTableSizes() {
         // Function to get the SQLite table sizes
+    }
+
+    function saveAutoUpdateVRCX(value) {
+        if (value === 'Off') {
+            // todo
+            this.pendingVRCXUpdate = false;
+        }
+        setAutoUpdateVRCX(value);
     }
 </script>

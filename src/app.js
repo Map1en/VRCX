@@ -67,6 +67,10 @@ import {
 
 import { displayLocation } from './composables/instance/utils';
 
+// pinia
+import { createPinia, PiniaVuePlugin, mapState } from 'pinia';
+import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
+
 import LoginPage from './views/Login/Login.vue';
 
 // tabs
@@ -87,6 +91,7 @@ import PlayerListTab from './views/PlayerList/PlayerList.vue';
 // components
 import SimpleSwitch from './components/SimpleSwitch.vue';
 import Location from './components/Location.vue';
+import SafeDialog from './components/dialogs/SafeDialog.vue';
 
 // dialogs
 import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
@@ -120,8 +125,7 @@ import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialo
 import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
 
-import SafeDialog from './components/dialogs/SafeDialog.vue';
-
+// utils
 import { hasGroupPermission } from './composables/group/utils';
 import { isRealInstance, parseLocation } from './composables/instance/utils';
 import {
@@ -211,6 +215,11 @@ console.log(`isLinux: ${LINUX}`);
     Vue.use(ElementUI, {
         i18n: (key, value) => i18n.global.t(key, value)
     });
+
+    // init pinia
+    Vue.use(PiniaVuePlugin);
+    const pinia = createPinia();
+
     // #endregion
 
     // everything in this program is global stored in $app, I hate it, it is what it is
@@ -255,12 +264,13 @@ console.log(`isLinux: ${LINUX}`);
             isSteamVRRunning: false,
             isHmdAfk: false,
             isRunningUnderWine: false,
-            appVersion: '',
             latestAppVersion: '',
             shiftHeld: false
         },
         i18n,
-        computed: {},
+        computed: {
+            ...mapState(useVRCXUpdaterStore, ['appVersion', 'autoUpdateVRCX'])
+        },
         methods: {
             ...$utils
         },
@@ -359,6 +369,10 @@ console.log(`isLinux: ${LINUX}`);
             };
         },
         el: '#root',
+        async created() {
+            const VRCXUpdaterStore = useVRCXUpdaterStore();
+            await VRCXUpdaterStore.initSettings();
+        },
         beforeMount() {
             this.changeThemeMode();
         },
@@ -371,7 +385,6 @@ console.log(`isLinux: ${LINUX}`);
             }
             await AppApi.SetUserAgent();
             await this.loadVrcxId();
-            this.appVersion = await AppApi.GetVersion();
             await this.compareAppVersion();
             await this.setBranch();
             if (this.autoUpdateVRCX !== 'Off') {
@@ -443,7 +456,8 @@ console.log(`isLinux: ${LINUX}`);
                     this.updateTTSVoices();
                 }, 5000);
             }
-        }
+        },
+        pinia
     };
     for (let value of Object.values(vrcxClasses)) {
         app.methods = { ...app.methods, ...value._methods };
@@ -6148,13 +6162,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_sidePanelWidth',
         300
     );
-    $app.data.autoUpdateVRCX = await configRepository.getString(
-        'VRCX_autoUpdateVRCX',
-        'Auto Download'
-    );
-    if ($app.data.autoUpdateVRCX === 'Auto Install') {
-        $app.data.autoUpdateVRCX = 'Auto Download';
-    }
     $app.data.branch = await configRepository.getString(
         'VRCX_branch',
         'Stable'
@@ -13454,6 +13461,7 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.ossDialog = false;
 
+    // todo: del
     $app.methods.isLinux = function () {
         return LINUX;
     };
@@ -13821,7 +13829,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.vrcxUpdateDialogBind = function () {
         return {
             VRCXUpdateDialog: this.VRCXUpdateDialog,
-            appVersion: this.appVersion,
             checkingForVRCXUpdate: this.checkingForVRCXUpdate,
             updateInProgress: this.updateInProgress,
             updateProgress: this.updateProgress,

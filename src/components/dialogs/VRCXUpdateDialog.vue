@@ -63,9 +63,13 @@
 </template>
 
 <script setup>
-    import { ref, computed, inject, watch, nextTick } from 'vue';
-
+    import { computed, inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
+
+    const { appVersion } = VRCXUpdaterStore;
 
     const { t } = useI18n();
     const adjustDialogZ = inject('adjustDialogZ');
@@ -74,10 +78,6 @@
         // eslint-disable-next-line vue/prop-name-casing
         VRCXUpdateDialog: {
             type: Object,
-            required: true
-        },
-        appVersion: {
-            type: String,
             required: true
         },
         checkingForVRCXUpdate: {

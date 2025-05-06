@@ -17,7 +17,8 @@ module.exports = {
             'vue',
             'vue-data-tables',
             'vue-lazyload',
-            'dayjs'
+            'dayjs',
+            'pinia'
         ],
         app: {
             import: ['./src/app.js', './src/app.scss'],

@@ -16,7 +16,6 @@ export default class extends baseClass {
             json: {}
         },
         branch: 'Stable',
-        autoUpdateVRCX: 'Auto Download',
         checkingForVRCXUpdate: false,
         pendingVRCXInstall: '',
         pendingVRCXUpdate: false,
@@ -336,16 +335,6 @@ export default class extends baseClass {
             } else {
                 window.electron.restartApp();
             }
-        },
-
-        async saveAutoUpdateVRCX() {
-            if (this.autoUpdateVRCX === 'Off') {
-                this.pendingVRCXUpdate = false;
-            }
-            await configRepository.setString(
-                'VRCX_autoUpdateVRCX',
-                this.autoUpdateVRCX
-            );
         }
     };
 }
