@@ -77,7 +77,7 @@ mixin settingsTab
                     span.header {{ $t('view.settings.general.favorites.header') }}
                     br
                     el-select(
-                        v-model='localFavoriteFriendsGroups'
+                        :value='localFavoriteFriendsGroups'
                         multiple
                         clearable
                         :placeholder='$t("view.settings.general.favorites.group_placeholder")'
@@ -97,15 +97,15 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.cache_debug.udon_exception_logging")'
                         :value='udonExceptionLogging'
-                        @change='saveOpenVROption("VRCX_udonExceptionLogging")')
+                        @change='setUdonExceptionLogging')
                     simple-switch(
                         :label='$t("view.settings.general.logging.resource_load")'
                         :value='logResourceLoad'
-                        @change='saveLoggingOptions("VRCX_logResourceLoad")')
+                        @change='setLogResourceLoad')
                     simple-switch(
                         :label='$t("view.settings.general.logging.empty_avatar")'
                         :value='logEmptyAvatars'
-                        @change='saveLoggingOptions("VRCX_logEmptyAvatars")')
+                        @change='setLogEmptyAvatars')
                 //- General | Automation
                 .options-container
                     span.header {{ $t('view.settings.general.automation.header') }}

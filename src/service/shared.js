@@ -13,7 +13,7 @@ class SharedRepository {
     async getString(key, defaultValue = null) {
         var _key = transformKey(key);
         var value = await SharedVariable.Get(_key);
-        if (value === null || value === undefined) {
+        if (value === null || value === undefined || value === 'undefined') {
             return defaultValue;
         }
         return value;

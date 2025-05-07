@@ -279,7 +279,11 @@ console.log(`isLinux: ${LINUX}`);
                 'isStartAsMinimizedState',
                 'isCloseToTray',
                 'disableGpuAcceleration',
-                'disableVrOverlayGpuAcceleration'
+                'disableVrOverlayGpuAcceleration',
+                'localFavoriteFriendsGroups',
+                'udonExceptionLogging',
+                'logResourceLoad',
+                'logEmptyAvatars'
             ])
         },
         methods: {
@@ -290,7 +294,12 @@ console.log(`isLinux: ${LINUX}`);
                 'setIsStartAsMinimizedState',
                 'setIsCloseToTray',
                 'setDisableGpuAcceleration',
-                'setDisableVrOverlayGpuAcceleration'
+                'setDisableVrOverlayGpuAcceleration',
+                'setUdonExceptionLogging',
+                'setLogResourceLoad',
+                'setLogEmptyAvatars',
+
+                'setLocalFavoriteFriendsGroups'
             ])
         },
         watch: {},
@@ -6361,9 +6370,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_avatarRemoteDatabase':
                 this.avatarRemoteDatabase = !this.avatarRemoteDatabase;
                 break;
-            case 'VRCX_udonExceptionLogging':
-                this.udonExceptionLogging = !this.udonExceptionLogging;
-                break;
             default:
                 break;
         }
@@ -6497,11 +6503,6 @@ console.log(`isLinux: ${LINUX}`);
         await configRepository.setBool(
             'VRCX_randomUserColours',
             this.randomUserColours
-        );
-
-        await configRepository.setBool(
-            'VRCX_udonExceptionLogging',
-            this.udonExceptionLogging
         );
 
         this.updateSharedFeed(true);
@@ -6777,10 +6778,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_gameLogDisabled',
         false
     );
-    $app.data.udonExceptionLogging = await configRepository.getBool(
-        'VRCX_udonExceptionLogging',
-        false
-    );
     $app.data.instanceUsersSortAlphabetical = await configRepository.getBool(
         'VRCX_instanceUsersSortAlphabetical',
         false
@@ -6812,30 +6809,6 @@ console.log(`isLinux: ${LINUX}`);
         }
         this.updateOpenVR();
         this.updateVRConfigVars();
-    };
-    $app.data.logResourceLoad = await configRepository.getBool(
-        'VRCX_logResourceLoad',
-        false
-    );
-    $app.data.logEmptyAvatars = await configRepository.getBool(
-        'VRCX_logEmptyAvatars',
-        false
-    );
-    $app.methods.saveLoggingOptions = async function (configKey = '') {
-        if (configKey === 'VRCX_logResourceLoad') {
-            this.logResourceLoad = !this.logResourceLoad;
-        } else {
-            this.logEmptyAvatars = !this.logEmptyAvatars;
-        }
-
-        await configRepository.setBool(
-            'VRCX_logResourceLoad',
-            this.logResourceLoad
-        );
-        await configRepository.setBool(
-            'VRCX_logEmptyAvatars',
-            this.logEmptyAvatars
-        );
     };
     $app.data.autoStateChangeEnabled = await configRepository.getBool(
         'VRCX_autoStateChangeEnabled',
@@ -12793,13 +12766,10 @@ console.log(`isLinux: ${LINUX}`);
     // #region | Local Favorite Friends
 
     $app.data.localFavoriteFriends = new Set();
-    $app.data.localFavoriteFriendsGroups = JSON.parse(
-        await configRepository.getString(
-            'VRCX_localFavoriteFriendsGroups',
-            '[]'
-        )
-    );
-    $app.methods.updateLocalFavoriteFriends = function () {
+    $app.methods.updateLocalFavoriteFriends = function (value) {
+        this.setLocalFavoriteFriendsGroups(
+            value || this.localFavoriteFriendsGroups
+        );
         this.localFavoriteFriends.clear();
         for (const ref of API.cachedFavorites.values()) {
             if (
@@ -12812,11 +12782,6 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         this.updateSidebarFriendsList();
-
-        configRepository.setString(
-            'VRCX_localFavoriteFriendsGroups',
-            JSON.stringify(this.localFavoriteFriendsGroups)
-        );
     };
 
     $app.methods.updateSidebarFriendsList = function () {

@@ -81,27 +81,27 @@
                         <simple-switch
                             :label="t('view.settings.general.application.startup')"
                             :value="isStartAtWindowsStartup"
-                            @change="setIsStartAtWindowsStartup"></simple-switch>
+                            @change="setIsStartAtWindowsStartup" />
                         <simple-switch
                             :label="t('view.settings.general.application.minimized')"
                             :value="isStartAsMinimizedState"
-                            @change="setIsStartAsMinimizedState"></simple-switch>
+                            @change="setIsStartAsMinimizedState" />
                         <simple-switch
                             :label="t('view.settings.general.application.tray')"
                             :value="isCloseToTray"
-                            @change="setIsCloseToTray"></simple-switch>
+                            @change="setIsCloseToTray" />
                     </template>
                     <template v-if="!isLinux()">
                         <simple-switch
                             :label="t('view.settings.general.application.disable_gpu_acceleration')"
                             :value="disableGpuAcceleration"
                             :tooltip="t('view.settings.general.application.disable_gpu_acceleration_tooltip')"
-                            @change="setDisableGpuAcceleration"></simple-switch>
+                            @change="setDisableGpuAcceleration" />
                         <simple-switch
                             :label="t('view.settings.general.application.disable_vr_overlay_gpu_acceleration')"
                             :value="disableVrOverlayGpuAcceleration"
                             :tooltip="t('view.settings.general.application.disable_gpu_acceleration_tooltip')"
-                            @change="setDisableVrOverlayGpuAcceleration"></simple-switch>
+                            @change="setDisableVrOverlayGpuAcceleration" />
                     </template>
                     <div class="options-container-item">
                         <el-button size="small" icon="el-icon-connection" @click="promptProxySettings()">{{
@@ -114,7 +114,7 @@
                     <span class="header">{{ t('view.settings.general.favorites.header') }}</span>
                     <br />
                     <el-select
-                        v-model="localFavoriteFriendsGroups"
+                        :value="localFavoriteFriendsGroups"
                         multiple
                         clearable
                         :placeholder="t('view.settings.general.favorites.group_placeholder')"
@@ -140,15 +140,15 @@
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.cache_debug.udon_exception_logging')"
                         :value="udonExceptionLogging"
-                        @change="saveOpenVROption('VRCX_udonExceptionLogging')"></simple-switch>
+                        @change="setUdonExceptionLogging" />
                     <simple-switch
                         :label="t('view.settings.general.logging.resource_load')"
                         :value="logResourceLoad"
-                        @change="saveLoggingOptions('VRCX_logResourceLoad')"></simple-switch>
+                        @change="setLogResourceLoad" />
                     <simple-switch
                         :label="t('view.settings.general.logging.empty_avatar')"
                         :value="logEmptyAvatars"
-                        @change="saveLoggingOptions('VRCX_logEmptyAvatars')"></simple-switch>
+                        @change="setLogEmptyAvatars" />
                 </div>
                 <!--//- General | Automation-->
                 <div class="options-container">
@@ -1671,11 +1671,18 @@
         isCloseToTray,
         disableGpuAcceleration,
         disableVrOverlayGpuAcceleration,
+        localFavoriteFriendsGroups,
+        udonExceptionLogging,
+        logResourceLoad,
+        logEmptyAvatars,
         setIsStartAtWindowsStartup,
         setIsStartAsMinimizedState,
         setIsCloseToTray,
         setDisableGpuAcceleration,
-        setDisableVrOverlayGpuAcceleration
+        setDisableVrOverlayGpuAcceleration,
+        setUdonExceptionLogging,
+        setLogResourceLoad,
+        setLogEmptyAvatars
     } = generalSettingsStore;
 
     const { t } = useI18n();
@@ -1687,22 +1694,6 @@
         menuActiveIndex: {
             type: String,
             default: ''
-        },
-        localFavoriteFriendsGroups: {
-            type: Boolean,
-            default: false
-        },
-        udonExceptionLogging: {
-            type: Boolean,
-            default: false
-        },
-        logResourceLoad: {
-            type: Boolean,
-            default: false
-        },
-        logEmptyAvatars: {
-            type: Boolean,
-            default: false
         },
         autoStateChangeEnabled: {
             type: Boolean,
