@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import configRepository from '../service/config';
+import configRepository from '../../service/config';
 
 export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     const state = reactive({

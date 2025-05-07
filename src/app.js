@@ -69,7 +69,7 @@ import { displayLocation } from './composables/instance/utils';
 
 // pinia
 import { createPinia, PiniaVuePlugin, mapState, mapActions } from 'pinia';
-import { useGeneralSettingsStore } from './stores/generalSettings';
+import { useGeneralSettingsStore } from './stores/settings/generalSettings';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
 
 import LoginPage from './views/Login/Login.vue';

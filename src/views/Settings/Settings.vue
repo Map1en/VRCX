@@ -1657,7 +1657,7 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useGeneralSettingsStore } from '../../stores/generalSettings';
+    import { useGeneralSettingsStore } from '../../stores/settings/generalSettings';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
