@@ -157,15 +157,15 @@
                         :label="t('view.settings.general.automation.auto_change_status')"
                         :value="autoStateChangeEnabled"
                         :tooltip="t('view.settings.general.automation.auto_state_change_tooltip')"
-                        @change="saveAutomationOptions('VRCX_autoStateChangeEnabled')"></simple-switch>
+                        @change="setAutoStateChangeEnabled" />
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.general.automation.alone_status') }}</span>
                         <el-select
-                            v-model="autoStateChangeAloneStatus"
+                            :value="autoStateChangeAloneStatus"
                             :disabled="!autoStateChangeEnabled"
                             style="margin-top: 8px"
                             size="small"
-                            @change="saveAutomationOptions">
+                            @change="setAutoStateChangeAloneStatus">
                             <el-option :label="t('dialog.user.status.join_me')" value="join me">
                                 <i class="x-user-status joinme"></i> {{ t('dialog.user.status.join_me') }}
                             </el-option>
@@ -183,11 +183,11 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.general.automation.company_status') }}</span>
                         <el-select
-                            v-model="autoStateChangeCompanyStatus"
+                            :value="autoStateChangeCompanyStatus"
                             :disabled="!autoStateChangeEnabled"
                             style="margin-top: 8px"
                             size="small"
-                            @change="saveAutomationOptions">
+                            @change="setAutoStateChangeCompanyStatus">
                             <el-option :label="t('dialog.user.status.join_me')" value="join me">
                                 <i class="x-user-status joinme"></i> {{ t('dialog.user.status.join_me') }}
                             </el-option>
@@ -205,14 +205,14 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.general.automation.allowed_instance_types') }}</span>
                         <el-select
-                            v-model="autoStateChangeInstanceTypes"
+                            :value="autoStateChangeInstanceTypes"
                             :disabled="!autoStateChangeEnabled"
                             multiple
                             clearable
                             :placeholder="t('view.settings.general.automation.instance_type_placeholder')"
                             style="margin-top: 8px"
                             size="small"
-                            @change="saveAutomationOptions">
+                            @change="setAutoStateChangeInstanceTypes">
                             <el-option-group :label="t('view.settings.general.automation.allowed_instance_types')">
                                 <el-option
                                     v-for="instanceType in instanceTypes"
@@ -230,9 +230,9 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.general.automation.alone_condition') }}</span>
                         <el-radio-group
-                            v-model="autoStateChangeNoFriends"
+                            :value="autoStateChangeNoFriends"
                             :disabled="!autoStateChangeEnabled"
-                            @change="saveAutomationOptions">
+                            @change="setAutoStateChangeNoFriends">
                             <el-radio :label="false">{{ t('view.settings.general.automation.alone') }}</el-radio>
                             <el-radio :label="true">{{ t('view.settings.general.automation.no_friends') }}</el-radio>
                         </el-radio-group>
@@ -249,10 +249,10 @@
                         </span>
                         <br />
                         <el-radio-group
-                            v-model="autoAcceptInviteRequests"
+                            :value="autoAcceptInviteRequests"
                             size="mini"
                             style="margin-top: 5px"
-                            @change="saveAutomationOptions">
+                            @input="setAutoAcceptInviteRequests">
                             <el-radio-button label="Off">{{
                                 t('view.settings.general.automation.auto_invite_request_accept_off')
                             }}</el-radio-button>
@@ -1655,7 +1655,7 @@
 </script>
 
 <script setup>
-    import { inject } from 'vue';
+    import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useGeneralSettingsStore } from '../../stores/generalSettings';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
@@ -1675,6 +1675,13 @@
         udonExceptionLogging,
         logResourceLoad,
         logEmptyAvatars,
+        autoStateChangeEnabled,
+        autoStateChangeAloneStatus,
+        autoStateChangeCompanyStatus,
+        autoStateChangeInstanceTypes,
+        autoStateChangeNoFriends,
+        autoAcceptInviteRequests,
+
         setIsStartAtWindowsStartup,
         setIsStartAsMinimizedState,
         setIsCloseToTray,
@@ -1682,7 +1689,13 @@
         setDisableVrOverlayGpuAcceleration,
         setUdonExceptionLogging,
         setLogResourceLoad,
-        setLogEmptyAvatars
+        setLogEmptyAvatars,
+        setAutoStateChangeEnabled,
+        setAutoStateChangeAloneStatus,
+        setAutoStateChangeCompanyStatus,
+        setAutoStateChangeInstanceTypes,
+        setAutoStateChangeNoFriends,
+        setAutoAcceptInviteRequests
     } = generalSettingsStore;
 
     const { t } = useI18n();
@@ -1694,34 +1707,6 @@
         menuActiveIndex: {
             type: String,
             default: ''
-        },
-        autoStateChangeEnabled: {
-            type: Boolean,
-            default: false
-        },
-        autoStateChangeAloneStatus: {
-            type: Boolean,
-            default: false
-        },
-        autoStateChangeCompanyStatus: {
-            type: Boolean,
-            default: false
-        },
-        autoStateChangeInstanceTypes: {
-            type: Array,
-            default: () => []
-        },
-        instanceTypes: {
-            type: Array,
-            default: () => []
-        },
-        autoStateChangeNoFriends: {
-            type: Boolean,
-            default: false
-        },
-        autoAcceptInviteRequests: {
-            type: Boolean,
-            default: false
         },
         $i18n: {
             type: Object,
@@ -2056,6 +2041,17 @@
             default: () => ({})
         }
     });
+
+    const instanceTypes = ref([
+        'invite',
+        'invite+',
+        'friends',
+        'friends+',
+        'public',
+        'groupPublic',
+        'groupPlus',
+        'groupOnly'
+    ]);
 
     function checkForVRCXUpdate() {
         emit('checkForVRCXUpdate');

@@ -12,7 +12,13 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         localFavoriteFriendsGroups: [],
         udonExceptionLogging: false,
         logResourceLoad: false,
-        logEmptyAvatars: false
+        logEmptyAvatars: false,
+        autoStateChangeEnabled: false,
+        autoStateChangeAloneStatus: 'join me',
+        autoStateChangeCompanyStatus: 'busy',
+        autoStateChangeInstanceTypes: [],
+        autoStateChangeNoFriends: false,
+        autoAcceptInviteRequests: 'Off'
     });
 
     async function initSettings() {
@@ -62,6 +68,33 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             'VRCX_logEmptyAvatars',
             false
         );
+
+        state.autoStateChangeEnabled = await configRepository.getBool(
+            'VRCX_autoStateChangeEnabled',
+            false
+        );
+
+        state.autoStateChangeAloneStatus = await configRepository.getString(
+            'VRCX_autoStateChangeAloneStatus',
+            'join me'
+        );
+
+        state.autoStateChangeCompanyStatus = await configRepository.getString(
+            'VRCX_autoStateChangeCompanyStatus',
+            'busy'
+        );
+
+        state.autoStateChangeInstanceTypes = JSON.parse(
+            await configRepository.getString(
+                'VRCX_autoStateChangeInstanceTypes',
+                '[]'
+            )
+        );
+
+        state.autoAcceptInviteRequests = await configRepository.getString(
+            'VRCX_autoAcceptInviteRequests',
+            'Off'
+        );
     }
 
     const isStartAtWindowsStartup = computed(
@@ -81,6 +114,22 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     const udonExceptionLogging = computed(() => state.udonExceptionLogging);
     const logResourceLoad = computed(() => state.logResourceLoad);
     const logEmptyAvatars = computed(() => state.logEmptyAvatars);
+    const autoStateChangeEnabled = computed(() => state.autoStateChangeEnabled);
+    const autoStateChangeAloneStatus = computed(
+        () => state.autoStateChangeAloneStatus
+    );
+    const autoStateChangeCompanyStatus = computed(
+        () => state.autoStateChangeCompanyStatus
+    );
+    const autoStateChangeInstanceTypes = computed(
+        () => state.autoStateChangeInstanceTypes
+    );
+    const autoStateChangeNoFriends = computed(
+        () => state.autoStateChangeNoFriends
+    );
+    const autoAcceptInviteRequests = computed(
+        () => state.autoAcceptInviteRequests
+    );
 
     function setIsStartAtWindowsStartup() {
         state.isStartAtWindowsStartup = !state.isStartAtWindowsStartup;
@@ -137,6 +186,48 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         state.logEmptyAvatars = !state.logEmptyAvatars;
         configRepository.setBool('VRCX_logEmptyAvatars', state.logEmptyAvatars);
     }
+    function setAutoStateChangeEnabled() {
+        state.autoStateChangeEnabled = !state.autoStateChangeEnabled;
+        configRepository.setBool(
+            'VRCX_autoStateChangeEnabled',
+            state.autoStateChangeEnabled
+        );
+    }
+    function setAutoStateChangeAloneStatus(value) {
+        state.autoStateChangeAloneStatus = value;
+        configRepository.setString(
+            'VRCX_autoStateChangeAloneStatus',
+            state.autoStateChangeAloneStatus
+        );
+    }
+    function setAutoStateChangeCompanyStatus(value) {
+        state.autoStateChangeCompanyStatus = value;
+        configRepository.setString(
+            'VRCX_autoStateChangeCompanyStatus',
+            state.autoStateChangeCompanyStatus
+        );
+    }
+    function setAutoStateChangeInstanceTypes(value) {
+        state.autoStateChangeInstanceTypes = value;
+        configRepository.setString(
+            'VRCX_autoStateChangeInstanceTypes',
+            JSON.stringify(state.autoStateChangeInstanceTypes)
+        );
+    }
+    function setAutoStateChangeNoFriends() {
+        state.autoStateChangeNoFriends = !state.autoStateChangeNoFriends;
+        configRepository.setBool(
+            'VRCX_autoStateChangeNoFriends',
+            state.autoStateChangeNoFriends
+        );
+    }
+    function setAutoAcceptInviteRequests(value) {
+        state.autoAcceptInviteRequests = value;
+        configRepository.setString(
+            'VRCX_autoAcceptInviteRequests',
+            state.autoAcceptInviteRequests
+        );
+    }
 
     return {
         initSettings,
@@ -149,6 +240,12 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         udonExceptionLogging,
         logResourceLoad,
         logEmptyAvatars,
+        autoStateChangeEnabled,
+        autoStateChangeAloneStatus,
+        autoStateChangeCompanyStatus,
+        autoStateChangeInstanceTypes,
+        autoStateChangeNoFriends,
+        autoAcceptInviteRequests,
 
         setIsStartAtWindowsStartup,
         setIsStartAsMinimizedState,
@@ -158,6 +255,12 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         setLocalFavoriteFriendsGroups,
         setUdonExceptionLogging,
         setLogResourceLoad,
-        setLogEmptyAvatars
+        setLogEmptyAvatars,
+        setAutoStateChangeEnabled,
+        setAutoStateChangeAloneStatus,
+        setAutoStateChangeCompanyStatus,
+        setAutoStateChangeInstanceTypes,
+        setAutoStateChangeNoFriends,
+        setAutoAcceptInviteRequests
     };
 });

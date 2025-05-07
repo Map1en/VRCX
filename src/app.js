@@ -283,7 +283,13 @@ console.log(`isLinux: ${LINUX}`);
                 'localFavoriteFriendsGroups',
                 'udonExceptionLogging',
                 'logResourceLoad',
-                'logEmptyAvatars'
+                'logEmptyAvatars',
+                'autoStateChangeEnabled',
+                'autoStateChangeAloneStatus',
+                'autoStateChangeCompanyStatus',
+                'autoStateChangeInstanceTypes',
+                'autoStateChangeNoFriends',
+                'autoAcceptInviteRequests'
             ])
         },
         methods: {
@@ -298,6 +304,12 @@ console.log(`isLinux: ${LINUX}`);
                 'setUdonExceptionLogging',
                 'setLogResourceLoad',
                 'setLogEmptyAvatars',
+                'setAutoStateChangeEnabled',
+                'setAutoStateChangeAloneStatus',
+                'setAutoStateChangeCompanyStatus',
+                'setAutoStateChangeInstanceTypes',
+                'setAutoStateChangeNoFriends',
+                'setAutoAcceptInviteRequests',
 
                 'setLocalFavoriteFriendsGroups'
             ])
@@ -5001,6 +5013,7 @@ console.log(`isLinux: ${LINUX}`);
         return length;
     };
 
+    // todo del
     $app.data.instanceTypes = [
         'invite',
         'invite+',
@@ -6809,61 +6822,6 @@ console.log(`isLinux: ${LINUX}`);
         }
         this.updateOpenVR();
         this.updateVRConfigVars();
-    };
-    $app.data.autoStateChangeEnabled = await configRepository.getBool(
-        'VRCX_autoStateChangeEnabled',
-        false
-    );
-    $app.data.autoStateChangeNoFriends = await configRepository.getBool(
-        'VRCX_autoStateChangeNoFriends',
-        false
-    );
-    $app.data.autoStateChangeInstanceTypes = JSON.parse(
-        await configRepository.getString(
-            'VRCX_autoStateChangeInstanceTypes',
-            '[]'
-        )
-    );
-    $app.data.autoStateChangeAloneStatus = await configRepository.getString(
-        'VRCX_autoStateChangeAloneStatus',
-        'join me'
-    );
-    $app.data.autoStateChangeCompanyStatus = await configRepository.getString(
-        'VRCX_autoStateChangeCompanyStatus',
-        'busy'
-    );
-    $app.data.autoAcceptInviteRequests = await configRepository.getString(
-        'VRCX_autoAcceptInviteRequests',
-        'Off'
-    );
-    $app.methods.saveAutomationOptions = async function (configKey = '') {
-        if (configKey === 'VRCX_autoStateChangeEnabled') {
-            this.autoStateChangeEnabled = !this.autoStateChangeEnabled;
-            await configRepository.setBool(
-                'VRCX_autoStateChangeEnabled',
-                this.autoStateChangeEnabled
-            );
-        }
-        await configRepository.setBool(
-            'VRCX_autoStateChangeNoFriends',
-            this.autoStateChangeNoFriends
-        );
-        await configRepository.setString(
-            'VRCX_autoStateChangeInstanceTypes',
-            JSON.stringify(this.autoStateChangeInstanceTypes)
-        );
-        await configRepository.setString(
-            'VRCX_autoStateChangeAloneStatus',
-            this.autoStateChangeAloneStatus
-        );
-        await configRepository.setString(
-            'VRCX_autoStateChangeCompanyStatus',
-            this.autoStateChangeCompanyStatus
-        );
-        await configRepository.setString(
-            'VRCX_autoAcceptInviteRequests',
-            this.autoAcceptInviteRequests
-        );
     };
 
     $app.data.isRegistryBackupDialogVisible = false;

@@ -112,14 +112,14 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.general.automation.auto_change_status")'
                         :value='autoStateChangeEnabled'
-                        @change='saveAutomationOptions("VRCX_autoStateChangeEnabled")'
+                        @change='setAutoStateChangeEnabled'
                         :tooltip='$t("view.settings.general.automation.auto_state_change_tooltip")')
                     .options-container-item
                         span.name {{ $t('view.settings.general.automation.alone_status') }}
                         el-select(
-                            v-model='autoStateChangeAloneStatus'
+                            :value='autoStateChangeAloneStatus'
                             :disabled='!autoStateChangeEnabled'
-                            @change='saveAutomationOptions'
+                            @change='setAutoStateChangeAloneStatus'
                             style='margin-top: 8px'
                             size='small')
                             el-option(:label='$t("dialog.user.status.join_me")' value='join me').
@@ -133,9 +133,9 @@ mixin settingsTab
                     .options-container-item
                         span.name {{ $t('view.settings.general.automation.company_status') }}
                         el-select(
-                            v-model='autoStateChangeCompanyStatus'
+                            :value='autoStateChangeCompanyStatus'
                             :disabled='!autoStateChangeEnabled'
-                            @change='saveAutomationOptions'
+                            @change='setAutoStateChangeCompanyStatus'
                             style='margin-top: 8px'
                             size='small')
                             el-option(:label='$t("dialog.user.status.join_me")' value='join me').
@@ -149,12 +149,12 @@ mixin settingsTab
                     .options-container-item
                         span.name {{ $t('view.settings.general.automation.allowed_instance_types') }}
                         el-select(
-                            v-model='autoStateChangeInstanceTypes'
+                            :value='autoStateChangeInstanceTypes'
                             :disabled='!autoStateChangeEnabled'
                             multiple
                             clearable
                             :placeholder='$t("view.settings.general.automation.instance_type_placeholder")'
-                            @change='saveAutomationOptions'
+                            @change='setAutoStateChangeInstanceTypes'
                             style='margin-top: 8px'
                             size='small')
                             el-option-group(:label='$t("view.settings.general.automation.allowed_instance_types")')
@@ -168,9 +168,9 @@ mixin settingsTab
                     .options-container-item
                         span.name {{ $t('view.settings.general.automation.alone_condition') }}
                         el-radio-group(
-                            v-model='autoStateChangeNoFriends'
+                            :value='autoStateChangeNoFriends'
                             :disabled='!autoStateChangeEnabled'
-                            @change='saveAutomationOptions')
+                            @change='setAutoStateChangeNoFriends')
                             el-radio(:label='false') {{ $t('view.settings.general.automation.alone') }}
                             el-radio(:label='true') {{ $t('view.settings.general.automation.no_friends') }}
                     .options-container-item
@@ -182,8 +182,8 @@ mixin settingsTab
                                 i.el-icon-info
                         br
                         el-radio-group(
-                            v-model='autoAcceptInviteRequests'
-                            @change='saveAutomationOptions'
+                            :value='autoAcceptInviteRequests'
+                            @input='setAutoAcceptInviteRequests'
                             size='mini'
                             style='margin-top: 5px')
                             el-radio-button(label='Off') {{ $t('view.settings.general.automation.auto_invite_request_accept_off') }}
