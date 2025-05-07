@@ -270,11 +270,13 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
     import { friendRequest, userRequest } from '../../api';
     import utils from '../../classes/utils';
+    import { getFaviconUrl as _getFaviconUrl } from '../../composables/shared/utils';
     import { languageClass as _languageClass } from '../../composables/user/utils';
     import removeConfusables, { removeWhitespace } from '../../service/confusables';
-    import { getFaviconUrl as _getFaviconUrl } from '../../composables/shared/utils';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     export default {
         name: 'FriendListTab',
@@ -296,8 +298,7 @@
             sortStatus: Function,
             confirmDeleteFriend: Function,
             friendsListSearch: String,
-            menuActiveIndex: String,
-            stringComparer: Intl.Collator
+            menuActiveIndex: String
         },
         data() {
             return {
@@ -326,6 +327,12 @@
                 // TODO
                 friendsListBulkUnfriendForceUpdate: 0
             };
+        },
+        computed: {
+            ...mapState(useAppearanceSettingsStore, ['appLanguage']),
+            stringComparer() {
+                return Intl.Collator(this.appLanguage.replace('_', '-'), { usage: 'search', sensitivity: 'base' });
+            }
         },
         watch: {
             menuActiveIndex() {

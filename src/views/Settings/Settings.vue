@@ -307,13 +307,13 @@
                         <el-dropdown trigger="click" size="small" @click.native.stop>
                             <el-button size="mini">
                                 <span
-                                    >{{ $i18n.messages[appLanguage]?.language }}
+                                    >{{ i18n.messages[appLanguage]?.language }}
                                     <i class="el-icon-arrow-down el-icon--right"></i
                                 ></span>
                             </el-button>
                             <el-dropdown-menu>
                                 <el-dropdown-item
-                                    v-for="(obj, language) in $i18n.messages"
+                                    v-for="(obj, language) in i18n.messages"
                                     :key="language"
                                     @click.native="changeAppLanguage(language)"
                                     v-text="obj.language"></el-dropdown-item>
@@ -1128,7 +1128,7 @@
                             <el-button size="small" icon="el-icon-s-operation" @click="showVRChatConfig()"
                                 >VRChat config.json</el-button
                             >
-                            <el-button size="small" icon="el-icon-s-operation" @click=" ()">{{
+                            <el-button size="small" icon="el-icon-s-operation" @click="showLaunchOptions()">{{
                                 t('view.settings.advanced.advanced.launch_options')
                             }}</el-button>
                             <el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
@@ -1657,14 +1657,19 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
     import { useGeneralSettingsStore } from '../../stores/settings/generalSettings';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
+    const { i18n } = useI18n();
+
     const VRCXUpdaterStore = useVRCXUpdaterStore();
+    const generalSettingsStore = useGeneralSettingsStore();
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+
     const { appVersion, autoUpdateVRCX, latestAppVersion, setAutoUpdateVRCX } = VRCXUpdaterStore;
 
-    const generalSettingsStore = useGeneralSettingsStore();
     const {
         isStartAtWindowsStartup,
         isStartAsMinimizedState,
@@ -1698,6 +1703,8 @@
         setAutoAcceptInviteRequests
     } = generalSettingsStore;
 
+    const { appLanguage } = appearanceSettingsStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -1705,14 +1712,6 @@
 
     const props = defineProps({
         menuActiveIndex: {
-            type: String,
-            default: ''
-        },
-        $i18n: {
-            type: Object,
-            default: () => ({})
-        },
-        appLanguage: {
             type: String,
             default: ''
         },
@@ -2053,6 +2052,8 @@
         'groupOnly'
     ]);
 
+    const emit = defineEmits([]);
+
     function checkForVRCXUpdate() {
         emit('checkForVRCXUpdate');
         // Function to check for VRCX updates
@@ -2320,5 +2321,10 @@
             this.pendingVRCXUpdate = false;
         }
         setAutoUpdateVRCX(value);
+    }
+
+    function showLaunchOptions() {
+        emit('showLaunchOptions');
+        // Function to show the launch options
     }
 </script>

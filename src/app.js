@@ -69,6 +69,7 @@ import { displayLocation } from './composables/instance/utils';
 
 // pinia
 import { createPinia, PiniaVuePlugin, mapState, mapActions } from 'pinia';
+import { useAppearanceSettingsStore } from './stores/settings/appearanceSettings';
 import { useGeneralSettingsStore } from './stores/settings/generalSettings';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
 
@@ -220,6 +221,7 @@ console.log(`isLinux: ${LINUX}`);
     // init pinia
     Vue.use(PiniaVuePlugin);
     const pinia = createPinia();
+    pinia.use(() => ({ i18n }));
 
     // #endregion
 
@@ -290,7 +292,8 @@ console.log(`isLinux: ${LINUX}`);
                 'autoStateChangeInstanceTypes',
                 'autoStateChangeNoFriends',
                 'autoAcceptInviteRequests'
-            ])
+            ]),
+            ...mapState(useAppearanceSettingsStore, ['appLanguage'])
         },
         methods: {
             ...$utils,
@@ -312,7 +315,8 @@ console.log(`isLinux: ${LINUX}`);
                 'setAutoAcceptInviteRequests',
 
                 'setLocalFavoriteFriendsGroups'
-            ])
+            ]),
+            ...mapActions(useAppearanceSettingsStore, ['setAppLanguage'])
         },
         watch: {},
         components: {
@@ -412,9 +416,11 @@ console.log(`isLinux: ${LINUX}`);
         async created() {
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
+            const appearanceSettingsStore = useAppearanceSettingsStore();
             // Promise.all
             await VRCXUpdaterStore.initSettings();
             await generalSettingsStore.initSettings();
+            await appearanceSettingsStore.initSettings();
         },
         beforeMount() {
             this.changeThemeMode();
@@ -4081,18 +4087,6 @@ console.log(`isLinux: ${LINUX}`);
     // #region | App: Quick Search
 
     $app.data.quickSearchItems = [];
-
-    // Making a persistent comparer increases perf by like 10x lmao
-    $app.data._stringComparer = undefined;
-    $app.computed.stringComparer = function () {
-        if (typeof this._stringComparer === 'undefined') {
-            this._stringComparer = Intl.Collator(
-                this.appLanguage.replace('_', '-'),
-                { usage: 'search', sensitivity: 'base' }
-            );
-        }
-        return this._stringComparer;
-    };
 
     $app.methods.quickSearchRemoteMethod = function (query) {
         if (!query) {
@@ -13089,10 +13083,6 @@ console.log(`isLinux: ${LINUX}`);
             this.groupDialogSortingOptions.joinedAtDesc;
     };
 
-    $app.data.appLanguage =
-        (await configRepository.getString('VRCX_appLanguage')) ?? 'en';
-    $utils.changeCJKorder($app.data.appLanguage);
-    i18n.locale = $app.data.appLanguage;
     $app.methods.initLanguage = async function () {
         if (!(await configRepository.getString('VRCX_appLanguage'))) {
             var result = await AppApi.CurrentLanguage();
@@ -13114,14 +13104,9 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.changeAppLanguage = function (language) {
-        console.log('Language changed:', language);
-        this.appLanguage = language;
-        $utils.changeCJKorder(language);
-        i18n.locale = language;
-        configRepository.setString('VRCX_appLanguage', language);
+        this.setAppLanguage(language);
         this.applyLanguageStrings();
         this.updateVRConfigVars();
-        this._stringComparer = undefined;
     };
 
     // #endregion
