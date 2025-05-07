@@ -285,6 +285,7 @@ console.log(`isLinux: ${LINUX}`);
         methods: {
             ...$utils,
             ...mapActions(useGeneralSettingsStore, [
+                // todo del
                 'setIsStartAtWindowsStartup',
                 'setIsStartAsMinimizedState',
                 'setIsCloseToTray',
@@ -6701,9 +6702,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_StartAtWindowsStartup':
-                this.setIsStartAtWindowsStartup(!this.isStartAtWindowsStartup);
-                break;
             case 'VRCX_saveInstancePrints':
                 this.saveInstancePrints = !this.saveInstancePrints;
                 break;
@@ -6714,22 +6712,8 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_saveInstanceStickers':
                 this.saveInstanceStickers = !this.saveInstanceStickers;
                 break;
-            case 'VRCX_StartAsMinimizedState':
-                this.setIsStartAsMinimizedState(!this.isStartAsMinimizedState);
-                break;
-            case 'VRCX_CloseToTray':
-                this.setIsCloseToTray(!this.isCloseToTray);
-                break;
             case 'VRCX_DisableWorldDatabase':
                 this.disableWorldDatabase = !this.disableWorldDatabase;
-                break;
-            case 'VRCX_DisableGpuAcceleration':
-                this.setDisableGpuAcceleration(!this.disableGpuAcceleration);
-                break;
-            case 'VRCX_DisableVrOverlayGpuAcceleration':
-                this.setDisableVrOverlayGpuAcceleration(
-                    !this.disableVrOverlayGpuAcceleration
-                );
                 break;
             default:
                 break;

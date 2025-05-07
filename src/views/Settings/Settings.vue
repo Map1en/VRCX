@@ -81,27 +81,27 @@
                         <simple-switch
                             :label="t('view.settings.general.application.startup')"
                             :value="isStartAtWindowsStartup"
-                            @change="saveVRCXWindowOption('VRCX_StartAtWindowsStartup')"></simple-switch>
+                            @change="setIsStartAtWindowsStartup"></simple-switch>
                         <simple-switch
                             :label="t('view.settings.general.application.minimized')"
                             :value="isStartAsMinimizedState"
-                            @change="saveVRCXWindowOption('VRCX_StartAsMinimizedState')"></simple-switch>
+                            @change="setIsStartAsMinimizedState"></simple-switch>
                         <simple-switch
                             :label="t('view.settings.general.application.tray')"
                             :value="isCloseToTray"
-                            @change="saveVRCXWindowOption('VRCX_CloseToTray')"></simple-switch>
+                            @change="setIsCloseToTray"></simple-switch>
                     </template>
                     <template v-if="!isLinux()">
                         <simple-switch
                             :label="t('view.settings.general.application.disable_gpu_acceleration')"
                             :value="disableGpuAcceleration"
                             :tooltip="t('view.settings.general.application.disable_gpu_acceleration_tooltip')"
-                            @change="saveVRCXWindowOption('VRCX_DisableGpuAcceleration')"></simple-switch>
+                            @change="setDisableGpuAcceleration"></simple-switch>
                         <simple-switch
                             :label="t('view.settings.general.application.disable_vr_overlay_gpu_acceleration')"
                             :value="disableVrOverlayGpuAcceleration"
                             :tooltip="t('view.settings.general.application.disable_gpu_acceleration_tooltip')"
-                            @change="saveVRCXWindowOption('VRCX_DisableVrOverlayGpuAcceleration')"></simple-switch>
+                            @change="setDisableVrOverlayGpuAcceleration"></simple-switch>
                     </template>
                     <div class="options-container-item">
                         <el-button size="small" icon="el-icon-connection" @click="promptProxySettings()">{{
@@ -1670,7 +1670,12 @@
         isStartAsMinimizedState,
         isCloseToTray,
         disableGpuAcceleration,
-        disableVrOverlayGpuAcceleration
+        disableVrOverlayGpuAcceleration,
+        setIsStartAtWindowsStartup,
+        setIsStartAsMinimizedState,
+        setIsCloseToTray,
+        setDisableGpuAcceleration,
+        setDisableVrOverlayGpuAcceleration
     } = generalSettingsStore;
 
     const { t } = useI18n();

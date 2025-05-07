@@ -50,25 +50,25 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.general.application.startup")'
                             :value='isStartAtWindowsStartup'
-                            @change='saveVRCXWindowOption("VRCX_StartAtWindowsStartup")')
+                            @change='setIsStartAtWindowsStartup')
                     simple-switch(
                         :label='$t("view.settings.general.application.minimized")'
                         :value='isStartAsMinimizedState'
-                        @change='saveVRCXWindowOption("VRCX_StartAsMinimizedState")')
+                        @change='setIsStartAsMinimizedState')
                     simple-switch(
                         :label='$t("view.settings.general.application.tray")'
                         :value='isCloseToTray'
-                        @change='saveVRCXWindowOption("VRCX_CloseToTray")')
+                        @change='setIsCloseToTray')
                     template(v-if='!isLinux()')
                         simple-switch(
                             :label='$t("view.settings.general.application.disable_gpu_acceleration")'
                             :value='disableGpuAcceleration'
-                            @change='saveVRCXWindowOption("VRCX_DisableGpuAcceleration")'
+                            @change='setDisableGpuAcceleration'
                             :tooltip='$t("view.settings.general.application.disable_gpu_acceleration_tooltip")')
                         simple-switch(
                             :label='$t("view.settings.general.application.disable_vr_overlay_gpu_acceleration")'
                             :value='disableVrOverlayGpuAcceleration'
-                            @change='saveVRCXWindowOption("VRCX_DisableVrOverlayGpuAcceleration")'
+                            @change='setDisableVrOverlayGpuAcceleration'
                             :tooltip='$t("view.settings.general.application.disable_gpu_acceleration_tooltip")')
                     .options-container-item
                         el-button(size='small' icon='el-icon-connection' @click='promptProxySettings()') {{ $t('view.settings.general.application.proxy') }}

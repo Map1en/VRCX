@@ -55,31 +55,41 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         () => state.disableVrOverlayGpuAcceleration
     );
 
-    function setIsStartAtWindowsStartup(value) {
-        state.isStartAtWindowsStartup = value;
-        configRepository.setBool('VRCX_StartAtWindowsStartup', value);
+    function setIsStartAtWindowsStartup() {
+        state.isStartAtWindowsStartup = !state.isStartAtWindowsStartup;
+        configRepository.setBool(
+            'VRCX_StartAtWindowsStartup',
+            state.isStartAtWindowsStartup
+        );
     }
 
-    function setIsStartAsMinimizedState(value) {
-        state.isStartAsMinimizedState = value;
-        VRCXStorage.Set('VRCX_StartAsMinimizedState', value.toString());
+    function setIsStartAsMinimizedState() {
+        state.isStartAsMinimizedState = !state.isStartAsMinimizedState;
+        VRCXStorage.Set(
+            'VRCX_StartAsMinimizedState',
+            state.isStartAsMinimizedState.toString()
+        );
     }
 
-    function setIsCloseToTray(value) {
-        state.isCloseToTray = value;
-        VRCXStorage.Set('VRCX_CloseToTray', value.toString());
+    function setIsCloseToTray() {
+        state.isCloseToTray = !state.isCloseToTray;
+        VRCXStorage.Set('VRCX_CloseToTray', state.isCloseToTray.toString());
     }
 
-    function setDisableGpuAcceleration(value) {
-        state.disableGpuAcceleration = value;
-        VRCXStorage.Set('VRCX_DisableGpuAcceleration', value.toString());
+    function setDisableGpuAcceleration() {
+        state.disableGpuAcceleration = !state.disableGpuAcceleration;
+        VRCXStorage.Set(
+            'VRCX_DisableGpuAcceleration',
+            state.disableGpuAcceleration.toString()
+        );
     }
 
-    function setDisableVrOverlayGpuAcceleration(value) {
-        state.disableVrOverlayGpuAcceleration = value;
+    function setDisableVrOverlayGpuAcceleration() {
+        state.disableVrOverlayGpuAcceleration =
+            !state.disableVrOverlayGpuAcceleration;
         VRCXStorage.Set(
             'VRCX_DisableVrOverlayGpuAcceleration',
-            value.toString()
+            state.disableVrOverlayGpuAcceleration.toString()
         );
     }
 
