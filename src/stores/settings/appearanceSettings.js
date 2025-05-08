@@ -52,7 +52,6 @@ export const useAppearanceSettingsStore = defineStore(
             }
         }
         function setIsDarkMode(isDark) {
-            console.log('Dark mode changed:', isDark);
             state.isDarkMode = isDark;
             configRepository.setString('VRCX_isDarkMode', isDark);
         }
