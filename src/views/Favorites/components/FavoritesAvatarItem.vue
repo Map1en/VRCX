@@ -150,7 +150,6 @@
             group: [Object, String],
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
-            hideTooltips: Boolean,
             isLocalFavorite: Boolean
         },
         computed: {

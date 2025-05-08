@@ -94,8 +94,10 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
     import { playerModerationRequest } from '../../api';
     import configRepository from '../../service/config.js';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     export default {
         name: 'ModerationTab',
@@ -103,13 +105,7 @@
         props: {
             menuActiveIndex: String,
             tableData: Object,
-            shiftHeld: Boolean,
-            hideTooltips: Boolean
-        },
-        created: async function () {
-            this.filters[0].value = JSON.parse(
-                await configRepository.getString('VRCX_playerModerationTableFilters', '[]')
-            );
+            shiftHeld: Boolean
         },
         data() {
             return {
@@ -149,6 +145,14 @@
                     pageSizes: [10, 15, 20, 25, 50, 100]
                 }
             };
+        },
+        computed: {
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+        },
+        created: async function () {
+            this.filters[0].value = JSON.parse(
+                await configRepository.getString('VRCX_playerModerationTableFilters', '[]')
+            );
         },
         methods: {
             saveTableFilters() {

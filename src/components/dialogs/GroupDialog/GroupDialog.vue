@@ -1180,6 +1180,7 @@
     import { refreshInstancePlayerCount } from '../../../composables/instance/utils';
     import { copyToClipboard, downloadAndSaveJson, getFaviconUrl } from '../../../composables/shared/utils';
     import { languageClass } from '../../../composables/user/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import Location from '../../Location.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
@@ -1193,6 +1194,9 @@
     const openExternalLink = inject('openExternalLink');
     const adjustDialogZ = inject('adjustDialogZ');
 
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
+
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
@@ -1202,10 +1206,6 @@
         groupDialog: {
             type: Object,
             required: true
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         lastLocation: {
             type: Object,

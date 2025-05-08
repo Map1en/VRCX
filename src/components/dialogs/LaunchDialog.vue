@@ -93,14 +93,15 @@
     import { isRealInstance, parseLocation } from '../../composables/instance/utils';
     import { getLaunchURL } from '../../composables/shared/utils';
     import configRepository from '../../service/config';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
+    import { mapState } from 'pinia';
 
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
         inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
-            hideTooltips: Boolean,
             launchDialogData: { type: Object, required: true },
             checkCanInvite: {
                 type: Function,
@@ -161,7 +162,8 @@
                 set(value) {
                     this.$emit('update:launch-dialog-data', { ...this.launchDialogData, visible: value });
                 }
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         watch: {
             'launchDialogData.loading': {

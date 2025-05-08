@@ -301,7 +301,10 @@ console.log(`isLinux: ${LINUX}`);
             ...mapState(useAppearanceSettingsStore, [
                 'appLanguage',
                 'themeMode',
-                'isDarkMode'
+                'isDarkMode',
+                'displayVRCPlusIconsAsAvatar',
+                'hideNicknames',
+                'hideTooltips'
             ])
         },
         methods: {
@@ -328,7 +331,10 @@ console.log(`isLinux: ${LINUX}`);
             ...mapActions(useAppearanceSettingsStore, [
                 'setAppLanguage',
                 'setThemeMode',
-                'setIsDarkMode'
+                'setIsDarkMode',
+                'setDisplayVRCPlusIconsAsAvatar',
+                'setHideNicknames',
+                'setHideTooltips'
             ])
         },
         watch: {},
@@ -6165,18 +6171,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_minimalFeed',
         false
     );
-    $app.data.displayVRCPlusIconsAsAvatar = await configRepository.getBool(
-        'displayVRCPlusIconsAsAvatar',
-        true
-    );
-    $app.data.hideTooltips = await configRepository.getBool(
-        'VRCX_hideTooltips',
-        false
-    );
-    $app.data.hideNicknames = await configRepository.getBool(
-        'VRCX_hideNicknames',
-        false
-    );
     $app.data.notificationTTS = await configRepository.getString(
         'VRCX_notificationTTS',
         'Never'
@@ -6369,16 +6363,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_minimalFeed':
                 this.minimalFeed = !this.minimalFeed;
                 break;
-            case 'displayVRCPlusIconsAsAvatar':
-                this.displayVRCPlusIconsAsAvatar =
-                    !this.displayVRCPlusIconsAsAvatar;
-                break;
-            case 'VRCX_hideTooltips':
-                this.hideTooltips = !this.hideTooltips;
-                break;
-            case 'VRCX_hideNicknames':
-                this.hideNicknames = !this.hideNicknames;
-                break;
             case 'VRCX_autoSweepVRChatCache':
                 this.autoSweepVRChatCache = !this.autoSweepVRChatCache;
                 break;
@@ -6484,18 +6468,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_minimalFeed', this.minimalFeed);
-
-        await configRepository.setBool(
-            'displayVRCPlusIconsAsAvatar',
-            this.displayVRCPlusIconsAsAvatar
-        );
-
-        await configRepository.setBool('VRCX_hideTooltips', this.hideTooltips);
-
-        await configRepository.setBool(
-            'VRCX_hideNicknames',
-            this.hideNicknames
-        );
 
         await configRepository.setBool(
             'VRCX_autoSweepVRChatCache',
@@ -13229,6 +13201,7 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | Settings: Zoom
 
+    // todo del
     $app.data.zoomLevel = ((await AppApi.GetZoom()) + 10) * 10;
 
     $app.methods.getZoomLevel = async function () {
@@ -13350,8 +13323,7 @@ console.log(`isLinux: ${LINUX}`);
         return {
             menuActiveIndex: this.menuActiveIndex,
             tableData: this.playerModerationTable,
-            shiftHeld: this.shiftHeld,
-            hideTooltips: this.hideTooltips
+            shiftHeld: this.shiftHeld
         };
     };
 
@@ -13359,7 +13331,6 @@ console.log(`isLinux: ${LINUX}`);
         return {
             menuActiveIndex: this.menuActiveIndex,
             friends: this.friends,
-            hideTooltips: this.hideTooltips,
             randomUserColours: this.randomUserColours,
             sortStatus: this.sortStatus,
             confirmDeleteFriend: this.confirmDeleteFriend,
@@ -13384,7 +13355,6 @@ console.log(`isLinux: ${LINUX}`);
             onlineFriends: this.onlineFriends,
             quickSearchRemoteMethod: this.quickSearchRemoteMethod,
             quickSearchItems: this.quickSearchItems,
-            hideTooltips: this.hideTooltips,
             onlineFriendCount: this.onlineFriendCount,
             friends: this.friends,
             isGameRunning: this.isGameRunning,
@@ -13394,7 +13364,6 @@ console.log(`isLinux: ${LINUX}`);
             gameLogDisabled: this.gameLogDisabled,
             lastLocation: this.lastLocation,
             lastLocationDestination: this.lastLocationDestination,
-            hideNicknames: this.hideNicknames,
             activeFriends: this.activeFriends,
             offlineFriends: this.offlineFriends,
             groupInstances: this.groupInstances,
@@ -13425,7 +13394,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.favoritesTabBind = function () {
         return {
             menuActiveIndex: this.menuActiveIndex,
-            hideTooltips: this.hideTooltips,
             shiftHeld: this.shiftHeld,
             favoriteFriends: this.favoriteFriends,
             sortFavorites: this.sortFavorites,
@@ -13502,8 +13470,7 @@ console.log(`isLinux: ${LINUX}`);
         return {
             menuActiveIndex: this.menuActiveIndex,
             gameLogTable: this.gameLogTable,
-            shiftHeld: this.shiftHeld,
-            hideTooltips: this.hideTooltips
+            shiftHeld: this.shiftHeld
         };
     };
 
@@ -13524,7 +13491,6 @@ console.log(`isLinux: ${LINUX}`);
             menuActiveIndex: this.menuActiveIndex,
             notificationTable: this.notificationTable,
             shiftHeld: this.shiftHeld,
-            hideTooltips: this.hideTooltips,
             lastLocation: this.lastLocation,
             lastLocationDestination: this.lastLocationDestination,
             isGameRunning: this.isGameRunning,
@@ -13546,7 +13512,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.feedTabBind = function () {
         return {
             menuActiveIndex: this.menuActiveIndex,
-            hideTooltips: this.hideTooltips,
             feedTable: this.feedTable
         };
     };
@@ -13566,7 +13531,6 @@ console.log(`isLinux: ${LINUX}`);
             avatarRemoteDatabaseProviderList:
                 this.avatarRemoteDatabaseProviderList,
             avatarRemoteDatabaseProvider: this.avatarRemoteDatabaseProvider,
-            hideTooltips: this.hideTooltips,
             userDialog: this.userDialog,
             lookupAvatars: this.lookupAvatars,
             avatarRemoteDatabase: this.avatarRemoteDatabase
@@ -13586,7 +13550,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.profileTabBind = function () {
         return {
             menuActiveIndex: this.menuActiveIndex,
-            hideTooltips: this.hideTooltips,
             inviteMessageTable: this.inviteMessageTable,
             inviteResponseMessageTable: this.inviteResponseMessageTable,
             inviteRequestMessageTable: this.inviteRequestMessageTable,
@@ -13617,7 +13580,6 @@ console.log(`isLinux: ${LINUX}`);
             photonEventTableTypeFilter: this.photonEventTableTypeFilter,
             photonEventTableTypeFilterList: this.photonEventTableTypeFilterList,
             photonEventTableFilter: this.photonEventTableFilter,
-            hideTooltips: this.hideTooltips,
             ipcEnabled: this.ipcEnabled,
             photonEventIcon: this.photonEventIcon,
             photonEventTable: this.photonEventTable,
@@ -13640,7 +13602,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.computed.loginPageBind = function () {
         return {
-            hideTooltips: this.hideTooltips,
             loginForm: this.loginForm,
             enableCustomEndpoint: this.enableCustomEndpoint
         };

@@ -264,15 +264,15 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.vrcplus_profile_icons")'
                         :value='displayVRCPlusIconsAsAvatar'
-                        @change='saveOpenVROption("displayVRCPlusIconsAsAvatar")')
+                        @change='setDisplayVRCPlusIconsAsAvatar')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.nicknames")'
                         :value='!hideNicknames'
-                        @change='saveOpenVROption("VRCX_hideNicknames")')
+                        @change='setHideNicknames')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.tooltips")'
                         :value='!hideTooltips'
-                        @change='saveOpenVROption("VRCX_hideTooltips")')
+                        @change='setHideTooltips')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.age_gated_instances")'
                         :value='isAgeGatedInstancesVisible'

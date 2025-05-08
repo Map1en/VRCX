@@ -293,7 +293,6 @@
                 type: Map,
                 required: true
             },
-            hideTooltips: Boolean,
             randomUserColours: Boolean,
             sortStatus: Function,
             confirmDeleteFriend: Function,
@@ -329,10 +328,10 @@
             };
         },
         computed: {
-            ...mapState(useAppearanceSettingsStore, ['appLanguage']),
             stringComparer() {
                 return Intl.Collator(this.appLanguage.replace('_', '-'), { usage: 'search', sensitivity: 'base' });
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['appLanguage', 'hideTooltips'])
         },
         watch: {
             menuActiveIndex() {

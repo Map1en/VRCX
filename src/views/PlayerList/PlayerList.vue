@@ -837,6 +837,10 @@
     import configRepository from '../../service/config';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { getFaviconUrl } from '../../composables/shared/utils';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -884,10 +888,6 @@
         photonEventTableFilter: {
             type: String,
             default: ''
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         ipcEnabled: {
             type: Boolean,

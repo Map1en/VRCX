@@ -158,6 +158,12 @@
 <script setup>
     import { inject, onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+
+    const { hideTooltips } = appearanceSettingsStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -165,10 +171,6 @@
     const userImage = inject('userImage');
 
     defineProps({
-        hideTooltips: {
-            type: Boolean,
-            default: false
-        },
         loginForm: {
             type: Object,
             default: () => ({})

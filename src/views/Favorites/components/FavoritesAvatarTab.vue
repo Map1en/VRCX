@@ -233,10 +233,12 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
+    import { favoriteRequest } from '../../../api';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
-    import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
-    import { favoriteRequest } from '../../../api';
 
     export default {
         name: 'FavoritesAvatarTab',
@@ -244,7 +246,6 @@
         inject: ['API', 'showAvatarDialog'],
         props: {
             sortFavorites: Boolean,
-            hideTooltips: Boolean,
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
             avatarHistoryArray: Array,
@@ -285,7 +286,8 @@
             },
             isLocalUserVrcplusSupporter() {
                 return this.API.currentUser.$isVRCPlus;
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             getLocalAvatarFavoriteGroupLength(group) {

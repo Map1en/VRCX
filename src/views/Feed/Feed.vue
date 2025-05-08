@@ -326,6 +326,10 @@
     import { useI18n } from 'vue-i18n-bridge';
     import utils from '../../classes/utils';
     import Location from '../../components/Location.vue';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -337,10 +341,6 @@
         menuActiveIndex: {
             type: String,
             default: 'feed'
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         feedTable: {
             type: Object,

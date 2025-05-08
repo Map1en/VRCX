@@ -380,15 +380,15 @@
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.vrcplus_profile_icons')"
                         :value="displayVRCPlusIconsAsAvatar"
-                        @change="saveOpenVROption('displayVRCPlusIconsAsAvatar')"></simple-switch>
+                        @change="setDisplayVRCPlusIconsAsAvatar" />
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.nicknames')"
                         :value="!hideNicknames"
-                        @change="saveOpenVROption('VRCX_hideNicknames')"></simple-switch>
+                        @change="setHideNicknames" />
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.tooltips')"
                         :value="!hideTooltips"
-                        @change="saveOpenVROption('VRCX_hideTooltips')"></simple-switch>
+                        @change="setHideTooltips" />
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.age_gated_instances')"
                         :value="isAgeGatedInstancesVisible"
@@ -1703,7 +1703,17 @@
         setAutoAcceptInviteRequests
     } = generalSettingsStore;
 
-    const { appLanguage } = appearanceSettingsStore;
+    const {
+        appLanguage,
+        themeMode,
+        displayVRCPlusIconsAsAvatar,
+        hideNicknames,
+        hideTooltips,
+
+        setDisplayVRCPlusIconsAsAvatar,
+        setHideNicknames,
+        setHideTooltips
+    } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -1715,25 +1725,9 @@
             type: String,
             default: ''
         },
-        themeMode: {
-            type: String,
-            default: ''
-        },
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        displayVRCPlusIconsAsAvatar: {
-            type: Boolean,
-            default: false
-        },
-        hideNicknames: {
-            type: Boolean,
-            default: false
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         isAgeGatedInstancesVisible: {
             type: Boolean,

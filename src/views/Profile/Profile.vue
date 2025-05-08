@@ -504,6 +504,10 @@
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -520,10 +524,6 @@
         menuActiveIndex: {
             type: String,
             default: 'profile'
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         inviteMessageTable: {
             type: Object,

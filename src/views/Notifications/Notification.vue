@@ -429,6 +429,10 @@
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
     import Location from '../../components/Location.vue';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -450,7 +454,6 @@
             default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false },
-        hideTooltips: { type: Boolean, default: false },
         lastLocation: { type: Object, default: () => ({}) },
         inviteResponseMessageTable: {
             type: Object,

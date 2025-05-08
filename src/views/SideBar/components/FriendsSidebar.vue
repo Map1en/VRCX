@@ -66,7 +66,6 @@
                             v-for="friend in group"
                             :key="friend.id"
                             :friend="friend"
-                            :hide-nicknames="hideNicknames"
                             @click="showUserDialog(friend.id)"
                             @confirm-delete-friend="$emit('confirm-delete-friend', $event)"></friend-item>
                     </div>
@@ -77,7 +76,6 @@
                 v-else
                 :key="friend.id"
                 :friend="friend"
-                :hide-nicknames="hideNicknames"
                 @click="showUserDialog(friend.id)"
                 @confirm-delete-friend="$emit('confirm-delete-friend', $event)">
             </friend-item>
@@ -131,7 +129,6 @@
                 v-for="friend in onlineFriendsByGroupStatus"
                 :key="friend.id"
                 :friend="friend"
-                :hide-nicknames="hideNicknames"
                 @click="showUserDialog(friend.id)"
                 @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
         </div>
@@ -150,7 +147,6 @@
                 v-for="friend in activeFriends"
                 :key="friend.id"
                 :friend="friend"
-                :hide-nicknames="hideNicknames"
                 @click="showUserDialog(friend.id)"
                 @confirm-delete-friend="$emit('confirm-delete-friend', $event)"></friend-item>
         </div>
@@ -169,7 +165,6 @@
                 v-for="friend in offlineFriends"
                 :key="friend.id"
                 :friend="friend"
-                :hide-nicknames="hideNicknames"
                 @click="showUserDialog(friend.id)"
                 @confirm-delete-friend="$emit('confirm-delete-friend', $event)"></friend-item>
         </div>
@@ -196,7 +191,6 @@
             isSidebarDivideByFriendGroup: Boolean,
             isSidebarGroupByInstance: Boolean,
             gameLogDisabled: Boolean,
-            hideNicknames: Boolean,
             isHideFriendsInSameInstance: Boolean,
 
             lastLocation: Object,

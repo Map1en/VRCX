@@ -1793,11 +1793,15 @@
     import PronounsDialog from './PronounsDialog.vue';
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message, $confirm } = proxy;
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
@@ -1821,10 +1825,6 @@
         languageDialog: {
             type: Object,
             required: true
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         lastLocation: {
             type: Object,

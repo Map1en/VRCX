@@ -325,6 +325,10 @@
     import { groupRequest, worldRequest } from '../../api';
     import utils from '../../classes/utils';
     import { convertFileUrlToImageUrl } from '../../composables/shared/utils';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -359,10 +363,6 @@
         avatarRemoteDatabaseProvider: {
             type: String,
             default: ''
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         userDialog: {
             type: Object,

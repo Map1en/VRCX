@@ -774,6 +774,7 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
     import utils from '../../../classes/utils';
     import { refreshInstancePlayerCount as _refreshInstancePlayerCount } from '../../../composables/instance/utils';
@@ -783,6 +784,7 @@
         replaceVrcPackageUrl as _replaceVrcPackageUrl
     } from '../../../composables/shared/utils';
     import database from '../../../service/database.js';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
@@ -815,7 +817,6 @@
         ],
         props: {
             worldDialog: Object,
-            hideTooltips: Boolean,
             shiftHeld: Boolean,
             isGameRunning: Boolean,
             lastLocation: Object,
@@ -923,7 +924,8 @@
                     }
                 }
                 return platforms.join(', ');
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         watch: {
             'worldDialog.loading'(value) {

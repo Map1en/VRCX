@@ -529,6 +529,7 @@
         replaceVrcPackageUrl
     } from '../../../composables/shared/utils';
     import database from '../../../service/database';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
@@ -542,6 +543,9 @@
     const openExternalLink = inject('openExternalLink');
     const adjustDialogZ = inject('adjustDialogZ');
 
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
+
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const { $message, $confirm, $prompt } = instance.proxy;
@@ -552,10 +556,6 @@
         avatarDialog: {
             type: Object,
             required: true
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         isGameRunning: {
             type: Boolean,

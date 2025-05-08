@@ -83,8 +83,11 @@
 </template>
 
 <script>
-    import Location from '../../../components/Location.vue';
+    import { mapState } from 'pinia';
     import { favoriteRequest } from '../../../api';
+    import Location from '../../../components/Location.vue';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+
     export default {
         components: { Location },
         inject: ['showUserDialog', 'userImage', 'userStatusClass', 'API', 'showFavoriteDialog'],
@@ -92,10 +95,6 @@
             favorite: {
                 type: Object,
                 required: true
-            },
-            hideTooltips: {
-                type: Boolean,
-                default: false
             },
             shiftHeld: {
                 type: Boolean,
@@ -106,6 +105,9 @@
                 required: true
             },
             editFavoritesMode: Boolean
+        },
+        computed: {
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             moveFavorite(ref, group, type) {

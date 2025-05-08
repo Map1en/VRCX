@@ -45,7 +45,6 @@ mixin dialogs
     LaunchDialog(
         :checkCanInvite='checkCanInvite'
         :launchDialogData.sync='launchDialogData'
-        :hideTooltips='hideTooltips'
         :vipFriends='vipFriends'
         :onlineFriends='onlineFriends'
         :activeFriends='activeFriends'
@@ -57,7 +56,6 @@ mixin dialogs
     UserDialog(
         :userDialog='userDialog'
         :languageDialog='languageDialog'
-        :hideTooltips='hideTooltips'
         :lastLocation='lastLocation'
         :lastLocationDestination='lastLocationDestination'
         :isGameRunning='isGameRunning'
@@ -114,7 +112,6 @@ mixin dialogs
 
     WorldDialog(
         :worldDialog.sync='worldDialog'
-        :hideTooltips='hideTooltips'
         :shiftHeld='shiftHeld'
         :isGameRunning='isGameRunning'
         :lastLocation='lastLocation'
@@ -135,7 +132,6 @@ mixin dialogs
 
     GroupDialog(
         :groupDialog.sync='groupDialog'
-        :hideTooltips='hideTooltips'
         :lastLocation='lastLocation'
         :updateInstanceInfo='updateInstanceInfo'
         :groupDialogSortingOptions='groupDialogSortingOptions'
@@ -148,7 +144,6 @@ mixin dialogs
 
     AvatarDialog(
         :avatarDialog='avatarDialog'
-        :hideTooltips='hideTooltips'
         :isGameRunning='isGameRunning'
         @openFolderGeneric='openFolderGeneric'
         @deleteVRChatCache='deleteVRChatCache')
@@ -185,7 +180,6 @@ mixin dialogs
         :VRChatTotalCacheSize='VRChatTotalCacheSize'
         :VRChatCacheSizeLoading='VRChatCacheSizeLoading'
         :folderSelectorDialog='folderSelectorDialog'
-        :hideTooltips='hideTooltips'
         @getVRChatCacheSize='getVRChatCacheSize'
         @sweepVRChatCache='sweepVRChatCache')
 

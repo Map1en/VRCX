@@ -225,9 +225,11 @@
 </template>
 
 <script>
-    import FavoritesWorldItem from './FavoritesWorldItem.vue';
-    import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
+    import { mapState } from 'pinia';
     import { favoriteRequest } from '../../../api';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
+    import FavoritesWorldItem from './FavoritesWorldItem.vue';
 
     export default {
         name: 'FavoritesWorldTab',
@@ -238,7 +240,6 @@
         inject: ['API', 'showWorldDialog'],
         props: {
             sortFavorites: Boolean,
-            hideTooltips: Boolean,
             favoriteWorlds: Array,
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
@@ -277,7 +278,8 @@
                 set(value) {
                     this.$emit('update:sort-favorites', value);
                 }
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             showExportDialog() {

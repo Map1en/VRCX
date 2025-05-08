@@ -193,6 +193,10 @@
         VRChatScreenshotResolutions
     } from '../../../composables/setting/constants/vrchatResolutions';
     import { getVRChatResolution } from '../../../composables/setting/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
 
@@ -222,10 +226,6 @@
         folderSelectorDialog: {
             type: Function,
             required: true
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         }
     });
 

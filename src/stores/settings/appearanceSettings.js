@@ -9,7 +9,10 @@ export const useAppearanceSettingsStore = defineStore(
         const state = reactive({
             appLanguage: 'en',
             themeMode: '',
-            isDarkMode: false
+            isDarkMode: false,
+            displayVRCPlusIconsAsAvatar: false,
+            hideNicknames: false,
+            hideTooltips: false
         });
 
         async function initSettings() {
@@ -26,11 +29,31 @@ export const useAppearanceSettingsStore = defineStore(
             //     'system'
             // );
             // setThemeMode(themeMode);
+
+            state.displayVRCPlusIconsAsAvatar = await configRepository.getBool(
+                'displayVRCPlusIconsAsAvatar',
+                true
+            );
+
+            state.hideNicknames = await configRepository.getBool(
+                'VRCX_hideNicknames',
+                false
+            );
+
+            state.hideTooltips = await configRepository.getBool(
+                'VRCX_hideTooltips',
+                false
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
         const themeMode = computed(() => state.themeMode);
         const isDarkMode = computed(() => state.isDarkMode);
+        const displayVRCPlusIconsAsAvatar = computed(
+            () => state.displayVRCPlusIconsAsAvatar
+        );
+        const hideNicknames = computed(() => state.hideNicknames);
+        const hideTooltips = computed(() => state.hideTooltips);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -55,6 +78,22 @@ export const useAppearanceSettingsStore = defineStore(
             state.isDarkMode = isDark;
             configRepository.setString('VRCX_isDarkMode', isDark);
         }
+        function setDisplayVRCPlusIconsAsAvatar() {
+            state.displayVRCPlusIconsAsAvatar =
+                !state.displayVRCPlusIconsAsAvatar;
+            configRepository.setBool(
+                'displayVRCPlusIconsAsAvatar',
+                state.displayVRCPlusIconsAsAvatar
+            );
+        }
+        function setHideNicknames() {
+            state.hideNicknames = !state.hideNicknames;
+            configRepository.setBool('VRCX_hideNicknames', state.hideNicknames);
+        }
+        function setHideTooltips() {
+            state.hideTooltips = !state.hideTooltips;
+            configRepository.setBool('VRCX_hideTooltips', state.hideTooltips);
+        }
 
         return {
             initSettings,
@@ -62,10 +101,16 @@ export const useAppearanceSettingsStore = defineStore(
             appLanguage,
             themeMode,
             isDarkMode,
+            displayVRCPlusIconsAsAvatar,
+            hideNicknames,
+            hideTooltips,
 
             setAppLanguage,
             setThemeMode,
-            setIsDarkMode
+            setIsDarkMode,
+            setDisplayVRCPlusIconsAsAvatar,
+            setHideNicknames,
+            setHideTooltips
         };
     }
 );

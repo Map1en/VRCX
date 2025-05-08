@@ -44,6 +44,9 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+
     export default {
         name: 'FavoritesAvatarLocalHistoryItem',
         inject: ['API', 'showFavoriteDialog'],
@@ -51,13 +54,13 @@
             favorite: {
                 type: Object,
                 required: true
-            },
-            hideTooltips: Boolean
+            }
         },
         computed: {
             smallThumbnail() {
                 return this.favorite.thumbnailImageUrl.replace('256', '128') || this.favorite.thumbnailImageUrl;
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             selectAvatarWithConfirmation() {

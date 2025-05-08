@@ -70,7 +70,6 @@
                 </template>
                 <el-backtop target=".zero-margin-tabs .el-tabs__content" :bottom="20" :right="20"></el-backtop>
                 <FriendsSidebar
-                    :hide-nicknames="hideNicknames"
                     :is-game-running="isGameRunning"
                     :is-sidebar-divide-by-friend-group="isSidebarDivideByFriendGroup"
                     :is-sidebar-group-by-instance="isSidebarGroupByInstance"
@@ -103,9 +102,11 @@
 </template>
 
 <script>
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
     import Location from '../../components/Location.vue';
+    import { mapState } from 'pinia';
 
     export default {
         name: 'SideBar',
@@ -116,14 +117,10 @@
         },
         inject: ['API', 'userImage'],
         props: {
-            // settings
-            // remove these props when have a state manager.
-            hideTooltips: Boolean,
             isGameRunning: Boolean,
             isSidebarDivideByFriendGroup: Boolean,
             isSidebarGroupByInstance: Boolean,
             gameLogDisabled: Boolean,
-            hideNicknames: Boolean,
             isHideFriendsInSameInstance: Boolean,
             isAgeGatedInstancesVisible: Boolean,
 
@@ -147,6 +144,9 @@
             groupInstances: Array,
             inGameGroupOrder: Array,
             groupedByGroupKeyFavoriteFriends: Object
+        },
+        computed: {
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         }
     };
 </script>

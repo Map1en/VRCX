@@ -77,6 +77,11 @@
     import { downloadAndSaveJson } from '../../../composables/shared/utils';
     import configRepository from '../../../service/config';
 
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
+
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
@@ -85,10 +90,6 @@
     const props = defineProps({
         isRegistryBackupDialogVisible: {
             type: Boolean
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         backupVrcRegistry: {
             type: Function

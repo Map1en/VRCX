@@ -201,6 +201,10 @@
     import utils from '../../classes/utils';
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = appearanceSettingsStore;
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;
@@ -217,10 +221,6 @@
         gameLogTable: {
             type: Object,
             required: true
-        },
-        hideTooltips: {
-            type: Boolean,
-            default: false
         },
         shiftHeld: {
             type: Boolean,

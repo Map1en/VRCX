@@ -86,11 +86,13 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
+    import * as workerTimers from 'worker-timers';
+    import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
     import FavoritesWorldTab from './components/FavoritesWorldTab.vue';
-    import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
-    import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
-    import * as workerTimers from 'worker-timers';
 
     export default {
         name: 'FavoritesTab',
@@ -102,7 +104,6 @@
         inject: ['API'],
         props: {
             menuActiveIndex: String,
-            hideTooltips: Boolean,
             shiftHeld: Boolean,
             favoriteFriends: Array,
             sortFavorites: Boolean,
@@ -132,7 +133,8 @@
                 set(value) {
                     this.$emit('update:sort-favorites', value);
                 }
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             showBulkUnfavoriteSelectionConfirm() {
