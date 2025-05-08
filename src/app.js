@@ -258,6 +258,11 @@ console.log(`isLinux: ${LINUX}`);
 
     await configRepository.init();
 
+    const initThemeMode = await configRepository.getString(
+        'VRCX_ThemeMode',
+        'system'
+    );
+
     const app = {
         template: pugTemplate,
         data: {
@@ -293,7 +298,11 @@ console.log(`isLinux: ${LINUX}`);
                 'autoStateChangeNoFriends',
                 'autoAcceptInviteRequests'
             ]),
-            ...mapState(useAppearanceSettingsStore, ['appLanguage'])
+            ...mapState(useAppearanceSettingsStore, [
+                'appLanguage',
+                'themeMode',
+                'isDarkMode'
+            ])
         },
         methods: {
             ...$utils,
@@ -316,7 +325,11 @@ console.log(`isLinux: ${LINUX}`);
 
                 'setLocalFavoriteFriendsGroups'
             ]),
-            ...mapActions(useAppearanceSettingsStore, ['setAppLanguage'])
+            ...mapActions(useAppearanceSettingsStore, [
+                'setAppLanguage',
+                'setThemeMode',
+                'setIsDarkMode'
+            ])
         },
         watch: {},
         components: {
@@ -417,13 +430,17 @@ console.log(`isLinux: ${LINUX}`);
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            // Promise.all
-            await VRCXUpdaterStore.initSettings();
-            await generalSettingsStore.initSettings();
-            await appearanceSettingsStore.initSettings();
+
+            this.setThemeMode(initThemeMode);
+
+            await Promise.all([
+                VRCXUpdaterStore.initSettings(),
+                generalSettingsStore.initSettings(),
+                appearanceSettingsStore.initSettings()
+            ]);
         },
-        beforeMount() {
-            this.changeThemeMode();
+        async beforeMount() {
+            await this.changeThemeMode();
         },
         async mounted() {
             await this.initLanguage();
@@ -6588,16 +6605,6 @@ console.log(`isLinux: ${LINUX}`);
         speechSynthesis.cancel();
         this.speak(this.notificationTTSTest);
     };
-    $app.data.themeMode = await configRepository.getString(
-        'VRCX_ThemeMode',
-        'system'
-    );
-
-    $app.data.isDarkMode = false;
-
-    $app.methods.systemIsDarkMode = function () {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    };
 
     window
         .matchMedia('(prefers-color-scheme: dark)')
@@ -6608,64 +6615,16 @@ console.log(`isLinux: ${LINUX}`);
         });
 
     $app.methods.saveThemeMode = async function (newThemeMode) {
-        this.themeMode = newThemeMode;
-        await configRepository.setString('VRCX_ThemeMode', this.themeMode);
+        this.setThemeMode(newThemeMode);
         await this.changeThemeMode();
     };
 
     $app.methods.changeThemeMode = async function () {
-        if (
-            document.contains(document.getElementById('app-theme-dark-style'))
-        ) {
-            document.getElementById('app-theme-dark-style').remove();
-        }
-        if (document.contains(document.getElementById('app-theme-style'))) {
-            document.getElementById('app-theme-style').remove();
-        }
-        var $appThemeStyle = document.createElement('link');
-        $appThemeStyle.setAttribute('id', 'app-theme-style');
-        $appThemeStyle.rel = 'stylesheet';
-        switch (this.themeMode) {
-            case 'light':
-                $appThemeStyle.href = '';
-                this.isDarkMode = false;
-                break;
-            case 'dark':
-                $appThemeStyle.href = '';
-                this.isDarkMode = true;
-                break;
-            case 'darkvanillaold':
-                $appThemeStyle.href = 'theme.darkvanillaold.css';
-                this.isDarkMode = true;
-                break;
-            case 'darkvanilla':
-                $appThemeStyle.href = 'theme.darkvanilla.css';
-                this.isDarkMode = true;
-                break;
-            case 'pink':
-                $appThemeStyle.href = 'theme.pink.css';
-                this.isDarkMode = true;
-                break;
-            case 'material3':
-                $appThemeStyle.href = 'theme.material3.css';
-                this.isDarkMode = true;
-                break;
-            case 'system':
-                this.isDarkMode = this.systemIsDarkMode();
-                break;
-        }
+        await $utils.changeAppThemeStyle(this.themeMode);
         if (this.isDarkMode) {
             AppApi.ChangeTheme(1);
-            var $appThemeDarkStyle = document.createElement('link');
-            $appThemeDarkStyle.setAttribute('id', 'app-theme-dark-style');
-            $appThemeDarkStyle.rel = 'stylesheet';
-            $appThemeDarkStyle.href = 'theme.dark.css';
-            document.head.appendChild($appThemeDarkStyle);
         } else {
             AppApi.ChangeTheme(0);
-        }
-        if ($appThemeStyle.href) {
-            document.head.appendChild($appThemeStyle);
         }
         this.updateVRConfigVars();
         await this.updateTrustColor();
@@ -7225,11 +7184,11 @@ console.log(`isLinux: ${LINUX}`);
     );
 
     $app.methods.updateVRConfigVars = function () {
-        var notificationTheme = 'relax';
+        let notificationTheme = 'relax';
         if (this.isDarkMode) {
             notificationTheme = 'sunset';
         }
-        var VRConfigVars = {
+        const VRConfigVars = {
             overlayNotifications: this.overlayNotifications,
             hideDevicesFromFeed: this.hideDevicesFromFeed,
             vrOverlayCpuUsage: this.vrOverlayCpuUsage,
@@ -7243,7 +7202,7 @@ console.log(`isLinux: ${LINUX}`);
             pcUptimeOnFeed: this.pcUptimeOnFeed,
             appLanguage: this.appLanguage
         };
-        var json = JSON.stringify(VRConfigVars);
+        const json = JSON.stringify(VRConfigVars);
         AppApi.ExecuteVrFeedFunction('configUpdate', json);
         AppApi.ExecuteVrOverlayFunction('configUpdate', json);
     };
@@ -13519,7 +13478,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.chartsTabBind = function () {
         return {
             getWorldName: this.getWorldName,
-            isDarkMode: this.isDarkMode,
             dtHour12: this.dtHour12,
             friendsMap: this.friends,
             localFavoriteFriends: this.localFavoriteFriends

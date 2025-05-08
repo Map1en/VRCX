@@ -1,3 +1,5 @@
+import configRepository from '../service/config';
+
 let echarts = null;
 
 const _utils = {
@@ -282,6 +284,75 @@ const _utils = {
             return -1;
         }
         return 0;
+    },
+    systemIsDarkMode() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    },
+    async changeAppThemeStyle(themeMode) {
+        const themeStyle = {};
+        switch (themeMode) {
+            case 'light':
+                themeStyle.href = '';
+                break;
+            case 'dark':
+                themeStyle.href = '';
+                break;
+            case 'darkvanillaold':
+                themeStyle.href = 'theme.darkvanillaold.css';
+                break;
+            case 'darkvanilla':
+                themeStyle.href = 'theme.darkvanilla.css';
+                break;
+            case 'pink':
+                themeStyle.href = 'theme.pink.css';
+                break;
+            case 'material3':
+                themeStyle.href = 'theme.material3.css';
+                break;
+            case 'system':
+                themeStyle.href = '';
+                break;
+        }
+
+        let $appThemeStyle = document.getElementById('app-theme-style');
+        if (!$appThemeStyle) {
+            $appThemeStyle = document.createElement('link');
+            $appThemeStyle.setAttribute('id', 'app-theme-style');
+            $appThemeStyle.rel = 'stylesheet';
+            document.head.appendChild($appThemeStyle);
+        }
+        $appThemeStyle.href = themeStyle.href
+            ? `file://vrcx/${themeStyle.href}`
+            : '';
+
+        let $appThemeDarkStyle = document.getElementById(
+            'app-theme-dark-style'
+        );
+
+        if (!$appThemeDarkStyle && themeMode !== 'light') {
+            if (themeMode === 'system' && !_utils.systemIsDarkMode()) {
+                return;
+            }
+            $appThemeDarkStyle = document.createElement('link');
+            $appThemeDarkStyle.setAttribute('id', 'app-theme-dark-style');
+            $appThemeDarkStyle.rel = 'stylesheet';
+            $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+            document.head.appendChild($appThemeDarkStyle);
+        } else {
+            if (themeMode === 'system' && _utils.systemIsDarkMode()) {
+                if ($appThemeDarkStyle.href === 'file://vrcx/theme.dark.css') {
+                    return;
+                }
+                $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+            } else if (themeMode !== 'light' && themeMode !== 'system') {
+                if ($appThemeDarkStyle.href === 'file://vrcx/theme.dark.css') {
+                    return;
+                }
+                $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+            } else {
+                $appThemeDarkStyle && $appThemeDarkStyle.remove();
+            }
+        }
     }
 };
 

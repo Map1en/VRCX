@@ -59,9 +59,11 @@
 
 <script>
     import dayjs from 'dayjs';
+    import { mapState } from 'pinia';
     import utils from '../../../classes/utils';
     import { parseLocation } from '../../../composables/instance/utils';
     import database from '../../../service/database';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import Location from '../../Location.vue';
 
     export default {
@@ -78,8 +80,7 @@
             instanceId: { type: String, required: true },
             gameLogIsFriend: { type: Function, required: true },
             gameLogIsFavorite: { type: Function, required: true },
-            lookupUser: { type: Function, required: true },
-            isDarkMode: { type: Boolean, required: true }
+            lookupUser: { type: Function, required: true }
         },
         data() {
             return {
@@ -123,7 +124,8 @@
                     time: item.time,
                     timer: item.timer
                 }));
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['isDarkMode'])
         },
         watch: {
             visible(value) {

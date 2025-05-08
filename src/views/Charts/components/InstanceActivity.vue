@@ -116,10 +116,12 @@
 
 <script>
     import dayjs from 'dayjs';
+    import { mapState } from 'pinia';
     import { parseLocation } from '../../../composables/instance/utils';
     import database from '../../../service/database';
     import utils from '../../../classes/utils';
     import configRepository from '../../../service/config';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
 
     export default {
@@ -130,7 +132,6 @@
         inject: ['API'],
         props: {
             getWorldName: { type: Function, default: () => [] },
-            isDarkMode: Boolean,
             dtHour12: Boolean,
             friendsMap: Map,
             localFavoriteFriends: Set
@@ -198,7 +199,8 @@
                     });
                 }
                 return result;
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['isDarkMode'])
         },
         watch: {
             isDarkMode() {

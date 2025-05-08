@@ -5,7 +5,6 @@
         </div>
         <InstanceActivity
             :get-world-name="getWorldName"
-            :is-dark-mode="isDarkMode"
             :dt-hour12="dtHour12"
             :friends-map="friendsMap"
             :local-favorite-friends="localFavoriteFriends"
@@ -16,6 +15,7 @@
 
 <script>
     import InstanceActivity from './components/InstanceActivity.vue';
+
     export default {
         name: 'ChartsTab',
         components: {
@@ -23,7 +23,6 @@
         },
         props: {
             getWorldName: Function,
-            isDarkMode: Boolean,
             dtHour12: Boolean,
             friendsMap: Map,
             localFavoriteFriends: Set
