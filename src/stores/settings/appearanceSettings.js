@@ -15,7 +15,8 @@ export const useAppearanceSettingsStore = defineStore(
             hideTooltips: false,
             isAgeGatedInstancesVisible: false,
             sortFavorites: true,
-            instanceUsersSortAlphabetical: false
+            instanceUsersSortAlphabetical: false,
+            tablePageSize: 15
         });
 
         async function initSettings() {
@@ -63,6 +64,11 @@ export const useAppearanceSettingsStore = defineStore(
                     'VRCX_instanceUsersSortAlphabetical',
                     false
                 );
+
+            state.tablePageSize = await configRepository.getInt(
+                'VRCX_tablePageSize',
+                15
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -80,6 +86,7 @@ export const useAppearanceSettingsStore = defineStore(
         const instanceUsersSortAlphabetical = computed(
             () => state.instanceUsersSortAlphabetical
         );
+        const tablePageSize = computed(() => state.tablePageSize);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -140,6 +147,10 @@ export const useAppearanceSettingsStore = defineStore(
                 state.instanceUsersSortAlphabetical
             );
         }
+        function setTablePageSize(size) {
+            state.tablePageSize = size;
+            configRepository.setInt('VRCX_tablePageSize', size);
+        }
 
         return {
             initSettings,
@@ -153,6 +164,7 @@ export const useAppearanceSettingsStore = defineStore(
             isAgeGatedInstancesVisible,
             sortFavorites,
             instanceUsersSortAlphabetical,
+            tablePageSize,
 
             setAppLanguage,
             setThemeMode,
@@ -162,7 +174,8 @@ export const useAppearanceSettingsStore = defineStore(
             setHideTooltips,
             setIsAgeGatedInstancesVisible,
             setSortFavorites,
-            setInstanceUsersSortAlphabetical
+            setInstanceUsersSortAlphabetical,
+            setTablePageSize
         };
     }
 );

@@ -436,7 +436,7 @@
                                 <el-dropdown-item
                                     v-for="number in [10, 15, 20, 25, 50, 100]"
                                     :key="number"
-                                    @click.native="setTablePageSize(number)"
+                                    @click.native="handleSetTablePageSize(number)"
                                     v-text="number"></el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
@@ -1714,6 +1714,7 @@
         isAgeGatedInstancesVisible,
         sortFavorites,
         instanceUsersSortAlphabetical,
+        tablePageSize,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1733,10 +1734,6 @@
             default: ''
         },
         zoomLevel: {
-            type: Number,
-            default: 0
-        },
-        tablePageSize: {
             type: Number,
             default: 0
         },
@@ -2315,5 +2312,9 @@
     function showLaunchOptions() {
         emit('showLaunchOptions');
         // Function to show the launch options
+    }
+
+    function handleSetTablePageSize() {
+        // setTablePageSize(tablePageSize);
     }
 </script>

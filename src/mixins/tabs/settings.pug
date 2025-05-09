@@ -301,7 +301,7 @@ mixin settingsTab
                                     v-for='number in [10, 15, 20, 25, 50, 100]'
                                     :key='number'
                                     v-text='number'
-                                    @click.native='setTablePageSize(number)')
+                                    @click.native='handleSetTablePageSize(number)')
                     .options-container-item
                 //- Appearance | Time/Date
                 .options-container

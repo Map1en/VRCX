@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue';
-import configRepository from '../../service/config';
+import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
 function useModerationTable() {
     const groupInvitesModerationTable = reactive({
@@ -67,10 +67,13 @@ function useModerationTable() {
 
     async function initializePageSize() {
         try {
-            const tablePageSize = await configRepository.getInt(
-                'VRCX_tablePageSize',
-                15
-            );
+            /**
+             * it's a bug, pageSize is not reactive, cannot change it when the tablePageSize changes.
+             * The use function is poorly written, I'll leave it here for now.
+             */
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { tablePageSize } = appearanceSettingsStore;
+
             groupMemberModerationTable.pageSize = tablePageSize;
             groupBansModerationTable.pageSize = tablePageSize;
             groupLogsModerationTable.pageSize = tablePageSize;

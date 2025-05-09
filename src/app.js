@@ -307,7 +307,8 @@ console.log(`isLinux: ${LINUX}`);
                 'hideTooltips',
                 'isAgeGatedInstancesVisible',
                 'sortFavorites',
-                'instanceUsersSortAlphabetical'
+                'instanceUsersSortAlphabetical',
+                'tablePageSize'
             ])
         },
         methods: {
@@ -340,7 +341,8 @@ console.log(`isLinux: ${LINUX}`);
                 'setHideTooltips',
                 'setIsAgeGatedInstancesVisible',
                 'setSortFavorites',
-                'setInstanceUsersSortAlphabetical'
+                'setInstanceUsersSortAlphabetical',
+                'setTablePageSize'
             ])
         },
         watch: {},
@@ -450,6 +452,14 @@ console.log(`isLinux: ${LINUX}`);
                 generalSettingsStore.initSettings(),
                 appearanceSettingsStore.initSettings()
             ]);
+
+            /**
+             * This is temporary, because of the order of execution,
+             * too many things are initialized before new Vue
+             */
+            const { tablePageSize } = appearanceSettingsStore;
+
+            this.handleSetTablePageSize(tablePageSize);
         },
         async beforeMount() {
             await this.changeThemeMode();
@@ -4245,14 +4255,6 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Feed
 
-    $app.data.tablePageSize = await configRepository.getInt(
-        'VRCX_tablePageSize',
-        15
-    );
-
-    $app.data.gameLogTable.pageSize = $app.data.tablePageSize;
-    $app.data.feedTable.pageSize = $app.data.tablePageSize;
-
     $app.data.dontLogMeOut = false;
 
     API.$on('LOGIN', async function (args) {
@@ -5499,7 +5501,7 @@ console.log(`isLinux: ${LINUX}`);
                 order: 'descending'
             }
         },
-        pageSize: $app.data.tablePageSize,
+        pageSize: 15,
         paginationProps: {
             small: true,
             layout: 'sizes,prev,pager,next,total',
@@ -5815,7 +5817,7 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.playerModerationTable = {
         data: [],
-        pageSize: $app.data.tablePageSize
+        pageSize: 15
     };
 
     API.$on('LOGIN', function () {
@@ -5872,7 +5874,7 @@ console.log(`isLinux: ${LINUX}`);
                 order: 'descending'
             }
         },
-        pageSize: $app.data.tablePageSize,
+        pageSize: 15,
         paginationProps: {
             small: true,
             layout: 'sizes,prev,pager,next,total',
@@ -7454,14 +7456,13 @@ console.log(`isLinux: ${LINUX}`);
         return false;
     };
 
-    $app.methods.setTablePageSize = async function (pageSize) {
-        this.tablePageSize = pageSize;
+    $app.methods.handleSetTablePageSize = async function (pageSize) {
         this.feedTable.pageSize = pageSize;
         this.gameLogTable.pageSize = pageSize;
         this.friendLogTable.pageSize = pageSize;
         this.playerModerationTable.pageSize = pageSize;
         this.notificationTable.pageSize = pageSize;
-        await configRepository.setInt('VRCX_tablePageSize', pageSize);
+        this.setTablePageSize(pageSize);
     };
 
     // #endregion
