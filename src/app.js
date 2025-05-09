@@ -306,7 +306,8 @@ console.log(`isLinux: ${LINUX}`);
                 'hideNicknames',
                 'hideTooltips',
                 'isAgeGatedInstancesVisible',
-                'sortFavorites'
+                'sortFavorites',
+                'instanceUsersSortAlphabetical'
             ])
         },
         methods: {
@@ -338,7 +339,8 @@ console.log(`isLinux: ${LINUX}`);
                 'setHideNicknames',
                 'setHideTooltips',
                 'setIsAgeGatedInstancesVisible',
-                'setSortFavorites'
+                'setSortFavorites',
+                'setInstanceUsersSortAlphabetical'
             ])
         },
         watch: {},
@@ -6478,11 +6480,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool(
-            'VRCX_instanceUsersSortAlphabetical',
-            this.instanceUsersSortAlphabetical
-        );
-
-        await configRepository.setBool(
             'VRCX_randomUserColours',
             this.randomUserColours
         );
@@ -6697,10 +6694,6 @@ console.log(`isLinux: ${LINUX}`);
     );
     $app.data.gameLogDisabled = await configRepository.getBool(
         'VRCX_gameLogDisabled',
-        false
-    );
-    $app.data.instanceUsersSortAlphabetical = await configRepository.getBool(
-        'VRCX_instanceUsersSortAlphabetical',
         false
     );
     $app.methods.saveEventOverlay = async function (configKey = '') {

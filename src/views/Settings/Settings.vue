@@ -406,7 +406,9 @@
                     </div>
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.appearance.sort_instance_users_by') }}</span>
-                        <el-radio-group v-model="instanceUsersSortAlphabetical" @change="saveOpenVROption">
+                        <el-radio-group
+                            :value="instanceUsersSortAlphabetical"
+                            @change="setInstanceUsersSortAlphabetical">
                             <el-radio :label="false">{{
                                 t('view.settings.appearance.appearance.sort_instance_users_by_time')
                             }}</el-radio>
@@ -1711,11 +1713,13 @@
         hideTooltips,
         isAgeGatedInstancesVisible,
         sortFavorites,
+        instanceUsersSortAlphabetical,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
         setHideTooltips,
-        setIsAgeGatedInstancesVisible
+        setIsAgeGatedInstancesVisible,
+        setInstanceUsersSortAlphabetical
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1731,10 +1735,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        instanceUsersSortAlphabetical: {
-            type: Boolean,
-            default: false
         },
         tablePageSize: {
             type: Number,

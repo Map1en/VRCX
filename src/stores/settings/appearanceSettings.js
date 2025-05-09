@@ -14,7 +14,8 @@ export const useAppearanceSettingsStore = defineStore(
             hideNicknames: false,
             hideTooltips: false,
             isAgeGatedInstancesVisible: false,
-            sortFavorites: true
+            sortFavorites: true,
+            instanceUsersSortAlphabetical: false
         });
 
         async function initSettings() {
@@ -56,6 +57,12 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_sortFavorites',
                 true
             );
+
+            state.instanceUsersSortAlphabetical =
+                await configRepository.getBool(
+                    'VRCX_instanceUsersSortAlphabetical',
+                    false
+                );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -70,6 +77,9 @@ export const useAppearanceSettingsStore = defineStore(
             () => state.isAgeGatedInstancesVisible
         );
         const sortFavorites = computed(() => state.sortFavorites);
+        const instanceUsersSortAlphabetical = computed(
+            () => state.instanceUsersSortAlphabetical
+        );
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -122,6 +132,14 @@ export const useAppearanceSettingsStore = defineStore(
             state.sortFavorites = !state.sortFavorites;
             configRepository.setBool('VRCX_sortFavorites', state.sortFavorites);
         }
+        function setInstanceUsersSortAlphabetical() {
+            state.instanceUsersSortAlphabetical =
+                !state.instanceUsersSortAlphabetical;
+            configRepository.setBool(
+                'VRCX_instanceUsersSortAlphabetical',
+                state.instanceUsersSortAlphabetical
+            );
+        }
 
         return {
             initSettings,
@@ -134,6 +152,7 @@ export const useAppearanceSettingsStore = defineStore(
             hideTooltips,
             isAgeGatedInstancesVisible,
             sortFavorites,
+            instanceUsersSortAlphabetical,
 
             setAppLanguage,
             setThemeMode,
@@ -142,7 +161,8 @@ export const useAppearanceSettingsStore = defineStore(
             setHideNicknames,
             setHideTooltips,
             setIsAgeGatedInstancesVisible,
-            setSortFavorites
+            setSortFavorites,
+            setInstanceUsersSortAlphabetical
         };
     }
 );

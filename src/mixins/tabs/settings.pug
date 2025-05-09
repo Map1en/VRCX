@@ -284,7 +284,7 @@ mixin settingsTab
                             el-radio(:label='true') {{ $t('view.settings.appearance.appearance.sort_favorite_by_date') }}
                     .options-container-item
                         span.name {{ $t('view.settings.appearance.appearance.sort_instance_users_by') }}
-                        el-radio-group(v-model='instanceUsersSortAlphabetical' @change='saveOpenVROption')
+                        el-radio-group(:value='instanceUsersSortAlphabetical' @change='setInstanceUsersSortAlphabetical')
                             el-radio(:label='false') {{ $t('view.settings.appearance.appearance.sort_instance_users_by_time') }}
                             el-radio(:label='true') {{ $t('view.settings.appearance.appearance.sort_instance_users_by_alphabet') }}
                     .options-container-item
