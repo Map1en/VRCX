@@ -16,20 +16,19 @@
                 <el-button
                     type="default"
                     :loading="API.isFavoriteLoading"
+                    size="small"
+                    icon="el-icon-refresh"
+                    circle
                     @click="
                         API.refreshFavorites();
                         getLocalWorldFavorites();
-                    "
-                    size="small"
-                    icon="el-icon-refresh"
-                    circle></el-button>
+                    "></el-button>
             </el-tooltip>
         </div>
         <el-tabs v-model="currentTabName" v-loading="API.isFavoriteLoading" type="card" style="height: 100%">
             <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')" lazy>
                 <FavoritesFriendTab
                     :favorite-friends="favoriteFriends"
-                    :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     :edit-favorites-mode="editFavoritesMode"
@@ -39,6 +38,14 @@
             </el-tab-pane>
             <el-tab-pane name="world" :label="$t('view.favorite.worlds.header')" lazy>
                 <FavoritesWorldTab
+                    :favorite-worlds="favoriteWorlds"
+                    :hide-tooltips="hideTooltips"
+                    :edit-favorites-mode="editFavoritesMode"
+                    :shift-held="shiftHeld"
+                    :refresh-local-world-favorites="refreshLocalWorldFavorites"
+                    :local-world-favorite-groups="localWorldFavoriteGroups"
+                    :local-world-favorites="localWorldFavorites"
+                    :local-world-favorites-list="localWorldFavoritesList"
                     @show-world-import-dialog="showWorldImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -47,20 +54,10 @@
                     @delete-local-world-favorite-group="deleteLocalWorldFavoriteGroup"
                     @remove-local-world-favorite="removeLocalWorldFavorite"
                     @rename-local-world-favorite-group="renameLocalWorldFavoriteGroup"
-                    @new-local-world-favorite-group="newLocalWorldFavoriteGroup"
-                    :sort-favorites.sync="isSortByTime"
-                    :hide-tooltips="hideTooltips"
-                    :favorite-worlds="favoriteWorlds"
-                    :edit-favorites-mode="editFavoritesMode"
-                    :shift-held="shiftHeld"
-                    :refresh-local-world-favorites="refreshLocalWorldFavorites"
-                    :local-world-favorite-groups="localWorldFavoriteGroups"
-                    :local-world-favorites="localWorldFavorites"
-                    :local-world-favorites-list="localWorldFavoritesList" />
+                    @new-local-world-favorite-group="newLocalWorldFavoriteGroup" />
             </el-tab-pane>
             <el-tab-pane name="avatar" :label="$t('view.favorite.avatars.header')" lazy>
                 <FavoritesAvatarTab
-                    :sort-favorites.sync="isSortByTime"
                     :hide-tooltips="hideTooltips"
                     :shift-held="shiftHeld"
                     :edit-favorites-mode="editFavoritesMode"
@@ -106,7 +103,6 @@
             menuActiveIndex: String,
             shiftHeld: Boolean,
             favoriteFriends: Array,
-            sortFavorites: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
             favoriteWorlds: Array,
             localWorldFavoriteGroups: Array,
@@ -126,14 +122,6 @@
             };
         },
         computed: {
-            isSortByTime: {
-                get() {
-                    return this.sortFavorites;
-                },
-                set(value) {
-                    this.$emit('update:sort-favorites', value);
-                }
-            },
             ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {

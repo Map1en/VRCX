@@ -279,7 +279,7 @@ mixin settingsTab
                         @change='setIsAgeGatedInstancesVisible')
                     .options-container-item
                         span.name {{ $t('view.settings.appearance.appearance.sort_favorite_by') }}
-                        el-radio-group(v-model='sortFavorites' @change='saveSortFavoritesOption')
+                        el-radio-group(:value='sortFavorites' @change='saveSortFavoritesOption')
                             el-radio(:label='false') {{ $t('view.settings.appearance.appearance.sort_favorite_by_name') }}
                             el-radio(:label='true') {{ $t('view.settings.appearance.appearance.sort_favorite_by_date') }}
                     .options-container-item

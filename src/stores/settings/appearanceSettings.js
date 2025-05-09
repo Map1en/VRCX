@@ -13,7 +13,8 @@ export const useAppearanceSettingsStore = defineStore(
             displayVRCPlusIconsAsAvatar: false,
             hideNicknames: false,
             hideTooltips: false,
-            isAgeGatedInstancesVisible: false
+            isAgeGatedInstancesVisible: false,
+            sortFavorites: true
         });
 
         async function initSettings() {
@@ -50,6 +51,11 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_isAgeGatedInstancesVisible',
                 true
             );
+
+            state.sortFavorites = await configRepository.getBool(
+                'VRCX_sortFavorites',
+                true
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -63,6 +69,7 @@ export const useAppearanceSettingsStore = defineStore(
         const isAgeGatedInstancesVisible = computed(
             () => state.isAgeGatedInstancesVisible
         );
+        const sortFavorites = computed(() => state.sortFavorites);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -111,6 +118,10 @@ export const useAppearanceSettingsStore = defineStore(
                 state.isAgeGatedInstancesVisible
             );
         }
+        function setSortFavorites() {
+            state.sortFavorites = !state.sortFavorites;
+            configRepository.setBool('VRCX_sortFavorites', state.sortFavorites);
+        }
 
         return {
             initSettings,
@@ -122,6 +133,7 @@ export const useAppearanceSettingsStore = defineStore(
             hideNicknames,
             hideTooltips,
             isAgeGatedInstancesVisible,
+            sortFavorites,
 
             setAppLanguage,
             setThemeMode,
@@ -129,7 +141,8 @@ export const useAppearanceSettingsStore = defineStore(
             setDisplayVRCPlusIconsAsAvatar,
             setHideNicknames,
             setHideTooltips,
-            setIsAgeGatedInstancesVisible
+            setIsAgeGatedInstancesVisible,
+            setSortFavorites
         };
     }
 );

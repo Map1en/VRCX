@@ -395,7 +395,7 @@
                         @change="setIsAgeGatedInstancesVisible"></simple-switch>
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.appearance.sort_favorite_by') }}</span>
-                        <el-radio-group v-model="sortFavorites" @change="saveSortFavoritesOption">
+                        <el-radio-group :value="sortFavorites" @change="saveSortFavoritesOption">
                             <el-radio :label="false">{{
                                 t('view.settings.appearance.appearance.sort_favorite_by_name')
                             }}</el-radio>
@@ -1710,6 +1710,7 @@
         hideNicknames,
         hideTooltips,
         isAgeGatedInstancesVisible,
+        sortFavorites,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1730,10 +1731,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        sortFavorites: {
-            type: Boolean,
-            default: false
         },
         instanceUsersSortAlphabetical: {
             type: Boolean,

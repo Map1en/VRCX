@@ -140,7 +140,9 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
     import { favoriteRequest } from '../../../api';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     export default {
         name: 'FavoritesAvatarItem',
@@ -173,7 +175,8 @@
                     this.localFavFakeRef.thumbnailImageUrl.replace('256', '128') ||
                     this.localFavFakeRef.thumbnailImageUrl
                 );
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             moveFavorite(ref, group, type) {

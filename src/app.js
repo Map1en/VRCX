@@ -305,7 +305,8 @@ console.log(`isLinux: ${LINUX}`);
                 'displayVRCPlusIconsAsAvatar',
                 'hideNicknames',
                 'hideTooltips',
-                'isAgeGatedInstancesVisible'
+                'isAgeGatedInstancesVisible',
+                'sortFavorites'
             ])
         },
         methods: {
@@ -336,7 +337,8 @@ console.log(`isLinux: ${LINUX}`);
                 'setDisplayVRCPlusIconsAsAvatar',
                 'setHideNicknames',
                 'setHideTooltips',
-                'setIsAgeGatedInstancesVisible'
+                'setIsAgeGatedInstancesVisible',
+                'setSortFavorites'
             ])
         },
         watch: {},
@@ -6283,10 +6285,6 @@ console.log(`isLinux: ${LINUX}`);
         $app.data.avatarRemoteDatabaseProvider =
             $app.data.avatarRemoteDatabaseProviderList[0];
     }
-    $app.data.sortFavorites = await configRepository.getBool(
-        'VRCX_sortFavorites',
-        true
-    );
     $app.data.randomUserColours = await configRepository.getBool(
         'VRCX_randomUserColours',
         false
@@ -6498,10 +6496,7 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.saveSortFavoritesOption = async function () {
         this.getLocalWorldFavorites();
-        await configRepository.setBool(
-            'VRCX_sortFavorites',
-            this.sortFavorites
-        );
+        this.setSortFavorites();
     };
 
     $app.methods.saveUserDialogOption = async function (configKey = '') {
@@ -12129,16 +12124,16 @@ console.log(`isLinux: ${LINUX}`);
         this.localWorldFavoriteGroups = [];
         this.localWorldFavoritesList = [];
         this.localWorldFavorites = {};
-        var worldCache = await database.getWorldCache();
-        for (var i = 0; i < worldCache.length; ++i) {
-            var ref = worldCache[i];
+        const worldCache = await database.getWorldCache();
+        for (let i = 0; i < worldCache.length; ++i) {
+            const ref = worldCache[i];
             if (!API.cachedWorlds.has(ref.id)) {
                 API.applyWorld(ref);
             }
         }
-        var favorites = await database.getWorldFavorites();
-        for (var i = 0; i < favorites.length; ++i) {
-            var favorite = favorites[i];
+        const favorites = await database.getWorldFavorites();
+        for (let i = 0; i < favorites.length; ++i) {
+            const favorite = favorites[i];
             if (!this.localWorldFavoritesList.includes(favorite.worldId)) {
                 this.localWorldFavoritesList.push(favorite.worldId);
             }
@@ -12148,7 +12143,7 @@ console.log(`isLinux: ${LINUX}`);
             if (!this.localWorldFavoriteGroups.includes(favorite.groupName)) {
                 this.localWorldFavoriteGroups.push(favorite.groupName);
             }
-            var ref = API.cachedWorlds.get(favorite.worldId);
+            let ref = API.cachedWorlds.get(favorite.worldId);
             if (typeof ref === 'undefined') {
                 ref = {
                     id: favorite.worldId
@@ -13383,7 +13378,6 @@ console.log(`isLinux: ${LINUX}`);
             menuActiveIndex: this.menuActiveIndex,
             shiftHeld: this.shiftHeld,
             favoriteFriends: this.favoriteFriends,
-            sortFavorites: this.sortFavorites,
             groupedByGroupKeyFavoriteFriends:
                 this.groupedByGroupKeyFavoriteFriends,
             favoriteWorlds: this.favoriteWorlds,
@@ -13400,7 +13394,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.computed.favoritesTabEvent = function () {
         return {
-            'update:sort-favorites': (value) => (this.sortFavorites = value),
             'clear-bulk-favorite-selection': this.clearBulkFavoriteSelection,
             'bulk-copy-favorite-selection': this.bulkCopyFavoriteSelection,
             'get-local-world-favorites': this.getLocalWorldFavorites,

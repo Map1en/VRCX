@@ -77,7 +77,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { mapActions, mapState } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
@@ -89,7 +89,6 @@
         inject: ['showUserDialog', 'API'],
         props: {
             favoriteFriends: Array,
-            sortFavorites: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
             editFavoritesMode: Boolean
         },
@@ -103,13 +102,14 @@
                 get() {
                     return this.sortFavorites;
                 },
-                set(value) {
-                    this.$emit('update:sort-favorites', value);
+                set() {
+                    this.setSortFavorites;
                 }
             },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips', 'sortFavorites'])
         },
         methods: {
+            ...mapActions(useAppearanceSettingsStore, ['setSortFavorites']),
             showFriendExportDialog() {
                 this.friendExportDialogVisible = true;
             },
