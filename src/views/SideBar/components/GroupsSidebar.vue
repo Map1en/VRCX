@@ -43,8 +43,10 @@
 </template>
 
 <script>
+    import { mapState } from 'pinia';
     import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../composables/shared/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     export default {
         name: 'GroupsSidebar',
@@ -59,16 +61,10 @@
             groupOrder: {
                 type: Array,
                 default: () => []
-            },
-            isAgeGatedInstancesVisible: {
-                type: Boolean,
-                default: false
             }
         },
         data() {
             return {
-                // temporary, sort feat not yet done
-                // may be the data structure to be changed
                 groupInstancesCfg: []
             };
         },
@@ -93,7 +89,8 @@
                     }
                 });
                 return Array.from(groupMap.values()).sort(this.sortGroupInstancesByInGame);
-            }
+            },
+            ...mapState(useAppearanceSettingsStore, ['isAgeGatedInstancesVisible'])
         },
         methods: {
             getSmallGroupIconUrl(url) {

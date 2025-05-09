@@ -304,7 +304,8 @@ console.log(`isLinux: ${LINUX}`);
                 'isDarkMode',
                 'displayVRCPlusIconsAsAvatar',
                 'hideNicknames',
-                'hideTooltips'
+                'hideTooltips',
+                'isAgeGatedInstancesVisible'
             ])
         },
         methods: {
@@ -334,7 +335,8 @@ console.log(`isLinux: ${LINUX}`);
                 'setIsDarkMode',
                 'setDisplayVRCPlusIconsAsAvatar',
                 'setHideNicknames',
-                'setHideTooltips'
+                'setHideTooltips',
+                'setIsAgeGatedInstancesVisible'
             ])
         },
         watch: {},
@@ -6256,20 +6258,6 @@ console.log(`isLinux: ${LINUX}`);
         );
     }
     $app.data.pendingOfflineDelay = 180000;
-
-    // It's a mess, but it'll be fine afterward with the state manager
-    $app.data.isAgeGatedInstancesVisible = await configRepository.getBool(
-        'VRCX_isAgeGatedInstancesVisible',
-        true
-    );
-
-    $app.methods.toggleIsAgeGatedInstancesVisible = function () {
-        this.isAgeGatedInstancesVisible = !this.isAgeGatedInstancesVisible;
-        configRepository.setBool(
-            'VRCX_isAgeGatedInstancesVisible',
-            this.isAgeGatedInstancesVisible
-        );
-    };
 
     if (await configRepository.getString('VRCX_avatarRemoteDatabaseProvider')) {
         // move existing provider to new list
@@ -13369,8 +13357,7 @@ console.log(`isLinux: ${LINUX}`);
             groupInstances: this.groupInstances,
             inGameGroupOrder: this.inGameGroupOrder,
             groupedByGroupKeyFavoriteFriends:
-                this.groupedByGroupKeyFavoriteFriends,
-            isAgeGatedInstancesVisible: this.isAgeGatedInstancesVisible
+                this.groupedByGroupKeyFavoriteFriends
         };
     };
 

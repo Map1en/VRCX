@@ -12,7 +12,8 @@ export const useAppearanceSettingsStore = defineStore(
             isDarkMode: false,
             displayVRCPlusIconsAsAvatar: false,
             hideNicknames: false,
-            hideTooltips: false
+            hideTooltips: false,
+            isAgeGatedInstancesVisible: false
         });
 
         async function initSettings() {
@@ -44,6 +45,11 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_hideTooltips',
                 false
             );
+
+            state.isAgeGatedInstancesVisible = await configRepository.getBool(
+                'VRCX_isAgeGatedInstancesVisible',
+                true
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -54,6 +60,9 @@ export const useAppearanceSettingsStore = defineStore(
         );
         const hideNicknames = computed(() => state.hideNicknames);
         const hideTooltips = computed(() => state.hideTooltips);
+        const isAgeGatedInstancesVisible = computed(
+            () => state.isAgeGatedInstancesVisible
+        );
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -94,6 +103,14 @@ export const useAppearanceSettingsStore = defineStore(
             state.hideTooltips = !state.hideTooltips;
             configRepository.setBool('VRCX_hideTooltips', state.hideTooltips);
         }
+        function setIsAgeGatedInstancesVisible() {
+            state.isAgeGatedInstancesVisible =
+                !state.isAgeGatedInstancesVisible;
+            configRepository.setBool(
+                'VRCX_isAgeGatedInstancesVisible',
+                state.isAgeGatedInstancesVisible
+            );
+        }
 
         return {
             initSettings,
@@ -104,13 +121,15 @@ export const useAppearanceSettingsStore = defineStore(
             displayVRCPlusIconsAsAvatar,
             hideNicknames,
             hideTooltips,
+            isAgeGatedInstancesVisible,
 
             setAppLanguage,
             setThemeMode,
             setIsDarkMode,
             setDisplayVRCPlusIconsAsAvatar,
             setHideNicknames,
-            setHideTooltips
+            setHideTooltips,
+            setIsAgeGatedInstancesVisible
         };
     }
 );

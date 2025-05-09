@@ -821,7 +821,6 @@
             isGameRunning: Boolean,
             lastLocation: Object,
             instanceJoinHistory: Map,
-            isAgeGatedInstancesVisible: Boolean,
 
             createNewInstance: Function,
             instanceContentSettings: Array,
@@ -925,7 +924,7 @@
                 }
                 return platforms.join(', ');
             },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+            ...mapState(useAppearanceSettingsStore, ['hideTooltips', 'isAgeGatedInstancesVisible'])
         },
         watch: {
             'worldDialog.loading'(value) {

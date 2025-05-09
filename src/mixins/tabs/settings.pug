@@ -276,7 +276,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.age_gated_instances")'
                         :value='isAgeGatedInstancesVisible'
-                        @change='toggleIsAgeGatedInstancesVisible')
+                        @change='setIsAgeGatedInstancesVisible')
                     .options-container-item
                         span.name {{ $t('view.settings.appearance.appearance.sort_favorite_by') }}
                         el-radio-group(v-model='sortFavorites' @change='saveSortFavoritesOption')

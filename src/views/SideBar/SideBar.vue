@@ -94,7 +94,6 @@
                 <GroupsSidebar
                     :group-instances="groupInstances"
                     :group-order="inGameGroupOrder"
-                    :is-age-gated-instances-visible="isAgeGatedInstancesVisible"
                     @show-group-dialog="$emit('show-group-dialog', $event)" />
             </el-tab-pane>
         </el-tabs>
@@ -122,7 +121,6 @@
             isSidebarGroupByInstance: Boolean,
             gameLogDisabled: Boolean,
             isHideFriendsInSameInstance: Boolean,
-            isAgeGatedInstancesVisible: Boolean,
 
             isSideBarTabShow: Boolean,
 

@@ -392,7 +392,7 @@
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.age_gated_instances')"
                         :value="isAgeGatedInstancesVisible"
-                        @change="toggleIsAgeGatedInstancesVisible"></simple-switch>
+                        @change="setIsAgeGatedInstancesVisible"></simple-switch>
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.appearance.sort_favorite_by') }}</span>
                         <el-radio-group v-model="sortFavorites" @change="saveSortFavoritesOption">
@@ -1709,10 +1709,12 @@
         displayVRCPlusIconsAsAvatar,
         hideNicknames,
         hideTooltips,
+        isAgeGatedInstancesVisible,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
-        setHideTooltips
+        setHideTooltips,
+        setIsAgeGatedInstancesVisible
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1728,10 +1730,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        isAgeGatedInstancesVisible: {
-            type: Boolean,
-            default: false
         },
         sortFavorites: {
             type: Boolean,
