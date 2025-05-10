@@ -314,6 +314,14 @@ const _utils = {
                 break;
         }
 
+        /**
+         * prevents flickering
+         * giving absolute paths does prevent flickering
+         * when switching from another dark theme to 'dark' theme
+         * <del>works on my machine</del>
+         */
+        const filePathPrefix = 'file://vrcx/';
+
         let $appThemeStyle = document.getElementById('app-theme-style');
         if (!$appThemeStyle) {
             $appThemeStyle = document.createElement('link');
@@ -322,12 +330,14 @@ const _utils = {
             document.head.appendChild($appThemeStyle);
         }
         $appThemeStyle.href = themeStyle.href
-            ? `file://vrcx/${themeStyle.href}`
+            ? `${filePathPrefix}${themeStyle.href}`
             : '';
 
         let $appThemeDarkStyle = document.getElementById(
             'app-theme-dark-style'
         );
+
+        const darkThemeCssPath = `${filePathPrefix}theme.dark.css`;
 
         if (!$appThemeDarkStyle && themeMode !== 'light') {
             if (themeMode === 'system' && !_utils.systemIsDarkMode()) {
@@ -336,19 +346,19 @@ const _utils = {
             $appThemeDarkStyle = document.createElement('link');
             $appThemeDarkStyle.setAttribute('id', 'app-theme-dark-style');
             $appThemeDarkStyle.rel = 'stylesheet';
-            $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+            $appThemeDarkStyle.href = darkThemeCssPath;
             document.head.appendChild($appThemeDarkStyle);
         } else {
             if (themeMode === 'system' && _utils.systemIsDarkMode()) {
-                if ($appThemeDarkStyle.href === 'file://vrcx/theme.dark.css') {
+                if ($appThemeDarkStyle.href === darkThemeCssPath) {
                     return;
                 }
-                $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+                $appThemeDarkStyle.href = darkThemeCssPath;
             } else if (themeMode !== 'light' && themeMode !== 'system') {
-                if ($appThemeDarkStyle.href === 'file://vrcx/theme.dark.css') {
+                if ($appThemeDarkStyle.href === darkThemeCssPath) {
                     return;
                 }
-                $appThemeDarkStyle.href = 'file://vrcx/theme.dark.css';
+                $appThemeDarkStyle.href = darkThemeCssPath;
             } else {
                 $appThemeDarkStyle && $appThemeDarkStyle.remove();
             }
