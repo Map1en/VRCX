@@ -448,7 +448,12 @@
                     <span class="header">{{ t('view.settings.appearance.timedate.header') }}</span>
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.timedate.time_format') }}</span>
-                        <el-radio-group v-model="dtHour12" @change="setDatetimeFormat">
+                        <el-radio-group
+                            :value="dtHour12"
+                            @change="
+                                setDtHour12();
+                                updateVRConfigVars();
+                            ">
                             <el-radio :label="true">{{
                                 t('view.settings.appearance.timedate.time_format_12')
                             }}</el-radio>
@@ -460,7 +465,7 @@
                     <simple-switch
                         :label="t('view.settings.appearance.timedate.force_iso_date_format')"
                         :value="dtIsoFormat"
-                        @change="setDatetimeFormat(true)"></simple-switch>
+                        @change="setDtIsoFormat"></simple-switch>
                 </div>
                 <!--//- Appearance | Side Panel-->
                 <div class="options-container">
@@ -1715,12 +1720,16 @@
         sortFavorites,
         instanceUsersSortAlphabetical,
         tablePageSize,
+        dtHour12,
+        dtIsoFormat,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
         setHideTooltips,
         setIsAgeGatedInstancesVisible,
-        setInstanceUsersSortAlphabetical
+        setInstanceUsersSortAlphabetical,
+        setDtHour12,
+        setDtIsoFormat
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1736,14 +1745,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        dtHour12: {
-            type: Boolean,
-            default: false
-        },
-        dtIsoFormat: {
-            type: Boolean,
-            default: false
         },
         sidebarSortMethod1: {
             type: String,

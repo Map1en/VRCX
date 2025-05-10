@@ -322,7 +322,9 @@ console.log(`isLinux: ${LINUX}`);
                 isAgeGatedInstancesVisible,
                 sortFavorites,
                 instanceUsersSortAlphabetical,
-                tablePageSize
+                tablePageSize,
+                dtHour12,
+                dtIsoFormat
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -335,7 +337,9 @@ console.log(`isLinux: ${LINUX}`);
                 setIsAgeGatedInstancesVisible,
                 setSortFavorites,
                 setInstanceUsersSortAlphabetical,
-                setTablePageSize
+                setTablePageSize,
+                setDtHour12,
+                setDtIsoFormat
             } = appearanceSettingsStore;
 
             return {
@@ -387,6 +391,8 @@ console.log(`isLinux: ${LINUX}`);
                 sortFavorites,
                 instanceUsersSortAlphabetical,
                 tablePageSize,
+                dtHour12,
+                dtIsoFormat,
 
                 setAppLanguage,
                 setThemeMode,
@@ -397,7 +403,9 @@ console.log(`isLinux: ${LINUX}`);
                 setIsAgeGatedInstancesVisible,
                 setSortFavorites,
                 setInstanceUsersSortAlphabetical,
-                setTablePageSize
+                setTablePageSize,
+                setDtHour12,
+                setDtIsoFormat
             };
         },
         data: {
@@ -11458,105 +11466,6 @@ console.log(`isLinux: ${LINUX}`);
         this.previousInstancesInfoDialogVisible = true;
         this.previousInstancesInfoDialogInstanceId = instanceId;
     };
-
-    $app.data.dtHour12 = await configRepository.getBool('VRCX_dtHour12', false);
-    $app.data.dtIsoFormat = await configRepository.getBool(
-        'VRCX_dtIsoFormat',
-        false
-    );
-    $app.methods.setDatetimeFormat = async function (setIsoFormat = false) {
-        if (setIsoFormat) {
-            this.dtIsoFormat = !this.dtIsoFormat;
-        }
-        var currentCulture = await AppApi.CurrentCulture();
-        var hour12 = await configRepository.getBool('VRCX_dtHour12');
-        var isoFormat = await configRepository.getBool('VRCX_dtIsoFormat');
-        if (typeof this.dtHour12 !== 'undefined') {
-            if (hour12 !== this.dtHour12) {
-                await configRepository.setBool('VRCX_dtHour12', this.dtHour12);
-                this.updateVRConfigVars();
-            }
-            var hour12 = this.dtHour12;
-        }
-        if (typeof this.dtIsoFormat !== 'undefined') {
-            if (isoFormat !== this.dtIsoFormat) {
-                await configRepository.setBool(
-                    'VRCX_dtIsoFormat',
-                    this.dtIsoFormat
-                );
-            }
-            var isoFormat = this.dtIsoFormat;
-        }
-        var formatDate1 = function (date, format) {
-            if (!date) {
-                return '-';
-            }
-            var dt = new Date(date);
-            if (format === 'long') {
-                return dt.toLocaleDateString(currentCulture, {
-                    month: '2-digit',
-                    day: '2-digit',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    second: 'numeric',
-                    hourCycle: hour12 ? 'h12' : 'h23'
-                });
-            } else if (format === 'short') {
-                return dt
-                    .toLocaleDateString(currentCulture, {
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hourCycle: hour12 ? 'h12' : 'h23'
-                    })
-                    .replace(' AM', 'am')
-                    .replace(' PM', 'pm')
-                    .replace(',', '');
-            }
-            return '-';
-        };
-        if (isoFormat) {
-            formatDate1 = function (date, format) {
-                if (!date) {
-                    return '-';
-                }
-                const dt = new Date(date);
-                if (format === 'long') {
-                    const formatDate = (date) => {
-                        const padZero = (num) => String(num).padStart(2, '0');
-
-                        const year = date.getFullYear();
-                        const month = padZero(date.getMonth() + 1);
-                        const day = padZero(date.getDate());
-                        const hours = padZero(date.getHours());
-                        const minutes = padZero(date.getMinutes());
-                        const seconds = padZero(date.getSeconds());
-
-                        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                    };
-
-                    return formatDate(dt);
-                } else if (format === 'short') {
-                    return dt
-                        .toLocaleDateString('en-nz', {
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hourCycle: hour12 ? 'h12' : 'h23'
-                        })
-                        .replace(' AM', 'am')
-                        .replace(' PM', 'pm')
-                        .replace(',', '');
-                }
-                return '-';
-            };
-        }
-        Vue.filter('formatDate', formatDate1);
-    };
-    $app.methods.setDatetimeFormat();
 
     $app.data.enableCustomEndpoint = await configRepository.getBool(
         'VRCX_enableCustomEndpoint',

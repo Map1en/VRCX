@@ -16,7 +16,9 @@ export const useAppearanceSettingsStore = defineStore(
             isAgeGatedInstancesVisible: false,
             sortFavorites: true,
             instanceUsersSortAlphabetical: false,
-            tablePageSize: 15
+            tablePageSize: 15,
+            dtHour12: false,
+            dtIsoFormat: false
         });
 
         async function initSettings() {
@@ -69,6 +71,16 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_tablePageSize',
                 15
             );
+
+            state.dtHour12 = await configRepository.getBool(
+                'VRCX_dtHour12',
+                false
+            );
+            state.dtIsoFormat = await configRepository.getBool(
+                'VRCX_dtIsoFormat',
+                false
+            );
+            handleSetDatetimeFormat();
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -87,6 +99,8 @@ export const useAppearanceSettingsStore = defineStore(
             () => state.instanceUsersSortAlphabetical
         );
         const tablePageSize = computed(() => state.tablePageSize);
+        const dtHour12 = computed(() => state.dtHour12);
+        const dtIsoFormat = computed(() => state.dtIsoFormat);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -96,7 +110,6 @@ export const useAppearanceSettingsStore = defineStore(
             this.i18n.locale = state.appLanguage;
         }
         function setThemeMode(mode) {
-            console.log('Theme mode changed:', mode);
             state.themeMode = mode;
             configRepository.setString('VRCX_ThemeMode', mode);
             if (mode === 'light') {
@@ -151,6 +164,20 @@ export const useAppearanceSettingsStore = defineStore(
             state.tablePageSize = size;
             configRepository.setInt('VRCX_tablePageSize', size);
         }
+        function setDtHour12() {
+            state.dtHour12 = !state.dtHour12;
+            configRepository.setBool('VRCX_dtHour12', state.dtHour12);
+            handleSetDatetimeFormat();
+        }
+        function setDtIsoFormat() {
+            state.dtIsoFormat = !state.dtIsoFormat;
+            configRepository.setBool('VRCX_dtIsoFormat', state.dtIsoFormat);
+            handleSetDatetimeFormat();
+        }
+
+        function handleSetDatetimeFormat() {
+            utils.formatDateFilter(state.dtIsoFormat, state.dtHour12);
+        }
 
         return {
             initSettings,
@@ -165,6 +192,8 @@ export const useAppearanceSettingsStore = defineStore(
             sortFavorites,
             instanceUsersSortAlphabetical,
             tablePageSize,
+            dtHour12,
+            dtIsoFormat,
 
             setAppLanguage,
             setThemeMode,
@@ -175,7 +204,9 @@ export const useAppearanceSettingsStore = defineStore(
             setIsAgeGatedInstancesVisible,
             setSortFavorites,
             setInstanceUsersSortAlphabetical,
-            setTablePageSize
+            setTablePageSize,
+            setDtHour12,
+            setDtIsoFormat
         };
     }
 );
