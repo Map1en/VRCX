@@ -65,7 +65,7 @@
 <script>
     import { useAppearanceSettingsStore } from '../stores/settings/appearanceSettings';
     import Location from './Location.vue';
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
 
     export default {
         name: 'FriendItem',
@@ -80,6 +80,13 @@
             },
             isGroupByInstance: Boolean
         },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideNicknames } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideNicknames
+            };
+        },
         computed: {
             isFriendTraveling() {
                 return this.friend.ref.location === 'traveling';
@@ -89,8 +96,7 @@
             },
             epoch() {
                 return this.isFriendTraveling ? this.friend.ref.$travelingToTime : this.friend.ref.$location_at;
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideNicknames'])
+            }
         }
     };
 </script>

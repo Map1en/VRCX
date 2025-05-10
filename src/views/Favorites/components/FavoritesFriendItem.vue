@@ -83,7 +83,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
@@ -106,8 +106,12 @@
             },
             editFavoritesMode: Boolean
         },
-        computed: {
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
         },
         methods: {
             moveFavorite(ref, group, type) {

@@ -105,7 +105,7 @@
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
     import Location from '../../components/Location.vue';
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
 
     export default {
         name: 'SideBar',
@@ -143,8 +143,12 @@
             inGameGroupOrder: Array,
             groupedByGroupKeyFavoriteFriends: Object
         },
-        computed: {
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
         }
     };
 </script>

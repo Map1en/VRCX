@@ -89,13 +89,13 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { instanceRequest, worldRequest } from '../../api';
     import { isRealInstance, parseLocation } from '../../composables/instance/utils';
     import { getLaunchURL } from '../../composables/shared/utils';
     import configRepository from '../../service/config';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
-    import { mapState } from 'pinia';
 
     export default {
         name: 'LaunchDialog',
@@ -132,6 +132,13 @@
                 default: () => ({})
             }
         },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
+        },
         data() {
             return {
                 launchDialog: {
@@ -162,8 +169,7 @@
                 set(value) {
                     this.$emit('update:launch-dialog-data', { ...this.launchDialogData, visible: value });
                 }
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+            }
         },
         watch: {
             'launchDialogData.loading': {
@@ -173,7 +179,6 @@
                 }
             }
         },
-
         created() {
             this.getConfig();
         },

@@ -140,7 +140,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
@@ -153,6 +153,13 @@
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
             isLocalFavorite: Boolean
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
         },
         computed: {
             isSelected: {
@@ -175,8 +182,7 @@
                     this.localFavFakeRef.thumbnailImageUrl.replace('256', '128') ||
                     this.localFavFakeRef.thumbnailImageUrl
                 );
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+            }
         },
         methods: {
             moveFavorite(ref, group, type) {

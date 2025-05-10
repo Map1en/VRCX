@@ -270,7 +270,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { friendRequest, userRequest } from '../../api';
     import utils from '../../classes/utils';
     import { getFaviconUrl as _getFaviconUrl } from '../../composables/shared/utils';
@@ -298,6 +298,14 @@
             confirmDeleteFriend: Function,
             friendsListSearch: String,
             menuActiveIndex: String
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { appLanguage, hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                appLanguage,
+                hideTooltips
+            };
         },
         data() {
             return {
@@ -330,8 +338,7 @@
         computed: {
             stringComparer() {
                 return Intl.Collator(this.appLanguage.replace('_', '-'), { usage: 'search', sensitivity: 'base' });
-            },
-            ...mapState(useAppearanceSettingsStore, ['appLanguage', 'hideTooltips'])
+            }
         },
         watch: {
             menuActiveIndex() {

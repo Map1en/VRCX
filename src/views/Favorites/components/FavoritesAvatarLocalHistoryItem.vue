@@ -44,7 +44,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     export default {
@@ -56,11 +56,17 @@
                 required: true
             }
         },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
+        },
         computed: {
             smallThumbnail() {
                 return this.favorite.thumbnailImageUrl.replace('256', '128') || this.favorite.thumbnailImageUrl;
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
+            }
         },
         methods: {
             selectAvatarWithConfirmation() {

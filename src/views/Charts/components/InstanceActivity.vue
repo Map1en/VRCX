@@ -116,7 +116,7 @@
 
 <script>
     import dayjs from 'dayjs';
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { parseLocation } from '../../../composables/instance/utils';
     import database from '../../../service/database';
     import utils from '../../../classes/utils';
@@ -135,6 +135,13 @@
             dtHour12: Boolean,
             friendsMap: Map,
             localFavoriteFriends: Set
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { isDarkMode } = storeToRefs(appearanceSettingsStore);
+            return {
+                isDarkMode
+            };
         },
         data() {
             return {
@@ -199,8 +206,7 @@
                     });
                 }
                 return result;
-            },
-            ...mapState(useAppearanceSettingsStore, ['isDarkMode'])
+            }
         },
         watch: {
             isDarkMode() {

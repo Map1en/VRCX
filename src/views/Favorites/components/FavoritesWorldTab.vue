@@ -225,7 +225,7 @@
 </template>
 
 <script>
-    import { mapActions, mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
@@ -246,6 +246,15 @@
             localWorldFavoriteGroups: Array,
             localWorldFavorites: Object,
             localWorldFavoritesList: Array
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips,
+                sortFavorites,
+                setSortFavorites
+            };
         },
         data() {
             return {
@@ -277,11 +286,9 @@
                 set() {
                     this.setSortFavorites();
                 }
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips', 'sortFavorites'])
+            }
         },
         methods: {
-            ...mapActions(useAppearanceSettingsStore, ['setSortFavorites']),
             showExportDialog() {
                 this.worldExportDialogVisible = true;
             },

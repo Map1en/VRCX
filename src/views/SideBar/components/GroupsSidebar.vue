@@ -43,7 +43,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../composables/shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
@@ -62,6 +62,13 @@
                 type: Array,
                 default: () => []
             }
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
+            return {
+                isAgeGatedInstancesVisible
+            };
         },
         data() {
             return {
@@ -89,8 +96,7 @@
                     }
                 });
                 return Array.from(groupMap.values()).sort(this.sortGroupInstancesByInGame);
-            },
-            ...mapState(useAppearanceSettingsStore, ['isAgeGatedInstancesVisible'])
+            }
         },
         methods: {
             getSmallGroupIconUrl(url) {

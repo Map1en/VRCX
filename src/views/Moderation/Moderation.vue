@@ -94,7 +94,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { playerModerationRequest } from '../../api';
     import configRepository from '../../service/config.js';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
@@ -106,6 +106,13 @@
             menuActiveIndex: String,
             tableData: Object,
             shiftHeld: Boolean
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
         },
         data() {
             return {
@@ -146,9 +153,7 @@
                 }
             };
         },
-        computed: {
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
-        },
+
         created: async function () {
             this.filters[0].value = JSON.parse(
                 await configRepository.getString('VRCX_playerModerationTableFilters', '[]')

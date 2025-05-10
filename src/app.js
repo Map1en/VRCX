@@ -68,7 +68,7 @@ import {
 import { displayLocation } from './composables/instance/utils';
 
 // pinia
-import { createPinia, PiniaVuePlugin, mapState, mapActions } from 'pinia';
+import { createPinia, PiniaVuePlugin, storeToRefs } from 'pinia';
 import { useAppearanceSettingsStore } from './stores/settings/appearanceSettings';
 import { useGeneralSettingsStore } from './stores/settings/generalSettings';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
@@ -265,6 +265,141 @@ console.log(`isLinux: ${LINUX}`);
 
     const app = {
         template: pugTemplate,
+        setup() {
+            const VRCXUpdaterStore = useVRCXUpdaterStore();
+            const generalSettingsStore = useGeneralSettingsStore();
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+
+            const { appVersion, autoUpdateVRCX, latestAppVersion } =
+                storeToRefs(VRCXUpdaterStore);
+
+            const { setAutoUpdateVRCX } = VRCXUpdaterStore;
+
+            const {
+                isStartAtWindowsStartup,
+                isStartAsMinimizedState,
+                isCloseToTray,
+                disableGpuAcceleration,
+                disableVrOverlayGpuAcceleration,
+                localFavoriteFriendsGroups,
+                udonExceptionLogging,
+                logResourceLoad,
+                logEmptyAvatars,
+                autoStateChangeEnabled,
+                autoStateChangeAloneStatus,
+                autoStateChangeCompanyStatus,
+                autoStateChangeInstanceTypes,
+                autoStateChangeNoFriends,
+                autoAcceptInviteRequests
+            } = storeToRefs(generalSettingsStore);
+
+            const {
+                setIsStartAtWindowsStartup,
+                setIsStartAsMinimizedState,
+                setIsCloseToTray,
+                setDisableGpuAcceleration,
+                setDisableVrOverlayGpuAcceleration,
+                setUdonExceptionLogging,
+                setLogResourceLoad,
+                setLogEmptyAvatars,
+                setAutoStateChangeEnabled,
+                setAutoStateChangeAloneStatus,
+                setAutoStateChangeCompanyStatus,
+                setAutoStateChangeInstanceTypes,
+                setAutoStateChangeNoFriends,
+                setAutoAcceptInviteRequests,
+
+                setLocalFavoriteFriendsGroups
+            } = generalSettingsStore;
+
+            const {
+                appLanguage,
+                themeMode,
+                isDarkMode,
+                displayVRCPlusIconsAsAvatar,
+                hideNicknames,
+                hideTooltips,
+                isAgeGatedInstancesVisible,
+                sortFavorites,
+                instanceUsersSortAlphabetical,
+                tablePageSize
+            } = storeToRefs(appearanceSettingsStore);
+
+            const {
+                setAppLanguage,
+                setThemeMode,
+                setIsDarkMode,
+                setDisplayVRCPlusIconsAsAvatar,
+                setHideNicknames,
+                setHideTooltips,
+                setIsAgeGatedInstancesVisible,
+                setSortFavorites,
+                setInstanceUsersSortAlphabetical,
+                setTablePageSize
+            } = appearanceSettingsStore;
+
+            return {
+                appVersion,
+                autoUpdateVRCX,
+                latestAppVersion,
+
+                setAutoUpdateVRCX,
+
+                isStartAtWindowsStartup,
+                isStartAsMinimizedState,
+                isCloseToTray,
+                disableGpuAcceleration,
+                disableVrOverlayGpuAcceleration,
+                localFavoriteFriendsGroups,
+                udonExceptionLogging,
+                logResourceLoad,
+                logEmptyAvatars,
+                autoStateChangeEnabled,
+                autoStateChangeAloneStatus,
+                autoStateChangeCompanyStatus,
+                autoStateChangeInstanceTypes,
+                autoStateChangeNoFriends,
+                autoAcceptInviteRequests,
+
+                setIsStartAtWindowsStartup,
+                setIsStartAsMinimizedState,
+                setIsCloseToTray,
+                setDisableGpuAcceleration,
+                setDisableVrOverlayGpuAcceleration,
+                setUdonExceptionLogging,
+                setLogResourceLoad,
+                setLogEmptyAvatars,
+                setAutoStateChangeEnabled,
+                setAutoStateChangeAloneStatus,
+                setAutoStateChangeCompanyStatus,
+                setAutoStateChangeInstanceTypes,
+                setAutoStateChangeNoFriends,
+                setAutoAcceptInviteRequests,
+                setLocalFavoriteFriendsGroups,
+
+                appLanguage,
+                themeMode,
+                isDarkMode,
+                displayVRCPlusIconsAsAvatar,
+                hideNicknames,
+                hideTooltips,
+                isAgeGatedInstancesVisible,
+                sortFavorites,
+                instanceUsersSortAlphabetical,
+                tablePageSize,
+
+                setAppLanguage,
+                setThemeMode,
+                setIsDarkMode,
+                setDisplayVRCPlusIconsAsAvatar,
+                setHideNicknames,
+                setHideTooltips,
+                setIsAgeGatedInstancesVisible,
+                setSortFavorites,
+                setInstanceUsersSortAlphabetical,
+                setTablePageSize
+            };
+        },
         data: {
             API,
             isGameRunning: false,
@@ -275,75 +410,9 @@ console.log(`isLinux: ${LINUX}`);
             shiftHeld: false
         },
         i18n,
-        computed: {
-            ...mapState(useVRCXUpdaterStore, [
-                'appVersion',
-                'autoUpdateVRCX',
-                'latestAppVersion'
-            ]),
-            ...mapState(useGeneralSettingsStore, [
-                'isStartAtWindowsStartup',
-                'isStartAsMinimizedState',
-                'isCloseToTray',
-                'disableGpuAcceleration',
-                'disableVrOverlayGpuAcceleration',
-                'localFavoriteFriendsGroups',
-                'udonExceptionLogging',
-                'logResourceLoad',
-                'logEmptyAvatars',
-                'autoStateChangeEnabled',
-                'autoStateChangeAloneStatus',
-                'autoStateChangeCompanyStatus',
-                'autoStateChangeInstanceTypes',
-                'autoStateChangeNoFriends',
-                'autoAcceptInviteRequests'
-            ]),
-            ...mapState(useAppearanceSettingsStore, [
-                'appLanguage',
-                'themeMode',
-                'isDarkMode',
-                'displayVRCPlusIconsAsAvatar',
-                'hideNicknames',
-                'hideTooltips',
-                'isAgeGatedInstancesVisible',
-                'sortFavorites',
-                'instanceUsersSortAlphabetical',
-                'tablePageSize'
-            ])
-        },
+        computed: {},
         methods: {
-            ...$utils,
-            ...mapActions(useGeneralSettingsStore, [
-                // todo del
-                'setIsStartAtWindowsStartup',
-                'setIsStartAsMinimizedState',
-                'setIsCloseToTray',
-                'setDisableGpuAcceleration',
-                'setDisableVrOverlayGpuAcceleration',
-                'setUdonExceptionLogging',
-                'setLogResourceLoad',
-                'setLogEmptyAvatars',
-                'setAutoStateChangeEnabled',
-                'setAutoStateChangeAloneStatus',
-                'setAutoStateChangeCompanyStatus',
-                'setAutoStateChangeInstanceTypes',
-                'setAutoStateChangeNoFriends',
-                'setAutoAcceptInviteRequests',
-
-                'setLocalFavoriteFriendsGroups'
-            ]),
-            ...mapActions(useAppearanceSettingsStore, [
-                'setAppLanguage',
-                'setThemeMode',
-                'setIsDarkMode',
-                'setDisplayVRCPlusIconsAsAvatar',
-                'setHideNicknames',
-                'setHideTooltips',
-                'setIsAgeGatedInstancesVisible',
-                'setSortFavorites',
-                'setInstanceUsersSortAlphabetical',
-                'setTablePageSize'
-            ])
+            ...$utils
         },
         watch: {},
         components: {

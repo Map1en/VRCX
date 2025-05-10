@@ -83,7 +83,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import * as workerTimers from 'worker-timers';
     import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
@@ -114,15 +114,19 @@
             localAvatarFavoritesList: Array,
             localWorldFavoritesList: Array
         },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips
+            };
+        },
         data() {
             return {
                 editFavoritesMode: false,
                 refreshingLocalFavorites: false,
                 currentTabName: 'friend'
             };
-        },
-        computed: {
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips'])
         },
         methods: {
             showBulkUnfavoriteSelectionConfirm() {

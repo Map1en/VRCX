@@ -774,7 +774,7 @@
 </template>
 
 <script>
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
     import utils from '../../../classes/utils';
     import { refreshInstancePlayerCount as _refreshInstancePlayerCount } from '../../../composables/instance/utils';
@@ -833,6 +833,14 @@
 
             // TODO: Remove
             updateInstanceInfo: Number
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
+            return {
+                hideTooltips,
+                isAgeGatedInstancesVisible
+            };
         },
         data() {
             return {
@@ -923,8 +931,7 @@
                     }
                 }
                 return platforms.join(', ');
-            },
-            ...mapState(useAppearanceSettingsStore, ['hideTooltips', 'isAgeGatedInstancesVisible'])
+            }
         },
         watch: {
             'worldDialog.loading'(value) {

@@ -59,7 +59,7 @@
 
 <script>
     import dayjs from 'dayjs';
-    import { mapState } from 'pinia';
+    import { storeToRefs } from 'pinia';
     import utils from '../../../classes/utils';
     import { parseLocation } from '../../../composables/instance/utils';
     import database from '../../../service/database';
@@ -81,6 +81,13 @@
             gameLogIsFriend: { type: Function, required: true },
             gameLogIsFavorite: { type: Function, required: true },
             lookupUser: { type: Function, required: true }
+        },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { isDarkMode } = storeToRefs(appearanceSettingsStore);
+            return {
+                isDarkMode
+            };
         },
         data() {
             return {
@@ -124,8 +131,7 @@
                     time: item.time,
                     timer: item.timer
                 }));
-            },
-            ...mapState(useAppearanceSettingsStore, ['isDarkMode'])
+            }
         },
         watch: {
             visible(value) {
