@@ -4021,6 +4021,16 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.quickSearchItems = [];
 
+    $app.computed.stringComparer = function () {
+        if (typeof this._stringComparer === 'undefined') {
+            this._stringComparer = Intl.Collator(
+                this.appLanguage.replace('_', '-'),
+                { usage: 'search', sensitivity: 'base' }
+            );
+        }
+        return this._stringComparer;
+    };
+
     $app.methods.quickSearchRemoteMethod = function (query) {
         if (!query) {
             this.quickSearchItems = this.quickSearchUserHistory();

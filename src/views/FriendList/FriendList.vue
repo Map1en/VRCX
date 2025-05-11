@@ -300,7 +300,8 @@
             randomUserColours: Boolean,
             confirmDeleteFriend: Function,
             friendsListSearch: String,
-            menuActiveIndex: String
+            menuActiveIndex: String,
+            stringComparer: Intl.Collator
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -338,11 +339,7 @@
                 friendsListBulkUnfriendForceUpdate: 0
             };
         },
-        computed: {
-            stringComparer() {
-                return Intl.Collator(this.appLanguage.replace('_', '-'), { usage: 'search', sensitivity: 'base' });
-            }
-        },
+
         watch: {
             menuActiveIndex() {
                 if (this.menuActiveIndex === 'friendList') {
