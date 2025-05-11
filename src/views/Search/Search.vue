@@ -55,14 +55,14 @@
                         :disabled="!searchUserParams.offset"
                         icon="el-icon-back"
                         size="small"
-                        @click="moreSearchUser(-1)"
+                        @click="handleMoreSearchUser(-1)"
                         >{{ t('view.search.prev_page') }}</el-button
                     >
                     <el-button
                         :disabled="searchUserResults.length < 10"
                         icon="el-icon-right"
                         size="small"
-                        @click="moreSearchUser(1)"
+                        @click="handleMoreSearchUser(1)"
                         >{{ t('view.search.next_page') }}</el-button
                     >
                 </el-button-group>
@@ -380,16 +380,14 @@
         avatarRemoteDatabase: {
             type: Boolean,
             default: false
+        },
+        moreSearchUser: {
+            type: Function,
+            default: () => () => {}
         }
     });
 
-    const emit = defineEmits([
-        'clearSearch',
-        'setAvatarProvider',
-        'refreshUserDialogAvatars',
-        'moreSearchUser',
-        'update:searchText'
-    ]);
+    const emit = defineEmits(['clearSearch', 'setAvatarProvider', 'refreshUserDialogAvatars', 'update:searchText']);
 
     const searchTabRef = ref(null);
 
@@ -462,12 +460,15 @@
             customFields: searchUserByBio.value ? 'bio' : 'displayName',
             sort: searchUserSortByLastLoggedIn.value ? 'last_login' : 'relevance'
         };
-        await moreSearchUser();
+        await handleMoreSearchUser();
     }
 
-    async function moreSearchUser(go = null) {
-        emit('moreSearchUser', go, searchUserParams.value);
+    async function handleMoreSearchUser(go = null) {
+        isSearchUserLoading.value = true;
+        await props.moreSearchUser(go, searchUserParams.value);
+        isSearchUserLoading.value = false;
     }
+
     function searchWorld(ref) {
         searchWorldOption.value = '';
         const params = {

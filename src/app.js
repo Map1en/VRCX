@@ -5041,23 +5041,17 @@ console.log(`isLinux: ${LINUX}`);
                 params.offset = 0;
             }
         }
-        this.isSearchUserLoading = true;
-        await userRequest
-            .getUsers(params)
-            .finally(() => {
-                this.isSearchUserLoading = false;
-            })
-            .then((args) => {
-                var map = new Map();
-                for (var json of args.json) {
-                    var ref = API.cachedUsers.get(json.id);
-                    if (typeof ref !== 'undefined') {
-                        map.set(ref.id, ref);
-                    }
+        await userRequest.getUsers(params).then((args) => {
+            var map = new Map();
+            for (var json of args.json) {
+                var ref = API.cachedUsers.get(json.id);
+                if (typeof ref !== 'undefined') {
+                    map.set(ref.id, ref);
                 }
-                this.searchUserResults = Array.from(map.values());
-                return args;
-            });
+            }
+            this.searchUserResults = Array.from(map.values());
+            return args;
+        });
     };
 
     // #endregion
