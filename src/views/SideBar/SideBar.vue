@@ -71,7 +71,6 @@
                 <el-backtop target=".zero-margin-tabs .el-tabs__content" :bottom="20" :right="20"></el-backtop>
                 <FriendsSidebar
                     :is-game-running="isGameRunning"
-                    :is-sidebar-divide-by-friend-group="isSidebarDivideByFriendGroup"
                     :game-log-disabled="gameLogDisabled"
                     :last-location="lastLocation"
                     :last-location-destination="lastLocationDestination"
@@ -115,7 +114,6 @@
         inject: ['API', 'userImage'],
         props: {
             isGameRunning: Boolean,
-            isSidebarDivideByFriendGroup: Boolean,
             gameLogDisabled: Boolean,
 
             isSideBarTabShow: Boolean,

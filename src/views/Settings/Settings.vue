@@ -625,7 +625,7 @@
                         :label="t('view.settings.appearance.side_panel.split_favorite_friends')"
                         :value="isSidebarDivideByFriendGroup"
                         :tooltip="t('view.settings.appearance.side_panel.split_favorite_friends_tooltip')"
-                        @change="handleSwitchDivideByFriendGroup"></simple-switch>
+                        @change="setIsSidebarDivideByFriendGroup"></simple-switch>
                 </div>
                 <!--//- Appearance | User Dialog-->
                 <div class="options-container">
@@ -1737,6 +1737,7 @@
         asideWidth,
         isSidebarGroupByInstance,
         isHideFriendsInSameInstance,
+        isSidebarDivideByFriendGroup,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1750,7 +1751,8 @@
         setSidebarSortMethod3,
         setAsideWidth,
         setIsSidebarGroupByInstance,
-        setIsHideFriendsInSameInstance
+        setIsHideFriendsInSameInstance,
+        setIsSidebarDivideByFriendGroup
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1766,14 +1768,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        isHideFriendsInSameInstance: {
-            type: Boolean,
-            default: false
-        },
-        isSidebarDivideByFriendGroup: {
-            type: Boolean,
-            default: false
         },
         hideUserNotes: {
             type: Boolean,

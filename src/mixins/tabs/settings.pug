@@ -432,7 +432,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.side_panel.split_favorite_friends")'
                         :value='isSidebarDivideByFriendGroup'
-                        @change='handleSwitchDivideByFriendGroup'
+                        @change='setIsSidebarDivideByFriendGroup'
                         :tooltip='$t("view.settings.appearance.side_panel.split_favorite_friends_tooltip")')
                 //- Appearance | User Dialog
                 .options-container

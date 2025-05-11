@@ -341,7 +341,8 @@ console.log(`isLinux: ${LINUX}`);
                 sidebarSortMethods,
                 asideWidth,
                 isSidebarGroupByInstance,
-                isHideFriendsInSameInstance
+                isHideFriendsInSameInstance,
+                isSidebarDivideByFriendGroup
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -363,7 +364,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethods,
                 setAsideWidth,
                 setIsSidebarGroupByInstance,
-                setIsHideFriendsInSameInstance
+                setIsHideFriendsInSameInstance,
+                setIsSidebarDivideByFriendGroup
             } = appearanceSettingsStore;
 
             return {
@@ -424,6 +426,7 @@ console.log(`isLinux: ${LINUX}`);
                 asideWidth,
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
+                isSidebarDivideByFriendGroup,
 
                 setAppLanguage,
                 setThemeMode,
@@ -443,7 +446,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethods,
                 setAsideWidth,
                 setIsSidebarGroupByInstance,
-                setIsHideFriendsInSameInstance
+                setIsHideFriendsInSameInstance,
+                setIsSidebarDivideByFriendGroup
             };
         },
         data: {
@@ -12986,23 +12990,6 @@ console.log(`isLinux: ${LINUX}`);
         return LINUX;
     };
 
-    // friendsListSidebar
-
-    //  - DivideByFriendGroup
-
-    $app.data.isSidebarDivideByFriendGroup = await configRepository.getBool(
-        'VRCX_sidebarDivideByFriendGroup',
-        true
-    );
-
-    $app.methods.handleSwitchDivideByFriendGroup = async function () {
-        this.isSidebarDivideByFriendGroup = !this.isSidebarDivideByFriendGroup;
-        await configRepository.setBool(
-            'VRCX_sidebarDivideByFriendGroup',
-            this.isSidebarDivideByFriendGroup
-        );
-    };
-
     // #endregion
     // #region | Tab Props
 
@@ -13043,7 +13030,6 @@ console.log(`isLinux: ${LINUX}`);
             onlineFriendCount: this.onlineFriendCount,
             friends: this.friends,
             isGameRunning: this.isGameRunning,
-            isSidebarDivideByFriendGroup: this.isSidebarDivideByFriendGroup,
             gameLogDisabled: this.gameLogDisabled,
             lastLocation: this.lastLocation,
             lastLocationDestination: this.lastLocationDestination,
