@@ -902,12 +902,12 @@ console.log(`isLinux: ${LINUX}`);
         }
 
         // update group list
-        for (var groupId of groups) {
+        for (const groupId of groups) {
             if (!this.currentUserGroups.has(groupId)) {
                 $app.onGroupJoined(groupId);
             }
         }
-        for (var groupId of this.currentUserGroups.keys()) {
+        for (const groupId of this.currentUserGroups.keys()) {
             if (!groups.includes(groupId)) {
                 $app.onGroupLeft(groupId);
             }
@@ -1481,10 +1481,10 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    API.bulkRefreshFriends = async function (params) {
-        var friends = [];
+    API.bulkRefreshFriends = async function (args) {
+        let friends = [];
         var params = {
-            ...params,
+            ...args,
             n: 50,
             offset: 0
         };
@@ -1494,7 +1494,7 @@ console.log(`isLinux: ${LINUX}`);
             retryLoop: for (var j = 0; j < 10; j++) {
                 // handle 429 ratelimit error, retry 10 times
                 try {
-                    var args = await friendRequest.getFriends(params);
+                    const args = await friendRequest.getFriends(params);
                     if (!args.json || args.json.length === 0) {
                         break mainLoop;
                     }
@@ -1570,7 +1570,7 @@ console.log(`isLinux: ${LINUX}`);
                             friend.displayName
                         );
                     }
-                    var args = await userRequest.getUser({
+                    const args = await userRequest.getUser({
                         userId: friend.id
                     });
                     friends[i] = args.json;
@@ -1745,8 +1745,8 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     API.$on('NOTIFICATION:HIDE', function (args) {
-        var array = $app.notificationTable.data;
-        for (var i = array.length - 1; i >= 0; i--) {
+        const array = $app.notificationTable.data;
+        for (let i = array.length - 1; i >= 0; i--) {
             if (array[i].id === args.params.notificationId) {
                 var ref = array[i];
                 break;
@@ -1761,7 +1761,7 @@ console.log(`isLinux: ${LINUX}`);
             ref.type === 'ignoredFriendRequest' ||
             ref.type.includes('.')
         ) {
-            for (var i = array.length - 1; i >= 0; i--) {
+            for (let i = array.length - 1; i >= 0; i--) {
                 if (array[i].id === ref.id) {
                     array.splice(i, 1);
                     break;
@@ -1865,41 +1865,44 @@ console.log(`isLinux: ${LINUX}`);
 
     API.refreshNotifications = async function () {
         this.isNotificationsLoading = true;
+        let count;
+        let params;
         try {
             this.expireFriendRequestNotifications();
-            var params = {
+            params = {
                 n: 100,
                 offset: 0
             };
-            var count = 50; // 5000 max
-            for (var i = 0; i < count; i++) {
-                var args = await notificationRequest.getNotifications(params);
+            count = 50; // 5000 max
+            for (let i = 0; i < count; i++) {
+                const args = await notificationRequest.getNotifications(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
                     break;
                 }
             }
-            var params = {
+            params = {
                 n: 100,
                 offset: 0
             };
-            var count = 50; // 5000 max
-            for (var i = 0; i < count; i++) {
-                var args = await notificationRequest.getNotificationsV2(params);
+            count = 50; // 5000 max
+            for (let i = 0; i < count; i++) {
+                const args =
+                    await notificationRequest.getNotificationsV2(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
                     break;
                 }
             }
-            var params = {
+            params = {
                 n: 100,
                 offset: 0
             };
-            var count = 50; // 5000 max
-            for (var i = 0; i < count; i++) {
-                var args =
+            count = 50; // 5000 max
+            for (let i = 0; i < count; i++) {
+                const args =
                     await notificationRequest.getHiddenFriendRequests(params);
                 $app.unseenNotifications = [];
                 params.offset += 100;
@@ -2107,8 +2110,10 @@ console.log(`isLinux: ${LINUX}`);
                 // 'AVATAR-MODERATION:LIST';
                 // TODO: compare with cachedAvatarModerations
                 this.cachedAvatarModerations = new Map();
-                for (var json of res[1]?.json) {
-                    this.applyAvatarModeration(json);
+                if (res[1]?.json) {
+                    for (const json of res[1].json) {
+                        this.applyAvatarModeration(json);
+                    }
                 }
                 this.deleteExpiredPlayerModerations();
             });
@@ -2434,16 +2439,16 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     API.refreshFavoriteItems = function () {
-        var types = {
+        const types = {
             world: [0, favoriteRequest.getFavoriteWorlds],
             avatar: [0, favoriteRequest.getFavoriteAvatars]
         };
-        var tags = [];
-        for (var ref of this.cachedFavorites.values()) {
+        const tags = [];
+        for (const ref of this.cachedFavorites.values()) {
             if (ref.$isDeleted) {
                 continue;
             }
-            var type = types[ref.type];
+            const type = types[ref.type];
             if (typeof type === 'undefined') {
                 continue;
             }
@@ -2452,12 +2457,12 @@ console.log(`isLinux: ${LINUX}`);
             }
             ++type[0];
         }
-        for (var type in types) {
-            var [N, fn] = types[type];
+        for (const type in types) {
+            const [N, fn] = types[type];
             if (N > 0) {
                 if (type === 'avatar') {
-                    for (var tag of tags) {
-                        var n = Math.floor(Math.random() * (50 + 1)) + 50;
+                    for (const tag of tags) {
+                        const n = Math.floor(Math.random() * (50 + 1)) + 50;
                         this.bulk({
                             fn,
                             N,
@@ -2469,7 +2474,7 @@ console.log(`isLinux: ${LINUX}`);
                         });
                     }
                 } else {
-                    var n = Math.floor(Math.random() * (36 + 1)) + 64;
+                    const n = Math.floor(Math.random() * (36 + 1)) + 64;
                     this.bulk({
                         fn,
                         N,
@@ -2542,9 +2547,13 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     API.buildFavoriteGroups = function () {
+        let group;
+        let groups;
+        let ref;
+        let i;
         // 450 = ['group_0', 'group_1', 'group_2'] x 150
         this.favoriteFriendGroups = [];
-        for (var i = 0; i < this.favoriteLimits.maxFavoriteGroups.friend; ++i) {
+        for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.friend; ++i) {
             this.favoriteFriendGroups.push({
                 assign: false,
                 key: `friend:group_${i}`,
@@ -2558,7 +2567,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         // 400 = ['worlds1', 'worlds2', 'worlds3', 'worlds4'] x 100
         this.favoriteWorldGroups = [];
-        for (var i = 0; i < this.favoriteLimits.maxFavoriteGroups.world; ++i) {
+        for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.world; ++i) {
             this.favoriteWorldGroups.push({
                 assign: false,
                 key: `world:worlds${i + 1}`,
@@ -2574,7 +2583,7 @@ console.log(`isLinux: ${LINUX}`);
         // Favorite Avatars (0/50)
         // VRC+ Group 1..5 (0/50)
         this.favoriteAvatarGroups = [];
-        for (var i = 0; i < this.favoriteLimits.maxFavoriteGroups.avatar; ++i) {
+        for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.avatar; ++i) {
             this.favoriteAvatarGroups.push({
                 assign: false,
                 key: `avatar:avatars${i + 1}`,
@@ -2586,22 +2595,22 @@ console.log(`isLinux: ${LINUX}`);
                 visibility: 'private'
             });
         }
-        var types = {
+        const types = {
             friend: this.favoriteFriendGroups,
             world: this.favoriteWorldGroups,
             avatar: this.favoriteAvatarGroups
         };
-        var assigns = new Set();
+        const assigns = new Set();
         // assign the same name first
-        for (var ref of this.cachedFavoriteGroups.values()) {
+        for (ref of this.cachedFavoriteGroups.values()) {
             if (ref.$isDeleted) {
                 continue;
             }
-            var groups = types[ref.type];
+            groups = types[ref.type];
             if (typeof groups === 'undefined') {
                 continue;
             }
-            for (var group of groups) {
+            for (group of groups) {
                 if (group.assign === false && group.name === ref.name) {
                     group.assign = true;
                     if (ref.displayName) {
@@ -2620,15 +2629,15 @@ console.log(`isLinux: ${LINUX}`);
         // processed in the order in which the server responded. But since we
         // used Map(), the order would be a mess. So we need something to solve
         // this.
-        for (var ref of this.cachedFavoriteGroups.values()) {
+        for (ref of this.cachedFavoriteGroups.values()) {
             if (ref.$isDeleted || assigns.has(ref.id)) {
                 continue;
             }
-            var groups = types[ref.type];
+            groups = types[ref.type];
             if (typeof groups === 'undefined') {
                 continue;
             }
-            for (var group of groups) {
+            for (group of groups) {
                 if (group.assign === false) {
                     group.assign = true;
                     group.key = `${group.type}:${ref.name}`;
@@ -2642,17 +2651,17 @@ console.log(`isLinux: ${LINUX}`);
         }
         // update favorites
         this.cachedFavoriteGroupsByTypeName.clear();
-        for (var type in types) {
-            for (var group of types[type]) {
+        for (const type in types) {
+            for (group of types[type]) {
                 this.cachedFavoriteGroupsByTypeName.set(group.key, group);
             }
         }
-        for (var ref of this.cachedFavorites.values()) {
+        for (ref of this.cachedFavorites.values()) {
             ref.$groupRef = null;
             if (ref.$isDeleted) {
                 continue;
             }
-            var group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
+            group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
             if (typeof group === 'undefined') {
                 continue;
             }
@@ -3388,27 +3397,29 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.refreshFriends = function (ref, fromGetCurrentUser) {
-        var map = new Map();
-        for (var id of ref.friends) {
+        let id;
+        const map = new Map();
+        for (id of ref.friends) {
             map.set(id, 'offline');
         }
-        for (var id of ref.offlineFriends) {
+        for (id of ref.offlineFriends) {
             map.set(id, 'offline');
         }
-        for (var id of ref.activeFriends) {
+        for (id of ref.activeFriends) {
             map.set(id, 'active');
         }
-        for (var id of ref.onlineFriends) {
+        for (id of ref.onlineFriends) {
             map.set(id, 'online');
         }
-        for (var [id, state] of map) {
+        for (const friend of map) {
+            const [id, state] = friend;
             if (this.friends.has(id)) {
                 this.updateFriend({ id, state, fromGetCurrentUser });
             } else {
                 this.addFriend(id, state);
             }
         }
-        for (var id of this.friends.keys()) {
+        for (id of this.friends.keys()) {
             if (map.has(id) === false) {
                 this.deleteFriend(id);
             }
@@ -3495,14 +3506,14 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
 
-    $app.methods.updateFriend = function (ctx) {
-        var { id, state, fromGetCurrentUser } = ctx;
-        var stateInput = state;
-        var ctx = this.friends.get(id);
+    $app.methods.updateFriend = function (args) {
+        const { id, state, fromGetCurrentUser } = args;
+        const stateInput = state;
+        const ctx = this.friends.get(id);
         if (typeof ctx === 'undefined') {
             return;
         }
-        var ref = API.cachedUsers.get(id);
+        const ref = API.cachedUsers.get(id);
         if (stateInput) {
             ctx.pendingState = stateInput;
             if (typeof ref !== 'undefined') {
@@ -3511,17 +3522,18 @@ console.log(`isLinux: ${LINUX}`);
         }
         if (stateInput === 'online') {
             if (this.debugFriendState && ctx.pendingOffline) {
-                var time = (Date.now() - ctx.pendingOfflineTime) / 1000;
+                const time = (Date.now() - ctx.pendingOfflineTime) / 1000;
                 console.log(`${ctx.name} pendingOfflineCancelTime ${time}`);
             }
             ctx.pendingOffline = false;
             ctx.pendingOfflineTime = '';
         }
-        var isVIP = this.localFavoriteFriends.has(id);
-        var location = '';
-        var $location_at = '';
+        const isVIP = this.localFavoriteFriends.has(id);
+        let location = '';
+        let $location_at = '';
         if (typeof ref !== 'undefined') {
-            var { location, $location_at } = ref;
+            location = ref.location;
+            $location_at = ref.$location_at;
         }
         if (typeof stateInput === 'undefined' || ctx.state === stateInput) {
             // this is should be: undefined -> user
@@ -3665,8 +3677,11 @@ console.log(`isLinux: ${LINUX}`);
         location,
         $location_at
     ) {
-        var id = ctx.id;
-        var newState = ctx.pendingState;
+        let feed;
+        let groupName;
+        let worldName;
+        const id = ctx.id;
+        const newState = ctx.pendingState;
         if (this.debugFriendState) {
             console.log(
                 `${ctx.name} updateFriendState ${ctx.state} -> ${newState}`
@@ -3684,8 +3699,8 @@ console.log(`isLinux: ${LINUX}`);
             console.log('Friend not found', id);
             return;
         }
-        var isVIP = this.localFavoriteFriends.has(id);
-        var ref = ctx.ref;
+        const isVIP = this.localFavoriteFriends.has(id);
+        const ref = ctx.ref;
         if (ctx.state !== newState && typeof ctx.ref !== 'undefined') {
             if (
                 (newState === 'offline' || newState === 'active') &&
@@ -3697,11 +3712,11 @@ console.log(`isLinux: ${LINUX}`);
                 if (newState === 'active') {
                     ctx.ref.$active_for = Date.now();
                 }
-                var ts = Date.now();
-                var time = ts - $location_at;
-                var worldName = await this.getWorldName(location);
-                var groupName = await this.getGroupName(location);
-                var feed = {
+                const ts = Date.now();
+                const time = ts - $location_at;
+                worldName = await this.getWorldName(location);
+                groupName = await this.getGroupName(location);
+                feed = {
                     created_at: new Date().toJSON(),
                     type: 'Offline',
                     userId: ref.id,
@@ -3723,9 +3738,9 @@ console.log(`isLinux: ${LINUX}`);
                 ctx.ref.$online_for = Date.now();
                 ctx.ref.$offline_for = '';
                 ctx.ref.$active_for = '';
-                var worldName = await this.getWorldName(location);
-                var groupName = await this.getGroupName(location);
-                var feed = {
+                worldName = await this.getWorldName(location);
+                groupName = await this.getGroupName(location);
+                feed = {
                     created_at: new Date().toJSON(),
                     type: 'Online',
                     userId: id,
@@ -3779,18 +3794,16 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.getWorldName = async function (location) {
-        var worldName = '';
-        try {
-            var L = parseLocation(location);
-            if (L.isRealInstance && L.worldId) {
-                var args = await worldRequest.getCachedWorld({
-                    worldId: L.worldId
-                });
-                worldName = args.ref.name;
-            }
-        } catch (e) {
-            throw e;
+        let worldName = '';
+
+        const L = parseLocation(location);
+        if (L.isRealInstance && L.worldId) {
+            const args = await worldRequest.getCachedWorld({
+                worldId: L.worldId
+            });
+            worldName = args.ref.name;
         }
+
         return worldName;
     };
 
@@ -4200,13 +4213,15 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     $app.methods.loadPlayerList = function () {
-        var data = this.gameLogSessionTable;
+        let ctx;
+        let i;
+        const data = this.gameLogSessionTable;
         if (data.length === 0) {
             return;
         }
-        var length = 0;
-        for (var i = data.length - 1; i > -1; i--) {
-            var ctx = data[i];
+        let length = 0;
+        for (i = data.length - 1; i > -1; i--) {
+            ctx = data[i];
             if (ctx.type === 'Location') {
                 this.lastLocation = {
                     date: Date.parse(ctx.created_at),
@@ -4220,8 +4235,8 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         if (length > 0) {
-            for (var i = length + 1; i < data.length; i++) {
-                var ctx = data[i];
+            for (i = length + 1; i < data.length; i++) {
+                ctx = data[i];
                 if (ctx.type === 'OnPlayerJoined') {
                     if (!ctx.userId) {
                         for (var ref of API.cachedUsers.values()) {
@@ -4231,7 +4246,7 @@ console.log(`isLinux: ${LINUX}`);
                             }
                         }
                     }
-                    var userMap = {
+                    const userMap = {
                         displayName: ctx.displayName,
                         userId: ctx.userId,
                         joinTime: Date.parse(ctx.created_at),
@@ -4271,16 +4286,19 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.robotUrl = `${API.endpointDomain}/file/file_0e8c4e32-7444-44ea-ade4-313c010d4bae/1/file`;
 
     API.$on('USER:UPDATE', async function (args) {
-        var { ref, props } = args;
-        var friend = $app.friends.get(ref.id);
+        let feed;
+        let newLocation;
+        let previousLocation;
+        const { ref, props } = args;
+        const friend = $app.friends.get(ref.id);
         if (typeof friend === 'undefined') {
             return;
         }
         if (props.location) {
             // update instancePlayerCount
-            var previousLocation = props.location[1];
-            var newLocation = props.location[0];
-            var oldCount = $app.instancePlayerCount.get(previousLocation);
+            previousLocation = props.location[1];
+            newLocation = props.location[0];
+            let oldCount = $app.instancePlayerCount.get(previousLocation);
             if (typeof oldCount !== 'undefined') {
                 oldCount--;
                 if (oldCount <= 0) {
@@ -4289,7 +4307,7 @@ console.log(`isLinux: ${LINUX}`);
                     $app.instancePlayerCount.set(previousLocation, oldCount);
                 }
             }
-            var newCount = $app.instancePlayerCount.get(newLocation);
+            let newCount = $app.instancePlayerCount.get(newLocation);
             if (typeof newCount === 'undefined') {
                 newCount = 0;
             }
@@ -4316,12 +4334,12 @@ console.log(`isLinux: ${LINUX}`);
             props.location[0] !== 'traveling'
         ) {
             // skip GPS if user is offline or traveling
-            var previousLocation = props.location[1];
-            var newLocation = props.location[0];
-            var time = props.location[2];
+            previousLocation = props.location[1];
+            newLocation = props.location[0];
+            let time = props.location[2];
             if (previousLocation === 'traveling' && ref.$previousLocation) {
                 previousLocation = ref.$previousLocation;
-                var travelTime = Date.now() - ref.$travelingToTime;
+                const travelTime = Date.now() - ref.$travelingToTime;
                 time -= travelTime;
                 if (time < 0) {
                     time = 0;
@@ -4348,9 +4366,9 @@ console.log(`isLinux: ${LINUX}`);
                 // location traveled to is the same
                 ref.$location_at = Date.now() - time;
             } else {
-                var worldName = await $app.getWorldName(newLocation);
-                var groupName = await $app.getGroupName(newLocation);
-                var feed = {
+                const worldName = await $app.getWorldName(newLocation);
+                const groupName = await $app.getGroupName(newLocation);
+                feed = {
                     created_at: new Date().toJSON(),
                     type: 'GPS',
                     userId: ref.id,
@@ -4379,7 +4397,7 @@ console.log(`isLinux: ${LINUX}`);
             ref.$travelingToTime = Date.now();
             $app.updateFriendGPS(ref.id);
         }
-        var imageMatches = false;
+        let imageMatches = false;
         if (
             props.currentAvatarThumbnailImageUrl &&
             props.currentAvatarThumbnailImageUrl[0] &&
@@ -4396,12 +4414,12 @@ console.log(`isLinux: ${LINUX}`);
                 props.currentAvatarTags) &&
             !imageMatches
         ) {
-            var currentAvatarImageUrl = '';
-            var previousCurrentAvatarImageUrl = '';
-            var currentAvatarThumbnailImageUrl = '';
-            var previousCurrentAvatarThumbnailImageUrl = '';
-            var currentAvatarTags = '';
-            var previousCurrentAvatarTags = '';
+            let currentAvatarImageUrl = '';
+            let previousCurrentAvatarImageUrl = '';
+            let currentAvatarThumbnailImageUrl = '';
+            let previousCurrentAvatarThumbnailImageUrl = '';
+            let currentAvatarTags = '';
+            let previousCurrentAvatarTags = '';
             if (props.currentAvatarImageUrl) {
                 currentAvatarImageUrl = props.currentAvatarImageUrl[0];
                 previousCurrentAvatarImageUrl = props.currentAvatarImageUrl[1];
@@ -4436,7 +4454,7 @@ console.log(`isLinux: ${LINUX}`);
                 previousCurrentAvatarTags = ref.currentAvatarTags;
             }
             if (this.logEmptyAvatars || ref.currentAvatarImageUrl) {
-                var avatarInfo = {
+                let avatarInfo = {
                     ownerId: '',
                     avatarName: ''
                 };
@@ -4444,8 +4462,10 @@ console.log(`isLinux: ${LINUX}`);
                     avatarInfo = await $app.getAvatarName(
                         currentAvatarImageUrl
                     );
-                } catch (err) {}
-                var previousAvatarInfo = {
+                } catch (err) {
+                    console.log(err);
+                }
+                let previousAvatarInfo = {
                     ownerId: '',
                     avatarName: ''
                 };
@@ -4453,8 +4473,10 @@ console.log(`isLinux: ${LINUX}`);
                     previousAvatarInfo = await $app.getAvatarName(
                         previousCurrentAvatarImageUrl
                     );
-                } catch (err) {}
-                var feed = {
+                } catch (err) {
+                    console.log(err);
+                }
+                feed = {
                     created_at: new Date().toJSON(),
                     type: 'Avatar',
                     userId: ref.id,
@@ -4475,10 +4497,10 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         if (props.status || props.statusDescription) {
-            var status = '';
-            var previousStatus = '';
-            var statusDescription = '';
-            var previousStatusDescription = '';
+            let status = '';
+            let previousStatus = '';
+            let statusDescription = '';
+            let previousStatusDescription = '';
             if (props.status) {
                 if (props.status[0]) {
                     status = props.status[0];
@@ -4501,7 +4523,7 @@ console.log(`isLinux: ${LINUX}`);
                 statusDescription = ref.statusDescription;
                 previousStatusDescription = ref.statusDescription;
             }
-            var feed = {
+            feed = {
                 created_at: new Date().toJSON(),
                 type: 'Status',
                 userId: ref.id,
@@ -4515,15 +4537,15 @@ console.log(`isLinux: ${LINUX}`);
             database.addStatusToDatabase(feed);
         }
         if (props.bio && props.bio[0] && props.bio[1]) {
-            var bio = '';
-            var previousBio = '';
+            let bio = '';
+            let previousBio = '';
             if (props.bio[0]) {
                 bio = props.bio[0];
             }
             if (props.bio[1]) {
                 previousBio = props.bio[1];
             }
-            var feed = {
+            feed = {
                 created_at: new Date().toJSON(),
                 type: 'Bio',
                 userId: ref.id,
@@ -4983,6 +5005,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.lookupUser = async function (ref) {
+        let ctx;
         if (ref.userId) {
             this.showUserDialog(ref.userId);
             return;
@@ -4990,7 +5013,7 @@ console.log(`isLinux: ${LINUX}`);
         if (!ref.displayName || ref.displayName.substring(0, 3) === 'ID:') {
             return;
         }
-        for (var ctx of API.cachedUsers.values()) {
+        for (ctx of API.cachedUsers.values()) {
             if (ctx.displayName === ref.displayName) {
                 this.showUserDialog(ctx.id);
                 return;
@@ -4998,7 +5021,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         this.searchText = ref.displayName;
         await this.searchUserByDisplayName(ref.displayName);
-        for (var ctx of this.searchUserResults) {
+        for (ctx of this.searchUserResults) {
             if (ctx.displayName === ref.displayName) {
                 this.searchText = '';
                 this.clearSearch();
@@ -5105,10 +5128,11 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     $app.methods.applyFavorite = async function (type, objectId, sortTop) {
-        var favorite = API.cachedFavoritesByObjectId.get(objectId);
-        var ctx = this.favoriteObjects.get(objectId);
+        let ref;
+        const favorite = API.cachedFavoritesByObjectId.get(objectId);
+        let ctx = this.favoriteObjects.get(objectId);
         if (typeof favorite !== 'undefined') {
-            var isTypeChanged = false;
+            let isTypeChanged = false;
             if (typeof ctx === 'undefined') {
                 ctx = {
                     id: objectId,
@@ -5120,7 +5144,7 @@ console.log(`isLinux: ${LINUX}`);
                 };
                 this.favoriteObjects.set(objectId, ctx);
                 if (type === 'friend') {
-                    var ref = API.cachedUsers.get(objectId);
+                    ref = API.cachedUsers.get(objectId);
                     if (typeof ref === 'undefined') {
                         ref = this.friendLog.get(objectId);
                         if (typeof ref !== 'undefined' && ref.displayName) {
@@ -5131,13 +5155,13 @@ console.log(`isLinux: ${LINUX}`);
                         ctx.name = ref.displayName;
                     }
                 } else if (type === 'world') {
-                    var ref = API.cachedWorlds.get(objectId);
+                    ref = API.cachedWorlds.get(objectId);
                     if (typeof ref !== 'undefined') {
                         ctx.ref = ref;
                         ctx.name = ref.name;
                     }
                 } else if (type === 'avatar') {
-                    var ref = API.cachedAvatars.get(objectId);
+                    ref = API.cachedAvatars.get(objectId);
                     if (typeof ref !== 'undefined') {
                         ctx.ref = ref;
                         ctx.name = ref.name;
@@ -5160,7 +5184,7 @@ console.log(`isLinux: ${LINUX}`);
                     }
                 }
                 if (type === 'friend') {
-                    var ref = API.cachedUsers.get(objectId);
+                    ref = API.cachedUsers.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;
@@ -5172,7 +5196,7 @@ console.log(`isLinux: ${LINUX}`);
                     }
                     // else too bad
                 } else if (type === 'world') {
-                    var ref = API.cachedWorlds.get(objectId);
+                    ref = API.cachedWorlds.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;
@@ -5183,7 +5207,8 @@ console.log(`isLinux: ${LINUX}`);
                         }
                     } else {
                         // try fetch from local world favorites
-                        var world = await database.getCachedWorldById(objectId);
+                        const world =
+                            await database.getCachedWorldById(objectId);
                         if (world) {
                             ctx.ref = world;
                             ctx.name = world.name;
@@ -5192,7 +5217,7 @@ console.log(`isLinux: ${LINUX}`);
                         }
                         if (!world) {
                             // try fetch from local world history
-                            var worldName =
+                            const worldName =
                                 await database.getGameLogWorldNameByWorldId(
                                     objectId
                                 );
@@ -5204,7 +5229,7 @@ console.log(`isLinux: ${LINUX}`);
                         }
                     }
                 } else if (type === 'avatar') {
-                    var ref = API.cachedAvatars.get(objectId);
+                    ref = API.cachedAvatars.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;
@@ -5215,7 +5240,7 @@ console.log(`isLinux: ${LINUX}`);
                         }
                     } else {
                         // try fetch from local avatar history
-                        var avatar =
+                        const avatar =
                             await database.getCachedAvatarById(objectId);
                         if (avatar) {
                             ctx.ref = avatar;
@@ -5434,17 +5459,18 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.getFriendLog = async function (currentUser) {
+        let friend;
         this.friendNumber = await configRepository.getInt(
             `VRCX_friendNumber_${currentUser.id}`,
             0
         );
-        var maxFriendLogNumber = await database.getMaxFriendLogNumber();
+        const maxFriendLogNumber = await database.getMaxFriendLogNumber();
         if (this.friendNumber < maxFriendLogNumber) {
             this.friendNumber = maxFriendLogNumber;
         }
 
-        var friendLogCurrentArray = await database.getFriendLogCurrent();
-        for (var friend of friendLogCurrentArray) {
+        const friendLogCurrentArray = await database.getFriendLogCurrent();
+        for (friend of friendLogCurrentArray) {
             this.friendLog.set(friend.userId, friend);
         }
         this.friendLogTable.data = [];
@@ -5455,8 +5481,8 @@ console.log(`isLinux: ${LINUX}`);
         this.friendLogInitStatus = true;
 
         // check for friend/name/rank change AFTER friendLogInitStatus is set
-        for (var friend of friendLogCurrentArray) {
-            var ref = API.cachedUsers.get(friend.userId);
+        for (friend of friendLogCurrentArray) {
+            const ref = API.cachedUsers.get(friend.userId);
             if (typeof ref !== 'undefined') {
                 this.updateFriendship(ref);
             }
@@ -5582,12 +5608,13 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.updateFriendships = function (ref) {
-        var set = new Set();
-        for (var id of ref.friends) {
+        let id;
+        const set = new Set();
+        for (id of ref.friends) {
             set.add(id);
             this.addFriendship(id);
         }
-        for (var id of this.friendLog.keys()) {
+        for (id of this.friendLog.keys()) {
             if (id === API.currentUser.id) {
                 this.friendLog.delete(id);
                 database.deleteFriendLogCurrent(id);
@@ -7088,33 +7115,35 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.directAccessWorld = function (textBoxInput) {
-        var input = textBoxInput;
+        let worldId;
+        let shortName;
+        let input = textBoxInput;
         if (input.startsWith('/home/')) {
             input = `https://vrchat.com${input}`;
         }
         if (input.length === 8) {
             return this.verifyShortName('', input);
         } else if (input.startsWith('https://vrch.at/')) {
-            var shortName = input.substring(16, 24);
+            shortName = input.substring(16, 24);
             return this.verifyShortName('', shortName);
         } else if (
             input.startsWith('https://vrchat.') ||
             input.startsWith('/home/')
         ) {
-            var url = new URL(input);
-            var urlPath = url.pathname;
-            var urlPathSplit = urlPath.split('/');
+            const url = new URL(input);
+            const urlPath = url.pathname;
+            const urlPathSplit = urlPath.split('/');
             if (urlPathSplit.length >= 4 && urlPathSplit[2] === 'world') {
-                var worldId = urlPathSplit[3];
+                worldId = urlPathSplit[3];
                 this.showWorldDialog(worldId);
                 return true;
             } else if (urlPath.substring(5, 12) === '/launch') {
-                var urlParams = new URLSearchParams(url.search);
-                var worldId = urlParams.get('worldId');
-                var instanceId = urlParams.get('instanceId');
+                const urlParams = new URLSearchParams(url.search);
+                worldId = urlParams.get('worldId');
+                const instanceId = urlParams.get('instanceId');
                 if (instanceId) {
-                    var shortName = urlParams.get('shortName');
-                    var location = `${worldId}:${instanceId}`;
+                    shortName = urlParams.get('shortName');
+                    const location = `${worldId}:${instanceId}`;
                     if (shortName) {
                         return this.verifyShortName(location, shortName);
                     }
@@ -7740,11 +7769,14 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
-        var D = this.userDialog;
+        let addUser;
+        let friend;
+        let ref;
+        const D = this.userDialog;
         if (!D.visible) {
             return;
         }
-        var L = parseLocation(D.ref.$location.tag);
+        const L = parseLocation(D.ref.$location.tag);
         if (updateInstanceOccupants && L.isRealInstance) {
             instanceRequest.getInstance({
                 worldId: L.worldId,
@@ -7753,7 +7785,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         D.$location = L;
         if (L.userId) {
-            var ref = API.cachedUsers.get(L.userId);
+            ref = API.cachedUsers.get(L.userId);
             if (typeof ref === 'undefined') {
                 userRequest
                     .getUser({
@@ -7767,13 +7799,13 @@ console.log(`isLinux: ${LINUX}`);
                 L.user = ref;
             }
         }
-        var users = [];
-        var friendCount = 0;
-        var playersInInstance = this.lastLocation.playerList;
-        var cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-        var currentLocation = cachedCurrentUser.$location.tag;
+        const users = [];
+        let friendCount = 0;
+        const playersInInstance = this.lastLocation.playerList;
+        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const currentLocation = cachedCurrentUser.$location.tag;
         if (!L.isOffline && currentLocation === L.tag) {
-            var ref = API.cachedUsers.get(API.currentUser.id);
+            ref = API.cachedUsers.get(API.currentUser.id);
             if (typeof ref !== 'undefined') {
                 users.push(ref); // add self
             }
@@ -7783,14 +7815,14 @@ console.log(`isLinux: ${LINUX}`);
             this.lastLocation.location === L.tag &&
             playersInInstance.size > 0
         ) {
-            var friendsInInstance = this.lastLocation.friendList;
-            for (var friend of friendsInInstance.values()) {
+            const friendsInInstance = this.lastLocation.friendList;
+            for (friend of friendsInInstance.values()) {
                 // if friend isn't in instance add them
-                var addUser = !users.some(function (user) {
+                addUser = !users.some(function (user) {
                     return friend.userId === user.id;
                 });
                 if (addUser) {
-                    var ref = API.cachedUsers.get(friend.userId);
+                    ref = API.cachedUsers.get(friend.userId);
                     if (typeof ref !== 'undefined') {
                         users.push(ref);
                     }
@@ -7799,7 +7831,7 @@ console.log(`isLinux: ${LINUX}`);
             friendCount = users.length - 1;
         }
         if (!L.isOffline) {
-            for (var friend of this.friends.values()) {
+            for (friend of this.friends.values()) {
                 if (typeof friend.ref === 'undefined') {
                     continue;
                 }
@@ -7816,7 +7848,7 @@ console.log(`isLinux: ${LINUX}`);
                         continue;
                     }
                     // if friend isn't in instance add them
-                    var addUser = !users.some(function (user) {
+                    addUser = !users.some(function (user) {
                         return friend.name === user.displayName;
                     });
                     if (addUser) {
@@ -7858,7 +7890,7 @@ console.log(`isLinux: ${LINUX}`);
                 ref: {}
             };
         }
-        var instanceRef = API.cachedInstances.get(L.tag);
+        const instanceRef = API.cachedInstances.get(L.tag);
         if (typeof instanceRef !== 'undefined') {
             D.instance.ref = instanceRef;
         }
@@ -7941,10 +7973,10 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.updatePlayerListDebounce = function () {
-        var users = [];
-        var pushUser = function (ref) {
-            var photonId = '';
-            var isFriend = false;
+        const users = [];
+        const pushUser = function (ref) {
+            let photonId = '';
+            let isFriend = false;
             $app.photonLobbyCurrent.forEach((ref1, id) => {
                 if (typeof ref1 !== 'undefined') {
                     if (
@@ -7959,17 +7991,17 @@ console.log(`isLinux: ${LINUX}`);
                     }
                 }
             });
-            var isMaster = false;
+            let isMaster = false;
             if (
                 $app.photonLobbyMaster !== 0 &&
                 photonId === $app.photonLobbyMaster
             ) {
                 isMaster = true;
             }
-            var isModerator = false;
-            var lobbyJointime = $app.photonLobbyJointime.get(photonId);
-            var inVRMode = null;
-            var groupOnNameplate = '';
+            let isModerator = false;
+            const lobbyJointime = $app.photonLobbyJointime.get(photonId);
+            let inVRMode = null;
+            let groupOnNameplate = '';
             if (typeof lobbyJointime !== 'undefined') {
                 inVRMode = lobbyJointime.inVRMode;
                 groupOnNameplate = lobbyJointime.groupOnNameplate;
@@ -7982,7 +8014,7 @@ console.log(`isLinux: ${LINUX}`);
             //         groupOnNameplate = args.ref.name;
             //     });
             // }
-            var timeoutTime = 0;
+            let timeoutTime = 0;
             if (typeof ref.id !== 'undefined') {
                 isFriend = ref.isFriend;
                 if (
@@ -8018,32 +8050,32 @@ console.log(`isLinux: ${LINUX}`);
             // get block, mute
         };
 
-        var playersInInstance = this.lastLocation.playerList;
+        const playersInInstance = this.lastLocation.playerList;
         if (playersInInstance.size > 0) {
-            var ref = API.cachedUsers.get(API.currentUser.id);
+            let ref = API.cachedUsers.get(API.currentUser.id);
             if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
                 pushUser(ref);
             }
-            for (var player of playersInInstance.values()) {
+            for (const player of playersInInstance.values()) {
                 // if friend isn't in instance add them
                 if (player.displayName === API.currentUser.displayName) {
                     continue;
                 }
-                var addUser = !users.some(function (user) {
+                const addUser = !users.some(function (user) {
                     return player.displayName === user.displayName;
                 });
                 if (addUser) {
-                    var ref = API.cachedUsers.get(player.userId);
+                    ref = API.cachedUsers.get(player.userId);
                     if (typeof ref !== 'undefined') {
                         pushUser(ref);
                     } else {
-                        var { joinTime } = this.lastLocation.playerList.get(
+                        let { joinTime } = this.lastLocation.playerList.get(
                             player.userId
                         );
                         if (!joinTime) {
                             joinTime = Date.now();
                         }
-                        var ref = {
+                        ref = {
                             // if userId is missing just push displayName
                             displayName: player.displayName,
                             $location_at: joinTime,
@@ -8078,7 +8110,8 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.currentInstanceLocation = {};
 
     $app.methods.updateCurrentInstanceWorld = function () {
-        var instanceId = this.lastLocation.location;
+        let L;
+        let instanceId = this.lastLocation.location;
         if (this.lastLocation.location === 'traveling') {
             instanceId = this.lastLocationDestination;
         }
@@ -8111,7 +8144,7 @@ console.log(`isLinux: ${LINUX}`);
                 bundleSizes: [],
                 lastUpdated: ''
             };
-            var L = parseLocation(instanceId);
+            L = parseLocation(instanceId);
             this.currentInstanceLocation = L;
             worldRequest
                 .getWorld({
@@ -8151,7 +8184,7 @@ console.log(`isLinux: ${LINUX}`);
                 })
                 .then((args) => {
                     this.currentInstanceWorld.ref = args.ref;
-                    var { isPC, isQuest, isIos } = getAvailablePlatforms(
+                    const { isPC, isQuest, isIos } = getAvailablePlatforms(
                         args.ref.unityPackages
                     );
                     this.currentInstanceWorld.isPC = isPC;
@@ -8168,11 +8201,11 @@ console.log(`isLinux: ${LINUX}`);
                 });
         }
         if (isRealInstance(instanceId)) {
-            var ref = API.cachedInstances.get(instanceId);
+            const ref = API.cachedInstances.get(instanceId);
             if (typeof ref !== 'undefined') {
                 this.currentInstanceWorld.instance = ref;
             } else {
-                var L = parseLocation(instanceId);
+                L = parseLocation(instanceId);
                 if (L.isRealInstance) {
                     instanceRequest
                         .getInstance({
@@ -8671,15 +8704,17 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.applyWorldDialogInstances = function () {
-        var D = this.worldDialog;
+        let ref;
+        let instance;
+        const D = this.worldDialog;
         if (!D.visible) {
             return;
         }
-        var instances = {};
+        const instances = {};
         if (D.ref.instances) {
-            for (var instance of D.ref.instances) {
+            for (instance of D.ref.instances) {
                 // instance = [ instanceId, occupants ]
-                var instanceId = instance[0];
+                const instanceId = instance[0];
                 instances[instanceId] = {
                     id: instanceId,
                     tag: `${D.id}:${instanceId}`,
@@ -8691,7 +8726,7 @@ console.log(`isLinux: ${LINUX}`);
                 };
             }
         }
-        var { instanceId, shortName } = D.$location;
+        const { instanceId, shortName } = D.$location;
         if (instanceId && typeof instances[instanceId] === 'undefined') {
             instances[instanceId] = {
                 id: instanceId,
@@ -8703,13 +8738,13 @@ console.log(`isLinux: ${LINUX}`);
                 ref: {}
             };
         }
-        var cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-        var lastLocation$ = cachedCurrentUser.$location;
-        var playersInInstance = this.lastLocation.playerList;
+        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const lastLocation$ = cachedCurrentUser.$location;
+        const playersInInstance = this.lastLocation.playerList;
         if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
             // pull instance json from cache
-            var friendsInInstance = this.lastLocation.friendList;
-            var instance = {
+            const friendsInInstance = this.lastLocation.friendList;
+            instance = {
                 id: lastLocation$.instanceId,
                 tag: lastLocation$.tag,
                 $location: {},
@@ -8719,20 +8754,21 @@ console.log(`isLinux: ${LINUX}`);
                 ref: {}
             };
             instances[instance.id] = instance;
-            for (var friend of friendsInInstance.values()) {
+            for (const friend of friendsInInstance.values()) {
                 // if friend isn't in instance add them
-                var addUser = !instance.users.some(function (user) {
+                const addUser = !instance.users.some(function (user) {
                     return friend.userId === user.id;
                 });
                 if (addUser) {
-                    var ref = API.cachedUsers.get(friend.userId);
+                    ref = API.cachedUsers.get(friend.userId);
                     if (typeof ref !== 'undefined') {
                         instance.users.push(ref);
                     }
                 }
             }
         }
-        for (var { ref } of this.friends.values()) {
+        for (const friend of this.friends.values()) {
+            const { ref } = friend;
             if (
                 typeof ref === 'undefined' ||
                 typeof ref.$location === 'undefined' ||
@@ -8747,8 +8783,8 @@ console.log(`isLinux: ${LINUX}`);
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
-            var { instanceId } = ref.$location;
-            var instance = instances[instanceId];
+            const { instanceId } = ref.$location;
+            instance = instances[instanceId];
             if (typeof instance === 'undefined') {
                 instance = {
                     id: instanceId,
@@ -8763,10 +8799,10 @@ console.log(`isLinux: ${LINUX}`);
             }
             instance.users.push(ref);
         }
-        var ref = API.cachedUsers.get(API.currentUser.id);
+        ref = API.cachedUsers.get(API.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.worldId === D.id) {
-            var { instanceId } = ref.$location;
-            var instance = instances[instanceId];
+            const { instanceId } = ref.$location;
+            instance = instances[instanceId];
             if (typeof instance === 'undefined') {
                 instance = {
                     id: instanceId,
@@ -8781,8 +8817,8 @@ console.log(`isLinux: ${LINUX}`);
             }
             instance.users.push(ref); // add self
         }
-        var rooms = [];
-        for (var instance of Object.values(instances)) {
+        const rooms = [];
+        for (instance of Object.values(instances)) {
             // due to references on callback of API.getUser()
             // this should be block scope variable
             const L = parseLocation(`${D.id}:${instance.id}`);
@@ -8792,7 +8828,7 @@ console.log(`isLinux: ${LINUX}`);
             }
             instance.$location = L;
             if (L.userId) {
-                var ref = API.cachedUsers.get(L.userId);
+                ref = API.cachedUsers.get(L.userId);
                 if (typeof ref === 'undefined') {
                     userRequest
                         .getUser({
@@ -8817,8 +8853,8 @@ console.log(`isLinux: ${LINUX}`);
             rooms.push(instance);
         }
         // get instance from cache
-        for (var room of rooms) {
-            var ref = API.cachedInstances.get(room.tag);
+        for (const room of rooms) {
+            ref = API.cachedInstances.get(room.tag);
             if (typeof ref !== 'undefined') {
                 room.ref = ref;
             }
@@ -8863,12 +8899,14 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.applyGroupDialogInstances = function (inputInstances) {
-        var D = this.groupDialog;
+        let ref;
+        let instance;
+        const D = this.groupDialog;
         if (!D.visible) {
             return;
         }
-        var instances = {};
-        for (var instance of D.instances) {
+        const instances = {};
+        for (instance of D.instances) {
             instances[instance.tag] = {
                 ...instance,
                 friendCount: 0,
@@ -8876,7 +8914,7 @@ console.log(`isLinux: ${LINUX}`);
             };
         }
         if (typeof inputInstances !== 'undefined') {
-            for (var instance of inputInstances) {
+            for (instance of inputInstances) {
                 instances[instance.location] = {
                     id: instance.instanceId,
                     tag: instance.location,
@@ -8888,13 +8926,13 @@ console.log(`isLinux: ${LINUX}`);
                 };
             }
         }
-        var cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-        var lastLocation$ = cachedCurrentUser.$location;
-        var currentLocation = lastLocation$.tag;
-        var playersInInstance = this.lastLocation.playerList;
+        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const lastLocation$ = cachedCurrentUser.$location;
+        const currentLocation = lastLocation$.tag;
+        const playersInInstance = this.lastLocation.playerList;
         if (lastLocation$.groupId === D.id && playersInInstance.size > 0) {
-            var friendsInInstance = this.lastLocation.friendList;
-            var instance = {
+            const friendsInInstance = this.lastLocation.friendList;
+            instance = {
                 id: lastLocation$.instanceId,
                 tag: currentLocation,
                 $location: {},
@@ -8904,20 +8942,21 @@ console.log(`isLinux: ${LINUX}`);
                 ref: {}
             };
             instances[currentLocation] = instance;
-            for (var friend of friendsInInstance.values()) {
+            for (const friend of friendsInInstance.values()) {
                 // if friend isn't in instance add them
-                var addUser = !instance.users.some(function (user) {
+                const addUser = !instance.users.some(function (user) {
                     return friend.userId === user.id;
                 });
                 if (addUser) {
-                    var ref = API.cachedUsers.get(friend.userId);
+                    ref = API.cachedUsers.get(friend.userId);
                     if (typeof ref !== 'undefined') {
                         instance.users.push(ref);
                     }
                 }
             }
         }
-        for (var { ref } of this.friends.values()) {
+        for (const friend of this.friends.values()) {
+            const { ref } = friend;
             if (
                 typeof ref === 'undefined' ||
                 typeof ref.$location === 'undefined' ||
@@ -8932,8 +8971,8 @@ console.log(`isLinux: ${LINUX}`);
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
-            var { instanceId, tag } = ref.$location;
-            var instance = instances[tag];
+            const { instanceId, tag } = ref.$location;
+            instance = instances[tag];
             if (typeof instance === 'undefined') {
                 instance = {
                     id: instanceId,
@@ -8948,10 +8987,10 @@ console.log(`isLinux: ${LINUX}`);
             }
             instance.users.push(ref);
         }
-        var ref = API.cachedUsers.get(API.currentUser.id);
+        ref = API.cachedUsers.get(API.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.groupId === D.id) {
-            var { instanceId, tag } = ref.$location;
-            var instance = instances[tag];
+            const { instanceId, tag } = ref.$location;
+            instance = instances[tag];
             if (typeof instance === 'undefined') {
                 instance = {
                     id: instanceId,
@@ -8966,8 +9005,8 @@ console.log(`isLinux: ${LINUX}`);
             }
             instance.users.push(ref); // add self
         }
-        var rooms = [];
-        for (var instance of Object.values(instances)) {
+        const rooms = [];
+        for (instance of Object.values(instances)) {
             // due to references on callback of API.getUser()
             // this should be block scope variable
             const L = parseLocation(instance.tag);
@@ -8984,8 +9023,8 @@ console.log(`isLinux: ${LINUX}`);
             rooms.push(instance);
         }
         // get instance
-        for (var room of rooms) {
-            var ref = API.cachedInstances.get(room.tag);
+        for (const room of rooms) {
+            ref = API.cachedInstances.get(room.tag);
             if (typeof ref !== 'undefined') {
                 room.ref = ref;
             } else if (isRealInstance(room.tag)) {
@@ -9320,26 +9359,27 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.updateFavoriteDialog = function (objectId) {
-        var D = this.favoriteDialog;
+        const D = this.favoriteDialog;
         if (!D.visible || D.objectId !== objectId) {
             return;
         }
         D.currentGroup = {};
-        var favorite = this.favoriteObjects.get(objectId);
+        const favorite = this.favoriteObjects.get(objectId);
         if (favorite) {
-            for (var group of API.favoriteWorldGroups) {
+            let group;
+            for (group of API.favoriteWorldGroups) {
                 if (favorite.groupKey === group.key) {
                     D.currentGroup = group;
                     return;
                 }
             }
-            for (var group of API.favoriteAvatarGroups) {
+            for (group of API.favoriteAvatarGroups) {
                 if (favorite.groupKey === group.key) {
                     D.currentGroup = group;
                     return;
                 }
             }
-            for (var group of API.favoriteFriendGroups) {
+            for (group of API.favoriteFriendGroups) {
                 if (favorite.groupKey === group.key) {
                     D.currentGroup = group;
                     return;
@@ -9833,28 +9873,30 @@ console.log(`isLinux: ${LINUX}`);
     // };
 
     $app.methods.getAllUserStats = async function () {
-        var userIds = [];
-        var displayNames = [];
-        for (var ctx of this.friends.values()) {
+        let ref;
+        let item;
+        const userIds = [];
+        const displayNames = [];
+        for (const ctx of this.friends.values()) {
             userIds.push(ctx.id);
             if (ctx.ref?.displayName) {
                 displayNames.push(ctx.ref.displayName);
             }
         }
 
-        var data = await database.getAllUserStats(userIds, displayNames);
-        var friendListMap = new Map();
-        for (var item of data) {
+        const data = await database.getAllUserStats(userIds, displayNames);
+        const friendListMap = new Map();
+        for (item of data) {
             if (!item.userId) {
                 // find userId from previous data with matching displayName
-                for (var ref of data) {
+                for (ref of data) {
                     if (ref.displayName === item.displayName && ref.userId) {
                         item.userId = ref.userId;
                     }
                 }
                 // if still no userId, find userId from friends list
                 if (!item.userId) {
-                    for (var ref of this.friends.values()) {
+                    for (ref of this.friends.values()) {
                         if (
                             ref?.ref?.id &&
                             ref.ref.displayName === item.displayName
@@ -9869,7 +9911,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
 
-            var friend = friendListMap.get(item.userId);
+            const friend = friendListMap.get(item.userId);
             if (!friend) {
                 friendListMap.set(item.userId, item);
                 continue;
@@ -9882,8 +9924,8 @@ console.log(`isLinux: ${LINUX}`);
             friend.displayName = item.displayName;
             friendListMap.set(item.userId, friend);
         }
-        for (var item of friendListMap.values()) {
-            var ref = this.friends.get(item.userId);
+        for (item of friendListMap.values()) {
+            ref = this.friends.get(item.userId);
             if (ref?.ref) {
                 ref.ref.$joinCount = item.joinCount;
                 ref.ref.$lastSeen = item.lastSeen;
@@ -10942,6 +10984,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.eventVrcxMessage = function (data) {
+        let entry;
         switch (data.MsgType) {
             case 'CustomTag':
                 this.addCustomTag(data);
@@ -10949,7 +10992,7 @@ console.log(`isLinux: ${LINUX}`);
             case 'ClearCustomTags':
                 this.customUserTags.forEach((value, key) => {
                     this.customUserTags.delete(key);
-                    var ref = API.cachedUsers.get(key);
+                    const ref = API.cachedUsers.get(key);
                     if (typeof ref !== 'undefined') {
                         ref.$customTag = '';
                         ref.$customTagColour = '';
@@ -10964,7 +11007,7 @@ console.log(`isLinux: ${LINUX}`);
                 ) {
                     return;
                 }
-                var entry = {
+                entry = {
                     created_at: new Date().toJSON(),
                     type: 'Event',
                     data: data.Data
@@ -10973,9 +11016,9 @@ console.log(`isLinux: ${LINUX}`);
                 this.queueGameLogNoty(entry);
                 this.addGameLog(entry);
                 break;
-            case 'External':
-                var displayName = data.DisplayName ?? '';
-                var entry = {
+            case 'External': {
+                const displayName = data.DisplayName ?? '';
+                entry = {
                     created_at: new Date().toJSON(),
                     type: 'External',
                     message: data.Data,
@@ -10987,6 +11030,7 @@ console.log(`isLinux: ${LINUX}`);
                 this.queueGameLogNoty(entry);
                 this.addGameLog(entry);
                 break;
+            }
             default:
                 console.log('VRCXMessage:', data);
                 break;
@@ -11202,19 +11246,19 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.HSVtoRGB = function (h, s, v) {
-        var r = 0;
-        var g = 0;
-        var b = 0;
+        let r = 0;
+        let g = 0;
+        let b = 0;
         if (arguments.length === 1) {
-            var s = h.s;
-            var v = h.v;
-            var h = h.h;
+            s = h.s;
+            v = h.v;
+            h = h.h;
         }
-        var i = Math.floor(h * 6);
-        var f = h * 6 - i;
-        var p = v * (1 - s);
-        var q = v * (1 - f * s);
-        var t = v * (1 - (1 - f) * s);
+        const i = Math.floor(h * 6);
+        const f = h * 6 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
         switch (i % 6) {
             case 0:
                 r = v;
@@ -11247,10 +11291,10 @@ console.log(`isLinux: ${LINUX}`);
                 b = q;
                 break;
         }
-        var red = Math.round(r * 255);
-        var green = Math.round(g * 255);
-        var blue = Math.round(b * 255);
-        var decColor = 0x1000000 + blue + 0x100 * green + 0x10000 * red;
+        const red = Math.round(r * 255);
+        const green = Math.round(g * 255);
+        const blue = Math.round(b * 255);
+        const decColor = 0x1000000 + blue + 0x100 * green + 0x10000 * red;
         return `#${decColor.toString(16).substr(1)}`;
     };
 
@@ -11689,13 +11733,14 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.clearBulkFavoriteSelection = function () {
-        for (var ctx of this.favoriteFriends) {
+        let ctx;
+        for (ctx of this.favoriteFriends) {
             ctx.$selected = false;
         }
-        for (var ctx of this.favoriteWorlds) {
+        for (ctx of this.favoriteWorlds) {
             ctx.$selected = false;
         }
-        for (var ctx of this.favoriteAvatars) {
+        for (ctx of this.favoriteAvatars) {
             ctx.$selected = false;
         }
     };
@@ -11739,26 +11784,27 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.removeLocalWorldFavorite = function (worldId, group) {
-        var favoriteGroup = this.localWorldFavorites[group];
-        for (var i = 0; i < favoriteGroup.length; ++i) {
+        let i;
+        const favoriteGroup = this.localWorldFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
             if (favoriteGroup[i].id === worldId) {
                 favoriteGroup.splice(i, 1);
             }
         }
 
         // remove from cache if no longer in favorites
-        var worldInFavorites = false;
-        for (var i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-            var groupName = this.localWorldFavoriteGroups[i];
+        let worldInFavorites = false;
+        for (i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
+            const groupName = this.localWorldFavoriteGroups[i];
             if (!this.localWorldFavorites[groupName] || group === groupName) {
                 continue;
             }
             for (
-                var j = 0;
+                let j = 0;
                 j < this.localWorldFavorites[groupName].length;
                 ++j
             ) {
-                var id = this.localWorldFavorites[groupName][j].id;
+                const id = this.localWorldFavorites[groupName][j].id;
                 if (id === worldId) {
                     worldInFavorites = true;
                     break;
@@ -11897,10 +11943,11 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.deleteLocalWorldFavoriteGroup = function (group) {
+        let i;
         // remove from cache if no longer in favorites
-        var worldIdRemoveList = new Set();
-        var favoriteGroup = this.localWorldFavorites[group];
-        for (var i = 0; i < favoriteGroup.length; ++i) {
+        const worldIdRemoveList = new Set();
+        const favoriteGroup = this.localWorldFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
             worldIdRemoveList.add(favoriteGroup[i].id);
         }
 
@@ -11908,17 +11955,17 @@ console.log(`isLinux: ${LINUX}`);
         delete this.localWorldFavorites[group];
         database.deleteWorldFavoriteGroup(group);
 
-        for (var i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-            var groupName = this.localWorldFavoriteGroups[i];
+        for (i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
+            const groupName = this.localWorldFavoriteGroups[i];
             if (!this.localWorldFavorites[groupName]) {
                 continue;
             }
             for (
-                var j = 0;
+                let j = 0;
                 j < this.localWorldFavorites[groupName].length;
                 ++j
             ) {
-                var worldId = this.localWorldFavorites[groupName][j].id;
+                const worldId = this.localWorldFavorites[groupName][j].id;
                 if (worldIdRemoveList.has(worldId)) {
                     worldIdRemoveList.delete(worldId);
                     break;
@@ -11982,26 +12029,27 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
-        var favoriteGroup = this.localAvatarFavorites[group];
-        for (var i = 0; i < favoriteGroup.length; ++i) {
+        let i;
+        const favoriteGroup = this.localAvatarFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
             if (favoriteGroup[i].id === avatarId) {
                 favoriteGroup.splice(i, 1);
             }
         }
 
         // remove from cache if no longer in favorites
-        var avatarInFavorites = false;
-        for (var i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-            var groupName = this.localAvatarFavoriteGroups[i];
+        let avatarInFavorites = false;
+        for (i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
+            const groupName = this.localAvatarFavoriteGroups[i];
             if (!this.localAvatarFavorites[groupName] || group === groupName) {
                 continue;
             }
             for (
-                var j = 0;
+                let j = 0;
                 j < this.localAvatarFavorites[groupName].length;
                 ++j
             ) {
-                var id = this.localAvatarFavorites[groupName][j].id;
+                const id = this.localAvatarFavorites[groupName][j].id;
                 if (id === avatarId) {
                     avatarInFavorites = true;
                     break;
@@ -12062,19 +12110,21 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     $app.methods.getLocalAvatarFavorites = async function () {
+        let ref;
+        let i;
         this.localAvatarFavoriteGroups = [];
         this.localAvatarFavoritesList = [];
         this.localAvatarFavorites = {};
-        var avatarCache = await database.getAvatarCache();
-        for (var i = 0; i < avatarCache.length; ++i) {
-            var ref = avatarCache[i];
+        const avatarCache = await database.getAvatarCache();
+        for (i = 0; i < avatarCache.length; ++i) {
+            ref = avatarCache[i];
             if (!API.cachedAvatars.has(ref.id)) {
                 API.applyAvatar(ref);
             }
         }
-        var favorites = await database.getAvatarFavorites();
-        for (var i = 0; i < favorites.length; ++i) {
-            var favorite = favorites[i];
+        const favorites = await database.getAvatarFavorites();
+        for (i = 0; i < favorites.length; ++i) {
+            const favorite = favorites[i];
             if (!this.localAvatarFavoritesList.includes(favorite.avatarId)) {
                 this.localAvatarFavoritesList.push(favorite.avatarId);
             }
@@ -12084,7 +12134,7 @@ console.log(`isLinux: ${LINUX}`);
             if (!this.localAvatarFavoriteGroups.includes(favorite.groupName)) {
                 this.localAvatarFavoriteGroups.push(favorite.groupName);
             }
-            var ref = API.cachedAvatars.get(favorite.avatarId);
+            ref = API.cachedAvatars.get(favorite.avatarId);
             if (typeof ref === 'undefined') {
                 ref = {
                     id: favorite.avatarId
@@ -12228,10 +12278,11 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
+        let i;
         // remove from cache if no longer in favorites
-        var avatarIdRemoveList = new Set();
-        var favoriteGroup = this.localAvatarFavorites[group];
-        for (var i = 0; i < favoriteGroup.length; ++i) {
+        const avatarIdRemoveList = new Set();
+        const favoriteGroup = this.localAvatarFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
             avatarIdRemoveList.add(favoriteGroup[i].id);
         }
 
@@ -12239,17 +12290,17 @@ console.log(`isLinux: ${LINUX}`);
         delete this.localAvatarFavorites[group];
         database.deleteAvatarFavoriteGroup(group);
 
-        for (var i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-            var groupName = this.localAvatarFavoriteGroups[i];
+        for (i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
+            const groupName = this.localAvatarFavoriteGroups[i];
             if (!this.localAvatarFavorites[groupName]) {
                 continue;
             }
             for (
-                var j = 0;
+                let j = 0;
                 j < this.localAvatarFavorites[groupName].length;
                 ++j
             ) {
-                var avatarId = this.localAvatarFavorites[groupName][j].id;
+                const avatarId = this.localAvatarFavorites[groupName][j].id;
                 if (avatarIdRemoveList.has(avatarId)) {
                     avatarIdRemoveList.delete(avatarId);
                     break;
@@ -12259,13 +12310,13 @@ console.log(`isLinux: ${LINUX}`);
 
         avatarIdRemoveList.forEach((id) => {
             // remove from cache if no longer in favorites
-            var avatarInFavorites = false;
+            let avatarInFavorites = false;
             loop: for (
-                var i = 0;
+                let i = 0;
                 i < this.localAvatarFavoriteGroups.length;
                 ++i
             ) {
-                var groupName = this.localAvatarFavoriteGroups[i];
+                const groupName = this.localAvatarFavoriteGroups[i];
                 if (
                     !this.localAvatarFavorites[groupName] ||
                     group === groupName
@@ -12273,11 +12324,11 @@ console.log(`isLinux: ${LINUX}`);
                     continue loop;
                 }
                 for (
-                    var j = 0;
+                    let j = 0;
                     j < this.localAvatarFavorites[groupName].length;
                     ++j
                 ) {
-                    var avatarId = this.localAvatarFavorites[groupName][j].id;
+                    const avatarId = this.localAvatarFavorites[groupName][j].id;
                     if (id === avatarId) {
                         avatarInFavorites = true;
                         break loop;

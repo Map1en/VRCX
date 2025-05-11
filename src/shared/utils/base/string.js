@@ -32,6 +32,7 @@ function commaNumber(num) {
 }
 
 function localeIncludes(str, search, comparer) {
+    console.log(...arguments);
     // These checks are stolen from https://stackoverflow.com/a/69623589/11030436
     if (search === '') {
         return true;
