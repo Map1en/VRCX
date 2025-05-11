@@ -47,7 +47,7 @@
             }
         ],
         "no-var": 0,
-        "prefer-const": 0,
+        "prefer-const": 1,
         "no-loop-func": 0,
         "vars-on-top": 0,
         "object-curly-spacing": ["error", "always"],
