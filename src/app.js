@@ -2726,8 +2726,7 @@ console.log(`isLinux: ${LINUX}`);
 
     var $timers = [];
 
-    Vue.component('timer', {
-        template: '<span v-text="text"></span>',
+    Vue.component('Timer', {
         props: {
             epoch: {
                 type: Number,
@@ -2741,15 +2740,6 @@ console.log(`isLinux: ${LINUX}`);
                 text: ''
             };
         },
-        methods: {
-            update() {
-                if (!this.epoch) {
-                    this.text = '-';
-                    return;
-                }
-                this.text = timeToText(Date.now() - this.epoch);
-            }
-        },
         watch: {
             date() {
                 this.update();
@@ -2761,7 +2751,17 @@ console.log(`isLinux: ${LINUX}`);
         },
         destroyed() {
             removeFromArray($timers, this);
-        }
+        },
+        methods: {
+            update() {
+                if (!this.epoch) {
+                    this.text = '-';
+                    return;
+                }
+                this.text = timeToText(Date.now() - this.epoch);
+            }
+        },
+        template: '<span v-text="text"></span>'
     });
 
     workerTimers.setInterval(function () {
@@ -2774,8 +2774,7 @@ console.log(`isLinux: ${LINUX}`);
 
     var $countDownTimers = [];
 
-    Vue.component('countdown-timer', {
-        template: '<span v-text="text"></span>',
+    Vue.component('CountdownTimer', {
         props: {
             datetime: {
                 type: String,
@@ -2795,6 +2794,18 @@ console.log(`isLinux: ${LINUX}`);
                 text: ''
             };
         },
+        watch: {
+            date() {
+                this.update();
+            }
+        },
+        mounted() {
+            $countDownTimers.push(this);
+            this.update();
+        },
+        destroyed() {
+            removeFromArray($countDownTimers, this);
+        },
         methods: {
             update() {
                 var epoch =
@@ -2808,18 +2819,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
         },
-        watch: {
-            date() {
-                this.update();
-            }
-        },
-        mounted() {
-            $countDownTimers.push(this);
-            this.update();
-        },
-        destroyed() {
-            removeFromArray($countDownTimers, this);
-        }
+        template: '<span v-text="text"></span>'
     });
 
     workerTimers.setInterval(function () {
