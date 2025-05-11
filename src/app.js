@@ -239,7 +239,7 @@ console.log(`isLinux: ${LINUX}`);
     const API = new _apiInit($app);
     const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
-    let vrcxClasses = {
+    const vrcxClasses = {
         // other classes
         API,
         apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
@@ -647,7 +647,7 @@ console.log(`isLinux: ${LINUX}`);
         },
         pinia
     };
-    for (let value of Object.values(vrcxClasses)) {
+    for (const value of Object.values(vrcxClasses)) {
         app.methods = { ...app.methods, ...value._methods };
         app.data = { ...app.data, ...value._data };
     }
@@ -718,7 +718,7 @@ console.log(`isLinux: ${LINUX}`);
 
     Vue.use(DataTables);
 
-    Vue.component('safe-dialog', SafeDialog);
+    Vue.component('SafeDialog', SafeDialog);
 
     dayjs.extend(duration);
     dayjs.extend(utc);
@@ -1008,7 +1008,7 @@ console.log(`isLinux: ${LINUX}`);
                     !this.currentTravelers.has(ref.id) &&
                     ref.travelingToLocation
                 ) {
-                    let travelRef = {
+                    const travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
@@ -1048,7 +1048,7 @@ console.log(`isLinux: ${LINUX}`);
             this.cachedUsers.set(ref.id, ref);
         } else {
             const props = {};
-            for (let prop in ref) {
+            for (const prop in ref) {
                 if (ref[prop] !== Object(ref[prop])) {
                     props[prop] = true;
                 }
@@ -1062,7 +1062,7 @@ console.log(`isLinux: ${LINUX}`);
             if (ref.location === 'traveling') {
                 ref.$location = parseLocation(ref.travelingToLocation);
                 if (!this.currentTravelers.has(ref.id)) {
-                    let travelRef = {
+                    const travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
@@ -1079,7 +1079,7 @@ console.log(`isLinux: ${LINUX}`);
                     $app.updateSharedFeed(false);
                 }
             }
-            for (let prop in ref) {
+            for (const prop in ref) {
                 if (Array.isArray(ref[prop]) && Array.isArray($ref[prop])) {
                     if (!arraysMatch(ref[prop], $ref[prop])) {
                         props[prop] = true;
@@ -1089,7 +1089,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
             let has = false;
-            for (let prop in props) {
+            for (const prop in props) {
                 const asis = $ref[prop];
                 const tobe = ref[prop];
                 if (asis === tobe) {
@@ -3138,7 +3138,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
             )
                 .then(({ value }) => {
-                    for (let userId in this.loginForm.savedCredentials) {
+                    for (const userId in this.loginForm.savedCredentials) {
                         security
                             .decrypt(
                                 this.loginForm.savedCredentials[userId]
@@ -3185,8 +3185,8 @@ console.log(`isLinux: ${LINUX}`);
         );
         this.enablePrimaryPasswordDialog.visible = false;
         if (this.enablePrimaryPassword) {
-            let key = this.enablePrimaryPasswordDialog.password;
-            for (let userId in this.loginForm.savedCredentials) {
+            const key = this.enablePrimaryPasswordDialog.password;
+            for (const userId in this.loginForm.savedCredentials) {
                 security
                     .encrypt(
                         this.loginForm.savedCredentials[userId].loginParmas
@@ -3244,7 +3244,7 @@ console.log(`isLinux: ${LINUX}`);
                 await configRepository.getString('savedCredentials')
             );
         }
-        for (let name in savedCredentials) {
+        for (const name in savedCredentials) {
             var userId = savedCredentials[name]?.user?.id;
             if (userId && userId !== name) {
                 savedCredentials[userId] = savedCredentials[name];
@@ -4009,7 +4009,7 @@ console.log(`isLinux: ${LINUX}`);
         const results = [];
         const cleanQuery = removeWhitespace(query);
 
-        for (let ctx of this.friends.values()) {
+        for (const ctx of this.friends.values()) {
             if (typeof ctx.ref === 'undefined') {
                 continue;
             }
@@ -4569,7 +4569,7 @@ console.log(`isLinux: ${LINUX}`);
         str1,
         str2
     ) {
-        let lcs = [];
+        const lcs = [];
         for (let i = 0; i <= str1.length; i++) {
             lcs.push(new Array(str2.length + 1).fill(0));
         }
@@ -4591,7 +4591,7 @@ console.log(`isLinux: ${LINUX}`);
      * @returns {{text: string, type: "add" | "remove" | "same"}[]} An array that contains the differences between both strings
      */
     $app.methods.regoupDifferences = function regoupDifferences(res) {
-        let regrouped = [];
+        const regrouped = [];
         let text = '';
         let type = '';
         for (let i = 0; i < res.length; i++) {
@@ -5688,9 +5688,9 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     API.$on('PLAYER-MODERATION', function (args) {
-        let { ref } = args;
-        let array = $app.playerModerationTable.data;
-        let { length } = array;
+        const { ref } = args;
+        const array = $app.playerModerationTable.data;
+        const { length } = array;
         for (let i = 0; i < length; ++i) {
             if (array[i].id === ref.id) {
                 Vue.set(array, i, ref);
@@ -5701,9 +5701,9 @@ console.log(`isLinux: ${LINUX}`);
     });
 
     API.$on('PLAYER-MODERATION:@DELETE', function (args) {
-        let { ref } = args;
-        let array = $app.playerModerationTable.data;
-        let { length } = array;
+        const { ref } = args;
+        const array = $app.playerModerationTable.data;
+        const { length } = array;
         for (let i = 0; i < length; ++i) {
             if (array[i].id === ref.id) {
                 array.splice(i, 1);
@@ -6392,7 +6392,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.updateTTSVoices = function () {
         this.TTSvoices = speechSynthesis.getVoices();
         if (LINUX) {
-            let voices = speechSynthesis.getVoices();
+            const voices = speechSynthesis.getVoices();
             let uniqueVoices = [];
             voices.forEach((voice) => {
                 if (!uniqueVoices.some((v) => v.lang === voice.lang)) {
@@ -7650,7 +7650,7 @@ console.log(`isLinux: ${LINUX}`);
                                         D.joinCount = ref1.joinCount;
                                         D.timeSpent = ref1.timeSpent;
                                     }
-                                    let displayNameMap =
+                                    const displayNameMap =
                                         ref1.previousDisplayNames;
                                     this.friendLogTable.data.forEach((ref2) => {
                                         if (ref2.userId === D.id) {
@@ -8344,7 +8344,7 @@ console.log(`isLinux: ${LINUX}`);
             releaseStatus: 'all',
             user: 'me'
         };
-        for (let ref of API.cachedAvatars.values()) {
+        for (const ref of API.cachedAvatars.values()) {
             if (ref.authorId === D.id) {
                 API.cachedAvatars.delete(ref.id);
             }
@@ -8368,7 +8368,7 @@ console.log(`isLinux: ${LINUX}`);
                 D.isAvatarsLoading = false;
                 if (fileId) {
                     D.loading = false;
-                    for (let ref of array) {
+                    for (const ref of array) {
                         if (extractFileId(ref.imageUrl) === fileId) {
                             this.showAvatarDialog(ref.id);
                             return;
@@ -10510,7 +10510,7 @@ console.log(`isLinux: ${LINUX}`);
 
         if (!this.printQueueWorker) {
             this.printQueueWorker = workerTimers.setInterval(() => {
-                let printId = this.printQueue.shift();
+                const printId = this.printQueue.shift();
                 if (printId) {
                     this.trySavePrintToFile(printId);
                 }
@@ -11649,7 +11649,7 @@ console.log(`isLinux: ${LINUX}`);
         let idList = '';
         switch (type) {
             case 'friend':
-                for (let ctx of this.favoriteFriends) {
+                for (const ctx of this.favoriteFriends) {
                     if (ctx.$selected) {
                         idList += `${ctx.id}\n`;
                     }
@@ -11659,7 +11659,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
 
             case 'world':
-                for (let ctx of this.favoriteWorlds) {
+                for (const ctx of this.favoriteWorlds) {
                     if (ctx.$selected) {
                         idList += `${ctx.id}\n`;
                     }
@@ -11669,7 +11669,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
 
             case 'avatar':
-                for (let ctx of this.favoriteAvatars) {
+                for (const ctx of this.favoriteAvatars) {
                     if (ctx.$selected) {
                         idList += `${ctx.id}\n`;
                     }
@@ -13321,7 +13321,7 @@ console.log(`isLinux: ${LINUX}`);
     window.$app = $app;
     window.API = API;
     window.$t = $t;
-    for (let value of Object.values(vrcxClasses)) {
+    for (const value of Object.values(vrcxClasses)) {
         value.updateRef($app);
     }
 })();
