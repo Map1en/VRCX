@@ -1490,8 +1490,8 @@ console.log(`isLinux: ${LINUX}`);
         };
         // API offset limit *was* 5000
         // it is now 7500
-        mainLoop: for (var i = 150; i > -1; i--) {
-            retryLoop: for (var j = 0; j < 10; j++) {
+        mainLoop: for (let i = 150; i > -1; i--) {
+            retryLoop: for (let j = 0; j < 10; j++) {
                 // handle 429 ratelimit error, retry 10 times
                 try {
                     const args = await friendRequest.getFriends(params);
@@ -3825,7 +3825,9 @@ console.log(`isLinux: ${LINUX}`);
                 groupId
             });
             groupName = args.ref.name;
-        } catch (err) {}
+        } catch (err) {
+            console.error(err);
+        }
         return groupName;
     };
 
@@ -10600,7 +10602,7 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
 
-        if (this.printQueue.length == 0) {
+        if (this.printQueue.length === 0) {
             workerTimers.clearInterval(this.printQueueWorker);
             this.printQueueWorker = undefined;
         }
