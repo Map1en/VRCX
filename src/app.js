@@ -237,6 +237,7 @@ console.log(`isLinux: ${LINUX}`);
     // everything in this program is global stored in $app, I hate it, it is what it is
     let $app = {};
     const API = new _apiInit($app);
+    // eslint-disable-next-line no-unused-vars
     const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
     const vrcxClasses = {
@@ -1819,7 +1820,9 @@ console.log(`isLinux: ${LINUX}`);
                     if (object === Object(object)) {
                         details = object;
                     }
-                } catch (err) {}
+                } catch (err) {
+                    console.log(err);
+                }
             }
             ref.details = details;
         }
@@ -3012,7 +3015,6 @@ console.log(`isLinux: ${LINUX}`);
             if (typeof user !== 'undefined') {
                 delete user.cookies;
                 await this.relogin(user);
-                return;
             }
         }
     };
@@ -4575,7 +4577,7 @@ console.log(`isLinux: ${LINUX}`);
         }
         for (let i = str1.length - 1; i >= 0; i--) {
             for (let j = str2.length - 1; j >= 0; j--) {
-                if (str1[i] == str2[j]) {
+                if (str1[i] === str2[j]) {
                     lcs[i][j] = lcs[i + 1][j + 1] + 1;
                 } else {
                     lcs[i][j] = Math.max(lcs[i + 1][j], lcs[i][j + 1]);
@@ -4595,10 +4597,10 @@ console.log(`isLinux: ${LINUX}`);
         let text = '';
         let type = '';
         for (let i = 0; i < res.length; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 text = res[i].text;
                 type = res[i].type;
-            } else if (res[i].type == type) {
+            } else if (res[i].type === type) {
                 text += res[i].text;
             } else {
                 regrouped.push({ text: text, type: type });
@@ -4974,7 +4976,8 @@ console.log(`isLinux: ${LINUX}`);
                 this.errorNoty = new Noty({
                     type: 'info',
                     text
-                }).show();
+                });
+                this.errorNoty.show();
                 console.log(text);
             });
     };
@@ -5805,7 +5808,8 @@ console.log(`isLinux: ${LINUX}`);
                         this.errorNoty = new Noty({
                             type: 'info',
                             text
-                        }).show();
+                        });
+                        this.errorNoty.show();
                         console.log(text);
                         notificationRequest.hideNotification({
                             notificationId: ref.id
