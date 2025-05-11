@@ -230,6 +230,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     }
 
     return {
+        state,
         initSettings,
         isStartAtWindowsStartup,
         isStartAsMinimizedState,

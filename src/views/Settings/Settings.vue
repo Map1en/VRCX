@@ -620,7 +620,7 @@
                         :label="t('view.settings.appearance.side_panel.hide_friends_in_same_instance')"
                         :value="isHideFriendsInSameInstance"
                         :tooltip="t('view.settings.appearance.side_panel.hide_friends_in_same_instance_tooltip')"
-                        @change="toggleHideFriendsInSameInstance"></simple-switch>
+                        @change="setIsHideFriendsInSameInstance"></simple-switch>
                     <simple-switch
                         :label="t('view.settings.appearance.side_panel.split_favorite_friends')"
                         :value="isSidebarDivideByFriendGroup"
@@ -1736,6 +1736,7 @@
         sidebarSortMethod3,
         asideWidth,
         isSidebarGroupByInstance,
+        isHideFriendsInSameInstance,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1748,7 +1749,8 @@
         setSidebarSortMethod2,
         setSidebarSortMethod3,
         setAsideWidth,
-        setIsSidebarGroupByInstance
+        setIsSidebarGroupByInstance,
+        setIsHideFriendsInSameInstance
     } = appearanceSettingsStore;
 
     const { t } = useI18n();

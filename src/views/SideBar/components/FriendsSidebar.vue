@@ -191,7 +191,6 @@
 
             isSidebarDivideByFriendGroup: Boolean,
             gameLogDisabled: Boolean,
-            isHideFriendsInSameInstance: Boolean,
 
             lastLocation: Object,
             lastLocationDestination: String,
@@ -206,9 +205,10 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { isSidebarGroupByInstance } = storeToRefs(appearanceSettingsStore);
+            const { isSidebarGroupByInstance, isHideFriendsInSameInstance } = storeToRefs(appearanceSettingsStore);
             return {
-                isSidebarGroupByInstance
+                isSidebarGroupByInstance,
+                isHideFriendsInSameInstance
             };
         },
 

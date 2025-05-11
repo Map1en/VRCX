@@ -32,7 +32,8 @@ export const useAppearanceSettingsStore = defineStore(
                 'Sort by Last Active'
             ],
             asideWidth: 300,
-            isSidebarGroupByInstance: true
+            isSidebarGroupByInstance: true,
+            isHideFriendsInSameInstance: false
         });
 
         async function initSettings() {
@@ -124,6 +125,11 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_sidebarGroupByInstance',
                 true
             );
+
+            state.isHideFriendsInSameInstance = await configRepository.getBool(
+                'VRCX_hideFriendsInSameInstance',
+                false
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -151,6 +157,9 @@ export const useAppearanceSettingsStore = defineStore(
         const asideWidth = computed(() => state.asideWidth);
         const isSidebarGroupByInstance = computed(
             () => state.isSidebarGroupByInstance
+        );
+        const isHideFriendsInSameInstance = computed(
+            () => state.isHideFriendsInSameInstance
         );
 
         function setAppLanguage(language) {
@@ -257,6 +266,14 @@ export const useAppearanceSettingsStore = defineStore(
                 state.isSidebarGroupByInstance
             );
         }
+        function setIsHideFriendsInSameInstance() {
+            state.isHideFriendsInSameInstance =
+                !state.isHideFriendsInSameInstance;
+            configRepository.setBool(
+                'VRCX_hideFriendsInSameInstance',
+                state.isHideFriendsInSameInstance
+            );
+        }
 
         async function handleSetDatetimeFormat() {
             const formatDate = await formatDateFilter(
@@ -342,6 +359,8 @@ export const useAppearanceSettingsStore = defineStore(
         }
 
         return {
+            state,
+
             initSettings,
 
             appLanguage,
@@ -362,6 +381,7 @@ export const useAppearanceSettingsStore = defineStore(
             sidebarSortMethods,
             asideWidth,
             isSidebarGroupByInstance,
+            isHideFriendsInSameInstance,
 
             setAppLanguage,
             setThemeMode,
@@ -380,7 +400,8 @@ export const useAppearanceSettingsStore = defineStore(
             setSidebarSortMethod3,
             setSidebarSortMethods,
             setAsideWidth,
-            setIsSidebarGroupByInstance
+            setIsSidebarGroupByInstance,
+            setIsHideFriendsInSameInstance
         };
     }
 );

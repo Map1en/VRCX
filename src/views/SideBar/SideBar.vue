@@ -79,7 +79,6 @@
                     :offline-friends="offlineFriends"
                     :online-friends="onlineFriends"
                     :vip-friends="vipFriends"
-                    :is-hide-friends-in-same-instance="isHideFriendsInSameInstance"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
             </el-tab-pane>
@@ -118,7 +117,6 @@
             isGameRunning: Boolean,
             isSidebarDivideByFriendGroup: Boolean,
             gameLogDisabled: Boolean,
-            isHideFriendsInSameInstance: Boolean,
 
             isSideBarTabShow: Boolean,
 

@@ -427,7 +427,7 @@ mixin settingsTab
                         v-if='isSidebarGroupByInstance'
                         :label='$t("view.settings.appearance.side_panel.hide_friends_in_same_instance")'
                         :value='isHideFriendsInSameInstance'
-                        @change='toggleHideFriendsInSameInstance'
+                        @change='setIsHideFriendsInSameInstance'
                         :tooltip='$t("view.settings.appearance.side_panel.hide_friends_in_same_instance_tooltip")')
                     simple-switch(
                         :label='$t("view.settings.appearance.side_panel.split_favorite_friends")'
