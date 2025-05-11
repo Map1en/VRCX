@@ -22,7 +22,15 @@ export const useAppearanceSettingsStore = defineStore(
             instanceUsersSortAlphabetical: false,
             tablePageSize: 15,
             dtHour12: false,
-            dtIsoFormat: false
+            dtIsoFormat: false,
+            sidebarSortMethod1: 'Sort Private to Bottom',
+            sidebarSortMethod2: 'Sort by Time in Instance',
+            sidebarSortMethod3: 'Sort by Last Active',
+            sidebarSortMethods: [
+                'Sort Private to Bottom',
+                'Sort by Time in Instance',
+                'Sort by Last Active'
+            ]
         });
 
         async function initSettings() {
@@ -84,7 +92,26 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_dtIsoFormat',
                 false
             );
-            handleSetDatetimeFormat();
+            await handleSetDatetimeFormat();
+
+            state.sidebarSortMethods = JSON.parse(
+                await configRepository.getString(
+                    'VRCX_sidebarSortMethods',
+                    JSON.stringify([
+                        'Sort Private to Bottom',
+                        'Sort by Time in Instance',
+                        'Sort by Last Active'
+                    ])
+                )
+            );
+            if (state.sidebarSortMethods?.length === 3) {
+                state.sidebarSortMethod1 = state.sidebarSortMethods[0];
+                state.sidebarSortMethod2 = state.sidebarSortMethods[1];
+                state.sidebarSortMethod3 = state.sidebarSortMethods[2];
+            }
+            // Migrate old settings
+            // Assume all exist if one does
+            await mergeOldSortMethodsSettings();
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -105,6 +132,10 @@ export const useAppearanceSettingsStore = defineStore(
         const tablePageSize = computed(() => state.tablePageSize);
         const dtHour12 = computed(() => state.dtHour12);
         const dtIsoFormat = computed(() => state.dtIsoFormat);
+        const sidebarSortMethod1 = computed(() => state.sidebarSortMethod1);
+        const sidebarSortMethod2 = computed(() => state.sidebarSortMethod2);
+        const sidebarSortMethod3 = computed(() => state.sidebarSortMethod3);
+        const sidebarSortMethods = computed(() => state.sidebarSortMethods);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -178,6 +209,25 @@ export const useAppearanceSettingsStore = defineStore(
             configRepository.setBool('VRCX_dtIsoFormat', state.dtIsoFormat);
             handleSetDatetimeFormat();
         }
+        function setSidebarSortMethod1(method) {
+            state.sidebarSortMethod1 = method;
+            handleSaveSidebarSortOrder();
+        }
+        function setSidebarSortMethod2(method) {
+            state.sidebarSortMethod2 = method;
+            handleSaveSidebarSortOrder();
+        }
+        function setSidebarSortMethod3(method) {
+            state.sidebarSortMethod3 = method;
+            handleSaveSidebarSortOrder();
+        }
+        function setSidebarSortMethods(methods) {
+            state.sidebarSortMethods = methods;
+            configRepository.setString(
+                'VRCX_sidebarSortMethods',
+                JSON.stringify(methods)
+            );
+        }
 
         async function handleSetDatetimeFormat() {
             const formatDate = await formatDateFilter(
@@ -185,6 +235,81 @@ export const useAppearanceSettingsStore = defineStore(
                 state.dtHour12
             );
             Vue.filter('formatDate', formatDate);
+        }
+
+        function handleSaveSidebarSortOrder() {
+            if (state.sidebarSortMethod1 === state.sidebarSortMethod2) {
+                state.sidebarSortMethod2 = '';
+            }
+            if (state.sidebarSortMethod1 === state.sidebarSortMethod3) {
+                state.sidebarSortMethod3 = '';
+            }
+            if (state.sidebarSortMethod2 === state.sidebarSortMethod3) {
+                state.sidebarSortMethod3 = '';
+            }
+            if (!state.sidebarSortMethod1) {
+                state.sidebarSortMethod2 = '';
+            }
+            if (!state.sidebarSortMethod2) {
+                state.sidebarSortMethod3 = '';
+            }
+            const sidebarSortMethods = [
+                state.sidebarSortMethod1,
+                state.sidebarSortMethod2,
+                state.sidebarSortMethod3
+            ];
+            setSidebarSortMethods(sidebarSortMethods);
+        }
+
+        async function mergeOldSortMethodsSettings() {
+            const orderFriendsGroupPrivate = await configRepository.getBool(
+                'orderFriendGroupPrivate'
+            );
+            if (orderFriendsGroupPrivate !== null) {
+                await configRepository.remove('orderFriendGroupPrivate');
+
+                const orderFriendsGroupStatus = await configRepository.getBool(
+                    'orderFriendsGroupStatus'
+                );
+                await configRepository.remove('orderFriendsGroupStatus');
+
+                const orderFriendsGroupGPS = await configRepository.getBool(
+                    'orderFriendGroupGPS'
+                );
+                await configRepository.remove('orderFriendGroupGPS');
+
+                const orderOnlineFor =
+                    await configRepository.getBool('orderFriendGroup0');
+                await configRepository.remove('orderFriendGroup0');
+                await configRepository.remove('orderFriendGroup1');
+                await configRepository.remove('orderFriendGroup2');
+                await configRepository.remove('orderFriendGroup3');
+
+                const sortOrder = [];
+                if (orderFriendsGroupPrivate) {
+                    sortOrder.push('Sort Private to Bottom');
+                }
+                if (orderFriendsGroupStatus) {
+                    sortOrder.push('Sort by Status');
+                }
+                if (orderOnlineFor && orderFriendsGroupGPS) {
+                    sortOrder.push('Sort by Time in Instance');
+                }
+                if (!orderOnlineFor) {
+                    sortOrder.push('Sort Alphabetically');
+                }
+
+                if (sortOrder.length > 0) {
+                    while (sortOrder.length < 3) {
+                        sortOrder.push('');
+                    }
+                    state.sidebarSortMethods = sortOrder;
+                    state.sidebarSortMethod1 = sortOrder[0];
+                    state.sidebarSortMethod2 = sortOrder[1];
+                    state.sidebarSortMethod3 = sortOrder[2];
+                }
+                setSidebarSortMethods(sortOrder);
+            }
         }
 
         return {
@@ -202,6 +327,10 @@ export const useAppearanceSettingsStore = defineStore(
             tablePageSize,
             dtHour12,
             dtIsoFormat,
+            sidebarSortMethod1,
+            sidebarSortMethod2,
+            sidebarSortMethod3,
+            sidebarSortMethods,
 
             setAppLanguage,
             setThemeMode,
@@ -214,7 +343,11 @@ export const useAppearanceSettingsStore = defineStore(
             setInstanceUsersSortAlphabetical,
             setTablePageSize,
             setDtHour12,
-            setDtIsoFormat
+            setDtIsoFormat,
+            setSidebarSortMethod1,
+            setSidebarSortMethod2,
+            setSidebarSortMethod3,
+            setSidebarSortMethods
         };
     }
 );

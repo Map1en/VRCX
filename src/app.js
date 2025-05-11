@@ -333,7 +333,11 @@ console.log(`isLinux: ${LINUX}`);
                 instanceUsersSortAlphabetical,
                 tablePageSize,
                 dtHour12,
-                dtIsoFormat
+                dtIsoFormat,
+                sidebarSortMethod1,
+                sidebarSortMethod2,
+                sidebarSortMethod3,
+                sidebarSortMethods
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -348,7 +352,11 @@ console.log(`isLinux: ${LINUX}`);
                 setInstanceUsersSortAlphabetical,
                 setTablePageSize,
                 setDtHour12,
-                setDtIsoFormat
+                setDtIsoFormat,
+                setSidebarSortMethod1,
+                setSidebarSortMethod2,
+                setSidebarSortMethod3,
+                setSidebarSortMethods
             } = appearanceSettingsStore;
 
             return {
@@ -402,6 +410,10 @@ console.log(`isLinux: ${LINUX}`);
                 tablePageSize,
                 dtHour12,
                 dtIsoFormat,
+                sidebarSortMethod1,
+                sidebarSortMethod2,
+                sidebarSortMethod3,
+                sidebarSortMethods,
 
                 setAppLanguage,
                 setThemeMode,
@@ -414,7 +426,11 @@ console.log(`isLinux: ${LINUX}`);
                 setInstanceUsersSortAlphabetical,
                 setTablePageSize,
                 setDtHour12,
-                setDtIsoFormat
+                setDtIsoFormat,
+                setSidebarSortMethod1,
+                setSidebarSortMethod2,
+                setSidebarSortMethod3,
+                setSidebarSortMethods
             };
         },
         data: {
@@ -6586,104 +6602,7 @@ console.log(`isLinux: ${LINUX}`);
         this.isRegistryBackupDialogVisible = true;
     };
 
-    $app.data.sidebarSortMethod1 = '';
-    $app.data.sidebarSortMethod2 = '';
-    $app.data.sidebarSortMethod3 = '';
-    $app.data.sidebarSortMethods = JSON.parse(
-        await configRepository.getString(
-            'VRCX_sidebarSortMethods',
-            JSON.stringify([
-                'Sort Private to Bottom',
-                'Sort by Time in Instance',
-                'Sort by Last Active'
-            ])
-        )
-    );
-    if ($app.data.sidebarSortMethods?.length === 3) {
-        $app.data.sidebarSortMethod1 = $app.data.sidebarSortMethods[0];
-        $app.data.sidebarSortMethod2 = $app.data.sidebarSortMethods[1];
-        $app.data.sidebarSortMethod3 = $app.data.sidebarSortMethods[2];
-    }
-
-    // Migrate old settings
-    // Assume all exist if one does
-    const orderFriendsGroupPrivate = await configRepository.getBool(
-        'orderFriendGroupPrivate'
-    );
-    if (orderFriendsGroupPrivate !== null) {
-        await configRepository.remove('orderFriendGroupPrivate');
-
-        const orderFriendsGroupStatus = await configRepository.getBool(
-            'orderFriendsGroupStatus'
-        );
-        await configRepository.remove('orderFriendsGroupStatus');
-
-        const orderFriendsGroupGPS = await configRepository.getBool(
-            'orderFriendGroupGPS'
-        );
-        await configRepository.remove('orderFriendGroupGPS');
-
-        const orderOnlineFor =
-            await configRepository.getBool('orderFriendGroup0');
-        await configRepository.remove('orderFriendGroup0');
-        await configRepository.remove('orderFriendGroup1');
-        await configRepository.remove('orderFriendGroup2');
-        await configRepository.remove('orderFriendGroup3');
-
-        var sortOrder = [];
-        if (orderFriendsGroupPrivate) {
-            sortOrder.push('Sort Private to Bottom');
-        }
-        if (orderFriendsGroupStatus) {
-            sortOrder.push('Sort by Status');
-        }
-        if (orderOnlineFor && orderFriendsGroupGPS) {
-            sortOrder.push('Sort by Time in Instance');
-        }
-        if (!orderOnlineFor) {
-            sortOrder.push('Sort Alphabetically');
-        }
-
-        if (sortOrder.length > 0) {
-            while (sortOrder.length < 3) {
-                sortOrder.push('');
-            }
-            $app.data.sidebarSortMethods = sortOrder;
-            $app.data.sidebarSortMethod1 = sortOrder[0];
-            $app.data.sidebarSortMethod2 = sortOrder[1];
-            $app.data.sidebarSortMethod3 = sortOrder[2];
-        }
-        await configRepository.setString(
-            'VRCX_sidebarSortMethods',
-            JSON.stringify(sortOrder)
-        );
-    }
-
     $app.methods.saveSidebarSortOrder = async function () {
-        if (this.sidebarSortMethod1 === this.sidebarSortMethod2) {
-            this.sidebarSortMethod2 = '';
-        }
-        if (this.sidebarSortMethod1 === this.sidebarSortMethod3) {
-            this.sidebarSortMethod3 = '';
-        }
-        if (this.sidebarSortMethod2 === this.sidebarSortMethod3) {
-            this.sidebarSortMethod3 = '';
-        }
-        if (!this.sidebarSortMethod1) {
-            this.sidebarSortMethod2 = '';
-        }
-        if (!this.sidebarSortMethod2) {
-            this.sidebarSortMethod3 = '';
-        }
-        this.sidebarSortMethods = [
-            this.sidebarSortMethod1,
-            this.sidebarSortMethod2,
-            this.sidebarSortMethod3
-        ];
-        await configRepository.setString(
-            'VRCX_sidebarSortMethods',
-            JSON.stringify(this.sidebarSortMethods)
-        );
         this.sortVIPFriends = true;
         this.sortOnlineFriends = true;
         this.sortActiveFriends = true;

@@ -474,10 +474,13 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.side_panel.sorting.header') }}</span>
                         <el-select
-                            v-model="sidebarSortMethod1"
+                            :value="sidebarSortMethod1"
                             style="width: 170px"
                             :placeholder="t('view.settings.appearance.side_panel.sorting.placeholder')"
-                            @change="saveSidebarSortOrder">
+                            @change="
+                                setSidebarSortMethod1($event);
+                                saveSidebarSortOrder();
+                            ">
                             <el-option-group :label="t('view.settings.appearance.side_panel.sorting.dropdown_header')">
                                 <el-option
                                     class="x-friend-item"
@@ -511,12 +514,15 @@
                         </el-select>
                         <i class="el-icon-arrow-right" style="margin: 16px 5px"></i>
                         <el-select
-                            v-model="sidebarSortMethod2"
+                            :value="sidebarSortMethod2"
                             :disabled="!sidebarSortMethod1"
                             style="width: 170px"
                             clearable
                             :placeholder="t('view.settings.appearance.side_panel.sorting.placeholder')"
-                            @change="saveSidebarSortOrder">
+                            @change="
+                                setSidebarSortMethod2($event);
+                                saveSidebarSortOrder();
+                            ">
                             <el-option-group :label="t('view.settings.appearance.side_panel.sorting.dropdown_header')">
                                 <el-option
                                     class="x-friend-item"
@@ -550,12 +556,15 @@
                         </el-select>
                         <i class="el-icon-arrow-right" style="margin: 16px 5px"></i>
                         <el-select
-                            v-model="sidebarSortMethod3"
+                            :value="sidebarSortMethod3"
                             :disabled="!sidebarSortMethod2"
                             style="width: 170px"
                             clearable
                             :placeholder="t('view.settings.appearance.side_panel.sorting.placeholder')"
-                            @change="saveSidebarSortOrder">
+                            @change="
+                                setSidebarSortMethod3($event);
+                                saveSidebarSortOrder();
+                            ">
                             <el-option-group :label="t('view.settings.appearance.side_panel.sorting.dropdown_header')">
                                 <el-option
                                     class="x-friend-item"
@@ -1722,6 +1731,9 @@
         tablePageSize,
         dtHour12,
         dtIsoFormat,
+        sidebarSortMethod1,
+        sidebarSortMethod2,
+        sidebarSortMethod3,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1729,7 +1741,10 @@
         setIsAgeGatedInstancesVisible,
         setInstanceUsersSortAlphabetical,
         setDtHour12,
-        setDtIsoFormat
+        setDtIsoFormat,
+        setSidebarSortMethod1,
+        setSidebarSortMethod2,
+        setSidebarSortMethod3
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1745,18 +1760,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        sidebarSortMethod1: {
-            type: String,
-            default: ''
-        },
-        sidebarSortMethod2: {
-            type: String,
-            default: ''
-        },
-        sidebarSortMethod3: {
-            type: String,
-            default: ''
         },
         asideWidth: {
             type: Number,
