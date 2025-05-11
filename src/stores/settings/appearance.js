@@ -30,7 +30,8 @@ export const useAppearanceSettingsStore = defineStore(
                 'Sort Private to Bottom',
                 'Sort by Time in Instance',
                 'Sort by Last Active'
-            ]
+            ],
+            asideWidth: 300
         });
 
         async function initSettings() {
@@ -112,6 +113,11 @@ export const useAppearanceSettingsStore = defineStore(
             // Migrate old settings
             // Assume all exist if one does
             await mergeOldSortMethodsSettings();
+
+            state.asideWidth = await configRepository.getInt(
+                'VRCX_sidePanelWidth',
+                300
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -136,6 +142,7 @@ export const useAppearanceSettingsStore = defineStore(
         const sidebarSortMethod2 = computed(() => state.sidebarSortMethod2);
         const sidebarSortMethod3 = computed(() => state.sidebarSortMethod3);
         const sidebarSortMethods = computed(() => state.sidebarSortMethods);
+        const asideWidth = computed(() => state.asideWidth);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -227,6 +234,12 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_sidebarSortMethods',
                 JSON.stringify(methods)
             );
+        }
+        function setAsideWidth(width) {
+            requestAnimationFrame(() => {
+                state.asideWidth = width;
+                configRepository.setInt('VRCX_sidePanelWidth', width);
+            });
         }
 
         async function handleSetDatetimeFormat() {
@@ -331,6 +344,7 @@ export const useAppearanceSettingsStore = defineStore(
             sidebarSortMethod2,
             sidebarSortMethod3,
             sidebarSortMethods,
+            asideWidth,
 
             setAppLanguage,
             setThemeMode,
@@ -347,7 +361,8 @@ export const useAppearanceSettingsStore = defineStore(
             setSidebarSortMethod1,
             setSidebarSortMethod2,
             setSidebarSortMethod3,
-            setSidebarSortMethods
+            setSidebarSortMethods,
+            setAsideWidth
         };
     }
 );

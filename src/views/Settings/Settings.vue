@@ -602,7 +602,7 @@
                             t('view.settings.appearance.side_panel.width')
                         }}</span>
                         <el-slider
-                            v-model="asideWidth"
+                            :value="asideWidth"
                             :show-tooltip="false"
                             :marks="{ 300: '' }"
                             :min="200"
@@ -1734,6 +1734,7 @@
         sidebarSortMethod1,
         sidebarSortMethod2,
         sidebarSortMethod3,
+        asideWidth,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1744,7 +1745,8 @@
         setDtIsoFormat,
         setSidebarSortMethod1,
         setSidebarSortMethod2,
-        setSidebarSortMethod3
+        setSidebarSortMethod3,
+        setAsideWidth
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1758,10 +1760,6 @@
             default: ''
         },
         zoomLevel: {
-            type: Number,
-            default: 0
-        },
-        asideWidth: {
             type: Number,
             default: 0
         },

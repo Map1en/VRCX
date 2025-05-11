@@ -1,5 +1,5 @@
 <template>
-    <div v-show="isSideBarTabShow" id="aside" class="x-aside-container">
+    <div v-show="isSideBarTabShow" id="aside" class="x-aside-container" :style="{ width: `${asideWidth}px` }">
         <div style="display: flex; align-items: baseline">
             <el-select
                 value=""
@@ -145,9 +145,10 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                asideWidth
             };
         }
     };

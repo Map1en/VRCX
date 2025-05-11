@@ -338,7 +338,8 @@ console.log(`isLinux: ${LINUX}`);
                 sidebarSortMethod1,
                 sidebarSortMethod2,
                 sidebarSortMethod3,
-                sidebarSortMethods
+                sidebarSortMethods,
+                asideWidth
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -357,7 +358,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethod1,
                 setSidebarSortMethod2,
                 setSidebarSortMethod3,
-                setSidebarSortMethods
+                setSidebarSortMethods,
+                setAsideWidth
             } = appearanceSettingsStore;
 
             return {
@@ -415,6 +417,7 @@ console.log(`isLinux: ${LINUX}`);
                 sidebarSortMethod2,
                 sidebarSortMethod3,
                 sidebarSortMethods,
+                asideWidth,
 
                 setAppLanguage,
                 setThemeMode,
@@ -431,7 +434,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethod1,
                 setSidebarSortMethod2,
                 setSidebarSortMethod3,
-                setSidebarSortMethods
+                setSidebarSortMethods,
+                setAsideWidth
             };
         },
         data: {
@@ -6111,10 +6115,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_vrBackgroundEnabled',
         false
     );
-    $app.data.asideWidth = await configRepository.getInt(
-        'VRCX_sidePanelWidth',
-        300
-    );
     $app.data.branch = await configRepository.getString(
         'VRCX_branch',
         'Stable'
@@ -10690,10 +10690,6 @@ console.log(`isLinux: ${LINUX}`);
         return true;
     };
 
-    $app.methods.setAsideWidth = async function () {
-        await configRepository.setInt('VRCX_sidePanelWidth', this.asideWidth);
-    };
-
     /**
      * @param {object} user - User Ref Object
      * @param {boolean} isIcon - is use for icon (about 40x40)
@@ -13050,7 +13046,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.sideBarTabBind = function () {
         return {
             isSideBarTabShow: this.isSideBarTabShow,
-            style: { width: `${this.asideWidth}px` },
             vipFriends: this.vipFriends,
             onlineFriends: this.onlineFriends,
             quickSearchRemoteMethod: this.quickSearchRemoteMethod,
