@@ -55,7 +55,7 @@
         "no-unused-vars": 1,
         "vue/require-default-prop": 0,
         "vue/no-mutating-props": 1,
-        "vue/no-v-text-v-html-on-component": 1,
+        "vue/no-v-text-v-html-on-component": 0,
         "vue/no-use-v-if-with-v-for": 1,
         "vue/multi-word-component-names": 0
 

@@ -503,7 +503,7 @@
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

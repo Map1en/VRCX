@@ -134,8 +134,8 @@ import {
     timeToText
 } from './shared/utils';
 
-import { useAppearanceSettingsStore } from './stores/settings/appearanceSettings';
-import { useGeneralSettingsStore } from './stores/settings/generalSettings';
+import { useAppearanceSettingsStore } from './stores/settings/appearance';
+import { useGeneralSettingsStore } from './stores/settings/general';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';

@@ -76,7 +76,7 @@
     import { downloadAndSaveJson, removeFromArray } from '../../../shared/utils';
     import configRepository from '../../../service/config';
 
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

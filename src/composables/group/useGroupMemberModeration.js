@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue';
-import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
 function useModerationTable() {
     const groupInvitesModerationTable = reactive({

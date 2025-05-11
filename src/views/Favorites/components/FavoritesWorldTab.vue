@@ -227,7 +227,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
 

@@ -531,7 +531,7 @@
         compareUnityVersion,
         storeAvatarImage
     } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';

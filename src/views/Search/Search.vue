@@ -330,7 +330,7 @@
         compareByName,
         compareByUpdatedAt
     } from '../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

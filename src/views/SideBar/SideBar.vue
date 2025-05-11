@@ -101,7 +101,7 @@
 </template>
 
 <script>
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
     import Location from '../../components/Location.vue';

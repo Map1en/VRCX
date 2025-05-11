@@ -97,7 +97,7 @@
     import { storeToRefs } from 'pinia';
     import { playerModerationRequest } from '../../api';
     import configRepository from '../../service/config.js';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     export default {
         name: 'ModerationTab',

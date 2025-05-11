@@ -280,7 +280,7 @@
         sortStatus as _sortStatus,
         timeToText as _timeToText
     } from '../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     export default {
         name: 'FriendListTab',

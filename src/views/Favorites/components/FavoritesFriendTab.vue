@@ -79,7 +79,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
 

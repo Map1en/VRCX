@@ -93,7 +93,7 @@
     import { instanceRequest, worldRequest } from '../../api';
     import { getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
     import configRepository from '../../service/config';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {

@@ -158,7 +158,7 @@
 <script setup>
     import { inject, onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
 

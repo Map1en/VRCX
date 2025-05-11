@@ -63,7 +63,7 @@
 </template>
 
 <script>
-    import { useAppearanceSettingsStore } from '../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../stores/settings/appearance';
     import Location from './Location.vue';
     import { storeToRefs } from 'pinia';
 

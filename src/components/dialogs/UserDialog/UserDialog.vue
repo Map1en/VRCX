@@ -1791,7 +1791,7 @@
         timeToText,
         userOnlineForTimestamp
     } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';

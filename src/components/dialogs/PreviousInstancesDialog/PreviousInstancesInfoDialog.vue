@@ -62,7 +62,7 @@
     import { storeToRefs } from 'pinia';
     import { parseLocation, compareByCreatedAt, timeToText } from '../../../shared/utils';
     import database from '../../../service/database';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
 
     export default {

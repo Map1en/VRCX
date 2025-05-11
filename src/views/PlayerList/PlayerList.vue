@@ -836,7 +836,7 @@
     import { languageClass, getFaviconUrl } from '../../shared/utils';
     import configRepository from '../../service/config';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

@@ -120,7 +120,7 @@
     import configRepository from '../../../service/config';
     import database from '../../../service/database';
     import { loadEcharts, parseLocation, timeToText } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
 
     export default {

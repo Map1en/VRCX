@@ -325,7 +325,7 @@
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import Location from '../../components/Location.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { timeToText } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

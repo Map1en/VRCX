@@ -785,7 +785,7 @@
         replaceVrcPackageUrl as _replaceVrcPackageUrl,
         timeToText
     } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';

@@ -190,7 +190,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
     import { getVRChatResolution } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

@@ -86,7 +86,7 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     export default {
         components: { Location },

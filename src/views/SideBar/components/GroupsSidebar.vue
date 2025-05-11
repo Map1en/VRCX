@@ -46,7 +46,7 @@
     import { storeToRefs } from 'pinia';
     import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     export default {
         name: 'GroupsSidebar',

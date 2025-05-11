@@ -201,7 +201,7 @@
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
     import { removeFromArray } from '../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;

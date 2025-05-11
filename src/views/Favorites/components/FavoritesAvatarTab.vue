@@ -235,7 +235,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
