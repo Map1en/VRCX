@@ -1,13 +1,13 @@
 import * as workerTimers from 'worker-timers';
-import configRepository from '../service/config.js';
-import { baseClass, $app, API, $t } from './baseClass.js';
 import {
-    userRequest,
-    worldRequest,
+    groupRequest,
     instanceRequest,
-    groupRequest
+    userRequest,
+    worldRequest
 } from '../api';
-import $utils from './utils';
+import configRepository from '../service/config.js';
+import { replaceBioSymbols } from '../shared/utils';
+import { $app, $t, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -172,8 +172,8 @@ export default class extends baseClass {
             var D = $app.groupDialog;
             if (D.id === args.params.groupId) {
                 for (var post of args.posts) {
-                    post.title = $utils.replaceBioSymbols(post.title);
-                    post.text = $utils.replaceBioSymbols(post.text);
+                    post.title = replaceBioSymbols(post.title);
+                    post.text = replaceBioSymbols(post.text);
                 }
                 if (args.posts.length > 0) {
                     D.announcement = args.posts[0];
@@ -190,8 +190,8 @@ export default class extends baseClass {
             }
 
             var newPost = args.json;
-            newPost.title = $utils.replaceBioSymbols(newPost.title);
-            newPost.text = $utils.replaceBioSymbols(newPost.text);
+            newPost.title = replaceBioSymbols(newPost.title);
+            newPost.text = replaceBioSymbols(newPost.text);
             var hasPost = false;
             // update existing post
             for (var post of D.posts) {
@@ -276,9 +276,9 @@ export default class extends baseClass {
 
         API.applyGroup = function (json) {
             var ref = this.cachedGroups.get(json.id);
-            json.rules = $utils.replaceBioSymbols(json.rules);
-            json.name = $utils.replaceBioSymbols(json.name);
-            json.description = $utils.replaceBioSymbols(json.description);
+            json.rules = replaceBioSymbols(json.rules);
+            json.name = replaceBioSymbols(json.name);
+            json.description = replaceBioSymbols(json.description);
             if (typeof ref === 'undefined') {
                 ref = {
                     id: '',

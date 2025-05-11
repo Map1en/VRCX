@@ -1,6 +1,9 @@
 import { userRequest } from '../api';
-import { displayLocation } from '../composables/instance/utils';
-import { extractFileId, extractFileVersion } from '../composables/shared/utils';
+import {
+    displayLocation,
+    extractFileId,
+    extractFileVersion
+} from '../shared/utils';
 import { $app, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {

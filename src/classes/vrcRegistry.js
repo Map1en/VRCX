@@ -1,5 +1,6 @@
 import configRepository from '../service/config.js';
-import { baseClass, $t, $utils } from './baseClass.js';
+import { removeFromArray } from '../shared/utils';
+import { $t, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -104,7 +105,7 @@ export default class extends baseClass {
             backups.forEach((backup) => {
                 if (backup.name === 'Auto Backup') {
                     // remove old auto backup
-                    $utils.removeFromArray(backups, backup);
+                    removeFromArray(backups, backup);
                 }
             });
             await configRepository.setString(

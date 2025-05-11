@@ -52,7 +52,7 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
-    import { getFaviconUrl } from '../../../composables/shared/utils';
+    import { getFaviconUrl } from '../../../shared/utils';
 
     const { t } = useI18n();
     const { $message } = getCurrentInstance().proxy;

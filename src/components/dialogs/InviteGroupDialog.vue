@@ -168,7 +168,7 @@
 
 <script>
     import { groupRequest, userRequest } from '../../api';
-    import { hasGroupPermission } from '../../composables/group/utils';
+    import { hasGroupPermission } from '../../shared/utils';
 
     export default {
         name: 'InviteGroupDialog',

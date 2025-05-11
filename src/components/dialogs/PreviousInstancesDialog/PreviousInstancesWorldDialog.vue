@@ -67,8 +67,7 @@
 </template>
 
 <script>
-    import utils from '../../../classes/utils';
-    import { parseLocation } from '../../../composables/instance/utils';
+    import { removeFromArray, timeToText, parseLocation, compareByCreatedAt } from '../../../shared/utils';
     import database from '../../../service/database';
 
     export default {
@@ -141,13 +140,13 @@
                     for (const ref of data.values()) {
                         ref.$location = parseLocation(ref.location);
                         if (ref.time > 0) {
-                            ref.timer = utils.timeToText(ref.time);
+                            ref.timer = timeToText(ref.time);
                         } else {
                             ref.timer = '';
                         }
                         array.push(ref);
                     }
-                    array.sort(utils.compareByCreatedAt);
+                    array.sort(compareByCreatedAt);
                     this.previousInstancesWorldDialogTable.data = array;
                     this.loading = false;
                 });
@@ -156,7 +155,7 @@
                 database.deleteGameLogInstanceByInstanceId({
                     location: row.location
                 });
-                utils.removeFromArray(this.previousInstancesWorldDialogTable.data, row);
+                removeFromArray(this.previousInstancesWorldDialogTable.data, row);
             },
 
             deleteGameLogWorldInstancePrompt(row) {

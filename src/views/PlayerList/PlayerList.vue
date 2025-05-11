@@ -833,10 +833,9 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { languageClass } from '../../composables/user/utils';
+    import { languageClass, getFaviconUrl } from '../../shared/utils';
     import configRepository from '../../service/config';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
-    import { getFaviconUrl } from '../../composables/shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

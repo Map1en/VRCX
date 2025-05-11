@@ -91,8 +91,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { instanceRequest, worldRequest } from '../../api';
-    import { isRealInstance, parseLocation } from '../../composables/instance/utils';
-    import { getLaunchURL } from '../../composables/shared/utils';
+    import { getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
     import configRepository from '../../service/config';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
     import InviteDialog from './InviteDialog/InviteDialog.vue';

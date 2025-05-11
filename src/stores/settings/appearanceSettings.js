@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia';
-import { reactive, computed } from 'vue';
+import Vue, { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
-import utils from '../../classes/utils';
+import {
+    changeCJKFontsOrder,
+    formatDateFilter,
+    systemIsDarkMode
+} from '../../shared/utils';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
@@ -26,7 +30,7 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_appLanguage',
                 'en'
             );
-            utils.changeCJKorder(state.appLanguage);
+            changeCJKFontsOrder(state.appLanguage);
             this.i18n.locale = state.appLanguage;
 
             // init in app.js
@@ -106,7 +110,7 @@ export const useAppearanceSettingsStore = defineStore(
             console.log('Language changed:', language);
             state.appLanguage = language;
             configRepository.setString('VRCX_appLanguage', language);
-            utils.changeCJKorder(state.appLanguage);
+            changeCJKFontsOrder(state.appLanguage);
             this.i18n.locale = state.appLanguage;
         }
         function setThemeMode(mode) {
@@ -115,7 +119,7 @@ export const useAppearanceSettingsStore = defineStore(
             if (mode === 'light') {
                 setIsDarkMode(false);
             } else if (mode === 'system') {
-                setIsDarkMode(utils.systemIsDarkMode());
+                setIsDarkMode(systemIsDarkMode());
             } else {
                 setIsDarkMode(true);
             }
@@ -175,8 +179,12 @@ export const useAppearanceSettingsStore = defineStore(
             handleSetDatetimeFormat();
         }
 
-        function handleSetDatetimeFormat() {
-            utils.formatDateFilter(state.dtIsoFormat, state.dtHour12);
+        async function handleSetDatetimeFormat() {
+            const formatDate = await formatDateFilter(
+                state.dtIsoFormat,
+                state.dtHour12
+            );
+            Vue.filter('formatDate', formatDate);
         }
 
         return {

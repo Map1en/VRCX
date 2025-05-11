@@ -123,8 +123,8 @@
 </template>
 
 <script>
-    import utils from '../../../classes/utils';
     import { favoriteRequest, userRequest } from '../../../api';
+    import { removeFromArray } from '../../../shared/utils';
 
     export default {
         name: 'FriendImportDialog',
@@ -192,7 +192,7 @@
                 this.friendImportDialog.loading = false;
             },
             deleteItemFriendImport(ref) {
-                utils.removeFromArray(this.friendImportTable.data, ref);
+                removeFromArray(this.friendImportTable.data, ref);
                 this.friendImportDialog.userIdList.delete(ref.id);
             },
             clearFriendImportTable() {
@@ -218,7 +218,7 @@
                         }
                         ref = data[i];
                         await this.addFavoriteUser(ref, D.friendImportFavoriteGroup, false);
-                        utils.removeFromArray(this.friendImportTable.data, ref);
+                        removeFromArray(this.friendImportTable.data, ref);
                         D.userIdList.delete(ref.id);
                         D.importProgress++;
                     }

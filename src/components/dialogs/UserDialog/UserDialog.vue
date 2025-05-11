@@ -1771,17 +1771,27 @@
         userRequest,
         worldRequest
     } from '../../../api';
-    import utils from '../../../classes/utils';
-    import { isRealInstance, parseLocation, refreshInstancePlayerCount } from '../../../composables/instance/utils';
+
+    import database from '../../../service/database';
+
+    import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import {
+        compareByMemberCount,
+        compareByName,
         copyToClipboard,
         downloadAndSaveJson,
         extractFileId,
-        getFaviconUrl
-    } from '../../../composables/shared/utils';
-    import { userDialogGroupSortingOptions } from '../../../composables/user/constants/userDialogGroupSortingOptions';
-    import { isFriendOnline, languageClass, userOnlineForTimestamp } from '../../../composables/user/utils';
-    import database from '../../../service/database';
+        getFaviconUrl,
+        isFriendOnline,
+        isRealInstance,
+        languageClass,
+        parseLocation,
+        refreshInstancePlayerCount,
+        replaceBioSymbols,
+        timeToText,
+        userOnlineForTimestamp
+    } from '../../../shared/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1793,7 +1803,6 @@
     import PronounsDialog from './PronounsDialog.vue';
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     const { t } = useI18n();
 
@@ -2715,13 +2724,6 @@
         props.userDialog.isGroupsLoading = false;
     }
 
-    function compareByMemberCount(a, b) {
-        if (typeof a.memberCount !== 'number' || typeof b.memberCount !== 'number') {
-            return 0;
-        }
-        return a.memberCount - b.memberCount;
-    }
-
     function sortGroupsByInGame(a, b) {
         const aIndex = props.inGameGroupOrder.indexOf(a?.id);
         const bIndex = props.inGameGroupOrder.indexOf(b?.id);
@@ -2743,7 +2745,7 @@
 
         switch (D.groupSorting.value) {
             case 'alphabetical':
-                sortMethod = utils.compareByName;
+                sortMethod = compareByName;
                 break;
             case 'members':
                 sortMethod = compareByMemberCount;
@@ -2921,7 +2923,7 @@
         let _note = '';
         let targetUserId = '';
         if (typeof args.json !== 'undefined') {
-            _note = utils.replaceBioSymbols(args.json.note);
+            _note = replaceBioSymbols(args.json.note);
         }
         if (typeof args.params !== 'undefined') {
             targetUserId = args.params.targetUserId;
@@ -2970,10 +2972,6 @@
         // trigger watcher
         D.openFlg = true;
         nextTick(() => (D.openFlg = false));
-    }
-
-    function timeToText(args) {
-        return utils.timeToText(args);
     }
 
     function toggleAvatarCopying() {

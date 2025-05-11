@@ -1,5 +1,4 @@
-import { baseClass, $app, API, $t, $utils } from './baseClass.js';
-import { userRequest } from '../api';
+import { $app, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

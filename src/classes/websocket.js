@@ -1,8 +1,8 @@
-import * as workerTimers from 'worker-timers';
 import Noty from 'noty';
-import { parseLocation } from '../composables/instance/utils';
-import { baseClass, $app, API, $utils } from './baseClass.js';
+import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
+import { escapeTag, parseLocation } from '../shared/utils';
+import { $app, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -143,7 +143,7 @@ export default class extends baseClass {
                 }
                 this.errorNoty = new Noty({
                     type: 'error',
-                    text: $app.escapeTag(`WebSocket Error: ${err}`)
+                    text: escapeTag(`WebSocket Error: ${err}`)
                 }).show();
                 return;
             }

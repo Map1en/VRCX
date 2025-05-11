@@ -1,4 +1,4 @@
-import { isRealInstance, parseLocation } from '../composables/instance/utils';
+import { arraysMatch, isRealInstance, parseLocation } from '../shared/utils';
 import { $app, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
@@ -41,7 +41,7 @@ export default class extends baseClass {
                                 Array.isArray(ref[prop]) &&
                                 Array.isArray($ref[prop])
                             ) {
-                                if (!$app.arraysMatch(ref[prop], $ref[prop])) {
+                                if (!arraysMatch(ref[prop], $ref[prop])) {
                                     props[prop] = true;
                                 }
                             } else if (ref[prop] !== Object(ref[prop])) {

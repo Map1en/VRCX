@@ -519,16 +519,18 @@
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
-    import utils from '../../../classes/utils';
-    import { compareUnityVersion, storeAvatarImage } from '../../../composables/avatar/utils';
+    import database from '../../../service/database';
     import {
+        buildTreeData,
         copyToClipboard,
         downloadAndSaveJson,
         extractFileId,
         extractFileVersion,
-        replaceVrcPackageUrl
-    } from '../../../composables/shared/utils';
-    import database from '../../../service/database';
+        replaceVrcPackageUrl,
+        timeToText,
+        compareUnityVersion,
+        storeAvatarImage
+    } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
@@ -1005,12 +1007,8 @@
         copyToClipboard(`https://vrchat.com/home/avatar/${id}`);
     }
 
-    function timeToText(time) {
-        return utils.timeToText(time);
-    }
-
     function refreshAvatarDialogTreeData() {
-        treeData.value = utils.buildTreeData(props.avatarDialog.ref);
+        treeData.value = buildTreeData(props.avatarDialog.ref);
     }
 
     function getAvatarFileAnalysis() {
@@ -1073,7 +1071,7 @@
                 ref._totalTextureUsage = `${(ref.avatarStats.totalTextureUsage / 1048576).toFixed(2)} MB`;
             }
 
-            fileAnalysis.value = utils.buildTreeData(args.json);
+            fileAnalysis.value = buildTreeData(args.json);
         });
         // });
     }

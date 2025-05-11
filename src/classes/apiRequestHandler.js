@@ -1,8 +1,8 @@
 import Noty from 'noty';
-import { baseClass, $app, API, $t } from './baseClass.js';
-/* eslint-disable no-unused-vars */
+import { escapeTag } from '../shared/utils';
+import { $app, $t, API, baseClass } from './baseClass.js';
+
 let webApiService = {};
-/* eslint-enable no-unused-vars */
 
 export default class extends baseClass {
     constructor(_app, _API, _t, _webApiService) {
@@ -125,7 +125,7 @@ export default class extends baseClass {
                         if (text) {
                             new Noty({
                                 type: 'success',
-                                text: $app.escapeTag(text)
+                                text: escapeTag(text)
                             }).show();
                         }
                         return data;
@@ -262,7 +262,7 @@ export default class extends baseClass {
                     `${$t('api.error.message.endpoint')}: "${typeof endpoint === 'string' ? endpoint : JSON.stringify(endpoint)}"`
                 );
             }
-            text = text.map((s) => $app.escapeTag(s)).join('<br>');
+            text = text.map((s) => escapeTag(s)).join('<br>');
             if (text.length) {
                 if (this.errorNoty) {
                     this.errorNoty.close();

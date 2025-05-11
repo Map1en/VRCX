@@ -1,8 +1,7 @@
 import Vue from 'vue';
 import VueMarkdown from 'vue-markdown';
 import { instanceRequest, userRequest } from '../api';
-import { hasGroupPermission } from '../composables/group/utils';
-import { parseLocation } from '../composables/instance/utils';
+import { hasGroupPermission, parseLocation } from '../shared/utils';
 import { $app, $t, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {

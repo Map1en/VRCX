@@ -45,7 +45,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import Location from '../../../components/Location.vue';
-    import { convertFileUrlToImageUrl } from '../../../composables/shared/utils';
+    import { convertFileUrlToImageUrl } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     export default {

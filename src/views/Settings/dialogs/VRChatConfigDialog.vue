@@ -188,11 +188,8 @@
 <script setup>
     import { computed, getCurrentInstance, inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import {
-        VRChatCameraResolutions,
-        VRChatScreenshotResolutions
-    } from '../../../composables/setting/constants/vrchatResolutions';
-    import { getVRChatResolution } from '../../../composables/setting/utils';
+    import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
+    import { getVRChatResolution } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

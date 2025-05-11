@@ -811,7 +811,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
-    import { hasGroupPermission } from '../../../composables/group/utils';
+    import { hasGroupPermission } from '../../../shared/utils';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
 
     const API = inject('API');

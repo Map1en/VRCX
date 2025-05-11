@@ -9,16 +9,21 @@ import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';
 import '@fontsource/noto-sans-tc';
 import '@infolektuell/noto-color-emoji';
+import ElementUI from 'element-ui';
 import Noty from 'noty';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import ElementUI from 'element-ui';
-import * as workerTimers from 'worker-timers';
 import MarqueeText from 'vue-marquee-text-component';
-import { displayLocation, parseLocation } from './composables/instance/utils';
+import * as workerTimers from 'worker-timers';
 import * as localizedStrings from './localization/localizedStrings.js';
-
-import $utils from './classes/utils.js';
+import {
+    displayLocation,
+    escapeTag,
+    escapeTagRecursive,
+    parseLocation,
+    removeFromArray,
+    timeToText
+} from './shared/utils';
 
 import pugTemplate from './vr.pug';
 
@@ -169,9 +174,7 @@ Vue.component('marquee-text', MarqueeText);
             deviceCount: 0
         },
         computed: {},
-        methods: {
-            ...$utils
-        },
+        methods: {},
         watch: {},
         el: '#root',
         async mounted() {
@@ -293,14 +296,14 @@ Vue.component('marquee-text', MarqueeText);
                 this.cpuUsage = cpuUsage.toFixed(0);
             }
             if (this.lastLocation.date !== 0) {
-                this.lastLocationTimer = $utils.timeToText(
+                this.lastLocationTimer = timeToText(
                     Date.now() - this.lastLocation.date
                 );
             } else {
                 this.lastLocationTimer = '';
             }
             if (this.lastLocation.onlineFor) {
-                this.onlineForTimer = $utils.timeToText(
+                this.onlineForTimer = timeToText(
                     Date.now() - this.lastLocation.onlineFor
                 );
             } else {
@@ -359,7 +362,7 @@ Vue.component('marquee-text', MarqueeText);
             if (this.config.pcUptimeOnFeed) {
                 AppApiVr.GetUptime().then((uptime) => {
                     if (uptime) {
-                        this.pcUptime = $utils.timeToText(uptime);
+                        this.pcUptime = timeToText(uptime);
                     }
                 });
             } else {
@@ -377,8 +380,8 @@ Vue.component('marquee-text', MarqueeText);
             console.error('noty is undefined');
             return;
         }
-        var noty = $utils.escapeTagRecursive(noty);
-        var message = $utils.escapeTag(message) || '';
+        var noty = escapeTagRecursive(noty);
+        var message = escapeTag(message) || '';
         var text = '';
         var img = '';
         if (image) {
@@ -589,7 +592,7 @@ Vue.component('marquee-text', MarqueeText);
         var dt = Date.now();
         this.hudFeed.forEach((item) => {
             if (item.time + this.config.photonOverlayMessageTimeout < dt) {
-                $utils.removeFromArray(this.hudFeed, item);
+                removeFromArray(this.hudFeed, item);
             }
         });
         if (this.hudFeed.length > 10) {
@@ -610,7 +613,7 @@ Vue.component('marquee-text', MarqueeText);
                 item.text === data.text
             ) {
                 combo = item.combo + 1;
-                $utils.removeFromArray(this.hudFeed, item);
+                removeFromArray(this.hudFeed, item);
             }
         });
         this.hudFeed.unshift({

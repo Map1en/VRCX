@@ -117,10 +117,9 @@
 <script>
     import dayjs from 'dayjs';
     import { storeToRefs } from 'pinia';
-    import { parseLocation } from '../../../composables/instance/utils';
-    import database from '../../../service/database';
-    import utils from '../../../classes/utils';
     import configRepository from '../../../service/config';
+    import database from '../../../service/database';
+    import { loadEcharts, parseLocation, timeToText } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
 
@@ -167,7 +166,7 @@
         },
         computed: {
             totalOnlineTime() {
-                return utils.timeToText(
+                return timeToText(
                     this.activityData.reduce((acc, item) => acc + item.time, 0),
                     true
                 );
@@ -261,7 +260,7 @@
                 this.getAllDateOfActivity();
                 const [echartsModule] = await Promise.all([
                     // lazy load echarts
-                    utils.loadEcharts().catch((error) => {
+                    loadEcharts().catch((error) => {
                         console.error('lazy load echarts failed', error);
                         return null;
                     }),
@@ -385,7 +384,7 @@
                     const formattedLeftDateTime = dayjs(instanceData.leaveTime).format(format);
                     const formattedJoinDateTime = dayjs(instanceData.joinTime).format(format);
 
-                    const timeString = utils.timeToText(param.data, true);
+                    const timeString = timeToText(param.data, true);
                     const color = param.color;
                     const name = param.name;
                     const location = parseLocation(instanceData.location);

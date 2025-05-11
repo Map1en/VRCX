@@ -272,10 +272,14 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { friendRequest, userRequest } from '../../api';
-    import utils from '../../classes/utils';
-    import { getFaviconUrl as _getFaviconUrl } from '../../composables/shared/utils';
-    import { languageClass as _languageClass } from '../../composables/user/utils';
     import removeConfusables, { removeWhitespace } from '../../service/confusables';
+    import {
+        getFaviconUrl as _getFaviconUrl,
+        languageClass as _languageClass,
+        localeIncludes,
+        sortStatus as _sortStatus,
+        timeToText as _timeToText
+    } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     export default {
@@ -294,7 +298,6 @@
                 required: true
             },
             randomUserColours: Boolean,
-            sortStatus: Function,
             confirmDeleteFriend: Function,
             friendsListSearch: String,
             menuActiveIndex: String
@@ -350,6 +353,9 @@
             }
         },
         methods: {
+            sortStatus(a, b) {
+                return _sortStatus(a, b);
+            },
             languageClass(key) {
                 return _languageClass(key);
             },
@@ -382,21 +388,21 @@
                         let match = false;
                         if (!match && filters.includes('Display Name') && ctx.ref.displayName) {
                             match =
-                                utils.localeIncludes(ctx.ref.displayName, cleanedQuery, this.stringComparer) ||
-                                utils.localeIncludes(
+                                localeIncludes(ctx.ref.displayName, cleanedQuery, this.stringComparer) ||
+                                localeIncludes(
                                     removeConfusables(ctx.ref.displayName),
                                     cleanedQuery,
                                     this.stringComparer
                                 );
                         }
                         if (!match && filters.includes('Memo') && ctx.memo) {
-                            match = utils.localeIncludes(ctx.memo, query, this.stringComparer);
+                            match = localeIncludes(ctx.memo, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Bio') && ctx.ref.bio) {
-                            match = utils.localeIncludes(ctx.ref.bio, query, this.stringComparer);
+                            match = localeIncludes(ctx.ref.bio, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Status') && ctx.ref.statusDescription) {
-                            match = utils.localeIncludes(ctx.ref.statusDescription, query, this.stringComparer);
+                            match = localeIncludes(ctx.ref.statusDescription, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Rank')) {
                             match = String(ctx.ref.$trustLevel).toUpperCase().includes(query.toUpperCase());
@@ -519,7 +525,7 @@
                 return JSON.stringify(sortedA).localeCompare(JSON.stringify(sortedB));
             },
             timeToText(val) {
-                return utils.timeToText(val);
+                return _timeToText(val);
             },
             getFaviconUrl(link) {
                 return _getFaviconUrl(link);

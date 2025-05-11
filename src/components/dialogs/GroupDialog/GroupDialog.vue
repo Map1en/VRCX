@@ -1175,11 +1175,16 @@
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
-    import utils from '../../../classes/utils';
-    import { hasGroupPermission } from '../../../composables/group/utils';
-    import { refreshInstancePlayerCount } from '../../../composables/instance/utils';
-    import { copyToClipboard, downloadAndSaveJson, getFaviconUrl } from '../../../composables/shared/utils';
-    import { languageClass } from '../../../composables/user/utils';
+    import {
+        buildTreeData,
+        copyToClipboard,
+        downloadAndSaveJson,
+        getFaviconUrl,
+        hasGroupPermission,
+        languageClass,
+        refreshInstancePlayerCount,
+        removeFromArray
+    } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import Location from '../../Location.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1447,7 +1452,7 @@
                             // remove existing post
                             for (const item of D.posts) {
                                 if (item.id === postId) {
-                                    utils.removeFromArray(D.posts, item);
+                                    removeFromArray(D.posts, item);
                                     break;
                                 }
                             }
@@ -1752,7 +1757,7 @@
 
     function refreshGroupDialogTreeData() {
         const D = props.groupDialog;
-        const treeData = utils.buildTreeData({
+        const treeData = buildTreeData({
             group: D.ref,
             posts: D.posts,
             instances: D.instances,

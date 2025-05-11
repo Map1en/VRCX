@@ -1,14 +1,17 @@
 import * as workerTimers from 'worker-timers';
-import { displayLocation, parseLocation } from '../composables/instance/utils';
-import { checkVRChatCache } from '../composables/shared/utils';
+import { instanceRequest, userRequest } from '../api';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
-import { baseClass, $app, API, $utils } from './baseClass.js';
-import { instanceRequest, userRequest } from '../api';
+import { photonEmojis, photonEventType } from '../shared/constants';
 import {
-    photonEmojis,
-    photonEventType
-} from '../composables/shared/constants/photon.js';
+    checkVRChatCache,
+    displayLocation,
+    parseLocation,
+    removeFromArray,
+    replaceBioSymbols,
+    timeToText
+} from '../shared/utils';
+import { API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -757,7 +760,7 @@ export default class extends baseClass {
                         if (typeof ref !== 'undefined') {
                             var worldName = ref.worldName;
                             var playerCount = ref.playerCount;
-                            var time = $app.timeToText(
+                            var time = timeToText(
                                 Date.parse(gameLogDate) - ref.created_at
                             );
                             text = `DeletedPortal after ${time} with ${playerCount} players to "${worldName}"`;
@@ -1111,10 +1114,10 @@ export default class extends baseClass {
                     type: 'ChangeStatus',
                     status: photonUser.status,
                     previousStatus: ref.status,
-                    statusDescription: $utils.replaceBioSymbols(
+                    statusDescription: replaceBioSymbols(
                         photonUser.statusDescription
                     ),
-                    previousStatusDescription: $utils.replaceBioSymbols(
+                    previousStatusDescription: replaceBioSymbols(
                         ref.statusDescription
                     ),
                     created_at: Date.parse(gameLogDate)
@@ -1128,8 +1131,8 @@ export default class extends baseClass {
                 return;
             }
             var avatar = user.avatarDict;
-            avatar.name = $utils.replaceBioSymbols(avatar.name);
-            avatar.description = $utils.replaceBioSymbols(avatar.description);
+            avatar.name = replaceBioSymbols(avatar.name);
+            avatar.description = replaceBioSymbols(avatar.description);
             var platform = '';
             if (user.last_platform === 'android') {
                 platform = 'Android';
@@ -1196,7 +1199,7 @@ export default class extends baseClass {
                 var timeSinceLastEvent = Date.now() - Date.parse(lastEvent);
                 if (timeSinceLastEvent > 10 * 1000) {
                     // 10 seconds
-                    text = `has timed out after ${$app.timeToText(timeSinceLastEvent)}`;
+                    text = `has timed out after ${timeToText(timeSinceLastEvent)}`;
                 }
             }
             this.photonLobbyActivePortals.forEach((portal) => {
@@ -1251,7 +1254,7 @@ export default class extends baseClass {
                 this.photonLobbyLastModeration.set(photonId, type);
                 this.moderationAgainstTable.forEach((item) => {
                     if (item.userId === ref.id && item.type === type) {
-                        $app.removeFromArray(this.moderationAgainstTable, item);
+                        removeFromArray(this.moderationAgainstTable, item);
                     }
                 });
                 if (type) {
@@ -1311,10 +1314,8 @@ export default class extends baseClass {
                 oldAvatarId !== avatar.id &&
                 photonId !== this.photonLobbyCurrentUser
             ) {
-                avatar.name = $utils.replaceBioSymbols(avatar.name);
-                avatar.description = $utils.replaceBioSymbols(
-                    avatar.description
-                );
+                avatar.name = replaceBioSymbols(avatar.name);
+                avatar.description = replaceBioSymbols(avatar.description);
                 checkVRChatCache(avatar).then((cacheInfo) => {
                     var inCache = false;
                     if (cacheInfo.Item1 > 0) {

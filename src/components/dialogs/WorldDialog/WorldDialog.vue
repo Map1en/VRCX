@@ -776,14 +776,15 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
-    import utils from '../../../classes/utils';
-    import { refreshInstancePlayerCount as _refreshInstancePlayerCount } from '../../../composables/instance/utils';
+    import database from '../../../service/database.js';
     import {
+        buildTreeData,
         downloadAndSaveJson as _downloadAndSaveJson,
         extractFileId,
-        replaceVrcPackageUrl as _replaceVrcPackageUrl
-    } from '../../../composables/shared/utils';
-    import database from '../../../service/database.js';
+        refreshInstancePlayerCount as _refreshInstancePlayerCount,
+        replaceVrcPackageUrl as _replaceVrcPackageUrl,
+        timeToText
+    } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
@@ -889,7 +890,7 @@
                 );
             },
             timeInLab() {
-                return utils.timeToText(
+                return timeToText(
                     new Date(this.worldDialog.ref?.publicationDate) -
                         new Date(this.worldDialog.ref?.labsPublicationDate)
                 );
@@ -912,7 +913,7 @@
                     .join(', ');
             },
             timeSpent() {
-                return utils.timeToText(this.worldDialog.timeSpent);
+                return timeToText(this.worldDialog.timeSpent);
             },
             worldDialogPlatform() {
                 const { ref } = this.worldDialog;
@@ -1170,7 +1171,7 @@
                 this.$nextTick(() => (D.openFlg = false));
             },
             refreshWorldDialogTreeData() {
-                this.treeData = utils.buildTreeData(this.worldDialog.ref);
+                this.treeData = buildTreeData(this.worldDialog.ref);
             },
             downloadAndSaveJson(fileName, data) {
                 _downloadAndSaveJson(fileName, data);

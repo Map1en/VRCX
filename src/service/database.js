@@ -1,3 +1,4 @@
+import { compareByCreatedAtAscending } from '../shared/utils';
 import sqliteService from './sqlite.js';
 
 class Database {
@@ -165,18 +166,8 @@ class Database {
             };
             feedDatabase.unshift(row);
         }, `SELECT * FROM ${Database.userPrefix}_feed_online_offline WHERE created_at >= date('${dateOffset}') ORDER BY id DESC`);
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        feedDatabase.sort(compareByCreatedAt);
+
+        feedDatabase.sort(compareByCreatedAtAscending);
         return feedDatabase;
     }
 
@@ -643,18 +634,8 @@ class Database {
             };
             gamelogDatabase.unshift(row);
         }, `SELECT * FROM gamelog_external WHERE created_at >= date('${dateOffset}') ORDER BY id DESC`);
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        gamelogDatabase.sort(compareByCreatedAt);
+
+        gamelogDatabase.sort(compareByCreatedAtAscending);
         return gamelogDatabase;
     }
 
@@ -1312,18 +1293,8 @@ class Database {
                 feedDatabase.unshift(row);
             }, `SELECT * FROM ${Database.userPrefix}_feed_online_offline WHERE (location LIKE '%${instanceId}%' ${query}) ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        feedDatabase.sort(compareByCreatedAt);
+
+        feedDatabase.sort(compareByCreatedAtAscending);
         feedDatabase.splice(0, feedDatabase.length - Database.maxTableSize);
         return feedDatabase;
     }
@@ -1478,18 +1449,7 @@ class Database {
                 feedDatabase.unshift(row);
             }, `SELECT * FROM ${Database.userPrefix}_feed_online_offline WHERE ((display_name LIKE '%${search}%' OR world_name LIKE '%${search}%') ${query}) ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        feedDatabase.sort(compareByCreatedAt);
+        feedDatabase.sort(compareByCreatedAtAscending);
         feedDatabase.splice(0, feedDatabase.length - Database.maxTableSize);
         return feedDatabase;
     }
@@ -1625,18 +1585,7 @@ class Database {
                 gamelogDatabase.unshift(row);
             }, `SELECT * FROM gamelog_resource_load WHERE location LIKE '%${instanceId}%' ${checkString} ${checkImage} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        gamelogDatabase.sort(compareByCreatedAt);
+        gamelogDatabase.sort(compareByCreatedAtAscending);
         gamelogDatabase.splice(
             0,
             gamelogDatabase.length - Database.maxTableSize
@@ -1833,18 +1782,7 @@ class Database {
                 gamelogDatabase.unshift(row);
             }, `SELECT * FROM gamelog_resource_load WHERE resource_url LIKE '%${search}%' ${checkString} ${checkImage} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
-        var compareByCreatedAt = function (a, b) {
-            var A = a.created_at;
-            var B = b.created_at;
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
-        };
-        gamelogDatabase.sort(compareByCreatedAt);
+        gamelogDatabase.sort(compareByCreatedAtAscending);
         gamelogDatabase.splice(
             0,
             gamelogDatabase.length - Database.maxTableSize

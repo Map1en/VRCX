@@ -62,7 +62,7 @@
     import { computed } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
-    import { feedFiltersOptions } from '../../../composables/setting/constants/feedFiltersOptions';
+    import { feedFiltersOptions } from '../../../shared/constants';
 
     const { t } = useI18n();
 

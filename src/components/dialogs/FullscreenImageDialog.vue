@@ -29,11 +29,10 @@
 </template>
 
 <script setup>
-    import { getCurrentInstance } from 'vue';
-    import utils from '../../classes/utils';
-    import { copyToClipboard, extractFileId } from '../../composables/shared/utils';
-    import webApiService from '../../service/webapi';
     import Noty from 'noty';
+    import { getCurrentInstance } from 'vue';
+    import webApiService from '../../service/webapi';
+    import { escapeTag, copyToClipboard, extractFileId } from '../../shared/utils';
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
@@ -84,7 +83,7 @@
         } catch {
             new Noty({
                 type: 'error',
-                text: utils.escapeTag(`Failed to download image. ${url}`)
+                text: escapeTag(`Failed to download image. ${url}`)
             }).show();
         }
     }

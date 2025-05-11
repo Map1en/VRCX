@@ -496,11 +496,13 @@
 
 <script>
     import { groupRequest, instanceRequest, worldRequest } from '../../api';
-    import utils from '../../classes/utils';
-    import { hasGroupPermission as _hasGroupPermission } from '../../composables/group/utils';
-    import { isRealInstance, parseLocation } from '../../composables/instance/utils';
-    import { getLaunchURL } from '../../composables/shared/utils';
     import configRepository from '../../service/config';
+    import {
+        hasGroupPermission as _hasGroupPermission,
+        getLaunchURL,
+        isRealInstance,
+        parseLocation
+    } from '../../shared/utils';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {
@@ -900,7 +902,7 @@
                         this.updateNewInstanceDialog(true);
                     }
                 }
-                const newUrl = utils.getLaunchURL(L);
+                const newUrl = getLaunchURL(L);
                 this.copyToClipboard(newUrl);
             },
             async copyToClipboard(newUrl) {

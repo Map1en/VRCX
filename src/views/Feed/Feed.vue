@@ -324,9 +324,9 @@
 <script setup>
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../classes/utils';
     import Location from '../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
+    import { timeToText } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = appearanceSettingsStore;
@@ -467,9 +467,5 @@
 
     function feedTableLookup() {
         emit('feedTableLookup');
-    }
-
-    function timeToText(time) {
-        return utils.timeToText(time);
     }
 </script>

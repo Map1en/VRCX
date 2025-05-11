@@ -51,7 +51,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
 
-    import { languageClass } from '../../../composables/user/utils';
+    import { languageClass } from '../../../shared/utils';
 
     const { t } = useI18n();
 

@@ -60,8 +60,7 @@
 <script>
     import dayjs from 'dayjs';
     import { storeToRefs } from 'pinia';
-    import utils from '../../../classes/utils';
-    import { parseLocation } from '../../../composables/instance/utils';
+    import { parseLocation, compareByCreatedAt, timeToText } from '../../../shared/utils';
     import database from '../../../service/database';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
     import Location from '../../Location.vue';
@@ -140,9 +139,9 @@
                         this.init();
                         this.refreshPreviousInstancesInfoTable();
                     });
-                    utils.loadEcharts().then((echarts) => {
-                        this.echarts = echarts;
-                    });
+                    // loadEcharts().then((echarts) => {
+                    //     this.echarts = echarts;
+                    // });
                 }
             }
         },
@@ -156,10 +155,10 @@
                 database.getPlayersFromInstance(this.location.tag).then((data) => {
                     const array = [];
                     for (const entry of Array.from(data.values())) {
-                        entry.timer = utils.timeToText(entry.time);
+                        entry.timer = timeToText(entry.time);
                         array.push(entry);
                     }
-                    array.sort(utils.compareByCreatedAt);
+                    array.sort(compareByCreatedAt);
                     this.dataTable.data = array;
                     this.loading = false;
                 });

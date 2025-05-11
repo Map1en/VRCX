@@ -10,166 +10,175 @@ import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';
 import '@fontsource/noto-sans-tc';
 import '@infolektuell/noto-color-emoji';
-import Noty from 'noty';
-import Vue from 'vue';
-import VueLazyload from 'vue-lazyload';
-import VueI18n from 'vue-i18n';
-import { createI18n } from 'vue-i18n-bridge';
-import { DataTables } from 'vue-data-tables';
-import ElementUI from 'element-ui';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import * as workerTimers from 'worker-timers';
-import 'default-passive-events';
-
-// util classes
-import configRepository from './service/config.js';
-import webApiService from './service/webapi.js';
-import security from './service/security.js';
-import database from './service/database.js';
-import * as localizedStrings from './localization/localizedStrings.js';
-import removeConfusables, { removeWhitespace } from './service/confusables.js';
-import $utils from './classes/utils.js';
-import _apiInit from './classes/apiInit.js';
-import _apiRequestHandler from './classes/apiRequestHandler.js';
-import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
-import {
-    userRequest,
-    worldRequest,
-    instanceRequest,
-    friendRequest,
-    avatarRequest,
-    notificationRequest,
-    playerModerationRequest,
-    avatarModerationRequest,
-    favoriteRequest,
-    vrcPlusIconRequest,
-    inviteMessagesRequest,
-    miscRequest,
-    imageRequest,
-    vrcPlusImageRequest,
-    groupRequest
-} from './api';
-import { userDialogGroupSortingOptions } from './composables/user/constants/userDialogGroupSortingOptions';
-import {
-    getPrintFileName,
-    getPrintLocalDate,
-    languageClass
-} from './composables/user/utils';
-import {
-    compareUnityVersion,
-    getPlatformInfo,
-    storeAvatarImage
-} from './composables/avatar/utils';
-
-import { displayLocation } from './composables/instance/utils';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import ElementUI from 'element-ui';
+import Noty from 'noty';
 
 // pinia
 import { createPinia, PiniaVuePlugin, storeToRefs } from 'pinia';
-import { useAppearanceSettingsStore } from './stores/settings/appearanceSettings';
-import { useGeneralSettingsStore } from './stores/settings/generalSettings';
-import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
-
-import LoginPage from './views/Login/Login.vue';
-
-// tabs
-import ModerationTab from './views/Moderation/Moderation.vue';
-import ChartsTab from './views/Charts/Charts.vue';
-import SideBar from './views/SideBar/SideBar.vue';
-import NavMenu from './components/NavMenu.vue';
-import FriendListTab from './views/FriendList/FriendList.vue';
-import FavoritesTab from './views/Favorites/Favorites.vue';
-import FriendLogTab from './views/FriendLog/FriendLog.vue';
-import GameLogTab from './views/GameLog/GameLog.vue';
-import NotificationTab from './views/Notifications/Notification.vue';
-import FeedTab from './views/Feed/Feed.vue';
-import SearchTab from './views/Search/Search.vue';
-import ProfileTab from './views/Profile/Profile.vue';
-import PlayerListTab from './views/PlayerList/PlayerList.vue';
-
-// components
-import SimpleSwitch from './components/SimpleSwitch.vue';
-import Location from './components/Location.vue';
-import SafeDialog from './components/dialogs/SafeDialog.vue';
-
-// dialogs
-import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
-import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
-import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
-import WorldImportDialog from './views/Favorites/dialogs/WorldImportDialog.vue';
-import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
-import LaunchDialog from './components/dialogs/LaunchDialog.vue';
-import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
-import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDialog.vue';
-import ExportAvatarsListDialog from './views/Profile/dialogs/ExportAvatarsListDialog.vue';
-import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
-import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
-import InviteGroupDialog from './components/dialogs/InviteGroupDialog.vue';
-import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
-import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
-import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
-import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
-import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
-import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
-import ScreenshotMetadataDialog from './views/Settings/dialogs/ScreenshotMetadataDialog.vue';
-import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
-import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
-import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
-import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
-import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
-import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
-import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
-import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
-import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
-import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
-import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
-
-// utils
-import { hasGroupPermission } from './composables/group/utils';
-import { isRealInstance, parseLocation } from './composables/instance/utils';
+import Vue from 'vue';
+import { DataTables } from 'vue-data-tables';
+import VueI18n from 'vue-i18n';
+import { createI18n } from 'vue-i18n-bridge';
+import VueLazyload from 'vue-lazyload';
+import * as workerTimers from 'worker-timers';
+import 'default-passive-events';
 import {
-    checkVRChatCache,
-    convertFileUrlToImageUrl,
-    deleteVRChatCache,
-    extractFileId,
-    extractFileVersion,
-    getAvailablePlatforms
-} from './composables/shared/utils';
-
-// main app classes
-import _sharedFeed from './classes/sharedFeed.js';
-import _prompts from './classes/prompts.js';
-import _vrcxNotifications from './classes/vrcxNotifications.js';
-import _uiComponents from './classes/uiComponents.js';
-import _websocket from './classes/websocket.js';
-import _apiLogin from './classes/apiLogin.js';
-import _currentUser from './classes/currentUser.js';
-import _updateLoop from './classes/updateLoop.js';
-import _discordRpc from './classes/discordRpc.js';
-import _vrcxUpdater from './classes/vrcxUpdater.js';
-import _gameLog from './classes/gameLog.js';
-import _gameRealtimeLogging from './classes/gameRealtimeLogging.js';
-import _feed from './classes/feed.js';
-import _memos from './classes/memos.js';
-import _languages from './classes/languages.js';
-import _groups from './classes/groups.js';
-import _vrcRegistry from './classes/vrcRegistry.js';
-import _restoreFriendOrder from './classes/restoreFriendOrder.js';
+    avatarModerationRequest,
+    avatarRequest,
+    favoriteRequest,
+    friendRequest,
+    groupRequest,
+    imageRequest,
+    instanceRequest,
+    inviteMessagesRequest,
+    miscRequest,
+    notificationRequest,
+    playerModerationRequest,
+    userRequest,
+    vrcPlusIconRequest,
+    vrcPlusImageRequest,
+    worldRequest
+} from './api';
 
 import pugTemplate from './app.pug';
 
 // API classes
 import _config from './classes/API/config.js';
+import _apiInit from './classes/apiInit.js';
+import _apiLogin from './classes/apiLogin.js';
+import _apiRequestHandler from './classes/apiRequestHandler.js';
+import _currentUser from './classes/currentUser.js';
+import _discordRpc from './classes/discordRpc.js';
+import _feed from './classes/feed.js';
+import _gameLog from './classes/gameLog.js';
+import _gameRealtimeLogging from './classes/gameRealtimeLogging.js';
+import _groups from './classes/groups.js';
+import _languages from './classes/languages.js';
+import _memos from './classes/memos.js';
+import _prompts from './classes/prompts.js';
+import _restoreFriendOrder from './classes/restoreFriendOrder.js';
+
+// main app classes
+import _sharedFeed from './classes/sharedFeed.js';
+import _uiComponents from './classes/uiComponents.js';
+import _updateLoop from './classes/updateLoop.js';
+import _vrcRegistry from './classes/vrcRegistry.js';
+import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
+import _vrcxNotifications from './classes/vrcxNotifications.js';
+import _vrcxUpdater from './classes/vrcxUpdater.js';
+import _websocket from './classes/websocket.js';
+import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
+import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
+import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
+import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
+import InviteGroupDialog from './components/dialogs/InviteGroupDialog.vue';
+import LaunchDialog from './components/dialogs/LaunchDialog.vue';
+import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
+import SafeDialog from './components/dialogs/SafeDialog.vue';
+import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
+import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
+
+// dialogs
+import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
+import Location from './components/Location.vue';
+import NavMenu from './components/NavMenu.vue';
+
+// components
+import SimpleSwitch from './components/SimpleSwitch.vue';
+import InteropApi from './ipc-electron/interopApi.js';
+import * as localizedStrings from './localization/localizedStrings.js';
+
+// util classes
+import configRepository from './service/config.js';
+import removeConfusables, { removeWhitespace } from './service/confusables.js';
+import database from './service/database.js';
+import security from './service/security.js';
+import webApiService from './service/webapi.js';
+import { userDialogGroupSortingOptions } from './shared/constants';
+import {
+    arraysMatch,
+    buildTreeData,
+    changeAppThemeStyle,
+    checkVRChatCache,
+    commaNumber,
+    compareByDisplayName,
+    compareByLocationAt,
+    compareByName,
+    compareByUpdatedAt,
+    compareUnityVersion,
+    convertFileUrlToImageUrl,
+    deleteVRChatCache,
+    displayLocation,
+    escapeTag,
+    extractFileId,
+    extractFileVersion,
+    getAvailablePlatforms,
+    getFriendsSortFunction,
+    getPlatformInfo,
+    getPrintFileName,
+    getPrintLocalDate,
+    hasGroupPermission,
+    isRealInstance,
+    languageClass,
+    localeIncludes,
+    parseLocation,
+    removeFromArray,
+    replaceBioSymbols,
+    storeAvatarImage,
+    textToHex,
+    timeToText
+} from './shared/utils';
+
+import { useAppearanceSettingsStore } from './stores/settings/appearanceSettings';
+import { useGeneralSettingsStore } from './stores/settings/generalSettings';
+import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
+import ChartsTab from './views/Charts/Charts.vue';
+import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
+import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
+import WorldImportDialog from './views/Favorites/dialogs/WorldImportDialog.vue';
+import FavoritesTab from './views/Favorites/Favorites.vue';
+import FeedTab from './views/Feed/Feed.vue';
+import FriendListTab from './views/FriendList/FriendList.vue';
+import FriendLogTab from './views/FriendLog/FriendLog.vue';
+import GameLogTab from './views/GameLog/GameLog.vue';
+
+import LoginPage from './views/Login/Login.vue';
+
+// tabs
+import ModerationTab from './views/Moderation/Moderation.vue';
+import NotificationTab from './views/Notifications/Notification.vue';
+import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
+import PlayerListTab from './views/PlayerList/PlayerList.vue';
+import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
+import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
+import ExportAvatarsListDialog from './views/Profile/dialogs/ExportAvatarsListDialog.vue';
+import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDialog.vue';
+import ProfileTab from './views/Profile/Profile.vue';
+import SearchTab from './views/Search/Search.vue';
+import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
+import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
+import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
+import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
+import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
+import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
+import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
+import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
+import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
+import ScreenshotMetadataDialog from './views/Settings/dialogs/ScreenshotMetadataDialog.vue';
+import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
+import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
+import SideBar from './views/SideBar/SideBar.vue';
 
 // #endregion
 
 // some workaround for failing to get voice list first run
 speechSynthesis.getVoices();
 
-import InteropApi from './ipc-electron/interopApi.js';
 console.log(`isLinux: ${LINUX}`);
 
 // #region | Hey look it's most of VRCX!
@@ -419,9 +428,7 @@ console.log(`isLinux: ${LINUX}`);
         },
         i18n,
         computed: {},
-        methods: {
-            ...$utils
-        },
+        methods: {},
         watch: {},
         components: {
             LoginPage,
@@ -680,8 +687,8 @@ console.log(`isLinux: ${LINUX}`);
         timeout: 6000
     });
 
-    Vue.filter('commaNumber', $utils.commaNumber);
-    Vue.filter('textToHex', $utils.textToHex);
+    Vue.filter('commaNumber', commaNumber);
+    Vue.filter('textToHex', textToHex);
 
     Vue.use(VueLazyload, {
         preLoad: 1,
@@ -891,18 +898,16 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     API.applyUser = function (json) {
-        var ref = this.cachedUsers.get(json.id);
+        let ref = this.cachedUsers.get(json.id);
         if (typeof json.statusDescription !== 'undefined') {
-            json.statusDescription = $utils.replaceBioSymbols(
-                json.statusDescription
-            );
+            json.statusDescription = replaceBioSymbols(json.statusDescription);
             json.statusDescription = $app.removeEmojis(json.statusDescription);
         }
         if (typeof json.bio !== 'undefined') {
-            json.bio = $utils.replaceBioSymbols(json.bio);
+            json.bio = replaceBioSymbols(json.bio);
         }
         if (typeof json.note !== 'undefined') {
-            json.note = $utils.replaceBioSymbols(json.note);
+            json.note = replaceBioSymbols(json.note);
         }
         if (json.currentAvatarImageUrl === $app.robotUrl) {
             delete json.currentAvatarImageUrl;
@@ -977,7 +982,7 @@ console.log(`isLinux: ${LINUX}`);
             };
             if ($app.lastLocation.playerList.has(json.id)) {
                 // update $location_at from instance join time
-                var player = $app.lastLocation.playerList.get(json.id);
+                const player = $app.lastLocation.playerList.get(json.id);
                 ref.$location_at = player.joinTime;
                 ref.$online_for = player.joinTime;
             }
@@ -987,7 +992,7 @@ console.log(`isLinux: ${LINUX}`);
                     !this.currentTravelers.has(ref.id) &&
                     ref.travelingToLocation
                 ) {
-                    var travelRef = {
+                    let travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
@@ -1006,7 +1011,7 @@ console.log(`isLinux: ${LINUX}`);
             }
             if (ref.isFriend || ref.id === this.currentUser.id) {
                 // update instancePlayerCount
-                var newCount = $app.instancePlayerCount.get(ref.location);
+                let newCount = $app.instancePlayerCount.get(ref.location);
                 if (typeof newCount === 'undefined') {
                     newCount = 0;
                 }
@@ -1014,7 +1019,7 @@ console.log(`isLinux: ${LINUX}`);
                 $app.instancePlayerCount.set(ref.location, newCount);
             }
             if ($app.customUserTags.has(json.id)) {
-                var tag = $app.customUserTags.get(json.id);
+                const tag = $app.customUserTags.get(json.id);
                 ref.$customTag = tag.tag;
                 ref.$customTagColour = tag.colour;
             } else if (ref.$customTag) {
@@ -1026,13 +1031,13 @@ console.log(`isLinux: ${LINUX}`);
             this.applyUserLanguage(ref);
             this.cachedUsers.set(ref.id, ref);
         } else {
-            var props = {};
-            for (var prop in ref) {
+            const props = {};
+            for (let prop in ref) {
                 if (ref[prop] !== Object(ref[prop])) {
                     props[prop] = true;
                 }
             }
-            var $ref = { ...ref };
+            const $ref = { ...ref };
             Object.assign(ref, json);
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
             this.applyUserTrustLevel(ref);
@@ -1041,7 +1046,7 @@ console.log(`isLinux: ${LINUX}`);
             if (ref.location === 'traveling') {
                 ref.$location = parseLocation(ref.travelingToLocation);
                 if (!this.currentTravelers.has(ref.id)) {
-                    var travelRef = {
+                    let travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
@@ -1058,19 +1063,19 @@ console.log(`isLinux: ${LINUX}`);
                     $app.updateSharedFeed(false);
                 }
             }
-            for (var prop in ref) {
+            for (let prop in ref) {
                 if (Array.isArray(ref[prop]) && Array.isArray($ref[prop])) {
-                    if (!$app.arraysMatch(ref[prop], $ref[prop])) {
+                    if (!arraysMatch(ref[prop], $ref[prop])) {
                         props[prop] = true;
                     }
                 } else if (ref[prop] !== Object(ref[prop])) {
                     props[prop] = true;
                 }
             }
-            var has = false;
-            for (var prop in props) {
-                var asis = $ref[prop];
-                var tobe = ref[prop];
+            let has = false;
+            for (let prop in props) {
+                const asis = $ref[prop];
+                const tobe = ref[prop];
                 if (asis === tobe) {
                     delete props[prop];
                 } else {
@@ -1286,8 +1291,8 @@ console.log(`isLinux: ${LINUX}`);
             Object.assign(ref, json);
         }
         ref.$isLabs = ref.tags.includes('system_labs');
-        ref.name = $utils.replaceBioSymbols(ref.name);
-        ref.description = $utils.replaceBioSymbols(ref.description);
+        ref.name = replaceBioSymbols(ref.name);
+        ref.description = replaceBioSymbols(ref.description);
         return ref;
     };
 
@@ -1646,8 +1651,8 @@ console.log(`isLinux: ${LINUX}`);
                 ref.unityPackages = unityPackages;
             }
         }
-        ref.name = $utils.replaceBioSymbols(ref.name);
-        ref.description = $utils.replaceBioSymbols(ref.description);
+        ref.name = replaceBioSymbols(ref.name);
+        ref.description = replaceBioSymbols(ref.description);
         return ref;
     };
 
@@ -1939,7 +1944,7 @@ console.log(`isLinux: ${LINUX}`);
         this.$emit('NOTIFICATION:HIDE', args);
         new Noty({
             type: 'success',
-            text: $app.escapeTag(args.json)
+            text: escapeTag(args.json)
         }).show();
         console.log('NOTIFICATION:RESPONSE', args);
     });
@@ -2714,7 +2719,7 @@ console.log(`isLinux: ${LINUX}`);
                     this.text = '-';
                     return;
                 }
-                this.text = $app.timeToText(Date.now() - this.epoch);
+                this.text = timeToText(Date.now() - this.epoch);
             }
         },
         watch: {
@@ -2727,7 +2732,7 @@ console.log(`isLinux: ${LINUX}`);
             this.update();
         },
         destroyed() {
-            $app.removeFromArray($timers, this);
+            removeFromArray($timers, this);
         }
     });
 
@@ -2769,7 +2774,7 @@ console.log(`isLinux: ${LINUX}`);
                     1000 * 60 * 60 * this.hours -
                     Date.now();
                 if (epoch >= 0) {
-                    this.text = $app.timeToText(epoch);
+                    this.text = timeToText(epoch);
                 } else {
                     this.text = '-';
                 }
@@ -2785,7 +2790,7 @@ console.log(`isLinux: ${LINUX}`);
             this.update();
         },
         destroyed() {
-            $app.removeFromArray($countDownTimers, this);
+            removeFromArray($countDownTimers, this);
         }
     });
 
@@ -3034,7 +3039,7 @@ console.log(`isLinux: ${LINUX}`);
         if (this.isLoggedIn) {
             new Noty({
                 type: 'success',
-                text: `See you again, <strong>${$app.escapeTag(
+                text: `See you again, <strong>${escapeTag(
                     this.currentUser.displayName
                 )}</strong>!`
             }).show();
@@ -3047,7 +3052,7 @@ console.log(`isLinux: ${LINUX}`);
     API.$on('LOGIN', function (args) {
         new Noty({
             type: 'success',
-            text: `Hello there, <strong>${$app.escapeTag(
+            text: `Hello there, <strong>${escapeTag(
                 args.ref.displayName
             )}</strong>!`
         }).show();
@@ -3461,14 +3466,14 @@ console.log(`isLinux: ${LINUX}`);
         this.friends.delete(id);
         if (ctx.state === 'online') {
             if (ctx.isVIP) {
-                $app.removeFromArray(this.vipFriends_, ctx);
+                removeFromArray(this.vipFriends_, ctx);
             } else {
-                $app.removeFromArray(this.onlineFriends_, ctx);
+                removeFromArray(this.onlineFriends_, ctx);
             }
         } else if (ctx.state === 'active') {
-            $app.removeFromArray(this.activeFriends_, ctx);
+            removeFromArray(this.activeFriends_, ctx);
         } else {
-            $app.removeFromArray(this.offlineFriends_, ctx);
+            removeFromArray(this.offlineFriends_, ctx);
         }
     };
 
@@ -3524,11 +3529,11 @@ console.log(`isLinux: ${LINUX}`);
                 ctx.isVIP = isVIP;
                 if (ctx.state === 'online') {
                     if (ctx.isVIP) {
-                        $app.removeFromArray(this.onlineFriends_, ctx);
+                        removeFromArray(this.onlineFriends_, ctx);
                         this.vipFriends_.push(ctx);
                         this.sortVIPFriends = true;
                     } else {
-                        $app.removeFromArray(this.vipFriends_, ctx);
+                        removeFromArray(this.vipFriends_, ctx);
                         this.onlineFriends_.push(ctx);
                         this.sortOnlineFriends = true;
                     }
@@ -3721,14 +3726,14 @@ console.log(`isLinux: ${LINUX}`);
         }
         if (ctx.state === 'online') {
             if (ctx.isVIP) {
-                $app.removeFromArray(this.vipFriends_, ctx);
+                removeFromArray(this.vipFriends_, ctx);
             } else {
-                $app.removeFromArray(this.onlineFriends_, ctx);
+                removeFromArray(this.onlineFriends_, ctx);
             }
         } else if (ctx.state === 'active') {
-            $app.removeFromArray(this.activeFriends_, ctx);
+            removeFromArray(this.activeFriends_, ctx);
         } else {
-            $app.removeFromArray(this.offlineFriends_, ctx);
+            removeFromArray(this.offlineFriends_, ctx);
         }
         if (newState === 'online') {
             if (isVIP) {
@@ -3813,231 +3818,6 @@ console.log(`isLinux: ${LINUX}`);
             );
             this.onlineFriendCount = onlineFriendCount;
         }
-    };
-
-    // ascending
-    var compareByDisplayName = function (a, b) {
-        if (
-            typeof a.displayName !== 'string' ||
-            typeof b.displayName !== 'string'
-        ) {
-            return 0;
-        }
-        return a.displayName.localeCompare(b.displayName);
-    };
-
-    var compareByMemberCount = function (a, b) {
-        if (
-            typeof a.memberCount !== 'number' ||
-            typeof b.memberCount !== 'number'
-        ) {
-            return 0;
-        }
-        return a.memberCount - b.memberCount;
-    };
-
-    // private
-    var compareByPrivate = function (a, b) {
-        if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
-            return 0;
-        }
-        if (a.ref.location === 'private' && b.ref.location === 'private') {
-            return 0;
-        } else if (a.ref.location === 'private') {
-            return 1;
-        } else if (b.ref.location === 'private') {
-            return -1;
-        }
-        return 0;
-    };
-
-    var compareByStatus = function (a, b) {
-        if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
-            return 0;
-        }
-        if (a.ref.status === b.ref.status) {
-            return 0;
-        }
-        if (a.ref.state === 'offline') {
-            return 1;
-        }
-        return $app.sortStatus(a.ref.status, b.ref.status);
-    };
-
-    $app.methods.sortStatus = function (a, b) {
-        switch (b) {
-            case 'join me':
-                switch (a) {
-                    case 'active':
-                        return 1;
-                    case 'ask me':
-                        return 1;
-                    case 'busy':
-                        return 1;
-                }
-                break;
-            case 'active':
-                switch (a) {
-                    case 'join me':
-                        return -1;
-                    case 'ask me':
-                        return 1;
-                    case 'busy':
-                        return 1;
-                }
-                break;
-            case 'ask me':
-                switch (a) {
-                    case 'join me':
-                        return -1;
-                    case 'active':
-                        return -1;
-                    case 'busy':
-                        return 1;
-                }
-                break;
-            case 'busy':
-                switch (a) {
-                    case 'join me':
-                        return -1;
-                    case 'active':
-                        return -1;
-                    case 'ask me':
-                        return -1;
-                }
-                break;
-        }
-        return 0;
-    };
-
-    // location at
-    var compareByLocationAt = function (a, b) {
-        if (a.location === 'traveling' && b.location === 'traveling') {
-            return 0;
-        }
-        if (a.location === 'traveling') {
-            return 1;
-        }
-        if (b.location === 'traveling') {
-            return -1;
-        }
-        if (a.$location_at < b.$location_at) {
-            return -1;
-        }
-        if (a.$location_at > b.$location_at) {
-            return 1;
-        }
-        return 0;
-    };
-
-    // location at but for the sidebar
-    var compareByLocation = function (a, b) {
-        if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
-            return 0;
-        }
-        if (a.state !== 'online' || b.state !== 'online') {
-            return 0;
-        }
-
-        return a.ref.location.localeCompare(b.ref.location);
-    };
-
-    var compareByActivityField = function (a, b, field) {
-        if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
-            return 0;
-        }
-
-        // When the field is just and empty string, it means they've been
-        // in whatever active state for the longest
-        if (
-            a.ref[field] < b.ref[field] ||
-            (a.ref[field] !== '' && b.ref[field] === '')
-        ) {
-            return 1;
-        }
-        if (
-            a.ref[field] > b.ref[field] ||
-            (a.ref[field] === '' && b.ref[field] !== '')
-        ) {
-            return -1;
-        }
-        return 0;
-    };
-
-    // last active
-    var compareByLastActive = function (a, b) {
-        if (a.state === 'online' && b.state === 'online') {
-            if (
-                a.ref?.$online_for &&
-                b.ref?.$online_for &&
-                a.ref.$online_for === b.ref.$online_for
-            ) {
-                compareByActivityField(a, b, 'last_login');
-            }
-            return compareByActivityField(a, b, '$online_for');
-        }
-
-        return compareByActivityField(a, b, 'last_activity');
-    };
-
-    // last seen
-    var compareByLastSeen = function (a, b) {
-        return compareByActivityField(a, b, '$lastSeen');
-    };
-
-    var getFriendsSortFunction = function (sortMethods) {
-        const sorts = [];
-        for (const sortMethod of sortMethods) {
-            switch (sortMethod) {
-                case 'Sort Alphabetically':
-                    sorts.push($utils.compareByName);
-                    break;
-                case 'Sort Private to Bottom':
-                    sorts.push(compareByPrivate);
-                    break;
-                case 'Sort by Status':
-                    sorts.push(compareByStatus);
-                    break;
-                case 'Sort by Last Active':
-                    sorts.push(compareByLastActive);
-                    break;
-                case 'Sort by Last Seen':
-                    sorts.push(compareByLastSeen);
-                    break;
-                case 'Sort by Time in Instance':
-                    sorts.push((a, b) => {
-                        if (
-                            typeof a.ref === 'undefined' ||
-                            typeof b.ref === 'undefined'
-                        ) {
-                            return 0;
-                        }
-                        if (a.state !== 'online' || b.state !== 'online') {
-                            return 0;
-                        }
-
-                        return compareByLocationAt(b.ref, a.ref);
-                    });
-                    break;
-                case 'Sort by Location':
-                    sorts.push(compareByLocation);
-                    break;
-                case 'None':
-                    sorts.push(() => 0);
-                    break;
-            }
-        }
-
-        return (a, b) => {
-            let res;
-            for (const sort of sorts) {
-                res = sort(a, b);
-                if (res !== 0) {
-                    return res;
-                }
-            }
-            return res;
-        };
     };
 
     // VIP friends
@@ -4219,14 +3999,14 @@ console.log(`isLinux: ${LINUX}`);
             }
 
             const cleanName = removeConfusables(ctx.name);
-            let match = $utils.localeIncludes(
+            let match = localeIncludes(
                 cleanName,
                 cleanQuery,
                 this.stringComparer
             );
             if (!match) {
                 // Also check regular name in case search is with special characters
-                match = $utils.localeIncludes(
+                match = localeIncludes(
                     ctx.name,
                     cleanQuery,
                     this.stringComparer
@@ -4235,14 +4015,10 @@ console.log(`isLinux: ${LINUX}`);
             // Use query with whitespace for notes and memos as people are more
             // likely to include spaces in memos and notes
             if (!match && ctx.memo) {
-                match = $utils.localeIncludes(
-                    ctx.memo,
-                    query,
-                    this.stringComparer
-                );
+                match = localeIncludes(ctx.memo, query, this.stringComparer);
             }
             if (!match && ctx.ref.note) {
-                match = $utils.localeIncludes(
+                match = localeIncludes(
                     ctx.ref.note,
                     query,
                     this.stringComparer
@@ -4260,12 +4036,12 @@ console.log(`isLinux: ${LINUX}`);
         }
 
         results.sort(function (a, b) {
-            var A =
+            const A =
                 $app.stringComparer.compare(
                     a.name.substring(0, cleanQuery.length),
                     cleanQuery
                 ) === 0;
-            var B =
+            const B =
                 $app.stringComparer.compare(
                     b.name.substring(0, cleanQuery.length),
                     cleanQuery
@@ -4275,7 +4051,7 @@ console.log(`isLinux: ${LINUX}`);
             } else if (B && !A) {
                 return 1;
             }
-            return $utils.compareByName(a, b);
+            return compareByName(a, b);
         });
         if (results.length > 4) {
             results.length = 4;
@@ -5360,14 +5136,14 @@ console.log(`isLinux: ${LINUX}`);
                     // WTF???
                     isTypeChanged = true;
                     if (type === 'friend') {
-                        $app.removeFromArray(this.favoriteFriends_, ctx);
-                        $app.removeFromArray(this.favoriteFriendsSorted, ctx);
+                        removeFromArray(this.favoriteFriends_, ctx);
+                        removeFromArray(this.favoriteFriendsSorted, ctx);
                     } else if (type === 'world') {
-                        $app.removeFromArray(this.favoriteWorlds_, ctx);
-                        $app.removeFromArray(this.favoriteWorldsSorted, ctx);
+                        removeFromArray(this.favoriteWorlds_, ctx);
+                        removeFromArray(this.favoriteWorldsSorted, ctx);
                     } else if (type === 'avatar') {
-                        $app.removeFromArray(this.favoriteAvatars_, ctx);
-                        $app.removeFromArray(this.favoriteAvatarsSorted, ctx);
+                        removeFromArray(this.favoriteAvatars_, ctx);
+                        removeFromArray(this.favoriteAvatarsSorted, ctx);
                     }
                 }
                 if (type === 'friend') {
@@ -5469,14 +5245,14 @@ console.log(`isLinux: ${LINUX}`);
         } else if (typeof ctx !== 'undefined') {
             this.favoriteObjects.delete(objectId);
             if (type === 'friend') {
-                $app.removeFromArray(this.favoriteFriends_, ctx);
-                $app.removeFromArray(this.favoriteFriendsSorted, ctx);
+                removeFromArray(this.favoriteFriends_, ctx);
+                removeFromArray(this.favoriteFriendsSorted, ctx);
             } else if (type === 'world') {
-                $app.removeFromArray(this.favoriteWorlds_, ctx);
-                $app.removeFromArray(this.favoriteWorldsSorted, ctx);
+                removeFromArray(this.favoriteWorlds_, ctx);
+                removeFromArray(this.favoriteWorldsSorted, ctx);
             } else if (type === 'avatar') {
-                $app.removeFromArray(this.favoriteAvatars_, ctx);
-                $app.removeFromArray(this.favoriteAvatarsSorted, ctx);
+                removeFromArray(this.favoriteAvatars_, ctx);
+                removeFromArray(this.favoriteAvatarsSorted, ctx);
             }
         }
     };
@@ -5501,7 +5277,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.favoriteFriends = function () {
         if (this.sortFavoriteFriends) {
             this.sortFavoriteFriends = false;
-            this.favoriteFriendsSorted.sort($utils.compareByName);
+            this.favoriteFriendsSorted.sort(compareByName);
         }
         if (this.sortFavorites) {
             return this.favoriteFriends_;
@@ -5527,7 +5303,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.favoriteWorlds = function () {
         if (this.sortFavoriteWorlds) {
             this.sortFavoriteWorlds = false;
-            this.favoriteWorldsSorted.sort($utils.compareByName);
+            this.favoriteWorldsSorted.sort(compareByName);
         }
         if (this.sortFavorites) {
             return this.favoriteWorlds_;
@@ -5538,7 +5314,7 @@ console.log(`isLinux: ${LINUX}`);
     $app.computed.favoriteAvatars = function () {
         if (this.sortFavoriteAvatars) {
             this.sortFavoriteAvatars = false;
-            this.favoriteAvatarsSorted.sort($utils.compareByName);
+            this.favoriteAvatarsSorted.sort(compareByName);
         }
         if (this.sortFavorites) {
             return this.favoriteAvatars_;
@@ -6069,7 +5845,7 @@ console.log(`isLinux: ${LINUX}`);
 
     API.$on('NOTIFICATION:SEE', function (args) {
         var { notificationId } = args.params;
-        $app.removeFromArray($app.unseenNotifications, notificationId);
+        removeFromArray($app.unseenNotifications, notificationId);
         if ($app.unseenNotifications.length === 0) {
             const item = $app.$refs.menu.$children[0]?.items['notification'];
             if (item) {
@@ -6651,7 +6427,7 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.changeThemeMode = async function () {
-        await $utils.changeAppThemeStyle(this.themeMode);
+        await changeAppThemeStyle(this.themeMode);
         if (this.isDarkMode) {
             AppApi.ChangeTheme(1);
         } else {
@@ -8627,11 +8403,11 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.methods.sortUserDialogAvatars = function (array) {
-        var D = this.userDialog;
+        const D = this.userDialog;
         if (D.avatarSorting === 'update') {
-            array.sort($utils.compareByUpdatedAt);
+            array.sort(compareByUpdatedAt);
         } else {
-            array.sort($utils.compareByName);
+            array.sort(compareByName);
         }
         D.avatars = array;
     };
@@ -8701,10 +8477,10 @@ console.log(`isLinux: ${LINUX}`);
                 ...API.currentUser,
                 ...D.ref
             };
-            D.treeData = $utils.buildTreeData(treeData);
+            D.treeData = buildTreeData(treeData);
             return;
         }
-        D.treeData = $utils.buildTreeData(D.ref);
+        D.treeData = buildTreeData(D.ref);
     };
 
     // #endregion
@@ -10042,11 +9818,11 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.userOnlineFor = function (ctx) {
         if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
-            return $utils.timeToText(Date.now() - ctx.ref.$online_for);
+            return timeToText(Date.now() - ctx.ref.$online_for);
         } else if (ctx.ref.state === 'active' && ctx.ref.$active_for) {
-            return $utils.timeToText(Date.now() - ctx.ref.$active_for);
+            return timeToText(Date.now() - ctx.ref.$active_for);
         } else if (ctx.ref.$offline_for) {
-            return $utils.timeToText(Date.now() - ctx.ref.$offline_for);
+            return timeToText(Date.now() - ctx.ref.$offline_for);
         }
         return '-';
     };
@@ -12073,7 +11849,7 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         if (!worldInFavorites) {
-            $app.removeFromArray(this.localWorldFavoritesList, worldId);
+            removeFromArray(this.localWorldFavoritesList, worldId);
             database.removeWorldFromCache(worldId);
         }
         database.removeWorldFromFavorites(worldId, group);
@@ -12185,7 +11961,7 @@ console.log(`isLinux: ${LINUX}`);
         this.localWorldFavoriteGroups.push(newName);
         this.localWorldFavorites[newName] = this.localWorldFavorites[group];
 
-        $app.removeFromArray(this.localWorldFavoriteGroups, group);
+        removeFromArray(this.localWorldFavoriteGroups, group);
         delete this.localWorldFavorites[group];
         database.renameWorldFavoriteGroup(newName, group);
         this.sortLocalWorldFavorites();
@@ -12194,10 +11970,10 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.sortLocalWorldFavorites = function () {
         this.localWorldFavoriteGroups.sort();
         if (!this.sortFavorites) {
-            for (var i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-                var group = this.localWorldFavoriteGroups[i];
+            for (let i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
+                const group = this.localWorldFavoriteGroups[i];
                 if (this.localWorldFavorites[group]) {
-                    this.localWorldFavorites[group].sort($utils.compareByName);
+                    this.localWorldFavorites[group].sort(compareByName);
                 }
             }
         }
@@ -12211,7 +11987,7 @@ console.log(`isLinux: ${LINUX}`);
             worldIdRemoveList.add(favoriteGroup[i].id);
         }
 
-        $app.removeFromArray(this.localWorldFavoriteGroups, group);
+        removeFromArray(this.localWorldFavoriteGroups, group);
         delete this.localWorldFavorites[group];
         database.deleteWorldFavoriteGroup(group);
 
@@ -12234,7 +12010,7 @@ console.log(`isLinux: ${LINUX}`);
         }
 
         worldIdRemoveList.forEach((id) => {
-            $app.removeFromArray(this.localWorldFavoritesList, id);
+            removeFromArray(this.localWorldFavoritesList, id);
             database.removeWorldFromCache(id);
         });
     };
@@ -12316,7 +12092,7 @@ console.log(`isLinux: ${LINUX}`);
             }
         }
         if (!avatarInFavorites) {
-            $app.removeFromArray(this.localAvatarFavoritesList, avatarId);
+            removeFromArray(this.localAvatarFavoritesList, avatarId);
             if (!this.avatarHistory.has(avatarId)) {
                 database.removeAvatarFromCache(avatarId);
             }
@@ -12503,7 +12279,7 @@ console.log(`isLinux: ${LINUX}`);
         this.localAvatarFavoriteGroups.push(newName);
         this.localAvatarFavorites[newName] = this.localAvatarFavorites[group];
 
-        $app.removeFromArray(this.localAvatarFavoriteGroups, group);
+        removeFromArray(this.localAvatarFavoriteGroups, group);
         delete this.localAvatarFavorites[group];
         database.renameAvatarFavoriteGroup(newName, group);
         this.sortLocalAvatarFavorites();
@@ -12525,10 +12301,10 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.sortLocalAvatarFavorites = function () {
         this.localAvatarFavoriteGroups.sort();
         if (!this.sortFavorites) {
-            for (var i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-                var group = this.localAvatarFavoriteGroups[i];
+            for (let i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
+                const group = this.localAvatarFavoriteGroups[i];
                 if (this.localAvatarFavorites[group]) {
-                    this.localAvatarFavorites[group].sort($utils.compareByName);
+                    this.localAvatarFavorites[group].sort(compareByName);
                 }
             }
         }
@@ -12542,7 +12318,7 @@ console.log(`isLinux: ${LINUX}`);
             avatarIdRemoveList.add(favoriteGroup[i].id);
         }
 
-        $app.removeFromArray(this.localAvatarFavoriteGroups, group);
+        removeFromArray(this.localAvatarFavoriteGroups, group);
         delete this.localAvatarFavorites[group];
         database.deleteAvatarFavoriteGroup(group);
 
@@ -12592,7 +12368,7 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
             if (!avatarInFavorites) {
-                $app.removeFromArray(this.localAvatarFavoritesList, id);
+                removeFromArray(this.localAvatarFavoritesList, id);
                 if (!this.avatarHistory.has(id)) {
                     database.removeAvatarFromCache(id);
                 }
@@ -12633,11 +12409,11 @@ console.log(`isLinux: ${LINUX}`);
                 continue;
             }
             if (ctx.isVIP) {
-                $app.removeFromArray(this.onlineFriends_, ctx);
+                removeFromArray(this.onlineFriends_, ctx);
                 this.vipFriends_.push(ctx);
                 this.sortVIPFriends = true;
             } else {
-                $app.removeFromArray(this.vipFriends_, ctx);
+                removeFromArray(this.vipFriends_, ctx);
                 this.onlineFriends_.push(ctx);
                 this.sortOnlineFriends = true;
             }
@@ -13287,7 +13063,6 @@ console.log(`isLinux: ${LINUX}`);
             menuActiveIndex: this.menuActiveIndex,
             friends: this.friends,
             randomUserColours: this.randomUserColours,
-            sortStatus: this.sortStatus,
             confirmDeleteFriend: this.confirmDeleteFriend,
             friendsListSearch: this.friendsListSearch,
             stringComparer: this.stringComparer

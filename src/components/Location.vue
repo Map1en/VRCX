@@ -16,7 +16,7 @@
 </template>
 
 <script>
-    import { parseLocation } from '../composables/instance/utils';
+    import { parseLocation } from '../shared/utils';
 
     export default {
         // eslint-disable-next-line vue/multi-word-component-names

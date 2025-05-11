@@ -35,7 +35,7 @@
     import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
-    import { parseLocation } from '../../../composables/instance/utils';
+    import { parseLocation } from '../../../shared/utils';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

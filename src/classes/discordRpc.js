@@ -1,7 +1,6 @@
 import { worldRequest } from '../api';
-import { parseLocation } from '../composables/instance/utils';
-import { getLaunchURL } from '../composables/shared/utils';
 import configRepository from '../service/config.js';
+import { getLaunchURL, parseLocation } from '../shared/utils';
 import { API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {

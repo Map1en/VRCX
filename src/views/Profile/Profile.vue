@@ -499,8 +499,7 @@
     import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, miscRequest, userRequest } from '../../api';
-    import utils from '../../classes/utils';
-    import { parseAvatarUrl } from '../../composables/avatar/utils';
+    import { parseAvatarUrl, buildTreeData } from '../../shared/utils';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
@@ -708,17 +707,17 @@
     }
     async function refreshConfigTreeData() {
         await API.getConfig();
-        configTreeData.value = utils.buildTreeData(API.cachedConfig);
+        configTreeData.value = buildTreeData(API.cachedConfig);
     }
     async function refreshCurrentUserTreeData() {
         await API.getCurrentUser();
-        currentUserTreeData.value = utils.buildTreeData(API.currentUser);
+        currentUserTreeData.value = buildTreeData(API.currentUser);
     }
     function getCurrentUserFeedback() {
         userRequest.getUserFeedback({ userId: API.currentUser.id }).then((args) => {
             // API.$on('USER:FEEDBACK')
             if (args.params.userId === API.currentUser.id) {
-                currentUserFeedbackData.value = utils.buildTreeData(args.json);
+                currentUserFeedbackData.value = buildTreeData(args.json);
             }
         });
     }

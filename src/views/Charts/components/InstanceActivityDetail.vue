@@ -19,8 +19,8 @@
 
 <script>
     import dayjs from 'dayjs';
-    import utils from '../../../classes/utils';
     import Location from '../../../components/Location.vue';
+    import { loadEcharts, timeToText } from '../../../shared/utils';
 
     export default {
         name: 'InstanceActivityDetail',
@@ -105,7 +105,7 @@
         methods: {
             async initEcharts(isFirstLoad = false) {
                 if (!this.echarts) {
-                    this.echarts = await utils.loadEcharts();
+                    this.echarts = await loadEcharts();
                 }
 
                 const chartsHeight = this.activityDetailData.length * (this.barWidth + 10) + 200;
@@ -270,7 +270,7 @@
                     const formattedLeftDateTime = dayjs(instanceData.leaveTime).format(format);
                     const formattedJoinDateTime = dayjs(instanceData.joinTime).format(format);
 
-                    const timeString = utils.timeToText(instanceData.time, true);
+                    const timeString = timeToText(instanceData.time, true);
                     const color = param.color;
 
                     return `

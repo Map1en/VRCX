@@ -1,6 +1,6 @@
 import Noty from 'noty';
-import utils from '../../classes/utils';
-import { compareUnityVersion } from '../avatar/utils';
+import { compareUnityVersion } from './avatar';
+import { escapeTag } from './base/string';
 
 function getAvailablePlatforms(unityPackages) {
     var isPC = false;
@@ -46,7 +46,7 @@ function downloadAndSaveJson(fileName, data) {
     } catch {
         new Noty({
             type: 'error',
-            text: utils.escapeTag('Failed to download JSON.')
+            text: escapeTag('Failed to download JSON.')
         }).show();
     }
 }
@@ -175,25 +175,6 @@ function replaceVrcPackageUrl(url) {
     return url.replace('https://api.vrchat.cloud/', 'https://vrchat.com/');
 }
 
-function getLaunchURL(instance) {
-    var L = instance;
-    if (L.instanceId) {
-        if (L.shortName) {
-            return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-                L.worldId
-            )}&instanceId=${encodeURIComponent(
-                L.instanceId
-            )}&shortName=${encodeURIComponent(L.shortName)}`;
-        }
-        return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-            L.worldId
-        )}&instanceId=${encodeURIComponent(L.instanceId)}`;
-    }
-    return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
-        L.worldId
-    )}`;
-}
-
 function extractFileId(s) {
     var match = String(s).match(/file_[0-9A-Za-z-]+/);
     return match ? match[0] : '';
@@ -220,6 +201,106 @@ function extractVariantVersion(url) {
     }
 }
 
+function buildTreeData(json) {
+    const node = [];
+    for (const key in json) {
+        if (key[0] === '$') {
+            continue;
+        }
+        const value = json[key];
+        if (Array.isArray(value) && value.length === 0) {
+            node.push({
+                key,
+                value: '[]'
+            });
+        } else if (value === Object(value) && Object.keys(value).length === 0) {
+            node.push({
+                key,
+                value: '{}'
+            });
+        } else if (Array.isArray(value)) {
+            node.push({
+                children: value.map((val, idx) => {
+                    if (val === Object(val)) {
+                        return {
+                            children: buildTreeData(val),
+                            key: idx
+                        };
+                    }
+                    return {
+                        key: idx,
+                        value: val
+                    };
+                }),
+                key
+            });
+        } else if (value === Object(value)) {
+            node.push({
+                children: buildTreeData(value),
+                key
+            });
+        } else {
+            node.push({
+                key,
+                value: String(value)
+            });
+        }
+    }
+    node.sort(function (a, b) {
+        const A = String(a.key).toUpperCase();
+        const B = String(b.key).toUpperCase();
+        if (A < B) {
+            return -1;
+        }
+        if (A > B) {
+            return 1;
+        }
+        return 0;
+    });
+    return node;
+}
+
+function replaceBioSymbols(text) {
+    if (!text) {
+        return '';
+    }
+    const symbolList = {
+        '@': '＠',
+        '#': '＃',
+        $: '＄',
+        '%': '％',
+        '&': '＆',
+        '=': '＝',
+        '+': '＋',
+        '/': '⁄',
+        '\\': '＼',
+        ';': ';',
+        ':': '˸',
+        ',': '‚',
+        '?': '？',
+        '!': 'ǃ',
+        '"': '＂',
+        '<': '≺',
+        '>': '≻',
+        '.': '․',
+        '^': '＾',
+        '{': '｛',
+        '}': '｝',
+        '[': '［',
+        ']': '］',
+        '(': '（',
+        ')': '）',
+        '|': '｜',
+        '*': '∗'
+    };
+    let newText = text;
+    for (const key in symbolList) {
+        const regex = new RegExp(symbolList[key], 'g');
+        newText = newText.replace(regex, key);
+    }
+    return newText.replace(/ {1,}/g, ' ').trimRight();
+}
+
 export {
     getAvailablePlatforms,
     downloadAndSaveJson,
@@ -229,90 +310,9 @@ export {
     getFaviconUrl,
     convertFileUrlToImageUrl,
     replaceVrcPackageUrl,
-    getLaunchURL,
     extractFileId,
     extractFileVersion,
-    extractVariantVersion
-};
-
-// ---------------------- devtools method --------------------------
-
-// not window.$app
-window.getBundleLocation = async function (input) {
-    const $app = window.$app;
-    var assetUrl = input;
-    var variant = '';
-    if (assetUrl) {
-        // continue
-    } else if (
-        $app.avatarDialog.visible &&
-        $app.avatarDialog.ref.unityPackages.length > 0
-    ) {
-        var unityPackages = $app.avatarDialog.ref.unityPackages;
-        for (let i = unityPackages.length - 1; i > -1; i--) {
-            var unityPackage = unityPackages[i];
-            if (
-                unityPackage.variant &&
-                unityPackage.variant !== 'standard' &&
-                unityPackage.variant !== 'security'
-            ) {
-                continue;
-            }
-            if (
-                unityPackage.platform === 'standalonewindows' &&
-                compareUnityVersion(unityPackage.unitySortNumber)
-            ) {
-                assetUrl = unityPackage.assetUrl;
-                if (unityPackage.variant !== 'standard') {
-                    variant = unityPackage.variant;
-                }
-                break;
-            }
-        }
-    } else if ($app.avatarDialog.visible && $app.avatarDialog.ref.assetUrl) {
-        assetUrl = $app.avatarDialog.ref.assetUrl;
-    } else if (
-        $app.worldDialog.visible &&
-        $app.worldDialog.ref.unityPackages.length > 0
-    ) {
-        var unityPackages = $app.worldDialog.ref.unityPackages;
-        for (let i = unityPackages.length - 1; i > -1; i--) {
-            var unityPackage = unityPackages[i];
-            if (
-                unityPackage.platform === 'standalonewindows' &&
-                compareUnityVersion(unityPackage.unitySortNumber)
-            ) {
-                assetUrl = unityPackage.assetUrl;
-                break;
-            }
-        }
-    } else if ($app.worldDialog.visible && $app.worldDialog.ref.assetUrl) {
-        assetUrl = $app.worldDialog.ref.assetUrl;
-    }
-    if (!assetUrl) {
-        return null;
-    }
-    var fileId = extractFileId(assetUrl);
-    var fileVersion = parseInt(extractFileVersion(assetUrl), 10);
-    var variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
-    var assetLocation = await AssetBundleManager.GetVRChatCacheFullLocation(
-        fileId,
-        fileVersion,
-        variant,
-        variantVersion
-    );
-    var cacheInfo = await AssetBundleManager.CheckVRChatCache(
-        fileId,
-        fileVersion,
-        variant,
-        variantVersion
-    );
-    var inCache = false;
-    if (cacheInfo.Item1 > 0) {
-        inCache = true;
-    }
-    console.log(`InCache: ${inCache}`);
-    var fullAssetLocation = `${assetLocation}\\__data`;
-    console.log(fullAssetLocation);
-    return fullAssetLocation;
+    extractVariantVersion,
+    buildTreeData,
+    replaceBioSymbols
 };

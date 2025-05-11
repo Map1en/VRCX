@@ -1,4 +1,4 @@
-import utils from '../../classes/utils';
+import { replaceBioSymbols } from './common';
 
 function storeAvatarImage(args) {
     const refCreatedAt = args.json.versions[0];
@@ -8,7 +8,7 @@ function storeAvatarImage(args) {
     const imageName = args.json.name;
     const avatarNameRegex = /Avatar - (.*) - Image -/gi.exec(imageName);
     if (avatarNameRegex) {
-        avatarName = utils.replaceBioSymbols(avatarNameRegex[1]);
+        avatarName = replaceBioSymbols(avatarNameRegex[1]);
     }
     const ownerId = args.json.ownerId;
     const avatarInfo = {

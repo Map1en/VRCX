@@ -70,9 +70,8 @@
 </template>
 
 <script>
-    import utils from '../../../classes/utils';
-    import { parseLocation } from '../../../composables/instance/utils';
     import database from '../../../service/database';
+    import { removeFromArray, timeToText, compareByCreatedAt, parseLocation } from '../../../shared/utils';
     import Location from '../../Location.vue';
 
     export default {
@@ -170,13 +169,13 @@
                     for (const ref of data.values()) {
                         ref.$location = parseLocation(ref.location);
                         if (ref.time > 0) {
-                            ref.timer = utils.timeToText(ref.time);
+                            ref.timer = timeToText(ref.time);
                         } else {
                             ref.timer = '';
                         }
                         array.push(ref);
                     }
-                    array.sort(utils.compareByCreatedAt);
+                    array.sort(compareByCreatedAt);
                     this.previousInstancesUserDialogTable.data = array;
                     this.loading = false;
                 });
@@ -187,7 +186,7 @@
                     displayName: this.previousInstancesUserDialog.userRef.displayName,
                     location: row.location
                 });
-                utils.removeFromArray(this.previousInstancesUserDialogTable.data, row);
+                removeFromArray(this.previousInstancesUserDialogTable.data, row);
             },
             deleteGameLogUserInstancePrompt(row) {
                 this.$confirm('Continue? Delete User From GameLog Instance', 'Confirm', {

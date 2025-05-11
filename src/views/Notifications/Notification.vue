@@ -421,9 +421,7 @@
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { friendRequest, inviteMessagesRequest, notificationRequest, worldRequest } from '../../api';
-    import utils from '../../classes/utils';
-    import { parseLocation } from '../../composables/instance/utils';
-    import { convertFileUrlToImageUrl } from '../../composables/shared/utils';
+    import { parseLocation, convertFileUrlToImageUrl, removeFromArray } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
@@ -652,7 +650,7 @@
     }
 
     function deleteNotificationLog(row) {
-        utils.removeFromArray(props.notificationTable.data, row);
+        removeFromArray(props.notificationTable.data, row);
         if (row.type !== 'friendRequest' && row.type !== 'ignoredFriendRequest') {
             database.deleteNotification(row.id);
         }

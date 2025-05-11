@@ -174,7 +174,7 @@
 <script>
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
-    import { isRealInstance as _isRealInstance, parseLocation } from '../../../composables/instance/utils';
+    import { isRealInstance as _isRealInstance } from '../../../shared/utils';
     import configRepository from '../../../service/config';
 
     export default {

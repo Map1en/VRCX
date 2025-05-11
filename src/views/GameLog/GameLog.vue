@@ -198,9 +198,9 @@
 <script setup>
     import { inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../classes/utils';
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
+    import { removeFromArray } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -254,7 +254,7 @@
     }
 
     function deleteGameLogEntry(row) {
-        utils.removeFromArray(props.gameLogTable.data, row);
+        removeFromArray(props.gameLogTable.data, row);
         database.deleteGameLogEntry(row);
         console.log('deleteGameLogEntry', row);
         database.getGamelogDatabase().then((data) => {

@@ -88,11 +88,11 @@
 </template>
 
 <script setup>
-    import { ref, watch, inject } from 'vue';
+    import { inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../../classes/utils';
     import * as workerTimers from 'worker-timers';
     import { miscRequest } from '../../../api';
+    import { removeFromArray } from '../../../shared/utils';
 
     const { t } = useI18n();
 
@@ -174,7 +174,7 @@
                         targetUserId: ctx.id,
                         note: ctx.memo.slice(0, 256)
                     });
-                    utils.removeFromArray(noteExportTable.value.data, ctx);
+                    removeFromArray(noteExportTable.value.data, ctx);
                     progress.value++;
                     await new Promise((resolve) => {
                         workerTimers.setTimeout(resolve, 5000);
@@ -195,7 +195,7 @@
     }
 
     function removeFromNoteExportTable(ref) {
-        utils.removeFromArray(noteExportTable.value.data, ref);
+        removeFromArray(noteExportTable.value.data, ref);
     }
 
     function closeDialog() {

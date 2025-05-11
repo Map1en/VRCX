@@ -1,4 +1,3 @@
-import $utils from './utils';
 /* eslint-disable no-unused-vars */
 let $app = {};
 let API = {};
@@ -25,4 +24,4 @@ class baseClass {
     _methods = {};
 }
 
-export { baseClass, $app, API, $t, $utils };
+export { baseClass, $app, API, $t };

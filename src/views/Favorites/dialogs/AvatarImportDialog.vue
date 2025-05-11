@@ -173,7 +173,7 @@
 
 <script>
     import { avatarRequest, favoriteRequest } from '../../../api';
-    import utils from '../../../classes/utils';
+    import { removeFromArray } from '../../../shared/utils';
 
     export default {
         name: 'AvatarImportDialog',
@@ -275,7 +275,7 @@
             },
 
             deleteItemAvatarImport(ref) {
-                utils.removeFromArray(this.avatarImportTable.data, ref);
+                removeFromArray(this.avatarImportTable.data, ref);
                 this.avatarImportDialog.avatarIdList.delete(ref.id);
             },
 
@@ -339,7 +339,7 @@
                         } else if (D.avatarImportLocalFavoriteGroup) {
                             this.$emit('add-local-avatar-favorite', ref.id, D.avatarImportLocalFavoriteGroup);
                         }
-                        utils.removeFromArray(this.avatarImportTable.data, ref);
+                        removeFromArray(this.avatarImportTable.data, ref);
                         D.avatarIdList.delete(ref.id);
                         D.importProgress++;
                     }

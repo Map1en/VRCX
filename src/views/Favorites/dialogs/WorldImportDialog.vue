@@ -178,7 +178,7 @@
 
 <script>
     import { favoriteRequest, worldRequest } from '../../../api';
-    import utils from '../../../classes/utils';
+    import { removeFromArray } from '../../../shared/utils';
 
     export default {
         name: 'WorldImportDialog',
@@ -283,7 +283,7 @@
                 D.loading = false;
             },
             deleteItemWorldImport(ref) {
-                utils.removeFromArray(this.worldImportTable.data, ref);
+                removeFromArray(this.worldImportTable.data, ref);
                 this.worldImportDialog.worldIdList.delete(ref.id);
             },
 
@@ -326,7 +326,7 @@
                         } else if (D.worldImportLocalFavoriteGroup) {
                             this.$emit('add-local-world-favorite', ref.id, D.worldImportLocalFavoriteGroup);
                         }
-                        utils.removeFromArray(this.worldImportTable.data, ref);
+                        removeFromArray(this.worldImportTable.data, ref);
                         D.worldIdList.delete(ref.id);
                         D.importProgress++;
                     }

@@ -1,7 +1,7 @@
-import * as workerTimers from 'worker-timers';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
-import { baseClass, $app, API, $t, $utils } from './baseClass.js';
+import { compareByCreatedAtAscending } from '../shared/utils';
+import { API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -135,18 +135,7 @@ export default class extends baseClass {
                     created_at: ref.created_at
                 });
             }
-            var compareByCreatedAt = function (a, b) {
-                var A = a.created_at;
-                var B = b.created_at;
-                if (A < B) {
-                    return -1;
-                }
-                if (A > B) {
-                    return 1;
-                }
-                return 0;
-            };
-            friendLogTable.sort(compareByCreatedAt);
+            friendLogTable.sort(compareByCreatedAtAscending);
             return friendLogTable;
         },
 

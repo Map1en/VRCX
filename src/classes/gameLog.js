@@ -1,11 +1,11 @@
+import dayjs from 'dayjs';
 import * as workerTimers from 'worker-timers';
-import { parseLocation } from '../composables/instance/utils';
-import gameLogService from '../service/gamelog.js';
+import { userRequest } from '../api';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
-import { baseClass, $app, API, $utils } from './baseClass.js';
-import { userRequest } from '../api';
-import dayjs from 'dayjs';
+import gameLogService from '../service/gamelog.js';
+import { replaceBioSymbols, parseLocation } from '../shared/utils';
+import { $app, API, baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -81,7 +81,7 @@ export default class extends baseClass {
                         this.lastLocation.location,
                         gameLog.dt
                     );
-                    var worldName = $utils.replaceBioSymbols(gameLog.worldName);
+                    var worldName = replaceBioSymbols(gameLog.worldName);
                     if (this.isGameRunning) {
                         this.lastLocationReset(gameLog.dt);
                         this.clearNowPlaying();
@@ -790,7 +790,7 @@ export default class extends baseClass {
             var videoPos = Number(data[1]);
             var videoLength = Number(data[2]);
             var displayName = data[3];
-            var videoName = $utils.replaceBioSymbols(data[4]);
+            var videoName = replaceBioSymbols(data[4]);
             var videoUrl = videoName;
             var videoId = 'LSMedia';
             if (videoUrl === this.nowPlaying.url) {

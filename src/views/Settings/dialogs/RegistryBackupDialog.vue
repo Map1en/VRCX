@@ -73,8 +73,7 @@
 <script setup>
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../../classes/utils';
-    import { downloadAndSaveJson } from '../../../composables/shared/utils';
+    import { downloadAndSaveJson, removeFromArray } from '../../../shared/utils';
     import configRepository from '../../../service/config';
 
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearanceSettings';
@@ -173,7 +172,7 @@
 
     async function deleteVrcRegistryBackup(row) {
         const backups = registryBackupTable.value.data;
-        utils.removeFromArray(backups, row);
+        removeFromArray(backups, row);
         await configRepository.setString('VRCX_VRChatRegistryBackups', JSON.stringify(backups));
         await updateRegistryBackupDialog();
     }

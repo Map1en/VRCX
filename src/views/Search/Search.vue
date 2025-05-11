@@ -323,8 +323,13 @@
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, worldRequest } from '../../api';
-    import utils from '../../classes/utils';
-    import { convertFileUrlToImageUrl } from '../../composables/shared/utils';
+    import {
+        convertFileUrlToImageUrl,
+        replaceBioSymbols,
+        compareByCreatedAt,
+        compareByName,
+        compareByUpdatedAt
+    } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearanceSettings';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -508,7 +513,7 @@
                 break;
             default:
                 params.sort = 'relevance';
-                params.search = utils.replaceBioSymbols(props.searchText);
+                params.search = replaceBioSymbols(props.searchText);
                 break;
         }
         params.order = ref.sortOrder || 'descending';
@@ -648,13 +653,13 @@
         if (searchAvatarFilterRemote.value === 'local') {
             switch (searchAvatarSort.value) {
                 case 'updated':
-                    avatarsArray.sort(utils.compareByUpdatedAt);
+                    avatarsArray.sort(compareByUpdatedAt);
                     break;
                 case 'created':
-                    avatarsArray.sort(utils.compareByCreatedAt);
+                    avatarsArray.sort(compareByCreatedAt);
                     break;
                 case 'name':
-                    avatarsArray.sort(utils.compareByName);
+                    avatarsArray.sort(compareByName);
                     break;
             }
         }
@@ -678,7 +683,7 @@
         searchGroupParams.value = {
             n: 10,
             offset: 0,
-            query: utils.replaceBioSymbols(props.searchText)
+            query: replaceBioSymbols(props.searchText)
         };
         await moreSearchGroup();
     }

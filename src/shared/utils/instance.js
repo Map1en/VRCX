@@ -160,9 +160,29 @@ function parseLocation(tag) {
     return ctx;
 }
 
+function getLaunchURL(instance) {
+    const L = instance;
+    if (L.instanceId) {
+        if (L.shortName) {
+            return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
+                L.worldId
+            )}&instanceId=${encodeURIComponent(
+                L.instanceId
+            )}&shortName=${encodeURIComponent(L.shortName)}`;
+        }
+        return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
+            L.worldId
+        )}&instanceId=${encodeURIComponent(L.instanceId)}`;
+    }
+    return `https://vrchat.com/home/launch?worldId=${encodeURIComponent(
+        L.worldId
+    )}`;
+}
+
 export {
     refreshInstancePlayerCount,
     isRealInstance,
     displayLocation,
-    parseLocation
+    parseLocation,
+    getLaunchURL
 };
