@@ -72,7 +72,6 @@
                 <FriendsSidebar
                     :is-game-running="isGameRunning"
                     :is-sidebar-divide-by-friend-group="isSidebarDivideByFriendGroup"
-                    :is-sidebar-group-by-instance="isSidebarGroupByInstance"
                     :game-log-disabled="gameLogDisabled"
                     :last-location="lastLocation"
                     :last-location-destination="lastLocationDestination"
@@ -118,7 +117,6 @@
         props: {
             isGameRunning: Boolean,
             isSidebarDivideByFriendGroup: Boolean,
-            isSidebarGroupByInstance: Boolean,
             gameLogDisabled: Boolean,
             isHideFriendsInSameInstance: Boolean,
 

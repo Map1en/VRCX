@@ -172,10 +172,12 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
-    import { isRealInstance as _isRealInstance } from '../../../shared/utils';
     import configRepository from '../../../service/config';
+    import { isRealInstance as _isRealInstance } from '../../../shared/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     export default {
         name: 'FriendsSidebar',
@@ -185,11 +187,9 @@
         },
         inject: ['API', 'showUserDialog', 'userImage', 'userStatusClass'],
         props: {
-            // settings
             isGameRunning: Boolean,
 
             isSidebarDivideByFriendGroup: Boolean,
-            isSidebarGroupByInstance: Boolean,
             gameLogDisabled: Boolean,
             isHideFriendsInSameInstance: Boolean,
 
@@ -204,6 +204,14 @@
 
             groupedByGroupKeyFavoriteFriends: Object
         },
+        setup() {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { isSidebarGroupByInstance } = storeToRefs(appearanceSettingsStore);
+            return {
+                isSidebarGroupByInstance
+            };
+        },
+
         data() {
             return {
                 isFriendsGroupMe: true,

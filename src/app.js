@@ -339,7 +339,8 @@ console.log(`isLinux: ${LINUX}`);
                 sidebarSortMethod2,
                 sidebarSortMethod3,
                 sidebarSortMethods,
-                asideWidth
+                asideWidth,
+                isSidebarGroupByInstance
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -359,7 +360,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethod2,
                 setSidebarSortMethod3,
                 setSidebarSortMethods,
-                setAsideWidth
+                setAsideWidth,
+                setIsSidebarGroupByInstance
             } = appearanceSettingsStore;
 
             return {
@@ -418,6 +420,7 @@ console.log(`isLinux: ${LINUX}`);
                 sidebarSortMethod3,
                 sidebarSortMethods,
                 asideWidth,
+                isSidebarGroupByInstance,
 
                 setAppLanguage,
                 setThemeMode,
@@ -435,7 +438,8 @@ console.log(`isLinux: ${LINUX}`);
                 setSidebarSortMethod2,
                 setSidebarSortMethod3,
                 setSidebarSortMethods,
-                setAsideWidth
+                setAsideWidth,
+                setIsSidebarGroupByInstance
             };
         },
         data: {
@@ -12997,19 +13001,6 @@ console.log(`isLinux: ${LINUX}`);
 
     //  - SidebarGroupByInstance
 
-    $app.data.isSidebarGroupByInstance = await configRepository.getBool(
-        'VRCX_sidebarGroupByInstance',
-        true
-    );
-
-    $app.methods.toggleGroupByInstance = function () {
-        this.isSidebarGroupByInstance = !this.isSidebarGroupByInstance;
-        configRepository.setBool(
-            'VRCX_sidebarGroupByInstance',
-            this.isSidebarGroupByInstance
-        );
-    };
-
     $app.data.isHideFriendsInSameInstance = await configRepository.getBool(
         'VRCX_hideFriendsInSameInstance',
         false
@@ -13064,7 +13055,6 @@ console.log(`isLinux: ${LINUX}`);
             friends: this.friends,
             isGameRunning: this.isGameRunning,
             isSidebarDivideByFriendGroup: this.isSidebarDivideByFriendGroup,
-            isSidebarGroupByInstance: this.isSidebarGroupByInstance,
             isHideFriendsInSameInstance: this.isHideFriendsInSameInstance,
             gameLogDisabled: this.gameLogDisabled,
             lastLocation: this.lastLocation,

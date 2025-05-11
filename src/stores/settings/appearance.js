@@ -31,7 +31,8 @@ export const useAppearanceSettingsStore = defineStore(
                 'Sort by Time in Instance',
                 'Sort by Last Active'
             ],
-            asideWidth: 300
+            asideWidth: 300,
+            isSidebarGroupByInstance: true
         });
 
         async function initSettings() {
@@ -118,6 +119,11 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_sidePanelWidth',
                 300
             );
+
+            state.isSidebarGroupByInstance = await configRepository.getBool(
+                'VRCX_sidebarGroupByInstance',
+                true
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -143,6 +149,9 @@ export const useAppearanceSettingsStore = defineStore(
         const sidebarSortMethod3 = computed(() => state.sidebarSortMethod3);
         const sidebarSortMethods = computed(() => state.sidebarSortMethods);
         const asideWidth = computed(() => state.asideWidth);
+        const isSidebarGroupByInstance = computed(
+            () => state.isSidebarGroupByInstance
+        );
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -240,6 +249,13 @@ export const useAppearanceSettingsStore = defineStore(
                 state.asideWidth = width;
                 configRepository.setInt('VRCX_sidePanelWidth', width);
             });
+        }
+        function setIsSidebarGroupByInstance() {
+            state.isSidebarGroupByInstance = !state.isSidebarGroupByInstance;
+            configRepository.setBool(
+                'VRCX_sidebarGroupByInstance',
+                state.isSidebarGroupByInstance
+            );
         }
 
         async function handleSetDatetimeFormat() {
@@ -345,6 +361,7 @@ export const useAppearanceSettingsStore = defineStore(
             sidebarSortMethod3,
             sidebarSortMethods,
             asideWidth,
+            isSidebarGroupByInstance,
 
             setAppLanguage,
             setThemeMode,
@@ -362,7 +379,8 @@ export const useAppearanceSettingsStore = defineStore(
             setSidebarSortMethod2,
             setSidebarSortMethod3,
             setSidebarSortMethods,
-            setAsideWidth
+            setAsideWidth,
+            setIsSidebarGroupByInstance
         };
     }
 );

@@ -421,7 +421,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.side_panel.group_by_instance")'
                         :value='isSidebarGroupByInstance'
-                        @change='toggleGroupByInstance'
+                        @change='setIsSidebarGroupByInstance'
                         :tooltip='$t("view.settings.appearance.side_panel.group_by_instance_tooltip")')
                     simple-switch(
                         v-if='isSidebarGroupByInstance'

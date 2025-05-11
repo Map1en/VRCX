@@ -614,7 +614,7 @@
                         :label="t('view.settings.appearance.side_panel.group_by_instance')"
                         :value="isSidebarGroupByInstance"
                         :tooltip="t('view.settings.appearance.side_panel.group_by_instance_tooltip')"
-                        @change="toggleGroupByInstance"></simple-switch>
+                        @change="setIsSidebarGroupByInstance"></simple-switch>
                     <simple-switch
                         v-if="isSidebarGroupByInstance"
                         :label="t('view.settings.appearance.side_panel.hide_friends_in_same_instance')"
@@ -1735,6 +1735,7 @@
         sidebarSortMethod2,
         sidebarSortMethod3,
         asideWidth,
+        isSidebarGroupByInstance,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1746,7 +1747,8 @@
         setSidebarSortMethod1,
         setSidebarSortMethod2,
         setSidebarSortMethod3,
-        setAsideWidth
+        setAsideWidth,
+        setIsSidebarGroupByInstance
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1762,10 +1764,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        isSidebarGroupByInstance: {
-            type: Boolean,
-            default: false
         },
         isHideFriendsInSameInstance: {
             type: Boolean,
