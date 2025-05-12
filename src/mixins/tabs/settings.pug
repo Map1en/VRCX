@@ -459,7 +459,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.friend_log.hide_unfriends")'
                         :value='hideUnfriends'
-                        @change='saveFriendLogOptions')
+                        @change='setHideUnfriends')
                 //- Appearance | User Colors
                 .options-container
                     span.header {{ $t('view.settings.appearance.user_colors.header') }}

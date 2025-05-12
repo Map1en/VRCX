@@ -36,7 +36,8 @@ export const useAppearanceSettingsStore = defineStore(
             isHideFriendsInSameInstance: false,
             isSidebarDivideByFriendGroup: false,
             hideUserNotes: false,
-            hideUserMemos: false
+            hideUserMemos: false,
+            hideUnfriends: false
         });
 
         async function initSettings() {
@@ -148,6 +149,11 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_hideUserMemos',
                 false
             );
+
+            state.hideUnfriends = await configRepository.getBool(
+                'VRCX_hideUnfriends',
+                false
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -184,6 +190,7 @@ export const useAppearanceSettingsStore = defineStore(
         );
         const hideUserNotes = computed(() => state.hideUserNotes);
         const hideUserMemos = computed(() => state.hideUserMemos);
+        const hideUnfriends = computed(() => state.hideUnfriends);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -313,6 +320,10 @@ export const useAppearanceSettingsStore = defineStore(
             state.hideUserMemos = !state.hideUserMemos;
             configRepository.setBool('VRCX_hideUserMemos', state.hideUserMemos);
         }
+        function setHideUnfriends() {
+            state.hideUnfriends = !state.hideUnfriends;
+            configRepository.setBool('VRCX_hideUnfriends', state.hideUnfriends);
+        }
 
         async function handleSetDatetimeFormat() {
             const formatDate = await formatDateFilter(
@@ -424,6 +435,7 @@ export const useAppearanceSettingsStore = defineStore(
             isSidebarDivideByFriendGroup,
             hideUserNotes,
             hideUserMemos,
+            hideUnfriends,
 
             setAppLanguage,
             setThemeMode,
@@ -446,7 +458,8 @@ export const useAppearanceSettingsStore = defineStore(
             setIsHideFriendsInSameInstance,
             setIsSidebarDivideByFriendGroup,
             setHideUserNotes,
-            setHideUserMemos
+            setHideUserMemos,
+            setHideUnfriends
         };
     }
 );

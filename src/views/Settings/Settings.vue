@@ -658,7 +658,7 @@
                     <simple-switch
                         :label="t('view.settings.appearance.friend_log.hide_unfriends')"
                         :value="hideUnfriends"
-                        @change="saveFriendLogOptions"></simple-switch>
+                        @change="setHideUnfriends"></simple-switch>
                 </div>
                 <!--//- Appearance | User Colors-->
                 <div class="options-container">
@@ -1742,7 +1742,8 @@
         isHideFriendsInSameInstance,
         isSidebarDivideByFriendGroup,
         hideUserNotes,
-        hideUserMemos
+        hideUserMemos,
+        hideUnfriends
     } = storeToRefs(appearanceSettingsStore);
     const {
         setDisplayVRCPlusIconsAsAvatar,
@@ -1760,7 +1761,8 @@
         setIsHideFriendsInSameInstance,
         setIsSidebarDivideByFriendGroup,
         setHideUserNotes,
-        setHideUserMemos
+        setHideUserMemos,
+        setHideUnfriends
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1776,10 +1778,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        hideUnfriends: {
-            type: Boolean,
-            default: false
         },
         randomUserColours: {
             type: Boolean,

@@ -344,7 +344,8 @@ console.log(`isLinux: ${LINUX}`);
                 isHideFriendsInSameInstance,
                 isSidebarDivideByFriendGroup,
                 hideUserNotes,
-                hideUserMemos
+                hideUserMemos,
+                hideUnfriends
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -369,7 +370,8 @@ console.log(`isLinux: ${LINUX}`);
                 setIsHideFriendsInSameInstance,
                 setIsSidebarDivideByFriendGroup,
                 setHideUserNotes,
-                setHideUserMemos
+                setHideUserMemos,
+                setHideUnfriends
             } = appearanceSettingsStore;
 
             return {
@@ -433,6 +435,7 @@ console.log(`isLinux: ${LINUX}`);
                 isSidebarDivideByFriendGroup,
                 hideUserNotes,
                 hideUserMemos,
+                hideUnfriends,
 
                 setAppLanguage,
                 setThemeMode,
@@ -455,7 +458,8 @@ console.log(`isLinux: ${LINUX}`);
                 setIsHideFriendsInSameInstance,
                 setIsSidebarDivideByFriendGroup,
                 setHideUserNotes,
-                setHideUserMemos
+                setHideUserMemos,
+                setHideUnfriends
             };
         },
         data: {
@@ -6219,11 +6223,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_randomUserColours',
         false
     );
-    $app.data.hideUnfriends = await configRepository.getBool(
-        'VRCX_hideUnfriends',
-        false
-    );
-    $app.data.friendLogTable.filters[2].value = $app.data.hideUnfriends;
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
             case 'openVR':
@@ -6416,15 +6415,6 @@ console.log(`isLinux: ${LINUX}`);
         this.setSortFavorites();
     };
 
-    $app.methods.saveFriendLogOptions = async function () {
-        // The function is only called in adv settings
-        this.hideUnfriends = !this.hideUnfriends;
-        await configRepository.setBool(
-            'VRCX_hideUnfriends',
-            this.hideUnfriends
-        );
-        this.friendLogTable.filters[2].value = this.hideUnfriends;
-    };
     $app.data.notificationTTSTest = '';
     $app.data.TTSvoices = speechSynthesis.getVoices();
     $app.methods.updateTTSVoices = function () {

@@ -94,11 +94,26 @@
 </script>
 
 <script setup>
-    import { getCurrentInstance, inject } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import { getCurrentInstance, inject, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import { removeFromArray } from '../../shared/utils';
+    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
+
+    watch(
+        () => hideUnfriends,
+        (newValue) => {
+            if (newValue) {
+                props.friendLogTable.filters[2].value = newValue;
+            }
+        },
+        { immediate: true }
+    );
 
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
