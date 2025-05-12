@@ -613,8 +613,8 @@ mixin settingsTab
                         span.name {{ $t('view.settings.notifications.notifications.text_to_speech.when_to_play') }}
                         br
                         el-radio-group(
-                            v-model='notificationTTS'
-                            @change='saveNotificationTTS'
+                            :value='notificationTTS'
+                            @input='saveNotificationTTS'
                             size='mini'
                             style='margin-top: 5px')
                             el-radio-button(label='Never') {{ $t('view.settings.notifications.notifications.conditions.never') }}

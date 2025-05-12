@@ -921,7 +921,7 @@
                         }}</span>
                         <br />
                         <el-radio-group
-                            v-model="notificationTTS"
+                            :value="notificationTTS"
                             size="mini"
                             style="margin-top: 5px"
                             @change="saveNotificationTTS">
@@ -1781,7 +1781,8 @@
         ovrtWristNotifications,
         imageNotifications,
         desktopToast,
-        afkDesktopToast
+        afkDesktopToast,
+        notificationTTS
     } = storeToRefs(notificationSettingsStore);
 
     const {
@@ -1793,7 +1794,8 @@
         setOvrtWristNotifications,
         setImageNotifications,
         setDesktopToast,
-        setAfkDesktopToast
+        setAfkDesktopToast,
+        setNotificationTTS
     } = notificationSettingsStore;
 
     const { t } = useI18n();
@@ -1809,10 +1811,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        notificationTTS: {
-            type: Boolean,
-            default: false
         },
         getTTSVoiceName: {
             type: String,

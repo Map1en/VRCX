@@ -390,7 +390,8 @@ console.log(`isLinux: ${LINUX}`);
                 ovrtWristNotifications,
                 imageNotifications,
                 desktopToast,
-                afkDesktopToast
+                afkDesktopToast,
+                notificationTTS
             } = storeToRefs(notificationsStore);
 
             const {
@@ -402,7 +403,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOvrtWristNotifications,
                 setImageNotifications,
                 setDesktopToast,
-                setAfkDesktopToast
+                setAfkDesktopToast,
+                setNotificationTTS
             } = notificationsStore;
 
             return {
@@ -505,6 +507,7 @@ console.log(`isLinux: ${LINUX}`);
                 imageNotifications,
                 desktopToast,
                 afkDesktopToast,
+                notificationTTS,
 
                 setOverlayToast,
                 setOpenVR,
@@ -514,7 +517,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOvrtWristNotifications,
                 setImageNotifications,
                 setDesktopToast,
-                setAfkDesktopToast
+                setAfkDesktopToast,
+                setNotificationTTS
             };
         },
         data: {
@@ -6137,10 +6141,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_minimalFeed',
         false
     );
-    $app.data.notificationTTS = await configRepository.getString(
-        'VRCX_notificationTTS',
-        'Never'
-    );
     $app.data.notificationTTSNickName = await configRepository.getBool(
         'VRCX_notificationTTSNickName',
         false
@@ -6383,20 +6383,17 @@ console.log(`isLinux: ${LINUX}`);
             this.TTSvoices = uniqueVoices;
         }
     };
-    $app.methods.saveNotificationTTS = async function () {
+    $app.methods.saveNotificationTTS = async function (value) {
+        // todo: move
         speechSynthesis.cancel();
         if (
             (await configRepository.getString('VRCX_notificationTTS')) ===
                 'Never' &&
-            this.notificationTTS !== 'Never'
+            value !== 'Never'
         ) {
             this.speak('Notification text-to-speech enabled');
         }
-        await configRepository.setString(
-            'VRCX_notificationTTS',
-            this.notificationTTS
-        );
-        this.updateVRConfigVars();
+        this.setNotificationTTS(value);
     };
     $app.methods.testNotificationTTS = function () {
         speechSynthesis.cancel();
