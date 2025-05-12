@@ -560,12 +560,12 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.xsoverlay_notifications")'
                             :value='xsNotifications'
-                            @change='saveOpenVROption("VRCX_xsNotifications")')
+                            @change='setXsNotifications')
                     template(v-else)
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.wlxoverlay_notifications")'
                             :value='xsNotifications'
-                            @change='saveOpenVROption("VRCX_xsNotifications")')
+                            @change='setXsNotifications')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_hud_notifications")'
                         :value='ovrtHudNotifications'
