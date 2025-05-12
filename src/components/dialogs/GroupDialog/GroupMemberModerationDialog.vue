@@ -807,12 +807,17 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
     import { hasGroupPermission } from '../../../shared/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { randomUserColours } = storeToRefs(appearanceSettingsStore);
 
     const API = inject('API');
     const showUserDialog = inject('showUserDialog');
@@ -840,10 +845,6 @@
         groupDialogFilterOptions: {
             type: Object,
             required: true
-        },
-        randomUserColours: {
-            type: Boolean,
-            default: false
         },
         groupMemberModeration: {
             type: Object,

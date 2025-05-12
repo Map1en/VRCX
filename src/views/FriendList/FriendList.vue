@@ -297,7 +297,6 @@
                 type: Map,
                 required: true
             },
-            randomUserColours: Boolean,
             confirmDeleteFriend: Function,
             friendsListSearch: String,
             menuActiveIndex: String,
@@ -305,10 +304,11 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { appLanguage, hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
             return {
                 appLanguage,
-                hideTooltips
+                hideTooltips,
+                randomUserColours
             };
         },
         data() {

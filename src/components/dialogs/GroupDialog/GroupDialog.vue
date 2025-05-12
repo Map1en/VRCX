@@ -1154,7 +1154,6 @@
             :is-group-members-loading.sync="isGroupMembersLoading"
             :group-dialog-filter-options="groupDialogFilterOptions"
             :group-dialog-sorting-options="groupDialogSortingOptions"
-            :random-user-colours="randomUserColours"
             :group-member-moderation="groupMemberModeration"
             @close-dialog="closeMemberModerationDialog"
             @group-members-search="groupMembersSearch"
@@ -1228,10 +1227,6 @@
         groupDialogFilterOptions: {
             type: Object,
             required: true
-        },
-        randomUserColours: {
-            type: Boolean,
-            default: true
         },
         vipFriends: {
             type: Array,

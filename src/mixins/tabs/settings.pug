@@ -470,50 +470,50 @@ mixin settingsTab
                     .options-container-item
                         div
                             el-color-picker(
-                                v-model='trustColor.untrusted'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.untrusted'
+                                @change='updateTrustColor(false,"untrusted",$event)'
                                 size='mini'
                                 :predefine='["#CCCCCC"]')
                             span.color-picker.x-tag-untrusted(slot='trigger') Visitor
                         div
                             el-color-picker(
-                                v-model='trustColor.basic'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.basic'
+                                @change='updateTrustColor(false,"basic",$event)'
                                 size='mini'
                                 :predefine='["#1778ff"]')
                             span.color-picker.x-tag-basic(slot='trigger') New User
                         div
                             el-color-picker(
-                                v-model='trustColor.known'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.known'
+                                @change='updateTrustColor(false,"known",$event)'
                                 size='mini'
                                 :predefine='["#2bcf5c"]')
                             span.color-picker.x-tag-known(slot='trigger') User
                         div
                             el-color-picker(
-                                v-model='trustColor.trusted'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.trusted'
+                                @change='updateTrustColor(false,"trusted",$event)'
                                 size='mini'
                                 :predefine='["#ff7b42"]')
                             span.color-picker.x-tag-trusted(slot='trigger') Known User
                         div
                             el-color-picker(
-                                v-model='trustColor.veteran'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.veteran'
+                                @change='updateTrustColor(false,"veteran",$event)'
                                 size='mini'
                                 :predefine='["#b18fff", "#8143e6", "#ff69b4", "#b52626", "#ffd000", "#abcdef"]')
                             span.color-picker.x-tag-veteran(slot='trigger') Trusted User
                         div
                             el-color-picker(
-                                v-model='trustColor.vip'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.vip'
+                                @change='updateTrustColor(false,"vip",$event)'
                                 size='mini'
                                 :predefine='["#ff2626"]')
                             span.color-picker.x-tag-vip(slot='trigger') VRChat Team
                         div
                             el-color-picker(
-                                v-model='trustColor.troll'
-                                @change='updateTrustColor(false)'
+                                :value='trustColor.troll'
+                                @change='updateTrustColor(false,"troll",$event)'
                                 size='mini'
                                 :predefine='["#782f2f"]')
                             span.color-picker.x-tag-troll(slot='trigger') Nuisance

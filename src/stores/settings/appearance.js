@@ -6,6 +6,7 @@ import {
     formatDateFilter,
     systemIsDarkMode
 } from '../../shared/utils';
+import { updateTrustColorClasses } from '../../shared/utils/base/ui';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
@@ -37,7 +38,17 @@ export const useAppearanceSettingsStore = defineStore(
             isSidebarDivideByFriendGroup: false,
             hideUserNotes: false,
             hideUserMemos: false,
-            hideUnfriends: false
+            hideUnfriends: false,
+            randomUserColours: false,
+            trustColor: {
+                untrusted: '#CCCCCC',
+                basic: '#1778FF',
+                known: '#2BCF5C',
+                trusted: '#FF7B42',
+                veteran: '#B18FFF',
+                vip: '#FF2626',
+                troll: '#782F2F'
+            }
         });
 
         async function initSettings() {
@@ -154,6 +165,27 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_hideUnfriends',
                 false
             );
+
+            state.randomUserColours = await configRepository.getBool(
+                'VRCX_randomUserColours',
+                false
+            );
+
+            state.trustColor = JSON.parse(
+                await configRepository.getString(
+                    'VRCX_trustColor',
+                    JSON.stringify({
+                        untrusted: '#CCCCCC',
+                        basic: '#1778FF',
+                        known: '#2BCF5C',
+                        trusted: '#FF7B42',
+                        veteran: '#B18FFF',
+                        vip: '#FF2626',
+                        troll: '#782F2F'
+                    })
+                )
+            );
+            updateTrustColorClasses(state.trustColor);
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -191,6 +223,8 @@ export const useAppearanceSettingsStore = defineStore(
         const hideUserNotes = computed(() => state.hideUserNotes);
         const hideUserMemos = computed(() => state.hideUserMemos);
         const hideUnfriends = computed(() => state.hideUnfriends);
+        const randomUserColours = computed(() => state.randomUserColours);
+        const trustColor = computed(() => state.trustColor);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -324,6 +358,20 @@ export const useAppearanceSettingsStore = defineStore(
             state.hideUnfriends = !state.hideUnfriends;
             configRepository.setBool('VRCX_hideUnfriends', state.hideUnfriends);
         }
+        function setRandomUserColours() {
+            state.randomUserColours = !state.randomUserColours;
+            configRepository.setBool(
+                'VRCX_randomUserColours',
+                state.randomUserColours
+            );
+        }
+        function setTrustColor(color) {
+            state.trustColor = color;
+            configRepository.setString(
+                'VRCX_trustColor',
+                JSON.stringify(color)
+            );
+        }
 
         async function handleSetDatetimeFormat() {
             const formatDate = await formatDateFilter(
@@ -436,6 +484,8 @@ export const useAppearanceSettingsStore = defineStore(
             hideUserNotes,
             hideUserMemos,
             hideUnfriends,
+            randomUserColours,
+            trustColor,
 
             setAppLanguage,
             setThemeMode,
@@ -459,7 +509,9 @@ export const useAppearanceSettingsStore = defineStore(
             setIsSidebarDivideByFriendGroup,
             setHideUserNotes,
             setHideUserMemos,
-            setHideUnfriends
+            setHideUnfriends,
+            setRandomUserColours,
+            setTrustColor
         };
     }
 );

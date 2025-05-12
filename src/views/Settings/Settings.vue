@@ -1743,7 +1743,9 @@
         isSidebarDivideByFriendGroup,
         hideUserNotes,
         hideUserMemos,
-        hideUnfriends
+        hideUnfriends,
+        randomUserColours,
+        trustColor
     } = storeToRefs(appearanceSettingsStore);
     const {
         setDisplayVRCPlusIconsAsAvatar,
@@ -1762,7 +1764,10 @@
         setIsSidebarDivideByFriendGroup,
         setHideUserNotes,
         setHideUserMemos,
-        setHideUnfriends
+        setHideUnfriends,
+        // todo: updateTrustColor func
+        setRandomUserColours,
+        setTrustColor
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1778,14 +1783,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        randomUserColours: {
-            type: Boolean,
-            default: false
-        },
-        trustColor: {
-            type: String,
-            default: ''
         },
         overlayToast: {
             type: Boolean,

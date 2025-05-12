@@ -840,7 +840,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
 
@@ -879,7 +879,7 @@
         },
         photonEventTableTypeFilter: {
             type: Array,
-            default: []
+            default: () => []
         },
         photonEventTableTypeFilterList: {
             type: Array,
@@ -911,10 +911,6 @@
         },
         chatboxUserBlacklist: {
             type: Map
-        },
-        randomUserColours: {
-            type: Boolean,
-            default: false
         },
         lastLocation: {
             type: Object,

@@ -133,6 +133,7 @@ import {
     textToHex,
     timeToText
 } from './shared/utils';
+import { updateTrustColorClasses } from './shared/utils/base/ui';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useGeneralSettingsStore } from './stores/settings/general';
@@ -345,7 +346,9 @@ console.log(`isLinux: ${LINUX}`);
                 isSidebarDivideByFriendGroup,
                 hideUserNotes,
                 hideUserMemos,
-                hideUnfriends
+                hideUnfriends,
+                randomUserColours,
+                trustColor
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -371,7 +374,9 @@ console.log(`isLinux: ${LINUX}`);
                 setIsSidebarDivideByFriendGroup,
                 setHideUserNotes,
                 setHideUserMemos,
-                setHideUnfriends
+                setHideUnfriends,
+                setRandomUserColours,
+                setTrustColor
             } = appearanceSettingsStore;
 
             return {
@@ -436,6 +441,8 @@ console.log(`isLinux: ${LINUX}`);
                 hideUserNotes,
                 hideUserMemos,
                 hideUnfriends,
+                randomUserColours,
+                trustColor,
 
                 setAppLanguage,
                 setThemeMode,
@@ -459,7 +466,9 @@ console.log(`isLinux: ${LINUX}`);
                 setIsSidebarDivideByFriendGroup,
                 setHideUserNotes,
                 setHideUserMemos,
-                setHideUnfriends
+                setHideUnfriends,
+                setRandomUserColours,
+                setTrustColor
             };
         },
         data: {
@@ -6219,10 +6228,6 @@ console.log(`isLinux: ${LINUX}`);
         $app.data.avatarRemoteDatabaseProvider =
             $app.data.avatarRemoteDatabaseProviderList[0];
     }
-    $app.data.randomUserColours = await configRepository.getBool(
-        'VRCX_randomUserColours',
-        false
-    );
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
             case 'openVR':
@@ -6396,11 +6401,6 @@ console.log(`isLinux: ${LINUX}`);
         await configRepository.setBool(
             'VRCX_avatarRemoteDatabase',
             this.avatarRemoteDatabase
-        );
-
-        await configRepository.setBool(
-            'VRCX_randomUserColours',
-            this.randomUserColours
         );
 
         this.updateSharedFeed(true);
@@ -6792,36 +6792,20 @@ console.log(`isLinux: ${LINUX}`);
         $app.data.sharedFeedFilters.wrist.boop = 'On';
     }
 
-    $app.data.trustColor = JSON.parse(
-        await configRepository.getString(
-            'VRCX_trustColor',
-            JSON.stringify({
-                untrusted: '#CCCCCC',
-                basic: '#1778FF',
-                known: '#2BCF5C',
-                trusted: '#FF7B42',
-                veteran: '#B18FFF',
-                vip: '#FF2626',
-                troll: '#782F2F'
-            })
-        )
-    );
-
-    $app.methods.updateTrustColor = async function (setRandomColor = false) {
+    $app.methods.updateTrustColor = async function (
+        setRandomColor = false,
+        field,
+        color
+    ) {
         if (setRandomColor) {
-            this.randomUserColours = !this.randomUserColours;
+            this.setRandomUserColours();
         }
         if (typeof API.currentUser?.id === 'undefined') {
             return;
         }
-        await configRepository.setBool(
-            'VRCX_randomUserColours',
-            this.randomUserColours
-        );
-        await configRepository.setString(
-            'VRCX_trustColor',
-            JSON.stringify(this.trustColor)
-        );
+        if (field && color) {
+            this.setTrustColor({ ...this.trustColor, [field]: color });
+        }
         if (this.randomUserColours) {
             this.getNameColour(API.currentUser.id).then((colour) => {
                 API.currentUser.$userColour = colour;
@@ -6833,38 +6817,8 @@ console.log(`isLinux: ${LINUX}`);
                 API.applyUserTrustLevel(ref);
             });
         }
-        await this.updateTrustColorClasses();
+        updateTrustColorClasses(this.trustColor);
     };
-
-    $app.methods.updateTrustColorClasses = async function () {
-        var trustColor = JSON.parse(
-            await configRepository.getString(
-                'VRCX_trustColor',
-                JSON.stringify({
-                    untrusted: '#CCCCCC',
-                    basic: '#1778FF',
-                    known: '#2BCF5C',
-                    trusted: '#FF7B42',
-                    veteran: '#B18FFF',
-                    vip: '#FF2626',
-                    troll: '#782F2F'
-                })
-            )
-        );
-        if (document.getElementById('trustColor') !== null) {
-            document.getElementById('trustColor').outerHTML = '';
-        }
-        var style = document.createElement('style');
-        style.id = 'trustColor';
-        style.type = 'text/css';
-        var newCSS = '';
-        for (var rank in trustColor) {
-            newCSS += `.x-tag-${rank} { color: ${trustColor[rank]} !important; border-color: ${trustColor[rank]} !important; } `;
-        }
-        style.innerHTML = newCSS;
-        document.getElementsByTagName('head')[0].appendChild(style);
-    };
-    await $app.methods.updateTrustColorClasses();
 
     $app.data.notificationPosition = await configRepository.getString(
         'VRCX_notificationPosition',

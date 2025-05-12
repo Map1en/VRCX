@@ -102,4 +102,19 @@ function changeCJKFontsOrder(lang) {
     }
 }
 
-export { changeAppThemeStyle, changeCJKFontsOrder };
+function updateTrustColorClasses(trustColor) {
+    if (document.getElementById('trustColor') !== null) {
+        document.getElementById('trustColor').outerHTML = '';
+    }
+    const style = document.createElement('style');
+    style.id = 'trustColor';
+    style.type = 'text/css';
+    let newCSS = '';
+    for (const rank in trustColor) {
+        newCSS += `.x-tag-${rank} { color: ${trustColor[rank]} !important; border-color: ${trustColor[rank]} !important; } `;
+    }
+    style.innerHTML = newCSS;
+    document.getElementsByTagName('head')[0].appendChild(style);
+}
+
+export { changeAppThemeStyle, changeCJKFontsOrder, updateTrustColorClasses };

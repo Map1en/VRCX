@@ -334,7 +334,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
 
@@ -357,10 +357,6 @@
         searchUserResults: {
             type: Array,
             default: () => []
-        },
-        randomUserColours: {
-            type: Boolean,
-            default: false
         },
         avatarRemoteDatabaseProviderList: {
             type: Array,
@@ -417,7 +413,7 @@
     const searchGroupResults = ref([]);
 
     function getSmallThumbnailUrl(url) {
-        convertFileUrlToImageUrl(url);
+        return convertFileUrlToImageUrl(url);
     }
 
     function clearSearch() {
