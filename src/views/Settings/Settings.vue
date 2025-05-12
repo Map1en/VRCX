@@ -844,7 +844,7 @@
                             )
                         "
                         :value="ovrtWristNotifications"
-                        @change="saveOpenVROption('VRCX_ovrtWristNotifications')"></simple-switch>
+                        @change="setOvrtWristNotifications" />
                     <simple-switch
                         :label="t('view.settings.notifications.notifications.steamvr_notifications.user_images')"
                         :value="imageNotifications"
@@ -1772,11 +1772,23 @@
         setTrustColor
     } = appearanceSettingsStore;
 
-    const { overlayToast, openVR, overlayNotifications, xsNotifications, ovrtHudNotifications } =
-        storeToRefs(notificationSettingsStore);
+    const {
+        overlayToast,
+        openVR,
+        overlayNotifications,
+        xsNotifications,
+        ovrtHudNotifications,
+        ovrtWristNotifications
+    } = storeToRefs(notificationSettingsStore);
 
-    const { setOverlayToast, setOpenVR, setOverlayNotifications, setXsNotifications, setOvrtHudNotifications } =
-        notificationSettingsStore;
+    const {
+        setOverlayToast,
+        setOpenVR,
+        setOverlayNotifications,
+        setXsNotifications,
+        setOvrtHudNotifications,
+        setOvrtWristNotifications
+    } = notificationSettingsStore;
 
     const { t } = useI18n();
 
@@ -1791,10 +1803,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        ovrtWristNotifications: {
-            type: Boolean,
-            default: false
         },
         imageNotifications: {
             type: Boolean,

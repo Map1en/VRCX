@@ -386,7 +386,8 @@ console.log(`isLinux: ${LINUX}`);
                 openVR,
                 overlayNotifications,
                 xsNotifications,
-                ovrtHudNotifications
+                ovrtHudNotifications,
+                ovrtWristNotifications
             } = storeToRefs(notificationsStore);
 
             const {
@@ -394,7 +395,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOpenVR,
                 setOverlayNotifications,
                 setXsNotifications,
-                setOvrtHudNotifications
+                setOvrtHudNotifications,
+                setOvrtWristNotifications
             } = notificationsStore;
 
             return {
@@ -493,12 +495,14 @@ console.log(`isLinux: ${LINUX}`);
                 overlayNotifications,
                 xsNotifications,
                 ovrtHudNotifications,
+                ovrtWristNotifications,
 
                 setOverlayToast,
                 setOpenVR,
                 setOverlayNotifications,
                 setXsNotifications,
-                setOvrtHudNotifications
+                setOvrtHudNotifications,
+                setOvrtWristNotifications
             };
         },
         data: {
@@ -6117,10 +6121,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_overlayWrist',
         false
     );
-    $app.data.ovrtWristNotifications = await configRepository.getBool(
-        'VRCX_ovrtWristNotifications',
-        false
-    );
     $app.data.imageNotifications = await configRepository.getBool(
         'VRCX_imageNotifications',
         true
@@ -6263,9 +6263,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_overlayWrist':
                 this.overlayWrist = !this.overlayWrist;
                 break;
-            case 'VRCX_ovrtWristNotifications':
-                this.ovrtWristNotifications = !this.ovrtWristNotifications;
-                break;
             case 'VRCX_imageNotifications':
                 this.imageNotifications = !this.imageNotifications;
                 break;
@@ -6334,11 +6331,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
-
-        await configRepository.setBool(
-            'VRCX_ovrtWristNotifications',
-            this.ovrtWristNotifications
-        );
 
         await configRepository.setBool(
             'VRCX_imageNotifications',
