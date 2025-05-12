@@ -381,9 +381,11 @@ console.log(`isLinux: ${LINUX}`);
                 setTrustColor
             } = appearanceSettingsStore;
 
-            const { overlayToast } = storeToRefs(notificationsStore);
+            const { overlayToast, openVR, overlayNotifications } =
+                storeToRefs(notificationsStore);
 
-            const { setOverlayToast } = notificationsStore;
+            const { setOverlayToast, setOpenVR, setOverlayNotifications } =
+                notificationsStore;
 
             return {
                 appVersion,
@@ -477,8 +479,12 @@ console.log(`isLinux: ${LINUX}`);
                 setTrustColor,
 
                 overlayToast,
+                openVR,
+                overlayNotifications,
 
-                setOverlayToast
+                setOverlayToast,
+                setOpenVR,
+                setOverlayNotifications
             };
         },
         data: {
@@ -6061,7 +6067,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.openVR = await configRepository.getBool('openVR', false);
     $app.data.openVRAlways = await configRepository.getBool(
         'openVRAlways',
         false
@@ -6093,10 +6098,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.pcUptimeOnFeed = await configRepository.getBool(
         'VRCX_pcUptimeOnFeed',
         false
-    );
-    $app.data.overlayNotifications = await configRepository.getBool(
-        'VRCX_overlayNotifications',
-        true
     );
     $app.data.overlayWrist = await configRepository.getBool(
         'VRCX_overlayWrist',
@@ -6238,9 +6239,6 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'openVR':
-                this.openVR = !this.openVR;
-                break;
             case 'VRCX_hidePrivateFromFeed':
                 this.hidePrivateFromFeed = !this.hidePrivateFromFeed;
                 break;
@@ -6255,9 +6253,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             case 'VRCX_pcUptimeOnFeed':
                 this.pcUptimeOnFeed = !this.pcUptimeOnFeed;
-                break;
-            case 'VRCX_overlayNotifications':
-                this.overlayNotifications = !this.overlayNotifications;
                 break;
             case 'VRCX_overlayWrist':
                 this.overlayWrist = !this.overlayWrist;
@@ -6302,8 +6297,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
         }
 
-        await configRepository.setBool('openVR', this.openVR);
-
         await configRepository.setBool('openVRAlways', this.openVRAlways);
         await configRepository.setBool(
             'VRCX_overlaybutton',
@@ -6338,11 +6331,6 @@ console.log(`isLinux: ${LINUX}`);
         await configRepository.setBool(
             'VRCX_pcUptimeOnFeed',
             this.pcUptimeOnFeed
-        );
-
-        await configRepository.setBool(
-            'VRCX_overlayNotifications',
-            this.overlayNotifications
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);

@@ -787,7 +787,7 @@
                                 t('view.settings.notifications.notifications.steamvr_notifications.steamvr_overlay')
                             "
                             :value="openVR"
-                            @change="saveOpenVROption('openVR')"></simple-switch>
+                            @change="setOpenVR"></simple-switch>
                         <simple-switch
                             :label="
                                 t(
@@ -796,7 +796,7 @@
                             "
                             :value="overlayNotifications"
                             :disabled="!openVR"
-                            @change="saveOpenVROption('VRCX_overlayNotifications')"></simple-switch>
+                            @change="setOverlayNotifications"></simple-switch>
                         <div class="options-container-item">
                             <el-button
                                 size="small"
@@ -1772,9 +1772,9 @@
         setTrustColor
     } = appearanceSettingsStore;
 
-    const { overlayToast } = storeToRefs(notificationSettingsStore);
+    const { overlayToast, openVR, overlayNotifications } = storeToRefs(notificationSettingsStore);
 
-    const { setOverlayToast } = notificationSettingsStore;
+    const { setOverlayToast, setOpenVR, setOverlayNotifications } = notificationSettingsStore;
 
     const { t } = useI18n();
 
@@ -1789,14 +1789,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        overlayNotifications: {
-            type: Boolean,
-            default: false
-        },
-        openVR: {
-            type: Boolean,
-            default: false
         },
         xsNotifications: {
             type: Boolean,

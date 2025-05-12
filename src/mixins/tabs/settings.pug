@@ -545,11 +545,11 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.steamvr_overlay")'
                             :value='openVR'
-                            @change='saveOpenVROption("openVR")')
+                            @change='setOpenVR')
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.overlay_notifications")'
                             :value='overlayNotifications'
-                            @change='saveOpenVROption("VRCX_overlayNotifications")'
+                            @change='setOverlayNotifications'
                             :disabled='!openVR')
                         .options-container-item
                             el-button(
