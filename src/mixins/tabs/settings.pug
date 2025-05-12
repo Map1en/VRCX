@@ -591,8 +591,8 @@ mixin settingsTab
                         span.name {{ $t('view.settings.notifications.notifications.desktop_notifications.when_to_display') }}
                         br
                         el-radio-group(
-                            v-model='desktopToast'
-                            @change='saveOpenVROption'
+                            :value='desktopToast'
+                            @input='setDesktopToast'
                             size='mini'
                             style='margin-top: 5px')
                             el-radio-button(label='Never') {{ $t('view.settings.notifications.notifications.conditions.never') }}

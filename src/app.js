@@ -388,7 +388,8 @@ console.log(`isLinux: ${LINUX}`);
                 xsNotifications,
                 ovrtHudNotifications,
                 ovrtWristNotifications,
-                imageNotifications
+                imageNotifications,
+                desktopToast
             } = storeToRefs(notificationsStore);
 
             const {
@@ -398,7 +399,8 @@ console.log(`isLinux: ${LINUX}`);
                 setXsNotifications,
                 setOvrtHudNotifications,
                 setOvrtWristNotifications,
-                setImageNotifications
+                setImageNotifications,
+                setDesktopToast
             } = notificationsStore;
 
             return {
@@ -499,6 +501,7 @@ console.log(`isLinux: ${LINUX}`);
                 ovrtHudNotifications,
                 ovrtWristNotifications,
                 imageNotifications,
+                desktopToast,
 
                 setOverlayToast,
                 setOpenVR,
@@ -506,7 +509,8 @@ console.log(`isLinux: ${LINUX}`);
                 setXsNotifications,
                 setOvrtHudNotifications,
                 setOvrtWristNotifications,
-                setImageNotifications
+                setImageNotifications,
+                setDesktopToast
             };
         },
         data: {
@@ -6125,10 +6129,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_overlayWrist',
         false
     );
-    $app.data.desktopToast = await configRepository.getString(
-        'VRCX_desktopToast',
-        'Never'
-    );
     $app.data.afkDesktopToast = await configRepository.getBool(
         'VRCX_afkDesktopToast',
         false
@@ -6328,11 +6328,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
-
-        await configRepository.setString(
-            'VRCX_desktopToast',
-            this.desktopToast
-        );
 
         await configRepository.setBool(
             'VRCX_afkDesktopToast',

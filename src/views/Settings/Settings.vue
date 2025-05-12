@@ -874,10 +874,10 @@
                         }}</span>
                         <br />
                         <el-radio-group
-                            v-model="desktopToast"
+                            :value="desktopToast"
                             size="mini"
                             style="margin-top: 5px"
-                            @change="saveOpenVROption">
+                            @input="setDesktopToast">
                             <el-radio-button label="Never">{{
                                 t('view.settings.notifications.notifications.conditions.never')
                             }}</el-radio-button>
@@ -1779,7 +1779,8 @@
         xsNotifications,
         ovrtHudNotifications,
         ovrtWristNotifications,
-        imageNotifications
+        imageNotifications,
+        desktopToast
     } = storeToRefs(notificationSettingsStore);
 
     const {
@@ -1789,7 +1790,8 @@
         setXsNotifications,
         setOvrtHudNotifications,
         setOvrtWristNotifications,
-        setImageNotifications
+        setImageNotifications,
+        setDesktopToast
     } = notificationSettingsStore;
 
     const { t } = useI18n();
@@ -1805,10 +1807,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        desktopToast: {
-            type: Boolean,
-            default: false
         },
         afkDesktopToast: {
             type: Boolean,
