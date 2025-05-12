@@ -605,7 +605,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.desktop_notifications.desktop_notification_while_afk")'
                         :value='afkDesktopToast'
-                        @change='saveOpenVROption("VRCX_afkDesktopToast")')
+                        @change='setAfkDesktopToast')
                 //- Notifications | Notifications | Text-to-Speech Options
                 .options-container
                     span.sub-header {{ $t('view.settings.notifications.notifications.text_to_speech.header') }}

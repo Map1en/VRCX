@@ -389,7 +389,8 @@ console.log(`isLinux: ${LINUX}`);
                 ovrtHudNotifications,
                 ovrtWristNotifications,
                 imageNotifications,
-                desktopToast
+                desktopToast,
+                afkDesktopToast
             } = storeToRefs(notificationsStore);
 
             const {
@@ -400,7 +401,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOvrtHudNotifications,
                 setOvrtWristNotifications,
                 setImageNotifications,
-                setDesktopToast
+                setDesktopToast,
+                setAfkDesktopToast
             } = notificationsStore;
 
             return {
@@ -502,6 +504,7 @@ console.log(`isLinux: ${LINUX}`);
                 ovrtWristNotifications,
                 imageNotifications,
                 desktopToast,
+                afkDesktopToast,
 
                 setOverlayToast,
                 setOpenVR,
@@ -510,7 +513,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOvrtHudNotifications,
                 setOvrtWristNotifications,
                 setImageNotifications,
-                setDesktopToast
+                setDesktopToast,
+                setAfkDesktopToast
             };
         },
         data: {
@@ -6129,10 +6133,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_overlayWrist',
         false
     );
-    $app.data.afkDesktopToast = await configRepository.getBool(
-        'VRCX_afkDesktopToast',
-        false
-    );
     $app.data.minimalFeed = await configRepository.getBool(
         'VRCX_minimalFeed',
         false
@@ -6263,9 +6263,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_overlayWrist':
                 this.overlayWrist = !this.overlayWrist;
                 break;
-            case 'VRCX_afkDesktopToast':
-                this.afkDesktopToast = !this.afkDesktopToast;
-                break;
             case 'VRCX_notificationTTSNickName':
                 this.notificationTTSNickName = !this.notificationTTSNickName;
                 break;
@@ -6328,11 +6325,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
-
-        await configRepository.setBool(
-            'VRCX_afkDesktopToast',
-            this.afkDesktopToast
-        );
 
         await configRepository.setBool(
             'VRCX_notificationTTSNickName',

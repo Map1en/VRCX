@@ -908,7 +908,7 @@
                             )
                         "
                         :value="afkDesktopToast"
-                        @change="saveOpenVROption('VRCX_afkDesktopToast')"></simple-switch>
+                        @change="setAfkDesktopToast"></simple-switch>
                 </div>
                 <!--//- Notifications | Notifications | Text-to-Speech Options-->
                 <div class="options-container">
@@ -1780,7 +1780,8 @@
         ovrtHudNotifications,
         ovrtWristNotifications,
         imageNotifications,
-        desktopToast
+        desktopToast,
+        afkDesktopToast
     } = storeToRefs(notificationSettingsStore);
 
     const {
@@ -1791,7 +1792,8 @@
         setOvrtHudNotifications,
         setOvrtWristNotifications,
         setImageNotifications,
-        setDesktopToast
+        setDesktopToast,
+        setAfkDesktopToast
     } = notificationSettingsStore;
 
     const { t } = useI18n();
@@ -1807,10 +1809,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        afkDesktopToast: {
-            type: Boolean,
-            default: false
         },
         notificationTTS: {
             type: Boolean,
