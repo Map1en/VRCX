@@ -13,7 +13,8 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         imageNotifications: true,
         desktopToast: 'Never',
         afkDesktopToast: false,
-        notificationTTS: 'Never'
+        notificationTTS: 'Never',
+        notificationTTSNickName: false
     });
 
     async function initSettings() {
@@ -27,7 +28,8 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
             imageNotifications,
             desktopToast,
             afkDesktopToast,
-            notificationTTS
+            notificationTTS,
+            notificationTTSNickName
         ] = await Promise.all([
             configRepository.getString('VRCX_overlayToast', 'Game Running'),
             configRepository.getBool('VRCX_overlayNotifications', true),
@@ -38,7 +40,8 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
             configRepository.getBool('VRCX_imageNotifications', true),
             configRepository.getString('VRCX_desktopToast', 'Never'),
             configRepository.getBool('VRCX_afkDesktopToast', false),
-            configRepository.getString('VRCX_notificationTTS', 'Never')
+            configRepository.getString('VRCX_notificationTTS', 'Never'),
+            configRepository.getBool('VRCX_notificationTTSNickName', false)
         ]);
         state.overlayToast = overlayToast;
         state.openVR = openVR;
@@ -50,6 +53,7 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         state.desktopToast = desktopToast;
         state.afkDesktopToast = afkDesktopToast;
         state.notificationTTS = notificationTTS;
+        state.notificationTTSNickName = notificationTTSNickName;
     }
 
     const overlayToast = computed(() => state.overlayToast);
@@ -62,6 +66,9 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
     const desktopToast = computed(() => state.desktopToast);
     const afkDesktopToast = computed(() => state.afkDesktopToast);
     const notificationTTS = computed(() => state.notificationTTS);
+    const notificationTTSNickName = computed(
+        () => state.notificationTTSNickName
+    );
 
     function setOverlayToast(value) {
         state.overlayToast = value;
@@ -115,6 +122,13 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         state.notificationTTS = value;
         configRepository.setString('VRCX_notificationTTS', value);
     }
+    function setNotificationTTSNickName() {
+        state.notificationTTSNickName = !state.notificationTTSNickName;
+        configRepository.setBool(
+            'VRCX_notificationTTSNickName',
+            state.notificationTTSNickName
+        );
+    }
 
     return {
         state,
@@ -130,6 +144,7 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         desktopToast,
         afkDesktopToast,
         notificationTTS,
+        notificationTTSNickName,
 
         setOverlayToast,
         setOpenVR,
@@ -140,6 +155,7 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         setImageNotifications,
         setDesktopToast,
         setAfkDesktopToast,
-        setNotificationTTS
+        setNotificationTTS,
+        setNotificationTTSNickName
     };
 });

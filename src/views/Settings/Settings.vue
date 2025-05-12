@@ -964,11 +964,11 @@
                         :label="t('view.settings.notifications.notifications.text_to_speech.use_memo_nicknames')"
                         :value="notificationTTSNickName"
                         :disabled="notificationTTS === 'Never'"
-                        @change="saveOpenVROption('VRCX_notificationTTSNickName')"></simple-switch>
+                        @change="setNotificationTTSNickName" />
                     <simple-switch
                         :label="t('view.settings.notifications.notifications.text_to_speech.tts_test_placeholder')"
                         :value="isTestTTSVisible"
-                        @change="isTestTTSVisible = !isTestTTSVisible"></simple-switch>
+                        @change="isTestTTSVisible = !isTestTTSVisible" />
                     <div v-if="isTestTTSVisible" style="margin-top: 5px">
                         <el-input
                             v-model="notificationTTSTest"
@@ -1782,7 +1782,8 @@
         imageNotifications,
         desktopToast,
         afkDesktopToast,
-        notificationTTS
+        notificationTTS,
+        notificationTTSNickName
     } = storeToRefs(notificationSettingsStore);
 
     const {
@@ -1795,7 +1796,8 @@
         setImageNotifications,
         setDesktopToast,
         setAfkDesktopToast,
-        setNotificationTTS
+        setNotificationTTS,
+        setNotificationTTSNickName
     } = notificationSettingsStore;
 
     const { t } = useI18n();
@@ -1813,21 +1815,19 @@
             default: 0
         },
         getTTSVoiceName: {
-            type: String,
+            type: Function,
             default: ''
         },
         TTSvoices: {
             type: Array,
             default: () => []
         },
-        notificationTTSNickName: {
-            type: Boolean,
-            default: false
-        },
+        // not settings, and is visible
         notificationTTSTest: {
             type: Boolean,
             default: false
         },
+
         overlayWrist: {
             type: Boolean,
             default: false

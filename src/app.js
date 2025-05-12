@@ -391,7 +391,8 @@ console.log(`isLinux: ${LINUX}`);
                 imageNotifications,
                 desktopToast,
                 afkDesktopToast,
-                notificationTTS
+                notificationTTS,
+                notificationTTSNickName
             } = storeToRefs(notificationsStore);
 
             const {
@@ -404,7 +405,8 @@ console.log(`isLinux: ${LINUX}`);
                 setImageNotifications,
                 setDesktopToast,
                 setAfkDesktopToast,
-                setNotificationTTS
+                setNotificationTTS,
+                setNotificationTTSNickName
             } = notificationsStore;
 
             return {
@@ -508,6 +510,7 @@ console.log(`isLinux: ${LINUX}`);
                 desktopToast,
                 afkDesktopToast,
                 notificationTTS,
+                notificationTTSNickName,
 
                 setOverlayToast,
                 setOpenVR,
@@ -518,7 +521,8 @@ console.log(`isLinux: ${LINUX}`);
                 setImageNotifications,
                 setDesktopToast,
                 setAfkDesktopToast,
-                setNotificationTTS
+                setNotificationTTS,
+                setNotificationTTSNickName
             };
         },
         data: {
@@ -6141,11 +6145,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_minimalFeed',
         false
     );
-    $app.data.notificationTTSNickName = await configRepository.getBool(
-        'VRCX_notificationTTSNickName',
-        false
-    );
-
     // It's not necessary to store it in configRepo because it's rarely used.
     $app.data.isTestTTSVisible = false;
 
@@ -6263,9 +6262,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_overlayWrist':
                 this.overlayWrist = !this.overlayWrist;
                 break;
-            case 'VRCX_notificationTTSNickName':
-                this.notificationTTSNickName = !this.notificationTTSNickName;
-                break;
             case 'VRCX_minimalFeed':
                 this.minimalFeed = !this.minimalFeed;
                 break;
@@ -6325,11 +6321,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
-
-        await configRepository.setBool(
-            'VRCX_notificationTTSNickName',
-            this.notificationTTSNickName
-        );
 
         await configRepository.setBool('VRCX_minimalFeed', this.minimalFeed);
 

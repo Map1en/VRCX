@@ -637,7 +637,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.text_to_speech.use_memo_nicknames")'
                         :value='notificationTTSNickName'
-                        @change='saveOpenVROption("VRCX_notificationTTSNickName")'
+                        @change='setNotificationTTSNickName'
                         :disabled='notificationTTS === "Never"')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.text_to_speech.tts_test_placeholder")'
