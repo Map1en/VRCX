@@ -440,11 +440,11 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.user_dialog.vrchat_notes")'
                         :value='!hideUserNotes'
-                        @change='saveUserDialogOption("VRCX_hideUserNotes")')
+                        @change='setHideUserNotes')
                     simple-switch(
                         :label='$t("view.settings.appearance.user_dialog.vrcx_memos")'
                         :value='!hideUserMemos'
-                        @change='saveUserDialogOption("VRCX_hideUserMemos")')
+                        @change='setHideUserMemos')
                     .options-container-item
                         span.name {{ $t('view.settings.appearance.user_dialog.export_vrcx_memos_into_vrchat_notes') }}
                         br

@@ -342,7 +342,9 @@ console.log(`isLinux: ${LINUX}`);
                 asideWidth,
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
-                isSidebarDivideByFriendGroup
+                isSidebarDivideByFriendGroup,
+                hideUserNotes,
+                hideUserMemos
             } = storeToRefs(appearanceSettingsStore);
 
             const {
@@ -365,7 +367,9 @@ console.log(`isLinux: ${LINUX}`);
                 setAsideWidth,
                 setIsSidebarGroupByInstance,
                 setIsHideFriendsInSameInstance,
-                setIsSidebarDivideByFriendGroup
+                setIsSidebarDivideByFriendGroup,
+                setHideUserNotes,
+                setHideUserMemos
             } = appearanceSettingsStore;
 
             return {
@@ -427,6 +431,8 @@ console.log(`isLinux: ${LINUX}`);
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
                 isSidebarDivideByFriendGroup,
+                hideUserNotes,
+                hideUserMemos,
 
                 setAppLanguage,
                 setThemeMode,
@@ -447,7 +453,9 @@ console.log(`isLinux: ${LINUX}`);
                 setAsideWidth,
                 setIsSidebarGroupByInstance,
                 setIsHideFriendsInSameInstance,
-                setIsSidebarDivideByFriendGroup
+                setIsSidebarDivideByFriendGroup,
+                setHideUserNotes,
+                setHideUserMemos
             };
         },
         data: {
@@ -6211,14 +6219,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_randomUserColours',
         false
     );
-    $app.data.hideUserNotes = await configRepository.getBool(
-        'VRCX_hideUserNotes',
-        false
-    );
-    $app.data.hideUserMemos = await configRepository.getBool(
-        'VRCX_hideUserMemos',
-        false
-    );
     $app.data.hideUnfriends = await configRepository.getBool(
         'VRCX_hideUnfriends',
         false
@@ -6414,23 +6414,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.saveSortFavoritesOption = async function () {
         this.getLocalWorldFavorites();
         this.setSortFavorites();
-    };
-
-    $app.methods.saveUserDialogOption = async function (configKey = '') {
-        if (configKey === 'VRCX_hideUserNotes') {
-            this.hideUserNotes = !this.hideUserNotes;
-        } else {
-            this.hideUserMemos = !this.hideUserMemos;
-        }
-
-        await configRepository.setBool(
-            'VRCX_hideUserNotes',
-            this.hideUserNotes
-        );
-        await configRepository.setBool(
-            'VRCX_hideUserMemos',
-            this.hideUserMemos
-        );
     };
 
     $app.methods.saveFriendLogOptions = async function () {

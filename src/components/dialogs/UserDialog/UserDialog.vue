@@ -1757,6 +1757,7 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { computed, getCurrentInstance, inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import {
@@ -1810,7 +1811,7 @@
     const { $message, $confirm } = proxy;
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
@@ -1854,14 +1855,6 @@
         updateInstanceInfo: {
             type: Number,
             default: () => {}
-        },
-        hideUserNotes: {
-            type: Boolean,
-            default: false
-        },
-        hideUserMemos: {
-            type: Boolean,
-            default: false
         },
         userOnlineFor: {
             type: Function,

@@ -8,9 +8,7 @@ export default class extends baseClass {
 
     init() {}
 
-    _data = {
-        hideUserMemos: false
-    };
+    _data = {};
 
     _methods = {
         async migrateMemos() {

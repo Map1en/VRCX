@@ -34,7 +34,9 @@ export const useAppearanceSettingsStore = defineStore(
             asideWidth: 300,
             isSidebarGroupByInstance: true,
             isHideFriendsInSameInstance: false,
-            isSidebarDivideByFriendGroup: false
+            isSidebarDivideByFriendGroup: false,
+            hideUserNotes: false,
+            hideUserMemos: false
         });
 
         async function initSettings() {
@@ -136,6 +138,16 @@ export const useAppearanceSettingsStore = defineStore(
                 'VRCX_sidebarDivideByFriendGroup',
                 true
             );
+
+            state.hideUserNotes = await configRepository.getBool(
+                'VRCX_hideUserNotes',
+                false
+            );
+
+            state.hideUserMemos = await configRepository.getBool(
+                'VRCX_hideUserMemos',
+                false
+            );
         }
 
         const appLanguage = computed(() => state.appLanguage);
@@ -170,6 +182,8 @@ export const useAppearanceSettingsStore = defineStore(
         const isSidebarDivideByFriendGroup = computed(
             () => state.isSidebarDivideByFriendGroup
         );
+        const hideUserNotes = computed(() => state.hideUserNotes);
+        const hideUserMemos = computed(() => state.hideUserMemos);
 
         function setAppLanguage(language) {
             console.log('Language changed:', language);
@@ -291,6 +305,14 @@ export const useAppearanceSettingsStore = defineStore(
                 state.isSidebarDivideByFriendGroup
             );
         }
+        function setHideUserNotes() {
+            state.hideUserNotes = !state.hideUserNotes;
+            configRepository.setBool('VRCX_hideUserNotes', state.hideUserNotes);
+        }
+        function setHideUserMemos() {
+            state.hideUserMemos = !state.hideUserMemos;
+            configRepository.setBool('VRCX_hideUserMemos', state.hideUserMemos);
+        }
 
         async function handleSetDatetimeFormat() {
             const formatDate = await formatDateFilter(
@@ -400,6 +422,8 @@ export const useAppearanceSettingsStore = defineStore(
             isSidebarGroupByInstance,
             isHideFriendsInSameInstance,
             isSidebarDivideByFriendGroup,
+            hideUserNotes,
+            hideUserMemos,
 
             setAppLanguage,
             setThemeMode,
@@ -420,7 +444,9 @@ export const useAppearanceSettingsStore = defineStore(
             setAsideWidth,
             setIsSidebarGroupByInstance,
             setIsHideFriendsInSameInstance,
-            setIsSidebarDivideByFriendGroup
+            setIsSidebarDivideByFriendGroup,
+            setHideUserNotes,
+            setHideUserMemos
         };
     }
 );

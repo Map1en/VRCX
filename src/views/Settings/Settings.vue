@@ -633,11 +633,11 @@
                     <simple-switch
                         :label="t('view.settings.appearance.user_dialog.vrchat_notes')"
                         :value="!hideUserNotes"
-                        @change="saveUserDialogOption('VRCX_hideUserNotes')"></simple-switch>
+                        @change="setHideUserNotes" />
                     <simple-switch
                         :label="t('view.settings.appearance.user_dialog.vrcx_memos')"
                         :value="!hideUserMemos"
-                        @change="saveUserDialogOption('VRCX_hideUserMemos')"></simple-switch>
+                        @change="setHideUserMemos" />
                     <div class="options-container-item">
                         <span class="name">{{
                             t('view.settings.appearance.user_dialog.export_vrcx_memos_into_vrchat_notes')
@@ -1738,6 +1738,8 @@
         isSidebarGroupByInstance,
         isHideFriendsInSameInstance,
         isSidebarDivideByFriendGroup,
+        hideUserNotes,
+        hideUserMemos,
 
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
@@ -1752,7 +1754,9 @@
         setAsideWidth,
         setIsSidebarGroupByInstance,
         setIsHideFriendsInSameInstance,
-        setIsSidebarDivideByFriendGroup
+        setIsSidebarDivideByFriendGroup,
+        setHideUserNotes,
+        setHideUserMemos
     } = appearanceSettingsStore;
 
     const { t } = useI18n();
@@ -1768,14 +1772,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        hideUserNotes: {
-            type: Boolean,
-            default: false
-        },
-        hideUserMemos: {
-            type: Boolean,
-            default: false
         },
         hideUnfriends: {
             type: Boolean,
