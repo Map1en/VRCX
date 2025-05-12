@@ -186,6 +186,7 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { computed, getCurrentInstance, inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
@@ -193,7 +194,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
 

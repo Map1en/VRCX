@@ -322,6 +322,7 @@
 </script>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import Location from '../../components/Location.vue';
@@ -329,7 +330,7 @@
     import { timeToText } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
 

@@ -63,13 +63,14 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { computed, inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
-    const { appVersion } = VRCXUpdaterStore;
+    const { appVersion } = storeToRefs(VRCXUpdaterStore);
 
     const { t } = useI18n();
     const adjustDialogZ = inject('adjustDialogZ');

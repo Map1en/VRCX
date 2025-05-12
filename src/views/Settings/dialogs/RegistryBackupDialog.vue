@@ -71,6 +71,7 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { downloadAndSaveJson, removeFromArray } from '../../../shared/utils';
@@ -79,7 +80,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
 

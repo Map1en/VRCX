@@ -196,6 +196,7 @@
 </script>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import database from '../../service/database';
@@ -204,7 +205,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;

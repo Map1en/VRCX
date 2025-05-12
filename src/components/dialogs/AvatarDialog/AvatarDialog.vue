@@ -516,6 +516,7 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
@@ -546,7 +547,7 @@
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = appearanceSettingsStore;
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

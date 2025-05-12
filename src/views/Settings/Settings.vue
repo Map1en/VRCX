@@ -1671,6 +1671,7 @@
 </script>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
@@ -1684,7 +1685,8 @@
     const generalSettingsStore = useGeneralSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
 
-    const { appVersion, autoUpdateVRCX, latestAppVersion, setAutoUpdateVRCX } = VRCXUpdaterStore;
+    const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
+    const { setAutoUpdateVRCX } = VRCXUpdaterStore;
 
     const {
         isStartAtWindowsStartup,
@@ -1701,8 +1703,9 @@
         autoStateChangeCompanyStatus,
         autoStateChangeInstanceTypes,
         autoStateChangeNoFriends,
-        autoAcceptInviteRequests,
-
+        autoAcceptInviteRequests
+    } = storeToRefs(generalSettingsStore);
+    const {
         setIsStartAtWindowsStartup,
         setIsStartAsMinimizedState,
         setIsCloseToTray,
@@ -1739,8 +1742,9 @@
         isHideFriendsInSameInstance,
         isSidebarDivideByFriendGroup,
         hideUserNotes,
-        hideUserMemos,
-
+        hideUserMemos
+    } = storeToRefs(appearanceSettingsStore);
+    const {
         setDisplayVRCPlusIconsAsAvatar,
         setHideNicknames,
         setHideTooltips,

@@ -1,3 +1,4 @@
+import { storeToRefs } from 'pinia';
 import { reactive, ref } from 'vue';
 import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
@@ -69,10 +70,10 @@ function useModerationTable() {
         try {
             /**
              * it's a bug, pageSize is not reactive, cannot change it when the tablePageSize changes.
-             * The use function is poorly written, I'll leave it here for now.
+             * The use function is poorly written, I leave it here for now.
              */
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { tablePageSize } = appearanceSettingsStore;
+            const { tablePageSize } = storeToRefs(appearanceSettingsStore);
 
             groupMemberModerationTable.pageSize = tablePageSize;
             groupBansModerationTable.pageSize = tablePageSize;
