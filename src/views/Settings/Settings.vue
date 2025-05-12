@@ -1020,7 +1020,7 @@
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.wrist_feed_overlay')"
                         :value="overlayWrist"
                         :disabled="!openVR"
-                        @change="saveOpenVROption('VRCX_overlayWrist')"></simple-switch>
+                        @change="setOverlayWrist"></simple-switch>
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.hide_private_worlds')"
                         :value="hidePrivateFromFeed"
@@ -1677,7 +1677,8 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
-    import { useNotificationSettingsStore } from '../../stores/settings/notifications';
+    import { useNotificationsSettingsStore } from '../../stores/settings/notifications';
+    import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const { i18n } = useI18n();
@@ -1685,7 +1686,8 @@
     const VRCXUpdaterStore = useVRCXUpdaterStore();
     const generalSettingsStore = useGeneralSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const notificationSettingsStore = useNotificationSettingsStore();
+    const notificationsSettingsStore = useNotificationsSettingsStore();
+    const wristOverlaySettingsStore = useWristOverlaySettingsStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
     const { setAutoUpdateVRCX } = VRCXUpdaterStore;
@@ -1784,7 +1786,7 @@
         afkDesktopToast,
         notificationTTS,
         notificationTTSNickName
-    } = storeToRefs(notificationSettingsStore);
+    } = storeToRefs(notificationsSettingsStore);
 
     const {
         setOverlayToast,
@@ -1798,7 +1800,11 @@
         setAfkDesktopToast,
         setNotificationTTS,
         setNotificationTTSNickName
-    } = notificationSettingsStore;
+    } = notificationsSettingsStore;
+
+    const { overlayWrist } = storeToRefs(wristOverlaySettingsStore);
+
+    const { setOverlayWrist } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
 
@@ -1824,11 +1830,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-
-        overlayWrist: {
             type: Boolean,
             default: false
         },

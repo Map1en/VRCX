@@ -138,7 +138,8 @@ import { updateTrustColorClasses } from './shared/utils/base/ui';
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useGeneralSettingsStore } from './stores/settings/general';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
-import { useNotificationsStore } from './stores/settings/notifications';
+import { useNotificationsSettingsStore } from './stores/settings/notifications';
+import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -281,7 +282,8 @@ console.log(`isLinux: ${LINUX}`);
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const notificationsStore = useNotificationsStore();
+            const notificationsSettingsStore = useNotificationsSettingsStore();
+            const wristOverlaySettingsStore = useWristOverlaySettingsStore();
 
             const { appVersion, autoUpdateVRCX, latestAppVersion } =
                 storeToRefs(VRCXUpdaterStore);
@@ -393,7 +395,7 @@ console.log(`isLinux: ${LINUX}`);
                 afkDesktopToast,
                 notificationTTS,
                 notificationTTSNickName
-            } = storeToRefs(notificationsStore);
+            } = storeToRefs(notificationsSettingsStore);
 
             const {
                 setOverlayToast,
@@ -407,7 +409,11 @@ console.log(`isLinux: ${LINUX}`);
                 setAfkDesktopToast,
                 setNotificationTTS,
                 setNotificationTTSNickName
-            } = notificationsStore;
+            } = notificationsSettingsStore;
+
+            const { overlayWrist } = storeToRefs(wristOverlaySettingsStore);
+
+            const { setOverlayWrist } = wristOverlaySettingsStore;
 
             return {
                 appVersion,
@@ -522,7 +528,11 @@ console.log(`isLinux: ${LINUX}`);
                 setDesktopToast,
                 setAfkDesktopToast,
                 setNotificationTTS,
-                setNotificationTTSNickName
+                setNotificationTTSNickName,
+
+                overlayWrist,
+
+                setOverlayWrist
             };
         },
         data: {
@@ -636,7 +646,7 @@ console.log(`isLinux: ${LINUX}`);
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
-            const notificationsStore = useNotificationsStore();
+            const notificationsSettingsStore = useNotificationsSettingsStore();
 
             this.setThemeMode(initThemeMode);
 
@@ -644,7 +654,7 @@ console.log(`isLinux: ${LINUX}`);
                 VRCXUpdaterStore.initSettings(),
                 generalSettingsStore.initSettings(),
                 appearanceSettingsStore.initSettings(),
-                notificationsStore.initSettings()
+                notificationsSettingsStore.initSettings()
             ]);
 
             /**
@@ -6137,10 +6147,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_pcUptimeOnFeed',
         false
     );
-    $app.data.overlayWrist = await configRepository.getBool(
-        'VRCX_overlayWrist',
-        false
-    );
     $app.data.minimalFeed = await configRepository.getBool(
         'VRCX_minimalFeed',
         false
@@ -6259,9 +6265,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_pcUptimeOnFeed':
                 this.pcUptimeOnFeed = !this.pcUptimeOnFeed;
                 break;
-            case 'VRCX_overlayWrist':
-                this.overlayWrist = !this.overlayWrist;
-                break;
             case 'VRCX_minimalFeed':
                 this.minimalFeed = !this.minimalFeed;
                 break;
@@ -6319,8 +6322,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_pcUptimeOnFeed',
             this.pcUptimeOnFeed
         );
-
-        await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
 
         await configRepository.setBool('VRCX_minimalFeed', this.minimalFeed);
 

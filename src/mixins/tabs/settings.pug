@@ -678,11 +678,11 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.steamvr_overlay")'
                         :value='openVR'
-                        @change='saveOpenVROption("openVR")')
+                        @change='setOpenVR')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.wrist_feed_overlay")'
                         :value='overlayWrist'
-                        @change='saveOpenVROption("VRCX_overlayWrist")'
+                        @change='setOverlayWrist'
                         :disabled='!openVR')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.hide_private_worlds")'
