@@ -52,127 +52,67 @@ export const useAppearanceSettingsStore = defineStore(
         });
 
         async function initSettings() {
-            state.appLanguage = await configRepository.getString(
-                'VRCX_appLanguage',
-                'en'
-            );
-            changeCJKFontsOrder(state.appLanguage);
-            this.i18n.locale = state.appLanguage;
-
-            // init in app.js
-            // const themeMode = await configRepository.getString(
-            //     'VRCX_ThemeMode',
-            //     'system'
-            // );
-            // setThemeMode(themeMode);
-
-            state.displayVRCPlusIconsAsAvatar = await configRepository.getBool(
-                'displayVRCPlusIconsAsAvatar',
-                true
-            );
-
-            state.hideNicknames = await configRepository.getBool(
-                'VRCX_hideNicknames',
-                false
-            );
-
-            state.hideTooltips = await configRepository.getBool(
-                'VRCX_hideTooltips',
-                false
-            );
-
-            state.isAgeGatedInstancesVisible = await configRepository.getBool(
-                'VRCX_isAgeGatedInstancesVisible',
-                true
-            );
-
-            state.sortFavorites = await configRepository.getBool(
-                'VRCX_sortFavorites',
-                true
-            );
-
-            state.instanceUsersSortAlphabetical =
-                await configRepository.getBool(
+            const [
+                appLanguage,
+                displayVRCPlusIconsAsAvatar,
+                hideNicknames,
+                hideTooltips,
+                isAgeGatedInstancesVisible,
+                sortFavorites,
+                instanceUsersSortAlphabetical,
+                tablePageSize,
+                dtHour12,
+                dtIsoFormat,
+                sidebarSortMethods,
+                asideWidth,
+                isSidebarGroupByInstance,
+                isHideFriendsInSameInstance,
+                isSidebarDivideByFriendGroup,
+                hideUserNotes,
+                hideUserMemos,
+                hideUnfriends,
+                randomUserColours,
+                trustColor
+            ] = await Promise.all([
+                configRepository.getString('VRCX_appLanguage', 'en'),
+                configRepository.getBool('displayVRCPlusIconsAsAvatar', true),
+                configRepository.getBool('VRCX_hideNicknames', false),
+                configRepository.getBool('VRCX_hideTooltips', false),
+                configRepository.getBool(
+                    'VRCX_isAgeGatedInstancesVisible',
+                    true
+                ),
+                configRepository.getBool('VRCX_sortFavorites', true),
+                configRepository.getBool(
                     'VRCX_instanceUsersSortAlphabetical',
                     false
-                );
-
-            state.tablePageSize = await configRepository.getInt(
-                'VRCX_tablePageSize',
-                15
-            );
-
-            state.dtHour12 = await configRepository.getBool(
-                'VRCX_dtHour12',
-                false
-            );
-            state.dtIsoFormat = await configRepository.getBool(
-                'VRCX_dtIsoFormat',
-                false
-            );
-            await handleSetDatetimeFormat();
-
-            state.sidebarSortMethods = JSON.parse(
-                await configRepository.getString(
+                ),
+                configRepository.getInt('VRCX_tablePageSize', 15),
+                configRepository.getBool('VRCX_dtHour12', false),
+                configRepository.getBool('VRCX_dtIsoFormat', false),
+                configRepository.getString(
                     'VRCX_sidebarSortMethods',
                     JSON.stringify([
                         'Sort Private to Bottom',
                         'Sort by Time in Instance',
                         'Sort by Last Active'
                     ])
-                )
-            );
-            if (state.sidebarSortMethods?.length === 3) {
-                state.sidebarSortMethod1 = state.sidebarSortMethods[0];
-                state.sidebarSortMethod2 = state.sidebarSortMethods[1];
-                state.sidebarSortMethod3 = state.sidebarSortMethods[2];
-            }
-            // Migrate old settings
-            // Assume all exist if one does
-            await mergeOldSortMethodsSettings();
-
-            state.asideWidth = await configRepository.getInt(
-                'VRCX_sidePanelWidth',
-                300
-            );
-
-            state.isSidebarGroupByInstance = await configRepository.getBool(
-                'VRCX_sidebarGroupByInstance',
-                true
-            );
-
-            state.isHideFriendsInSameInstance = await configRepository.getBool(
-                'VRCX_hideFriendsInSameInstance',
-                false
-            );
-
-            state.isSidebarDivideByFriendGroup = await configRepository.getBool(
-                'VRCX_sidebarDivideByFriendGroup',
-                true
-            );
-
-            state.hideUserNotes = await configRepository.getBool(
-                'VRCX_hideUserNotes',
-                false
-            );
-
-            state.hideUserMemos = await configRepository.getBool(
-                'VRCX_hideUserMemos',
-                false
-            );
-
-            state.hideUnfriends = await configRepository.getBool(
-                'VRCX_hideUnfriends',
-                false
-            );
-
-            state.randomUserColours = await configRepository.getBool(
-                'VRCX_randomUserColours',
-                false
-            );
-
-            state.trustColor = JSON.parse(
-                await configRepository.getString(
+                ),
+                configRepository.getInt('VRCX_sidePanelWidth', 300),
+                configRepository.getBool('VRCX_sidebarGroupByInstance', true),
+                configRepository.getBool(
+                    'VRCX_hideFriendsInSameInstance',
+                    false
+                ),
+                configRepository.getBool(
+                    'VRCX_sidebarDivideByFriendGroup',
+                    true
+                ),
+                configRepository.getBool('VRCX_hideUserNotes', false),
+                configRepository.getBool('VRCX_hideUserMemos', false),
+                configRepository.getBool('VRCX_hideUnfriends', false),
+                configRepository.getBool('VRCX_randomUserColours', false),
+                configRepository.getString(
                     'VRCX_trustColor',
                     JSON.stringify({
                         untrusted: '#CCCCCC',
@@ -184,8 +124,52 @@ export const useAppearanceSettingsStore = defineStore(
                         troll: '#782F2F'
                     })
                 )
-            );
+            ]);
+
+            state.appLanguage = appLanguage;
+            changeCJKFontsOrder(state.appLanguage);
+            this.i18n.locale = state.appLanguage;
+
+            state.displayVRCPlusIconsAsAvatar = displayVRCPlusIconsAsAvatar;
+            state.hideNicknames = hideNicknames;
+            state.hideTooltips = hideTooltips;
+            state.isAgeGatedInstancesVisible = isAgeGatedInstancesVisible;
+            state.sortFavorites = sortFavorites;
+            state.instanceUsersSortAlphabetical = instanceUsersSortAlphabetical;
+            state.tablePageSize = tablePageSize;
+            state.dtHour12 = dtHour12;
+            state.dtIsoFormat = dtIsoFormat;
+            await handleSetDatetimeFormat();
+
+            state.sidebarSortMethods = JSON.parse(sidebarSortMethods);
+            if (state.sidebarSortMethods?.length === 3) {
+                state.sidebarSortMethod1 = state.sidebarSortMethods[0];
+                state.sidebarSortMethod2 = state.sidebarSortMethods[1];
+                state.sidebarSortMethod3 = state.sidebarSortMethods[2];
+            }
+
+            state.trustColor = JSON.parse(trustColor);
+            state.asideWidth = asideWidth;
+            state.isSidebarGroupByInstance = isSidebarGroupByInstance;
+            state.isHideFriendsInSameInstance = isHideFriendsInSameInstance;
+            state.isSidebarDivideByFriendGroup = isSidebarDivideByFriendGroup;
+            state.hideUserNotes = hideUserNotes;
+            state.hideUserMemos = hideUserMemos;
+            state.hideUnfriends = hideUnfriends;
+            state.randomUserColours = randomUserColours;
+
+            // Migrate old settings
+            // Assume all exist if one does
+            await mergeOldSortMethodsSettings();
+
             updateTrustColorClasses(state.trustColor);
+
+            // init in app.js
+            // const themeMode = await configRepository.getString(
+            //    'VRCX_ThemeMode',
+            //    'system'
+            // );
+            // setThemeMode(themeMode);
         }
 
         const appLanguage = computed(() => state.appLanguage);
