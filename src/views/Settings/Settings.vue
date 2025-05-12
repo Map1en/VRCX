@@ -848,7 +848,7 @@
                     <simple-switch
                         :label="t('view.settings.notifications.notifications.steamvr_notifications.user_images')"
                         :value="imageNotifications"
-                        @change="saveOpenVROption('VRCX_imageNotifications')"></simple-switch>
+                        @change="setImageNotifications" />
                     <div class="options-container-item">
                         <el-button
                             size="small"
@@ -1778,7 +1778,8 @@
         overlayNotifications,
         xsNotifications,
         ovrtHudNotifications,
-        ovrtWristNotifications
+        ovrtWristNotifications,
+        imageNotifications
     } = storeToRefs(notificationSettingsStore);
 
     const {
@@ -1787,7 +1788,8 @@
         setOverlayNotifications,
         setXsNotifications,
         setOvrtHudNotifications,
-        setOvrtWristNotifications
+        setOvrtWristNotifications,
+        setImageNotifications
     } = notificationSettingsStore;
 
     const { t } = useI18n();
@@ -1803,10 +1805,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        imageNotifications: {
-            type: Boolean,
-            default: false
         },
         desktopToast: {
             type: Boolean,

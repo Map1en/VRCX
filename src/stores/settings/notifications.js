@@ -9,7 +9,8 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         overlayNotifications: true,
         xsNotifications: true,
         ovrtHudNotifications: true,
-        ovrtWristNotifications: false
+        ovrtWristNotifications: false,
+        imageNotifications: true
     });
 
     async function initSettings() {
@@ -19,14 +20,16 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
             overlayNotifications,
             xsNotifications,
             ovrtHudNotifications,
-            ovrtWristNotifications
+            ovrtWristNotifications,
+            imageNotifications
         ] = await Promise.all([
             configRepository.getString('VRCX_overlayToast', 'Game Running'),
             configRepository.getBool('VRCX_overlayNotifications', true),
             configRepository.getBool('openVR', false),
             configRepository.getBool('VRCX_xsNotifications', true),
             configRepository.getBool('VRCX_ovrtHudNotifications', true),
-            configRepository.getBool('VRCX_ovrtWristNotifications', false)
+            configRepository.getBool('VRCX_ovrtWristNotifications', false),
+            configRepository.getBool('VRCX_imageNotifications', true)
         ]);
         state.overlayToast = overlayToast;
         state.openVR = openVR;
@@ -34,6 +37,7 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         state.xsNotifications = xsNotifications;
         state.ovrtHudNotifications = ovrtHudNotifications;
         state.ovrtWristNotifications = ovrtWristNotifications;
+        state.imageNotifications = imageNotifications;
     }
 
     const overlayToast = computed(() => state.overlayToast);
@@ -42,6 +46,7 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
     const xsNotifications = computed(() => state.xsNotifications);
     const ovrtHudNotifications = computed(() => state.ovrtHudNotifications);
     const ovrtWristNotifications = computed(() => state.ovrtWristNotifications);
+    const imageNotifications = computed(() => state.imageNotifications);
 
     function setOverlayToast(value) {
         state.overlayToast = value;
@@ -76,6 +81,13 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
             state.ovrtWristNotifications
         );
     }
+    function setImageNotifications() {
+        state.imageNotifications = !state.imageNotifications;
+        configRepository.setBool(
+            'VRCX_imageNotifications',
+            state.imageNotifications
+        );
+    }
 
     return {
         state,
@@ -87,12 +99,14 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
         xsNotifications,
         ovrtHudNotifications,
         ovrtWristNotifications,
+        imageNotifications,
 
         setOverlayToast,
         setOpenVR,
         setOverlayNotifications,
         setXsNotifications,
         setOvrtHudNotifications,
-        setOvrtWristNotifications
+        setOvrtWristNotifications,
+        setImageNotifications
     };
 });
