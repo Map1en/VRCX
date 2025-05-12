@@ -138,6 +138,7 @@ import { updateTrustColorClasses } from './shared/utils/base/ui';
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useGeneralSettingsStore } from './stores/settings/general';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
+import { useNotificationsStore } from './stores/settings/notifications';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -280,6 +281,7 @@ console.log(`isLinux: ${LINUX}`);
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const notificationsStore = useNotificationsStore();
 
             const { appVersion, autoUpdateVRCX, latestAppVersion } =
                 storeToRefs(VRCXUpdaterStore);
@@ -379,6 +381,10 @@ console.log(`isLinux: ${LINUX}`);
                 setTrustColor
             } = appearanceSettingsStore;
 
+            const { overlayToast } = storeToRefs(notificationsStore);
+
+            const { setOverlayToast } = notificationsStore;
+
             return {
                 appVersion,
                 autoUpdateVRCX,
@@ -468,7 +474,11 @@ console.log(`isLinux: ${LINUX}`);
                 setHideUserMemos,
                 setHideUnfriends,
                 setRandomUserColours,
-                setTrustColor
+                setTrustColor,
+
+                overlayToast,
+
+                setOverlayToast
             };
         },
         data: {
@@ -582,13 +592,15 @@ console.log(`isLinux: ${LINUX}`);
             const VRCXUpdaterStore = useVRCXUpdaterStore();
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const notificationsStore = useNotificationsStore();
 
             this.setThemeMode(initThemeMode);
 
             await Promise.all([
                 VRCXUpdaterStore.initSettings(),
                 generalSettingsStore.initSettings(),
-                appearanceSettingsStore.initSettings()
+                appearanceSettingsStore.initSettings(),
+                notificationsStore.initSettings()
             ]);
 
             /**
@@ -6114,10 +6126,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_afkDesktopToast',
         false
     );
-    $app.data.overlayToast = await configRepository.getString(
-        'VRCX_overlayToast',
-        'Game Running'
-    );
     $app.data.minimalFeed = await configRepository.getBool(
         'VRCX_minimalFeed',
         false
@@ -6367,11 +6375,6 @@ console.log(`isLinux: ${LINUX}`);
         await configRepository.setBool(
             'VRCX_afkDesktopToast',
             this.afkDesktopToast
-        );
-
-        await configRepository.setString(
-            'VRCX_overlayToast',
-            this.overlayToast
         );
 
         await configRepository.setBool(

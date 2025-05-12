@@ -757,7 +757,7 @@
                         }}</span>
                         <br />
                         <el-radio-group
-                            v-model="overlayToast"
+                            :value="overlayToast"
                             size="mini"
                             :disabled="
                                 (!overlayNotifications || !openVR) &&
@@ -766,7 +766,7 @@
                                 !ovrtWristNotifications
                             "
                             style="margin-top: 5px"
-                            @change="saveOpenVROption">
+                            @input="setOverlayToast">
                             <el-radio-button label="Never">{{
                                 t('view.settings.notifications.notifications.conditions.never')
                             }}</el-radio-button>
@@ -1677,6 +1677,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import { useNotificationSettingsStore } from '../../stores/settings/notifications';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const { i18n } = useI18n();
@@ -1684,6 +1685,7 @@
     const VRCXUpdaterStore = useVRCXUpdaterStore();
     const generalSettingsStore = useGeneralSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
+    const notificationSettingsStore = useNotificationSettingsStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
     const { setAutoUpdateVRCX } = VRCXUpdaterStore;
@@ -1770,6 +1772,10 @@
         setTrustColor
     } = appearanceSettingsStore;
 
+    const { overlayToast } = storeToRefs(notificationSettingsStore);
+
+    const { setOverlayToast } = notificationSettingsStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -1783,10 +1789,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        overlayToast: {
-            type: Boolean,
-            default: false
         },
         overlayNotifications: {
             type: Boolean,
