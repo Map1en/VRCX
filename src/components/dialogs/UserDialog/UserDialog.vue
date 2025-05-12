@@ -2914,7 +2914,12 @@
             targetUserId: userId,
             note
         });
+        handleNoteChange(args);
+    }
 
+
+
+    function handleNoteChange(args) {
         // API.$on('NOTE')
         let _note = '';
         let targetUserId = '';
@@ -2939,14 +2944,15 @@
         }
     }
 
-    function deleteNote(userId) {
+    async function deleteNote(userId) {
         if (props.userDialog.id === userId) {
             props.userDialog.noteSaving = true;
         }
-        return miscRequest.saveNote({
+        const args = await miscRequest.saveNote({
             targetUserId: userId,
             note: ''
         });
+        handleNoteChange(args);
     }
 
     function onUserMemoChange() {
