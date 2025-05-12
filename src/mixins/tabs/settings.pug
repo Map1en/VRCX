@@ -569,7 +569,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_hud_notifications")'
                         :value='ovrtHudNotifications'
-                        @change='saveOpenVROption("VRCX_ovrtHudNotifications")')
+                        @change='setOvrtHudNotifications')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_wrist_notifications")'
                         :value='ovrtWristNotifications'

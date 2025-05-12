@@ -385,14 +385,16 @@ console.log(`isLinux: ${LINUX}`);
                 overlayToast,
                 openVR,
                 overlayNotifications,
-                xsNotifications
+                xsNotifications,
+                ovrtHudNotifications
             } = storeToRefs(notificationsStore);
 
             const {
                 setOverlayToast,
                 setOpenVR,
                 setOverlayNotifications,
-                setXsNotifications
+                setXsNotifications,
+                setOvrtHudNotifications
             } = notificationsStore;
 
             return {
@@ -490,11 +492,13 @@ console.log(`isLinux: ${LINUX}`);
                 openVR,
                 overlayNotifications,
                 xsNotifications,
+                ovrtHudNotifications,
 
                 setOverlayToast,
                 setOpenVR,
                 setOverlayNotifications,
-                setXsNotifications
+                setXsNotifications,
+                setOvrtHudNotifications
             };
         },
         data: {
@@ -6113,10 +6117,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_overlayWrist',
         false
     );
-    $app.data.ovrtHudNotifications = await configRepository.getBool(
-        'VRCX_ovrtHudNotifications',
-        true
-    );
     $app.data.ovrtWristNotifications = await configRepository.getBool(
         'VRCX_ovrtWristNotifications',
         false
@@ -6263,9 +6263,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_overlayWrist':
                 this.overlayWrist = !this.overlayWrist;
                 break;
-            case 'VRCX_ovrtHudNotifications':
-                this.ovrtHudNotifications = !this.ovrtHudNotifications;
-                break;
             case 'VRCX_ovrtWristNotifications':
                 this.ovrtWristNotifications = !this.ovrtWristNotifications;
                 break;
@@ -6337,11 +6334,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_overlayWrist', this.overlayWrist);
-
-        await configRepository.setBool(
-            'VRCX_ovrtHudNotifications',
-            this.ovrtHudNotifications
-        );
 
         await configRepository.setBool(
             'VRCX_ovrtWristNotifications',

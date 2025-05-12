@@ -836,7 +836,7 @@
                             )
                         "
                         :value="ovrtHudNotifications"
-                        @change="saveOpenVROption('VRCX_ovrtHudNotifications')"></simple-switch>
+                        @change="setOvrtHudNotifications" />
                     <simple-switch
                         :label="
                             t(
@@ -1772,9 +1772,11 @@
         setTrustColor
     } = appearanceSettingsStore;
 
-    const { overlayToast, openVR, overlayNotifications, xsNotifications } = storeToRefs(notificationSettingsStore);
+    const { overlayToast, openVR, overlayNotifications, xsNotifications, ovrtHudNotifications } =
+        storeToRefs(notificationSettingsStore);
 
-    const { setOverlayToast, setOpenVR, setOverlayNotifications, setXsNotifications } = notificationSettingsStore;
+    const { setOverlayToast, setOpenVR, setOverlayNotifications, setXsNotifications, setOvrtHudNotifications } =
+        notificationSettingsStore;
 
     const { t } = useI18n();
 
@@ -1789,10 +1791,6 @@
         zoomLevel: {
             type: Number,
             default: 0
-        },
-        ovrtHudNotifications: {
-            type: Boolean,
-            default: false
         },
         ovrtWristNotifications: {
             type: Boolean,
