@@ -8,25 +8,33 @@ export const useWristOverlaySettingsStore = defineStore(
         const state = reactive({
             overlayWrist: true,
             hidePrivateFromFeed: false,
-            openVRAlways: false
+            openVRAlways: false,
+            overlaybutton: false
         });
 
         async function initSettings() {
-            const [overlayWrist, hidePrivateFromFeed, openVRAlways] =
-                await Promise.all([
-                    configRepository.getBool('VRCX_overlayWrist', false),
-                    configRepository.getBool('VRCX_hidePrivateFromFeed', false),
-                    configRepository.getBool('openVRAlways', false)
-                ]);
+            const [
+                overlayWrist,
+                hidePrivateFromFeed,
+                openVRAlways,
+                overlaybutton
+            ] = await Promise.all([
+                configRepository.getBool('VRCX_overlayWrist', false),
+                configRepository.getBool('VRCX_hidePrivateFromFeed', false),
+                configRepository.getBool('openVRAlways', false),
+                configRepository.getBool('VRCX_overlaybutton', false)
+            ]);
 
             state.overlayWrist = overlayWrist;
             state.hidePrivateFromFeed = hidePrivateFromFeed;
             state.openVRAlways = openVRAlways;
+            state.overlaybutton = overlaybutton;
         }
 
         const overlayWrist = computed(() => state.overlayWrist);
         const hidePrivateFromFeed = computed(() => state.hidePrivateFromFeed);
         const openVRAlways = computed(() => state.openVRAlways);
+        const overlaybutton = computed(() => state.overlaybutton);
 
         function setOverlayWrist() {
             state.overlayWrist = !state.overlayWrist;
@@ -43,6 +51,10 @@ export const useWristOverlaySettingsStore = defineStore(
             state.openVRAlways = !state.openVRAlways;
             configRepository.setBool('openVRAlways', state.openVRAlways);
         }
+        function setOverlaybutton() {
+            state.overlaybutton = !state.overlaybutton;
+            configRepository.setBool('VRCX_overlaybutton', state.overlaybutton);
+        }
 
         return {
             state,
@@ -51,10 +63,12 @@ export const useWristOverlaySettingsStore = defineStore(
             overlayWrist,
             hidePrivateFromFeed,
             openVRAlways,
+            overlaybutton,
 
             setOverlayWrist,
             setHidePrivateFromFeed,
-            setOpenVRAlways
+            setOpenVRAlways,
+            setOverlaybutton
         };
     }
 );

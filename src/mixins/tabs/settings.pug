@@ -690,14 +690,14 @@ mixin settingsTab
                         @change='setHidePrivateFromFeed')
                     .options-container-item(style='min-width: 118px')
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.start_overlay_with') }}
-                        el-radio-group(v-model='openVRAlways' @change='setOpenVRAlways' :disabled='!openVR')
+                        el-radio-group(:value='openVRAlways' @change='setOpenVRAlways' :disabled='!openVR')
                             el-radio(:label='false') {{ 'VRChat' }}
                             el-radio(:label='true') {{ 'SteamVR' }}
                     .options-container-item
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button') }}
                         el-radio-group(
-                            v-model='overlaybutton'
-                            @change='saveOpenVROption'
+                            :value='overlaybutton'
+                            @change='setOverlaybutton'
                             :disabled='!openVR || !overlayWrist')
                             el-radio(:label='false') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_grip') }}
                             el-radio(:label='true') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_menu') }}

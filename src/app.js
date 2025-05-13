@@ -411,11 +411,19 @@ console.log(`isLinux: ${LINUX}`);
                 setNotificationTTSNickName
             } = notificationsSettingsStore;
 
-            const { overlayWrist, hidePrivateFromFeed, openVRAlways } =
-                storeToRefs(wristOverlaySettingsStore);
+            const {
+                overlayWrist,
+                hidePrivateFromFeed,
+                openVRAlways,
+                overlaybutton
+            } = storeToRefs(wristOverlaySettingsStore);
 
-            const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways } =
-                wristOverlaySettingsStore;
+            const {
+                setOverlayWrist,
+                setHidePrivateFromFeed,
+                setOpenVRAlways,
+                setOverlaybutton
+            } = wristOverlaySettingsStore;
 
             return {
                 appVersion,
@@ -535,10 +543,12 @@ console.log(`isLinux: ${LINUX}`);
                 overlayWrist,
                 hidePrivateFromFeed,
                 openVRAlways,
+                overlaybutton,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
-                setOpenVRAlways
+                setOpenVRAlways,
+                setOverlaybutton
             };
         },
         data: {
@@ -6121,10 +6131,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.overlaybutton = await configRepository.getBool(
-        'VRCX_overlaybutton',
-        false
-    );
     $app.data.overlayHand = await configRepository.getInt(
         'VRCX_overlayHand',
         0
@@ -6282,10 +6288,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
         }
 
-        await configRepository.setBool(
-            'VRCX_overlaybutton',
-            this.overlaybutton
-        );
         this.overlayHand = parseInt(this.overlayHand, 10);
         if (isNaN(this.overlayHand)) {
             this.overlayHand = 0;

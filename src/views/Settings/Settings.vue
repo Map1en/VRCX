@@ -1029,7 +1029,7 @@
                         <span class="name">{{
                             t('view.settings.wrist_overlay.steamvr_wrist_overlay.start_overlay_with')
                         }}</span>
-                        <el-radio-group v-model="openVRAlways" :disabled="!openVR" @change="setOpenVRAlways">
+                        <el-radio-group :value="openVRAlways" :disabled="!openVR" @change="setOpenVRAlways">
                             <el-radio :label="false">{{ 'VRChat' }}</el-radio>
                             <el-radio :label="true">{{ 'SteamVR' }}</el-radio>
                         </el-radio-group>
@@ -1039,9 +1039,9 @@
                             t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button')
                         }}</span>
                         <el-radio-group
-                            v-model="overlaybutton"
+                            :value="overlaybutton"
                             :disabled="!openVR || !overlayWrist"
-                            @change="saveOpenVROption">
+                            @change="setOverlaybutton">
                             <el-radio :label="false">{{
                                 t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_grip')
                             }}</el-radio>
@@ -1802,9 +1802,9 @@
         setNotificationTTSNickName
     } = notificationsSettingsStore;
 
-    const { overlayWrist, hidePrivateFromFeed, openVRAlways } = storeToRefs(wristOverlaySettingsStore);
+    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton } = storeToRefs(wristOverlaySettingsStore);
 
-    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways } = wristOverlaySettingsStore;
+    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways, setOverlaybutton } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
 
@@ -1830,10 +1830,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        overlaybutton: {
             type: Boolean,
             default: false
         },
