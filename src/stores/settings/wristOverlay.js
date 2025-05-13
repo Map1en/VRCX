@@ -13,7 +13,8 @@ export const useWristOverlaySettingsStore = defineStore(
             overlayHand: 0,
             vrBackgroundEnabled: false,
             minimalFeed: false,
-            hideDevicesFromFeed: false
+            hideDevicesFromFeed: false,
+            vrOverlayCpuUsage: false
         });
 
         async function initSettings() {
@@ -25,7 +26,8 @@ export const useWristOverlaySettingsStore = defineStore(
                 overlayHand,
                 vrBackgroundEnabled,
                 minimalFeed,
-                hideDevicesFromFeed
+                hideDevicesFromFeed,
+                vrOverlayCpuUsage
             ] = await Promise.all([
                 configRepository.getBool('VRCX_overlayWrist', false),
                 configRepository.getBool('VRCX_hidePrivateFromFeed', false),
@@ -34,7 +36,8 @@ export const useWristOverlaySettingsStore = defineStore(
                 configRepository.getInt('VRCX_overlayHand', 0),
                 configRepository.getBool('VRCX_vrBackgroundEnabled', false),
                 configRepository.getBool('VRCX_minimalFeed', false),
-                configRepository.getBool('VRCX_hideDevicesFromFeed', false)
+                configRepository.getBool('VRCX_hideDevicesFromFeed', false),
+                configRepository.getBool('VRCX_vrOverlayCpuUsage', false)
             ]);
 
             state.overlayWrist = overlayWrist;
@@ -45,6 +48,7 @@ export const useWristOverlaySettingsStore = defineStore(
             state.vrBackgroundEnabled = vrBackgroundEnabled;
             state.minimalFeed = minimalFeed;
             state.hideDevicesFromFeed = hideDevicesFromFeed;
+            state.vrOverlayCpuUsage = vrOverlayCpuUsage;
         }
 
         const overlayWrist = computed(() => state.overlayWrist);
@@ -55,6 +59,7 @@ export const useWristOverlaySettingsStore = defineStore(
         const vrBackgroundEnabled = computed(() => state.vrBackgroundEnabled);
         const minimalFeed = computed(() => state.minimalFeed);
         const hideDevicesFromFeed = computed(() => state.hideDevicesFromFeed);
+        const vrOverlayCpuUsage = computed(() => state.vrOverlayCpuUsage);
 
         function setOverlayWrist() {
             state.overlayWrist = !state.overlayWrist;
@@ -100,6 +105,13 @@ export const useWristOverlaySettingsStore = defineStore(
                 state.hideDevicesFromFeed
             );
         }
+        function setVrOverlayCpuUsage() {
+            state.vrOverlayCpuUsage = !state.vrOverlayCpuUsage;
+            configRepository.setBool(
+                'VRCX_vrOverlayCpuUsage',
+                state.vrOverlayCpuUsage
+            );
+        }
 
         return {
             state,
@@ -113,6 +125,7 @@ export const useWristOverlaySettingsStore = defineStore(
             vrBackgroundEnabled,
             minimalFeed,
             hideDevicesFromFeed,
+            vrOverlayCpuUsage,
 
             setOverlayWrist,
             setHidePrivateFromFeed,
@@ -121,7 +134,8 @@ export const useWristOverlaySettingsStore = defineStore(
             setOverlayHand,
             setVrBackgroundEnabled,
             setMinimalFeed,
-            setHideDevicesFromFeed
+            setHideDevicesFromFeed,
+            setVrOverlayCpuUsage
         };
     }
 );

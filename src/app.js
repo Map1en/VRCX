@@ -419,7 +419,8 @@ console.log(`isLinux: ${LINUX}`);
                 overlayHand,
                 vrBackgroundEnabled,
                 minimalFeed,
-                hideDevicesFromFeed
+                hideDevicesFromFeed,
+                vrOverlayCpuUsage
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
@@ -430,7 +431,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOverlayHand,
                 setVrBackgroundEnabled,
                 setMinimalFeed,
-                setHideDevicesFromFeed
+                setHideDevicesFromFeed,
+                setVrOverlayCpuUsage
             } = wristOverlaySettingsStore;
 
             return {
@@ -556,6 +558,7 @@ console.log(`isLinux: ${LINUX}`);
                 vrBackgroundEnabled,
                 minimalFeed,
                 hideDevicesFromFeed,
+                vrOverlayCpuUsage,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
@@ -564,7 +567,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOverlayHand,
                 setVrBackgroundEnabled,
                 setMinimalFeed,
-                setHideDevicesFromFeed
+                setHideDevicesFromFeed,
+                setVrOverlayCpuUsage
             };
         },
         data: {
@@ -6147,10 +6151,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.vrOverlayCpuUsage = await configRepository.getBool(
-        'VRCX_vrOverlayCpuUsage',
-        false
-    );
     $app.data.hideUptimeFromFeed = await configRepository.getBool(
         'VRCX_hideUptimeFromFeed',
         false
@@ -6254,9 +6254,6 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_vrOverlayCpuUsage':
-                this.vrOverlayCpuUsage = !this.vrOverlayCpuUsage;
-                break;
             case 'VRCX_hideUptimeFromFeed':
                 this.hideUptimeFromFeed = !this.hideUptimeFromFeed;
                 break;
@@ -6278,11 +6275,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_vrOverlayCpuUsage',
-            this.vrOverlayCpuUsage
-        );
 
         await configRepository.setBool(
             'VRCX_hideUptimeFromFeed',

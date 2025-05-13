@@ -725,7 +725,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_cpu_usage")'
                         :value='vrOverlayCpuUsage'
-                        @change='saveOpenVROption("VRCX_vrOverlayCpuUsage")'
+                        @change='setVrOverlayCpuUsage();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_game_uptime")'

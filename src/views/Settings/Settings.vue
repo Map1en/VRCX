@@ -1163,7 +1163,10 @@
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.show_cpu_usage')"
                         :value="vrOverlayCpuUsage"
                         :disabled="!openVR || !overlayWrist"
-                        @change="saveOpenVROption('VRCX_vrOverlayCpuUsage')"></simple-switch>
+                        @change="
+                            setVrOverlayCpuUsage();
+                            saveOpenVROption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.show_game_uptime')"
                         :value="!hideUptimeFromFeed"
@@ -1888,7 +1891,8 @@
         overlayHand,
         vrBackgroundEnabled,
         minimalFeed,
-        hideDevicesFromFeed
+        hideDevicesFromFeed,
+        vrOverlayCpuUsage
     } = storeToRefs(wristOverlaySettingsStore);
 
     const {
@@ -1899,7 +1903,8 @@
         setOverlayHand,
         setVrBackgroundEnabled,
         setMinimalFeed,
-        setHideDevicesFromFeed
+        setHideDevicesFromFeed,
+        setVrOverlayCpuUsage
     } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
@@ -1928,10 +1933,6 @@
         notificationTTSTest: {
             type: Boolean,
             default: false
-        },
-        vrOverlayCpuUsage: {
-            type: Number,
-            default: 0
         },
         hideUptimeFromFeed: {
             type: Boolean,
