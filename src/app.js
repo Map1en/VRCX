@@ -420,7 +420,9 @@ console.log(`isLinux: ${LINUX}`);
                 vrBackgroundEnabled,
                 minimalFeed,
                 hideDevicesFromFeed,
-                vrOverlayCpuUsage
+                vrOverlayCpuUsage,
+                hideUptimeFromFeed,
+                pcUptimeOnFeed
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
@@ -432,7 +434,9 @@ console.log(`isLinux: ${LINUX}`);
                 setVrBackgroundEnabled,
                 setMinimalFeed,
                 setHideDevicesFromFeed,
-                setVrOverlayCpuUsage
+                setVrOverlayCpuUsage,
+                setHideUptimeFromFeed,
+                setPcUptimeOnFeed
             } = wristOverlaySettingsStore;
 
             return {
@@ -559,6 +563,8 @@ console.log(`isLinux: ${LINUX}`);
                 minimalFeed,
                 hideDevicesFromFeed,
                 vrOverlayCpuUsage,
+                hideUptimeFromFeed,
+                pcUptimeOnFeed,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
@@ -568,7 +574,9 @@ console.log(`isLinux: ${LINUX}`);
                 setVrBackgroundEnabled,
                 setMinimalFeed,
                 setHideDevicesFromFeed,
-                setVrOverlayCpuUsage
+                setVrOverlayCpuUsage,
+                setHideUptimeFromFeed,
+                setPcUptimeOnFeed
             };
         },
         data: {
@@ -6151,14 +6159,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.hideUptimeFromFeed = await configRepository.getBool(
-        'VRCX_hideUptimeFromFeed',
-        false
-    );
-    $app.data.pcUptimeOnFeed = await configRepository.getBool(
-        'VRCX_pcUptimeOnFeed',
-        false
-    );
     // It's not necessary to store it in configRepo because it's rarely used.
     $app.data.isTestTTSVisible = false;
 
@@ -6254,12 +6254,6 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_hideUptimeFromFeed':
-                this.hideUptimeFromFeed = !this.hideUptimeFromFeed;
-                break;
-            case 'VRCX_pcUptimeOnFeed':
-                this.pcUptimeOnFeed = !this.pcUptimeOnFeed;
-                break;
             case 'VRCX_autoSweepVRChatCache':
                 this.autoSweepVRChatCache = !this.autoSweepVRChatCache;
                 break;
@@ -6275,16 +6269,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_hideUptimeFromFeed',
-            this.hideUptimeFromFeed
-        );
-
-        await configRepository.setBool(
-            'VRCX_pcUptimeOnFeed',
-            this.pcUptimeOnFeed
-        );
 
         await configRepository.setBool(
             'VRCX_autoSweepVRChatCache',

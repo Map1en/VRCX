@@ -1171,12 +1171,18 @@
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.show_game_uptime')"
                         :value="!hideUptimeFromFeed"
                         :disabled="!openVR || !overlayWrist"
-                        @change="saveOpenVROption('VRCX_hideUptimeFromFeed')"></simple-switch>
+                        @change="
+                            setHideUptimeFromFeed();
+                            saveOpenVROption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.show_pc_uptime')"
                         :value="pcUptimeOnFeed"
                         :disabled="!openVR || !overlayWrist"
-                        @change="saveOpenVROption('VRCX_pcUptimeOnFeed')"></simple-switch>
+                        @change="
+                            setPcUptimeOnFeed();
+                            saveOpenVROption();
+                        "></simple-switch>
                 </div>
             </el-tab-pane>
 
@@ -1892,7 +1898,9 @@
         vrBackgroundEnabled,
         minimalFeed,
         hideDevicesFromFeed,
-        vrOverlayCpuUsage
+        vrOverlayCpuUsage,
+        hideUptimeFromFeed,
+        pcUptimeOnFeed
     } = storeToRefs(wristOverlaySettingsStore);
 
     const {
@@ -1904,7 +1912,9 @@
         setVrBackgroundEnabled,
         setMinimalFeed,
         setHideDevicesFromFeed,
-        setVrOverlayCpuUsage
+        setVrOverlayCpuUsage,
+        setHideUptimeFromFeed,
+        setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
@@ -1931,14 +1941,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        hideUptimeFromFeed: {
-            type: Boolean,
-            default: false
-        },
-        pcUptimeOnFeed: {
             type: Boolean,
             default: false
         },

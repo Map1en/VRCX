@@ -730,12 +730,12 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_game_uptime")'
                         :value='!hideUptimeFromFeed'
-                        @change='saveOpenVROption("VRCX_hideUptimeFromFeed")'
+                        @change='setHideUptimeFromFeed();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_pc_uptime")'
                         :value='pcUptimeOnFeed'
-                        @change='saveOpenVROption("VRCX_pcUptimeOnFeed")'
+                        @change='setPcUptimeOnFeed();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
 
             //- Discord Presence Tab
