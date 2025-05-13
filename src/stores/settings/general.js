@@ -138,6 +138,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             'VRCX_StartAtWindowsStartup',
             state.isStartAtWindowsStartup
         );
+        AppApi.SetStartup(state.isStartAtWindowsStartup);
     }
     function setIsStartAsMinimizedState() {
         state.isStartAsMinimizedState = !state.isStartAsMinimizedState;

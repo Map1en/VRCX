@@ -418,7 +418,8 @@ console.log(`isLinux: ${LINUX}`);
                 overlaybutton,
                 overlayHand,
                 vrBackgroundEnabled,
-                minimalFeed
+                minimalFeed,
+                hideDevicesFromFeed
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
@@ -428,7 +429,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOverlaybutton,
                 setOverlayHand,
                 setVrBackgroundEnabled,
-                setMinimalFeed
+                setMinimalFeed,
+                setHideDevicesFromFeed
             } = wristOverlaySettingsStore;
 
             return {
@@ -553,6 +555,7 @@ console.log(`isLinux: ${LINUX}`);
                 overlayHand,
                 vrBackgroundEnabled,
                 minimalFeed,
+                hideDevicesFromFeed,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
@@ -560,7 +563,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOverlaybutton,
                 setOverlayHand,
                 setVrBackgroundEnabled,
-                setMinimalFeed
+                setMinimalFeed,
+                setHideDevicesFromFeed
             };
         },
         data: {
@@ -6143,10 +6147,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.hideDevicesFromFeed = await configRepository.getBool(
-        'VRCX_hideDevicesFromFeed',
-        false
-    );
     $app.data.vrOverlayCpuUsage = await configRepository.getBool(
         'VRCX_vrOverlayCpuUsage',
         false
@@ -6254,9 +6254,6 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_hideDevicesFromFeed':
-                this.hideDevicesFromFeed = !this.hideDevicesFromFeed;
-                break;
             case 'VRCX_vrOverlayCpuUsage':
                 this.vrOverlayCpuUsage = !this.vrOverlayCpuUsage;
                 break;
@@ -6281,11 +6278,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_hideDevicesFromFeed',
-            this.hideDevicesFromFeed
-        );
 
         await configRepository.setBool(
             'VRCX_vrOverlayCpuUsage',
@@ -6464,6 +6456,8 @@ console.log(`isLinux: ${LINUX}`);
             this.disableWorldDatabase.toString()
         );
 
+        // todo: set electron location
+
         if (LINUX) {
             VRCXStorage.Set('VRCX_LocationX', this.locationX);
             VRCXStorage.Set('VRCX_LocationY', this.locationY);
@@ -6471,9 +6465,10 @@ console.log(`isLinux: ${LINUX}`);
             VRCXStorage.Set('VRCX_SizeHeight', this.sizeHeight);
             VRCXStorage.Set('VRCX_WindowState', this.windowState);
             VRCXStorage.Flush();
-        } else {
-            AppApi.SetStartup(this.isStartAtWindowsStartup);
         }
+        // else {
+        //     AppApi.SetStartup(this.isStartAtWindowsStartup);
+        // }
     };
 
     $app.data.photonEventOverlay = await configRepository.getBool(

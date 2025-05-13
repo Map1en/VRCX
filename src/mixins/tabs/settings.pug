@@ -97,7 +97,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.cache_debug.udon_exception_logging")'
                         :value='udonExceptionLogging'
-                        @change='setUdonExceptionLogging')
+                        @change='setUdonExceptionLogging();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.general.logging.resource_load")'
                         :value='logResourceLoad'
@@ -264,15 +264,15 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.vrcplus_profile_icons")'
                         :value='displayVRCPlusIconsAsAvatar'
-                        @change='setDisplayVRCPlusIconsAsAvatar')
+                        @change='setDisplayVRCPlusIconsAsAvatar();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.nicknames")'
                         :value='!hideNicknames'
-                        @change='setHideNicknames')
+                        @change='setHideNicknames();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.tooltips")'
                         :value='!hideTooltips'
-                        @change='setHideTooltips')
+                        @change='setHideTooltips();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.appearance.appearance.age_gated_instances")'
                         :value='isAgeGatedInstancesVisible'
@@ -533,7 +533,7 @@ mixin settingsTab
                         br
                         el-radio-group(
                             :value='overlayToast'
-                            @input='setOverlayToast'
+                            @input='setOverlayToast($event);saveOpenVROption()'
                             size='mini'
                             :disabled='(!overlayNotifications || !openVR) && !xsNotifications && !ovrtHudNotifications && !ovrtWristNotifications'
                             style='margin-top: 5px')
@@ -545,11 +545,11 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.steamvr_overlay")'
                             :value='openVR'
-                            @change='setOpenVR')
+                            @change='setOpenVR();saveOpenVROption()')
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.overlay_notifications")'
                             :value='overlayNotifications'
-                            @change='setOverlayNotifications'
+                            @change='setOverlayNotifications();saveOpenVROption()'
                             :disabled='!openVR')
                         .options-container-item
                             el-button(
@@ -560,24 +560,24 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.xsoverlay_notifications")'
                             :value='xsNotifications'
-                            @change='setXsNotifications')
+                            @change='setXsNotifications();saveOpenVROption()')
                     template(v-else)
                         simple-switch(
                             :label='$t("view.settings.notifications.notifications.steamvr_notifications.wlxoverlay_notifications")'
                             :value='xsNotifications'
-                            @change='setXsNotifications')
+                            @change='setXsNotifications();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_hud_notifications")'
                         :value='ovrtHudNotifications'
-                        @change='setOvrtHudNotifications')
+                        @change='setOvrtHudNotifications();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_wrist_notifications")'
                         :value='ovrtWristNotifications'
-                        @change='setOvrtWristNotifications')
+                        @change='setOvrtWristNotifications();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.steamvr_notifications.user_images")'
                         :value='imageNotifications'
-                        @change='setImageNotifications')
+                        @change='setImageNotifications();saveOpenVROption()')
                     .options-container-item
                         el-button(
                             size='small'
@@ -592,7 +592,7 @@ mixin settingsTab
                         br
                         el-radio-group(
                             :value='desktopToast'
-                            @input='setDesktopToast'
+                            @input='setDesktopToast($event);saveOpenVROption()'
                             size='mini'
                             style='margin-top: 5px')
                             el-radio-button(label='Never') {{ $t('view.settings.notifications.notifications.conditions.never') }}
@@ -605,7 +605,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.desktop_notifications.desktop_notification_while_afk")'
                         :value='afkDesktopToast'
-                        @change='setAfkDesktopToast')
+                        @change='setAfkDesktopToast();saveOpenVROption()')
                 //- Notifications | Notifications | Text-to-Speech Options
                 .options-container
                     span.sub-header {{ $t('view.settings.notifications.notifications.text_to_speech.header') }}
@@ -637,7 +637,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.text_to_speech.use_memo_nicknames")'
                         :value='notificationTTSNickName'
-                        @change='setNotificationTTSNickName'
+                        @change='setNotificationTTSNickName();saveOpenVROption()'
                         :disabled='notificationTTS === "Never"')
                     simple-switch(
                         :label='$t("view.settings.notifications.notifications.text_to_speech.tts_test_placeholder")'
@@ -678,49 +678,49 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.steamvr_overlay")'
                         :value='openVR'
-                        @change='setOpenVR')
+                        @change='setOpenVR();saveOpenVROption()')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.wrist_feed_overlay")'
                         :value='overlayWrist'
-                        @change='setOverlayWrist'
+                        @change='setOverlayWrist();saveOpenVROption()'
                         :disabled='!openVR')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.hide_private_worlds")'
                         :value='hidePrivateFromFeed'
-                        @change='setHidePrivateFromFeed')
+                        @change='setHidePrivateFromFeed();saveOpenVROption()')
                     .options-container-item(style='min-width: 118px')
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.start_overlay_with') }}
-                        el-radio-group(:value='openVRAlways' @change='setOpenVRAlways' :disabled='!openVR')
+                        el-radio-group(:value='openVRAlways' @change='setOpenVRAlways();saveOpenVROption()' :disabled='!openVR')
                             el-radio(:label='false') {{ 'VRChat' }}
                             el-radio(:label='true') {{ 'SteamVR' }}
                     .options-container-item
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button') }}
                         el-radio-group(
                             :value='overlaybutton'
-                            @change='setOverlaybutton'
+                            @change='setOverlaybutton();saveOpenVROption()'
                             :disabled='!openVR || !overlayWrist')
                             el-radio(:label='false') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_grip') }}
                             el-radio(:label='true') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_menu') }}
                     .options-container-item
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on') }}
-                        el-radio-group(:value='overlayHand' @input='setOverlayHand' size='mini')
+                        el-radio-group(:value='overlayHand' @input='setOverlayHand($event);saveOpenVROption()' size='mini')
                             el-radio-button(label='1') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_left') }}
                             el-radio-button(label='2') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_right') }}
                             el-radio-button(label='0') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_both') }}
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.grey_background")'
                         :value='vrBackgroundEnabled'
-                        @change='setVrBackgroundEnabled'
+                        @change='setVrBackgroundEnabled();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.minimal_feed_icons")'
                         :value='minimalFeed'
-                        @change='setMinimalFeed'
+                        @change='setMinimalFeed();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_vr_devices")'
                         :value='!hideDevicesFromFeed'
-                        @change='saveOpenVROption("VRCX_hideDevicesFromFeed")'
+                        @change='setHideDevicesFromFeed();saveOpenVROption()'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_cpu_usage")'
