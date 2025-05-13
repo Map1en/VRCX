@@ -11,7 +11,6 @@ export default class extends baseClass {
     _data = {
         isDiscordActive: false,
         discordJoinButton: false,
-        discordHideInvite: true,
         discordHideImage: false
     };
 
@@ -249,13 +248,6 @@ export default class extends baseClass {
                 );
             }
 
-            if (configLabel === 'discordHideInvite') {
-                this.discordHideInvite = !this.discordHideInvite;
-                await configRepository.setBool(
-                    'discordHideInvite',
-                    this.discordHideInvite
-                );
-            }
             if (configLabel === 'discordHideImage') {
                 this.discordHideImage = !this.discordHideImage;
                 await configRepository.setBool(

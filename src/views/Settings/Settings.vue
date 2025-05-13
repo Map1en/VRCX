@@ -1213,7 +1213,10 @@
                         :label="t('view.settings.discord_presence.discord_presence.show_details_in_private')"
                         :value="!discordHideInvite"
                         :disabled="!discordActive"
-                        @change="saveDiscordOption('discordHideInvite')"></simple-switch>
+                        @change="
+                            setDiscordHideInvite();
+                            saveDiscordOption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.discord_presence.discord_presence.join_button')"
                         :value="discordJoinButton"
@@ -1925,9 +1928,9 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
-    const { discordActive, discordInstance } = storeToRefs(discordPresenceSettingsStore);
+    const { discordActive, discordInstance, discordHideInvite } = storeToRefs(discordPresenceSettingsStore);
 
-    const { setDiscordActive, setDiscordInstance } = discordPresenceSettingsStore;
+    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite } = discordPresenceSettingsStore;
 
     const { t } = useI18n();
 
@@ -1953,10 +1956,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        discordHideInvite: {
             type: Boolean,
             default: false
         },

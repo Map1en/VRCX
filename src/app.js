@@ -442,12 +442,14 @@ console.log(`isLinux: ${LINUX}`);
                 setPcUptimeOnFeed
             } = wristOverlaySettingsStore;
 
-            const { discordActive, discordInstance } = storeToRefs(
-                discordPresenceSettingsStore
-            );
+            const { discordActive, discordInstance, discordHideInvite } =
+                storeToRefs(discordPresenceSettingsStore);
 
-            const { setDiscordActive, setDiscordInstance } =
-                discordPresenceSettingsStore;
+            const {
+                setDiscordActive,
+                setDiscordInstance,
+                setDiscordHideInvite
+            } = discordPresenceSettingsStore;
 
             return {
                 appVersion,
@@ -590,9 +592,11 @@ console.log(`isLinux: ${LINUX}`);
 
                 discordActive,
                 discordInstance,
+                discordHideInvite,
 
                 setDiscordActive,
-                setDiscordInstance
+                setDiscordInstance,
+                setDiscordHideInvite
             };
         },
         data: {
@@ -6536,10 +6540,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.discordJoinButton = await configRepository.getBool(
         'discordJoinButton',
         false
-    );
-    $app.data.discordHideInvite = await configRepository.getBool(
-        'discordHideInvite',
-        true
     );
     $app.data.discordHideImage = await configRepository.getBool(
         'discordHideImage',

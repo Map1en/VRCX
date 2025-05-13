@@ -757,7 +757,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.show_details_in_private")'
                         :value='!discordHideInvite'
-                        @change='saveDiscordOption("discordHideInvite")'
+                        @change='setDiscordHideInvite();saveDiscordOption()'
                         :disabled='!discordActive')
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.join_button")'

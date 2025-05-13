@@ -7,21 +7,26 @@ export const useDiscordPresenceSettingsStore = defineStore(
     () => {
         const state = reactive({
             discordActive: false,
-            discordInstance: true
+            discordInstance: true,
+            discordHideInvite: true
         });
 
         async function initSettings() {
-            const [discordActive, discordInstance] = await Promise.all([
-                configRepository.getBool('discordActive', false),
-                configRepository.getBool('discordInstance', true)
-            ]);
+            const [discordActive, discordInstance, discordHideInvite] =
+                await Promise.all([
+                    configRepository.getBool('discordActive', false),
+                    configRepository.getBool('discordInstance', true),
+                    configRepository.getBool('discordHideInvite', true)
+                ]);
 
             state.discordActive = discordActive;
             state.discordInstance = discordInstance;
+            state.discordHideInvite = discordHideInvite;
         }
 
         const discordActive = computed(() => state.discordActive);
         const discordInstance = computed(() => state.discordInstance);
+        const discordHideInvite = computed(() => state.discordHideInvite);
 
         function setDiscordActive() {
             state.discordActive = !state.discordActive;
@@ -31,6 +36,13 @@ export const useDiscordPresenceSettingsStore = defineStore(
             state.discordInstance = !state.discordInstance;
             configRepository.setBool('discordInstance', state.discordInstance);
         }
+        function setDiscordHideInvite() {
+            state.discordHideInvite = !state.discordHideInvite;
+            configRepository.setBool(
+                'discordHideInvite',
+                state.discordHideInvite
+            );
+        }
 
         return {
             state,
@@ -38,9 +50,11 @@ export const useDiscordPresenceSettingsStore = defineStore(
 
             discordActive,
             discordInstance,
+            discordHideInvite,
 
             setDiscordActive,
-            setDiscordInstance
+            setDiscordInstance,
+            setDiscordHideInvite
         };
     }
 );
