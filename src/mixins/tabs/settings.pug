@@ -715,7 +715,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.minimal_feed_icons")'
                         :value='minimalFeed'
-                        @change='saveOpenVROption("VRCX_minimalFeed")'
+                        @change='setMinimalFeed'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.show_vr_devices")'

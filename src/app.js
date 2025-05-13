@@ -417,7 +417,8 @@ console.log(`isLinux: ${LINUX}`);
                 openVRAlways,
                 overlaybutton,
                 overlayHand,
-                vrBackgroundEnabled
+                vrBackgroundEnabled,
+                minimalFeed
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
@@ -426,7 +427,8 @@ console.log(`isLinux: ${LINUX}`);
                 setOpenVRAlways,
                 setOverlaybutton,
                 setOverlayHand,
-                setVrBackgroundEnabled
+                setVrBackgroundEnabled,
+                setMinimalFeed
             } = wristOverlaySettingsStore;
 
             return {
@@ -550,13 +552,15 @@ console.log(`isLinux: ${LINUX}`);
                 overlaybutton,
                 overlayHand,
                 vrBackgroundEnabled,
+                minimalFeed,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
                 setOpenVRAlways,
                 setOverlaybutton,
                 setOverlayHand,
-                setVrBackgroundEnabled
+                setVrBackgroundEnabled,
+                setMinimalFeed
             };
         },
         data: {
@@ -6155,10 +6159,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_pcUptimeOnFeed',
         false
     );
-    $app.data.minimalFeed = await configRepository.getBool(
-        'VRCX_minimalFeed',
-        false
-    );
     // It's not necessary to store it in configRepo because it's rarely used.
     $app.data.isTestTTSVisible = false;
 
@@ -6266,9 +6266,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_pcUptimeOnFeed':
                 this.pcUptimeOnFeed = !this.pcUptimeOnFeed;
                 break;
-            case 'VRCX_minimalFeed':
-                this.minimalFeed = !this.minimalFeed;
-                break;
             case 'VRCX_autoSweepVRChatCache':
                 this.autoSweepVRChatCache = !this.autoSweepVRChatCache;
                 break;
@@ -6304,8 +6301,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_pcUptimeOnFeed',
             this.pcUptimeOnFeed
         );
-
-        await configRepository.setBool('VRCX_minimalFeed', this.minimalFeed);
 
         await configRepository.setBool(
             'VRCX_autoSweepVRChatCache',

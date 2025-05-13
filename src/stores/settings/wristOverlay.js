@@ -11,7 +11,8 @@ export const useWristOverlaySettingsStore = defineStore(
             openVRAlways: false,
             overlaybutton: false,
             overlayHand: 0,
-            vrBackgroundEnabled: false
+            vrBackgroundEnabled: false,
+            minimalFeed: false
         });
 
         async function initSettings() {
@@ -21,14 +22,16 @@ export const useWristOverlaySettingsStore = defineStore(
                 openVRAlways,
                 overlaybutton,
                 overlayHand,
-                vrBackgroundEnabled
+                vrBackgroundEnabled,
+                minimalFeed
             ] = await Promise.all([
                 configRepository.getBool('VRCX_overlayWrist', false),
                 configRepository.getBool('VRCX_hidePrivateFromFeed', false),
                 configRepository.getBool('openVRAlways', false),
                 configRepository.getBool('VRCX_overlaybutton', false),
                 configRepository.getInt('VRCX_overlayHand', 0),
-                configRepository.getBool('VRCX_vrBackgroundEnabled', false)
+                configRepository.getBool('VRCX_vrBackgroundEnabled', false),
+                configRepository.getBool('VRCX_minimalFeed', false)
             ]);
 
             state.overlayWrist = overlayWrist;
@@ -37,6 +40,7 @@ export const useWristOverlaySettingsStore = defineStore(
             state.overlaybutton = overlaybutton;
             state.overlayHand = overlayHand;
             state.vrBackgroundEnabled = vrBackgroundEnabled;
+            state.minimalFeed = minimalFeed;
         }
 
         const overlayWrist = computed(() => state.overlayWrist);
@@ -45,6 +49,7 @@ export const useWristOverlaySettingsStore = defineStore(
         const overlaybutton = computed(() => state.overlaybutton);
         const overlayHand = computed(() => state.overlayHand);
         const vrBackgroundEnabled = computed(() => state.vrBackgroundEnabled);
+        const minimalFeed = computed(() => state.minimalFeed);
 
         function setOverlayWrist() {
             state.overlayWrist = !state.overlayWrist;
@@ -79,6 +84,10 @@ export const useWristOverlaySettingsStore = defineStore(
                 state.vrBackgroundEnabled
             );
         }
+        function setMinimalFeed() {
+            state.minimalFeed = !state.minimalFeed;
+            configRepository.setBool('VRCX_minimalFeed', state.minimalFeed);
+        }
 
         return {
             state,
@@ -90,13 +99,15 @@ export const useWristOverlaySettingsStore = defineStore(
             overlaybutton,
             overlayHand,
             vrBackgroundEnabled,
+            minimalFeed,
 
             setOverlayWrist,
             setHidePrivateFromFeed,
             setOpenVRAlways,
             setOverlaybutton,
             setOverlayHand,
-            setVrBackgroundEnabled
+            setVrBackgroundEnabled,
+            setMinimalFeed
         };
     }
 );

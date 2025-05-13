@@ -1075,7 +1075,7 @@
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.minimal_feed_icons')"
                         :value="minimalFeed"
                         :disabled="!openVR || !overlayWrist"
-                        @change="saveOpenVROption('VRCX_minimalFeed')"></simple-switch>
+                        @change="setMinimalFeed" />
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.show_vr_devices')"
                         :value="!hideDevicesFromFeed"
@@ -1802,8 +1802,15 @@
         setNotificationTTSNickName
     } = notificationsSettingsStore;
 
-    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton, overlayHand, vrBackgroundEnabled } =
-        storeToRefs(wristOverlaySettingsStore);
+    const {
+        overlayWrist,
+        hidePrivateFromFeed,
+        openVRAlways,
+        overlaybutton,
+        overlayHand,
+        vrBackgroundEnabled,
+        minimalFeed
+    } = storeToRefs(wristOverlaySettingsStore);
 
     const {
         setOverlayWrist,
@@ -1811,7 +1818,8 @@
         setOpenVRAlways,
         setOverlaybutton,
         setOverlayHand,
-        setVrBackgroundEnabled
+        setVrBackgroundEnabled,
+        setMinimalFeed
     } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
@@ -1838,10 +1846,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        minimalFeed: {
             type: Boolean,
             default: false
         },
