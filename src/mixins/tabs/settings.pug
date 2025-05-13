@@ -752,7 +752,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.instance_type_player_count")'
                         :value='discordInstance'
-                        @change='saveDiscordOption("discordInstance")'
+                        @change='setDiscordInstance();saveDiscordOption()'
                         :disabled='!discordActive')
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.show_details_in_private")'

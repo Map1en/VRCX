@@ -6,22 +6,30 @@ export const useDiscordPresenceSettingsStore = defineStore(
     'DiscordPresenceSettings',
     () => {
         const state = reactive({
-            discordActive: false
+            discordActive: false,
+            discordInstance: true
         });
 
         async function initSettings() {
-            const [discordActive] = await Promise.all([
-                configRepository.getBool('discordActive', false)
+            const [discordActive, discordInstance] = await Promise.all([
+                configRepository.getBool('discordActive', false),
+                configRepository.getBool('discordInstance', true)
             ]);
 
             state.discordActive = discordActive;
+            state.discordInstance = discordInstance;
         }
 
         const discordActive = computed(() => state.discordActive);
+        const discordInstance = computed(() => state.discordInstance);
 
         function setDiscordActive() {
             state.discordActive = !state.discordActive;
             configRepository.setBool('discordActive', state.discordActive);
+        }
+        function setDiscordInstance() {
+            state.discordInstance = !state.discordInstance;
+            configRepository.setBool('discordInstance', state.discordInstance);
         }
 
         return {
@@ -29,8 +37,10 @@ export const useDiscordPresenceSettingsStore = defineStore(
             initSettings,
 
             discordActive,
+            discordInstance,
 
-            setDiscordActive
+            setDiscordActive,
+            setDiscordInstance
         };
     }
 );

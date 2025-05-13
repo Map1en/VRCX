@@ -1205,7 +1205,10 @@
                         :label="t('view.settings.discord_presence.discord_presence.instance_type_player_count')"
                         :value="discordInstance"
                         :disabled="!discordActive"
-                        @change="saveDiscordOption('discordInstance')"></simple-switch>
+                        @change="
+                            setDiscordInstance();
+                            saveDiscordOption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.discord_presence.discord_presence.show_details_in_private')"
                         :value="!discordHideInvite"
@@ -1922,9 +1925,9 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
-    const { discordActive } = storeToRefs(discordPresenceSettingsStore);
+    const { discordActive, discordInstance } = storeToRefs(discordPresenceSettingsStore);
 
-    const { setDiscordActive } = discordPresenceSettingsStore;
+    const { setDiscordActive, setDiscordInstance } = discordPresenceSettingsStore;
 
     const { t } = useI18n();
 
@@ -1950,10 +1953,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        discordInstance: {
             type: Boolean,
             default: false
         },

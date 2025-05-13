@@ -442,9 +442,12 @@ console.log(`isLinux: ${LINUX}`);
                 setPcUptimeOnFeed
             } = wristOverlaySettingsStore;
 
-            const { discordActive } = storeToRefs(discordPresenceSettingsStore);
+            const { discordActive, discordInstance } = storeToRefs(
+                discordPresenceSettingsStore
+            );
 
-            const { setDiscordActive } = discordPresenceSettingsStore;
+            const { setDiscordActive, setDiscordInstance } =
+                discordPresenceSettingsStore;
 
             return {
                 appVersion,
@@ -586,8 +589,10 @@ console.log(`isLinux: ${LINUX}`);
                 setPcUptimeOnFeed,
 
                 discordActive,
+                discordInstance,
 
-                setDiscordActive
+                setDiscordActive,
+                setDiscordInstance
             };
         },
         data: {
@@ -702,6 +707,8 @@ console.log(`isLinux: ${LINUX}`);
             const generalSettingsStore = useGeneralSettingsStore();
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const notificationsSettingsStore = useNotificationsSettingsStore();
+            const discordPresenceSettingsStore =
+                useDiscordPresenceSettingsStore();
 
             this.setThemeMode(initThemeMode);
 
@@ -709,7 +716,8 @@ console.log(`isLinux: ${LINUX}`);
                 VRCXUpdaterStore.initSettings(),
                 generalSettingsStore.initSettings(),
                 appearanceSettingsStore.initSettings(),
-                notificationsSettingsStore.initSettings()
+                notificationsSettingsStore.initSettings(),
+                discordPresenceSettingsStore.initSettings()
             ]);
 
             /**
@@ -6525,10 +6533,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sortActiveFriends = true;
         this.sortOfflineFriends = true;
     };
-    $app.data.discordInstance = await configRepository.getBool(
-        'discordInstance',
-        true
-    );
     $app.data.discordJoinButton = await configRepository.getBool(
         'discordJoinButton',
         false
