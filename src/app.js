@@ -140,6 +140,7 @@ import { useGeneralSettingsStore } from './stores/settings/general';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
 import { useNotificationsSettingsStore } from './stores/settings/notifications';
 import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
+import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresence';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -284,6 +285,8 @@ console.log(`isLinux: ${LINUX}`);
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const notificationsSettingsStore = useNotificationsSettingsStore();
             const wristOverlaySettingsStore = useWristOverlaySettingsStore();
+            const discordPresenceSettingsStore =
+                useDiscordPresenceSettingsStore();
 
             const { appVersion, autoUpdateVRCX, latestAppVersion } =
                 storeToRefs(VRCXUpdaterStore);
@@ -439,6 +442,10 @@ console.log(`isLinux: ${LINUX}`);
                 setPcUptimeOnFeed
             } = wristOverlaySettingsStore;
 
+            const { discordActive } = storeToRefs(discordPresenceSettingsStore);
+
+            const { setDiscordActive } = discordPresenceSettingsStore;
+
             return {
                 appVersion,
                 autoUpdateVRCX,
@@ -576,7 +583,11 @@ console.log(`isLinux: ${LINUX}`);
                 setHideDevicesFromFeed,
                 setVrOverlayCpuUsage,
                 setHideUptimeFromFeed,
-                setPcUptimeOnFeed
+                setPcUptimeOnFeed,
+
+                discordActive,
+
+                setDiscordActive
             };
         },
         data: {
@@ -6514,10 +6525,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sortActiveFriends = true;
         this.sortOfflineFriends = true;
     };
-    $app.data.discordActive = await configRepository.getBool(
-        'discordActive',
-        false
-    );
     $app.data.discordInstance = await configRepository.getBool(
         'discordInstance',
         true

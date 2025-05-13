@@ -10,7 +10,6 @@ export default class extends baseClass {
 
     _data = {
         isDiscordActive: false,
-        discordActive: false,
         discordInstance: true,
         discordJoinButton: false,
         discordHideInvite: true,
@@ -30,10 +29,10 @@ export default class extends baseClass {
                 (!this.isGameRunning && !this.gameLogDisabled) ||
                 (!currentLocation && !this.lastLocation$.tag)
             ) {
-                this.setDiscordActive(false);
+                this.setIsDiscordActive(false);
                 return;
             }
-            this.setDiscordActive(true);
+            this.setIsDiscordActive(true);
             var L = this.lastLocation$;
             if (currentLocation !== this.lastLocation$.tag) {
                 Discord.SetTimestamps(timeStamp, 0);
@@ -236,21 +235,13 @@ export default class extends baseClass {
             }
         },
 
-        async setDiscordActive(active) {
+        async setIsDiscordActive(active) {
             if (active !== this.isDiscordActive) {
                 this.isDiscordActive = await Discord.SetActive(active);
             }
         },
 
         async saveDiscordOption(configLabel = '') {
-            if (configLabel === 'discordActive') {
-                this.discordActive = !this.discordActive;
-                await configRepository.setBool(
-                    'discordActive',
-                    this.discordActive
-                );
-            }
-
             if (configLabel === 'discordInstance') {
                 this.discordInstance = !this.discordInstance;
                 await configRepository.setBool(

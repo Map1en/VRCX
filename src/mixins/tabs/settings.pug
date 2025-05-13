@@ -747,7 +747,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.enable")'
                         :value='discordActive'
-                        @change='saveDiscordOption("discordActive")'
+                        @change='setDiscordActive();saveDiscordOption()'
                         :tooltip='$t("view.settings.discord_presence.discord_presence.enable_tooltip")')
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.instance_type_player_count")'

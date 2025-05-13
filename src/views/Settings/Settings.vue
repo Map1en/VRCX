@@ -1197,7 +1197,10 @@
                         :label="t('view.settings.discord_presence.discord_presence.enable')"
                         :value="discordActive"
                         :tooltip="t('view.settings.discord_presence.discord_presence.enable_tooltip')"
-                        @change="saveDiscordOption('discordActive')"></simple-switch>
+                        @change="
+                            setDiscordActive();
+                            saveDiscordOption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.discord_presence.discord_presence.instance_type_player_count')"
                         :value="discordInstance"
@@ -1766,6 +1769,7 @@
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import { useNotificationsSettingsStore } from '../../stores/settings/notifications';
     import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
+    import { useDiscordPresenceSettingsStore } from '../../stores/settings/discordPresence';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const { i18n } = useI18n();
@@ -1775,6 +1779,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
+    const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
     const { setAutoUpdateVRCX } = VRCXUpdaterStore;
@@ -1917,6 +1922,10 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
+    const { discordActive } = storeToRefs(discordPresenceSettingsStore);
+
+    const { setDiscordActive } = discordPresenceSettingsStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -1933,7 +1942,7 @@
         },
         getTTSVoiceName: {
             type: Function,
-            default: ''
+            default: () => ''
         },
         TTSvoices: {
             type: Array,
@@ -1941,10 +1950,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        discordActive: {
             type: Boolean,
             default: false
         },
@@ -2175,10 +2180,6 @@
 
     function saveSidebarSortOrder() {
         // Function to save the sidebar sort order
-    }
-
-    function setAsideWidth() {
-        // Function to open the UGC folder
     }
 
     function toggleGroupByInstance() {
