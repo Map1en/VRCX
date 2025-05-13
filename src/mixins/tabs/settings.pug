@@ -762,7 +762,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.join_button")'
                         :value='discordJoinButton'
-                        @change='saveDiscordOption("discordJoinButton")'
+                        @change='setDiscordJoinButton();saveDiscordOption()'
                         :disabled='!discordActive')
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.show_images")'

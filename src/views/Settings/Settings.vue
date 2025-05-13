@@ -1221,7 +1221,10 @@
                         :label="t('view.settings.discord_presence.discord_presence.join_button')"
                         :value="discordJoinButton"
                         :disabled="!discordActive"
-                        @change="saveDiscordOption('discordJoinButton')"></simple-switch>
+                        @change="
+                            setDiscordJoinButton();
+                            saveDiscordOption();
+                        " />
                     <simple-switch
                         :label="t('view.settings.discord_presence.discord_presence.show_images')"
                         :value="!discordHideImage"
@@ -1928,9 +1931,11 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
-    const { discordActive, discordInstance, discordHideInvite } = storeToRefs(discordPresenceSettingsStore);
+    const { discordActive, discordInstance, discordHideInvite, discordJoinButton } =
+        storeToRefs(discordPresenceSettingsStore);
 
-    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite } = discordPresenceSettingsStore;
+    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton } =
+        discordPresenceSettingsStore;
 
     const { t } = useI18n();
 
@@ -1956,10 +1961,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        discordJoinButton: {
             type: Boolean,
             default: false
         },

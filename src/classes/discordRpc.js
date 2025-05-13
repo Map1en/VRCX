@@ -10,7 +10,6 @@ export default class extends baseClass {
 
     _data = {
         isDiscordActive: false,
-        discordJoinButton: false,
         discordHideImage: false
     };
 
@@ -240,14 +239,6 @@ export default class extends baseClass {
         },
 
         async saveDiscordOption(configLabel = '') {
-            if (configLabel === 'discordJoinButton') {
-                this.discordJoinButton = !this.discordJoinButton;
-                await configRepository.setBool(
-                    'discordJoinButton',
-                    this.discordJoinButton
-                );
-            }
-
             if (configLabel === 'discordHideImage') {
                 this.discordHideImage = !this.discordHideImage;
                 await configRepository.setBool(

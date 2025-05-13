@@ -8,25 +8,33 @@ export const useDiscordPresenceSettingsStore = defineStore(
         const state = reactive({
             discordActive: false,
             discordInstance: true,
-            discordHideInvite: true
+            discordHideInvite: true,
+            discordJoinButton: false
         });
 
         async function initSettings() {
-            const [discordActive, discordInstance, discordHideInvite] =
-                await Promise.all([
-                    configRepository.getBool('discordActive', false),
-                    configRepository.getBool('discordInstance', true),
-                    configRepository.getBool('discordHideInvite', true)
-                ]);
+            const [
+                discordActive,
+                discordInstance,
+                discordHideInvite,
+                discordJoinButton
+            ] = await Promise.all([
+                configRepository.getBool('discordActive', false),
+                configRepository.getBool('discordInstance', true),
+                configRepository.getBool('discordHideInvite', true),
+                configRepository.getBool('discordJoinButton', false)
+            ]);
 
             state.discordActive = discordActive;
             state.discordInstance = discordInstance;
             state.discordHideInvite = discordHideInvite;
+            state.discordJoinButton = discordJoinButton;
         }
 
         const discordActive = computed(() => state.discordActive);
         const discordInstance = computed(() => state.discordInstance);
         const discordHideInvite = computed(() => state.discordHideInvite);
+        const discordJoinButton = computed(() => state.discordJoinButton);
 
         function setDiscordActive() {
             state.discordActive = !state.discordActive;
@@ -43,6 +51,13 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 state.discordHideInvite
             );
         }
+        function setDiscordJoinButton() {
+            state.discordJoinButton = !state.discordJoinButton;
+            configRepository.setBool(
+                'discordJoinButton',
+                state.discordJoinButton
+            );
+        }
 
         return {
             state,
@@ -51,10 +66,12 @@ export const useDiscordPresenceSettingsStore = defineStore(
             discordActive,
             discordInstance,
             discordHideInvite,
+            discordJoinButton,
 
             setDiscordActive,
             setDiscordInstance,
-            setDiscordHideInvite
+            setDiscordHideInvite,
+            setDiscordJoinButton
         };
     }
 );
