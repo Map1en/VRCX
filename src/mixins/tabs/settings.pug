@@ -703,7 +703,7 @@ mixin settingsTab
                             el-radio(:label='true') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.overlay_button_menu') }}
                     .options-container-item
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on') }}
-                        el-radio-group(v-model='overlayHand' @change='saveOpenVROption' size='mini')
+                        el-radio-group(:value='overlayHand' @input='setOverlayHand' size='mini')
                             el-radio-button(label='1') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_left') }}
                             el-radio-button(label='2') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_right') }}
                             el-radio-button(label='0') {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_both') }}

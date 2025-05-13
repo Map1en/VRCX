@@ -415,14 +415,16 @@ console.log(`isLinux: ${LINUX}`);
                 overlayWrist,
                 hidePrivateFromFeed,
                 openVRAlways,
-                overlaybutton
+                overlaybutton,
+                overlayHand
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
                 setOverlayWrist,
                 setHidePrivateFromFeed,
                 setOpenVRAlways,
-                setOverlaybutton
+                setOverlaybutton,
+                setOverlayHand
             } = wristOverlaySettingsStore;
 
             return {
@@ -544,11 +546,13 @@ console.log(`isLinux: ${LINUX}`);
                 hidePrivateFromFeed,
                 openVRAlways,
                 overlaybutton,
+                overlayHand,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
                 setOpenVRAlways,
-                setOverlaybutton
+                setOverlaybutton,
+                setOverlayHand
             };
         },
         data: {
@@ -6131,10 +6135,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.overlayHand = await configRepository.getInt(
-        'VRCX_overlayHand',
-        0
-    );
     $app.data.hideDevicesFromFeed = await configRepository.getBool(
         'VRCX_hideDevicesFromFeed',
         false
@@ -6287,12 +6287,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        this.overlayHand = parseInt(this.overlayHand, 10);
-        if (isNaN(this.overlayHand)) {
-            this.overlayHand = 0;
-        }
-        await configRepository.setInt('VRCX_overlayHand', this.overlayHand);
 
         await configRepository.setBool(
             'VRCX_hideDevicesFromFeed',

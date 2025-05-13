@@ -1054,7 +1054,7 @@
                         <span class="name">{{
                             t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on')
                         }}</span>
-                        <el-radio-group v-model="overlayHand" size="mini" @change="saveOpenVROption">
+                        <el-radio-group :value="overlayHand" size="mini" @input="setOverlayHand">
                             <el-radio-button label="1">{{
                                 t('view.settings.wrist_overlay.steamvr_wrist_overlay.display_overlay_on_left')
                             }}</el-radio-button>
@@ -1802,9 +1802,11 @@
         setNotificationTTSNickName
     } = notificationsSettingsStore;
 
-    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton } = storeToRefs(wristOverlaySettingsStore);
+    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton, overlayHand } =
+        storeToRefs(wristOverlaySettingsStore);
 
-    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways, setOverlaybutton } = wristOverlaySettingsStore;
+    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways, setOverlaybutton, setOverlayHand } =
+        wristOverlaySettingsStore;
 
     const { t } = useI18n();
 
@@ -1830,10 +1832,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        overlayHand: {
             type: Boolean,
             default: false
         },
