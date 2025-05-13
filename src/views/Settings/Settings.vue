@@ -1229,7 +1229,10 @@
                         :label="t('view.settings.discord_presence.discord_presence.show_images')"
                         :value="!discordHideImage"
                         :disabled="!discordActive"
-                        @change="saveDiscordOption('discordHideImage')"></simple-switch>
+                        @change="
+                            setDiscordHideImage();
+                            saveDiscordOption();
+                        " />
                 </div>
             </el-tab-pane>
 
@@ -1931,10 +1934,10 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
-    const { discordActive, discordInstance, discordHideInvite, discordJoinButton } =
+    const { discordActive, discordInstance, discordHideInvite, discordJoinButton, discordHideImage } =
         storeToRefs(discordPresenceSettingsStore);
 
-    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton } =
+    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         discordPresenceSettingsStore;
 
     const { t } = useI18n();
@@ -1961,10 +1964,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        discordHideImage: {
             type: Boolean,
             default: false
         },

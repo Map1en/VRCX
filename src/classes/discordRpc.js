@@ -1,5 +1,4 @@
 import { worldRequest } from '../api';
-import configRepository from '../service/config.js';
 import { getLaunchURL, parseLocation } from '../shared/utils';
 import { API, baseClass } from './baseClass.js';
 
@@ -9,8 +8,7 @@ export default class extends baseClass {
     }
 
     _data = {
-        isDiscordActive: false,
-        discordHideImage: false
+        isDiscordActive: false
     };
 
     _methods = {
@@ -239,14 +237,6 @@ export default class extends baseClass {
         },
 
         async saveDiscordOption(configLabel = '') {
-            if (configLabel === 'discordHideImage') {
-                this.discordHideImage = !this.discordHideImage;
-                await configRepository.setBool(
-                    'discordHideImage',
-                    this.discordHideImage
-                );
-            }
-
             this.lastLocation$.tag = '';
             this.nextDiscordUpdate = 3;
             this.updateDiscord();

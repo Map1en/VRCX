@@ -767,7 +767,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.discord_presence.discord_presence.show_images")'
                         :value='!discordHideImage'
-                        @change='saveDiscordOption("discordHideImage")'
+                        @change='setDiscordHideImage();saveDiscordOption()'
                         :disabled='!discordActive')
 
             //- "Advanced" Tab

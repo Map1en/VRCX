@@ -446,14 +446,16 @@ console.log(`isLinux: ${LINUX}`);
                 discordActive,
                 discordInstance,
                 discordHideInvite,
-                discordJoinButton
+                discordJoinButton,
+                discordHideImage
             } = storeToRefs(discordPresenceSettingsStore);
 
             const {
                 setDiscordActive,
                 setDiscordInstance,
                 setDiscordHideInvite,
-                setDiscordJoinButton
+                setDiscordJoinButton,
+                setDiscordHideImage
             } = discordPresenceSettingsStore;
 
             return {
@@ -599,11 +601,13 @@ console.log(`isLinux: ${LINUX}`);
                 discordInstance,
                 discordHideInvite,
                 discordJoinButton,
+                discordHideImage,
 
                 setDiscordActive,
                 setDiscordInstance,
                 setDiscordHideInvite,
-                setDiscordJoinButton
+                setDiscordJoinButton,
+                setDiscordHideImage
             };
         },
         data: {
@@ -6544,10 +6548,6 @@ console.log(`isLinux: ${LINUX}`);
         this.sortActiveFriends = true;
         this.sortOfflineFriends = true;
     };
-    $app.data.discordHideImage = await configRepository.getBool(
-        'discordHideImage',
-        false
-    );
 
     // setting defaults
     $app.data.sharedFeedFiltersDefaults = {

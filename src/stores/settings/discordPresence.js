@@ -9,7 +9,8 @@ export const useDiscordPresenceSettingsStore = defineStore(
             discordActive: false,
             discordInstance: true,
             discordHideInvite: true,
-            discordJoinButton: false
+            discordJoinButton: false,
+            discordHideImage: false
         });
 
         async function initSettings() {
@@ -17,24 +18,28 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 discordActive,
                 discordInstance,
                 discordHideInvite,
-                discordJoinButton
+                discordJoinButton,
+                discordHideImage
             ] = await Promise.all([
                 configRepository.getBool('discordActive', false),
                 configRepository.getBool('discordInstance', true),
                 configRepository.getBool('discordHideInvite', true),
-                configRepository.getBool('discordJoinButton', false)
+                configRepository.getBool('discordJoinButton', false),
+                configRepository.getBool('discordHideImage', false)
             ]);
 
             state.discordActive = discordActive;
             state.discordInstance = discordInstance;
             state.discordHideInvite = discordHideInvite;
             state.discordJoinButton = discordJoinButton;
+            state.discordHideImage = discordHideImage;
         }
 
         const discordActive = computed(() => state.discordActive);
         const discordInstance = computed(() => state.discordInstance);
         const discordHideInvite = computed(() => state.discordHideInvite);
         const discordJoinButton = computed(() => state.discordJoinButton);
+        const discordHideImage = computed(() => state.discordHideImage);
 
         function setDiscordActive() {
             state.discordActive = !state.discordActive;
@@ -58,6 +63,13 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 state.discordJoinButton
             );
         }
+        function setDiscordHideImage() {
+            state.discordHideImage = !state.discordHideImage;
+            configRepository.setBool(
+                'discordHideImage',
+                state.discordHideImage
+            );
+        }
 
         return {
             state,
@@ -67,11 +79,13 @@ export const useDiscordPresenceSettingsStore = defineStore(
             discordInstance,
             discordHideInvite,
             discordJoinButton,
+            discordHideImage,
 
             setDiscordActive,
             setDiscordInstance,
             setDiscordHideInvite,
-            setDiscordJoinButton
+            setDiscordJoinButton,
+            setDiscordHideImage
         };
     }
 );
