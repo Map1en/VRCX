@@ -1024,12 +1024,12 @@
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.hide_private_worlds')"
                         :value="hidePrivateFromFeed"
-                        @change="saveOpenVROption('VRCX_hidePrivateFromFeed')"></simple-switch>
+                        @change="setHidePrivateFromFeed"></simple-switch>
                     <div class="options-container-item" style="min-width: 118px">
                         <span class="name">{{
                             t('view.settings.wrist_overlay.steamvr_wrist_overlay.start_overlay_with')
                         }}</span>
-                        <el-radio-group v-model="openVRAlways" :disabled="!openVR" @change="saveOpenVROption">
+                        <el-radio-group v-model="openVRAlways" :disabled="!openVR" @change="setOpenVRAlways">
                             <el-radio :label="false">{{ 'VRChat' }}</el-radio>
                             <el-radio :label="true">{{ 'SteamVR' }}</el-radio>
                         </el-radio-group>
@@ -1802,9 +1802,9 @@
         setNotificationTTSNickName
     } = notificationsSettingsStore;
 
-    const { overlayWrist } = storeToRefs(wristOverlaySettingsStore);
+    const { overlayWrist, hidePrivateFromFeed, openVRAlways } = storeToRefs(wristOverlaySettingsStore);
 
-    const { setOverlayWrist } = wristOverlaySettingsStore;
+    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
 
@@ -1830,14 +1830,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        hidePrivateFromFeed: {
-            type: Boolean,
-            default: false
-        },
-        openVRAlways: {
             type: Boolean,
             default: false
         },

@@ -411,9 +411,11 @@ console.log(`isLinux: ${LINUX}`);
                 setNotificationTTSNickName
             } = notificationsSettingsStore;
 
-            const { overlayWrist } = storeToRefs(wristOverlaySettingsStore);
+            const { overlayWrist, hidePrivateFromFeed, openVRAlways } =
+                storeToRefs(wristOverlaySettingsStore);
 
-            const { setOverlayWrist } = wristOverlaySettingsStore;
+            const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways } =
+                wristOverlaySettingsStore;
 
             return {
                 appVersion,
@@ -531,8 +533,12 @@ console.log(`isLinux: ${LINUX}`);
                 setNotificationTTSNickName,
 
                 overlayWrist,
+                hidePrivateFromFeed,
+                openVRAlways,
 
-                setOverlayWrist
+                setOverlayWrist,
+                setHidePrivateFromFeed,
+                setOpenVRAlways
             };
         },
         data: {
@@ -6115,10 +6121,6 @@ console.log(`isLinux: ${LINUX}`);
         layout: 'table'
     };
     $app.data.visits = 0;
-    $app.data.openVRAlways = await configRepository.getBool(
-        'openVRAlways',
-        false
-    );
     $app.data.overlaybutton = await configRepository.getBool(
         'VRCX_overlaybutton',
         false
@@ -6126,10 +6128,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.overlayHand = await configRepository.getInt(
         'VRCX_overlayHand',
         0
-    );
-    $app.data.hidePrivateFromFeed = await configRepository.getBool(
-        'VRCX_hidePrivateFromFeed',
-        false
     );
     $app.data.hideDevicesFromFeed = await configRepository.getBool(
         'VRCX_hideDevicesFromFeed',
@@ -6250,9 +6248,6 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_hidePrivateFromFeed':
-                this.hidePrivateFromFeed = !this.hidePrivateFromFeed;
-                break;
             case 'VRCX_hideDevicesFromFeed':
                 this.hideDevicesFromFeed = !this.hideDevicesFromFeed;
                 break;
@@ -6287,7 +6282,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
         }
 
-        await configRepository.setBool('openVRAlways', this.openVRAlways);
         await configRepository.setBool(
             'VRCX_overlaybutton',
             this.overlaybutton
@@ -6297,11 +6291,6 @@ console.log(`isLinux: ${LINUX}`);
             this.overlayHand = 0;
         }
         await configRepository.setInt('VRCX_overlayHand', this.overlayHand);
-
-        await configRepository.setBool(
-            'VRCX_hidePrivateFromFeed',
-            this.hidePrivateFromFeed
-        );
 
         await configRepository.setBool(
             'VRCX_hideDevicesFromFeed',

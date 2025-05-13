@@ -687,10 +687,10 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.hide_private_worlds")'
                         :value='hidePrivateFromFeed'
-                        @change='saveOpenVROption("VRCX_hidePrivateFromFeed")')
+                        @change='setHidePrivateFromFeed')
                     .options-container-item(style='min-width: 118px')
                         span.name {{ $t('view.settings.wrist_overlay.steamvr_wrist_overlay.start_overlay_with') }}
-                        el-radio-group(v-model='openVRAlways' @change='saveOpenVROption' :disabled='!openVR')
+                        el-radio-group(v-model='openVRAlways' @change='setOpenVRAlways' :disabled='!openVR')
                             el-radio(:label='false') {{ 'VRChat' }}
                             el-radio(:label='true') {{ 'SteamVR' }}
                     .options-container-item
