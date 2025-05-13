@@ -710,7 +710,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.grey_background")'
                         :value='vrBackgroundEnabled'
-                        @change='saveOpenVROption("VRCX_vrBackgroundEnabled")'
+                        @change='setVrBackgroundEnabled'
                         :disabled='!openVR || !overlayWrist')
                     simple-switch(
                         :label='$t("view.settings.wrist_overlay.steamvr_wrist_overlay.minimal_feed_icons")'

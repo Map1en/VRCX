@@ -1070,7 +1070,7 @@
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.grey_background')"
                         :value="vrBackgroundEnabled"
                         :disabled="!openVR || !overlayWrist"
-                        @change="saveOpenVROption('VRCX_vrBackgroundEnabled')"></simple-switch>
+                        @change="setVrBackgroundEnabled" />
                     <simple-switch
                         :label="t('view.settings.wrist_overlay.steamvr_wrist_overlay.minimal_feed_icons')"
                         :value="minimalFeed"
@@ -1802,11 +1802,17 @@
         setNotificationTTSNickName
     } = notificationsSettingsStore;
 
-    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton, overlayHand } =
+    const { overlayWrist, hidePrivateFromFeed, openVRAlways, overlaybutton, overlayHand, vrBackgroundEnabled } =
         storeToRefs(wristOverlaySettingsStore);
 
-    const { setOverlayWrist, setHidePrivateFromFeed, setOpenVRAlways, setOverlaybutton, setOverlayHand } =
-        wristOverlaySettingsStore;
+    const {
+        setOverlayWrist,
+        setHidePrivateFromFeed,
+        setOpenVRAlways,
+        setOverlaybutton,
+        setOverlayHand,
+        setVrBackgroundEnabled
+    } = wristOverlaySettingsStore;
 
     const { t } = useI18n();
 
@@ -1832,10 +1838,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        vrBackgroundEnabled: {
             type: Boolean,
             default: false
         },

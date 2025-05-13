@@ -416,7 +416,8 @@ console.log(`isLinux: ${LINUX}`);
                 hidePrivateFromFeed,
                 openVRAlways,
                 overlaybutton,
-                overlayHand
+                overlayHand,
+                vrBackgroundEnabled
             } = storeToRefs(wristOverlaySettingsStore);
 
             const {
@@ -424,7 +425,8 @@ console.log(`isLinux: ${LINUX}`);
                 setHidePrivateFromFeed,
                 setOpenVRAlways,
                 setOverlaybutton,
-                setOverlayHand
+                setOverlayHand,
+                setVrBackgroundEnabled
             } = wristOverlaySettingsStore;
 
             return {
@@ -547,12 +549,14 @@ console.log(`isLinux: ${LINUX}`);
                 openVRAlways,
                 overlaybutton,
                 overlayHand,
+                vrBackgroundEnabled,
 
                 setOverlayWrist,
                 setHidePrivateFromFeed,
                 setOpenVRAlways,
                 setOverlaybutton,
-                setOverlayHand
+                setOverlayHand,
+                setVrBackgroundEnabled
             };
         },
         data: {
@@ -6178,10 +6182,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_vrcQuitFix',
         true
     );
-    $app.data.vrBackgroundEnabled = await configRepository.getBool(
-        'VRCX_vrBackgroundEnabled',
-        false
-    );
     $app.data.branch = await configRepository.getString(
         'VRCX_branch',
         'Stable'
@@ -6278,9 +6278,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_vrcQuitFix':
                 this.vrcQuitFix = !this.vrcQuitFix;
                 break;
-            case 'VRCX_vrBackgroundEnabled':
-                this.vrBackgroundEnabled = !this.vrBackgroundEnabled;
-                break;
             case 'VRCX_avatarRemoteDatabase':
                 this.avatarRemoteDatabase = !this.avatarRemoteDatabase;
                 break;
@@ -6321,11 +6318,6 @@ console.log(`isLinux: ${LINUX}`);
         );
 
         await configRepository.setBool('VRCX_vrcQuitFix', this.vrcQuitFix);
-
-        await configRepository.setBool(
-            'VRCX_vrBackgroundEnabled',
-            this.vrBackgroundEnabled
-        );
 
         await configRepository.setBool(
             'VRCX_avatarRemoteDatabase',
