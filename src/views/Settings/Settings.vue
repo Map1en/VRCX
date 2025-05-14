@@ -1336,7 +1336,7 @@
                             :label="t('view.settings.advanced.advanced.local_world_persistence.description')"
                             :value="!disableWorldDatabase"
                             :long-label="true"
-                            @change="saveVRCXWindowOption('VRCX_DisableWorldDatabase')"></simple-switch>
+                            @change="setDisableWorldDatabase" />
                     </template>
                 </div>
 
@@ -1951,10 +1951,11 @@
     const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         discordPresenceSettingsStore;
 
-    const { enablePrimaryPassword, relaunchVRChatAfterCrash, vrcQuitFix, autoSweepVRChatCache } =
+    const { enablePrimaryPassword, relaunchVRChatAfterCrash, vrcQuitFix, autoSweepVRChatCache, disableWorldDatabase } =
         storeToRefs(advancedSettingsStore);
 
-    const { setRelaunchVRChatAfterCrash, setVrcQuitFix, setAutoSweepVRChatCache } = advancedSettingsStore;
+    const { setRelaunchVRChatAfterCrash, setVrcQuitFix, setAutoSweepVRChatCache, setDisableWorldDatabase } =
+        advancedSettingsStore;
 
     const { t } = useI18n();
 
@@ -1980,10 +1981,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        disableWorldDatabase: {
             type: Boolean,
             default: false
         },

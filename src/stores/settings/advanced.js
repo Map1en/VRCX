@@ -7,7 +7,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         enablePrimaryPassword: false,
         relaunchVRChatAfterCrash: false,
         vrcQuitFix: true,
-        autoSweepVRChatCache: false
+        autoSweepVRChatCache: false,
+        disableWorldDatabase: false
     });
 
     async function initSettings() {
@@ -15,18 +16,21 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
             vrcQuitFix,
-            autoSweepVRChatCache
+            autoSweepVRChatCache,
+            disableWorldDatabase
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
             configRepository.getBool('VRCX_vrcQuitFix', true),
-            configRepository.getBool('VRCX_autoSweepVRChatCache', false)
+            configRepository.getBool('VRCX_autoSweepVRChatCache', false),
+            VRCXStorage.Get('VRCX_DisableWorldDatabase')
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
         state.relaunchVRChatAfterCrash = relaunchVRChatAfterCrash;
         state.vrcQuitFix = vrcQuitFix;
         state.autoSweepVRChatCache = autoSweepVRChatCache;
+        state.disableWorldDatabase = disableWorldDatabase === 'true';
     }
 
     // This one is a bit tricky to do without following the getter/action pattern
@@ -39,6 +43,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     );
     const vrcQuitFix = computed(() => state.vrcQuitFix);
     const autoSweepVRChatCache = computed(() => state.autoSweepVRChatCache);
+    const disableWorldDatabase = computed(() => state.disableWorldDatabase);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -61,6 +66,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.autoSweepVRChatCache
         );
     }
+    function setDisableWorldDatabase() {
+        state.disableWorldDatabase = !state.disableWorldDatabase;
+        VRCXStorage.Set(
+            'VRCX_DisableWorldDatabase',
+            state.disableWorldDatabase.toString()
+        );
+    }
 
     return {
         state,
@@ -70,10 +82,12 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         relaunchVRChatAfterCrash,
         vrcQuitFix,
         autoSweepVRChatCache,
+        disableWorldDatabase,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
         setVrcQuitFix,
-        setAutoSweepVRChatCache
+        setAutoSweepVRChatCache,
+        setDisableWorldDatabase
     };
 });

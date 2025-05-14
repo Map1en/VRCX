@@ -829,7 +829,7 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.advanced.advanced.local_world_persistence.description")'
                             :value='!disableWorldDatabase'
-                            @change='saveVRCXWindowOption("VRCX_DisableWorldDatabase")'
+                            @change='setDisableWorldDatabase'
                             :long-label='true')
 
                 //- Advanced | User Generated Content

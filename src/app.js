@@ -464,14 +464,16 @@ console.log(`isLinux: ${LINUX}`);
                 enablePrimaryPassword,
                 relaunchVRChatAfterCrash,
                 vrcQuitFix,
-                autoSweepVRChatCache
+                autoSweepVRChatCache,
+                disableWorldDatabase
             } = storeToRefs(advancedSettingsStore);
 
             const {
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
                 setVrcQuitFix,
-                setAutoSweepVRChatCache
+                setAutoSweepVRChatCache,
+                setDisableWorldDatabase
             } = advancedSettingsStore;
 
             return {
@@ -629,11 +631,13 @@ console.log(`isLinux: ${LINUX}`);
                 relaunchVRChatAfterCrash,
                 vrcQuitFix,
                 autoSweepVRChatCache,
+                disableWorldDatabase,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
                 setVrcQuitFix,
-                setAutoSweepVRChatCache
+                setAutoSweepVRChatCache,
+                setDisableWorldDatabase
             };
         },
         data: {
@@ -6408,8 +6412,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.sizeWidth = await VRCXStorage.Get('VRCX_SizeWidth');
     $app.data.sizeHeight = await VRCXStorage.Get('VRCX_SizeHeight');
     $app.data.windowState = await VRCXStorage.Get('VRCX_WindowState');
-    $app.data.disableWorldDatabase =
-        (await VRCXStorage.Get('VRCX_DisableWorldDatabase')) === 'true';
 
     $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         switch (configKey) {
@@ -6422,9 +6424,6 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             case 'VRCX_saveInstanceStickers':
                 this.saveInstanceStickers = !this.saveInstanceStickers;
-                break;
-            case 'VRCX_DisableWorldDatabase':
-                this.disableWorldDatabase = !this.disableWorldDatabase;
                 break;
             default:
                 break;
@@ -6443,11 +6442,6 @@ console.log(`isLinux: ${LINUX}`);
         await configRepository.setBool(
             'VRCX_saveInstanceStickers',
             this.saveInstanceStickers
-        );
-
-        VRCXStorage.Set(
-            'VRCX_DisableWorldDatabase',
-            this.disableWorldDatabase.toString()
         );
 
         // todo: set electron location
