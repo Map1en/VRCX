@@ -871,7 +871,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.remote_database.enable")'
                         :value='avatarRemoteDatabase'
-                        @change='saveOpenVROption("VRCX_avatarRemoteDatabase")'
+                        @change='setAvatarRemoteDatabase(!avatarRemoteDatabase);saveOpenVROption("VRCX_avatarRemoteDatabase")'
                         :long-label='true')
                     .options-container-item
                         el-button(size='small' icon='el-icon-user-solid' @click='showAvatarProviderDialog') {{ $t('view.settings.advanced.advanced.remote_database.avatar_database_provider') }}

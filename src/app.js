@@ -468,7 +468,8 @@ console.log(`isLinux: ${LINUX}`);
                 disableWorldDatabase,
                 saveInstancePrints,
                 cropInstancePrints,
-                saveInstanceStickers
+                saveInstanceStickers,
+                avatarRemoteDatabase
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -479,7 +480,8 @@ console.log(`isLinux: ${LINUX}`);
                 setDisableWorldDatabase,
                 setSaveInstancePrints,
                 setCropInstancePrints,
-                setSaveInstanceStickers
+                setSaveInstanceStickers,
+                setAvatarRemoteDatabase
             } = advancedSettingsStore;
 
             return {
@@ -641,6 +643,7 @@ console.log(`isLinux: ${LINUX}`);
                 saveInstancePrints,
                 cropInstancePrints,
                 saveInstanceStickers,
+                avatarRemoteDatabase,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -649,7 +652,8 @@ console.log(`isLinux: ${LINUX}`);
                 setDisableWorldDatabase,
                 setSaveInstancePrints,
                 setCropInstancePrints,
-                setSaveInstanceStickers
+                setSaveInstanceStickers,
+                setAvatarRemoteDatabase
             };
         },
         data: {
@@ -6257,10 +6261,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_clearVRCXCacheFrequency',
         172800
     );
-    $app.data.avatarRemoteDatabase = await configRepository.getBool(
-        'VRCX_avatarRemoteDatabase',
-        true
-    );
     $app.data.avatarRemoteDatabaseProvider = '';
     $app.data.avatarRemoteDatabaseProviderList = JSON.parse(
         await configRepository.getString(
@@ -6308,19 +6308,6 @@ console.log(`isLinux: ${LINUX}`);
             $app.data.avatarRemoteDatabaseProviderList[0];
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
-        switch (configKey) {
-            case 'VRCX_avatarRemoteDatabase':
-                this.avatarRemoteDatabase = !this.avatarRemoteDatabase;
-                break;
-            default:
-                break;
-        }
-
-        await configRepository.setBool(
-            'VRCX_avatarRemoteDatabase',
-            this.avatarRemoteDatabase
-        );
-
         this.updateSharedFeed(true);
         this.updateVRConfigVars();
         this.updateVRLastLocation();
@@ -11474,15 +11461,11 @@ console.log(`isLinux: ${LINUX}`);
         if (this.avatarRemoteDatabaseProviderList.length > 0) {
             this.avatarRemoteDatabaseProvider =
                 this.avatarRemoteDatabaseProviderList[0];
-            this.avatarRemoteDatabase = true;
+            this.setAvatarRemoteDatabase(true);
         } else {
             this.avatarRemoteDatabaseProvider = '';
-            this.avatarRemoteDatabase = false;
+            this.setAvatarRemoteDatabase(false);
         }
-        await configRepository.setBool(
-            'VRCX_avatarRemoteDatabase',
-            this.avatarRemoteDatabase
-        );
     };
 
     $app.methods.setAvatarProvider = function (provider) {
@@ -12977,8 +12960,7 @@ console.log(`isLinux: ${LINUX}`);
                 this.avatarRemoteDatabaseProviderList,
             avatarRemoteDatabaseProvider: this.avatarRemoteDatabaseProvider,
             userDialog: this.userDialog,
-            lookupAvatars: this.lookupAvatars,
-            avatarRemoteDatabase: this.avatarRemoteDatabase
+            lookupAvatars: this.lookupAvatars
         };
     };
 

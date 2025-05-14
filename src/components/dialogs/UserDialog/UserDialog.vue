@@ -1793,6 +1793,7 @@
         userOnlineForTimestamp
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1811,7 +1812,9 @@
     const { $message, $confirm } = proxy;
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
+    const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
 
     const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
@@ -1868,10 +1871,10 @@
             type: Object,
             default: () => ({})
         },
-        avatarRemoteDatabase: {
-            type: Boolean,
-            default: false
-        },
+        // avatarRemoteDatabase: {
+        //     type: Boolean,
+        //     default: false
+        // },
         friendLogTable: {
             type: Object,
             default: () => ({})
@@ -2174,7 +2177,7 @@
     }
 
     async function setUserDialogAvatarsRemote(userId) {
-        if (props.avatarRemoteDatabase && userId !== API.currentUser.id) {
+        if (avatarRemoteDatabase.value && userId !== API.currentUser.id) {
             props.userDialog.isAvatarsLoading = true;
             const data = await props.lookupAvatars('authorId', userId);
             const avatars = new Set();

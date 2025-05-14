@@ -106,7 +106,7 @@
     const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
 
     watch(
-        () => hideUnfriends,
+        () => hideUnfriends.value,
         (newValue) => {
             if (newValue) {
                 props.friendLogTable.filters[2].value = newValue;

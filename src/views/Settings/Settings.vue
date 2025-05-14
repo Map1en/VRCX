@@ -1405,7 +1405,10 @@
                         :label="t('view.settings.advanced.advanced.remote_database.enable')"
                         :value="avatarRemoteDatabase"
                         :long-label="true"
-                        @change="saveOpenVROption('VRCX_avatarRemoteDatabase')"></simple-switch>
+                        @change="
+                            setAvatarRemoteDatabase(!avatarRemoteDatabase);
+                            saveOpenVROption();
+                        " />
                     <div class="options-container-item">
                         <el-button size="small" icon="el-icon-user-solid" @click="showAvatarProviderDialog">{{
                             t('view.settings.advanced.advanced.remote_database.avatar_database_provider')
@@ -1965,7 +1968,8 @@
         disableWorldDatabase,
         saveInstancePrints,
         cropInstancePrints,
-        saveInstanceStickers
+        saveInstanceStickers,
+        avatarRemoteDatabase
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1975,7 +1979,8 @@
         setDisableWorldDatabase,
         setSaveInstancePrints,
         setCropInstancePrints,
-        setSaveInstanceStickers
+        setSaveInstanceStickers,
+        setAvatarRemoteDatabase
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2008,10 +2013,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        avatarRemoteDatabase: {
-            type: Boolean,
-            default: false
         },
         enableAppLauncher: {
             type: Boolean,

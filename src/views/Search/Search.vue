@@ -332,9 +332,12 @@
         compareByUpdatedAt
     } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
+    const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
 
     const { t } = useI18n();
 
@@ -373,10 +376,6 @@
         lookupAvatars: {
             type: Function,
             default: () => () => {}
-        },
-        avatarRemoteDatabase: {
-            type: Boolean,
-            default: false
         },
         moreSearchUser: {
             type: Function,
@@ -635,7 +634,7 @@
             }
             if (
                 (searchAvatarFilterRemote.value === 'all' || searchAvatarFilterRemote.value === 'remote') &&
-                props.avatarRemoteDatabase &&
+                avatarRemoteDatabase.value &&
                 query.length >= 3
             ) {
                 const data = await props.lookupAvatars('search', query);

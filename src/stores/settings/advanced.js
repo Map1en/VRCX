@@ -11,7 +11,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         disableWorldDatabase: false,
         saveInstancePrints: false,
         cropInstancePrints: false,
-        saveInstanceStickers: false
+        saveInstanceStickers: false,
+        avatarRemoteDatabase: true
     });
 
     async function initSettings() {
@@ -23,7 +24,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             disableWorldDatabase,
             saveInstancePrints,
             cropInstancePrints,
-            saveInstanceStickers
+            saveInstanceStickers,
+            avatarRemoteDatabase
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -32,7 +34,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             VRCXStorage.Get('VRCX_DisableWorldDatabase'),
             configRepository.getBool('VRCX_saveInstancePrints', false),
             configRepository.getBool('VRCX_cropInstancePrints', false),
-            configRepository.getBool('VRCX_saveInstanceStickers', false)
+            configRepository.getBool('VRCX_saveInstanceStickers', false),
+            configRepository.getBool('VRCX_avatarRemoteDatabase', true)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -59,6 +62,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const saveInstancePrints = computed(() => state.saveInstancePrints);
     const cropInstancePrints = computed(() => state.cropInstancePrints);
     const saveInstanceStickers = computed(() => state.saveInstanceStickers);
+    const avatarRemoteDatabase = computed(() => state.avatarRemoteDatabase);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -109,6 +113,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.saveInstanceStickers
         );
     }
+    function setAvatarRemoteDatabase(value) {
+        state.avatarRemoteDatabase = value;
+        configRepository.setBool(
+            'VRCX_avatarRemoteDatabase',
+            state.avatarRemoteDatabase
+        );
+    }
 
     return {
         state,
@@ -122,6 +133,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         saveInstancePrints,
         cropInstancePrints,
         saveInstanceStickers,
+        avatarRemoteDatabase,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -130,6 +142,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setDisableWorldDatabase,
         setSaveInstancePrints,
         setCropInstancePrints,
-        setSaveInstanceStickers
+        setSaveInstanceStickers,
+        setAvatarRemoteDatabase
     };
 });
