@@ -806,7 +806,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.relaunch_vrchat.description")'
                         :value='relaunchVRChatAfterCrash'
-                        @change='saveOpenVROption("VRCX_relaunchVRChatAfterCrash")'
+                        @change='setRelaunchVRChatAfterCrash();saveOpenVROption()'
                         :long-label='true')
                     //- Advanced | VRChat Quit Fix
                     template(v-if='!isLinux()')
@@ -814,7 +814,7 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.advanced.advanced.vrchat_quit_fix.description")'
                             :value='vrcQuitFix'
-                            @change='saveOpenVROption("VRCX_vrcQuitFix")'
+                            @change='setVrcQuitFix();saveOpenVROption()'
                             :long-label='true')
                     //- Advanced | Auto Cache Management
                     span.sub-header {{ $t('view.settings.advanced.advanced.auto_cache_management.header') }}

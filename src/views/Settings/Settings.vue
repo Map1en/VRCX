@@ -1297,7 +1297,10 @@
                         :label="t('view.settings.advanced.advanced.relaunch_vrchat.description')"
                         :value="relaunchVRChatAfterCrash"
                         :long-label="true"
-                        @change="saveOpenVROption('VRCX_relaunchVRChatAfterCrash')"></simple-switch>
+                        @change="
+                            setRelaunchVRChatAfterCrash();
+                            saveOpenVROption();
+                        "></simple-switch>
                     <!--//- Advanced | VRChat Quit Fix-->
                     <template v-if="!isLinux()">
                         <span class="sub-header">{{
@@ -1307,7 +1310,10 @@
                             :label="t('view.settings.advanced.advanced.vrchat_quit_fix.description')"
                             :value="vrcQuitFix"
                             :long-label="true"
-                            @change="saveOpenVROption('VRCX_vrcQuitFix')"></simple-switch>
+                            @change="
+                                setVrcQuitFix();
+                                saveOpenVROption();
+                            "></simple-switch>
                     </template>
                     <!--//- Advanced | Auto Cache Management-->
                     <span class="sub-header">{{
@@ -1782,6 +1788,7 @@
     import { useNotificationsSettingsStore } from '../../stores/settings/notifications';
     import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
     import { useDiscordPresenceSettingsStore } from '../../stores/settings/discordPresence';
+    import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const { i18n } = useI18n();
@@ -1792,6 +1799,7 @@
     const notificationsSettingsStore = useNotificationsSettingsStore();
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
     const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
     const { setAutoUpdateVRCX } = VRCXUpdaterStore;
@@ -1940,6 +1948,10 @@
     const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         discordPresenceSettingsStore;
 
+    const { relaunchVRChatAfterCrash, vrcQuitFix } = storeToRefs(advancedSettingsStore);
+
+    const { setRelaunchVRChatAfterCrash, setVrcQuitFix } = advancedSettingsStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -1964,18 +1976,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        enablePrimaryPassword: {
-            type: Boolean,
-            default: false
-        },
-        relaunchVRChatAfterCrash: {
-            type: Boolean,
-            default: false
-        },
-        vrcQuitFix: {
             type: Boolean,
             default: false
         },

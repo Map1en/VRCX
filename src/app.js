@@ -460,12 +460,17 @@ console.log(`isLinux: ${LINUX}`);
                 setDiscordHideImage
             } = discordPresenceSettingsStore;
 
-            const { enablePrimaryPassword } = storeToRefs(
-                advancedSettingsStore
-            );
+            const {
+                enablePrimaryPassword,
+                relaunchVRChatAfterCrash,
+                vrcQuitFix
+            } = storeToRefs(advancedSettingsStore);
 
-            const { setEnablePrimaryPasswordConfigRepository } =
-                advancedSettingsStore;
+            const {
+                setEnablePrimaryPasswordConfigRepository,
+                setRelaunchVRChatAfterCrash,
+                setVrcQuitFix
+            } = advancedSettingsStore;
 
             return {
                 appVersion,
@@ -619,8 +624,12 @@ console.log(`isLinux: ${LINUX}`);
                 setDiscordHideImage,
 
                 enablePrimaryPassword,
+                relaunchVRChatAfterCrash,
+                vrcQuitFix,
 
-                setEnablePrimaryPasswordConfigRepository
+                setEnablePrimaryPasswordConfigRepository,
+                setRelaunchVRChatAfterCrash,
+                setVrcQuitFix
             };
         },
         data: {
@@ -6212,14 +6221,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_autoSweepVRChatCache',
         false
     );
-    $app.data.relaunchVRChatAfterCrash = await configRepository.getBool(
-        'VRCX_relaunchVRChatAfterCrash',
-        false
-    );
-    $app.data.vrcQuitFix = await configRepository.getBool(
-        'VRCX_vrcQuitFix',
-        true
-    );
     $app.data.branch = await configRepository.getString(
         'VRCX_branch',
         'Stable'
@@ -6295,12 +6296,6 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_autoSweepVRChatCache':
                 this.autoSweepVRChatCache = !this.autoSweepVRChatCache;
                 break;
-            case 'VRCX_relaunchVRChatAfterCrash':
-                this.relaunchVRChatAfterCrash = !this.relaunchVRChatAfterCrash;
-                break;
-            case 'VRCX_vrcQuitFix':
-                this.vrcQuitFix = !this.vrcQuitFix;
-                break;
             case 'VRCX_avatarRemoteDatabase':
                 this.avatarRemoteDatabase = !this.avatarRemoteDatabase;
                 break;
@@ -6312,13 +6307,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_autoSweepVRChatCache',
             this.autoSweepVRChatCache
         );
-
-        await configRepository.setBool(
-            'VRCX_relaunchVRChatAfterCrash',
-            this.relaunchVRChatAfterCrash
-        );
-
-        await configRepository.setBool('VRCX_vrcQuitFix', this.vrcQuitFix);
 
         await configRepository.setBool(
             'VRCX_avatarRemoteDatabase',
