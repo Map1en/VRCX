@@ -249,7 +249,7 @@ export default class extends baseClass {
             // Disable primary password when no account is available.
             if (Object.keys(savedCredentials).length === 0) {
                 this.enablePrimaryPassword = false;
-                await configRepository.setBool('enablePrimaryPassword', false);
+                this.setEnablePrimaryPasswordConfigRepository(false);
             }
             this.loginForm.savedCredentials = savedCredentials;
             var jsonCredentials = JSON.stringify(savedCredentials);

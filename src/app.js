@@ -137,10 +137,11 @@ import { updateTrustColorClasses } from './shared/utils/base/ui';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useGeneralSettingsStore } from './stores/settings/general';
-import { useVRCXUpdaterStore } from './stores/vrcxUpdater.js';
+import { useVRCXUpdaterStore } from './stores/vrcxUpdater';
 import { useNotificationsSettingsStore } from './stores/settings/notifications';
 import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
 import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresence';
+import { useAdvancedSettingsStore } from './stores/settings/advanced';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -287,6 +288,7 @@ console.log(`isLinux: ${LINUX}`);
             const wristOverlaySettingsStore = useWristOverlaySettingsStore();
             const discordPresenceSettingsStore =
                 useDiscordPresenceSettingsStore();
+            const advancedSettingsStore = useAdvancedSettingsStore();
 
             const { appVersion, autoUpdateVRCX, latestAppVersion } =
                 storeToRefs(VRCXUpdaterStore);
@@ -458,6 +460,13 @@ console.log(`isLinux: ${LINUX}`);
                 setDiscordHideImage
             } = discordPresenceSettingsStore;
 
+            const { enablePrimaryPassword } = storeToRefs(
+                advancedSettingsStore
+            );
+
+            const { setEnablePrimaryPasswordConfigRepository } =
+                advancedSettingsStore;
+
             return {
                 appVersion,
                 autoUpdateVRCX,
@@ -607,7 +616,11 @@ console.log(`isLinux: ${LINUX}`);
                 setDiscordInstance,
                 setDiscordHideInvite,
                 setDiscordJoinButton,
-                setDiscordHideImage
+                setDiscordHideImage,
+
+                enablePrimaryPassword,
+
+                setEnablePrimaryPasswordConfigRepository
             };
         },
         data: {
@@ -3299,10 +3312,6 @@ console.log(`isLinux: ${LINUX}`);
         });
     };
 
-    $app.data.enablePrimaryPassword = await configRepository.getBool(
-        'enablePrimaryPassword',
-        false
-    );
     $app.data.enablePrimaryPasswordDialog = {
         visible: false,
         password: '',
@@ -3313,7 +3322,6 @@ console.log(`isLinux: ${LINUX}`);
         }
     };
     $app.methods.enablePrimaryPasswordChange = function () {
-        // The function is only called in adv settings
         this.enablePrimaryPassword = !this.enablePrimaryPassword;
 
         this.enablePrimaryPasswordDialog.password = '';
@@ -3354,8 +3362,7 @@ console.log(`isLinux: ${LINUX}`);
                             })
                             .catch(async () => {
                                 this.enablePrimaryPassword = true;
-                                await configRepository.setBool(
-                                    'enablePrimaryPassword',
+                                this.setEnablePrimaryPasswordConfigRepository(
                                     true
                                 );
                             });
@@ -3363,10 +3370,7 @@ console.log(`isLinux: ${LINUX}`);
                 })
                 .catch(async () => {
                     this.enablePrimaryPassword = true;
-                    await configRepository.setBool(
-                        'enablePrimaryPassword',
-                        true
-                    );
+                    this.setEnablePrimaryPasswordConfigRepository(true);
                 });
         }
     };

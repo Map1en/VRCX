@@ -1290,7 +1290,7 @@
                         :value="enablePrimaryPassword"
                         :disabled="!enablePrimaryPassword"
                         :long-label="true"
-                        @change="enablePrimaryPasswordChange"></simple-switch>
+                        @change="enablePrimaryPasswordChange" />
 
                     <span class="sub-header">{{ t('view.settings.advanced.advanced.relaunch_vrchat.header') }}</span>
                     <simple-switch
