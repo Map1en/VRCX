@@ -1376,7 +1376,7 @@
                         :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
                         :value="saveInstancePrints"
                         :long-label="true"
-                        @change="saveVRCXWindowOption('VRCX_saveInstancePrints')"></simple-switch>
+                        @change="setSaveInstancePrints" />
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
                         :value="cropInstancePrints"
@@ -1951,11 +1951,22 @@
     const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         discordPresenceSettingsStore;
 
-    const { enablePrimaryPassword, relaunchVRChatAfterCrash, vrcQuitFix, autoSweepVRChatCache, disableWorldDatabase } =
-        storeToRefs(advancedSettingsStore);
+    const {
+        enablePrimaryPassword,
+        relaunchVRChatAfterCrash,
+        vrcQuitFix,
+        autoSweepVRChatCache,
+        disableWorldDatabase,
+        saveInstancePrints
+    } = storeToRefs(advancedSettingsStore);
 
-    const { setRelaunchVRChatAfterCrash, setVrcQuitFix, setAutoSweepVRChatCache, setDisableWorldDatabase } =
-        advancedSettingsStore;
+    const {
+        setRelaunchVRChatAfterCrash,
+        setVrcQuitFix,
+        setAutoSweepVRChatCache,
+        setDisableWorldDatabase,
+        setSaveInstancePrints
+    } = advancedSettingsStore;
 
     const { t } = useI18n();
 
@@ -1987,10 +1998,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        saveInstancePrints: {
-            type: Boolean,
-            default: false
         },
         cropInstancePrints: {
             type: Boolean,

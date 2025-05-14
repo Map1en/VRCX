@@ -851,7 +851,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.save_instance_prints_to_file.description")'
                         :value='saveInstancePrints'
-                        @change='saveVRCXWindowOption("VRCX_saveInstancePrints")'
+                        @change='setSaveInstancePrints'
                         :long-label='true')
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.save_instance_prints_to_file.crop")'

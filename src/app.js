@@ -465,7 +465,8 @@ console.log(`isLinux: ${LINUX}`);
                 relaunchVRChatAfterCrash,
                 vrcQuitFix,
                 autoSweepVRChatCache,
-                disableWorldDatabase
+                disableWorldDatabase,
+                saveInstancePrints
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -473,7 +474,8 @@ console.log(`isLinux: ${LINUX}`);
                 setRelaunchVRChatAfterCrash,
                 setVrcQuitFix,
                 setAutoSweepVRChatCache,
-                setDisableWorldDatabase
+                setDisableWorldDatabase,
+                setSaveInstancePrints
             } = advancedSettingsStore;
 
             return {
@@ -632,12 +634,14 @@ console.log(`isLinux: ${LINUX}`);
                 vrcQuitFix,
                 autoSweepVRChatCache,
                 disableWorldDatabase,
+                saveInstancePrints,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
                 setVrcQuitFix,
                 setAutoSweepVRChatCache,
-                setDisableWorldDatabase
+                setDisableWorldDatabase,
+                setSaveInstancePrints
             };
         },
         data: {
@@ -6415,9 +6419,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_saveInstancePrints':
-                this.saveInstancePrints = !this.saveInstancePrints;
-                break;
             case 'VRCX_cropInstancePrints':
                 this.cropInstancePrints = !this.cropInstancePrints;
                 this.cropPrintsChanged();
@@ -6428,11 +6429,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_saveInstancePrints',
-            this.saveInstancePrints
-        );
 
         await configRepository.setBool(
             'VRCX_cropInstancePrints',
@@ -10350,11 +10346,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.printUploadNote = '';
     $app.data.printCropBorder = true;
-
-    $app.data.saveInstancePrints = await configRepository.getBool(
-        'VRCX_saveInstancePrints',
-        false
-    );
 
     $app.data.cropInstancePrints = await configRepository.getBool(
         'VRCX_cropInstancePrints',
