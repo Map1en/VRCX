@@ -821,7 +821,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.auto_cache_management.description")'
                         :value='autoSweepVRChatCache'
-                        @change='saveOpenVROption("VRCX_autoSweepVRChatCache")'
+                        @change='setAutoSweepVRChatCache();saveOpenVROption()'
                         :long-label='true')
                     //- Advanced | Disable local world database
                     template(v-if='!isLinux()')

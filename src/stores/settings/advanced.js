@@ -6,23 +6,27 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const state = reactive({
         enablePrimaryPassword: false,
         relaunchVRChatAfterCrash: false,
-        vrcQuitFix: true
+        vrcQuitFix: true,
+        autoSweepVRChatCache: false
     });
 
     async function initSettings() {
-        const [enablePrimaryPassword, relaunchVRChatAfterCrash, vrcQuitFix] =
-            await Promise.all([
-                configRepository.getBool('enablePrimaryPassword', false),
-                configRepository.getBool(
-                    'VRCX_relaunchVRChatAfterCrash',
-                    false
-                ),
-                configRepository.getBool('VRCX_vrcQuitFix', true)
-            ]);
+        const [
+            enablePrimaryPassword,
+            relaunchVRChatAfterCrash,
+            vrcQuitFix,
+            autoSweepVRChatCache
+        ] = await Promise.all([
+            configRepository.getBool('enablePrimaryPassword', false),
+            configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
+            configRepository.getBool('VRCX_vrcQuitFix', true),
+            configRepository.getBool('VRCX_autoSweepVRChatCache', false)
+        ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
         state.relaunchVRChatAfterCrash = relaunchVRChatAfterCrash;
         state.vrcQuitFix = vrcQuitFix;
+        state.autoSweepVRChatCache = autoSweepVRChatCache;
     }
 
     // This one is a bit tricky to do without following the getter/action pattern
@@ -34,6 +38,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         () => state.relaunchVRChatAfterCrash
     );
     const vrcQuitFix = computed(() => state.vrcQuitFix);
+    const autoSweepVRChatCache = computed(() => state.autoSweepVRChatCache);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -49,6 +54,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.vrcQuitFix = !state.vrcQuitFix;
         configRepository.setBool('VRCX_vrcQuitFix', state.vrcQuitFix);
     }
+    function setAutoSweepVRChatCache() {
+        state.autoSweepVRChatCache = !state.autoSweepVRChatCache;
+        configRepository.setBool(
+            'VRCX_autoSweepVRChatCache',
+            state.autoSweepVRChatCache
+        );
+    }
 
     return {
         state,
@@ -57,9 +69,11 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         enablePrimaryPassword,
         relaunchVRChatAfterCrash,
         vrcQuitFix,
+        autoSweepVRChatCache,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
-        setVrcQuitFix
+        setVrcQuitFix,
+        setAutoSweepVRChatCache
     };
 });

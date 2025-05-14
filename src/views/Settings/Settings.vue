@@ -1313,7 +1313,7 @@
                             @change="
                                 setVrcQuitFix();
                                 saveOpenVROption();
-                            "></simple-switch>
+                            " />
                     </template>
                     <!--//- Advanced | Auto Cache Management-->
                     <span class="sub-header">{{
@@ -1323,7 +1323,10 @@
                         :label="t('view.settings.advanced.advanced.auto_cache_management.description')"
                         :value="autoSweepVRChatCache"
                         :long-label="true"
-                        @change="saveOpenVROption('VRCX_autoSweepVRChatCache')"></simple-switch>
+                        @change="
+                            setAutoSweepVRChatCache();
+                            saveOpenVROption();
+                        " />
                     <!--//- Advanced | Disable local world database-->
                     <template v-if="!isLinux()">
                         <span class="sub-header">{{
@@ -1948,9 +1951,10 @@
     const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         discordPresenceSettingsStore;
 
-    const { relaunchVRChatAfterCrash, vrcQuitFix } = storeToRefs(advancedSettingsStore);
+    const { enablePrimaryPassword, relaunchVRChatAfterCrash, vrcQuitFix, autoSweepVRChatCache } =
+        storeToRefs(advancedSettingsStore);
 
-    const { setRelaunchVRChatAfterCrash, setVrcQuitFix } = advancedSettingsStore;
+    const { setRelaunchVRChatAfterCrash, setVrcQuitFix, setAutoSweepVRChatCache } = advancedSettingsStore;
 
     const { t } = useI18n();
 
@@ -1976,10 +1980,6 @@
         },
         // not settings, and is visible
         notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
-        autoSweepVRChatCache: {
             type: Boolean,
             default: false
         },

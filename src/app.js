@@ -463,13 +463,15 @@ console.log(`isLinux: ${LINUX}`);
             const {
                 enablePrimaryPassword,
                 relaunchVRChatAfterCrash,
-                vrcQuitFix
+                vrcQuitFix,
+                autoSweepVRChatCache
             } = storeToRefs(advancedSettingsStore);
 
             const {
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
-                setVrcQuitFix
+                setVrcQuitFix,
+                setAutoSweepVRChatCache
             } = advancedSettingsStore;
 
             return {
@@ -626,10 +628,12 @@ console.log(`isLinux: ${LINUX}`);
                 enablePrimaryPassword,
                 relaunchVRChatAfterCrash,
                 vrcQuitFix,
+                autoSweepVRChatCache,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
-                setVrcQuitFix
+                setVrcQuitFix,
+                setAutoSweepVRChatCache
             };
         },
         data: {
@@ -6217,10 +6221,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_notificationTimeout',
         '3000'
     );
-    $app.data.autoSweepVRChatCache = await configRepository.getBool(
-        'VRCX_autoSweepVRChatCache',
-        false
-    );
     $app.data.branch = await configRepository.getString(
         'VRCX_branch',
         'Stable'
@@ -6293,20 +6293,12 @@ console.log(`isLinux: ${LINUX}`);
     }
     $app.methods.saveOpenVROption = async function (configKey = '') {
         switch (configKey) {
-            case 'VRCX_autoSweepVRChatCache':
-                this.autoSweepVRChatCache = !this.autoSweepVRChatCache;
-                break;
             case 'VRCX_avatarRemoteDatabase':
                 this.avatarRemoteDatabase = !this.avatarRemoteDatabase;
                 break;
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_autoSweepVRChatCache',
-            this.autoSweepVRChatCache
-        );
 
         await configRepository.setBool(
             'VRCX_avatarRemoteDatabase',
