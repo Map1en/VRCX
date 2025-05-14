@@ -466,7 +466,8 @@ console.log(`isLinux: ${LINUX}`);
                 vrcQuitFix,
                 autoSweepVRChatCache,
                 disableWorldDatabase,
-                saveInstancePrints
+                saveInstancePrints,
+                cropInstancePrints
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -475,7 +476,8 @@ console.log(`isLinux: ${LINUX}`);
                 setVrcQuitFix,
                 setAutoSweepVRChatCache,
                 setDisableWorldDatabase,
-                setSaveInstancePrints
+                setSaveInstancePrints,
+                setCropInstancePrints
             } = advancedSettingsStore;
 
             return {
@@ -635,13 +637,15 @@ console.log(`isLinux: ${LINUX}`);
                 autoSweepVRChatCache,
                 disableWorldDatabase,
                 saveInstancePrints,
+                cropInstancePrints,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
                 setVrcQuitFix,
                 setAutoSweepVRChatCache,
                 setDisableWorldDatabase,
-                setSaveInstancePrints
+                setSaveInstancePrints,
+                setCropInstancePrints
             };
         },
         data: {
@@ -6420,7 +6424,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         switch (configKey) {
             case 'VRCX_cropInstancePrints':
-                this.cropInstancePrints = !this.cropInstancePrints;
                 this.cropPrintsChanged();
                 break;
             case 'VRCX_saveInstanceStickers':
@@ -6429,11 +6432,6 @@ console.log(`isLinux: ${LINUX}`);
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_cropInstancePrints',
-            this.cropInstancePrints
-        );
 
         await configRepository.setBool(
             'VRCX_saveInstanceStickers',
@@ -10284,6 +10282,7 @@ console.log(`isLinux: ${LINUX}`);
 
     // #endregion
     // #region | Prints
+    // todo: move to settings.vue
     $app.methods.cropPrintsChanged = function () {
         if (!this.cropInstancePrints) return;
         this.$confirm(
@@ -10346,11 +10345,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.printUploadNote = '';
     $app.data.printCropBorder = true;
-
-    $app.data.cropInstancePrints = await configRepository.getBool(
-        'VRCX_cropInstancePrints',
-        false
-    );
 
     $app.data.saveInstanceStickers = await configRepository.getBool(
         'VRCX_saveInstanceStickers',

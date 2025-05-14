@@ -9,7 +9,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         vrcQuitFix: true,
         autoSweepVRChatCache: false,
         disableWorldDatabase: false,
-        saveInstancePrints: false
+        saveInstancePrints: false,
+        cropInstancePrints: false
     });
 
     async function initSettings() {
@@ -19,14 +20,16 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             vrcQuitFix,
             autoSweepVRChatCache,
             disableWorldDatabase,
-            saveInstancePrints
+            saveInstancePrints,
+            cropInstancePrints
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
             configRepository.getBool('VRCX_vrcQuitFix', true),
             configRepository.getBool('VRCX_autoSweepVRChatCache', false),
             VRCXStorage.Get('VRCX_DisableWorldDatabase'),
-            configRepository.getBool('VRCX_saveInstancePrints', false)
+            configRepository.getBool('VRCX_saveInstancePrints', false),
+            configRepository.getBool('VRCX_cropInstancePrints', false)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -35,6 +38,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.autoSweepVRChatCache = autoSweepVRChatCache;
         state.disableWorldDatabase = disableWorldDatabase === 'true';
         state.saveInstancePrints = saveInstancePrints;
+        state.cropInstancePrints = cropInstancePrints;
     }
 
     // This one is a bit tricky to do without following the getter/action pattern
@@ -49,6 +53,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const autoSweepVRChatCache = computed(() => state.autoSweepVRChatCache);
     const disableWorldDatabase = computed(() => state.disableWorldDatabase);
     const saveInstancePrints = computed(() => state.saveInstancePrints);
+    const cropInstancePrints = computed(() => state.cropInstancePrints);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -85,6 +90,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.saveInstancePrints
         );
     }
+    function setCropInstancePrints() {
+        state.cropInstancePrints = !state.cropInstancePrints;
+        configRepository.setBool(
+            'VRCX_cropInstancePrints',
+            state.cropInstancePrints
+        );
+    }
 
     return {
         state,
@@ -96,12 +108,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         autoSweepVRChatCache,
         disableWorldDatabase,
         saveInstancePrints,
+        cropInstancePrints,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
         setVrcQuitFix,
         setAutoSweepVRChatCache,
         setDisableWorldDatabase,
-        setSaveInstancePrints
+        setSaveInstancePrints,
+        setCropInstancePrints
     };
 });

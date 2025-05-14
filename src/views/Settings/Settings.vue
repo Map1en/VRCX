@@ -1381,7 +1381,10 @@
                         :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
                         :value="cropInstancePrints"
                         :long-label="true"
-                        @change="saveVRCXWindowOption('VRCX_cropInstancePrints')"></simple-switch>
+                        @change="
+                            setCropInstancePrints();
+                            saveVRCXWindowOption('VRCX_cropInstancePrints');
+                        "></simple-switch>
                     <br />
                     <span class="sub-header">{{
                         t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
@@ -1957,7 +1960,8 @@
         vrcQuitFix,
         autoSweepVRChatCache,
         disableWorldDatabase,
-        saveInstancePrints
+        saveInstancePrints,
+        cropInstancePrints
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1965,7 +1969,8 @@
         setVrcQuitFix,
         setAutoSweepVRChatCache,
         setDisableWorldDatabase,
-        setSaveInstancePrints
+        setSaveInstancePrints,
+        setCropInstancePrints
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -1998,10 +2003,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        cropInstancePrints: {
-            type: Boolean,
-            default: false
         },
         saveInstanceStickers: {
             type: Boolean,
