@@ -467,7 +467,8 @@ console.log(`isLinux: ${LINUX}`);
                 autoSweepVRChatCache,
                 disableWorldDatabase,
                 saveInstancePrints,
-                cropInstancePrints
+                cropInstancePrints,
+                saveInstanceStickers
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -477,7 +478,8 @@ console.log(`isLinux: ${LINUX}`);
                 setAutoSweepVRChatCache,
                 setDisableWorldDatabase,
                 setSaveInstancePrints,
-                setCropInstancePrints
+                setCropInstancePrints,
+                setSaveInstanceStickers
             } = advancedSettingsStore;
 
             return {
@@ -638,6 +640,7 @@ console.log(`isLinux: ${LINUX}`);
                 disableWorldDatabase,
                 saveInstancePrints,
                 cropInstancePrints,
+                saveInstanceStickers,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -645,7 +648,8 @@ console.log(`isLinux: ${LINUX}`);
                 setAutoSweepVRChatCache,
                 setDisableWorldDatabase,
                 setSaveInstancePrints,
-                setCropInstancePrints
+                setCropInstancePrints,
+                setSaveInstanceStickers
             };
         },
         data: {
@@ -6426,17 +6430,9 @@ console.log(`isLinux: ${LINUX}`);
             case 'VRCX_cropInstancePrints':
                 this.cropPrintsChanged();
                 break;
-            case 'VRCX_saveInstanceStickers':
-                this.saveInstanceStickers = !this.saveInstanceStickers;
-                break;
             default:
                 break;
         }
-
-        await configRepository.setBool(
-            'VRCX_saveInstanceStickers',
-            this.saveInstanceStickers
-        );
 
         // todo: set electron location
 
@@ -10345,11 +10341,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.data.printUploadNote = '';
     $app.data.printCropBorder = true;
-
-    $app.data.saveInstanceStickers = await configRepository.getBool(
-        'VRCX_saveInstanceStickers',
-        false
-    );
 
     $app.data.printCache = [];
     $app.data.printQueue = [];

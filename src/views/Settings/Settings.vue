@@ -1393,7 +1393,10 @@
                         :label="t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
                         :value="saveInstanceStickers"
                         :long-label="true"
-                        @change="saveVRCXWindowOption('VRCX_saveInstanceStickers')"></simple-switch>
+                        @change="
+                            setSaveInstanceStickers();
+                            saveVRCXWindowOption();
+                        " />
                 </div>
                 <!--//- Advanced | Remote Avatar Database-->
                 <div class="options-container">
@@ -1961,7 +1964,8 @@
         autoSweepVRChatCache,
         disableWorldDatabase,
         saveInstancePrints,
-        cropInstancePrints
+        cropInstancePrints,
+        saveInstanceStickers
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1970,7 +1974,8 @@
         setAutoSweepVRChatCache,
         setDisableWorldDatabase,
         setSaveInstancePrints,
-        setCropInstancePrints
+        setCropInstancePrints,
+        setSaveInstanceStickers
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2003,10 +2008,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        saveInstanceStickers: {
-            type: Boolean,
-            default: false
         },
         avatarRemoteDatabase: {
             type: Boolean,

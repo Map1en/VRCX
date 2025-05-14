@@ -829,7 +829,7 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.advanced.advanced.local_world_persistence.description")'
                             :value='!disableWorldDatabase'
-                            @change='setDisableWorldDatabase'
+                            @change='setDisableWorldDatabase();saveVRCXWindowOption()'
                             :long-label='true')
 
                 //- Advanced | User Generated Content
@@ -851,7 +851,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.save_instance_prints_to_file.description")'
                         :value='saveInstancePrints'
-                        @change='setSaveInstancePrints'
+                        @change='setSaveInstancePrints();saveVRCXWindowOption()'
                         :long-label='true')
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.save_instance_prints_to_file.crop")'
@@ -863,7 +863,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.save_instance_stickers_to_file.description")'
                         :value='saveInstanceStickers'
-                        @change='saveVRCXWindowOption("VRCX_saveInstanceStickers")'
+                        @change='setSaveInstanceStickers();saveVRCXWindowOption()'
                         :long-label='true')
                 //- Advanced | Remote Avatar Database
                 .options-container
