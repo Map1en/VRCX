@@ -1978,7 +1978,8 @@
         youTubeApi,
         progressPie,
         progressPieFilter,
-        showConfirmationOnSwitchAvatar
+        showConfirmationOnSwitchAvatar,
+        gameLogDisabled
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1999,7 +2000,8 @@
         setYouTubeApi,
         setProgressPie,
         setProgressPieFilter,
-        setShowConfirmationOnSwitchAvatar
+        setShowConfirmationOnSwitchAvatar,
+        setGameLogDisabled
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2061,10 +2063,10 @@
             type: String,
             default: ''
         },
-        gameLogDisabled: {
-            type: Boolean,
-            default: false
-        },
+        // gameLogDisabled: {
+        //     type: Boolean,
+        //     default: false
+        // },
         sqliteTableSizes: {
             type: Object,
             default: () => ({})
