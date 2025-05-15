@@ -1027,8 +1027,8 @@ mixin settingsTab
                     .options-container-item
                         span.name {{ $t('view.settings.advanced.photon.timeout_hud.filter') }}
                         el-radio-group(
-                            v-model='timeoutHudOverlayFilter'
-                            @change='saveEventOverlay'
+                            :value='timeoutHudOverlayFilter'
+                            @input='setTimeoutHudOverlayFilter($event);saveEventOverlay()'
                             size='mini'
                             :disabled='!openVR || !timeoutHudOverlay')
                             el-radio-button(label='VIP') {{ $t('view.settings.advanced.photon.timeout_hud.filter_favorites') }}

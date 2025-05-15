@@ -516,14 +516,16 @@ console.log(`isLinux: ${LINUX}`);
                 photonEventOverlayFilter,
                 photonEventTableTypeOverlayFilter,
                 photonEventTableTypeFilterList,
-                timeoutHudOverlay
+                timeoutHudOverlay,
+                timeoutHudOverlayFilter
             } = storeToRefs(photonStore);
             const {
                 setPhotonLoggingEnabled,
                 setPhotonEventOverlay,
                 setPhotonEventOverlayFilter,
                 setPhotonEventTableTypeOverlayFilter,
-                setTimeoutHudOverlay
+                setTimeoutHudOverlay,
+                setTimeoutHudOverlayFilter
             } = photonStore;
 
             return {
@@ -6509,10 +6511,6 @@ console.log(`isLinux: ${LINUX}`);
         // }
     };
 
-    $app.data.timeoutHudOverlayFilter = await configRepository.getString(
-        'VRCX_TimeoutHudOverlayFilter',
-        'Everyone'
-    );
     $app.data.photonOverlayMessageTimeout = Number(
         await configRepository.getString(
             'VRCX_photonOverlayMessageTimeout',
@@ -6525,10 +6523,6 @@ console.log(`isLinux: ${LINUX}`);
         } else if (configKey === 'VRCX_TimeoutHudOverlay') {
             this.setTimeoutHudOverlay();
         }
-        await configRepository.setString(
-            'VRCX_TimeoutHudOverlayFilter',
-            this.timeoutHudOverlayFilter
-        );
         this.updateOpenVR();
         this.updateVRConfigVars();
     };

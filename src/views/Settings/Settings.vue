@@ -1615,10 +1615,13 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.advanced.photon.timeout_hud.filter') }}</span>
                         <el-radio-group
-                            v-model="timeoutHudOverlayFilter"
+                            :value="timeoutHudOverlayFilter"
                             size="mini"
                             :disabled="!openVR || !timeoutHudOverlay"
-                            @change="saveEventOverlay">
+                            @input="
+                                setTimeoutHudOverlayFilter($event);
+                                saveEventOverlay();
+                            ">
                             <el-radio-button label="VIP">{{
                                 t('view.settings.advanced.photon.timeout_hud.filter_favorites')
                             }}</el-radio-button>
@@ -2021,10 +2024,12 @@
         photonEventOverlayFilter,
         photonEventTableTypeOverlayFilter,
         photonEventTableTypeFilterList,
-        timeoutHudOverlay
+        timeoutHudOverlay,
+        timeoutHudOverlayFilter
     } = storeToRefs(photonStore);
 
-    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter } = photonStore;
+    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter, setTimeoutHudOverlayFilter } =
+        photonStore;
 
     const { t } = useI18n();
 
