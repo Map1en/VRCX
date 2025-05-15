@@ -1979,7 +1979,8 @@
         progressPie,
         progressPieFilter,
         showConfirmationOnSwitchAvatar,
-        gameLogDisabled
+        gameLogDisabled,
+        sqliteTableSizes
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2001,7 +2002,9 @@
         setProgressPie,
         setProgressPieFilter,
         setShowConfirmationOnSwitchAvatar,
-        setGameLogDisabled
+        setGameLogDisabled,
+
+        getSqliteTableSizes
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2062,10 +2065,6 @@
         timeoutHudOverlayFilter: {
             type: String,
             default: ''
-        },
-        sqliteTableSizes: {
-            type: Object,
-            default: () => ({})
         }
     });
 

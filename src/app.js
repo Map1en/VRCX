@@ -479,7 +479,8 @@ console.log(`isLinux: ${LINUX}`);
                 progressPie,
                 progressPieFilter,
                 showConfirmationOnSwitchAvatar,
-                gameLogDisabled
+                gameLogDisabled,
+                sqliteTableSizes
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -503,6 +504,7 @@ console.log(`isLinux: ${LINUX}`);
                 setShowConfirmationOnSwitchAvatar,
                 setGameLogDisabled,
 
+                getSqliteTableSizes,
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
 
@@ -676,6 +678,7 @@ console.log(`isLinux: ${LINUX}`);
                 progressPieFilter,
                 showConfirmationOnSwitchAvatar,
                 gameLogDisabled,
+                sqliteTableSizes,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -697,6 +700,7 @@ console.log(`isLinux: ${LINUX}`);
                 setShowConfirmationOnSwitchAvatar,
                 setGameLogDisabled,
 
+                getSqliteTableSizes,
                 handleSetAppLauncherSettings
             };
         },
@@ -10539,26 +10543,6 @@ console.log(`isLinux: ${LINUX}`);
         API.cachedAvatarNames = new Map();
         this.customUserTags = new Map();
         this.updateInstanceInfo = 0;
-    };
-
-    $app.data.sqliteTableSizes = {};
-
-    $app.methods.getSqliteTableSizes = async function () {
-        this.sqliteTableSizes = {
-            gps: await database.getGpsTableSize(),
-            status: await database.getStatusTableSize(),
-            bio: await database.getBioTableSize(),
-            avatar: await database.getAvatarTableSize(),
-            onlineOffline: await database.getOnlineOfflineTableSize(),
-            friendLogHistory: await database.getFriendLogHistoryTableSize(),
-            notification: await database.getNotificationTableSize(),
-            location: await database.getLocationTableSize(),
-            joinLeave: await database.getJoinLeaveTableSize(),
-            portalSpawn: await database.getPortalSpawnTableSize(),
-            videoPlay: await database.getVideoPlayTableSize(),
-            event: await database.getEventTableSize(),
-            external: await database.getExternalTableSize()
-        };
     };
 
     $app.data.ipcEnabled = false;

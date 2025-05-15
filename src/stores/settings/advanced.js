@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
+import database from '../../service/database';
 
 export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const state = reactive({
@@ -22,7 +23,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         progressPie: false,
         progressPieFilter: true,
         showConfirmationOnSwitchAvatar: false,
-        gameLogDisabled: false
+        gameLogDisabled: false,
+        sqliteTableSizes: {}
     });
 
     async function initSettings() {
@@ -134,6 +136,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         () => state.showConfirmationOnSwitchAvatar
     );
     const gameLogDisabled = computed(() => state.gameLogDisabled);
+    const sqliteTableSizes = computed(() => state.sqliteTableSizes);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -261,6 +264,54 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    async function getSqliteTableSizes() {
+        const [
+            gps,
+            status,
+            bio,
+            avatar,
+            onlineOffline,
+            friendLogHistory,
+            notification,
+            location,
+            joinLeave,
+            portalSpawn,
+            videoPlay,
+            event,
+            external
+        ] = await Promise.all([
+            database.getGpsTableSize(),
+            database.getStatusTableSize(),
+            database.getBioTableSize(),
+            database.getAvatarTableSize(),
+            database.getOnlineOfflineTableSize(),
+            database.getFriendLogHistoryTableSize(),
+            database.getNotificationTableSize(),
+            database.getLocationTableSize(),
+            database.getJoinLeaveTableSize(),
+            database.getPortalSpawnTableSize(),
+            database.getVideoPlayTableSize(),
+            database.getEventTableSize(),
+            database.getExternalTableSize()
+        ]);
+
+        state.sqliteTableSizes = {
+            gps,
+            status,
+            bio,
+            avatar,
+            onlineOffline,
+            friendLogHistory,
+            notification,
+            location,
+            joinLeave,
+            portalSpawn,
+            videoPlay,
+            event,
+            external
+        };
+    }
+
     function handleSetAppLauncherSettings() {
         AppApi.SetAppLauncherSettings(
             state.enableAppLauncher,
@@ -291,6 +342,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         progressPieFilter,
         showConfirmationOnSwitchAvatar,
         gameLogDisabled,
+        sqliteTableSizes,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -312,6 +364,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setShowConfirmationOnSwitchAvatar,
         setGameLogDisabled,
 
+        getSqliteTableSizes,
         handleSetAppLauncherSettings
     };
 });
