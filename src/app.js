@@ -513,10 +513,18 @@ console.log(`isLinux: ${LINUX}`);
             const {
                 photonLoggingEnabled,
                 photonEventOverlay,
-                photonEventTableTypeFilterList
+                photonEventOverlayFilter,
+                photonEventTableTypeOverlayFilter,
+                photonEventTableTypeFilterList,
+                timeoutHudOverlay
             } = storeToRefs(photonStore);
-            const { setPhotonLoggingEnabled, setPhotonEventOverlay } =
-                photonStore;
+            const {
+                setPhotonLoggingEnabled,
+                setPhotonEventOverlay,
+                setPhotonEventOverlayFilter,
+                setPhotonEventTableTypeOverlayFilter,
+                setTimeoutHudOverlay
+            } = photonStore;
 
             return {
                 appVersion,
@@ -716,9 +724,15 @@ console.log(`isLinux: ${LINUX}`);
                 photonLoggingEnabled,
                 photonEventOverlay,
                 photonEventTableTypeFilterList,
+                photonEventOverlayFilter,
+                photonEventTableTypeOverlayFilter,
+                timeoutHudOverlay,
 
                 setPhotonLoggingEnabled,
-                setPhotonEventOverlay
+                setPhotonEventOverlay,
+                setPhotonEventOverlayFilter,
+                setPhotonEventTableTypeOverlayFilter,
+                setTimeoutHudOverlay
             };
         },
         data: {
@@ -6495,10 +6509,6 @@ console.log(`isLinux: ${LINUX}`);
         // }
     };
 
-    $app.data.timeoutHudOverlay = await configRepository.getBool(
-        'VRCX_TimeoutHudOverlay',
-        false
-    );
     $app.data.timeoutHudOverlayFilter = await configRepository.getString(
         'VRCX_TimeoutHudOverlayFilter',
         'Everyone'
@@ -6513,19 +6523,12 @@ console.log(`isLinux: ${LINUX}`);
         if (configKey === 'VRCX_PhotonEventOverlay') {
             this.setPhotonEventOverlay();
         } else if (configKey === 'VRCX_TimeoutHudOverlay') {
-            this.timeoutHudOverlay = !this.timeoutHudOverlay;
+            this.setTimeoutHudOverlay();
         }
-        await configRepository.setBool(
-            'VRCX_TimeoutHudOverlay',
-            this.timeoutHudOverlay
-        );
         await configRepository.setString(
             'VRCX_TimeoutHudOverlayFilter',
             this.timeoutHudOverlayFilter
         );
-        if (!this.timeoutHudOverlay) {
-            AppApi.ExecuteVrOverlayFunction('updateHudTimeout', '[]');
-        }
         this.updateOpenVR();
         this.updateVRConfigVars();
     };

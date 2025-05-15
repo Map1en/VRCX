@@ -2020,7 +2020,8 @@
         photonEventOverlay,
         photonEventOverlayFilter,
         photonEventTableTypeOverlayFilter,
-        photonEventTableTypeFilterList
+        photonEventTableTypeFilterList,
+        timeoutHudOverlay
     } = storeToRefs(photonStore);
 
     const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter } = photonStore;
@@ -2056,10 +2057,6 @@
             type: String,
             default: ''
         }
-        // timeoutHudOverlay: {
-        //     type: Boolean,
-        //     default: false
-        // },
         // timeoutHudOverlayFilter: {
         //     type: String,
         //     default: ''

@@ -31,7 +31,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         const [
             photonEventOverlay,
             photonEventOverlayFilter,
-            photonEventTableTypeOverlayFilter
+            photonEventTableTypeOverlayFilter,
+            timeoutHudOverlay
         ] = await Promise.all([
             configRepository.getBool('VRCX_PhotonEventOverlay', false),
             configRepository.getString(
@@ -41,7 +42,8 @@ export const usePhotonStore = defineStore('Photon', () => {
             configRepository.getString(
                 'VRCX_photonEventTypeOverlayFilter',
                 '[]'
-            )
+            ),
+            configRepository.getBool('VRCX_TimeoutHudOverlay', false)
         ]);
 
         state.photonEventOverlay = photonEventOverlay;
@@ -49,6 +51,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         state.photonEventTableTypeOverlayFilter = JSON.parse(
             photonEventTableTypeOverlayFilter
         );
+        state.timeoutHudOverlay = timeoutHudOverlay;
     }
 
     const photonLoggingEnabled = computed(() => state.photonLoggingEnabled);
@@ -62,6 +65,7 @@ export const usePhotonStore = defineStore('Photon', () => {
     const photonEventTableTypeFilterList = computed(
         () => state.photonEventTableTypeFilterList
     );
+    const timeoutHudOverlay = computed(() => state.timeoutHudOverlay);
 
     function setPhotonLoggingEnabled() {
         state.photonLoggingEnabled = !state.photonLoggingEnabled;
@@ -88,6 +92,13 @@ export const usePhotonStore = defineStore('Photon', () => {
             JSON.stringify(state.photonEventTableTypeOverlayFilter)
         );
     }
+    function setTimeoutHudOverlay(value) {
+        state.timeoutHudOverlay = !state.timeoutHudOverlay;
+        configRepository.setBool('VRCX_TimeoutHudOverlay', value);
+        if (!state.timeoutHudOverlay) {
+            AppApi.ExecuteVrOverlayFunction('updateHudTimeout', '[]');
+        }
+    }
 
     return {
         state,
@@ -98,10 +109,12 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventOverlayFilter,
         photonEventTableTypeOverlayFilter,
         photonEventTableTypeFilterList,
+        timeoutHudOverlay,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
         setPhotonEventOverlayFilter,
-        setPhotonEventTableTypeOverlayFilter
+        setPhotonEventTableTypeOverlayFilter,
+        setTimeoutHudOverlay
     };
 });
