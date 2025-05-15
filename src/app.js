@@ -510,8 +510,10 @@ console.log(`isLinux: ${LINUX}`);
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
 
-            const { photonLoggingEnabled } = storeToRefs(photonStore);
-            const { setPhotonLoggingEnabled } = photonStore;
+            const { photonLoggingEnabled, photonEventOverlay } =
+                storeToRefs(photonStore);
+            const { setPhotonLoggingEnabled, setPhotonEventOverlay } =
+                photonStore;
 
             return {
                 appVersion,
@@ -709,8 +711,10 @@ console.log(`isLinux: ${LINUX}`);
                 handleSetAppLauncherSettings,
 
                 photonLoggingEnabled,
+                photonEventOverlay,
 
-                setPhotonLoggingEnabled
+                setPhotonLoggingEnabled,
+                setPhotonEventOverlay
             };
         },
         data: {
@@ -827,6 +831,8 @@ console.log(`isLinux: ${LINUX}`);
             const notificationsSettingsStore = useNotificationsSettingsStore();
             const discordPresenceSettingsStore =
                 useDiscordPresenceSettingsStore();
+            const advancedSettingsStore = useAdvancedSettingsStore();
+            const photonStore = usePhotonStore();
 
             this.setThemeMode(initThemeMode);
 
@@ -835,7 +841,9 @@ console.log(`isLinux: ${LINUX}`);
                 generalSettingsStore.initSettings(),
                 appearanceSettingsStore.initSettings(),
                 notificationsSettingsStore.initSettings(),
-                discordPresenceSettingsStore.initSettings()
+                discordPresenceSettingsStore.initSettings(),
+                advancedSettingsStore.initSettings(),
+                photonStore.initPhotonStates()
             ]);
 
             /**
@@ -6489,10 +6497,6 @@ console.log(`isLinux: ${LINUX}`);
         // }
     };
 
-    $app.data.photonEventOverlay = await configRepository.getBool(
-        'VRCX_PhotonEventOverlay',
-        false
-    );
     $app.data.timeoutHudOverlay = await configRepository.getBool(
         'VRCX_TimeoutHudOverlay',
         false
@@ -6513,14 +6517,10 @@ console.log(`isLinux: ${LINUX}`);
     );
     $app.methods.saveEventOverlay = async function (configKey = '') {
         if (configKey === 'VRCX_PhotonEventOverlay') {
-            this.photonEventOverlay = !this.photonEventOverlay;
+            this.setPhotonEventOverlay();
         } else if (configKey === 'VRCX_TimeoutHudOverlay') {
             this.timeoutHudOverlay = !this.timeoutHudOverlay;
         }
-        await configRepository.setBool(
-            'VRCX_PhotonEventOverlay',
-            this.photonEventOverlay
-        );
         await configRepository.setBool(
             'VRCX_TimeoutHudOverlay',
             this.timeoutHudOverlay

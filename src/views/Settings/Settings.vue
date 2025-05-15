@@ -2009,7 +2009,7 @@
         getSqliteTableSizes
     } = advancedSettingsStore;
 
-    const { photonLoggingEnabled } = storeToRefs(photonStore);
+    const { photonLoggingEnabled, photonEventOverlay } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 
@@ -2042,10 +2042,6 @@
             type: String,
             default: ''
         }
-        // photonEventOverlay: {
-        //     type: Boolean,
-        //     default: false
-        // },
         // photonEventOverlayFilter: {
         //     type: String,
         //     default: ''
