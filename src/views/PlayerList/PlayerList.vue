@@ -843,7 +843,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
-    const { photonLoggingEnabled } = storeToRefs(photonStore);
+    const { photonLoggingEnabled, photonEventTableTypeFilterList } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 
@@ -877,10 +877,6 @@
             default: false
         },
         photonEventTableTypeFilter: {
-            type: Array,
-            default: () => []
-        },
-        photonEventTableTypeFilterList: {
             type: Array,
             default: () => []
         },

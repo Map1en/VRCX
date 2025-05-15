@@ -1561,7 +1561,10 @@
                             :value="photonEventOverlayFilter"
                             size="mini"
                             :disabled="!openVR || !photonEventOverlay"
-                            @change="saveEventOverlay">
+                            @input="
+                                setPhotonEventOverlayFilter($event);
+                                saveEventOverlay();
+                            ">
                             <el-radio-button label="VIP">{{
                                 t('view.settings.advanced.photon.event_hud.filter_favorites')
                             }}</el-radio-button>
@@ -1584,13 +1587,16 @@
                     </div>
                     <div class="options-container-item">
                         <el-select
-                            v-model="photonEventTableTypeOverlayFilter"
+                            :value="photonEventTableTypeOverlayFilter"
                             multiple
                             clearable
                             collapse-tags
                             style="flex: 1"
                             placeholder="Filter"
-                            @change="photonEventTableFilterChange">
+                            @input="
+                                setPhotonEventTableTypeOverlayFilter($event);
+                                photonEventTableFilterChange();
+                            ">
                             <el-option
                                 v-for="type in photonEventTableTypeFilterList"
                                 :key="type"
@@ -2009,7 +2015,15 @@
         getSqliteTableSizes
     } = advancedSettingsStore;
 
-    const { photonLoggingEnabled, photonEventOverlay, photonEventOverlayFilter } = storeToRefs(photonStore);
+    const {
+        photonLoggingEnabled,
+        photonEventOverlay,
+        photonEventOverlayFilter,
+        photonEventTableTypeOverlayFilter,
+        photonEventTableTypeFilterList
+    } = storeToRefs(photonStore);
+
+    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter } = photonStore;
 
     const { t } = useI18n();
 
@@ -2042,18 +2056,6 @@
             type: String,
             default: ''
         }
-        // photonEventOverlayFilter: {
-        //     type: String,
-        //     default: ''
-        // },
-        // photonEventTableTypeOverlayFilter: {
-        //     type: String,
-        //     default: ''
-        // },
-        // photonEventTableTypeFilterList: {
-        //     type: Array,
-        //     default: () => []
-        // },
         // timeoutHudOverlay: {
         //     type: Boolean,
         //     default: false

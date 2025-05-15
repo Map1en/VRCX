@@ -990,7 +990,7 @@ mixin settingsTab
                         span.name {{ $t('view.settings.advanced.photon.event_hud.filter') }}
                         el-radio-group(
                             :value='photonEventOverlayFilter'
-                            @change='saveEventOverlay'
+                            @input='setPhotonEventOverlayFilter($event);saveEventOverlay()'
                             size='mini'
                             :disabled='!openVR || !photonEventOverlay')
                             el-radio-button(label='VIP') {{ $t('view.settings.advanced.photon.event_hud.filter_favorites') }}
@@ -1004,8 +1004,8 @@ mixin settingsTab
                             :disabled='!openVR') {{ $t('view.settings.advanced.photon.event_hud.message_timeout') }}
                     .options-container-item
                         el-select(
-                            v-model='photonEventTableTypeOverlayFilter'
-                            @change='photonEventTableFilterChange'
+                            :value='photonEventTableTypeOverlayFilter'
+                            @input='setPhotonEventTableTypeOverlayFilter($event);photonEventTableFilterChange()'
                             multiple
                             clearable
                             collapse-tags

@@ -89,23 +89,7 @@ export default class extends baseClass {
         },
 
         photonEventTableFilter: '',
-        photonEventTableTypeFilter: [],
-        photonEventTableTypeOverlayFilter: [],
-        photonEventTableTypeFilterList: [
-            'Event',
-            'OnPlayerJoined',
-            'OnPlayerLeft',
-            'ChangeAvatar',
-            'ChangeStatus',
-            'ChangeGroup',
-            'PortalSpawn',
-            'DeletedPortal',
-            'ChatBoxMessage',
-            'Moderation',
-            'Camera',
-            'SpawnEmoji',
-            'MasterMigrate'
-        ]
+        photonEventTableTypeFilter: []
     };
 
     _methods = {
@@ -1442,10 +1426,10 @@ export default class extends baseClass {
                 'VRCX_photonEventTypeFilter',
                 JSON.stringify(this.photonEventTableTypeFilter)
             );
-            await configRepository.setString(
-                'VRCX_photonEventTypeOverlayFilter',
-                JSON.stringify(this.photonEventTableTypeOverlayFilter)
-            );
+            // await configRepository.setString(
+            //     'VRCX_photonEventTypeOverlayFilter',
+            //     JSON.stringify(this.photonEventTableTypeOverlayFilter)
+            // );
         }
     };
 }

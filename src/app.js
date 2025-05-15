@@ -510,8 +510,11 @@ console.log(`isLinux: ${LINUX}`);
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
 
-            const { photonLoggingEnabled, photonEventOverlay } =
-                storeToRefs(photonStore);
+            const {
+                photonLoggingEnabled,
+                photonEventOverlay,
+                photonEventTableTypeFilterList
+            } = storeToRefs(photonStore);
             const { setPhotonLoggingEnabled, setPhotonEventOverlay } =
                 photonStore;
 
@@ -712,6 +715,7 @@ console.log(`isLinux: ${LINUX}`);
 
                 photonLoggingEnabled,
                 photonEventOverlay,
+                photonEventTableTypeFilterList,
 
                 setPhotonLoggingEnabled,
                 setPhotonEventOverlay
@@ -6215,12 +6219,6 @@ console.log(`isLinux: ${LINUX}`);
         $app.data.photonEventTableTypeFilter;
     $app.data.photonEventTablePrevious.filters[1].value =
         $app.data.photonEventTableTypeFilter;
-    $app.data.photonEventTableTypeOverlayFilter = JSON.parse(
-        await configRepository.getString(
-            'VRCX_photonEventTypeOverlayFilter',
-            '[]'
-        )
-    );
 
     // #endregion
     // #region | App: Profile + Settings
@@ -6525,7 +6523,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_TimeoutHudOverlayFilter',
             this.timeoutHudOverlayFilter
         );
-        this.setPhotonEventOverlayFilter();
         if (!this.timeoutHudOverlay) {
             AppApi.ExecuteVrOverlayFunction('updateHudTimeout', '[]');
         }
@@ -12913,7 +12910,6 @@ console.log(`isLinux: ${LINUX}`);
                 this.currentInstanceWorldDescriptionExpanded,
             photonLoggingEnabled: this.photonLoggingEnabled,
             photonEventTableTypeFilter: this.photonEventTableTypeFilter,
-            photonEventTableTypeFilterList: this.photonEventTableTypeFilterList,
             photonEventTableFilter: this.photonEventTableFilter,
             ipcEnabled: this.ipcEnabled,
             photonEventIcon: this.photonEventIcon,
