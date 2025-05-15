@@ -1463,19 +1463,19 @@
                         :label="t('view.settings.advanced.advanced.screenshot_helper.enable')"
                         :value="screenshotHelper"
                         :long-label="true"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelper')"></simple-switch>
+                        @change="setScreenshotHelper" />
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
                         :value="screenshotHelperModifyFilename"
                         :disabled="!screenshotHelper"
                         :tooltip="t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
                         :long-label="true"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelperModifyFilename')"></simple-switch>
+                        @change="setScreenshotHelperModifyFilename" />
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
                         :value="screenshotHelperCopyToClipboard"
                         :long-label="true"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelperCopyToClipboard')"></simple-switch>
+                        @change="setScreenshotHelperCopyToClipboard" />
                 </div>
                 <!--//- Advanced | YouTube API-->
                 <div class="options-container">
@@ -1971,7 +1971,10 @@
         saveInstanceStickers,
         avatarRemoteDatabase,
         enableAppLauncher,
-        enableAppLauncherAutoClose
+        enableAppLauncherAutoClose,
+        screenshotHelper,
+        screenshotHelperModifyFilename,
+        screenshotHelperCopyToClipboard
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1984,7 +1987,10 @@
         setSaveInstanceStickers,
         setAvatarRemoteDatabase,
         setEnableAppLauncher,
-        setEnableAppLauncherAutoClose
+        setEnableAppLauncherAutoClose,
+        setScreenshotHelper,
+        setScreenshotHelperModifyFilename,
+        setScreenshotHelperCopyToClipboard
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2017,18 +2023,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        screenshotHelper: {
-            type: Boolean,
-            default: false
-        },
-        screenshotHelperModifyFilename: {
-            type: Boolean,
-            default: false
-        },
-        screenshotHelperCopyToClipboard: {
-            type: Boolean,
-            default: false
         },
         youTubeApi: {
             type: Boolean,
@@ -2300,10 +2294,6 @@
 
     function updateAppLauncherSettings() {
         // Function to update the app launcher settings
-    }
-
-    function saveScreenshotHelper() {
-        // Function to save the screenshot helper settings
     }
 
     function changeYouTubeApi() {

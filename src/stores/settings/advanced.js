@@ -14,7 +14,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         saveInstanceStickers: false,
         avatarRemoteDatabase: true,
         enableAppLauncher: true,
-        enableAppLauncherAutoClose: true
+        enableAppLauncherAutoClose: true,
+        screenshotHelper: true,
+        screenshotHelperModifyFilename: false,
+        screenshotHelperCopyToClipboard: false
     });
 
     async function initSettings() {
@@ -29,7 +32,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             saveInstanceStickers,
             avatarRemoteDatabase,
             enableAppLauncher,
-            enableAppLauncherAutoClose
+            enableAppLauncherAutoClose,
+            screenshotHelper,
+            screenshotHelperModifyFilename,
+            screenshotHelperCopyToClipboard
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -41,7 +47,16 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             configRepository.getBool('VRCX_saveInstanceStickers', false),
             configRepository.getBool('VRCX_avatarRemoteDatabase', true),
             configRepository.getBool('VRCX_enableAppLauncher', true),
-            configRepository.getBool('VRCX_enableAppLauncherAutoClose', true)
+            configRepository.getBool('VRCX_enableAppLauncherAutoClose', true),
+            configRepository.getBool('VRCX_screenshotHelper', true),
+            configRepository.getBool(
+                'VRCX_screenshotHelperModifyFilename',
+                false
+            ),
+            configRepository.getBool(
+                'VRCX_screenshotHelperCopyToClipboard',
+                false
+            )
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -55,6 +70,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.avatarRemoteDatabase = avatarRemoteDatabase;
         state.enableAppLauncher = enableAppLauncher;
         state.enableAppLauncherAutoClose = enableAppLauncherAutoClose;
+        state.screenshotHelper = screenshotHelper;
+        state.screenshotHelperModifyFilename = screenshotHelperModifyFilename;
+        state.screenshotHelperCopyToClipboard = screenshotHelperCopyToClipboard;
 
         handleSetAppLauncherSettings();
     }
@@ -77,6 +95,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const enableAppLauncher = computed(() => state.enableAppLauncher);
     const enableAppLauncherAutoClose = computed(
         () => state.enableAppLauncherAutoClose
+    );
+    const screenshotHelper = computed(() => state.screenshotHelper);
+    ``;
+    const screenshotHelperModifyFilename = computed(
+        () => state.screenshotHelperModifyFilename
+    );
+    const screenshotHelperCopyToClipboard = computed(
+        () => state.screenshotHelperCopyToClipboard
     );
 
     function setEnablePrimaryPasswordConfigRepository(value) {
@@ -151,6 +177,29 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
         handleSetAppLauncherSettings();
     }
+    async function setScreenshotHelper() {
+        state.screenshotHelper = !state.screenshotHelper;
+        await configRepository.setBool(
+            'VRCX_screenshotHelper',
+            state.screenshotHelper
+        );
+    }
+    async function setScreenshotHelperModifyFilename() {
+        state.screenshotHelperModifyFilename =
+            !state.screenshotHelperModifyFilename;
+        await configRepository.setBool(
+            'VRCX_screenshotHelperModifyFilename',
+            state.screenshotHelperModifyFilename
+        );
+    }
+    async function setScreenshotHelperCopyToClipboard() {
+        state.screenshotHelperCopyToClipboard =
+            !state.screenshotHelperCopyToClipboard;
+        await configRepository.setBool(
+            'VRCX_screenshotHelperCopyToClipboard',
+            state.screenshotHelperCopyToClipboard
+        );
+    }
 
     function handleSetAppLauncherSettings() {
         AppApi.SetAppLauncherSettings(
@@ -174,6 +223,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         avatarRemoteDatabase,
         enableAppLauncher,
         enableAppLauncherAutoClose,
+        screenshotHelper,
+        screenshotHelperModifyFilename,
+        screenshotHelperCopyToClipboard,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -186,6 +238,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setAvatarRemoteDatabase,
         setEnableAppLauncher,
         setEnableAppLauncherAutoClose,
+        setScreenshotHelper,
+        setScreenshotHelperModifyFilename,
+        setScreenshotHelperCopyToClipboard,
 
         handleSetAppLauncherSettings
     };

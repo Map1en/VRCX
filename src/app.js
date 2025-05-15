@@ -471,7 +471,10 @@ console.log(`isLinux: ${LINUX}`);
                 saveInstanceStickers,
                 avatarRemoteDatabase,
                 enableAppLauncher,
-                enableAppLauncherAutoClose
+                enableAppLauncherAutoClose,
+                screenshotHelper,
+                screenshotHelperModifyFilename,
+                screenshotHelperCopyToClipboard
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -486,6 +489,9 @@ console.log(`isLinux: ${LINUX}`);
                 setAvatarRemoteDatabase,
                 setEnableAppLauncher,
                 setEnableAppLauncherAutoClose,
+                setScreenshotHelper,
+                setScreenshotHelperModifyFilename,
+                setScreenshotHelperCopyToClipboard,
 
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
@@ -652,6 +658,9 @@ console.log(`isLinux: ${LINUX}`);
                 avatarRemoteDatabase,
                 enableAppLauncher,
                 enableAppLauncherAutoClose,
+                screenshotHelper,
+                screenshotHelperModifyFilename,
+                screenshotHelperCopyToClipboard,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -664,6 +673,9 @@ console.log(`isLinux: ${LINUX}`);
                 setAvatarRemoteDatabase,
                 setEnableAppLauncher,
                 setEnableAppLauncherAutoClose,
+                setScreenshotHelper,
+                setScreenshotHelperModifyFilename,
+                setScreenshotHelperCopyToClipboard,
 
                 handleSetAppLauncherSettings
             };
@@ -6712,21 +6724,6 @@ console.log(`isLinux: ${LINUX}`);
         true
     );
 
-    $app.data.screenshotHelper = await configRepository.getBool(
-        'VRCX_screenshotHelper',
-        true
-    );
-
-    $app.data.screenshotHelperModifyFilename = await configRepository.getBool(
-        'VRCX_screenshotHelperModifyFilename',
-        false
-    );
-
-    $app.data.screenshotHelperCopyToClipboard = await configRepository.getBool(
-        'VRCX_screenshotHelperCopyToClipboard',
-        false
-    );
-
     $app.data.showConfirmationOnSwitchAvatar = await configRepository.getBool(
         'VRCX_showConfirmationOnSwitchAvatar',
         false
@@ -9809,30 +9806,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     // Screenshot Helper
-
-    $app.methods.saveScreenshotHelper = async function (configKey = '') {
-        if (configKey === 'VRCX_screenshotHelper') {
-            this.screenshotHelper = !this.screenshotHelper;
-        } else if (configKey === 'VRCX_screenshotHelperModifyFilename') {
-            this.screenshotHelperModifyFilename =
-                !this.screenshotHelperModifyFilename;
-        } else if (configKey === 'VRCX_screenshotHelperCopyToClipboard') {
-            this.screenshotHelperCopyToClipboard =
-                !this.screenshotHelperCopyToClipboard;
-        }
-        await configRepository.setBool(
-            'VRCX_screenshotHelper',
-            this.screenshotHelper
-        );
-        await configRepository.setBool(
-            'VRCX_screenshotHelperModifyFilename',
-            this.screenshotHelperModifyFilename
-        );
-        await configRepository.setBool(
-            'VRCX_screenshotHelperCopyToClipboard',
-            this.screenshotHelperCopyToClipboard
-        );
-    };
 
     $app.methods.processScreenshot = async function (path) {
         var newPath = path;

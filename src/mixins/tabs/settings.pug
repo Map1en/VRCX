@@ -914,12 +914,12 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.screenshot_helper.enable")'
                         :value='screenshotHelper'
-                        @change='saveScreenshotHelper("VRCX_screenshotHelper")'
+                        @change='setScreenshotHelper'
                         :long-label='true')
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.screenshot_helper.modify_filename")'
                         :value='screenshotHelperModifyFilename'
-                        @change='saveScreenshotHelper("VRCX_screenshotHelperModifyFilename")'
+                        @change='setScreenshotHelperModifyFilename'
                         :disabled='!screenshotHelper'
                         :tooltip='$t("view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip")'
                         :long-label='true')
@@ -927,7 +927,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard")'
                         :value='screenshotHelperCopyToClipboard'
-                        @change='saveScreenshotHelper("VRCX_screenshotHelperCopyToClipboard")'
+                        @change='setScreenshotHelperCopyToClipboard'
                         :long-label='true')
 
                 //- Advanced | YouTube API
