@@ -21,7 +21,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         youTubeApi: false,
         progressPie: false,
         progressPieFilter: true,
-        showConfirmationOnSwitchAvatar: false
+        showConfirmationOnSwitchAvatar: false,
+        gameLogDisabled: false
     });
 
     async function initSettings() {
@@ -43,7 +44,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             youTubeApi,
             progressPie,
             progressPieFilter,
-            showConfirmationOnSwitchAvatar
+            showConfirmationOnSwitchAvatar,
+            gameLogDisabled
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -71,7 +73,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             configRepository.getBool(
                 'VRCX_showConfirmationOnSwitchAvatar',
                 false
-            )
+            ),
+            configRepository.getBool('VRCX_gameLogDisabled', false)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -92,6 +95,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.progressPie = progressPie;
         state.progressPieFilter = progressPieFilter;
         state.showConfirmationOnSwitchAvatar = showConfirmationOnSwitchAvatar;
+        state.gameLogDisabled = gameLogDisabled === 'true';
 
         handleSetAppLauncherSettings();
     }
@@ -129,6 +133,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const showConfirmationOnSwitchAvatar = computed(
         () => state.showConfirmationOnSwitchAvatar
     );
+    const gameLogDisabled = computed(() => state.gameLogDisabled);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -248,6 +253,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.showConfirmationOnSwitchAvatar
         );
     }
+    async function setGameLogDisabled() {
+        state.gameLogDisabled = !state.gameLogDisabled;
+        await configRepository.setBool(
+            'VRCX_gameLogDisabled',
+            state.gameLogDisabled
+        );
+    }
 
     function handleSetAppLauncherSettings() {
         AppApi.SetAppLauncherSettings(
@@ -278,6 +290,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         progressPie,
         progressPieFilter,
         showConfirmationOnSwitchAvatar,
+        gameLogDisabled,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -297,6 +310,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setProgressPie,
         setProgressPieFilter,
         setShowConfirmationOnSwitchAvatar,
+        setGameLogDisabled,
 
         handleSetAppLauncherSettings
     };

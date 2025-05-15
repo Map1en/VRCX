@@ -178,6 +178,7 @@
     import configRepository from '../../../service/config';
     import { isRealInstance as _isRealInstance } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
 
     export default {
         name: 'FriendsSidebar',
@@ -188,8 +189,6 @@
         inject: ['API', 'showUserDialog', 'userImage', 'userStatusClass'],
         props: {
             isGameRunning: Boolean,
-
-            gameLogDisabled: Boolean,
 
             lastLocation: Object,
             lastLocationDestination: String,
@@ -204,12 +203,15 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const advancedSettingsStore = useAdvancedSettingsStore();
             const { isSidebarGroupByInstance, isHideFriendsInSameInstance, isSidebarDivideByFriendGroup } =
                 storeToRefs(appearanceSettingsStore);
+            const { gameLogDisabled } = storeToRefs(advancedSettingsStore);
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
-                isSidebarDivideByFriendGroup
+                isSidebarDivideByFriendGroup,
+                gameLogDisabled
             };
         },
 

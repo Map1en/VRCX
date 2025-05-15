@@ -478,7 +478,8 @@ console.log(`isLinux: ${LINUX}`);
                 youTubeApi,
                 progressPie,
                 progressPieFilter,
-                showConfirmationOnSwitchAvatar
+                showConfirmationOnSwitchAvatar,
+                gameLogDisabled
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -500,6 +501,7 @@ console.log(`isLinux: ${LINUX}`);
                 setProgressPie,
                 setProgressPieFilter,
                 setShowConfirmationOnSwitchAvatar,
+                setGameLogDisabled,
 
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
@@ -673,6 +675,7 @@ console.log(`isLinux: ${LINUX}`);
                 progressPie,
                 progressPieFilter,
                 showConfirmationOnSwitchAvatar,
+                gameLogDisabled,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -692,6 +695,7 @@ console.log(`isLinux: ${LINUX}`);
                 setProgressPie,
                 setProgressPieFilter,
                 setShowConfirmationOnSwitchAvatar,
+                setGameLogDisabled,
 
                 handleSetAppLauncherSettings
             };
@@ -6493,10 +6497,6 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_photonOverlayMessageTimeout',
             6000
         )
-    );
-    $app.data.gameLogDisabled = await configRepository.getBool(
-        'VRCX_gameLogDisabled',
-        false
     );
     $app.methods.saveEventOverlay = async function (configKey = '') {
         if (configKey === 'VRCX_PhotonEventOverlay') {
@@ -12715,7 +12715,6 @@ console.log(`isLinux: ${LINUX}`);
             onlineFriendCount: this.onlineFriendCount,
             friends: this.friends,
             isGameRunning: this.isGameRunning,
-            gameLogDisabled: this.gameLogDisabled,
             lastLocation: this.lastLocation,
             lastLocationDestination: this.lastLocationDestination,
             activeFriends: this.activeFriends,

@@ -1074,36 +1074,27 @@ export default class extends baseClass {
         },
 
         async disableGameLogDialog() {
-            this.gameLogDisabled = !this.gameLogDisabled;
             if (this.isGameRunning) {
                 this.$message({
                     message:
                         'VRChat needs to be closed before this option can be changed',
                     type: 'error'
                 });
-                this.gameLogDisabled = !this.gameLogDisabled;
                 return;
             }
-            if (this.gameLogDisabled) {
+            if (!this.gameLogDisabled) {
                 this.$confirm('Continue? Disable GameLog', 'Confirm', {
                     confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel',
                     type: 'info',
                     callback: async (action) => {
-                        if (action !== 'confirm') {
-                            this.gameLogDisabled = !this.gameLogDisabled;
-                            await configRepository.setBool(
-                                'VRCX_gameLogDisabled',
-                                this.gameLogDisabled
-                            );
+                        if (action === 'confirm') {
+                            this.setGameLogDisabled();
                         }
                     }
                 });
             } else {
-                await configRepository.setBool(
-                    'VRCX_gameLogDisabled',
-                    this.gameLogDisabled
-                );
+                this.setGameLogDisabled();
             }
         }
     };
