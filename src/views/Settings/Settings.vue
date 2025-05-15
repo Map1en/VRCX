@@ -1558,7 +1558,7 @@
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.advanced.photon.event_hud.filter') }}</span>
                         <el-radio-group
-                            v-model="photonEventOverlayFilter"
+                            :value="photonEventOverlayFilter"
                             size="mini"
                             :disabled="!openVR || !photonEventOverlay"
                             @change="saveEventOverlay">
@@ -2009,7 +2009,7 @@
         getSqliteTableSizes
     } = advancedSettingsStore;
 
-    const { photonLoggingEnabled, photonEventOverlay } = storeToRefs(photonStore);
+    const { photonLoggingEnabled, photonEventOverlay, photonEventOverlayFilter } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 

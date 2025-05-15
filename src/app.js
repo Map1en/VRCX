@@ -6505,10 +6505,6 @@ console.log(`isLinux: ${LINUX}`);
         'VRCX_TimeoutHudOverlayFilter',
         'Everyone'
     );
-    $app.data.photonEventOverlayFilter = await configRepository.getString(
-        'VRCX_PhotonEventOverlayFilter',
-        'Everyone'
-    );
     $app.data.photonOverlayMessageTimeout = Number(
         await configRepository.getString(
             'VRCX_photonOverlayMessageTimeout',
@@ -6529,10 +6525,7 @@ console.log(`isLinux: ${LINUX}`);
             'VRCX_TimeoutHudOverlayFilter',
             this.timeoutHudOverlayFilter
         );
-        await configRepository.setString(
-            'VRCX_PhotonEventOverlayFilter',
-            this.photonEventOverlayFilter
-        );
+        this.setPhotonEventOverlayFilter();
         if (!this.timeoutHudOverlay) {
             AppApi.ExecuteVrOverlayFunction('updateHudTimeout', '[]');
         }
@@ -10635,7 +10628,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             case 'Ping':
                 if (!this.photonLoggingEnabled) {
-                    this.setPhotonLoggingEnabled(true);
+                    this.setPhotonLoggingEnabled();
                 }
                 this.ipcEnabled = true;
                 this.ipcTimeout = 60; // 30secs

@@ -6,7 +6,7 @@ export const usePhotonStore = defineStore('Photon', () => {
     const state = reactive({
         photonLoggingEnabled: false,
         photonEventOverlay: false,
-        photonEventOverlayFilter: '',
+        photonEventOverlayFilter: 'Everyone',
         photonEventTableTypeOverlayFilter: '',
         photonEventTableTypeFilterList: [],
         timeoutHudOverlay: false,
@@ -14,25 +14,41 @@ export const usePhotonStore = defineStore('Photon', () => {
     });
 
     async function initPhotonStates() {
-        const [photonEventOverlay] = await Promise.all([
-            configRepository.getBool('VRCX_PhotonEventOverlay', false)
-        ]);
+        const [photonEventOverlay, photonEventOverlayFilter] =
+            await Promise.all([
+                configRepository.getBool('VRCX_PhotonEventOverlay', false),
+                configRepository.getString(
+                    'VRCX_PhotonEventOverlayFilter',
+                    'Everyone'
+                )
+            ]);
 
         state.photonEventOverlay = photonEventOverlay;
+        state.photonEventOverlayFilter = photonEventOverlayFilter;
     }
 
     const photonLoggingEnabled = computed(() => state.photonLoggingEnabled);
     const photonEventOverlay = computed(() => state.photonEventOverlay);
+    const photonEventOverlayFilter = computed(
+        () => state.photonEventOverlayFilter
+    );
 
-    function setPhotonLoggingEnabled(value) {
-        state.photonLoggingEnabled = value;
+    function setPhotonLoggingEnabled() {
+        state.photonLoggingEnabled = !state.photonLoggingEnabled;
         configRepository.setBool('VRCX_photonLoggingEnabled', true);
     }
-    function setPhotonEventOverlay(value) {
+    function setPhotonEventOverlay() {
         state.photonEventOverlay = !state.photonEventOverlay;
         configRepository.setBool(
             'VRCX_PhotonEventOverlay',
             state.photonEventOverlay
+        );
+    }
+    function setPhotonEventOverlayFilter() {
+        state.photonEventOverlayFilter = !state.photonEventOverlayFilter;
+        configRepository.setString(
+            'VRCX_PhotonEventOverlayFilter',
+            state.photonEventOverlayFilter
         );
     }
 
@@ -42,8 +58,10 @@ export const usePhotonStore = defineStore('Photon', () => {
 
         photonLoggingEnabled,
         photonEventOverlay,
+        photonEventOverlayFilter,
 
         setPhotonLoggingEnabled,
-        setPhotonEventOverlay
+        setPhotonEventOverlay,
+        setPhotonEventOverlayFilter
     };
 });

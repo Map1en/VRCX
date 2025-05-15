@@ -989,7 +989,7 @@ mixin settingsTab
                     .options-container-item
                         span.name {{ $t('view.settings.advanced.photon.event_hud.filter') }}
                         el-radio-group(
-                            v-model='photonEventOverlayFilter'
+                            :value='photonEventOverlayFilter'
                             @change='saveEventOverlay'
                             size='mini'
                             :disabled='!openVR || !photonEventOverlay')
