@@ -2063,10 +2063,6 @@
             type: String,
             default: ''
         },
-        // gameLogDisabled: {
-        //     type: Boolean,
-        //     default: false
-        // },
         sqliteTableSizes: {
             type: Object,
             default: () => ({})
