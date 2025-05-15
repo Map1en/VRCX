@@ -226,6 +226,14 @@
         shiftHeld: {
             type: Boolean,
             default: false
+        },
+        gameLogIsFriend: {
+            type: Function,
+            default: () => () => false
+        },
+        gameLogIsFavorite: {
+            type: Function,
+            default: () => () => false
         }
     });
 
@@ -240,14 +248,6 @@
 
     function gameLogTableLookup() {
         emit('gameLogTableLookup');
-    }
-
-    function gameLogIsFriend(row) {
-        emit('gameLogIsFriend', row);
-    }
-
-    function gameLogIsFavorite(row) {
-        emit('gameLogIsFavorite', row);
     }
 
     function lookupUser(ref) {
