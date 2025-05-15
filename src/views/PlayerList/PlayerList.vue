@@ -839,11 +839,12 @@
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { usePhotonStore } from '../../stores/photon';
+    import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
-    const { photonLoggingEnabled, photonEventTableTypeFilterList } = storeToRefs(photonStore);
+    const { photonLoggingEnabled } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 

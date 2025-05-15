@@ -68,9 +68,6 @@ export const usePhotonStore = defineStore('Photon', () => {
     const photonEventTableTypeOverlayFilter = computed(
         () => state.photonEventTableTypeOverlayFilter
     );
-    const photonEventTableTypeFilterList = computed(
-        () => state.photonEventTableTypeFilterList
-    );
     const timeoutHudOverlay = computed(() => state.timeoutHudOverlay);
     const timeoutHudOverlayFilter = computed(
         () => state.timeoutHudOverlayFilter
@@ -124,7 +121,6 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventOverlay,
         photonEventOverlayFilter,
         photonEventTableTypeOverlayFilter,
-        photonEventTableTypeFilterList,
         timeoutHudOverlay,
         timeoutHudOverlayFilter,
 

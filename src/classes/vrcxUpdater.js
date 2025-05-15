@@ -1,7 +1,7 @@
 import * as workerTimers from 'worker-timers';
-import configRepository from '../service/config';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
 import { $app, $t, API, baseClass } from './baseClass.js';
+import { branches } from '../shared/constants/vrcxUpdater.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
@@ -17,28 +17,9 @@ export default class extends baseClass {
             releases: [],
             json: {}
         },
-        branch: 'Stable',
         checkingForVRCXUpdate: false,
         pendingVRCXInstall: '',
         pendingVRCXUpdate: false,
-        branches: {
-            Stable: {
-                name: 'Stable',
-                urlReleases: 'https://api0.vrcx.app/releases/stable',
-                urlLatest: 'https://api0.vrcx.app/releases/stable/latest'
-            },
-            Nightly: {
-                name: 'Nightly',
-                urlReleases: 'https://api0.vrcx.app/releases/nightly',
-                urlLatest: 'https://api0.vrcx.app/releases/nightly/latest'
-            }
-            // LinuxTest: {
-            //     name: 'LinuxTest',
-            //     urlReleases: 'https://api.github.com/repos/rs189/VRCX/releases',
-            //     urlLatest:
-            //         'https://api.github.com/repos/rs189/VRCX/releases/latest'
-            // }
-        },
         updateProgress: 0,
         updateInProgress: false
     };
@@ -165,7 +146,7 @@ export default class extends baseClass {
 
         async loadBranchVersions() {
             var D = this.VRCXUpdateDialog;
-            var url = this.branches[this.branch].urlReleases;
+            var url = branches[this.branch].urlReleases;
             this.checkingForVRCXUpdate = true;
             try {
                 var response = await webApiService.execute({
@@ -211,36 +192,28 @@ export default class extends baseClass {
                 // update already downloaded and latest version
                 this.VRCXUpdateDialog.updatePendingIsLatest = true;
             }
-            if (
-                (await configRepository.getString('VRCX_branch')) !==
-                this.branch
-            ) {
-                await configRepository.setString('VRCX_branch', this.branch);
-            }
+            this.setBranch(this.branch);
         },
 
         async checkForVRCXUpdate() {
             const { setLatestAppVersion } = useVRCXUpdaterStore();
-            var currentVersion = this.appVersion.replace(' (Linux)', '');
             if (
-                !currentVersion ||
-                currentVersion === 'VRCX Nightly Build' ||
-                currentVersion === 'VRCX Build'
+                !this.currentVersion ||
+                this.currentVersion === 'VRCX Nightly Build' ||
+                this.currentVersion === 'VRCX Build'
             ) {
                 // ignore custom builds
                 return;
             }
             if (this.branch === 'Beta') {
                 // move Beta users to stable
-                this.branch = 'Stable';
-                await configRepository.setString('VRCX_branch', this.branch);
+                this.setBranch('Stable');
             }
-            if (typeof this.branches[this.branch] === 'undefined') {
+            if (typeof branches[this.branch] === 'undefined') {
                 // handle invalid branch
-                this.branch = 'Stable';
-                await configRepository.setString('VRCX_branch', this.branch);
+                this.setBranch('Stable');
             }
-            var url = this.branches[this.branch].urlLatest;
+            var url = branches[this.branch].urlLatest;
             this.checkingForVRCXUpdate = true;
             try {
                 var response = await webApiService.execute({
@@ -259,9 +232,12 @@ export default class extends baseClass {
                 console.log(json, response);
             }
             if (json === Object(json) && json.name && json.published_at) {
+                const changeLogRemoveLinks = function (text) {
+                    return text.replace(/([^!])\[[^\]]+\]\([^)]+\)/g, '$1');
+                };
                 this.VRCXUpdateDialog.updateJson = json;
                 this.changeLogDialog.buildName = json.name;
-                this.changeLogDialog.changeLog = this.changeLogRemoveLinks(
+                this.changeLogDialog.changeLog = changeLogRemoveLinks(
                     json.body
                 );
                 var releaseName = json.name;
@@ -270,7 +246,7 @@ export default class extends baseClass {
                 if (releaseName === this.pendingVRCXInstall) {
                     // update already downloaded
                     this.VRCXUpdateDialog.updatePendingIsLatest = true;
-                } else if (releaseName > currentVersion) {
+                } else if (releaseName > this.currentVersion) {
                     var downloadUrl = '';
                     var downloadName = '';
                     var hashUrl = '';

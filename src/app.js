@@ -292,10 +292,16 @@ console.log(`isLinux: ${LINUX}`);
             const advancedSettingsStore = useAdvancedSettingsStore();
             const photonStore = usePhotonStore();
 
-            const { appVersion, autoUpdateVRCX, latestAppVersion } =
-                storeToRefs(VRCXUpdaterStore);
+            const {
+                appVersion,
+                autoUpdateVRCX,
+                latestAppVersion,
+                branch,
+                currentVersion
+            } = storeToRefs(VRCXUpdaterStore);
 
-            const { setAutoUpdateVRCX } = VRCXUpdaterStore;
+            const { setAutoUpdateVRCX, setBranch, compareAppVersion } =
+                VRCXUpdaterStore;
 
             const {
                 isStartAtWindowsStartup,
@@ -515,7 +521,6 @@ console.log(`isLinux: ${LINUX}`);
                 photonEventOverlay,
                 photonEventOverlayFilter,
                 photonEventTableTypeOverlayFilter,
-                photonEventTableTypeFilterList,
                 timeoutHudOverlay,
                 timeoutHudOverlayFilter
             } = storeToRefs(photonStore);
@@ -532,8 +537,12 @@ console.log(`isLinux: ${LINUX}`);
                 appVersion,
                 autoUpdateVRCX,
                 latestAppVersion,
+                branch,
+                currentVersion,
 
                 setAutoUpdateVRCX,
+                setBranch,
+                compareAppVersion,
 
                 isStartAtWindowsStartup,
                 isStartAsMinimizedState,
@@ -725,7 +734,6 @@ console.log(`isLinux: ${LINUX}`);
 
                 photonLoggingEnabled,
                 photonEventOverlay,
-                photonEventTableTypeFilterList,
                 photonEventOverlayFilter,
                 photonEventTableTypeOverlayFilter,
                 timeoutHudOverlay,
@@ -886,8 +894,11 @@ console.log(`isLinux: ${LINUX}`);
             }
             await AppApi.SetUserAgent();
             await this.loadVrcxId();
-            await this.compareAppVersion();
-            await this.setBranch();
+
+            if (await this.compareAppVersion()) {
+                this.showChangeLogDialog();
+            }
+
             if (this.autoUpdateVRCX !== 'Off') {
                 this.checkForVRCXUpdate();
             }
@@ -3184,48 +3195,6 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
         });
-    };
-
-    $app.methods.compareAppVersion = async function () {
-        if (!this.appVersion) {
-            return;
-        }
-        var currentVersion = this.appVersion.replace(' (Linux)', '');
-        var lastVersion = await configRepository.getString(
-            'VRCX_lastVRCXVersion',
-            ''
-        );
-        if (!lastVersion) {
-            await configRepository.setString(
-                'VRCX_lastVRCXVersion',
-                currentVersion
-            );
-            return;
-        }
-        if (lastVersion !== currentVersion) {
-            await configRepository.setString(
-                'VRCX_lastVRCXVersion',
-                currentVersion
-            );
-            if (
-                (await configRepository.getString('VRCX_branch')) === 'Stable'
-            ) {
-                this.showChangeLogDialog();
-            }
-        }
-    };
-
-    $app.methods.setBranch = async function () {
-        if (!this.appVersion) {
-            return;
-        }
-        var currentVersion = this.appVersion.replace(' (Linux)', '');
-        if (currentVersion.includes('VRCX Nightly')) {
-            this.branch = 'Nightly';
-        } else {
-            this.branch = 'Stable';
-        }
-        await configRepository.setString('VRCX_branch', this.branch);
     };
 
     $app.data.vrcxId = '';
@@ -6315,10 +6284,6 @@ console.log(`isLinux: ${LINUX}`);
     $app.data.notificationTimeout = await configRepository.getString(
         'VRCX_notificationTimeout',
         '3000'
-    );
-    $app.data.branch = await configRepository.getString(
-        'VRCX_branch',
-        'Stable'
     );
     $app.data.maxTableSize = await configRepository.getInt(
         'VRCX_maxTableSize',
@@ -12437,10 +12402,6 @@ console.log(`isLinux: ${LINUX}`);
         this.checkForVRCXUpdate();
     };
 
-    $app.methods.changeLogRemoveLinks = function (text) {
-        return text.replace(/([^!])\[[^\]]+\]\([^)]+\)/g, '$1');
-    };
-
     $app.methods.openFolderGeneric = function (path) {
         AppApi.OpenFolderAndSelectItem(path, true);
     };
@@ -12953,15 +12914,12 @@ console.log(`isLinux: ${LINUX}`);
             updateInProgress: this.updateInProgress,
             updateProgress: this.updateProgress,
             updateProgressText: this.updateProgressText,
-            pendingVRCXInstall: this.pendingVRCXInstall,
-            branch: this.branch,
-            branches: this.branches
+            pendingVRCXInstall: this.pendingVRCXInstall
         };
     };
 
     $app.computed.vrcxUpdateDialogEvent = function () {
         return {
-            'update:branch': (value) => (this.branch = value),
             loadBranchVersions: this.loadBranchVersions,
             cancelUpdate: this.cancelUpdate,
             installVRCXUpdate: this.installVRCXUpdate,

@@ -103,4 +103,20 @@ const photonEventType = [
     'CallUdonMethod'
 ];
 
-export { photonEmojis, photonEventType };
+const photonEventTableTypeFilterList = [
+    'Event',
+    'OnPlayerJoined',
+    'OnPlayerLeft',
+    'ChangeAvatar',
+    'ChangeStatus',
+    'ChangeGroup',
+    'PortalSpawn',
+    'DeletedPortal',
+    'ChatBoxMessage',
+    'Moderation',
+    'Camera',
+    'SpawnEmoji',
+    'MasterMigrate'
+];
+
+export { photonEmojis, photonEventType, photonEventTableTypeFilterList };

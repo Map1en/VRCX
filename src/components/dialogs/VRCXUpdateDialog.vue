@@ -20,8 +20,7 @@
                     v-model="currentBranch"
                     style="display: inline-block; width: 150px; margin-right: 15px"
                     @change="loadBranchVersions">
-                    <el-option v-for="branch in branches" :key="branch.name" :label="branch.name" :value="branch.name">
-                    </el-option>
+                    <el-option v-for="b in branches" :key="b.name" :label="b.name" :value="b.name"> </el-option>
                 </el-select>
                 <el-select v-model="VRCXUpdateDialog.release" style="display: inline-block; width: 150px">
                     <el-option
@@ -67,10 +66,12 @@
     import { computed, inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import { branches } from '../../shared/constants/vrcxUpdater';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
-    const { appVersion } = storeToRefs(VRCXUpdaterStore);
+    const { appVersion, branch } = storeToRefs(VRCXUpdaterStore);
+    const { setBranch } = VRCXUpdaterStore;
 
     const { t } = useI18n();
     const adjustDialogZ = inject('adjustDialogZ');
@@ -100,31 +101,17 @@
         pendingVRCXInstall: {
             type: String,
             default: ''
-        },
-        branch: {
-            type: String,
-            default: ''
-        },
-        branches: {
-            type: Object,
-            default: () => {}
         }
     });
 
     const VRCXUpdateDialogRef = ref(null);
 
-    const emit = defineEmits([
-        'loadBranchVersions',
-        'cancelUpdate',
-        'installVRCXUpdate',
-        'restartVRCX',
-        'update:branch'
-    ]);
+    const emit = defineEmits(['loadBranchVersions', 'cancelUpdate', 'installVRCXUpdate', 'restartVRCX']);
 
     const currentBranch = computed({
-        get: () => props.branch,
+        get: () => branch,
         set: (value) => {
-            emit('update:branch', value);
+            setBranch(value);
         }
     });
 

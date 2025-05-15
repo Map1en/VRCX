@@ -1812,6 +1812,7 @@
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import { usePhotonStore } from '../../stores/photon';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
+    import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
 
     const { i18n } = useI18n();
 
@@ -2023,7 +2024,6 @@
         photonEventOverlay,
         photonEventOverlayFilter,
         photonEventTableTypeOverlayFilter,
-        photonEventTableTypeFilterList,
         timeoutHudOverlay,
         timeoutHudOverlayFilter
     } = storeToRefs(photonStore);
