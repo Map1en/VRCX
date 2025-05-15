@@ -962,7 +962,7 @@ mixin settingsTab
                     simple-switch(
                         :label='$t("view.settings.advanced.advanced.launch_commands.show_confirmation_on_switch_avatar_enable")'
                         :value='showConfirmationOnSwitchAvatar'
-                        @change='toggleLaunchCommandSetting("VRCX_showConfirmationOnSwitchAvatar")'
+                        @change='setShowConfirmationOnSwitchAvatar'
                         :tooltip='$t("view.settings.advanced.advanced.launch_commands.show_confirmation_on_switch_avatar_tooltip")'
                         :long-label='true')
                     .options-container-item

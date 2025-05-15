@@ -1525,7 +1525,7 @@
                             )
                         "
                         :long-label="true"
-                        @change="toggleLaunchCommandSetting('VRCX_showConfirmationOnSwitchAvatar')"></simple-switch>
+                        @change="setShowConfirmationOnSwitchAvatar" />
                     <div class="options-container-item">
                         <el-button
                             size="small"
@@ -1977,7 +1977,8 @@
         screenshotHelperCopyToClipboard,
         youTubeApi,
         progressPie,
-        progressPieFilter
+        progressPieFilter,
+        showConfirmationOnSwitchAvatar
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1997,7 +1998,8 @@
         // todo
         setYouTubeApi,
         setProgressPie,
-        setProgressPieFilter
+        setProgressPieFilter,
+        setShowConfirmationOnSwitchAvatar
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2030,10 +2032,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        showConfirmationOnSwitchAvatar: {
-            type: Boolean,
-            default: false
         },
         photonLoggingEnabled: {
             type: Boolean,
@@ -2297,10 +2295,6 @@
 
     function showYouTubeApiDialog() {
         // Function to show the YouTube API dialog
-    }
-
-    function toggleLaunchCommandSetting() {
-        // Function to toggle the launch command setting
     }
 
     function saveEventOverlay() {

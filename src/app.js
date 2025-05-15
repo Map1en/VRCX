@@ -477,7 +477,8 @@ console.log(`isLinux: ${LINUX}`);
                 screenshotHelperCopyToClipboard,
                 youTubeApi,
                 progressPie,
-                progressPieFilter
+                progressPieFilter,
+                showConfirmationOnSwitchAvatar
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -498,6 +499,7 @@ console.log(`isLinux: ${LINUX}`);
                 setYouTubeApi,
                 setProgressPie,
                 setProgressPieFilter,
+                setShowConfirmationOnSwitchAvatar,
 
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
@@ -670,6 +672,7 @@ console.log(`isLinux: ${LINUX}`);
                 youTubeApi,
                 progressPie,
                 progressPieFilter,
+                showConfirmationOnSwitchAvatar,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -688,6 +691,7 @@ console.log(`isLinux: ${LINUX}`);
                 setYouTubeApi,
                 setProgressPie,
                 setProgressPieFilter,
+                setShowConfirmationOnSwitchAvatar,
 
                 handleSetAppLauncherSettings
             };
@@ -6723,11 +6727,6 @@ console.log(`isLinux: ${LINUX}`);
         ''
     );
 
-    $app.data.showConfirmationOnSwitchAvatar = await configRepository.getBool(
-        'VRCX_showConfirmationOnSwitchAvatar',
-        false
-    );
-
     $app.methods.updateVRConfigVars = function () {
         let notificationTheme = 'relax';
         if (this.isDarkMode) {
@@ -9886,25 +9885,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.showYouTubeApiDialog = function () {
         this.isYouTubeApiDialogVisible = true;
-    };
-
-    // Launch Command Settings handling
-
-    $app.methods.toggleLaunchCommandSetting = async function (configKey = '') {
-        switch (configKey) {
-            case 'VRCX_showConfirmationOnSwitchAvatar':
-                this.showConfirmationOnSwitchAvatar =
-                    !this.showConfirmationOnSwitchAvatar;
-                await configRepository.setBool(
-                    'VRCX_showConfirmationOnSwitchAvatar',
-                    this.showConfirmationOnSwitchAvatar
-                );
-                break;
-            default:
-                throw new Error(
-                    'toggleLaunchCommandSetting: Unknown configKey'
-                );
-        }
     };
 
     // Asset Bundle Cacher

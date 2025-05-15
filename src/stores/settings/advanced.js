@@ -20,7 +20,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         screenshotHelperCopyToClipboard: false,
         youTubeApi: false,
         progressPie: false,
-        progressPieFilter: true
+        progressPieFilter: true,
+        showConfirmationOnSwitchAvatar: false
     });
 
     async function initSettings() {
@@ -41,7 +42,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             screenshotHelperCopyToClipboard,
             youTubeApi,
             progressPie,
-            progressPieFilter
+            progressPieFilter,
+            showConfirmationOnSwitchAvatar
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -65,7 +67,11 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             ),
             configRepository.getBool('VRCX_youtubeAPI', false),
             configRepository.getBool('VRCX_progressPie', false),
-            configRepository.getBool('VRCX_progressPieFilter', true)
+            configRepository.getBool('VRCX_progressPieFilter', true),
+            configRepository.getBool(
+                'VRCX_showConfirmationOnSwitchAvatar',
+                false
+            )
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -85,6 +91,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.youTubeApi = youTubeApi;
         state.progressPie = progressPie;
         state.progressPieFilter = progressPieFilter;
+        state.showConfirmationOnSwitchAvatar = showConfirmationOnSwitchAvatar;
 
         handleSetAppLauncherSettings();
     }
@@ -119,6 +126,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const youTubeApi = computed(() => state.youTubeApi);
     const progressPie = computed(() => state.progressPie);
     const progressPieFilter = computed(() => state.progressPieFilter);
+    const showConfirmationOnSwitchAvatar = computed(
+        () => state.showConfirmationOnSwitchAvatar
+    );
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -230,6 +240,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.progressPieFilter
         );
     }
+    async function setShowConfirmationOnSwitchAvatar() {
+        state.showConfirmationOnSwitchAvatar =
+            !state.showConfirmationOnSwitchAvatar;
+        await configRepository.setBool(
+            'VRCX_showConfirmationOnSwitchAvatar',
+            state.showConfirmationOnSwitchAvatar
+        );
+    }
 
     function handleSetAppLauncherSettings() {
         AppApi.SetAppLauncherSettings(
@@ -259,6 +277,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         youTubeApi,
         progressPie,
         progressPieFilter,
+        showConfirmationOnSwitchAvatar,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -277,6 +296,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setYouTubeApi,
         setProgressPie,
         setProgressPieFilter,
+        setShowConfirmationOnSwitchAvatar,
 
         handleSetAppLauncherSettings
     };
