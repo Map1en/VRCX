@@ -469,7 +469,9 @@ console.log(`isLinux: ${LINUX}`);
                 saveInstancePrints,
                 cropInstancePrints,
                 saveInstanceStickers,
-                avatarRemoteDatabase
+                avatarRemoteDatabase,
+                enableAppLauncher,
+                enableAppLauncherAutoClose
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -481,7 +483,11 @@ console.log(`isLinux: ${LINUX}`);
                 setSaveInstancePrints,
                 setCropInstancePrints,
                 setSaveInstanceStickers,
-                setAvatarRemoteDatabase
+                setAvatarRemoteDatabase,
+                setEnableAppLauncher,
+                setEnableAppLauncherAutoClose,
+
+                handleSetAppLauncherSettings
             } = advancedSettingsStore;
 
             return {
@@ -644,6 +650,8 @@ console.log(`isLinux: ${LINUX}`);
                 cropInstancePrints,
                 saveInstanceStickers,
                 avatarRemoteDatabase,
+                enableAppLauncher,
+                enableAppLauncherAutoClose,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -653,7 +661,11 @@ console.log(`isLinux: ${LINUX}`);
                 setSaveInstancePrints,
                 setCropInstancePrints,
                 setSaveInstanceStickers,
-                setAvatarRemoteDatabase
+                setAvatarRemoteDatabase,
+                setEnableAppLauncher,
+                setEnableAppLauncherAutoClose,
+
+                handleSetAppLauncherSettings
             };
         },
         data: {
@@ -808,10 +820,6 @@ console.log(`isLinux: ${LINUX}`);
             }
             await AppApi.CheckGameRunning();
             this.isGameNoVR = await configRepository.getBool('isGameNoVR');
-            await AppApi.SetAppLauncherSettings(
-                this.enableAppLauncher,
-                this.enableAppLauncherAutoClose
-            );
             API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
                 this.verifyShortName('', tag)
             );
@@ -6719,16 +6727,6 @@ console.log(`isLinux: ${LINUX}`);
         false
     );
 
-    $app.data.enableAppLauncher = await configRepository.getBool(
-        'VRCX_enableAppLauncher',
-        true
-    );
-
-    $app.data.enableAppLauncherAutoClose = await configRepository.getBool(
-        'VRCX_enableAppLauncherAutoClose',
-        true
-    );
-
     $app.data.showConfirmationOnSwitchAvatar = await configRepository.getBool(
         'VRCX_showConfirmationOnSwitchAvatar',
         false
@@ -9808,27 +9806,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.openShortcutFolder = function () {
         AppApi.OpenShortcutFolder();
-    };
-
-    $app.methods.updateAppLauncherSettings = async function (configKey = '') {
-        if (configKey === 'VRCX_enableAppLauncher') {
-            this.enableAppLauncher = !this.enableAppLauncher;
-            await configRepository.setBool(
-                'VRCX_enableAppLauncher',
-                this.enableAppLauncher
-            );
-        } else {
-            this.enableAppLauncherAutoClose = !this.enableAppLauncherAutoClose;
-            await configRepository.setBool(
-                'VRCX_enableAppLauncherAutoClose',
-                this.enableAppLauncherAutoClose
-            );
-        }
-
-        await AppApi.SetAppLauncherSettings(
-            this.enableAppLauncher,
-            this.enableAppLauncherAutoClose
-        );
     };
 
     // Screenshot Helper

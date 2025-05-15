@@ -12,7 +12,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         saveInstancePrints: false,
         cropInstancePrints: false,
         saveInstanceStickers: false,
-        avatarRemoteDatabase: true
+        avatarRemoteDatabase: true,
+        enableAppLauncher: true,
+        enableAppLauncherAutoClose: true
     });
 
     async function initSettings() {
@@ -25,7 +27,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             saveInstancePrints,
             cropInstancePrints,
             saveInstanceStickers,
-            avatarRemoteDatabase
+            avatarRemoteDatabase,
+            enableAppLauncher,
+            enableAppLauncherAutoClose
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -35,7 +39,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             configRepository.getBool('VRCX_saveInstancePrints', false),
             configRepository.getBool('VRCX_cropInstancePrints', false),
             configRepository.getBool('VRCX_saveInstanceStickers', false),
-            configRepository.getBool('VRCX_avatarRemoteDatabase', true)
+            configRepository.getBool('VRCX_avatarRemoteDatabase', true),
+            configRepository.getBool('VRCX_enableAppLauncher', true),
+            configRepository.getBool('VRCX_enableAppLauncherAutoClose', true)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -46,6 +52,11 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.saveInstancePrints = saveInstancePrints;
         state.cropInstancePrints = cropInstancePrints;
         state.saveInstanceStickers = saveInstanceStickers;
+        state.avatarRemoteDatabase = avatarRemoteDatabase;
+        state.enableAppLauncher = enableAppLauncher;
+        state.enableAppLauncherAutoClose = enableAppLauncherAutoClose;
+
+        handleSetAppLauncherSettings();
     }
 
     // This one is a bit tricky to do without following the getter/action pattern
@@ -63,6 +74,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const cropInstancePrints = computed(() => state.cropInstancePrints);
     const saveInstanceStickers = computed(() => state.saveInstanceStickers);
     const avatarRemoteDatabase = computed(() => state.avatarRemoteDatabase);
+    const enableAppLauncher = computed(() => state.enableAppLauncher);
+    const enableAppLauncherAutoClose = computed(
+        () => state.enableAppLauncherAutoClose
+    );
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -120,6 +135,29 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.avatarRemoteDatabase
         );
     }
+    async function setEnableAppLauncher() {
+        state.enableAppLauncher = !state.enableAppLauncher;
+        await configRepository.setBool(
+            'VRCX_enableAppLauncher',
+            state.enableAppLauncher
+        );
+        handleSetAppLauncherSettings();
+    }
+    async function setEnableAppLauncherAutoClose() {
+        state.enableAppLauncherAutoClose = !state.enableAppLauncherAutoClose;
+        await configRepository.setBool(
+            'VRCX_enableAppLauncherAutoClose',
+            state.enableAppLauncherAutoClose
+        );
+        handleSetAppLauncherSettings();
+    }
+
+    function handleSetAppLauncherSettings() {
+        AppApi.SetAppLauncherSettings(
+            state.enableAppLauncher,
+            state.enableAppLauncherAutoClose
+        );
+    }
 
     return {
         state,
@@ -134,6 +172,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         cropInstancePrints,
         saveInstanceStickers,
         avatarRemoteDatabase,
+        enableAppLauncher,
+        enableAppLauncherAutoClose,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -143,6 +183,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setSaveInstancePrints,
         setCropInstancePrints,
         setSaveInstanceStickers,
-        setAvatarRemoteDatabase
+        setAvatarRemoteDatabase,
+        setEnableAppLauncher,
+        setEnableAppLauncherAutoClose,
+
+        handleSetAppLauncherSettings
     };
 });

@@ -1437,12 +1437,12 @@
                             :label="t('view.settings.advanced.advanced.remote_database.enable')"
                             :value="enableAppLauncher"
                             :long-label="true"
-                            @change="updateAppLauncherSettings('VRCX_enableAppLauncher')"></simple-switch>
+                            @change="setEnableAppLauncher" />
                         <simple-switch
                             :label="t('view.settings.advanced.advanced.app_launcher.auto_close')"
                             :value="enableAppLauncherAutoClose"
                             :long-label="true"
-                            @change="updateAppLauncherSettings('VRCX_enableAppLauncherAutoClose')"></simple-switch>
+                            @change="setEnableAppLauncherAutoClose" />
                     </div>
                 </template>
                 <!--//- Advanced | Screenshot Helper-->
@@ -1969,7 +1969,9 @@
         saveInstancePrints,
         cropInstancePrints,
         saveInstanceStickers,
-        avatarRemoteDatabase
+        avatarRemoteDatabase,
+        enableAppLauncher,
+        enableAppLauncherAutoClose
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1980,7 +1982,9 @@
         setSaveInstancePrints,
         setCropInstancePrints,
         setSaveInstanceStickers,
-        setAvatarRemoteDatabase
+        setAvatarRemoteDatabase,
+        setEnableAppLauncher,
+        setEnableAppLauncherAutoClose
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2013,14 +2017,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        enableAppLauncher: {
-            type: Boolean,
-            default: false
-        },
-        enableAppLauncherAutoClose: {
-            type: Boolean,
-            default: false
         },
         screenshotHelper: {
             type: Boolean,

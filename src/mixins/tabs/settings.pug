@@ -893,12 +893,12 @@ mixin settingsTab
                         simple-switch(
                             :label='$t("view.settings.advanced.advanced.remote_database.enable")'
                             :value='enableAppLauncher'
-                            @change='updateAppLauncherSettings("VRCX_enableAppLauncher")'
+                            @change='setEnableAppLauncher'
                             :long-label='true')
                         simple-switch(
                             :label='$t("view.settings.advanced.advanced.app_launcher.auto_close")'
                             :value='enableAppLauncherAutoClose'
-                            @change='updateAppLauncherSettings("VRCX_enableAppLauncherAutoClose")'
+                            @change='setEnableAppLauncherAutoClose'
                             :long-label='true')
 
                 //- Advanced | Screenshot Helper
