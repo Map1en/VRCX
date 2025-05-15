@@ -142,6 +142,7 @@ import { useNotificationsSettingsStore } from './stores/settings/notifications';
 import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
 import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresence';
 import { useAdvancedSettingsStore } from './stores/settings/advanced';
+import { usePhotonStore } from './stores/photon';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -289,6 +290,7 @@ console.log(`isLinux: ${LINUX}`);
             const discordPresenceSettingsStore =
                 useDiscordPresenceSettingsStore();
             const advancedSettingsStore = useAdvancedSettingsStore();
+            const photonStore = usePhotonStore();
 
             const { appVersion, autoUpdateVRCX, latestAppVersion } =
                 storeToRefs(VRCXUpdaterStore);
@@ -508,6 +510,9 @@ console.log(`isLinux: ${LINUX}`);
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
 
+            const { photonLoggingEnabled } = storeToRefs(photonStore);
+            const { setPhotonLoggingEnabled } = photonStore;
+
             return {
                 appVersion,
                 autoUpdateVRCX,
@@ -701,7 +706,11 @@ console.log(`isLinux: ${LINUX}`);
                 setGameLogDisabled,
 
                 getSqliteTableSizes,
-                handleSetAppLauncherSettings
+                handleSetAppLauncherSettings,
+
+                photonLoggingEnabled,
+
+                setPhotonLoggingEnabled
             };
         },
         data: {
@@ -10626,8 +10635,7 @@ console.log(`isLinux: ${LINUX}`);
                 break;
             case 'Ping':
                 if (!this.photonLoggingEnabled) {
-                    this.photonLoggingEnabled = true;
-                    configRepository.setBool('VRCX_photonLoggingEnabled', true);
+                    this.setPhotonLoggingEnabled(true);
                 }
                 this.ipcEnabled = true;
                 this.ipcTimeout = 60; // 30secs

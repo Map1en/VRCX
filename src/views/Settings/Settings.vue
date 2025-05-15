@@ -1801,6 +1801,7 @@
     import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
     import { useDiscordPresenceSettingsStore } from '../../stores/settings/discordPresence';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
+    import { usePhotonStore } from '../../stores/photon';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
 
     const { i18n } = useI18n();
@@ -1812,6 +1813,7 @@
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
     const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const photonStore = usePhotonStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
     const { setAutoUpdateVRCX } = VRCXUpdaterStore;
@@ -2007,6 +2009,8 @@
         getSqliteTableSizes
     } = advancedSettingsStore;
 
+    const { photonLoggingEnabled } = storeToRefs(photonStore);
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -2037,35 +2041,31 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        photonLoggingEnabled: {
-            type: Boolean,
-            default: false
-        },
-        photonEventOverlay: {
-            type: Boolean,
-            default: false
-        },
-        photonEventOverlayFilter: {
-            type: String,
-            default: ''
-        },
-        photonEventTableTypeOverlayFilter: {
-            type: String,
-            default: ''
-        },
-        photonEventTableTypeFilterList: {
-            type: Array,
-            default: () => []
-        },
-        timeoutHudOverlay: {
-            type: Boolean,
-            default: false
-        },
-        timeoutHudOverlayFilter: {
-            type: String,
-            default: ''
         }
+        // photonEventOverlay: {
+        //     type: Boolean,
+        //     default: false
+        // },
+        // photonEventOverlayFilter: {
+        //     type: String,
+        //     default: ''
+        // },
+        // photonEventTableTypeOverlayFilter: {
+        //     type: String,
+        //     default: ''
+        // },
+        // photonEventTableTypeFilterList: {
+        //     type: Array,
+        //     default: () => []
+        // },
+        // timeoutHudOverlay: {
+        //     type: Boolean,
+        //     default: false
+        // },
+        // timeoutHudOverlayFilter: {
+        //     type: String,
+        //     default: ''
+        // }
     });
 
     const instanceTypes = ref([
@@ -2324,10 +2324,6 @@
 
     function showConsole() {
         // Function to show the console
-    }
-
-    function getSqliteTableSizes() {
-        // Function to get the SQLite table sizes
     }
 
     function saveAutoUpdateVRCX(value) {

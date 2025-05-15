@@ -28,7 +28,7 @@
                 </el-radio-group>
             </div>
 
-            <template v-if="props.photonLoggingEnabled">
+            <template v-if="photonLoggingEnabled">
                 <br />
                 <div class="toggle-item">
                     <span class="toggle-name">Photon Event Logging</span>
@@ -59,10 +59,15 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { computed } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
     import { feedFiltersOptions } from '../../../shared/constants';
+    import { usePhotonStore } from '../../../stores/photon';
+
+    const photonStore = usePhotonStore();
+    const { photonLoggingEnabled } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 
@@ -73,10 +78,6 @@
             type: String,
             required: true,
             default: ''
-        },
-        photonLoggingEnabled: {
-            type: Boolean,
-            default: false
         },
         sharedFeedFilters: {
             type: Object,

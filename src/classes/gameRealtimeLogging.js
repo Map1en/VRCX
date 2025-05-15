@@ -19,7 +19,6 @@ export default class extends baseClass {
     }
 
     _data = {
-        photonLoggingEnabled: false,
         moderationEventQueue: new Map(),
         moderationAgainstTable: [],
         photonLobby: new Map(),
