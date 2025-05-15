@@ -1974,7 +1974,10 @@
         enableAppLauncherAutoClose,
         screenshotHelper,
         screenshotHelperModifyFilename,
-        screenshotHelperCopyToClipboard
+        screenshotHelperCopyToClipboard,
+        youTubeApi,
+        progressPie,
+        progressPieFilter
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -1990,7 +1993,11 @@
         setEnableAppLauncherAutoClose,
         setScreenshotHelper,
         setScreenshotHelperModifyFilename,
-        setScreenshotHelperCopyToClipboard
+        setScreenshotHelperCopyToClipboard,
+        // todo
+        setYouTubeApi,
+        setProgressPie,
+        setProgressPieFilter
     } = advancedSettingsStore;
 
     const { t } = useI18n();
@@ -2023,18 +2030,6 @@
         ugcFolderPath: {
             type: String,
             default: ''
-        },
-        youTubeApi: {
-            type: Boolean,
-            default: false
-        },
-        progressPie: {
-            type: Boolean,
-            default: false
-        },
-        progressPieFilter: {
-            type: Boolean,
-            default: false
         },
         showConfirmationOnSwitchAvatar: {
             type: Boolean,

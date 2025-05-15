@@ -474,7 +474,10 @@ console.log(`isLinux: ${LINUX}`);
                 enableAppLauncherAutoClose,
                 screenshotHelper,
                 screenshotHelperModifyFilename,
-                screenshotHelperCopyToClipboard
+                screenshotHelperCopyToClipboard,
+                youTubeApi,
+                progressPie,
+                progressPieFilter
             } = storeToRefs(advancedSettingsStore);
 
             const {
@@ -492,6 +495,9 @@ console.log(`isLinux: ${LINUX}`);
                 setScreenshotHelper,
                 setScreenshotHelperModifyFilename,
                 setScreenshotHelperCopyToClipboard,
+                setYouTubeApi,
+                setProgressPie,
+                setProgressPieFilter,
 
                 handleSetAppLauncherSettings
             } = advancedSettingsStore;
@@ -661,6 +667,9 @@ console.log(`isLinux: ${LINUX}`);
                 screenshotHelper,
                 screenshotHelperModifyFilename,
                 screenshotHelperCopyToClipboard,
+                youTubeApi,
+                progressPie,
+                progressPieFilter,
 
                 setEnablePrimaryPasswordConfigRepository,
                 setRelaunchVRChatAfterCrash,
@@ -676,6 +685,9 @@ console.log(`isLinux: ${LINUX}`);
                 setScreenshotHelper,
                 setScreenshotHelperModifyFilename,
                 setScreenshotHelperCopyToClipboard,
+                setYouTubeApi,
+                setProgressPie,
+                setProgressPieFilter,
 
                 handleSetAppLauncherSettings
             };
@@ -6706,22 +6718,9 @@ console.log(`isLinux: ${LINUX}`);
         this.updateVRConfigVars();
     };
 
-    $app.data.youTubeApi = await configRepository.getBool(
-        'VRCX_youtubeAPI',
-        false
-    );
     $app.data.youTubeApiKey = await configRepository.getString(
         'VRCX_youtubeAPIKey',
         ''
-    );
-
-    $app.data.progressPie = await configRepository.getBool(
-        'VRCX_progressPie',
-        false
-    );
-    $app.data.progressPieFilter = await configRepository.getBool(
-        'VRCX_progressPieFilter',
-        true
     );
 
     $app.data.showConfirmationOnSwitchAvatar = await configRepository.getBool(
@@ -9874,19 +9873,13 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.methods.changeYouTubeApi = async function (configKey = '') {
         if (configKey === 'VRCX_youtubeAPI') {
-            this.youTubeApi = !this.youTubeApi;
+            this.setYouTubeApi();
         } else if (configKey === 'VRCX_progressPie') {
-            this.progressPie = !this.progressPie;
+            this.setProgressPie();
         } else if (configKey === 'VRCX_progressPieFilter') {
-            this.progressPieFilter = !this.progressPieFilter;
+            this.setProgressPieFilter();
         }
 
-        await configRepository.setBool('VRCX_youtubeAPI', this.youTubeApi);
-        await configRepository.setBool('VRCX_progressPie', this.progressPie);
-        await configRepository.setBool(
-            'VRCX_progressPieFilter',
-            this.progressPieFilter
-        );
         this.updateVRLastLocation();
         this.updateOpenVR();
     };

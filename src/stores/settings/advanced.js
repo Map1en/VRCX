@@ -17,7 +17,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         enableAppLauncherAutoClose: true,
         screenshotHelper: true,
         screenshotHelperModifyFilename: false,
-        screenshotHelperCopyToClipboard: false
+        screenshotHelperCopyToClipboard: false,
+        youTubeApi: false,
+        progressPie: false,
+        progressPieFilter: true
     });
 
     async function initSettings() {
@@ -35,7 +38,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             enableAppLauncherAutoClose,
             screenshotHelper,
             screenshotHelperModifyFilename,
-            screenshotHelperCopyToClipboard
+            screenshotHelperCopyToClipboard,
+            youTubeApi,
+            progressPie,
+            progressPieFilter
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -56,7 +62,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             configRepository.getBool(
                 'VRCX_screenshotHelperCopyToClipboard',
                 false
-            )
+            ),
+            configRepository.getBool('VRCX_youtubeAPI', false),
+            configRepository.getBool('VRCX_progressPie', false),
+            configRepository.getBool('VRCX_progressPieFilter', true)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -73,6 +82,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.screenshotHelper = screenshotHelper;
         state.screenshotHelperModifyFilename = screenshotHelperModifyFilename;
         state.screenshotHelperCopyToClipboard = screenshotHelperCopyToClipboard;
+        state.youTubeApi = youTubeApi;
+        state.progressPie = progressPie;
+        state.progressPieFilter = progressPieFilter;
 
         handleSetAppLauncherSettings();
     }
@@ -104,6 +116,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const screenshotHelperCopyToClipboard = computed(
         () => state.screenshotHelperCopyToClipboard
     );
+    const youTubeApi = computed(() => state.youTubeApi);
+    const progressPie = computed(() => state.progressPie);
+    const progressPieFilter = computed(() => state.progressPieFilter);
 
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
@@ -200,6 +215,21 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.screenshotHelperCopyToClipboard
         );
     }
+    async function setYouTubeApi() {
+        state.youTubeApi = !state.youTubeApi;
+        await configRepository.setBool('VRCX_youtubeAPI', state.youTubeApi);
+    }
+    async function setProgressPie() {
+        state.progressPie = !state.progressPie;
+        await configRepository.setBool('VRCX_progressPie', state.progressPie);
+    }
+    async function setProgressPieFilter() {
+        state.progressPieFilter = !state.progressPieFilter;
+        await configRepository.setBool(
+            'VRCX_progressPieFilter',
+            state.progressPieFilter
+        );
+    }
 
     function handleSetAppLauncherSettings() {
         AppApi.SetAppLauncherSettings(
@@ -226,6 +256,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         screenshotHelper,
         screenshotHelperModifyFilename,
         screenshotHelperCopyToClipboard,
+        youTubeApi,
+        progressPie,
+        progressPieFilter,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -241,6 +274,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setScreenshotHelper,
         setScreenshotHelperModifyFilename,
         setScreenshotHelperCopyToClipboard,
+        setYouTubeApi,
+        setProgressPie,
+        setProgressPieFilter,
 
         handleSetAppLauncherSettings
     };
