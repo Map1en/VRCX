@@ -1,6 +1,7 @@
 import * as workerTimers from 'worker-timers';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
+import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
 import { $app, $t, API, baseClass } from './baseClass.js';
 import { loginRequest, worldRequest } from '../api';
 
@@ -502,8 +503,10 @@ export default class extends baseClass {
                             workerTimers.setTimeout(resolve, 100);
                         });
                         if (action === 'confirm') {
-                            var isUpgrade = false;
-                            this.restartVRCX(isUpgrade);
+                            const VRCXUpdater = useVRCXUpdaterStore();
+                            const { restartVRCX } = VRCXUpdater;
+                            const isUpgrade = false;
+                            restartVRCX(isUpgrade);
                         }
                     }
                 }

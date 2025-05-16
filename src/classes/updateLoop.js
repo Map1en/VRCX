@@ -55,7 +55,7 @@ export default class extends baseClass {
                     if (--this.nextAppUpdateCheck <= 0) {
                         this.nextAppUpdateCheck = 3600; // 1hour
                         if (this.autoUpdateVRCX !== 'Off') {
-                            this.checkForVRCXUpdate();
+                            this.checkForVRCXUpdate(this.notifyMenu);
                         }
                     }
                     if (--this.ipcTimeout <= 0) {

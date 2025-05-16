@@ -6,9 +6,9 @@
         width="800px"
         top="5vh"
         @close="closeDialog">
-        <div v-if="changeLogDialog.visible" class="changelog-dialog">
+        <div v-loading="!changeLogDialog.changeLog" class="changelog-dialog">
             <h2 v-text="changeLogDialog.buildName"></h2>
-            <span>
+            <span v-show="changeLogDialog.buildName">
                 {{ t('dialog.change_log.description') }}
                 <a class="x-link" @click="openExternalLink('https://www.patreon.com/Natsumi_VRCX')">Patreon</a>,
                 <a class="x-link" @click="openExternalLink('https://ko-fi.com/natsumi_sama')">Ko-fi</a>.
@@ -33,22 +33,20 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useVRCXUpdaterStore } from '../../../stores/vrcxUpdater';
+
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
+
+    const { changeLogDialog } = storeToRefs(VRCXUpdaterStore);
 
     const { t } = useI18n();
     const openExternalLink = inject('openExternalLink');
 
-    const props = defineProps({
-        changeLogDialog: {
-            type: Object,
-            required: true
-        }
-    });
-    const emit = defineEmits(['update:changeLogDialog']);
-
     function closeDialog() {
-        emit('update:changeLogDialog', { ...props.changeLogDialog, visible: false });
+        changeLogDialog.value.visible = false;
     }
 </script>
 

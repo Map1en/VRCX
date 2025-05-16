@@ -59,11 +59,15 @@ function localeIncludes(str, search, comparer) {
     }
     return false;
 }
+function changeLogRemoveLinks(text) {
+    return text.replace(/([^!])\[[^\]]+\]\([^)]+\)/g, '$1');
+}
 
 export {
     escapeTag,
     escapeTagRecursive,
     textToHex,
     commaNumber,
-    localeIncludes
+    localeIncludes,
+    changeLogRemoveLinks
 };

@@ -1826,7 +1826,9 @@
     const photonStore = usePhotonStore();
 
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
-    const { setAutoUpdateVRCX } = VRCXUpdaterStore;
+
+    // checkForVRCXUpdate,showChangeLogDialog => notifyMenu,
+    const { setAutoUpdateVRCX, checkForVRCXUpdate, showVRCXUpdateDialog, showChangeLogDialog } = VRCXUpdaterStore;
 
     const {
         isStartAtWindowsStartup,
@@ -2080,21 +2082,6 @@
     ]);
 
     const emit = defineEmits([]);
-
-    function checkForVRCXUpdate() {
-        emit('checkForVRCXUpdate');
-        // Function to check for VRCX updates
-    }
-
-    function showChangeLogDialog() {
-        emit('showChangeLogDialog');
-        // Function to show the changelog dialog
-    }
-
-    function showVRCXUpdateDialog() {
-        emit('showVRCXUpdateDialog');
-        // Function to show the VRCX update dialog
-    }
 
     function isLinux() {
         return LINUX;

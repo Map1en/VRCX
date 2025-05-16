@@ -160,8 +160,11 @@
     import { inject, onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
+    const { showVRCXUpdateDialog } = VRCXUpdaterStore;
 
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
@@ -182,20 +185,9 @@
         }
     });
 
-    const emit = defineEmits([
-        'showVRCXUpdateDialog',
-        'promptProxySettings',
-        'toggleCustomEndpoint',
-        'deleteSavedLogin',
-        'relogin',
-        'login'
-    ]);
+    const emit = defineEmits(['promptProxySettings', 'toggleCustomEndpoint', 'deleteSavedLogin', 'relogin', 'login']);
 
     const loginFormRef = ref(null);
-
-    function showVRCXUpdateDialog() {
-        emit('showVRCXUpdateDialog');
-    }
 
     function promptProxySettings() {
         emit('promptProxySettings');

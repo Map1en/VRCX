@@ -17,7 +17,7 @@
                     <span>{{ t('dialog.vrcx_updater.ready_for_update') }}</span>
                 </div>
                 <el-select
-                    v-model="currentBranch"
+                    v-model="branch"
                     style="display: inline-block; width: 150px; margin-right: 15px"
                     @change="loadBranchVersions">
                     <el-option v-for="b in branches" :key="b.name" :label="b.name" :value="b.name"> </el-option>
@@ -63,48 +63,28 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { computed, inject, nextTick, ref, watch } from 'vue';
+    import { inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import { branches } from '../../shared/constants/vrcxUpdater';
+    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
-    const { appVersion, branch, checkingForVRCXUpdate, VRCXUpdateDialog } = storeToRefs(VRCXUpdaterStore);
-    const { setBranch } = VRCXUpdaterStore;
+    const {
+        appVersion,
+        branch,
+        checkingForVRCXUpdate,
+        VRCXUpdateDialog,
+        pendingVRCXInstall,
+        updateInProgress,
+        updateProgress
+    } = storeToRefs(VRCXUpdaterStore);
+    const { installVRCXUpdate, loadBranchVersions, restartVRCX, updateProgressText, cancelUpdate } = VRCXUpdaterStore;
 
     const { t } = useI18n();
     const adjustDialogZ = inject('adjustDialogZ');
 
-    defineProps({
-        updateInProgress: {
-            type: Boolean,
-            default: false
-        },
-        updateProgress: {
-            type: Number,
-            default: 0
-        },
-        updateProgressText: {
-            type: Function,
-            default: () => ''
-        },
-        pendingVRCXInstall: {
-            type: String,
-            default: ''
-        }
-    });
-
     const VRCXUpdateDialogRef = ref(null);
-
-    const emit = defineEmits(['loadBranchVersions', 'cancelUpdate', 'installVRCXUpdate', 'restartVRCX']);
-
-    const currentBranch = computed({
-        get: () => branch,
-        set: (value) => {
-            setBranch(value);
-        }
-    });
 
     watch(
         () => VRCXUpdateDialog,
@@ -116,20 +96,4 @@
             }
         }
     );
-
-    function loadBranchVersions(event) {
-        emit('loadBranchVersions', event);
-    }
-
-    function cancelUpdate() {
-        emit('cancelUpdate');
-    }
-
-    function installVRCXUpdate() {
-        emit('installVRCXUpdate');
-    }
-
-    function restartVRCX(isUpgrade) {
-        emit('restartVRCX', isUpgrade);
-    }
 </script>

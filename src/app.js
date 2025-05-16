@@ -70,7 +70,6 @@ import _updateLoop from './classes/updateLoop.js';
 import _vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import _vrcxNotifications from './classes/vrcxNotifications.js';
-import _vrcxUpdater from './classes/vrcxUpdater.js';
 import _websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
@@ -143,6 +142,7 @@ import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
 import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresence';
 import { useAdvancedSettingsStore } from './stores/settings/advanced';
 import { usePhotonStore } from './stores/photon';
+import { useDebugStore } from './stores/debug';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -260,7 +260,6 @@ console.log(`isLinux: ${LINUX}`);
         currentUser: new _currentUser($app, API, $t),
         updateLoop: new _updateLoop($app, API, $t),
         discordRpc: new _discordRpc($app, API, $t),
-        vrcxUpdater: new _vrcxUpdater($app, API, $t),
         gameLog: new _gameLog($app, API, $t),
         gameRealtimeLogging: new _gameRealtimeLogging($app, API, $t),
         feed: new _feed($app, API, $t),
@@ -291,6 +290,7 @@ console.log(`isLinux: ${LINUX}`);
                 useDiscordPresenceSettingsStore();
             const advancedSettingsStore = useAdvancedSettingsStore();
             const photonStore = usePhotonStore();
+            const debugStore = useDebugStore();
 
             const {
                 appVersion,
@@ -300,11 +300,18 @@ console.log(`isLinux: ${LINUX}`);
                 currentVersion,
                 vrcxId,
                 checkingForVRCXUpdate,
-                VRCXUpdateDialog
+                VRCXUpdateDialog,
+                changeLogDialog
             } = storeToRefs(VRCXUpdaterStore);
 
-            const { setAutoUpdateVRCX, setBranch, compareAppVersion } =
-                VRCXUpdaterStore;
+            const {
+                setAutoUpdateVRCX,
+                setBranch,
+                compareAppVersion,
+                checkForVRCXUpdate,
+                showVRCXUpdateDialog,
+                showChangeLogDialog
+            } = VRCXUpdaterStore;
 
             const {
                 isStartAtWindowsStartup,
@@ -536,7 +543,11 @@ console.log(`isLinux: ${LINUX}`);
                 setTimeoutHudOverlayFilter
             } = photonStore;
 
+            const { debugWebRequests } = storeToRefs(debugStore);
+
             return {
+                debugWebRequests,
+
                 appVersion,
                 autoUpdateVRCX,
                 latestAppVersion,
@@ -545,10 +556,14 @@ console.log(`isLinux: ${LINUX}`);
                 vrcxId,
                 checkingForVRCXUpdate,
                 VRCXUpdateDialog,
+                changeLogDialog,
 
                 setAutoUpdateVRCX,
                 setBranch,
                 compareAppVersion,
+                checkForVRCXUpdate,
+                showVRCXUpdateDialog,
+                showChangeLogDialog,
 
                 isStartAtWindowsStartup,
                 isStartAsMinimizedState,
@@ -905,7 +920,7 @@ console.log(`isLinux: ${LINUX}`);
             }
 
             if (this.autoUpdateVRCX !== 'Off') {
-                this.checkForVRCXUpdate();
+                await this.checkForVRCXUpdate(this.notifyMenu);
             }
             await AppApi.CheckGameRunning();
             this.isGameNoVR = await configRepository.getBool('isGameNoVR');
@@ -3250,7 +3265,6 @@ console.log(`isLinux: ${LINUX}`);
     };
 
     $app.data.debug = false;
-    $app.data.debugWebRequests = false;
     $app.data.debugWebSocket = false;
     $app.data.debugUserDiff = false;
     $app.data.debugCurrentUserDiff = false;
@@ -12387,17 +12401,6 @@ console.log(`isLinux: ${LINUX}`);
     // #endregion
     // #region | App: Random unsorted app methods, data structs, API functions, and an API feedback/file analysis event
 
-    $app.data.changeLogDialog = {
-        visible: false,
-        buildName: '',
-        changeLog: ''
-    };
-
-    $app.methods.showChangeLogDialog = function () {
-        this.changeLogDialog.visible = true;
-        this.checkForVRCXUpdate();
-    };
-
     $app.methods.openFolderGeneric = function (path) {
         AppApi.OpenFolderAndSelectItem(path, true);
     };
@@ -12894,7 +12897,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.computed.loginPageEvent = function () {
         return {
-            showVRCXUpdateDialog: this.showVRCXUpdateDialog,
             promptProxySettings: this.promptProxySettings,
             toggleCustomEndpoint: this.toggleCustomEndpoint,
             deleteSavedLogin: this.deleteSavedLogin,
@@ -12902,26 +12904,6 @@ console.log(`isLinux: ${LINUX}`);
             relogin: this.relogin
         };
     };
-
-    $app.computed.vrcxUpdateDialogBind = function () {
-        return {
-            updateInProgress: this.updateInProgress,
-            updateProgress: this.updateProgress,
-            updateProgressText: this.updateProgressText,
-            pendingVRCXInstall: this.pendingVRCXInstall
-        };
-    };
-
-    $app.computed.vrcxUpdateDialogEvent = function () {
-        return {
-            loadBranchVersions: this.loadBranchVersions,
-            cancelUpdate: this.cancelUpdate,
-            installVRCXUpdate: this.installVRCXUpdate,
-            restartVRCX: this.restartVRCX
-        };
-    };
-
-    //
 
     $app.methods.languageClass = function (key) {
         return languageClass(key);

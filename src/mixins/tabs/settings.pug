@@ -34,7 +34,7 @@ mixin settingsTab
                 .options-container
                     span.header {{ $t('view.settings.general.vrcx_updater.header') }}
                     .options-container-item
-                        el-button(size='small' icon='el-icon-document' @click='showChangeLogDialog()') {{ $t('view.settings.general.vrcx_updater.change_log') }}
+                        el-button(size='small' icon='el-icon-document' @click='showChangeLogDialog(notifyMenu)') {{ $t('view.settings.general.vrcx_updater.change_log') }}
                         el-button(size='small' icon='el-icon-upload' @click='showVRCXUpdateDialog()') {{ $t('view.settings.general.vrcx_updater.change_build') }}
                     .options-container-item
                         span.name {{ $t('view.settings.general.vrcx_updater.update_action') }}
