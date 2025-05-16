@@ -9,15 +9,6 @@ export default class extends baseClass {
     }
 
     _data = {
-        VRCXUpdateDialog: {
-            visible: false,
-            updatePending: false,
-            updatePendingIsLatest: false,
-            release: '',
-            releases: [],
-            json: {}
-        },
-        checkingForVRCXUpdate: false,
         pendingVRCXInstall: '',
         pendingVRCXUpdate: false,
         updateProgress: 0,

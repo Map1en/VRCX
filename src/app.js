@@ -297,7 +297,10 @@ console.log(`isLinux: ${LINUX}`);
                 autoUpdateVRCX,
                 latestAppVersion,
                 branch,
-                currentVersion
+                currentVersion,
+                vrcxId,
+                checkingForVRCXUpdate,
+                VRCXUpdateDialog
             } = storeToRefs(VRCXUpdaterStore);
 
             const { setAutoUpdateVRCX, setBranch, compareAppVersion } =
@@ -539,6 +542,9 @@ console.log(`isLinux: ${LINUX}`);
                 latestAppVersion,
                 branch,
                 currentVersion,
+                vrcxId,
+                checkingForVRCXUpdate,
+                VRCXUpdateDialog,
 
                 setAutoUpdateVRCX,
                 setBranch,
@@ -893,7 +899,6 @@ console.log(`isLinux: ${LINUX}`);
                 console.error(err);
             }
             await AppApi.SetUserAgent();
-            await this.loadVrcxId();
 
             if (await this.compareAppVersion()) {
                 this.showChangeLogDialog();
@@ -3195,15 +3200,6 @@ console.log(`isLinux: ${LINUX}`);
                 }
             }
         });
-    };
-
-    $app.data.vrcxId = '';
-    $app.methods.loadVrcxId = async function () {
-        this.vrcxId = await configRepository.getString('VRCX_id', '');
-        if (!this.vrcxId) {
-            this.vrcxId = crypto.randomUUID();
-            await configRepository.setString('VRCX_id', this.vrcxId);
-        }
     };
 
     $app.methods.updateIsGameRunning = async function (
@@ -12909,8 +12905,6 @@ console.log(`isLinux: ${LINUX}`);
 
     $app.computed.vrcxUpdateDialogBind = function () {
         return {
-            VRCXUpdateDialog: this.VRCXUpdateDialog,
-            checkingForVRCXUpdate: this.checkingForVRCXUpdate,
             updateInProgress: this.updateInProgress,
             updateProgress: this.updateProgress,
             updateProgressText: this.updateProgressText,

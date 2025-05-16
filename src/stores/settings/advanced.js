@@ -102,7 +102,6 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         handleSetAppLauncherSettings();
     }
 
-    // This one is a bit tricky to do without following the getter/action pattern
     const enablePrimaryPassword = computed({
         get: () => state.enablePrimaryPassword,
         set: (value) => (state.enablePrimaryPassword = value)

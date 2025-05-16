@@ -7,12 +7,23 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         appVersion: '',
         autoUpdateVRCX: 'Auto Download',
         latestAppVersion: '',
-        branch: 'Stable'
+        branch: 'Stable',
+        vrcxId: '',
+        checkingForVRCXUpdate: false,
+        VRCXUpdateDialog: {
+            visible: false,
+            updatePending: false,
+            updatePendingIsLatest: false,
+            release: '',
+            releases: [],
+            json: {}
+        }
     });
 
     async function initSettings() {
-        const [autoUpdateVRCX] = await Promise.all([
-            configRepository.getString('VRCX_autoUpdateVRCX', 'Auto Download')
+        const [autoUpdateVRCX, vrcxId] = await Promise.all([
+            configRepository.getString('VRCX_autoUpdateVRCX', 'Auto Download'),
+            configRepository.getString('VRCX_id', '')
         ]);
 
         if (autoUpdateVRCX === 'Auto Install') {
@@ -22,9 +33,10 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         }
 
         state.appVersion = await AppApi.GetVersion();
-        // state.branch = branch;
+        state.vrcxId = vrcxId;
 
         await initBranch();
+        await loadVrcxId();
     }
 
     const appVersion = computed(() => state.appVersion);
@@ -34,6 +46,19 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     const currentVersion = computed(() =>
         state.appVersion.replace(' (Linux)', '')
     );
+    const vrcxId = computed(() => state.vrcxId);
+    const checkingForVRCXUpdate = computed({
+        get: () => state.checkingForVRCXUpdate,
+        set: (value) => {
+            state.checkingForVRCXUpdate = value;
+        }
+    });
+    const VRCXUpdateDialog = computed({
+        get: () => state.VRCXUpdateDialog,
+        set: (value) => {
+            state.VRCXUpdateDialog = { ...state.VRCXUpdateDialog, ...value };
+        }
+    });
 
     async function setAutoUpdateVRCX(value) {
         state.autoUpdateVRCX = value;
@@ -73,6 +98,12 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         }
         return false;
     }
+    async function loadVrcxId() {
+        if (!state.vrcxId) {
+            state.vrcxId = crypto.randomUUID();
+            await configRepository.setString('VRCX_id', state.vrcxId);
+        }
+    }
 
     return {
         state,
@@ -83,6 +114,9 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         latestAppVersion,
         branch,
         currentVersion,
+        vrcxId,
+        checkingForVRCXUpdate,
+        VRCXUpdateDialog,
 
         setAutoUpdateVRCX,
         setLatestAppVersion,

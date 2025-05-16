@@ -70,22 +70,13 @@
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
-    const { appVersion, branch } = storeToRefs(VRCXUpdaterStore);
+    const { appVersion, branch, checkingForVRCXUpdate, VRCXUpdateDialog } = storeToRefs(VRCXUpdaterStore);
     const { setBranch } = VRCXUpdaterStore;
 
     const { t } = useI18n();
     const adjustDialogZ = inject('adjustDialogZ');
 
-    const props = defineProps({
-        // eslint-disable-next-line vue/prop-name-casing
-        VRCXUpdateDialog: {
-            type: Object,
-            required: true
-        },
-        checkingForVRCXUpdate: {
-            type: Boolean,
-            default: false
-        },
+    defineProps({
         updateInProgress: {
             type: Boolean,
             default: false
@@ -116,7 +107,7 @@
     });
 
     watch(
-        () => props.VRCXUpdateDialog,
+        () => VRCXUpdateDialog,
         (newVal) => {
             if (newVal.visible) {
                 nextTick(() => {
