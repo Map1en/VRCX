@@ -131,6 +131,7 @@ import {
     textToHex,
     timeToText
 } from './shared/utils';
+import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils/base/ui';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
@@ -751,7 +752,9 @@ const app = {
     },
     i18n,
     computed: {},
-    methods: {},
+    methods: {
+        ..._utils
+    },
     watch: {},
     components: {
         LoginPage,
