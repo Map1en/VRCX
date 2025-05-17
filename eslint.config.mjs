@@ -11,7 +11,31 @@ export default defineConfig([
     },
     {
         files: ['**/*.{js,mjs,cjs,vue}'],
-        languageOptions: { globals: globals.browser }
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                CefSharp: 'readonly',
+                VRCX: 'readonly',
+                VRCXStorage: 'readonly',
+                SQLite: 'readonly',
+                LogWatcher: 'readonly',
+                Discord: 'readonly',
+                AppApi: 'readonly',
+                AppApiVr: 'readonly',
+                SharedVariable: 'readonly',
+                WebApi: 'readonly',
+                AssetBundleManager: 'readonly',
+                WINDOWS: 'readonly',
+                LINUX: 'readonly',
+                webApiService: 'readonly'
+            }
+        }
     },
-    pluginVue.configs['flat/essential']
+    pluginVue.configs['flat/vue2-essential'],
+    {
+        rules: {
+            'vue/no-mutating-props': 'warn',
+            'vue/multi-word-component-names': 'warn'
+        }
+    }
 ]);
