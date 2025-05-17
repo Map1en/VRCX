@@ -1,10 +1,13 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
         "module": "ESNext",
-        "target": "ES2020",
-        "checkJs": false
+        "target": "ESNext",
+        "allowJs": true,
+        "checkJs": false,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["esnext", "dom"]
     },
     "include": ["src/**/*", "src-electron/**/*"],
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "build"]
 }
