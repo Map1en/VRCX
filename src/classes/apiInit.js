@@ -1,23 +1,18 @@
 import { $app } from '../app.js';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app) {
-        super(_app);
-    }
+function API() {
+    const eventHandlers = new Map();
 
-    eventHandlers = new Map();
-
-    $emit = function (name, ...args) {
+    const $emit = function (name, ...args) {
         if ($app.debug) {
             console.log(name, ...args);
         }
-        var handlers = this.eventHandlers.get(name);
+        const handlers = eventHandlers.get(name);
         if (typeof handlers === 'undefined') {
             return;
         }
         try {
-            for (var handler of handlers) {
+            for (const handler of handlers) {
                 handler.apply(this, args);
             }
         } catch (err) {
@@ -25,30 +20,38 @@ export default class extends baseClass {
         }
     };
 
-    $on = function (name, handler) {
-        var handlers = this.eventHandlers.get(name);
+    const $on = function (name, handler) {
+        let handlers = eventHandlers.get(name);
         if (typeof handlers === 'undefined') {
             handlers = [];
-            this.eventHandlers.set(name, handlers);
+            eventHandlers.set(name, handlers);
         }
         handlers.push(handler);
     };
 
-    $off = function (name, handler) {
-        var handlers = this.eventHandlers.get(name);
+    const $off = function (name, handler) {
+        const handlers = eventHandlers.get(name);
         if (typeof handlers === 'undefined') {
             return;
         }
-        var { length } = handlers;
-        for (var i = 0; i < length; ++i) {
+        const { length } = handlers;
+        for (let i = 0; i < length; ++i) {
             if (handlers[i] === handler) {
                 if (length > 1) {
                     handlers.splice(i, 1);
                 } else {
-                    this.eventHandlers.delete(name);
+                    eventHandlers.delete(name);
                 }
                 break;
             }
         }
     };
+    return {
+        eventHandlers,
+        $emit,
+        $on,
+        $off
+    };
 }
+
+export default API;

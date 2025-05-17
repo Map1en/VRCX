@@ -49,7 +49,6 @@ import pugTemplate from './app.pug';
 
 // API classes
 import _config from './classes/API/config.js';
-import _apiInit from './classes/apiInit.js';
 import _apiLogin from './classes/apiLogin.js';
 import _apiRequestHandler from './classes/apiRequestHandler.js';
 import _currentUser from './classes/currentUser.js';
@@ -180,6 +179,8 @@ import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue'
 import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import SideBar from './views/SideBar/SideBar.vue';
 
+import API from './classes/apiInit';
+
 // #endregion
 
 // some workaround for failing to get voice list first run
@@ -242,7 +243,7 @@ pinia.use(() => ({ i18n }));
 
 // everything in this program is global stored in $app, I hate it, it is what it is
 let $app = {};
-const API = new _apiInit($app);
+// const API = new _apiInit($app);
 // eslint-disable-next-line no-unused-vars
 const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
