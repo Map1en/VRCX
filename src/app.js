@@ -64,12 +64,12 @@ import _restoreFriendOrder from './classes/restoreFriendOrder.js';
 
 // main app classes
 import _sharedFeed from './classes/sharedFeed.js';
-import _uiComponents from './classes/uiComponents.js';
+import uiComponents from './classes/uiComponents.js';
 import _updateLoop from './classes/updateLoop.js';
 import _vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import _vrcxNotifications from './classes/vrcxNotifications.js';
-import _websocket from './classes/websocket.js';
+import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
@@ -179,8 +179,6 @@ import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue'
 import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import SideBar from './views/SideBar/SideBar.vue';
 
-import API from './classes/apiInit';
-
 // #endregion
 
 // some workaround for failing to get voice list first run
@@ -247,12 +245,16 @@ let $app = {};
 // eslint-disable-next-line no-unused-vars
 const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
+import API from './classes/apiInit';
+websocket(API);
+uiComponents();
+
 const vrcxClasses = {
     // other classes
     // API,
     apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
-    uiComponents: new _uiComponents($app, API, $t),
-    webSocket: new _websocket($app, API, $t),
+    // uiComponents: new _uiComponents($app, API, $t),
+    // webSocket: new _websocket($app, API, $t),
     // main classes
     sharedFeed: new _sharedFeed($app, API, $t),
     prompts: new _prompts($app, API, $t),
