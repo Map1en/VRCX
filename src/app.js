@@ -12796,6 +12796,8 @@ for (const value of Object.values(vrcxClasses)) {
     value.updateRef($app);
 }
 
+export { $app, API, $t };
+
 // #endregion
 
 // // #endregion

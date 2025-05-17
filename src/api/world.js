@@ -1,19 +1,20 @@
-// #region | API: World
+import { API } from '../app';
 
+// #region | API: World
 const worldReq = {
     /**
      * @param {{worldId: string}} params
      * @returns {Promise<{json: any, params}>}
      */
     getWorld(params) {
-        return window.API.call(`worlds/${params.worldId}`, {
+        return API.call(`worlds/${params.worldId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('WORLD', args);
+            API.$emit('WORLD', args);
             return args;
         });
     },
@@ -24,7 +25,7 @@ const worldReq = {
      */
     getCachedWorld(params) {
         return new Promise((resolve, reject) => {
-            const ref = window.API.cachedWorlds.get(params.worldId);
+            const ref = API.cachedWorlds.get(params.worldId);
             if (typeof ref === 'undefined') {
                 worldReq.getWorld(params).catch(reject).then(resolve);
             } else {
@@ -61,7 +62,7 @@ const worldReq = {
         if (typeof option !== 'undefined') {
             endpoint = `worlds/${option}`;
         }
-        return window.API.call(endpoint, {
+        return API.call(endpoint, {
             method: 'GET',
             params
         }).then((json) => {
@@ -70,7 +71,7 @@ const worldReq = {
                 params,
                 option
             };
-            window.API.$emit('WORLD:LIST', args);
+            API.$emit('WORLD:LIST', args);
             return args;
         });
     },
@@ -79,14 +80,14 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     deleteWorld(params) {
-        return window.API.call(`worlds/${params.worldId}`, {
+        return API.call(`worlds/${params.worldId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('WORLD:DELETE', args);
+            API.$emit('WORLD:DELETE', args);
             return args;
         });
     },
@@ -96,7 +97,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveWorld(params) {
-        return window.API.call(`worlds/${params.id}`, {
+        return API.call(`worlds/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -104,7 +105,7 @@ const worldReq = {
                 json,
                 params
             };
-            window.API.$emit('WORLD:SAVE', args);
+            API.$emit('WORLD:SAVE', args);
             return args;
         });
     },
@@ -114,7 +115,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     publishWorld(params) {
-        return window.API.call(`worlds/${params.worldId}/publish`, {
+        return API.call(`worlds/${params.worldId}/publish`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -122,7 +123,7 @@ const worldReq = {
                 json,
                 params
             };
-            window.API.$emit('WORLD:SAVE', args);
+            API.$emit('WORLD:SAVE', args);
             return args;
         });
     },
@@ -132,7 +133,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     unpublishWorld(params) {
-        return window.API.call(`worlds/${params.worldId}/publish`, {
+        return API.call(`worlds/${params.worldId}/publish`, {
             method: 'DELETE',
             params
         }).then((json) => {
@@ -140,7 +141,7 @@ const worldReq = {
                 json,
                 params
             };
-            window.API.$emit('WORLD:SAVE', args);
+            API.$emit('WORLD:SAVE', args);
             return args;
         });
     }

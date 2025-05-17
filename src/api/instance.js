@@ -1,22 +1,20 @@
-// #region | API: Instance
+import { API } from '../app';
 
+// #region | API: Instance
 const instanceReq = {
     /**
      * @param {{worldId: string, instanceId: string}} params
      * @returns {Promise<{json: any, params}>}
      */
     getInstance(params) {
-        return window.API.call(
-            `instances/${params.worldId}:${params.instanceId}`,
-            {
-                method: 'GET'
-            }
-        ).then((json) => {
+        return API.call(`instances/${params.worldId}:${params.instanceId}`, {
+            method: 'GET'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('INSTANCE', args);
+            API.$emit('INSTANCE', args);
             return args;
         });
     },
@@ -37,7 +35,7 @@ const instanceReq = {
      * @returns {Promise<{json: any, params}>}
      */
     createInstance(params) {
-        return window.API.call('instances', {
+        return API.call('instances', {
             method: 'POST',
             params
         }).then((json) => {
@@ -45,7 +43,7 @@ const instanceReq = {
                 json,
                 params
             };
-            window.API.$emit('INSTANCE', args);
+            API.$emit('INSTANCE', args);
             return args;
         });
     },
@@ -59,7 +57,7 @@ const instanceReq = {
         if (instance.shortName) {
             params.shortName = instance.shortName;
         }
-        return window.API.call(
+        return API.call(
             `instances/${instance.worldId}:${instance.instanceId}/shortName`,
             {
                 method: 'GET',
@@ -80,14 +78,14 @@ const instanceReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getInstanceFromShortName(params) {
-        return window.API.call(`instances/s/${params.shortName}`, {
+        return API.call(`instances/s/${params.shortName}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('INSTANCE', args);
+            API.$emit('INSTANCE', args);
             return args;
         });
     },
@@ -105,7 +103,7 @@ const instanceReq = {
         if (instance.shortName) {
             params.shortName = instance.shortName;
         }
-        return window.API.call(
+        return API.call(
             `invite/myself/to/${instance.worldId}:${instance.instanceId}`,
             {
                 method: 'POST',

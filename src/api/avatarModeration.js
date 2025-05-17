@@ -1,14 +1,15 @@
-// #region | API: AvatarModeration
+import { API } from '../app';
 
+// #region | API: AvatarModeration
 const avatarModerationReq = {
     getAvatarModerations() {
-        return window.API.call('auth/user/avatarmoderations', {
+        return API.call('auth/user/avatarmoderations', {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json
             };
-            // window.API.$emit('AVATAR-MODERATION:LIST', args);
+            // API.$emit('AVATAR-MODERATION:LIST', args);
             return args;
         });
     },
@@ -18,7 +19,7 @@ const avatarModerationReq = {
      * @return { Promise<{json: any, params}> }
      */
     sendAvatarModeration(params) {
-        return window.API.call('auth/user/avatarmoderations', {
+        return API.call('auth/user/avatarmoderations', {
             method: 'POST',
             params
         }).then((json) => {
@@ -26,7 +27,7 @@ const avatarModerationReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATAR-MODERATION', args);
+            // API.$emit('AVATAR-MODERATION', args);
             return args;
         });
     },
@@ -36,7 +37,7 @@ const avatarModerationReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteAvatarModeration(params) {
-        return window.API.call(
+        return API.call(
             `auth/user/avatarmoderations?targetAvatarId=${encodeURIComponent(
                 params.targetAvatarId
             )}&avatarModerationType=${encodeURIComponent(
@@ -50,7 +51,7 @@ const avatarModerationReq = {
                 json,
                 params
             };
-            window.API.$emit('AVATAR-MODERATION:DELETE', args);
+            API.$emit('AVATAR-MODERATION:DELETE', args);
             return args;
         });
     }

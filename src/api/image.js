@@ -1,16 +1,18 @@
+import { API } from '../app';
+
 const imageReq = {
     // use in uploadAvatarImage
     // need to test
     async uploadAvatarFailCleanup(id) {
-        const json = await window.API.call(`file/${id}`, {
+        const json = await API.call(`file/${id}`, {
             method: 'GET'
         });
         const fileId = json.id;
         const fileVersion = json.versions[json.versions.length - 1].version;
-        window.API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
+        API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
             method: 'PUT'
         });
-        window.API.call(`file/${fileId}/${fileVersion}/file/finish`, {
+        API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
         window.$app.avatarDialog.loading = false;
@@ -19,7 +21,7 @@ const imageReq = {
 
     async uploadAvatarImage(params, fileId) {
         try {
-            return await window.API.call(`file/${fileId}`, {
+            return await API.call(`file/${fileId}`, {
                 method: 'POST',
                 params
             }).then((json) => {
@@ -28,7 +30,7 @@ const imageReq = {
                     params,
                     fileId
                 };
-                // window.API.$emit('AVATARIMAGE:INIT', args);
+                // API.$emit('AVATARIMAGE:INIT', args);
                 return args;
             });
         } catch (err) {
@@ -41,7 +43,7 @@ const imageReq = {
 
     async uploadAvatarImageFileStart(params) {
         try {
-            return await window.API.call(
+            return await API.call(
                 `file/${params.fileId}/${params.fileVersion}/file/start`,
                 {
                     method: 'PUT'
@@ -51,7 +53,7 @@ const imageReq = {
                     json,
                     params
                 };
-                // window.API.$emit('AVATARIMAGE:FILESTART', args);
+                // API.$emit('AVATARIMAGE:FILESTART', args);
                 return args;
             });
         } catch (err) {
@@ -62,7 +64,7 @@ const imageReq = {
     },
 
     uploadAvatarImageFileFinish(params) {
-        return window.API.call(
+        return API.call(
             `file/${params.fileId}/${params.fileVersion}/file/finish`,
             {
                 method: 'PUT',
@@ -76,14 +78,14 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARIMAGE:FILEFINISH', args);
+            // API.$emit('AVATARIMAGE:FILEFINISH', args);
             return args;
         });
     },
 
     async uploadAvatarImageSigStart(params) {
         try {
-            return await window.API.call(
+            return await API.call(
                 `file/${params.fileId}/${params.fileVersion}/signature/start`,
                 {
                     method: 'PUT'
@@ -93,7 +95,7 @@ const imageReq = {
                     json,
                     params
                 };
-                // window.API.$emit('AVATARIMAGE:SIGSTART', args);
+                // API.$emit('AVATARIMAGE:SIGSTART', args);
                 return args;
             });
         } catch (err) {
@@ -104,7 +106,7 @@ const imageReq = {
     },
 
     uploadAvatarImageSigFinish(params) {
-        return window.API.call(
+        return API.call(
             `file/${params.fileId}/${params.fileVersion}/signature/finish`,
             {
                 method: 'PUT',
@@ -118,13 +120,13 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARIMAGE:SIGFINISH', args);
+            // API.$emit('AVATARIMAGE:SIGFINISH', args);
             return args;
         });
     },
 
     setAvatarImage(params) {
-        return window.API.call(`avatars/${params.id}`, {
+        return API.call(`avatars/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -132,8 +134,8 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARIMAGE:SET', args);
-            window.API.$emit('AVATAR', args);
+            // API.$emit('AVATARIMAGE:SET', args);
+            API.$emit('AVATAR', args);
             return args;
         });
     },
@@ -141,15 +143,15 @@ const imageReq = {
     // use in uploadWorldImage
     // need to test
     async uploadWorldFailCleanup(id) {
-        const json = await window.API.call(`file/${id}`, {
+        const json = await API.call(`file/${id}`, {
             method: 'GET'
         });
         const fileId = json.id;
         const fileVersion = json.versions[json.versions.length - 1].version;
-        window.API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
+        API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
             method: 'PUT'
         });
-        window.API.call(`file/${fileId}/${fileVersion}/file/finish`, {
+        API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
         window.$app.worldDialog.loading = false;
@@ -158,7 +160,7 @@ const imageReq = {
 
     async uploadWorldImage(params, fileId) {
         try {
-            return await window.API.call(`file/${fileId}`, {
+            return await API.call(`file/${fileId}`, {
                 method: 'POST',
                 params
             }).then((json) => {
@@ -167,7 +169,7 @@ const imageReq = {
                     params,
                     fileId
                 };
-                // window.API.$emit('WORLDIMAGE:INIT', args);
+                // API.$emit('WORLDIMAGE:INIT', args);
                 return args;
             });
         } catch (err) {
@@ -179,7 +181,7 @@ const imageReq = {
 
     async uploadWorldImageFileStart(params) {
         try {
-            return await window.API.call(
+            return await API.call(
                 `file/${params.fileId}/${params.fileVersion}/file/start`,
                 {
                     method: 'PUT'
@@ -189,7 +191,7 @@ const imageReq = {
                     json,
                     params
                 };
-                // window.API.$emit('WORLDIMAGE:FILESTART', args);
+                // API.$emit('WORLDIMAGE:FILESTART', args);
                 return args;
             });
         } catch (err) {
@@ -200,7 +202,7 @@ const imageReq = {
     },
 
     uploadWorldImageFileFinish(params) {
-        return window.API.call(
+        return API.call(
             `file/${params.fileId}/${params.fileVersion}/file/finish`,
             {
                 method: 'PUT',
@@ -214,14 +216,14 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('WORLDIMAGE:FILEFINISH', args);
+            // API.$emit('WORLDIMAGE:FILEFINISH', args);
             return args;
         });
     },
 
     async uploadWorldImageSigStart(params) {
         try {
-            return await window.API.call(
+            return await API.call(
                 `file/${params.fileId}/${params.fileVersion}/signature/start`,
                 {
                     method: 'PUT'
@@ -231,7 +233,7 @@ const imageReq = {
                     json,
                     params
                 };
-                // window.API.$emit('WORLDIMAGE:SIGSTART', args);
+                // API.$emit('WORLDIMAGE:SIGSTART', args);
                 return args;
             });
         } catch (err) {
@@ -242,7 +244,7 @@ const imageReq = {
     },
 
     uploadWorldImageSigFinish(params) {
-        return window.API.call(
+        return API.call(
             `file/${params.fileId}/${params.fileVersion}/signature/finish`,
             {
                 method: 'PUT',
@@ -256,13 +258,13 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('WORLDIMAGE:SIGFINISH', args);
+            // API.$emit('WORLDIMAGE:SIGFINISH', args);
             return args;
         });
     },
 
     setWorldImage(params) {
-        return window.API.call(`worlds/${params.id}`, {
+        return API.call(`worlds/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -270,27 +272,27 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('WORLDIMAGE:SET', args);
-            window.API.$emit('WORLD', args);
+            // API.$emit('WORLDIMAGE:SET', args);
+            API.$emit('WORLD', args);
             return args;
         });
     },
 
     getAvatarImages(params) {
-        return window.API.call(`file/${params.fileId}`, {
+        return API.call(`file/${params.fileId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARIMAGE:GET', args);
+            // API.$emit('AVATARIMAGE:GET', args);
             return args;
         });
     },
 
     getWorldImages(params) {
-        return window.API.call(`file/${params.fileId}`, {
+        return API.call(`file/${params.fileId}`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -298,7 +300,7 @@ const imageReq = {
                 json,
                 params
             };
-            // window.API.$emit('WORLDIMAGE:GET', args);
+            // API.$emit('WORLDIMAGE:GET', args);
             return args;
         });
     }

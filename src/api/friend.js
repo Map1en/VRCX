@@ -1,5 +1,6 @@
-// #region | API: Friend
+import { API } from '../app';
 
+// #region | API: Friend
 const friendReq = {
     /**
      * Fetch friends of current user.
@@ -7,7 +8,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getFriends(params) {
-        return window.API.call('auth/user/friends', {
+        return API.call('auth/user/friends', {
             method: 'GET',
             params
         }).then((json) => {
@@ -15,7 +16,7 @@ const friendReq = {
                 json,
                 params
             };
-            window.API.$emit('FRIEND:LIST', args);
+            API.$emit('FRIEND:LIST', args);
             return args;
         });
     },
@@ -25,14 +26,14 @@ const friendReq = {
      * @returns {Promise<{json: T, params}>}
      */
     sendFriendRequest(params) {
-        return window.API.call(`user/${params.userId}/friendRequest`, {
+        return API.call(`user/${params.userId}/friendRequest`, {
             method: 'POST'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('FRIEND:REQUEST', args);
+            API.$emit('FRIEND:REQUEST', args);
             return args;
         });
     },
@@ -42,14 +43,14 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     cancelFriendRequest(params) {
-        return window.API.call(`user/${params.userId}/friendRequest`, {
+        return API.call(`user/${params.userId}/friendRequest`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            // window.API.$emit('FRIEND:REQUEST:CANCEL', args);
+            // API.$emit('FRIEND:REQUEST:CANCEL', args);
             return args;
         });
     },
@@ -59,14 +60,14 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     deleteFriend(params) {
-        return window.API.call(`auth/user/friends/${params.userId}`, {
+        return API.call(`auth/user/friends/${params.userId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('FRIEND:DELETE', args);
+            API.$emit('FRIEND:DELETE', args);
             return args;
         });
     },
@@ -76,7 +77,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getFriendStatus(params) {
-        return window.API.call(`user/${params.userId}/friendStatus`, {
+        return API.call(`user/${params.userId}/friendStatus`, {
             method: 'GET'
         }).then((json) => {
             console.log('getFriendStatus', json);
@@ -84,7 +85,7 @@ const friendReq = {
                 json,
                 params
             };
-            window.API.$emit('FRIEND:STATUS', args);
+            API.$emit('FRIEND:STATUS', args);
             return args;
         });
     },
@@ -92,7 +93,7 @@ const friendReq = {
     // ------------------- need to test -------------------
 
     deleteHiddenFriendRequest(params, userId) {
-        return window.API.call(`user/${userId}/friendRequest`, {
+        return API.call(`user/${userId}/friendRequest`, {
             method: 'DELETE',
             params
         }).then((json) => {
@@ -101,7 +102,7 @@ const friendReq = {
                 params,
                 userId
             };
-            window.API.$emit('NOTIFICATION:HIDE', args);
+            API.$emit('NOTIFICATION:HIDE', args);
             return args;
         });
     }

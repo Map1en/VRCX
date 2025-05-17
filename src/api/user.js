@@ -1,5 +1,6 @@
-// #region | API: User
+import { API } from '../app';
 
+// #region | API: User
 const userReq = {
     /**
      * Fetch user from API.
@@ -7,7 +8,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUser(params) {
-        return window.API.call(`users/${params.userId}`, {
+        return API.call(`users/${params.userId}`, {
             method: 'GET'
         }).then((json) => {
             if (!json) {
@@ -19,7 +20,7 @@ const userReq = {
                 json,
                 params
             };
-            window.API.$emit('USER', args);
+            API.$emit('USER', args);
             return args;
         });
     },
@@ -31,7 +32,7 @@ const userReq = {
      */
     getCachedUser(params) {
         return new Promise((resolve, reject) => {
-            const ref = window.API.cachedUsers.get(params.userId);
+            const ref = API.cachedUsers.get(params.userId);
             if (typeof ref === 'undefined') {
                 userReq.getUser(params).catch(reject).then(resolve);
             } else {
@@ -59,7 +60,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUsers(params) {
-        return window.API.call('users', {
+        return API.call('users', {
             method: 'GET',
             params
         }).then((json) => {
@@ -67,7 +68,7 @@ const userReq = {
                 json,
                 params
             };
-            window.API.$emit('USER:LIST', args);
+            API.$emit('USER:LIST', args);
             return args;
         });
     },
@@ -77,7 +78,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     addUserTags(params) {
-        return window.API.call(`users/${window.API.currentUser.id}/addTags`, {
+        return API.call(`users/${API.currentUser.id}/addTags`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -85,7 +86,7 @@ const userReq = {
                 json,
                 params
             };
-            window.API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT:SAVE', args);
             return args;
         });
     },
@@ -95,18 +96,15 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     removeUserTags(params) {
-        return window.API.call(
-            `users/${window.API.currentUser.id}/removeTags`,
-            {
-                method: 'POST',
-                params
-            }
-        ).then((json) => {
+        return API.call(`users/${API.currentUser.id}/removeTags`, {
+            method: 'POST',
+            params
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT:SAVE', args);
             return args;
         });
     },
@@ -116,7 +114,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUserFeedback(params) {
-        return window.API.call(`users/${params.userId}/feedback`, {
+        return API.call(`users/${params.userId}/feedback`, {
             method: 'GET',
             params: {
                 n: 100
@@ -126,7 +124,7 @@ const userReq = {
                 json,
                 params
             };
-            // window.API.$emit('USER:FEEDBACK', args);
+            // API.$emit('USER:FEEDBACK', args);
             return args;
         });
     },
@@ -144,7 +142,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveCurrentUser(params) {
-        return window.API.call(`users/${window.API.currentUser.id}`, {
+        return API.call(`users/${API.currentUser.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -152,7 +150,7 @@ const userReq = {
                 json,
                 params
             };
-            window.API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT:SAVE', args);
             return args;
         });
     }

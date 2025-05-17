@@ -1,3 +1,5 @@
+import { API } from '../app';
+
 const groupReq = {
     /**
      * @param {string} groupId
@@ -5,7 +7,7 @@ const groupReq = {
      * @returns
      */
     setGroupRepresentation(groupId, params) {
-        return window.API.call(`groups/${groupId}/representation`, {
+        return API.call(`groups/${groupId}/representation`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -23,7 +25,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     cancelGroupRequest(params) {
-        return window.API.call(`groups/${params.groupId}/requests`, {
+        return API.call(`groups/${params.groupId}/requests`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -39,12 +41,9 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteGroupPost(params) {
-        return window.API.call(
-            `groups/${params.groupId}/posts/${params.postId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/posts/${params.postId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
@@ -56,7 +55,7 @@ const groupReq = {
      * @param {{ groupId: string }} params
      */
     getGroup(params) {
-        return window.API.call(`groups/${params.groupId}`, {
+        return API.call(`groups/${params.groupId}`, {
             method: 'GET',
             params: {
                 includeRoles: params.includeRoles || false
@@ -66,7 +65,7 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP', args);
+            API.$emit('GROUP', args);
             return args;
         });
     },
@@ -75,14 +74,14 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getRepresentedGroup(params) {
-        return window.API.call(`users/${params.userId}/groups/represented`, {
+        return API.call(`users/${params.userId}/groups/represented`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:REPRESENTED', args);
+            API.$emit('GROUP:REPRESENTED', args);
             return args;
         });
     },
@@ -91,14 +90,14 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroups(params) {
-        return window.API.call(`users/${params.userId}/groups`, {
+        return API.call(`users/${params.userId}/groups`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:LIST', args);
+            API.$emit('GROUP:LIST', args);
             return args;
         });
     },
@@ -107,14 +106,14 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     joinGroup(params) {
-        return window.API.call(`groups/${params.groupId}/join`, {
+        return API.call(`groups/${params.groupId}/join`, {
             method: 'POST'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:JOIN', args);
+            API.$emit('GROUP:JOIN', args);
             return args;
         });
     },
@@ -123,7 +122,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     leaveGroup(params) {
-        return window.API.call(`groups/${params.groupId}/leave`, {
+        return API.call(`groups/${params.groupId}/leave`, {
             method: 'POST'
         }).then((json) => {
             const args = {
@@ -138,7 +137,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     groupStrictsearch(params) {
-        return window.API.call(`groups/strictsearch`, {
+        return API.call(`groups/strictsearch`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -159,7 +158,7 @@ const groupReq = {
     }
     */
     setGroupMemberProps(userId, groupId, params) {
-        return window.API.call(`groups/${groupId}/members/${userId}`, {
+        return API.call(`groups/${groupId}/members/${userId}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -169,7 +168,7 @@ const groupReq = {
                 groupId,
                 params
             };
-            window.API.$emit('GROUP:MEMBER:PROPS', args);
+            API.$emit('GROUP:MEMBER:PROPS', args);
             return args;
         });
     },
@@ -182,7 +181,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     addGroupMemberRole(params) {
-        return window.API.call(
+        return API.call(
             `groups/${params.groupId}/members/${params.userId}/roles/${params.roleId}`,
             {
                 method: 'PUT'
@@ -192,7 +191,7 @@ const groupReq = {
                 json,
                 params
             };
-            // window.API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
+            // API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
             return args;
         });
     },
@@ -205,7 +204,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     removeGroupMemberRole(params) {
-        return window.API.call(
+        return API.call(
             `groups/${params.groupId}/members/${params.userId}/roles/${params.roleId}`,
             {
                 method: 'DELETE'
@@ -215,19 +214,19 @@ const groupReq = {
                 json,
                 params
             };
-            // window.API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
+            // API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
             return args;
         });
     },
     getGroupPermissions(params) {
-        return window.API.call(`users/${params.userId}/groups/permissions`, {
+        return API.call(`users/${params.userId}/groups/permissions`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:PERMISSIONS', args);
+            API.$emit('GROUP:PERMISSIONS', args);
             return args;
         });
     },
@@ -240,7 +239,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupPosts(params) {
-        return window.API.call(`groups/${params.groupId}/posts`, {
+        return API.call(`groups/${params.groupId}/posts`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -248,28 +247,25 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:POSTS', args);
+            API.$emit('GROUP:POSTS', args);
             return args;
         });
     },
     editGroupPost(params) {
-        return window.API.call(
-            `groups/${params.groupId}/posts/${params.postId}`,
-            {
-                method: 'PUT',
-                params
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/posts/${params.postId}`, {
+            method: 'PUT',
+            params
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:POST', args);
+            API.$emit('GROUP:POST', args);
             return args;
         });
     },
     createGroupPost(params) {
-        return window.API.call(`groups/${params.groupId}/posts`, {
+        return API.call(`groups/${params.groupId}/posts`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -277,7 +273,7 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:POST', args);
+            API.$emit('GROUP:POST', args);
             return args;
         });
     },
@@ -289,17 +285,14 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupMember(params) {
-        return window.API.call(
-            `groups/${params.groupId}/members/${params.userId}`,
-            {
-                method: 'GET'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/members/${params.userId}`, {
+            method: 'GET'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
-            // window.API.$emit('GROUP:MEMBER', args);
+            // API.$emit('GROUP:MEMBER', args);
             return args;
         });
     },
@@ -312,7 +305,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupMembers(params) {
-        return window.API.call(`groups/${params.groupId}/members`, {
+        return API.call(`groups/${params.groupId}/members`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -320,7 +313,7 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:MEMBERS', args);
+            API.$emit('GROUP:MEMBERS', args);
             return args;
         });
     },
@@ -334,7 +327,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupMembersSearch(params) {
-        return window.API.call(`groups/${params.groupId}/members/search`, {
+        return API.call(`groups/${params.groupId}/members/search`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -352,7 +345,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     blockGroup(params) {
-        return window.API.call(`groups/${params.groupId}/block`, {
+        return API.call(`groups/${params.groupId}/block`, {
             method: 'POST'
         }).then((json) => {
             const args = {
@@ -370,12 +363,9 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     unblockGroup(params) {
-        return window.API.call(
-            `groups/${params.groupId}/members/${params.userId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/members/${params.userId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
@@ -391,7 +381,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     sendGroupInvite(params) {
-        return window.API.call(`groups/${params.groupId}/invites`, {
+        return API.call(`groups/${params.groupId}/invites`, {
             method: 'POST',
             params: {
                 userId: params.userId
@@ -401,7 +391,7 @@ const groupReq = {
                 json,
                 params
             };
-            window.API.$emit('GROUP:INVITE', args);
+            API.$emit('GROUP:INVITE', args);
             return args;
         });
     },
@@ -413,18 +403,15 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     kickGroupMember(params) {
-        return window.API.call(
-            `groups/${params.groupId}/members/${params.userId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/members/${params.userId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:MEMBER:KICK', args);
+            // API.$emit('GROUP:MEMBER:KICK', args);
             return args;
         });
     },
@@ -433,7 +420,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     banGroupMember(params) {
-        return window.API.call(`groups/${params.groupId}/bans`, {
+        return API.call(`groups/${params.groupId}/bans`, {
             method: 'POST',
             params: {
                 userId: params.userId
@@ -444,23 +431,20 @@ const groupReq = {
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:MEMBER:BAN', args);
+            // API.$emit('GROUP:MEMBER:BAN', args);
             return args;
         });
     },
     unbanGroupMember(params) {
-        return window.API.call(
-            `groups/${params.groupId}/bans/${params.userId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/bans/${params.userId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:MEMBER:UNBAN', args);
+            // API.$emit('GROUP:MEMBER:UNBAN', args);
             return args;
         });
     },
@@ -469,97 +453,82 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteSentGroupInvite(params) {
-        return window.API.call(
-            `groups/${params.groupId}/invites/${params.userId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/invites/${params.userId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:INVITE:DELETE', args);
+            // API.$emit('GROUP:INVITE:DELETE', args);
             return args;
         });
     },
     deleteBlockedGroupRequest(params) {
-        return window.API.call(
-            `groups/${params.groupId}/members/${params.userId}`,
-            {
-                method: 'DELETE'
-            }
-        ).then((json) => {
+        return API.call(`groups/${params.groupId}/members/${params.userId}`, {
+            method: 'DELETE'
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:BLOCKED:DELETE', args);
+            // API.$emit('GROUP:BLOCKED:DELETE', args);
             return args;
         });
     },
     acceptGroupInviteRequest(params) {
-        return window.API.call(
-            `groups/${params.groupId}/requests/${params.userId}`,
-            {
-                method: 'PUT',
-                params: {
-                    action: 'accept'
-                }
+        return API.call(`groups/${params.groupId}/requests/${params.userId}`, {
+            method: 'PUT',
+            params: {
+                action: 'accept'
             }
-        ).then((json) => {
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:INVITE:ACCEPT', args);
+            // API.$emit('GROUP:INVITE:ACCEPT', args);
             return args;
         });
     },
     rejectGroupInviteRequest(params) {
-        return window.API.call(
-            `groups/${params.groupId}/requests/${params.userId}`,
-            {
-                method: 'PUT',
-                params: {
-                    action: 'reject'
-                }
+        return API.call(`groups/${params.groupId}/requests/${params.userId}`, {
+            method: 'PUT',
+            params: {
+                action: 'reject'
             }
-        ).then((json) => {
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:INVITE:REJECT', args);
+            // API.$emit('GROUP:INVITE:REJECT', args);
             return args;
         });
     },
     blockGroupInviteRequest(params) {
-        return window.API.call(
-            `groups/${params.groupId}/requests/${params.userId}`,
-            {
-                method: 'PUT',
-                params: {
-                    action: 'reject',
-                    block: true
-                }
+        return API.call(`groups/${params.groupId}/requests/${params.userId}`, {
+            method: 'PUT',
+            params: {
+                action: 'reject',
+                block: true
             }
-        ).then((json) => {
+        }).then((json) => {
             const args = {
                 json,
                 params
             };
             // useless code
-            // window.API.$emit('GROUP:INVITE:BLOCK', args);
+            // API.$emit('GROUP:INVITE:BLOCK', args);
             return args;
         });
     },
     getGroupBans(params) {
-        return window.API.call(`groups/${params.groupId}/bans`, {
+        return API.call(`groups/${params.groupId}/bans`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -575,7 +544,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupAuditLogTypes(params) {
-        return window.API.call(`groups/${params.groupId}/auditLogTypes`, {
+        return API.call(`groups/${params.groupId}/auditLogTypes`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -590,7 +559,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupLogs(params) {
-        return window.API.call(`groups/${params.groupId}/auditLogs`, {
+        return API.call(`groups/${params.groupId}/auditLogs`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -606,7 +575,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupInvites(params) {
-        return window.API.call(`groups/${params.groupId}/invites`, {
+        return API.call(`groups/${params.groupId}/invites`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -622,7 +591,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupJoinRequests(params) {
-        return window.API.call(`groups/${params.groupId}/requests`, {
+        return API.call(`groups/${params.groupId}/requests`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -630,7 +599,7 @@ const groupReq = {
                 json,
                 params
             };
-            // window.API.$emit('GROUP:JOINREQUESTS', args);
+            // API.$emit('GROUP:JOINREQUESTS', args);
             return args;
         });
     },
@@ -639,8 +608,8 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupInstances(params) {
-        return window.API.call(
-            `users/${window.API.currentUser.id}/instances/groups/${params.groupId}`,
+        return API.call(
+            `users/${API.currentUser.id}/instances/groups/${params.groupId}`,
             {
                 method: 'GET'
             }
@@ -657,7 +626,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupRoles(params) {
-        return window.API.call(`groups/${params.groupId}/roles`, {
+        return API.call(`groups/${params.groupId}/roles`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -671,16 +640,13 @@ const groupReq = {
         });
     },
     getUsersGroupInstances() {
-        return window.API.call(
-            `users/${window.API.currentUser.id}/instances/groups`,
-            {
-                method: 'GET'
-            }
-        ).then((json) => {
+        return API.call(`users/${API.currentUser.id}/instances/groups`, {
+            method: 'GET'
+        }).then((json) => {
             const args = {
                 json
             };
-            window.API.$emit('GROUP:USER:INSTANCES', args);
+            API.$emit('GROUP:USER:INSTANCES', args);
             return args;
         });
     },
@@ -696,7 +662,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     groupSearch(params) {
-        return window.API.call(`groups`, {
+        return API.call(`groups`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -717,7 +683,7 @@ const groupReq = {
      * @return { Promise<{json: any, params}> }
      */
     getGroupGallery(params) {
-        return window.API.call(
+        return API.call(
             `groups/${params.groupId}/galleries/${params.galleryId}`,
             {
                 method: 'GET',
@@ -737,8 +703,8 @@ const groupReq = {
 
     // no place to use this
     // getRequestedGroups() {
-    //     return window.API.call(
-    //         `users/${window.API.currentUser.id}/groups/requested`,
+    //     return API.call(
+    //         `users/${API.currentUser.id}/groups/requested`,
     //         {
     //             method: 'GET'
     //         }
@@ -746,7 +712,7 @@ const groupReq = {
     //         const args = {
     //             json
     //         };
-    //         window.API.$emit('GROUP:REQUESTED', args);
+    //         API.$emit('GROUP:REQUESTED', args);
     //         return args;
     //     });
     // }

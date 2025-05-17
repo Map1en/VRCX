@@ -1,10 +1,12 @@
+import { API } from '../app';
+
 const loginReq = {
     /**
      * @param {{ code: string }} params One-time password
      * @returns {Promise<{json: any, params}>}
      */
     verifyOTP(params) {
-        return window.API.call('auth/twofactorauth/otp/verify', {
+        return API.call('auth/twofactorauth/otp/verify', {
             method: 'POST',
             params
         }).then((json) => {
@@ -12,7 +14,7 @@ const loginReq = {
                 json,
                 params
             };
-            // window.API.$emit('OTP', args);
+            // API.$emit('OTP', args);
             return args;
         });
     },
@@ -22,7 +24,7 @@ const loginReq = {
      * @returns {Promise<{json: any, params}>}
      */
     verifyTOTP(params) {
-        return window.API.call('auth/twofactorauth/totp/verify', {
+        return API.call('auth/twofactorauth/totp/verify', {
             method: 'POST',
             params
         }).then((json) => {
@@ -30,7 +32,7 @@ const loginReq = {
                 json,
                 params
             };
-            // window.API.$emit('TOTP', args);
+            // API.$emit('TOTP', args);
             return args;
         });
     },
@@ -40,7 +42,7 @@ const loginReq = {
      * @returns {Promise<{json: any, params}>}
      */
     verifyEmailOTP(params) {
-        return window.API.call('auth/twofactorauth/emailotp/verify', {
+        return API.call('auth/twofactorauth/emailotp/verify', {
             method: 'POST',
             params
         }).then((json) => {
@@ -48,7 +50,7 @@ const loginReq = {
                 json,
                 params
             };
-            // window.API.$emit('EMAILOTP', args);
+            // API.$emit('EMAILOTP', args);
             return args;
         });
     }

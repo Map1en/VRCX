@@ -1,9 +1,11 @@
+import { API } from '../app';
+
 const vrcPlusImageReq = {
     uploadGalleryImage(imageData) {
         const params = {
             tag: 'gallery'
         };
-        return window.API.call('file/image', {
+        return API.call('file/image', {
             uploadImage: true,
             matchingDimensions: false,
             postData: JSON.stringify(params),
@@ -13,13 +15,13 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            window.API.$emit('GALLERYIMAGE:ADD', args);
+            API.$emit('GALLERYIMAGE:ADD', args);
             return args;
         });
     },
 
     uploadSticker(imageData, params) {
-        return window.API.call('file/image', {
+        return API.call('file/image', {
             uploadImage: true,
             matchingDimensions: true,
             postData: JSON.stringify(params),
@@ -29,13 +31,13 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            window.API.$emit('STICKER:ADD', args);
+            API.$emit('STICKER:ADD', args);
             return args;
         });
     },
 
     getPrints(params) {
-        return window.API.call(`prints/user/${window.API.currentUser.id}`, {
+        return API.call(`prints/user/${API.currentUser.id}`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -43,26 +45,26 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            window.API.$emit('PRINT:LIST', args);
+            API.$emit('PRINT:LIST', args);
             return args;
         });
     },
 
     deletePrint(printId) {
-        return window.API.call(`prints/${printId}`, {
+        return API.call(`prints/${printId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
                 json,
                 printId
             };
-            // window.API.$emit('PRINT:DELETE', args);
+            // API.$emit('PRINT:DELETE', args);
             return args;
         });
     },
 
     uploadPrint(imageData, cropWhiteBorder, params) {
-        return window.API.call('prints', {
+        return API.call('prints', {
             uploadImagePrint: true,
             cropWhiteBorder,
             postData: JSON.stringify(params),
@@ -72,26 +74,26 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            window.API.$emit('PRINT:ADD', args);
+            API.$emit('PRINT:ADD', args);
             return args;
         });
     },
 
     getPrint(params) {
-        return window.API.call(`prints/${params.printId}`, {
+        return API.call(`prints/${params.printId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
                 json,
                 params
             };
-            window.API.$emit('PRINT', args);
+            API.$emit('PRINT', args);
             return args;
         });
     },
 
     uploadEmoji(imageData, params) {
-        return window.API.call('file/image', {
+        return API.call('file/image', {
             uploadImage: true,
             matchingDimensions: true,
             postData: JSON.stringify(params),
@@ -101,7 +103,7 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            window.API.$emit('EMOJI:ADD', args);
+            API.$emit('EMOJI:ADD', args);
             return args;
         });
     }
@@ -109,7 +111,7 @@ const vrcPlusImageReq = {
     // ----------- no place uses this function ------------
 
     // editPrint(params) {
-    //     return window.API.call(`prints/${params.printId}`, {
+    //     return API.call(`prints/${params.printId}`, {
     //         method: 'POST',
     //         params
     //     }).then((json) => {
@@ -117,7 +119,7 @@ const vrcPlusImageReq = {
     //             json,
     //             params
     //         };
-    //         window.API.$emit('PRINT:EDIT', args);
+    //         API.$emit('PRINT:EDIT', args);
     //         return args;
     //     });
     // },
