@@ -112,6 +112,9 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     });
 
     async function setAutoUpdateVRCX(value) {
+        if (value === 'Off') {
+            state.pendingVRCXUpdate = false;
+        }
         state.autoUpdateVRCX = value;
         await configRepository.setString('VRCX_autoUpdateVRCX', value);
     }

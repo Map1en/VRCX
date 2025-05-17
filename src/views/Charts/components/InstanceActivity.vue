@@ -121,6 +121,7 @@
     import database from '../../../service/database';
     import { loadEcharts, parseLocation, timeToText } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useFriendStore } from '../../../stores/friend';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
 
     export default {
@@ -132,14 +133,16 @@
         props: {
             getWorldName: { type: Function, default: () => [] },
             dtHour12: Boolean,
-            friendsMap: Map,
-            localFavoriteFriends: Set
+            friendsMap: Map
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const friendStore = useFriendStore();
             const { isDarkMode } = storeToRefs(appearanceSettingsStore);
+            const { localFavoriteFriends } = storeToRefs(friendStore);
             return {
-                isDarkMode
+                isDarkMode,
+                localFavoriteFriends
             };
         },
         data() {

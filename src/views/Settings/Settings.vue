@@ -18,7 +18,7 @@
                             </div>
                         </div>
                         <!--//- General | General | Latest App Version-->
-                        <div class="x-friend-item" @click="checkForVRCXUpdate">
+                        <div class="x-friend-item" @click="checkForVRCXUpdate(notifyMenu)">
                             <div class="detail">
                                 <span class="name">{{ t('view.settings.general.general.latest_app_version') }}</span>
                                 <span v-if="latestAppVersion" class="extra" v-text="latestAppVersion"></span>
@@ -31,14 +31,14 @@
                         <div class="x-friend-item" @click="openExternalLink('https://github.com/vrcx-team/VRCX')">
                             <div class="detail">
                                 <span class="name">{{ t('view.settings.general.general.repository_url') }}</span>
-                                <span class="extra">https://github.com/vrcx-team/VRCX</span>
+                                <span v-once class="extra">https://github.com/vrcx-team/VRCX</span>
                             </div>
                         </div>
                         <!--//- General | General | Support-->
                         <div class="x-friend-item" @click="openExternalLink('https://vrcx.app/discord')">
                             <div class="detail">
                                 <span class="name">{{ t('view.settings.general.general.support') }}</span>
-                                <span class="extra">https://vrcx.app/discord</span>
+                                <span v-once class="extra">https://vrcx.app/discord</span>
                             </div>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                 <div class="options-container">
                     <span class="header">{{ t('view.settings.general.vrcx_updater.header') }}</span>
                     <div class="options-container-item">
-                        <el-button size="small" icon="el-icon-document" @click="showChangeLogDialog()">{{
+                        <el-button size="small" icon="el-icon-document" @click="showChangeLogDialog(notifyMenu)">{{
                             t('view.settings.general.vrcx_updater.change_log')
                         }}</el-button>
                         <el-button size="small" icon="el-icon-upload" @click="showVRCXUpdateDialog()">{{
@@ -61,7 +61,7 @@
                             :value="autoUpdateVRCX"
                             size="mini"
                             style="margin-top: 5px"
-                            @change="saveAutoUpdateVRCX">
+                            @input="setAutoUpdateVRCX">
                             <el-radio-button label="Off">{{
                                 t('view.settings.general.vrcx_updater.auto_update_off')
                             }}</el-radio-button>
@@ -104,7 +104,7 @@
                             @change="setDisableVrOverlayGpuAcceleration" />
                     </template>
                     <div class="options-container-item">
-                        <el-button size="small" icon="el-icon-connection" @click="promptProxySettings()">{{
+                        <el-button size="small" icon="el-icon-connection" @click="promptProxySettings">{{
                             t('view.settings.general.application.proxy')
                         }}</el-button>
                     </div>
@@ -1811,6 +1811,7 @@
     import { useDiscordPresenceSettingsStore } from '../../stores/settings/discordPresence';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import { usePhotonStore } from '../../stores/photon';
+    import { useFriendStore } from '../../stores/friend';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
 
@@ -2033,6 +2034,9 @@
     const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter, setTimeoutHudOverlayFilter } =
         photonStore;
 
+    const friendStore = useFriendStore();
+    const { updateLocalFavoriteFriends } = friendStore;
+
     const { t } = useI18n();
 
     const API = inject('API');
@@ -2094,13 +2098,6 @@
 
     function promptProxySettings() {
         emit('promptProxySettings');
-        // Function to prompt for proxy settings
-    }
-
-    function updateLocalFavoriteFriends() {
-        emit('updateLocalFavoriteFriends');
-
-        // Function to update local favorite friends
     }
 
     function saveOpenVROption(option) {

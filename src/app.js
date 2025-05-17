@@ -144,6 +144,7 @@ import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresen
 import { useAdvancedSettingsStore } from './stores/settings/advanced';
 import { usePhotonStore } from './stores/photon';
 import { useDebugStore } from './stores/debug';
+import { useFriendStore } from './stores/friend';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -519,9 +520,24 @@ const app = {
 
         const { debugWebRequests } = storeToRefs(debugStore);
 
+        const friendStore = useFriendStore();
+        const {
+            friends,
+            onlineFriends_,
+            vipFriends_,
+            sortOnlineFriends,
+            sortVIPFriends,
+            localFavoriteFriends
+        } = storeToRefs(friendStore);
+
+        const { updateLocalFavoriteFriends, updateSidebarFriendsList } =
+            friendStore;
+
         return {
+            // debugStore
             debugWebRequests,
 
+            // VRCXUpdaterStore
             appVersion,
             autoUpdateVRCX,
             latestAppVersion,
@@ -539,6 +555,7 @@ const app = {
             showVRCXUpdateDialog,
             showChangeLogDialog,
 
+            // generalSettingsStore
             isStartAtWindowsStartup,
             isStartAsMinimizedState,
             isCloseToTray,
@@ -571,6 +588,7 @@ const app = {
             setAutoAcceptInviteRequests,
             setLocalFavoriteFriendsGroups,
 
+            // appearanceSettingsStore
             appLanguage,
             themeMode,
             isDarkMode,
@@ -623,6 +641,7 @@ const app = {
             setRandomUserColours,
             setTrustColor,
 
+            // notificationsSettingsStore
             overlayToast,
             openVR,
             overlayNotifications,
@@ -647,6 +666,7 @@ const app = {
             setNotificationTTS,
             setNotificationTTSNickName,
 
+            // wristOverlaySettingsStore
             overlayWrist,
             hidePrivateFromFeed,
             openVRAlways,
@@ -671,6 +691,7 @@ const app = {
             setHideUptimeFromFeed,
             setPcUptimeOnFeed,
 
+            // discordPresenceSettingsStore
             discordActive,
             discordInstance,
             discordHideInvite,
@@ -683,6 +704,7 @@ const app = {
             setDiscordJoinButton,
             setDiscordHideImage,
 
+            // advancedSettingsStore
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
             vrcQuitFix,
@@ -727,6 +749,7 @@ const app = {
             getSqliteTableSizes,
             handleSetAppLauncherSettings,
 
+            // photonStore
             photonLoggingEnabled,
             photonEventOverlay,
             photonEventOverlayFilter,
@@ -737,7 +760,18 @@ const app = {
             setPhotonEventOverlay,
             setPhotonEventOverlayFilter,
             setPhotonEventTableTypeOverlayFilter,
-            setTimeoutHudOverlay
+            setTimeoutHudOverlay,
+
+            // friendStore
+            friends,
+            onlineFriends_,
+            vipFriends_,
+            sortOnlineFriends,
+            sortVIPFriends,
+            localFavoriteFriends,
+
+            updateLocalFavoriteFriends,
+            updateSidebarFriendsList
         };
     },
     data: {
@@ -11859,50 +11893,6 @@ $app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
             }
         }
     });
-};
-
-// #endregion
-// #region | Local Favorite Friends
-
-$app.data.localFavoriteFriends = new Set();
-$app.methods.updateLocalFavoriteFriends = function (value) {
-    this.setLocalFavoriteFriendsGroups(
-        value || this.localFavoriteFriendsGroups
-    );
-    this.localFavoriteFriends.clear();
-    for (const ref of API.cachedFavorites.values()) {
-        if (
-            !ref.$isDeleted &&
-            ref.type === 'friend' &&
-            (this.localFavoriteFriendsGroups.includes(ref.$groupKey) ||
-                this.localFavoriteFriendsGroups.length === 0)
-        ) {
-            this.localFavoriteFriends.add(ref.favoriteId);
-        }
-    }
-    this.updateSidebarFriendsList();
-};
-
-$app.methods.updateSidebarFriendsList = function () {
-    for (let ctx of this.friends.values()) {
-        const isVIP = this.localFavoriteFriends.has(ctx.id);
-        if (ctx.isVIP === isVIP) {
-            continue;
-        }
-        ctx.isVIP = isVIP;
-        if (ctx.state !== 'online') {
-            continue;
-        }
-        if (ctx.isVIP) {
-            removeFromArray(this.onlineFriends_, ctx);
-            this.vipFriends_.push(ctx);
-            this.sortVIPFriends = true;
-        } else {
-            removeFromArray(this.vipFriends_, ctx);
-            this.onlineFriends_.push(ctx);
-            this.sortOnlineFriends = true;
-        }
-    }
 };
 
 // #endregion
