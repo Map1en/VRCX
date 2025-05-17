@@ -293,7 +293,7 @@
                         <p>{{ t('view.settings.general.legal_notice.disclaimer2') }}</p>
                     </div>
                     <div class="options-container-item">
-                        <el-button size="small" @click="ossDialog = true">{{
+                        <el-button size="small" @click="openOSSDialog">{{
                             t('view.settings.general.legal_notice.open_source_software_notice')
                         }}</el-button>
                     </div>
@@ -319,7 +319,7 @@
                                     v-for="(obj, language) in i18n.messages"
                                     :key="language"
                                     @click.native="changeAppLanguage(language)"
-                                    v-text="obj.language"></el-dropdown-item>
+                                    v-text="obj.language" />
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
@@ -1790,6 +1790,7 @@
                 </div>
             </el-tab-pane>
         </el-tabs>
+        <OpenSourceSoftwareNoticeDialog :ossDialog.sync="ossDialog" />
     </div>
 </template>
 
@@ -1814,6 +1815,7 @@
     import { useFriendStore } from '../../stores/friend';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
+    import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
 
     const { i18n } = useI18n();
 
@@ -2087,6 +2089,8 @@
 
     const emit = defineEmits([]);
 
+    const ossDialog = ref(false);
+
     function isLinux() {
         return LINUX;
     }
@@ -2100,9 +2104,8 @@
         emit('promptProxySettings');
     }
 
-    function saveOpenVROption(option) {
-        // todo
-        // Function to save OpenVR options
+    function saveOpenVROption() {
+        emit('saveOpenVROption');
     }
 
     function saveLoggingOptions(option) {
@@ -2325,5 +2328,9 @@
 
     function handleSetTablePageSize() {
         // setTablePageSize(tablePageSize);
+    }
+
+    function openOSSDialog() {
+        ossDialog.value = true;
     }
 </script>

@@ -34,8 +34,13 @@ export default defineConfig([
     pluginVue.configs['flat/vue2-essential'],
     {
         rules: {
+            'no-unused-vars': 'warn',
+            'no-case-declarations': 'warn',
+
             'vue/no-mutating-props': 'warn',
-            'vue/multi-word-component-names': 'warn'
+            'vue/multi-word-component-names': 'off',
+            'vue/no-v-text-v-html-on-component': 'off',
+            'vue/no-use-v-if-with-v-for': 'warn'
         }
     }
 ]);

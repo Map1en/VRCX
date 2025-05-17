@@ -1915,7 +1915,7 @@ API.refetchBrokenFriends = async function (friends) {
                         friend
                     );
                 }
-                var args = await userRequest.getUser({
+                const args = await userRequest.getUser({
                     userId: friend.id
                 });
                 friends[i] = args.json;
@@ -2075,10 +2075,11 @@ API.$on('NOTIFICATION:LIST:HIDDEN', function (args) {
 });
 
 API.$on('NOTIFICATION:ACCEPT', function (args) {
+    let ref;
     const array = $app.notificationTable.data;
     for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === args.params.notificationId) {
-            var ref = array[i];
+            ref = array[i];
             break;
         }
     }
@@ -2101,10 +2102,11 @@ API.$on('NOTIFICATION:ACCEPT', function (args) {
 });
 
 API.$on('NOTIFICATION:HIDE', function (args) {
+    let ref;
     const array = $app.notificationTable.data;
     for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === args.params.notificationId) {
-            var ref = array[i];
+            ref = array[i];
             break;
         }
     }
@@ -2136,10 +2138,11 @@ API.$on('NOTIFICATION:HIDE', function (args) {
 });
 
 API.applyNotification = function (json) {
+    let ref;
     const array = $app.notificationTable.data;
     for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === json.id) {
-            var ref = array[i];
+            ref = array[i];
             break;
         }
     }
@@ -2199,10 +2202,11 @@ API.expireFriendRequestNotifications = function () {
 };
 
 API.expireNotification = function (notificationId) {
+    let ref;
     const array = $app.notificationTable.data;
     for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === notificationId) {
-            var ref = array[i];
+            ref = array[i];
             break;
         }
     }
@@ -3383,7 +3387,6 @@ API.$on('LOGIN', function (args) {
 API.$on('LOGOUT', async function () {
     await $app.updateStoredUser(this.currentUser);
     webApiService.clearCookies();
-    // eslint-disable-next-line require-atomic-updates
     $app.loginForm.lastUserLoggedIn = '';
     await configRepository.remove('lastUserLoggedIn');
     // workerTimers.setTimeout(() => location.reload(), 500);
@@ -4424,15 +4427,13 @@ API.$on('LOGIN', async function (args) {
     await database.initUserTables(args.json.id);
     $app.menuActiveIndex = 'feed';
     await $app.updateDatabaseVersion();
-    // eslint-disable-next-line require-atomic-updates
+
     $app.gameLogTable.data = await database.lookupGameLogDatabase(
         $app.gameLogTable.search,
         $app.gameLogTable.filter
     );
-    // eslint-disable-next-line require-atomic-updates
     $app.feedSessionTable = await database.getFeedDatabase();
     await $app.feedTableLookup();
-    // eslint-disable-next-line require-atomic-updates
     $app.notificationTable.data = await database.getNotifications();
     this.refreshNotifications();
     $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
@@ -9022,8 +9023,9 @@ $app.methods.showAvatarAuthorDialog = async function (
         this.showAvatarDialog(API.currentUser.currentAvatar);
     } else {
         let avatarId = await this.checkAvatarCache(fileId);
+        let avatarInfo;
         if (!avatarId) {
-            var avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
+            avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
             if (avatarInfo.ownerId === API.currentUser.id) {
                 this.refreshUserDialogAvatars(fileId);
             }
@@ -9642,11 +9644,9 @@ $app.methods.getAllUserStats = async function () {
 
 $app.methods.getUserStats = async function (ctx) {
     const ref = await database.getUserStats(ctx);
-    /* eslint-disable require-atomic-updates */
     ctx.$joinCount = ref.joinCount;
     ctx.$lastSeen = ref.lastSeen;
     ctx.$timeSpent = ref.timeSpent;
-    /* eslint-enable require-atomic-updates */
 };
 
 // Set avatar/world image
@@ -10451,8 +10451,9 @@ $app.methods.ipcEvent = function (json) {
     if (!API.isLoggedIn) {
         return;
     }
+    let data;
     try {
-        var data = JSON.parse(json);
+        data = JSON.parse(json);
     } catch {
         console.log(`IPC invalid JSON, ${json}`);
         return;
@@ -11083,9 +11084,10 @@ $app.data.databaseVersion = await configRepository.getInt(
 
 $app.methods.updateDatabaseVersion = async function () {
     const databaseVersion = 12;
+    let msgBox;
     if (this.databaseVersion < databaseVersion) {
         if (this.databaseVersion) {
-            var msgBox = this.$message({
+            msgBox = this.$message({
                 message: 'DO NOT CLOSE VRCX, database upgrade in progress...',
                 type: 'warning',
                 duration: 0
