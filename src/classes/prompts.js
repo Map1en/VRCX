@@ -4,14 +4,9 @@ import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _methods = {
+export default function init(app) {
+    const _methods = {
         promptTOTP() {
             if (this.twoFactorAuthDialogVisible) {
                 return;
@@ -578,4 +573,5 @@ export default class extends baseClass {
             );
         }
     };
+    app.methods = { ...app.methods, ..._methods };
 }

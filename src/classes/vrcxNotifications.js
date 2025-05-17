@@ -5,18 +5,13 @@ import {
     extractFileId,
     extractFileVersion
 } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _data = {
+export default function init(app) {
+    const _data = {
         notyMap: []
     };
 
-    _methods = {
+    const _methods = {
         queueGameLogNoty(noty) {
             // remove join/leave notifications when switching worlds
             if (
@@ -1622,4 +1617,7 @@ export default class extends baseClass {
             }
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

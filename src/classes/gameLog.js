@@ -6,14 +6,9 @@ import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import gameLogService from '../service/gamelog.js';
 import { parseLocation, replaceBioSymbols } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _data = {
+export default function init(app) {
+    const _data = {
         gameLogTable: {
             data: [],
             loading: false,
@@ -39,7 +34,7 @@ export default class extends baseClass {
         lastResourceloadUrl: ''
     };
 
-    _methods = {
+    const _methods = {
         addGameLogEntry(gameLog, location) {
             if (this.gameLogDisabled) {
                 return;
@@ -1099,4 +1094,7 @@ export default class extends baseClass {
             }
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

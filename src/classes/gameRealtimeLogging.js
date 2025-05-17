@@ -12,14 +12,9 @@ import {
     replaceBioSymbols,
     timeToText
 } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _data = {
+export default function init(app) {
+    const _data = {
         moderationEventQueue: new Map(),
         moderationAgainstTable: [],
         photonLobby: new Map(),
@@ -93,7 +88,7 @@ export default class extends baseClass {
         photonEventTableTypeFilter: []
     };
 
-    _methods = {
+    const _methods = {
         startLobbyWatcherLoop() {
             if (!this.photonLobbyWatcherLoop) {
                 this.photonLobbyWatcherLoop = true;
@@ -1433,4 +1428,7 @@ export default class extends baseClass {
             // );
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

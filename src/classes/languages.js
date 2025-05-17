@@ -1,32 +1,25 @@
 import { $app, API } from '../app.js';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
+export default function init(app) {
+    API.$on('CONFIG', function (args) {
+        const languages =
+            args.ref?.constants?.LANGUAGE?.SPOKEN_LANGUAGE_OPTIONS;
+        if (!languages) {
+            return;
+        }
+        $app.subsetOfLanguages = languages;
+        const data = [];
+        for (const key in languages) {
+            const value = languages[key];
+            data.push({
+                key,
+                value
+            });
+        }
+        $app.languageDialog.languages = data;
+    });
 
-    init() {
-        API.$on('CONFIG', function (args) {
-            var languages =
-                args.ref?.constants?.LANGUAGE?.SPOKEN_LANGUAGE_OPTIONS;
-            if (!languages) {
-                return;
-            }
-            $app.subsetOfLanguages = languages;
-            var data = [];
-            for (var key in languages) {
-                var value = languages[key];
-                data.push({
-                    key,
-                    value
-                });
-            }
-            $app.languageDialog.languages = data;
-        });
-    }
-
-    _data = {
+    const _data = {
         subsetOfLanguages: [],
 
         languageDialog: {
@@ -37,5 +30,5 @@ export default class extends baseClass {
         }
     };
 
-    _methods = {};
+    app.data = { ...app.data, ..._data };
 }

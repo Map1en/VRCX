@@ -1,9 +1,9 @@
 import Noty from 'noty';
-import { $t } from '../app.js';
+import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import security from '../service/security.js';
 
-export default async function init($app, API) {
+export default async function init(app) {
     API.isLoggedIn = false;
     API.attemptingAutoLogin = false;
     API.autoLoginAttempts = new Set();
@@ -353,6 +353,6 @@ export default async function init($app, API) {
         }
     };
 
-    $app.data = { ...$app.data, ..._data };
-    $app.methods = { ...$app.methods, ..._methods };
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

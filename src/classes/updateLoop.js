@@ -1,22 +1,15 @@
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api/index.js';
 import { $app, API } from '../app.js';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
+export default function init(app) {
+    API.$on('LOGIN', function () {
+        $app.nextCurrentUserRefresh = 300;
+        $app.nextFriendsRefresh = 3600;
+        $app.nextGroupInstanceRefresh = 0;
+    });
 
-    init() {
-        API.$on('LOGIN', function () {
-            $app.nextCurrentUserRefresh = 300;
-            $app.nextFriendsRefresh = 3600;
-            $app.nextGroupInstanceRefresh = 0;
-        });
-    }
-
-    _data = {
+    const _data = {
         nextCurrentUserRefresh: 300,
         nextFriendsRefresh: 3600,
         nextGroupInstanceRefresh: 0,
@@ -30,7 +23,7 @@ export default class extends baseClass {
         nextDatabaseOptimize: 3600
     };
 
-    _methods = {
+    const _methods = {
         async updateLoop() {
             try {
                 if (API.isLoggedIn === true) {
@@ -120,4 +113,7 @@ export default class extends baseClass {
             workerTimers.setTimeout(() => this.updateLoop(), 1000);
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

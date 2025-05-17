@@ -48,27 +48,27 @@ import {
 import pugTemplate from './app.pug';
 
 // API classes
-import _config from './classes/API/config.js';
+import config from './classes/API/config.js';
 import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
-import _currentUser from './classes/currentUser.js';
-import _discordRpc from './classes/discordRpc.js';
-import _feed from './classes/feed.js';
-import _gameLog from './classes/gameLog.js';
-import _gameRealtimeLogging from './classes/gameRealtimeLogging.js';
+import currentUser from './classes/currentUser.js';
+import discordRpc from './classes/discordRpc.js';
+import feed from './classes/feed.js';
+import gameLog from './classes/gameLog.js';
+import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import _groups from './classes/groups.js';
-import _languages from './classes/languages.js';
-import _memos from './classes/memos.js';
-import _prompts from './classes/prompts.js';
-import _restoreFriendOrder from './classes/restoreFriendOrder.js';
+import languages from './classes/languages.js';
+import memos from './classes/memos.js';
+import prompts from './classes/prompts.js';
+import restoreFriendOrder from './classes/restoreFriendOrder.js';
 
 // main app classes
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
-import _updateLoop from './classes/updateLoop.js';
-import _vrcRegistry from './classes/vrcRegistry.js';
+import updateLoop from './classes/updateLoop.js';
+import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
-import _vrcxNotifications from './classes/vrcxNotifications.js';
+import vrcxNotifications from './classes/vrcxNotifications.js';
 import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
@@ -255,21 +255,21 @@ const vrcxClasses = {
     // webSocket: new _websocket($app, API, $t),
     // main classes
     // sharedFeed: new sharedFeed($app, API, $t),
-    prompts: new _prompts($app, API, $t),
-    vrcxNotifications: new _vrcxNotifications($app, API, $t),
+    // prompts: new _prompts($app, API, $t),
+    // vrcxNotifications: new _vrcxNotifications($app, API, $t),
     // apiLogin: new _apiLogin($app, API, $t, webApiService),
-    currentUser: new _currentUser($app, API, $t),
-    updateLoop: new _updateLoop($app, API, $t),
-    discordRpc: new _discordRpc($app, API, $t),
-    gameLog: new _gameLog($app, API, $t),
-    gameRealtimeLogging: new _gameRealtimeLogging($app, API, $t),
-    feed: new _feed($app, API, $t),
-    memos: new _memos($app, API, $t),
-    config: new _config($app, API, $t),
-    languages: new _languages($app, API, $t),
-    groups: new _groups($app, API, $t),
-    vrcRegistry: new _vrcRegistry($app, API, $t),
-    restoreFriendOrder: new _restoreFriendOrder($app, API, $t)
+    // currentUser: new _currentUser($app, API, $t),
+    // updateLoop: new _updateLoop($app, API, $t),
+    // discordRpc: new _discordRpc($app, API, $t),
+    // gameLog: new _gameLog($app, API, $t),
+    // gameRealtimeLogging: new _gameRealtimeLogging($app, API, $t),
+    // feed: new _feed($app, API, $t),
+    // memos: new _memos($app, API, $t),
+    // config: new _config($app, API, $t),
+    // languages: new _languages($app, API, $t),
+    groups: new _groups($app, API, $t)
+    // vrcRegistry: new _vrcRegistry($app, API, $t),
+    // restoreFriendOrder: new _restoreFriendOrder($app, API, $t)
 };
 
 await configRepository.init();
@@ -986,18 +986,40 @@ const app = {
     pinia
 };
 
-websocket(API);
-uiComponents();
-apiLogin(app, API);
-apiRequestHandler(API);
-sharedFeed(app, API);
-
 for (const value of Object.values(vrcxClasses)) {
     app.methods = { ...app.methods, ...value._methods };
     app.data = { ...app.data, ...value._data };
 }
 
 Object.assign($app, app);
+
+/**
+ * The $app of the parameter is not a vue instance, it's a $app that needs to be mounted,
+ * and the $app inside methods needs to be a vue instance, so import app.js bottom to use it.
+ *
+ * I think this reference state sucks, there is no concept of reference at all
+ */
+
+apiRequestHandler();
+uiComponents();
+websocket();
+
+sharedFeed($app);
+prompts($app);
+vrcxNotifications($app);
+apiLogin($app);
+currentUser();
+updateLoop($app);
+discordRpc($app);
+gameLog($app);
+gameRealtimeLogging($app);
+feed($app);
+memos($app);
+config($app);
+languages($app);
+// groups($app);
+vrcRegistry($app);
+restoreFriendOrder($app);
 
 // #endregion
 // #region | Init: drop/keyup event listeners

@@ -2,18 +2,9 @@ import { API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { compareByCreatedAtAscending } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    init() {}
-
-    _data = {};
-
-    _methods = {
+export default function init(app) {
+    const _methods = {
         async tryRestoreFriendNumber() {
             var lastUpdate = await configRepository.getString(
                 `VRCX_lastStoreTime_${API.currentUser.id}`
@@ -271,4 +262,6 @@ export default class extends baseClass {
             }
         }
     };
+
+    app.methods = { ...app.methods, ..._methods };
 }

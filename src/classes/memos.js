@@ -1,17 +1,8 @@
 import { $app } from '../app.js';
 import database from '../service/database.js';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    init() {}
-
-    _data = {};
-
-    _methods = {
+export default function init(app) {
+    const _methods = {
         async migrateMemos() {
             var json = JSON.parse(await VRCXStorage.GetAll());
             for (var line in json) {
@@ -102,4 +93,6 @@ export default class extends baseClass {
             }
         }
     };
+
+    app.data = { ...app.data, ..._methods };
 }

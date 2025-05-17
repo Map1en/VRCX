@@ -1,18 +1,13 @@
 import { worldRequest } from '../api';
 import { API } from '../app.js';
 import { getLaunchURL, parseLocation } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _data = {
+export default function init(app) {
+    const _data = {
         isDiscordActive: false
     };
 
-    _methods = {
+    const _methods = {
         updateDiscord() {
             var currentLocation = this.lastLocation.location;
             var timeStamp = this.lastLocation.date;
@@ -243,4 +238,7 @@ export default class extends baseClass {
             this.updateDiscord();
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

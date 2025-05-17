@@ -1,10 +1,10 @@
 import Noty from 'noty';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
-import { $app } from '../app.js';
+import { $app, API } from '../app.js';
 import { escapeTag, parseLocation } from '../shared/utils';
 
-export default function init(API) {
+export default function init() {
     API.webSocket = null;
     API.lastWebSocketMessage = '';
 

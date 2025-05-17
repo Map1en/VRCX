@@ -1,9 +1,9 @@
 import Noty from 'noty';
-import { $app, $t } from '../app.js';
+import { $app, $t, API } from '../app.js';
 import { statusCodes } from '../shared/constants/api.js';
 import { escapeTag } from '../shared/utils';
 
-export default function init(API) {
+export default function init() {
     API.cachedConfig = {};
     API.pendingGetRequests = new Map();
     API.failedGetRequests = new Map();

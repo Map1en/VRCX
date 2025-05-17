@@ -1,7 +1,8 @@
 import * as workerTimers from 'worker-timers';
 import { groupRequest, worldRequest } from '../api';
+import { $app, API } from '../app';
 
-export default function init($app, API) {
+export default function init(app) {
     const _data = {
         sharedFeed: {
             gameLog: {
@@ -570,6 +571,6 @@ export default function init($app, API) {
         }
     };
 
-    $app.data = { ...$app.data, ..._data };
-    $app.methods = { ...$app.methods, ..._methods };
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

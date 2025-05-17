@@ -1,18 +1,9 @@
 import { $t } from '../app.js';
 import configRepository from '../service/config.js';
 import { removeFromArray } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    init() {}
-
-    _data = {};
-
-    _methods = {
+export default function init(app) {
+    const _methods = {
         async backupVrcRegistry(name) {
             var regJson;
             if (LINUX) {
@@ -120,4 +111,6 @@ export default class extends baseClass {
             );
         }
     };
+
+    app.methods = { ...app.methods, ..._methods };
 }
