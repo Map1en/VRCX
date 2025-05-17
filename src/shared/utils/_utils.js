@@ -11,7 +11,8 @@ import {
     getPrintLocalDate,
     isFriendOnline,
     isRealInstance,
-    parseLocation
+    parseLocation,
+    getBundleLocation
 } from './index';
 
 const _utils = {
@@ -27,7 +28,8 @@ const _utils = {
     parseLocation,
     getPrintFileName,
     getPrintLocalDate,
-    isFriendOnline
+    isFriendOnline,
+    getBundleLocation
 };
 
 export { _utils };

@@ -30,8 +30,8 @@ function isRealInstance(instanceId) {
 }
 
 function displayLocation(location, worldName, groupName) {
-    var text = worldName;
-    var L = parseLocation(location);
+    let text = worldName;
+    const L = parseLocation(location);
     if (L.isOffline) {
         text = 'Offline';
     } else if (L.isPrivate) {
@@ -49,8 +49,8 @@ function displayLocation(location, worldName, groupName) {
 }
 
 function parseLocation(tag) {
-    var _tag = String(tag || '');
-    var ctx = {
+    let _tag = String(tag || '');
+    const ctx = {
         tag: _tag,
         isOffline: false,
         isPrivate: false,
@@ -81,10 +81,10 @@ function parseLocation(tag) {
         ctx.isTraveling = true;
     } else if (!_tag.startsWith('local')) {
         ctx.isRealInstance = true;
-        var sep = _tag.indexOf(':');
+        const sep = _tag.indexOf(':');
         // technically not part of instance id, but might be there when coping id from url so why not support it
-        var shortNameQualifier = '&shortName=';
-        var shortNameIndex = _tag.indexOf(shortNameQualifier);
+        const shortNameQualifier = '&shortName=';
+        const shortNameIndex = _tag.indexOf(shortNameQualifier);
         if (shortNameIndex >= 0) {
             ctx.shortName = _tag.substr(
                 shortNameIndex + shortNameQualifier.length
@@ -96,10 +96,10 @@ function parseLocation(tag) {
             ctx.instanceId = _tag.substr(sep + 1);
             ctx.instanceId.split('~').forEach((s, i) => {
                 if (i) {
-                    var A = s.indexOf('(');
-                    var Z = A >= 0 ? s.lastIndexOf(')') : -1;
-                    var key = Z >= 0 ? s.substr(0, A) : s;
-                    var value = A < Z ? s.substr(A + 1, Z - A - 1) : '';
+                    const A = s.indexOf('(');
+                    const Z = A >= 0 ? s.lastIndexOf(')') : -1;
+                    const key = Z >= 0 ? s.substr(0, A) : s;
+                    const value = A < Z ? s.substr(A + 1, Z - A - 1) : '';
                     if (key === 'hidden') {
                         ctx.hiddenId = value;
                     } else if (key === 'private') {

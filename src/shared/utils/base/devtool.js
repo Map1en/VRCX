@@ -5,20 +5,21 @@ import {
     extractVariantVersion
 } from '../common';
 
-// not window.$app
-window.getBundleLocation = async function (input) {
+async function getBundleLocation(input) {
+    let unityPackage;
+    let unityPackages;
     const $app = window.$app;
-    var assetUrl = input;
-    var variant = '';
+    let assetUrl = input;
+    let variant = '';
     if (assetUrl) {
         // continue
     } else if (
         $app.avatarDialog.visible &&
         $app.avatarDialog.ref.unityPackages.length > 0
     ) {
-        var unityPackages = $app.avatarDialog.ref.unityPackages;
+        unityPackages = $app.avatarDialog.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
-            var unityPackage = unityPackages[i];
+            unityPackage = unityPackages[i];
             if (
                 unityPackage.variant &&
                 unityPackage.variant !== 'standard' &&
@@ -43,9 +44,9 @@ window.getBundleLocation = async function (input) {
         $app.worldDialog.visible &&
         $app.worldDialog.ref.unityPackages.length > 0
     ) {
-        var unityPackages = $app.worldDialog.ref.unityPackages;
+        unityPackages = $app.worldDialog.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
-            var unityPackage = unityPackages[i];
+            unityPackage = unityPackages[i];
             if (
                 unityPackage.platform === 'standalonewindows' &&
                 compareUnityVersion(unityPackage.unitySortNumber)
@@ -60,27 +61,29 @@ window.getBundleLocation = async function (input) {
     if (!assetUrl) {
         return null;
     }
-    var fileId = extractFileId(assetUrl);
-    var fileVersion = parseInt(extractFileVersion(assetUrl), 10);
-    var variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
-    var assetLocation = await AssetBundleManager.GetVRChatCacheFullLocation(
+    const fileId = extractFileId(assetUrl);
+    const fileVersion = parseInt(extractFileVersion(assetUrl), 10);
+    const variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
+    const assetLocation = await AssetBundleManager.GetVRChatCacheFullLocation(
         fileId,
         fileVersion,
         variant,
         variantVersion
     );
-    var cacheInfo = await AssetBundleManager.CheckVRChatCache(
+    const cacheInfo = await AssetBundleManager.CheckVRChatCache(
         fileId,
         fileVersion,
         variant,
         variantVersion
     );
-    var inCache = false;
+    let inCache = false;
     if (cacheInfo.Item1 > 0) {
         inCache = true;
     }
     console.log(`InCache: ${inCache}`);
-    var fullAssetLocation = `${assetLocation}\\__data`;
+    const fullAssetLocation = `${assetLocation}\\__data`;
     console.log(fullAssetLocation);
     return fullAssetLocation;
-};
+}
+
+export { getBundleLocation };

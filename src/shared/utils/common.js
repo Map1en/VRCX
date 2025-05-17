@@ -3,11 +3,11 @@ import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
 
 function getAvailablePlatforms(unityPackages) {
-    var isPC = false;
-    var isQuest = false;
-    var isIos = false;
+    let isPC = false;
+    let isQuest = false;
+    let isIos = false;
     if (typeof unityPackages === 'object') {
-        for (var unityPackage of unityPackages) {
+        for (const unityPackage of unityPackages) {
             if (
                 unityPackage.variant &&
                 unityPackage.variant !== 'standard' &&
@@ -32,7 +32,7 @@ function downloadAndSaveJson(fileName, data) {
         return;
     }
     try {
-        var link = document.createElement('a');
+        const link = document.createElement('a');
         link.setAttribute(
             'href',
             `data:application/json;charset=utf-8,${encodeURIComponent(
@@ -52,10 +52,10 @@ function downloadAndSaveJson(fileName, data) {
 }
 
 async function deleteVRChatCache(ref) {
-    var assetUrl = '';
-    var variant = '';
-    for (var i = ref.unityPackages.length - 1; i > -1; i--) {
-        var unityPackage = ref.unityPackages[i];
+    let assetUrl = '';
+    let variant = '';
+    for (let i = ref.unityPackages.length - 1; i > -1; i--) {
+        const unityPackage = ref.unityPackages[i];
         if (
             unityPackage.variant &&
             unityPackage.variant !== 'standard' &&
@@ -74,9 +74,9 @@ async function deleteVRChatCache(ref) {
             break;
         }
     }
-    var id = extractFileId(assetUrl);
-    var version = parseInt(extractFileVersion(assetUrl), 10);
-    var variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
+    const id = extractFileId(assetUrl);
+    const version = parseInt(extractFileVersion(assetUrl), 10);
+    const variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
     await AssetBundleManager.DeleteCache(id, version, variant, variantVersion);
 }
 
@@ -84,10 +84,10 @@ async function checkVRChatCache(ref) {
     if (!ref.unityPackages) {
         return { Item1: -1, Item2: false, Item3: '' };
     }
-    var assetUrl = '';
-    var variant = '';
-    for (var i = ref.unityPackages.length - 1; i > -1; i--) {
-        var unityPackage = ref.unityPackages[i];
+    let assetUrl = '';
+    let variant = '';
+    for (let i = ref.unityPackages.length - 1; i > -1; i--) {
+        const unityPackage = ref.unityPackages[i];
         if (unityPackage.variant && unityPackage.variant !== 'security') {
             continue;
         }
@@ -105,9 +105,9 @@ async function checkVRChatCache(ref) {
     if (!assetUrl) {
         assetUrl = ref.assetUrl;
     }
-    var id = extractFileId(assetUrl);
-    var version = parseInt(extractFileVersion(assetUrl), 10);
-    var variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
+    const id = extractFileId(assetUrl);
+    const version = parseInt(extractFileVersion(assetUrl), 10);
+    const variantVersion = parseInt(extractVariantVersion(assetUrl), 10);
     if (!id || !version) {
         return { Item1: -1, Item2: false, Item3: '' };
     }
@@ -176,12 +176,12 @@ function replaceVrcPackageUrl(url) {
 }
 
 function extractFileId(s) {
-    var match = String(s).match(/file_[0-9A-Za-z-]+/);
+    const match = String(s).match(/file_[0-9A-Za-z-]+/);
     return match ? match[0] : '';
 }
 
 function extractFileVersion(s) {
-    var match = /(?:\/file_[0-9A-Za-z-]+\/)([0-9]+)/gi.exec(s);
+    const match = /(?:\/file_[0-9A-Za-z-]+\/)([0-9]+)/gi.exec(s);
     return match ? match[1] : '';
 }
 

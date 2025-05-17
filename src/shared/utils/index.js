@@ -1,4 +1,5 @@
 export { removeFromArray, arraysMatch } from './base/array';
+export { getBundleLocation } from './base/devtool';
 export { timeToText, formatDateFilter } from './base/format';
 export {
     escapeTag,

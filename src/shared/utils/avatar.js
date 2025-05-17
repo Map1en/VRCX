@@ -31,11 +31,11 @@ function parseAvatarUrl(avatar) {
 }
 
 function getPlatformInfo(unityPackages) {
-    var pc = {};
-    var android = {};
-    var ios = {};
+    let pc = {};
+    let android = {};
+    let ios = {};
     if (typeof unityPackages === 'object') {
-        for (var unityPackage of unityPackages) {
+        for (const unityPackage of unityPackages) {
             if (
                 unityPackage.variant &&
                 unityPackage.variant !== 'standard' &&
@@ -83,20 +83,20 @@ function compareUnityVersion(unitySortNumber) {
     // 2019.4.31f1 2019 04 31 000
     // 5.3.4p1     5    03 04 010
     // 2019.4.31f1c1 is a thing
-    var array = window.API.cachedConfig.sdkUnityVersion.split('.');
+    const array = window.API.cachedConfig.sdkUnityVersion.split('.');
     if (array.length < 3) {
         console.error('Invalid cachedConfig.sdkUnityVersion');
         return false;
     }
-    var currentUnityVersion = array[0];
+    let currentUnityVersion = array[0];
     currentUnityVersion += array[1].padStart(2, '0');
-    var indexFirstLetter = array[2].search(/[a-zA-Z]/);
+    const indexFirstLetter = array[2].search(/[a-zA-Z]/);
     if (indexFirstLetter > -1) {
         currentUnityVersion += array[2]
             .substr(0, indexFirstLetter)
             .padStart(2, '0');
         currentUnityVersion += '0';
-        var letter = array[2].substr(indexFirstLetter, 1);
+        const letter = array[2].substr(indexFirstLetter, 1);
         if (letter === 'p') {
             currentUnityVersion += '1';
         } else {
