@@ -35,7 +35,8 @@
         "WebApi": "readonly",
         "AssetBundleManager": "readonly",
         "WINDOWS": "readonly",
-        "LINUX": "readonly"
+        "LINUX": "readonly",
+        "webApiService": "readonly"
     },
     "rules": {
         "no-console": 0,

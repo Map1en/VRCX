@@ -46,7 +46,6 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { extractFileId } from '../../../shared/utils';
-    import webApiService from '../../../service/webapi';
 
     const { t } = useI18n();
 

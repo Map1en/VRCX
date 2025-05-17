@@ -1,150 +1,137 @@
 import Noty from 'noty';
-import { $app, $t, API } from '../app.js';
+import { $t } from '../app.js';
 import configRepository from '../service/config.js';
 import security from '../service/security.js';
-import { baseClass } from './baseClass.js';
 
-/* eslint-disable no-unused-vars */
-let webApiService = {};
+export default async function init($app, API) {
+    API.isLoggedIn = false;
+    API.attemptingAutoLogin = false;
+    API.autoLoginAttempts = new Set();
 
-export default class extends baseClass {
-    constructor(_app, _API, _t, _webApiService) {
-        super(_app, _API, _t);
-        webApiService = _webApiService;
-    }
+    /**
+     * @param {{ username: string, password: string }} params credential to login
+     * @returns {Promise<{origin: boolean, json: any, params}>}
+     */
+    API.login = function (params) {
+        let { username, password, saveCredentials, cipher } = params;
+        username = encodeURIComponent(username);
+        password = encodeURIComponent(password);
+        const auth = btoa(`${username}:${password}`);
+        if (saveCredentials) {
+            delete params.saveCredentials;
+            if (cipher) {
+                params.password = cipher;
+                delete params.cipher;
+            }
+            $app.saveCredentials = params;
+        }
+        return this.call('auth/user', {
+            method: 'GET',
+            headers: {
+                Authorization: `Basic ${auth}`
+            }
+        }).then((json) => {
+            const args = {
+                json,
+                params,
+                origin: true
+            };
+            if (
+                json.requiresTwoFactorAuth &&
+                json.requiresTwoFactorAuth.includes('emailOtp')
+            ) {
+                this.$emit('USER:EMAILOTP', args);
+            } else if (json.requiresTwoFactorAuth) {
+                this.$emit('USER:2FA', args);
+            } else {
+                this.$emit('USER:CURRENT', args);
+            }
+            return args;
+        });
+    };
 
-    async init() {
-        API.isLoggedIn = false;
-        API.attemptingAutoLogin = false;
-        API.autoLoginAttempts = new Set();
-
-        /**
-         * @param {{ username: string, password: string }} params credential to login
-         * @returns {Promise<{origin: boolean, json: any, params}>}
-         */
-        API.login = function (params) {
-            var { username, password, saveCredentials, cipher } = params;
-            username = encodeURIComponent(username);
-            password = encodeURIComponent(password);
-            var auth = btoa(`${username}:${password}`);
-            if (saveCredentials) {
-                delete params.saveCredentials;
-                if (cipher) {
-                    params.password = cipher;
-                    delete params.cipher;
+    API.$on('AUTOLOGIN', function () {
+        if (this.attemptingAutoLogin) {
+            return;
+        }
+        this.attemptingAutoLogin = true;
+        const user =
+            $app.loginForm.savedCredentials[$app.loginForm.lastUserLoggedIn];
+        if (typeof user === 'undefined') {
+            this.attemptingAutoLogin = false;
+            return;
+        }
+        if ($app.enablePrimaryPassword) {
+            console.error(
+                'Primary password is enabled, this disables auto login.'
+            );
+            this.attemptingAutoLogin = false;
+            this.logout();
+            return;
+        }
+        const attemptsInLastHour = Array.from(this.autoLoginAttempts).filter(
+            (timestamp) => timestamp > new Date().getTime() - 3600000
+        ).length;
+        if (attemptsInLastHour >= 3) {
+            console.error(
+                'More than 3 auto login attempts within the past hour, logging out instead of attempting auto login.'
+            );
+            this.attemptingAutoLogin = false;
+            this.logout();
+            return;
+        }
+        this.autoLoginAttempts.add(new Date().getTime());
+        $app.relogin(user)
+            .then(() => {
+                if (this.errorNoty) {
+                    this.errorNoty.close();
                 }
-                $app.saveCredentials = params;
-            }
-            return this.call('auth/user', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Basic ${auth}`
+                this.errorNoty = new Noty({
+                    type: 'success',
+                    text: 'Automatically logged in.'
+                }).show();
+                console.log('Automatically logged in.');
+            })
+            .catch((err) => {
+                if (this.errorNoty) {
+                    this.errorNoty.close();
                 }
-            }).then((json) => {
-                var args = {
-                    json,
-                    params,
-                    origin: true
-                };
-                if (
-                    json.requiresTwoFactorAuth &&
-                    json.requiresTwoFactorAuth.includes('emailOtp')
-                ) {
-                    this.$emit('USER:EMAILOTP', args);
-                } else if (json.requiresTwoFactorAuth) {
-                    this.$emit('USER:2FA', args);
-                } else {
-                    this.$emit('USER:CURRENT', args);
-                }
-                return args;
-            });
-        };
-
-        API.$on('AUTOLOGIN', function () {
-            if (this.attemptingAutoLogin) {
-                return;
-            }
-            this.attemptingAutoLogin = true;
-            var user =
-                $app.loginForm.savedCredentials[
-                    $app.loginForm.lastUserLoggedIn
-                ];
-            if (typeof user === 'undefined') {
-                this.attemptingAutoLogin = false;
-                return;
-            }
-            if ($app.enablePrimaryPassword) {
-                console.error(
-                    'Primary password is enabled, this disables auto login.'
-                );
-                this.attemptingAutoLogin = false;
-                this.logout();
-                return;
-            }
-            var attemptsInLastHour = Array.from(this.autoLoginAttempts).filter(
-                (timestamp) => timestamp > new Date().getTime() - 3600000
-            ).length;
-            if (attemptsInLastHour >= 3) {
-                console.error(
-                    'More than 3 auto login attempts within the past hour, logging out instead of attempting auto login.'
-                );
-                this.attemptingAutoLogin = false;
-                this.logout();
-                return;
-            }
-            this.autoLoginAttempts.add(new Date().getTime());
-            $app.relogin(user)
-                .then(() => {
-                    if (this.errorNoty) {
-                        this.errorNoty.close();
-                    }
-                    this.errorNoty = new Noty({
-                        type: 'success',
-                        text: 'Automatically logged in.'
-                    }).show();
-                    console.log('Automatically logged in.');
-                })
-                .catch((err) => {
-                    if (this.errorNoty) {
-                        this.errorNoty.close();
-                    }
+                this.errorNoty = new Noty({
+                    type: 'error',
+                    text: 'Failed to login automatically.'
+                }).show();
+                console.error('Failed to login automatically.', err);
+            })
+            .finally(() => {
+                if (!navigator.onLine) {
                     this.errorNoty = new Noty({
                         type: 'error',
-                        text: 'Failed to login automatically.'
+                        text: `You're offline.`
                     }).show();
-                    console.error('Failed to login automatically.', err);
-                })
-                .finally(() => {
-                    if (!navigator.onLine) {
-                        this.errorNoty = new Noty({
-                            type: 'error',
-                            text: `You're offline.`
-                        }).show();
-                        console.error(`You're offline.`);
-                    }
-                });
-        });
+                    console.error(`You're offline.`);
+                }
+            });
+    });
 
-        API.$on('USER:CURRENT', function () {
-            this.attemptingAutoLogin = false;
-        });
+    API.$on('USER:CURRENT', function () {
+        this.attemptingAutoLogin = false;
+    });
 
-        API.$on('LOGOUT', function () {
-            this.attemptingAutoLogin = false;
-            this.autoLoginAttempts.clear();
-        });
+    API.$on('LOGOUT', function () {
+        this.attemptingAutoLogin = false;
+        this.autoLoginAttempts.clear();
+    });
 
-        API.logout = function () {
-            this.$emit('LOGOUT');
-            // return this.call('logout', {
-            //     method: 'PUT'
-            // }).finally(() => {
-            //     this.$emit('LOGOUT');
-            // });
-        };
-    }
+    API.logout = function () {
+        this.$emit('LOGOUT');
+        // return this.call('logout', {
+        //     method: 'PUT'
+        // }).finally(() => {
+        //     this.$emit('LOGOUT');
+        // });
+    };
 
-    _data = {
+    const _data = {
         loginForm: {
             loading: true,
             username: '',
@@ -171,9 +158,9 @@ export default class extends baseClass {
         }
     };
 
-    _methods = {
+    const _methods = {
         async relogin(user) {
-            var { loginParmas } = user;
+            const { loginParmas } = user;
             if (user.cookies) {
                 await webApiService.setCookies(user.cookies);
             }
@@ -243,7 +230,7 @@ export default class extends baseClass {
         },
 
         async deleteSavedLogin(userId) {
-            var savedCredentials = JSON.parse(
+            const savedCredentials = JSON.parse(
                 await configRepository.getString('savedCredentials')
             );
             delete savedCredentials[userId];
@@ -253,7 +240,7 @@ export default class extends baseClass {
                 this.setEnablePrimaryPasswordConfigRepository(false);
             }
             this.loginForm.savedCredentials = savedCredentials;
-            var jsonCredentials = JSON.stringify(savedCredentials);
+            const jsonCredentials = JSON.stringify(savedCredentials);
             await configRepository.setString(
                 'savedCredentials',
                 jsonCredentials
@@ -294,7 +281,7 @@ export default class extends baseClass {
                                 }
                             )
                                 .then(({ value }) => {
-                                    let saveCredential =
+                                    const saveCredential =
                                         this.loginForm.savedCredentials[
                                             Object.keys(
                                                 this.loginForm.savedCredentials
@@ -365,4 +352,7 @@ export default class extends baseClass {
             });
         }
     };
+
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

@@ -31,7 +31,6 @@
 <script setup>
     import Noty from 'noty';
     import { getCurrentInstance } from 'vue';
-    import webApiService from '../../service/webapi';
     import { escapeTag, copyToClipboard, extractFileId } from '../../shared/utils';
 
     const { proxy } = getCurrentInstance();

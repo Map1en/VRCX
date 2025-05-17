@@ -49,8 +49,8 @@ import pugTemplate from './app.pug';
 
 // API classes
 import _config from './classes/API/config.js';
-import _apiLogin from './classes/apiLogin.js';
-import _apiRequestHandler from './classes/apiRequestHandler.js';
+import apiLogin from './classes/apiLogin.js';
+import apiRequestHandler from './classes/apiRequestHandler.js';
 import _currentUser from './classes/currentUser.js';
 import _discordRpc from './classes/discordRpc.js';
 import _feed from './classes/feed.js';
@@ -246,20 +246,18 @@ let $app = {};
 const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
 import API from './classes/apiInit';
-websocket(API);
-uiComponents();
 
 const vrcxClasses = {
     // other classes
     // API,
-    apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
+    // apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
     // uiComponents: new _uiComponents($app, API, $t),
     // webSocket: new _websocket($app, API, $t),
     // main classes
     sharedFeed: new _sharedFeed($app, API, $t),
     prompts: new _prompts($app, API, $t),
     vrcxNotifications: new _vrcxNotifications($app, API, $t),
-    apiLogin: new _apiLogin($app, API, $t, webApiService),
+    // apiLogin: new _apiLogin($app, API, $t, webApiService),
     currentUser: new _currentUser($app, API, $t),
     updateLoop: new _updateLoop($app, API, $t),
     discordRpc: new _discordRpc($app, API, $t),
@@ -987,10 +985,17 @@ const app = {
     },
     pinia
 };
+
+websocket(API);
+uiComponents();
+apiLogin(app, API);
+apiRequestHandler(API);
+
 for (const value of Object.values(vrcxClasses)) {
     app.methods = { ...app.methods, ...value._methods };
     app.data = { ...app.data, ...value._data };
 }
+
 Object.assign($app, app);
 
 // #endregion
