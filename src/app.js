@@ -249,7 +249,7 @@ const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
 const vrcxClasses = {
     // other classes
-    API,
+    // API,
     apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
     uiComponents: new _uiComponents($app, API, $t),
     webSocket: new _websocket($app, API, $t),
