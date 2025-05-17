@@ -9179,9 +9179,6 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
         params.queueEnabled = D.queueEnabled;
         if (D.groupAccessType === 'members') {
             params.roleIds = D.roleIds;
-            params.canRequestInvite = true;
-        } else if (D.groupAccessType === 'plus') {
-            params.canRequestInvite = true;
         }
     }
     if (
