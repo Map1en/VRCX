@@ -63,6 +63,7 @@ import prompts from './classes/prompts.js';
 import restoreFriendOrder from './classes/restoreFriendOrder.js';
 
 // main app classes
+import API from './classes/apiInit';
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
@@ -244,8 +245,6 @@ pinia.use(() => ({ i18n }));
 let $app = {};
 
 new _vrcxJsonStorage(VRCXStorage);
-
-import API from './classes/apiInit';
 
 await configRepository.init();
 
