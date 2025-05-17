@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API, $app } from '../app';
 
 const imageReq = {
     // use in uploadAvatarImage
@@ -15,8 +15,8 @@ const imageReq = {
         API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        window.$app.avatarDialog.loading = false;
-        // window.$app.changeAvatarImageDialogLoading = false;
+        $app.avatarDialog.loading = false;
+        // $app.changeAvatarImageDialogLoading = false;
     },
 
     async uploadAvatarImage(params, fileId) {
@@ -154,8 +154,8 @@ const imageReq = {
         API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        window.$app.worldDialog.loading = false;
-        // window.$app.changeWorldImageDialogLoading = false;
+        $app.worldDialog.loading = false;
+        // $app.changeWorldImageDialogLoading = false;
     },
 
     async uploadWorldImage(params, fileId) {

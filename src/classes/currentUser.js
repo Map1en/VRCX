@@ -1,5 +1,6 @@
+import { $app, API } from '../app.js';
 import { arraysMatch, isRealInstance, parseLocation } from '../shared/utils';
-import { $app, API, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

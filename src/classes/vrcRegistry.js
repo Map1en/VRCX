@@ -1,6 +1,7 @@
+import { $t } from '../app.js';
 import configRepository from '../service/config.js';
 import { removeFromArray } from '../shared/utils';
-import { $t, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

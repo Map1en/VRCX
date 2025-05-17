@@ -1,7 +1,6 @@
 import * as workerTimers from 'worker-timers';
 /* eslint-disable no-unused-vars */
 let VRCXStorage = {};
-/* eslint-enable no-unused-vars */
 
 export default class {
     constructor(_VRCXStorage) {

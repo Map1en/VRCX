@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API, $app, $t } from '../app';
 
 // #region | API: Instance
 const instanceReq = {
@@ -119,14 +119,14 @@ const instanceReq = {
             })
             .catch((err) => {
                 if (err?.error?.message) {
-                    window.$app.$message({
+                    $app.$message({
                         message: err.error.message,
                         type: 'error'
                     });
                     throw err;
                 }
-                window.$app.$message({
-                    message: window.$t('message.instance.not_allowed'),
+                $app.$message({
+                    message: $t('message.instance.not_allowed'),
                     type: 'error'
                 });
                 throw err;

@@ -1,10 +1,11 @@
 import Noty from 'noty';
-import security from '../service/security.js';
+import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
-import { baseClass, $app, API, $t } from './baseClass.js';
+import security from '../service/security.js';
+import { baseClass } from './baseClass.js';
+
 /* eslint-disable no-unused-vars */
 let webApiService = {};
-/* eslint-enable no-unused-vars */
 
 export default class extends baseClass {
     constructor(_app, _API, _t, _webApiService) {

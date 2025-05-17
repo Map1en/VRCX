@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import * as workerTimers from 'worker-timers';
 import { userRequest } from '../api';
+import { $app, API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import gameLogService from '../service/gamelog.js';
-import { replaceBioSymbols, parseLocation } from '../shared/utils';
-import { $app, API, baseClass } from './baseClass.js';
+import { parseLocation, replaceBioSymbols } from '../shared/utils';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

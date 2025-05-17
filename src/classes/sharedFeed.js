@@ -1,6 +1,7 @@
 import * as workerTimers from 'worker-timers';
-import { baseClass, $app, API } from './baseClass.js';
-import { worldRequest, groupRequest } from '../api';
+import { groupRequest, worldRequest } from '../api';
+import { $app, API } from '../app.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

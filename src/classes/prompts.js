@@ -1,9 +1,10 @@
 import * as workerTimers from 'worker-timers';
+import { loginRequest, worldRequest } from '../api';
+import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
-import { $app, $t, API, baseClass } from './baseClass.js';
-import { loginRequest, worldRequest } from '../api';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

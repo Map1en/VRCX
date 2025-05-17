@@ -5,9 +5,10 @@ import {
     userRequest,
     worldRequest
 } from '../api';
+import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import { replaceBioSymbols } from '../shared/utils';
-import { $app, $t, API, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

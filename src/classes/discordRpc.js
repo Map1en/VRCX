@@ -1,6 +1,7 @@
 import { worldRequest } from '../api';
+import { API } from '../app.js';
 import { getLaunchURL, parseLocation } from '../shared/utils';
-import { API, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {

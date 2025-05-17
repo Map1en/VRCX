@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API, $app } from '../app';
 
 // #region | API: Notification
 const notificationReq = {
@@ -98,7 +98,7 @@ const notificationReq = {
         return API.call(`invite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: window.$app.uploadImage
+            imageData: $app.uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -129,7 +129,7 @@ const notificationReq = {
         return API.call(`requestInvite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: window.$app.uploadImage
+            imageData: $app.uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -161,7 +161,7 @@ const notificationReq = {
         return API.call(`invite/${inviteId}/response/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: window.$app.uploadImage,
+            imageData: $app.uploadImage,
             inviteId
         }).then((json) => {
             const args = {

@@ -1,6 +1,7 @@
 import Noty from 'noty';
+import { $app, $t, API } from '../app.js';
 import { escapeTag } from '../shared/utils';
-import { $app, $t, API, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 let webApiService = {};
 

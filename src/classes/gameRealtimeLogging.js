@@ -1,5 +1,6 @@
 import * as workerTimers from 'worker-timers';
 import { instanceRequest, userRequest } from '../api';
+import { API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { photonEmojis, photonEventType } from '../shared/constants';
@@ -11,7 +12,7 @@ import {
     replaceBioSymbols,
     timeToText
 } from '../shared/utils';
-import { API, baseClass } from './baseClass.js';
+import { baseClass } from './baseClass.js';
 
 export default class extends baseClass {
     constructor(_app, _API, _t) {
