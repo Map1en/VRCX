@@ -947,7 +947,7 @@ const app = {
                 !this.enablePrimaryPassword &&
                 (await configRepository.getString('lastUserLoggedIn')) !== null
             ) {
-                var user =
+                const user =
                     this.loginForm.savedCredentials[
                         this.loginForm.lastUserLoggedIn
                     ];
@@ -1113,7 +1113,7 @@ API.$on('USER', function (args) {
 });
 
 API.$on('USER:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         if (!json.displayName) {
             console.error('getUsers gave us garbage', json);
             continue;
@@ -1131,8 +1131,8 @@ API.applyUserTrustLevel = function (ref) {
     ref.$isModerator = ref.developerType && ref.developerType !== 'none';
     ref.$isTroll = false;
     ref.$isProbableTroll = false;
-    var trustColor = '';
-    var { tags } = ref;
+    let trustColor = '';
+    let { tags } = ref;
     if (tags.includes('admin_moderator')) {
         ref.$isModerator = true;
     }
@@ -1209,7 +1209,7 @@ API.applyUserLanguage = function (ref) {
 };
 
 API.applyPresenceLocation = function (ref) {
-    var presence = ref.presence;
+    const presence = ref.presence;
     if (isRealInstance(presence.world)) {
         ref.$locationTag = `${presence.world}:${presence.instance}`;
     } else {
@@ -1228,7 +1228,7 @@ API.applyPresenceGroups = function (ref) {
         // wait for init before diffing
         return;
     }
-    var groups = ref.presence?.groups;
+    const groups = ref.presence?.groups;
     if (!groups) {
         console.error('API.applyPresenceGroups: invalid groups', ref);
         return;
@@ -1438,7 +1438,7 @@ API.applyUser = function (json) {
         // if the status is offline, just ignore status and statusDescription only.
         if (has && ref.status !== 'offline' && $ref.status !== 'offline') {
             if (props.location && props.location[0] !== 'traveling') {
-                var ts = Date.now();
+                const ts = Date.now();
                 props.location.push(ts - ref.$location_at);
                 ref.$location_at = ts;
             }
@@ -1473,7 +1473,7 @@ API.applyUser = function (json) {
             showcased: false
         });
     }
-    var friendCtx = $app.friends.get(ref.id);
+    const friendCtx = $app.friends.get(ref.id);
     if (friendCtx) {
         friendCtx.ref = ref;
         friendCtx.name = ref.displayName;
@@ -1498,7 +1498,7 @@ API.$on('WORLD', function (args) {
 });
 
 API.$on('WORLD:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('WORLD', {
             json,
             params: {
@@ -1509,22 +1509,22 @@ API.$on('WORLD:LIST', function (args) {
 });
 
 API.$on('WORLD:DELETE', function (args) {
-    var { json } = args;
+    let { json } = args;
     this.cachedWorlds.delete(json.id);
     if ($app.worldDialog.ref.authorId === json.authorId) {
-        var map = new Map();
-        for (var ref of this.cachedWorlds.values()) {
+        const map = new Map();
+        for (let ref of this.cachedWorlds.values()) {
             if (ref.authorId === json.authorId) {
                 map.set(ref.id, ref);
             }
         }
-        var array = Array.from(map.values());
+        const array = Array.from(map.values());
         $app.userDialog.worlds = array;
     }
 });
 
 API.$on('WORLD:SAVE', function (args) {
-    var { json } = args;
+    let { json } = args;
     this.$emit('WORLD', {
         json,
         params: {
@@ -1594,7 +1594,7 @@ API.actuallyGetCurrentLocation = async function () {
 };
 
 API.applyWorld = function (json) {
-    var ref = this.cachedWorlds.get(json.id);
+    let ref = this.cachedWorlds.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -1653,7 +1653,7 @@ API.applyWorld = function (json) {
 API.cachedInstances = new Map();
 
 API.applyInstance = function (json) {
-    var ref = this.cachedInstances.get(json.id);
+    let ref = this.cachedInstances.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -1722,7 +1722,7 @@ API.applyInstance = function (json) {
     }
     ref.$disabledContentSettings = [];
     if (json.contentSettings && Object.keys(json.contentSettings).length) {
-        for (var setting in $app.instanceContentSettings) {
+        for (let setting in $app.instanceContentSettings) {
             if (json.contentSettings[setting]) {
                 continue;
             }
@@ -1735,7 +1735,7 @@ API.applyInstance = function (json) {
 };
 
 API.$on('INSTANCE', function (args) {
-    var { json } = args;
+    let { json } = args;
     if (!json) {
         return;
     }
@@ -1770,7 +1770,7 @@ API.$on('INSTANCE', function (args) {
 // #region | API: Friend
 
 API.$on('FRIEND:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         if (!json.displayName) {
             console.error('/friends gave us garbage', json);
             continue;
@@ -1789,13 +1789,13 @@ API.isRefreshFriendsLoading = false;
 API.refreshFriends = async function () {
     this.isRefreshFriendsLoading = true;
     try {
-        var onlineFriends = await this.bulkRefreshFriends({
+        const onlineFriends = await this.bulkRefreshFriends({
             offline: false
         });
-        var offlineFriends = await this.bulkRefreshFriends({
+        const offlineFriends = await this.bulkRefreshFriends({
             offline: true
         });
-        var friends = onlineFriends.concat(offlineFriends);
+        let friends = onlineFriends.concat(offlineFriends);
         friends = await this.refetchBrokenFriends(friends);
         if (!$app.friendLogInitStatus) {
             friends = await this.refreshRemainingFriends(friends);
@@ -1811,7 +1811,7 @@ API.refreshFriends = async function () {
 
 API.bulkRefreshFriends = async function (args) {
     let friends = [];
-    var params = {
+    const params = {
         ...args,
         n: 50,
         offset: 0
@@ -1849,7 +1849,7 @@ API.bulkRefreshFriends = async function (args) {
 };
 
 API.refreshRemainingFriends = async function (friends) {
-    for (var userId of this.currentUser.friends) {
+    for (let userId of this.currentUser.friends) {
         if (!friends.some((x) => x.id === userId)) {
             try {
                 if (!API.isLoggedIn) {
@@ -1857,7 +1857,7 @@ API.refreshRemainingFriends = async function (friends) {
                     return friends;
                 }
                 console.log('Fetching remaining friend', userId);
-                var args = await userRequest.getUser({ userId });
+                const args = await userRequest.getUser({ userId });
                 friends.push(args.json);
             } catch (err) {
                 console.error(err);
@@ -1869,17 +1869,17 @@ API.refreshRemainingFriends = async function (friends) {
 
 API.refetchBrokenFriends = async function (friends) {
     // attempt to fix broken data from bulk friend fetch
-    for (var i = 0; i < friends.length; i++) {
-        var friend = friends[i];
+    for (let i = 0; i < friends.length; i++) {
+        const friend = friends[i];
         try {
             // we don't update friend state here, it's not reliable
-            var state = 'offline';
+            let state = 'offline';
             if (friend.platform === 'web') {
                 state = 'active';
             } else if (friend.platform) {
                 state = 'online';
             }
-            var ref = $app.friends.get(friend.id);
+            const ref = $app.friends.get(friend.id);
             if (ref?.state !== state) {
                 if ($app.debugFriendState) {
                     console.log(
@@ -1920,7 +1920,7 @@ API.$on('AVATAR', function (args) {
 });
 
 API.$on('AVATAR:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('AVATAR', {
             json,
             params: {
@@ -1931,7 +1931,7 @@ API.$on('AVATAR:LIST', function (args) {
 });
 
 API.$on('AVATAR:SAVE', function (args) {
-    var { json } = args;
+    let { json } = args;
     this.$emit('AVATAR', {
         json,
         params: {
@@ -1945,22 +1945,22 @@ API.$on('AVATAR:SELECT', function (args) {
 });
 
 API.$on('AVATAR:DELETE', function (args) {
-    var { json } = args;
+    let { json } = args;
     this.cachedAvatars.delete(json._id);
     if ($app.userDialog.id === json.authorId) {
-        var map = new Map();
-        for (var ref of this.cachedAvatars.values()) {
+        const map = new Map();
+        for (let ref of this.cachedAvatars.values()) {
             if (ref.authorId === json.authorId) {
                 map.set(ref.id, ref);
             }
         }
-        var array = Array.from(map.values());
+        const array = Array.from(map.values());
         $app.sortUserDialogAvatars(array);
     }
 });
 
 API.applyAvatar = function (json) {
-    var ref = this.cachedAvatars.get(json.id);
+    let ref = this.cachedAvatars.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -1986,7 +1986,7 @@ API.applyAvatar = function (json) {
         };
         this.cachedAvatars.set(ref.id, ref);
     } else {
-        var { unityPackages } = ref;
+        let { unityPackages } = ref;
         Object.assign(ref, json);
         if (
             json.unityPackages?.length > 0 &&
@@ -2024,7 +2024,7 @@ API.$on('NOTIFICATION', function (args) {
 });
 
 API.$on('NOTIFICATION:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('NOTIFICATION', {
             json,
             params: {
@@ -2035,7 +2035,7 @@ API.$on('NOTIFICATION:LIST', function (args) {
 });
 
 API.$on('NOTIFICATION:LIST:HIDDEN', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         json.type = 'ignoredFriendRequest';
         this.$emit('NOTIFICATION', {
             json,
@@ -2047,8 +2047,8 @@ API.$on('NOTIFICATION:LIST:HIDDEN', function (args) {
 });
 
 API.$on('NOTIFICATION:ACCEPT', function (args) {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === args.params.notificationId) {
             var ref = array[i];
             break;
@@ -2108,15 +2108,15 @@ API.$on('NOTIFICATION:HIDE', function (args) {
 });
 
 API.applyNotification = function (json) {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === json.id) {
             var ref = array[i];
             break;
         }
     }
     // delete any null in json
-    for (var key in json) {
+    for (let key in json) {
         if (json[key] === null) {
             delete json[key];
         }
@@ -2141,10 +2141,10 @@ API.applyNotification = function (json) {
         ref.$isExpired = false;
     }
     if (ref.details !== Object(ref.details)) {
-        var details = {};
+        let details = {};
         if (ref.details !== '{}') {
             try {
-                var object = JSON.parse(ref.details);
+                const object = JSON.parse(ref.details);
                 if (object === Object(object)) {
                     details = object;
                 }
@@ -2158,8 +2158,8 @@ API.applyNotification = function (json) {
 };
 
 API.expireFriendRequestNotifications = function () {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (
             array[i].type === 'friendRequest' ||
             array[i].type === 'ignoredFriendRequest' ||
@@ -2171,8 +2171,8 @@ API.expireFriendRequestNotifications = function () {
 };
 
 API.expireNotification = function (notificationId) {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (array[i].id === notificationId) {
             var ref = array[i];
             break;
@@ -2246,13 +2246,13 @@ API.refreshNotifications = async function () {
 };
 
 API.$on('NOTIFICATION:V2:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('NOTIFICATION:V2', { json });
     }
 });
 
 API.$on('NOTIFICATION:V2', function (args) {
-    var json = args.json;
+    const json = args.json;
     json.created_at = json.createdAt;
     if (json.title && json.message) {
         json.message = `${json.title}, ${json.message}`;
@@ -2268,8 +2268,8 @@ API.$on('NOTIFICATION:V2', function (args) {
 });
 
 API.$on('NOTIFICATION:V2:UPDATE', function (args) {
-    var notificationId = args.params.notificationId;
-    var json = args.json;
+    const notificationId = args.params.notificationId;
+    const json = args.json;
     if (!json) {
         return;
     }
@@ -2299,8 +2299,8 @@ API.$on('NOTIFICATION:RESPONSE', function (args) {
 });
 
 API.getFriendRequest = function (userId) {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (
             array[i].type === 'friendRequest' &&
             array[i].senderUserId === userId
@@ -2330,7 +2330,7 @@ API.$on('PLAYER-MODERATION', function (args) {
 });
 
 API.$on('PLAYER-MODERATION:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('PLAYER-MODERATION', {
             json,
             params: {
@@ -2341,7 +2341,7 @@ API.$on('PLAYER-MODERATION:LIST', function (args) {
 });
 
 API.$on('PLAYER-MODERATION:SEND', function (args) {
-    var ref = {
+    const ref = {
         json: args.json,
         params: {
             playerModerationId: args.json.id
@@ -2352,9 +2352,9 @@ API.$on('PLAYER-MODERATION:SEND', function (args) {
 });
 
 API.$on('PLAYER-MODERATION:DELETE', function (args) {
-    var { type, moderated } = args.params;
-    var userId = this.currentUser.id;
-    for (var ref of this.cachedPlayerModerations.values()) {
+    let { type, moderated } = args.params;
+    const userId = this.currentUser.id;
+    for (let ref of this.cachedPlayerModerations.values()) {
         if (
             ref.type === type &&
             ref.targetUserId === moderated &&
@@ -2373,7 +2373,7 @@ API.$on('PLAYER-MODERATION:DELETE', function (args) {
 });
 
 API.applyPlayerModeration = function (json) {
-    var ref = this.cachedPlayerModerations.get(json.id);
+    let ref = this.cachedPlayerModerations.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -2401,13 +2401,13 @@ API.applyPlayerModeration = function (json) {
 
 API.expirePlayerModerations = function () {
     this.cachedPlayerModerationsUserIds.clear();
-    for (var ref of this.cachedPlayerModerations.values()) {
+    for (let ref of this.cachedPlayerModerations.values()) {
         ref.$isExpired = true;
     }
 };
 
 API.deleteExpiredPlayerModerations = function () {
-    for (var ref of this.cachedPlayerModerations.values()) {
+    for (let ref of this.cachedPlayerModerations.values()) {
         if (!ref.$isExpired) {
             continue;
         }
@@ -2457,7 +2457,7 @@ API.applyAvatarModeration = function (json) {
         json.created = new Date(json.created).toJSON();
     }
 
-    var ref = this.cachedAvatarModerations.get(json.targetAvatarId);
+    let ref = this.cachedAvatarModerations.get(json.targetAvatarId);
     if (typeof ref === 'undefined') {
         ref = {
             avatarModerationType: '',
@@ -2471,7 +2471,7 @@ API.applyAvatarModeration = function (json) {
     }
 
     // update avatar dialog
-    var D = $app.avatarDialog;
+    const D = $app.avatarDialog;
     if (
         D.visible &&
         ref.avatarModerationType === 'block' &&
@@ -2526,7 +2526,7 @@ API.$on('LOGIN', function () {
 });
 
 API.$on('FAVORITE', function (args) {
-    var ref = this.applyFavorite(args.json);
+    const ref = this.applyFavorite(args.json);
     if (ref.$isDeleted) {
         return;
     }
@@ -2534,14 +2534,14 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    var { ref } = args;
+    let { ref } = args;
     if (ref.$groupRef !== null) {
         --ref.$groupRef.count;
     }
 });
 
 API.$on('FAVORITE:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('FAVORITE', {
             json,
             params: {
@@ -2579,7 +2579,7 @@ API.$on('FAVORITE:ADD', function (args) {
 });
 
 API.$on('FAVORITE:DELETE', function (args) {
-    var ref = this.cachedFavoritesByObjectId.get(args.params.objectId);
+    const ref = this.cachedFavoritesByObjectId.get(args.params.objectId);
     if (typeof ref === 'undefined') {
         return;
     }
@@ -2601,7 +2601,7 @@ API.$on('FAVORITE:DELETE', function (args) {
 });
 
 API.$on('FAVORITE:GROUP', function (args) {
-    var ref = this.applyFavoriteGroup(args.json);
+    const ref = this.applyFavoriteGroup(args.json);
     if (ref.$isDeleted) {
         return;
     }
@@ -2613,7 +2613,7 @@ API.$on('FAVORITE:GROUP', function (args) {
 });
 
 API.$on('FAVORITE:GROUP:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         this.$emit('FAVORITE:GROUP', {
             json,
             params: {
@@ -2633,8 +2633,8 @@ API.$on('FAVORITE:GROUP:SAVE', function (args) {
 });
 
 API.$on('FAVORITE:GROUP:CLEAR', function (args) {
-    var key = `${args.params.type}:${args.params.group}`;
-    for (var ref of this.cachedFavorites.values()) {
+    const key = `${args.params.type}:${args.params.group}`;
+    for (let ref of this.cachedFavorites.values()) {
         if (ref.$isDeleted || ref.$groupKey !== key) {
             continue;
         }
@@ -2652,7 +2652,7 @@ API.$on('FAVORITE:GROUP:CLEAR', function (args) {
 });
 
 API.$on('FAVORITE:WORLD:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         if (json.id === '???') {
             // FIXME
             // json.favoriteId로 따로 불러와야 하나?
@@ -2669,7 +2669,7 @@ API.$on('FAVORITE:WORLD:LIST', function (args) {
 });
 
 API.$on('FAVORITE:AVATAR:LIST', function (args) {
-    for (var json of args.json) {
+    for (let json of args.json) {
         if (json.releaseStatus === 'hidden') {
             // NOTE: 얘는 또 더미 데이터로 옴
             continue;
@@ -2684,7 +2684,7 @@ API.$on('FAVORITE:AVATAR:LIST', function (args) {
 });
 
 API.applyFavorite = function (json) {
-    var ref = this.cachedFavorites.get(json.id);
+    let ref = this.cachedFavorites.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -2716,7 +2716,7 @@ API.applyFavorite = function (json) {
     ref.$groupKey = `${ref.type}:${String(ref.tags[0])}`;
 
     if (ref.$isDeleted === false && ref.$groupRef === null) {
-        var group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
+        const group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
         if (typeof group !== 'undefined') {
             ref.$groupRef = group;
             ++group.count;
@@ -2739,7 +2739,7 @@ API.expireFavorites = function () {
 };
 
 API.deleteExpiredFavorites = function () {
-    for (var ref of this.cachedFavorites.values()) {
+    for (let ref of this.cachedFavorites.values()) {
         if (ref.$isDeleted || ref.$isExpired === false) {
             continue;
         }
@@ -2754,8 +2754,8 @@ API.deleteExpiredFavorites = function () {
 };
 
 API.refreshFavoriteAvatars = function (tag) {
-    var n = Math.floor(Math.random() * (50 + 1)) + 50;
-    var params = {
+    const n = Math.floor(Math.random() * (50 + 1)) + 50;
+    const params = {
         n,
         offset: 0,
         tag
@@ -2845,7 +2845,7 @@ API.refreshFavorites = async function () {
 };
 
 API.applyFavoriteGroup = function (json) {
-    var ref = this.cachedFavoriteGroups.get(json.id);
+    let ref = this.cachedFavoriteGroups.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
             id: '',
@@ -2996,13 +2996,13 @@ API.buildFavoriteGroups = function () {
 };
 
 API.expireFavoriteGroups = function () {
-    for (var ref of this.cachedFavoriteGroups.values()) {
+    for (let ref of this.cachedFavoriteGroups.values()) {
         ref.$isExpired = true;
     }
 };
 
 API.deleteExpiredFavoriteGroups = function () {
-    for (var ref of this.cachedFavoriteGroups.values()) {
+    for (let ref of this.cachedFavoriteGroups.values()) {
         if (ref.$isDeleted || ref.$isExpired === false) {
             continue;
         }
@@ -3049,7 +3049,7 @@ API.refreshFavoriteGroups = function () {
 // #endregion
 // #region | Misc
 
-var $timers = [];
+const $timers = [];
 
 Vue.component('Timer', {
     props: {
@@ -3090,14 +3090,14 @@ Vue.component('Timer', {
 });
 
 workerTimers.setInterval(function () {
-    for (var $timer of $timers) {
+    for (let $timer of $timers) {
         $timer.update();
     }
 }, 5000);
 
 // Countdown timer
 
-var $countDownTimers = [];
+const $countDownTimers = [];
 
 Vue.component('CountdownTimer', {
     props: {
@@ -3133,7 +3133,7 @@ Vue.component('CountdownTimer', {
     },
     methods: {
         update() {
-            var epoch =
+            const epoch =
                 new Date(this.datetime).getTime() +
                 1000 * 60 * 60 * this.hours -
                 Date.now();
@@ -3148,7 +3148,7 @@ Vue.component('CountdownTimer', {
 });
 
 workerTimers.setInterval(function () {
-    for (var $countDownTimer of $countDownTimers) {
+    for (let $countDownTimer of $countDownTimers) {
         $countDownTimer.update();
     }
 }, 5000);
@@ -3161,9 +3161,9 @@ $app.methods.refreshCustomCss = function () {
         document.getElementById('app-custom-style').remove();
     }
     AppApi.CustomCssPath().then((customCss) => {
-        var head = document.head;
+        const head = document.head;
         if (customCss) {
-            var $appCustomStyle = document.createElement('link');
+            const $appCustomStyle = document.createElement('link');
             $appCustomStyle.setAttribute('id', 'app-custom-style');
             $appCustomStyle.rel = 'stylesheet';
             $appCustomStyle.href = `file://${customCss}?_=${Date.now()}`;
@@ -3177,9 +3177,9 @@ $app.methods.refreshCustomScript = function () {
         document.getElementById('app-custom-script').remove();
     }
     AppApi.CustomScriptPath().then((customScript) => {
-        var head = document.head;
+        const head = document.head;
         if (customScript) {
-            var $appCustomScript = document.createElement('script');
+            const $appCustomScript = document.createElement('script');
             $appCustomScript.setAttribute('id', 'app-custom-script');
             $appCustomScript.src = `file://${customScript}?_=${Date.now()}`;
             head.appendChild($appCustomScript);
@@ -3287,7 +3287,7 @@ API.$on('LOGIN', function () {
 $app.methods.clearCookiesTryLogin = async function () {
     await webApiService.clearCookies();
     if (this.loginForm.lastUserLoggedIn) {
-        var user =
+        const user =
             this.loginForm.savedCredentials[this.loginForm.lastUserLoggedIn];
         if (typeof user !== 'undefined') {
             delete user.cookies;
@@ -3298,7 +3298,7 @@ $app.methods.clearCookiesTryLogin = async function () {
 
 $app.methods.resendEmail2fa = async function () {
     if (this.loginForm.lastUserLoggedIn) {
-        var user =
+        const user =
             this.loginForm.savedCredentials[this.loginForm.lastUserLoggedIn];
         if (typeof user !== 'undefined') {
             await webApiService.clearCookies();
@@ -3475,14 +3475,14 @@ $app.methods.setPrimaryPassword = async function () {
 };
 
 $app.methods.updateStoredUser = async function (user) {
-    var savedCredentials = {};
+    let savedCredentials = {};
     if ((await configRepository.getString('savedCredentials')) !== null) {
         savedCredentials = JSON.parse(
             await configRepository.getString('savedCredentials')
         );
     }
     if (this.saveCredentials) {
-        var credentialsToSave = {
+        const credentialsToSave = {
             user,
             loginParmas: this.saveCredentials
         };
@@ -3493,21 +3493,21 @@ $app.methods.updateStoredUser = async function (user) {
         savedCredentials[user.id].cookies = await webApiService.getCookies();
     }
     this.loginForm.savedCredentials = savedCredentials;
-    var jsonCredentialsArray = JSON.stringify(savedCredentials);
+    const jsonCredentialsArray = JSON.stringify(savedCredentials);
     await configRepository.setString('savedCredentials', jsonCredentialsArray);
     this.loginForm.lastUserLoggedIn = user.id;
     await configRepository.setString('lastUserLoggedIn', user.id);
 };
 
 $app.methods.migrateStoredUsers = async function () {
-    var savedCredentials = {};
+    let savedCredentials = {};
     if ((await configRepository.getString('savedCredentials')) !== null) {
         savedCredentials = JSON.parse(
             await configRepository.getString('savedCredentials')
         );
     }
     for (const name in savedCredentials) {
-        var userId = savedCredentials[name]?.user?.id;
+        const userId = savedCredentials[name]?.user?.id;
         if (userId && userId !== name) {
             savedCredentials[userId] = savedCredentials[name];
             delete savedCredentials[name];
@@ -3565,11 +3565,11 @@ $app.methods.checkActiveFriends = function (ref) {
     ) {
         return;
     }
-    for (var userId of ref.activeFriends) {
+    for (let userId of ref.activeFriends) {
         if (this.pendingActiveFriends.has(userId)) {
             continue;
         }
-        var user = API.cachedUsers.get(userId);
+        const user = API.cachedUsers.get(userId);
         if (typeof user !== 'undefined' && user.status !== 'offline') {
             continue;
         }
@@ -3681,14 +3681,14 @@ $app.methods.addFriend = function (id, state) {
     if (this.friends.has(id)) {
         return;
     }
-    var ref = API.cachedUsers.get(id);
-    var isVIP = this.localFavoriteFriends.has(id);
-    var name = '';
-    var friend = this.friendLog.get(id);
+    const ref = API.cachedUsers.get(id);
+    const isVIP = this.localFavoriteFriends.has(id);
+    let name = '';
+    const friend = this.friendLog.get(id);
     if (friend) {
         name = friend.displayName;
     }
-    var ctx = {
+    const ctx = {
         id,
         state: state || 'offline',
         isVIP,
@@ -3706,14 +3706,14 @@ $app.methods.addFriend = function (id, state) {
                 ctx.memo = memo.memo;
                 ctx.$nickName = '';
                 if (memo.memo) {
-                    var array = memo.memo.split('\n');
+                    const array = memo.memo.split('\n');
                     ctx.$nickName = array[0];
                 }
             }
         });
     }
     if (typeof ref === 'undefined') {
-        var friendLogRef = this.friendLog.get(id);
+        const friendLogRef = this.friendLog.get(id);
         if (friendLogRef?.displayName) {
             ctx.name = friendLogRef.displayName;
         }
@@ -3739,7 +3739,7 @@ $app.methods.addFriend = function (id, state) {
 };
 
 $app.methods.deleteFriend = function (id) {
-    var ctx = this.friends.get(id);
+    const ctx = this.friends.get(id);
     if (typeof ctx === 'undefined') {
         return;
     }
@@ -4059,17 +4059,17 @@ $app.methods.getGroupName = async function (data) {
     if (!data) {
         return '';
     }
-    var groupName = '';
-    var groupId = data;
+    let groupName = '';
+    let groupId = data;
     if (!data.startsWith('grp_')) {
-        var L = parseLocation(data);
+        const L = parseLocation(data);
         groupId = L.groupId;
         if (!L.groupId) {
             return '';
         }
     }
     try {
-        var args = await API.getCachedGroup({
+        const args = await API.getCachedGroup({
             groupId
         });
         groupName = args.ref.name;
@@ -4080,7 +4080,7 @@ $app.methods.getGroupName = async function (data) {
 };
 
 $app.methods.updateFriendGPS = function (userId) {
-    var ctx = this.friends.get(userId);
+    const ctx = this.friends.get(userId);
     if (ctx.isVIP) {
         this.sortVIPFriends = true;
     } else {
@@ -4090,7 +4090,8 @@ $app.methods.updateFriendGPS = function (userId) {
 
 $app.data.onlineFriendCount = 0;
 $app.methods.updateOnlineFriendCoutner = function () {
-    var onlineFriendCount = this.vipFriends.length + this.onlineFriends.length;
+    const onlineFriendCount =
+        this.vipFriends.length + this.onlineFriends.length;
     if (onlineFriendCount !== this.onlineFriendCount) {
         AppApi.ExecuteVrFeedFunction(
             'updateOnlineFriendCount',
@@ -4148,11 +4149,11 @@ $app.computed.offlineFriends = function () {
 };
 
 $app.methods.userStatusClass = function (user, pendingOffline) {
-    var style = {};
+    const style = {};
     if (typeof user === 'undefined') {
         return style;
     }
-    var id = '';
+    let id = '';
     if (user.id) {
         id = user.id;
     } else if (user.userId) {
@@ -4219,7 +4220,7 @@ $app.methods.userStatusClass = function (user, pendingOffline) {
 };
 
 $app.methods.statusClass = function (status) {
-    var style = {};
+    const style = {};
     if (typeof status !== 'undefined') {
         if (status === 'active') {
             // Online
@@ -4360,12 +4361,12 @@ $app.methods.quickSearchChange = function (value) {
 $app.data.showUserDialogHistory = new Set();
 
 $app.methods.quickSearchUserHistory = function () {
-    var userHistory = Array.from(this.showUserDialogHistory.values())
+    const userHistory = Array.from(this.showUserDialogHistory.values())
         .reverse()
         .slice(0, 5);
-    var results = [];
+    const results = [];
     userHistory.forEach((userId) => {
-        var ref = API.cachedUsers.get(userId);
+        const ref = API.cachedUsers.get(userId);
         if (typeof ref !== 'undefined') {
             results.push({
                 value: ref.id,
@@ -4478,7 +4479,7 @@ $app.methods.loadPlayerList = function () {
             ctx = data[i];
             if (ctx.type === 'OnPlayerJoined') {
                 if (!ctx.userId) {
-                    for (var ref of API.cachedUsers.values()) {
+                    for (let ref of API.cachedUsers.values()) {
                         if (ref.displayName === ctx.displayName) {
                             ctx.userId = ref.id;
                             break;
@@ -4882,11 +4883,11 @@ $app.data.lastLocation = {
 };
 
 $app.methods.lastLocationReset = function (gameLogDate) {
-    var dateTime = gameLogDate;
+    let dateTime = gameLogDate;
     if (!gameLogDate) {
         dateTime = new Date().toJSON();
     }
-    var dateTimeStamp = Date.parse(dateTime);
+    const dateTimeStamp = Date.parse(dateTime);
     this.photonLobby = new Map();
     this.photonLobbyCurrent = new Map();
     this.photonLobbyMaster = 0;
@@ -4905,10 +4906,10 @@ $app.methods.lastLocationReset = function (gameLogDate) {
         this.photonEventTablePrevious.data = this.photonEventTable.data;
         this.photonEventTable.data = [];
     }
-    var playerList = Array.from(this.lastLocation.playerList.values());
-    var dataBaseEntries = [];
-    for (var ref of playerList) {
-        var entry = {
+    const playerList = Array.from(this.lastLocation.playerList.values());
+    const dataBaseEntries = [];
+    for (let ref of playerList) {
+        const entry = {
             created_at: dateTime,
             type: 'OnPlayerLeft',
             displayName: ref.displayName,
@@ -4921,7 +4922,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
     }
     database.addGamelogJoinLeaveBulk(dataBaseEntries);
     if (this.lastLocation.date !== 0) {
-        var update = {
+        const update = {
             time: dateTimeStamp - this.lastLocation.date,
             created_at: new Date(this.lastLocation.date).toJSON()
         };
@@ -4964,17 +4965,17 @@ $app.data.lastLocationDestinationTime = 0;
 // It's like he's going to be used somewhere, and commenting it out would be an error or something.
 $app.methods.silentSearchUser = function (displayName) {
     console.log('Searching for userId for:', displayName);
-    var params = {
+    const params = {
         n: 5,
         offset: 0,
         fuzzy: false,
         search: displayName
     };
     userRequest.getUsers(params).then((args) => {
-        var map = new Map();
-        var nameFound = false;
-        for (var json of args.json) {
-            var ref = API.cachedUsers.get(json.id);
+        const map = new Map();
+        let nameFound = false;
+        for (let json of args.json) {
+            const ref = API.cachedUsers.get(json.id);
             if (typeof ref !== 'undefined') {
                 map.set(ref.id, ref);
             }
@@ -4990,13 +4991,13 @@ $app.methods.silentSearchUser = function (displayName) {
 };
 
 $app.methods.lookupYouTubeVideo = async function (videoId) {
-    var data = null;
-    var apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
+    let data = null;
+    let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
     if (this.youTubeApiKey) {
         apiKey = this.youTubeApiKey;
     }
     try {
-        var response = await webApiService.execute({
+        const response = await webApiService.execute({
             url: `https://www.googleapis.com/youtube/v3/videos?id=${encodeURIComponent(
                 videoId
             )}&part=snippet,contentDetails&key=${apiKey}`,
@@ -5005,7 +5006,7 @@ $app.methods.lookupYouTubeVideo = async function (videoId) {
                 Referer: 'https://vrcx.app'
             }
         });
-        var json = JSON.parse(response.data);
+        const json = JSON.parse(response.data);
         if (this.debugWebRequests) {
             console.log(json, response);
         }
@@ -5050,7 +5051,7 @@ $app.methods.clearNowPlaying = function () {
 $app.methods.setNowPlaying = function (ctx) {
     if (this.nowPlaying.url !== ctx.videoUrl) {
         if (!ctx.userId && ctx.displayName) {
-            for (var ref of API.cachedUsers.values()) {
+            for (let ref of API.cachedUsers.values()) {
                 if (ref.displayName === ctx.displayName) {
                     ctx.userId = ref.id;
                     break;
@@ -5061,11 +5062,11 @@ $app.methods.setNowPlaying = function (ctx) {
         this.addGameLog(ctx);
         database.addGamelogVideoPlayToDatabase(ctx);
 
-        var displayName = '';
+        let displayName = '';
         if (ctx.displayName) {
             displayName = ` (${ctx.displayName})`;
         }
-        var name = `${ctx.videoName}${displayName}`;
+        const name = `${ctx.videoName}${displayName}`;
         this.nowPlaying = {
             url: ctx.videoUrl,
             name,
@@ -5095,11 +5096,11 @@ $app.methods.setNowPlaying = function (ctx) {
 };
 
 $app.methods.updateNowPlaying = function () {
-    var np = this.nowPlaying;
+    const np = this.nowPlaying;
     if (!this.nowPlaying.playing) {
         return;
     }
-    var now = Date.now() / 1000;
+    const now = Date.now() / 1000;
     np.elapsed = Math.round((now - np.startTime + np.offset) * 10) / 10;
     if (np.elapsed >= np.length) {
         this.clearNowPlaying();
@@ -5112,20 +5113,20 @@ $app.methods.updateNowPlaying = function () {
 };
 
 $app.methods.updateVrNowPlaying = function () {
-    var json = JSON.stringify(this.nowPlaying);
+    const json = JSON.stringify(this.nowPlaying);
     AppApi.ExecuteVrFeedFunction('nowPlayingUpdate', json);
     AppApi.ExecuteVrOverlayFunction('nowPlayingUpdate', json);
 };
 
 $app.methods.formatSeconds = function (duration) {
-    var pad = function (num, size) {
+    const pad = function (num, size) {
             return `000${num}`.slice(size * -1);
         },
         time = parseFloat(duration).toFixed(3),
         hours = Math.floor(time / 60 / 60),
         minutes = Math.floor(time / 60) % 60,
         seconds = Math.floor(time - minutes * 60);
-    var hoursOut = '';
+    let hoursOut = '';
     if (hours > '0') {
         hoursOut = `${pad(hours, 2)}:`;
     }
@@ -5133,7 +5134,7 @@ $app.methods.formatSeconds = function (duration) {
 };
 
 $app.methods.convertYoutubeTime = function (duration) {
-    var a = duration.match(/\d+/g);
+    let a = duration.match(/\d+/g);
     if (
         duration.indexOf('M') >= 0 &&
         duration.indexOf('H') === -1 &&
@@ -5151,7 +5152,7 @@ $app.methods.convertYoutubeTime = function (duration) {
     ) {
         a = [a[0], 0, 0];
     }
-    var length = 0;
+    let length = 0;
     if (a.length === 3) {
         length += parseInt(a[0], 10) * 3600;
         length += parseInt(a[1], 10) * 60;
@@ -5190,8 +5191,8 @@ $app.methods.updateAutoStateChange = function () {
         return;
     }
 
-    var $location = parseLocation(this.lastLocation.location);
-    var instanceType = $location.accessType;
+    const $location = parseLocation(this.lastLocation.location);
+    let instanceType = $location.accessType;
     if (instanceType === 'group') {
         if ($location.groupAccessType === 'members') {
             instanceType = 'groupOnly';
@@ -5208,13 +5209,13 @@ $app.methods.updateAutoStateChange = function () {
         return;
     }
 
-    var withCompany = this.lastLocation.playerList.size > 1;
+    let withCompany = this.lastLocation.playerList.size > 1;
     if (this.autoStateChangeNoFriends) {
         withCompany = this.lastLocation.friendList.size >= 1;
     }
 
-    var currentStatus = API.currentUser.status;
-    var newStatus = withCompany
+    const currentStatus = API.currentUser.status;
+    const newStatus = withCompany
         ? this.autoStateChangeCompanyStatus
         : this.autoStateChangeAloneStatus;
 
@@ -5227,7 +5228,7 @@ $app.methods.updateAutoStateChange = function () {
             status: newStatus
         })
         .then(() => {
-            var text = `Status automaticly changed to ${newStatus}`;
+            const text = `Status automaticly changed to ${newStatus}`;
             if (this.errorNoty) {
                 this.errorNoty.close();
             }
@@ -5304,9 +5305,9 @@ $app.methods.moreSearchUser = async function (go, params) {
         }
     }
     await userRequest.getUsers(params).then((args) => {
-        var map = new Map();
-        for (var json of args.json) {
-            var ref = API.cachedUsers.get(json.id);
+        const map = new Map();
+        for (let json of args.json) {
+            const ref = API.cachedUsers.get(json.id);
             if (typeof ref !== 'undefined') {
                 map.set(ref.id, ref);
             }
@@ -5662,11 +5663,11 @@ $app.data.notificationInitStatus = false;
 
 $app.methods.initFriendLog = async function (currentUser) {
     this.refreshFriends(currentUser, true);
-    var sqlValues = [];
-    var friends = await API.refreshFriends();
-    for (var friend of friends) {
-        var ref = API.applyUser(friend);
-        var row = {
+    const sqlValues = [];
+    const friends = await API.refreshFriends();
+    for (let friend of friends) {
+        const ref = API.applyUser(friend);
+        const row = {
             userId: ref.id,
             displayName: ref.displayName,
             trustLevel: ref.$trustLevel,
@@ -5733,7 +5734,7 @@ $app.methods.addFriendship = function (id) {
     ) {
         return;
     }
-    var ref = API.cachedUsers.get(id);
+    const ref = API.cachedUsers.get(id);
     if (typeof ref === 'undefined') {
         try {
             userRequest.getUser({
@@ -5759,7 +5760,7 @@ $app.methods.addFriendship = function (id) {
                     this.friendNumber
                 );
                 this.addFriend(id, ref.state);
-                var friendLogHistory = {
+                const friendLogHistory = {
                     created_at: new Date().toJSON(),
                     type: 'Friend',
                     userId: id,
@@ -5769,7 +5770,7 @@ $app.methods.addFriendship = function (id) {
                 this.friendLogTable.data.push(friendLogHistory);
                 database.addFriendLogHistory(friendLogHistory);
                 this.queueFriendLogNoty(friendLogHistory);
-                var friendLogCurrent = {
+                const friendLogCurrent = {
                     userId: id,
                     displayName: ref.displayName,
                     trustLevel: ref.$trustLevel,
@@ -5797,8 +5798,8 @@ $app.methods.addFriendship = function (id) {
 };
 
 $app.methods.deleteFriendRequest = function (userId) {
-    var array = $app.notificationTable.data;
-    for (var i = array.length - 1; i >= 0; i--) {
+    const array = $app.notificationTable.data;
+    for (let i = array.length - 1; i >= 0; i--) {
         if (
             array[i].type === 'friendRequest' &&
             array[i].senderUserId === userId
@@ -5810,7 +5811,7 @@ $app.methods.deleteFriendRequest = function (userId) {
 };
 
 $app.methods.deleteFriendship = function (id) {
-    var ctx = this.friendLog.get(id);
+    const ctx = this.friendLog.get(id);
     if (typeof ctx === 'undefined') {
         return;
     }
@@ -5820,7 +5821,7 @@ $app.methods.deleteFriendship = function (id) {
         })
         .then((args) => {
             if (!args.json.isFriend && this.friendLog.has(id)) {
-                var friendLogHistory = {
+                const friendLogHistory = {
                     created_at: new Date().toJSON(),
                     type: 'Unfriend',
                     userId: id,
@@ -5858,7 +5859,7 @@ $app.methods.updateFriendships = function (ref) {
 };
 
 $app.methods.updateFriendship = function (ref) {
-    var ctx = this.friendLog.get(ref.id);
+    const ctx = this.friendLog.get(ref.id);
     if (!this.friendLogInitStatus || typeof ctx === 'undefined') {
         return;
     }
@@ -5867,7 +5868,7 @@ $app.methods.updateFriendship = function (ref) {
     }
     if (ctx.displayName !== ref.displayName) {
         if (ctx.displayName) {
-            var friendLogHistoryDisplayName = {
+            const friendLogHistoryDisplayName = {
                 created_at: new Date().toJSON(),
                 type: 'DisplayName',
                 userId: ref.id,
@@ -5878,7 +5879,7 @@ $app.methods.updateFriendship = function (ref) {
             this.friendLogTable.data.push(friendLogHistoryDisplayName);
             database.addFriendLogHistory(friendLogHistoryDisplayName);
             this.queueFriendLogNoty(friendLogHistoryDisplayName);
-            var friendLogCurrent = {
+            const friendLogCurrent = {
                 userId: ref.id,
                 displayName: ref.displayName,
                 trustLevel: ref.$trustLevel,
@@ -5902,7 +5903,7 @@ $app.methods.updateFriendship = function (ref) {
             (ctx.trustLevel === 'Veteran User' &&
                 ref.$trustLevel === 'Trusted User')
         ) {
-            var friendLogCurrent3 = {
+            const friendLogCurrent3 = {
                 userId: ref.id,
                 displayName: ref.displayName,
                 trustLevel: ref.$trustLevel,
@@ -5912,7 +5913,7 @@ $app.methods.updateFriendship = function (ref) {
             database.setFriendLogCurrent(friendLogCurrent3);
             return;
         }
-        var friendLogHistoryTrustLevel = {
+        const friendLogHistoryTrustLevel = {
             created_at: new Date().toJSON(),
             type: 'TrustLevel',
             userId: ref.id,
@@ -5924,7 +5925,7 @@ $app.methods.updateFriendship = function (ref) {
         this.friendLogTable.data.push(friendLogHistoryTrustLevel);
         database.addFriendLogHistory(friendLogHistoryTrustLevel);
         this.queueFriendLogNoty(friendLogHistoryTrustLevel);
-        var friendLogCurrent2 = {
+        const friendLogCurrent2 = {
             userId: ref.id,
             displayName: ref.displayName,
             trustLevel: ref.$trustLevel,
@@ -6012,7 +6013,7 @@ API.$on('LOGIN', function () {
 });
 
 API.$on('PIPELINE:NOTIFICATION', function (args) {
-    var ref = args.json;
+    const ref = args.json;
     if (
         ref.type !== 'requestInvite' ||
         $app.autoAcceptInviteRequests === 'Off'
@@ -6020,7 +6021,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
         return;
     }
 
-    var currentLocation = $app.lastLocation.location;
+    let currentLocation = $app.lastLocation.location;
     if ($app.lastLocation.location === 'traveling') {
         currentLocation = $app.lastLocationDestination;
     }
@@ -6043,7 +6044,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
         return;
     }
 
-    var L = parseLocation(currentLocation);
+    const L = parseLocation(currentLocation);
     worldRequest
         .getCachedWorld({
             worldId: L.worldId
@@ -6060,7 +6061,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
                     ref.senderUserId
                 )
                 .then((_args) => {
-                    var text = `Auto invite sent to ${ref.senderUsername}`;
+                    const text = `Auto invite sent to ${ref.senderUsername}`;
                     if (this.errorNoty) {
                         this.errorNoty.close();
                     }
@@ -6084,10 +6085,10 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
 $app.data.unseenNotifications = [];
 
 API.$on('NOTIFICATION', function (args) {
-    var { ref } = args;
-    var array = $app.notificationTable.data;
-    var { length } = array;
-    for (var i = 0; i < length; ++i) {
+    let { ref } = args;
+    const array = $app.notificationTable.data;
+    let { length } = array;
+    for (let i = 0; i < length; ++i) {
         if (array[i].id === ref.id) {
             Vue.set(array, i, ref);
             return;
@@ -6117,7 +6118,7 @@ API.$on('NOTIFICATION', function (args) {
 });
 
 API.$on('NOTIFICATION:SEE', function (args) {
-    var { notificationId } = args.params;
+    let { notificationId } = args.params;
     removeFromArray($app.unseenNotifications, notificationId);
     if ($app.unseenNotifications.length === 0) {
         const item = $app.$refs.menu.$children[0]?.items['notification'];
@@ -6277,7 +6278,7 @@ $app.data.pendingOfflineDelay = 180000;
 
 if (await configRepository.getString('VRCX_avatarRemoteDatabaseProvider')) {
     // move existing provider to new list
-    var avatarRemoteDatabaseProvider = await configRepository.getString(
+    const avatarRemoteDatabaseProvider = await configRepository.getString(
         'VRCX_avatarRemoteDatabaseProvider'
     );
     if (
@@ -6375,7 +6376,7 @@ $app.methods.applyWineEmojis = async function () {
         document.getElementById('app-emoji-font').remove();
     }
     if (this.isRunningUnderWine) {
-        var $appEmojiFont = document.createElement('link');
+        const $appEmojiFont = document.createElement('link');
         $appEmojiFont.setAttribute('id', 'app-emoji-font');
         $appEmojiFont.rel = 'stylesheet';
         $appEmojiFont.href = 'emoji.font.css';
@@ -6664,7 +6665,7 @@ $app.methods.updateVRConfigVars = function () {
 };
 
 $app.methods.isRpcWorld = function (location) {
-    var rpcWorlds = [
+    const rpcWorlds = [
         'wrld_f20326da-f1ac-45fc-a062-609723b097b1',
         'wrld_42377cf1-c54f-45ed-8996-5875b0573a83',
         'wrld_dd6d2888-dbdc-47c2-bc98-3d631b2acd7c',
@@ -6678,7 +6679,7 @@ $app.methods.isRpcWorld = function (location) {
         'wrld_74970324-58e8-4239-a17b-2c59dfdf00db',
         'wrld_266523e8-9161-40da-acd0-6bd82e075833'
     ];
-    var L = parseLocation(location);
+    const L = parseLocation(location);
     if (rpcWorlds.includes(L.worldId)) {
         return true;
     }
@@ -6686,7 +6687,7 @@ $app.methods.isRpcWorld = function (location) {
 };
 
 $app.methods.updateVRLastLocation = function () {
-    var progressPie = false;
+    let progressPie = false;
     if (this.progressPie) {
         progressPie = true;
         if (this.progressPieFilter) {
@@ -6695,11 +6696,11 @@ $app.methods.updateVRLastLocation = function () {
             }
         }
     }
-    var onlineFor = '';
+    let onlineFor = '';
     if (!this.hideUptimeFromFeed) {
         onlineFor = API.currentUser.$online_for;
     }
-    var lastLocation = {
+    const lastLocation = {
         date: this.lastLocation.date,
         location: this.lastLocation.location,
         name: this.lastLocation.name,
@@ -6708,7 +6709,7 @@ $app.methods.updateVRLastLocation = function () {
         progressPie,
         onlineFor
     };
-    var json = JSON.stringify(lastLocation);
+    const json = JSON.stringify(lastLocation);
     AppApi.ExecuteVrFeedFunction('lastLocationUpdate', json);
     AppApi.ExecuteVrOverlayFunction('lastLocationUpdate', json);
 };
@@ -6738,7 +6739,7 @@ $app.methods.updateOpenVR = function () {
         this.isSteamVRRunning &&
         ((this.isGameRunning && !this.isGameNoVR) || this.openVRAlways)
     ) {
-        var hmdOverlay = false;
+        let hmdOverlay = false;
         if (
             this.overlayNotifications ||
             this.progressPie ||
@@ -6761,7 +6762,7 @@ $app.methods.updateOpenVR = function () {
 };
 
 $app.methods.getTTSVoiceName = function () {
-    var voices;
+    let voices;
     if (LINUX) {
         voices = this.TTSvoices;
     } else {
@@ -6786,7 +6787,7 @@ $app.methods.changeTTSVoice = async function (index) {
         'VRCX_notificationTTSVoice',
         this.notificationTTSVoice
     );
-    var voices;
+    let voices;
     if (LINUX) {
         voices = this.TTSvoices;
     } else {
@@ -6795,18 +6796,18 @@ $app.methods.changeTTSVoice = async function (index) {
     if (voices.length === 0) {
         return;
     }
-    var voiceName = voices[index].name;
+    const voiceName = voices[index].name;
     speechSynthesis.cancel();
     this.speak(voiceName);
 };
 
 $app.methods.speak = function (text) {
-    var tts = new SpeechSynthesisUtterance();
-    var voices = speechSynthesis.getVoices();
+    const tts = new SpeechSynthesisUtterance();
+    const voices = speechSynthesis.getVoices();
     if (voices.length === 0) {
         return;
     }
-    var index = 0;
+    let index = 0;
     if (this.notificationTTSVoice < voices.length) {
         index = this.notificationTTSVoice;
     }
@@ -6879,8 +6880,8 @@ $app.methods.verifyShortName = function (location, shortName) {
     return instanceRequest
         .getInstanceFromShortName({ shortName })
         .then((args) => {
-            var newLocation = args.json.location;
-            var newShortName = args.json.shortName;
+            const newLocation = args.json.location;
+            const newShortName = args.json.shortName;
             if (newShortName) {
                 this.showWorldDialog(newLocation, newShortName);
             } else if (newLocation) {
@@ -6921,28 +6922,28 @@ $app.methods.directAccessParse = function (input) {
         return true;
     }
     if (input.startsWith('https://vrchat.')) {
-        var url = new URL(input);
-        var urlPath = url.pathname;
-        var urlPathSplit = urlPath.split('/');
+        const url = new URL(input);
+        const urlPath = url.pathname;
+        const urlPathSplit = urlPath.split('/');
         if (urlPathSplit.length < 4) {
             return false;
         }
-        var type = urlPathSplit[2];
+        const type = urlPathSplit[2];
         if (type === 'user') {
-            var userId = urlPathSplit[3];
+            const userId = urlPathSplit[3];
             this.showUserDialog(userId);
             return true;
         } else if (type === 'avatar') {
-            var avatarId = urlPathSplit[3];
+            const avatarId = urlPathSplit[3];
             this.showAvatarDialog(avatarId);
             return true;
         } else if (type === 'group') {
-            var groupId = urlPathSplit[3];
+            const groupId = urlPathSplit[3];
             this.showGroupDialog(groupId);
             return true;
         }
     } else if (input.startsWith('https://vrc.group/')) {
-        var shortCode = input.substring(18);
+        const shortCode = input.substring(18);
         this.showGroupDialogShortCode(shortCode);
         return true;
     } else if (/^[A-Za-z0-9]{3,6}\.[0-9]{4}$/g.test(input)) {
@@ -6977,9 +6978,9 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
 // #region | App: Dialog
 
 $app.methods.adjustDialogZ = function (el) {
-    var z = 0;
+    let z = 0;
     document.querySelectorAll('.v-modal,.el-dialog__wrapper').forEach((v) => {
-        var _z = Number(v.style.zIndex) || 0;
+        const _z = Number(v.style.zIndex) || 0;
         if (_z && _z > z && v !== el) {
             z = _z;
         }
@@ -7077,8 +7078,8 @@ API.$on('LOGOUT', function () {
 });
 
 API.$on('USER', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (D.visible === false || D.id !== ref.id) {
         return;
     }
@@ -7107,7 +7108,7 @@ API.$on('USER', function (args) {
 });
 
 API.$on('WORLD', function (args) {
-    var D = $app.userDialog;
+    const D = $app.userDialog;
     if (D.visible === false || D.$location.worldId !== args.ref.id) {
         return;
     }
@@ -7115,18 +7116,18 @@ API.$on('WORLD', function (args) {
 });
 
 API.$on('FRIEND:STATUS', function (args) {
-    var D = $app.userDialog;
+    const D = $app.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
-    var { json } = args;
+    let { json } = args;
     D.isFriend = json.isFriend;
     D.incomingRequest = json.incomingRequest;
     D.outgoingRequest = json.outgoingRequest;
 });
 
 API.$on('FRIEND:REQUEST:CANCEL', function (args) {
-    var D = $app.userDialog;
+    const D = $app.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
@@ -7134,8 +7135,8 @@ API.$on('FRIEND:REQUEST:CANCEL', function (args) {
 });
 
 API.$on('NOTIFICATION', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (
         D.visible === false ||
         ref.$isDeleted ||
@@ -7148,8 +7149,8 @@ API.$on('NOTIFICATION', function (args) {
 });
 
 API.$on('NOTIFICATION:ACCEPT', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     // 얘는 @DELETE가 오고나서 ACCEPT가 옴
     // 따라서 $isDeleted라면 ref가 undefined가 됨
     if (
@@ -7164,8 +7165,8 @@ API.$on('NOTIFICATION:ACCEPT', function (args) {
 });
 
 API.$on('NOTIFICATION:EXPIRE', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (
         D.visible === false ||
         ref.type !== 'friendRequest' ||
@@ -7177,7 +7178,7 @@ API.$on('NOTIFICATION:EXPIRE', function (args) {
 });
 
 API.$on('FRIEND:DELETE', function (args) {
-    var D = $app.userDialog;
+    const D = $app.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
@@ -7185,8 +7186,8 @@ API.$on('FRIEND:DELETE', function (args) {
 });
 
 API.$on('PLAYER-MODERATION:@SEND', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (
         D.visible === false ||
         (ref.targetUserId !== D.id && ref.sourceUserId !== this.currentUser.id)
@@ -7211,8 +7212,8 @@ API.$on('PLAYER-MODERATION:@SEND', function (args) {
 });
 
 API.$on('PLAYER-MODERATION:@DELETE', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (
         D.visible === false ||
         ref.targetUserId !== D.id ||
@@ -7234,8 +7235,8 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
 });
 
 API.$on('FAVORITE', function (args) {
-    var { ref } = args;
-    var D = $app.userDialog;
+    let { ref } = args;
+    const D = $app.userDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -7243,7 +7244,7 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    var D = $app.userDialog;
+    const D = $app.userDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
@@ -7602,14 +7603,14 @@ API.$on('LOGIN', function () {
 
 API.$on('USER:APPLY', function (ref) {
     // add user ref to playerList, friendList, photonLobby, photonLobbyCurrent
-    var playerListRef = $app.lastLocation.playerList.get(ref.id);
+    const playerListRef = $app.lastLocation.playerList.get(ref.id);
     if (playerListRef) {
         // add/remove friends from lastLocation.friendList
         if (
             !$app.lastLocation.friendList.has(ref.id) &&
             $app.friends.has(ref.id)
         ) {
-            var userMap = {
+            const userMap = {
                 displayName: ref.displayName,
                 userId: ref.id,
                 joinTime: playerListRef.joinTime
@@ -7847,7 +7848,7 @@ $app.methods.updateCurrentInstanceWorld = function () {
             })
             .then((args) => {
                 this.currentInstanceWorld.ref = args.ref;
-                var { isPC, isQuest, isIos } = getAvailablePlatforms(
+                let { isPC, isQuest, isIos } = getAvailablePlatforms(
                     args.ref.unityPackages
                 );
                 this.currentInstanceWorld.isPC = isPC;
@@ -7914,16 +7915,16 @@ $app.methods.updateCurrentInstanceWorld = function () {
 };
 
 $app.methods.updateTimers = function () {
-    for (var $timer of $timers) {
+    for (let $timer of $timers) {
         $timer.update();
     }
 };
 
 $app.methods.lookupAvatars = async function (type, search) {
-    var avatars = new Map();
+    const avatars = new Map();
     if (type === 'search') {
         try {
-            var response = await webApiService.execute({
+            const response = await webApiService.execute({
                 url: `${
                     this.avatarRemoteDatabaseProvider
                 }?${type}=${encodeURIComponent(search)}&n=5000`,
@@ -7933,14 +7934,14 @@ $app.methods.lookupAvatars = async function (type, search) {
                     'VRCX-ID': this.vrcxId
                 }
             });
-            var json = JSON.parse(response.data);
+            const json = JSON.parse(response.data);
             if (this.debugWebRequests) {
                 console.log(json, response);
             }
             if (response.status === 200 && typeof json === 'object') {
                 json.forEach((avatar) => {
                     if (!avatars.has(avatar.Id)) {
-                        var ref = {
+                        const ref = {
                             authorId: '',
                             authorName: '',
                             name: '',
@@ -7960,7 +7961,7 @@ $app.methods.lookupAvatars = async function (type, search) {
                 throw new Error(`Error: ${response.data}`);
             }
         } catch (err) {
-            var msg = `Avatar search failed for ${search} with ${this.avatarRemoteDatabaseProvider}\n${err}`;
+            const msg = `Avatar search failed for ${search} with ${this.avatarRemoteDatabaseProvider}\n${err}`;
             console.error(msg);
             this.$message({
                 message: msg,
@@ -7968,10 +7969,10 @@ $app.methods.lookupAvatars = async function (type, search) {
             });
         }
     } else if (type === 'authorId') {
-        var length = this.avatarRemoteDatabaseProviderList.length;
-        for (var i = 0; i < length; ++i) {
-            var url = this.avatarRemoteDatabaseProviderList[i];
-            var avatarArray = await this.lookupAvatarsByAuthor(url, search);
+        const length = this.avatarRemoteDatabaseProviderList.length;
+        for (let i = 0; i < length; ++i) {
+            const url = this.avatarRemoteDatabaseProviderList[i];
+            const avatarArray = await this.lookupAvatarsByAuthor(url, search);
             avatarArray.forEach((avatar) => {
                 if (!avatars.has(avatar.id)) {
                     avatars.set(avatar.id, avatar);
@@ -7983,11 +7984,11 @@ $app.methods.lookupAvatars = async function (type, search) {
 };
 
 $app.methods.lookupAvatarByImageFileId = async function (authorId, fileId) {
-    var length = this.avatarRemoteDatabaseProviderList.length;
-    for (var i = 0; i < length; ++i) {
-        var url = this.avatarRemoteDatabaseProviderList[i];
-        var avatarArray = await this.lookupAvatarsByAuthor(url, authorId);
-        for (var avatar of avatarArray) {
+    const length = this.avatarRemoteDatabaseProviderList.length;
+    for (let i = 0; i < length; ++i) {
+        const url = this.avatarRemoteDatabaseProviderList[i];
+        const avatarArray = await this.lookupAvatarsByAuthor(url, authorId);
+        for (let avatar of avatarArray) {
             if (extractFileId(avatar.imageUrl) === fileId) {
                 return avatar.id;
             }
@@ -7997,12 +7998,12 @@ $app.methods.lookupAvatarByImageFileId = async function (authorId, fileId) {
 };
 
 $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
-    var avatars = [];
+    const avatars = [];
     if (!url) {
         return avatars;
     }
     try {
-        var response = await webApiService.execute({
+        const response = await webApiService.execute({
             url: `${url}?authorId=${encodeURIComponent(authorId)}`,
             method: 'GET',
             headers: {
@@ -8010,13 +8011,13 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
                 'VRCX-ID': this.vrcxId
             }
         });
-        var json = JSON.parse(response.data);
+        const json = JSON.parse(response.data);
         if (this.debugWebRequests) {
             console.log(json, response);
         }
         if (response.status === 200 && typeof json === 'object') {
             json.forEach((avatar) => {
-                var ref = {
+                const ref = {
                     authorId: '',
                     authorName: '',
                     name: '',
@@ -8035,7 +8036,7 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
             throw new Error(`Error: ${response.data}`);
         }
     } catch (err) {
-        var msg = `Avatar lookup failed for ${authorId} with ${url}\n${err}`;
+        const msg = `Avatar lookup failed for ${authorId} with ${url}\n${err}`;
         console.error(msg);
         this.$message({
             message: msg,
@@ -8056,7 +8057,7 @@ $app.methods.sortUserDialogAvatars = function (array) {
 };
 
 $app.methods.refreshUserDialogAvatars = function (fileId) {
-    var D = this.userDialog;
+    const D = this.userDialog;
     if (D.isAvatarsLoading) {
         return;
     }
@@ -8066,7 +8067,7 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
     }
     D.avatarSorting = 'update';
     D.avatarReleaseStatus = 'all';
-    var params = {
+    const params = {
         n: 50,
         offset: 0,
         sort: 'updated',
@@ -8079,21 +8080,21 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
             API.cachedAvatars.delete(ref.id);
         }
     }
-    var map = new Map();
+    const map = new Map();
     API.bulk({
         fn: avatarRequest.getAvatars,
         N: -1,
         params,
         handle: (args) => {
-            for (var json of args.json) {
-                var $ref = API.cachedAvatars.get(json.id);
+            for (let json of args.json) {
+                const $ref = API.cachedAvatars.get(json.id);
                 if (typeof $ref !== 'undefined') {
                     map.set($ref.id, $ref);
                 }
             }
         },
         done: () => {
-            var array = Array.from(map.values());
+            const array = Array.from(map.values());
             this.sortUserDialogAvatars(array);
             D.isAvatarsLoading = false;
             if (fileId) {
@@ -8114,9 +8115,9 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
 };
 
 $app.methods.refreshUserDialogTreeData = function () {
-    var D = this.userDialog;
+    const D = this.userDialog;
     if (D.id === API.currentUser.id) {
-        var treeData = {
+        const treeData = {
             ...API.currentUser,
             ...D.ref
         };
@@ -8161,8 +8162,8 @@ API.$on('LOGOUT', function () {
 });
 
 API.$on('WORLD', function (args) {
-    var { ref } = args;
-    var D = $app.worldDialog;
+    let { ref } = args;
+    const D = $app.worldDialog;
     if (D.visible === false || D.id !== ref.id) {
         return;
     }
@@ -8172,7 +8173,7 @@ API.$on('WORLD', function (args) {
     );
     D.focusViewDisabled = ref.tags?.includes('feature_focus_view_disabled');
     $app.applyWorldDialogInstances();
-    for (var room of D.rooms) {
+    for (let room of D.rooms) {
         if (isRealInstance(room.tag)) {
             instanceRequest.getInstance({
                 worldId: D.id,
@@ -8188,9 +8189,9 @@ API.$on('WORLD', function (args) {
 });
 
 $app.methods.getBundleDateSize = async function (ref) {
-    var bundleSizes = [];
+    const bundleSizes = [];
     for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-        var unityPackage = ref.unityPackages[i];
+        const unityPackage = ref.unityPackages[i];
         if (
             unityPackage.variant &&
             unityPackage.variant !== 'standard' &&
@@ -8202,29 +8203,29 @@ $app.methods.getBundleDateSize = async function (ref) {
             continue;
         }
 
-        var platform = unityPackage.platform;
+        const platform = unityPackage.platform;
         if (bundleSizes[platform]) {
             continue;
         }
-        var assetUrl = unityPackage.assetUrl;
-        var fileId = extractFileId(assetUrl);
-        var fileVersion = parseInt(extractFileVersion(assetUrl), 10);
+        const assetUrl = unityPackage.assetUrl;
+        const fileId = extractFileId(assetUrl);
+        const fileVersion = parseInt(extractFileVersion(assetUrl), 10);
         if (!fileId) {
             continue;
         }
-        var args = await miscRequest.getBundles(fileId);
+        const args = await miscRequest.getBundles(fileId);
         if (!args?.json?.versions) {
             continue;
         }
 
-        var { versions } = args.json;
+        let { versions } = args.json;
         for (let j = versions.length - 1; j > -1; j--) {
-            var version = versions[j];
+            const version = versions[j];
             if (version.version === fileVersion) {
-                var createdAt = version.created_at;
-                var fileSize = `${(version.file.sizeInBytes / 1048576).toFixed(
-                    2
-                )} MB`;
+                const createdAt = version.created_at;
+                const fileSize = `${(
+                    version.file.sizeInBytes / 1048576
+                ).toFixed(2)} MB`;
                 bundleSizes[platform] = {
                     createdAt,
                     fileSize
@@ -8268,8 +8269,8 @@ $app.methods.getBundleDateSize = async function (ref) {
 };
 
 API.$on('FAVORITE', function (args) {
-    var { ref } = args;
-    var D = $app.worldDialog;
+    let { ref } = args;
+    const D = $app.worldDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -8277,7 +8278,7 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    var D = $app.worldDialog;
+    const D = $app.worldDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
@@ -8313,8 +8314,8 @@ $app.methods.showWorldDialog = function (tag, shortName) {
     D.isIos = false;
     D.hasPersistData = false;
     D.memo = '';
-    var LL = parseLocation(this.lastLocation.location);
-    var currentWorldMatch = false;
+    const LL = parseLocation(this.lastLocation.location);
+    let currentWorldMatch = false;
     if (LL.worldId === D.id) {
         currentWorldMatch = true;
     }
@@ -8359,7 +8360,7 @@ $app.methods.showWorldDialog = function (tag, shortName) {
                 if (!D.isFavorite) {
                     D.isFavorite = this.localWorldFavoritesList.includes(D.id);
                 }
-                var { isPC, isQuest, isIos } = getAvailablePlatforms(
+                let { isPC, isQuest, isIos } = getAvailablePlatforms(
                     args.ref.unityPackages
                 );
                 D.avatarScalingDisabled = args.ref?.tags.includes(
@@ -8749,7 +8750,7 @@ $app.methods.applyGroupDialogInstances = function (inputInstances) {
 };
 
 $app.methods.worldDialogCommand = function (command) {
-    var D = this.worldDialog;
+    const D = this.worldDialog;
     if (D.visible === false) {
         return;
     }
@@ -8786,7 +8787,7 @@ $app.methods.newInstanceSelfInvite = function (worldId) {
             return;
         }
         // self invite
-        var L = parseLocation(location);
+        const L = parseLocation(location);
         if (!L.isRealInstance) {
             return;
         }
@@ -8832,8 +8833,8 @@ $app.data.avatarDialog = {
 };
 
 API.$on('FAVORITE', function (args) {
-    var { ref } = args;
-    var D = $app.avatarDialog;
+    let { ref } = args;
+    const D = $app.avatarDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -8841,7 +8842,7 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    var D = $app.avatarDialog;
+    const D = $app.avatarDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
@@ -8849,7 +8850,7 @@ API.$on('FAVORITE:@DELETE', function (args) {
 });
 
 $app.methods.showAvatarDialog = function (avatarId) {
-    var D = this.avatarDialog;
+    const D = this.avatarDialog;
     D.visible = true;
     D.loading = true;
     D.id = avatarId;
@@ -8871,7 +8872,7 @@ $app.methods.showAvatarDialog = function (avatarId) {
         (API.currentUser.$isVRCPlus &&
             this.localAvatarFavoritesList.includes(avatarId));
     D.isBlocked = API.cachedAvatarModerations.has(avatarId);
-    var ref2 = API.cachedAvatars.get(avatarId);
+    const ref2 = API.cachedAvatars.get(avatarId);
     if (typeof ref2 !== 'undefined') {
         D.ref = ref2;
         this.updateVRChatAvatarCache();
@@ -8886,13 +8887,13 @@ $app.methods.showAvatarDialog = function (avatarId) {
     avatarRequest
         .getAvatar({ avatarId })
         .then((args) => {
-            var { ref } = args;
+            let { ref } = args;
             D.ref = ref;
             this.updateVRChatAvatarCache();
             if (/quest/.test(ref.tags)) {
                 D.isQuestFallback = true;
             }
-            var { isPC, isQuest, isIos } = getAvailablePlatforms(
+            let { isPC, isQuest, isIos } = getAvailablePlatforms(
                 args.ref.unityPackages
             );
             D.isPC = isPC;
@@ -8900,7 +8901,7 @@ $app.methods.showAvatarDialog = function (avatarId) {
             D.isIos = isIos;
             D.platformInfo = getPlatformInfo(args.ref.unityPackages);
             for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-                var unityPackage = ref.unityPackages[i];
+                const unityPackage = ref.unityPackages[i];
                 if (unityPackage.variant === 'impostor') {
                     D.hasImposter = true;
                     D.imposterVersion = unityPackage.impostorizerVersion;
@@ -8958,8 +8959,8 @@ $app.methods.selectAvatarWithoutConfirmation = function (id) {
 };
 
 $app.methods.checkAvatarCache = function (fileId) {
-    var avatarId = '';
-    for (var ref of API.cachedAvatars.values()) {
+    let avatarId = '';
+    for (let ref of API.cachedAvatars.values()) {
         if (extractFileId(ref.imageUrl) === fileId) {
             avatarId = ref.id;
         }
@@ -8969,7 +8970,7 @@ $app.methods.checkAvatarCache = function (fileId) {
 
 $app.methods.checkAvatarCacheRemote = async function (fileId, ownerUserId) {
     if (this.avatarRemoteDatabase) {
-        var avatarId = await this.lookupAvatarByImageFileId(
+        const avatarId = await this.lookupAvatarByImageFileId(
             ownerUserId,
             fileId
         );
@@ -8983,7 +8984,7 @@ $app.methods.showAvatarAuthorDialog = async function (
     ownerUserId,
     currentAvatarImageUrl
 ) {
-    var fileId = extractFileId(currentAvatarImageUrl);
+    const fileId = extractFileId(currentAvatarImageUrl);
     if (!fileId) {
         this.$message({
             message: 'Sorry, the author is unknown',
@@ -8992,7 +8993,7 @@ $app.methods.showAvatarAuthorDialog = async function (
     } else if (refUserId === API.currentUser.id) {
         this.showAvatarDialog(API.currentUser.currentAvatar);
     } else {
-        var avatarId = await this.checkAvatarCache(fileId);
+        let avatarId = await this.checkAvatarCache(fileId);
         if (!avatarId) {
             var avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
             if (avatarInfo.ownerId === API.currentUser.id) {
@@ -9137,8 +9138,8 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
         };
     }
 
-    var type = 'public';
-    var canRequestInvite = false;
+    let type = 'public';
+    let canRequestInvite = false;
     switch (D.accessType) {
         case 'friends':
             type = 'friends';
@@ -9157,7 +9158,7 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
             type = 'group';
             break;
     }
-    var region = 'us';
+    let region = 'us';
     if (D.region === 'US East') {
         region = 'use';
     } else if (D.region === 'Europe') {
@@ -9165,11 +9166,11 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
     } else if (D.region === 'Japan') {
         region = 'jp';
     }
-    var contentSettings = {};
-    for (var setting of D.contentSettings) {
+    const contentSettings = {};
+    for (let setting of D.contentSettings) {
         contentSettings[setting] = D.selectedContentSettings.includes(setting);
     }
-    var params = {
+    const params = {
         type,
         canRequestInvite,
         worldId: D.worldId,
@@ -9196,7 +9197,7 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
         params.ageGate = true;
     }
     try {
-        var args = await instanceRequest.createInstance(params);
+        const args = await instanceRequest.createInstance(params);
         return args;
     } catch (err) {
         console.error(err);
@@ -9281,8 +9282,8 @@ $app.methods.showLaunchDialog = async function (tag, shortName) {
 };
 
 $app.methods.launchGame = async function (location, shortName, desktopMode) {
-    var L = parseLocation(location);
-    var args = [];
+    const L = parseLocation(location);
+    const args = [];
     if (
         shortName &&
         L.instanceType !== 'public' &&
@@ -9293,8 +9294,8 @@ $app.methods.launchGame = async function (location, shortName, desktopMode) {
         );
     } else {
         // fetch shortName
-        var newShortName = '';
-        var response = await instanceRequest.getInstanceShortName({
+        let newShortName = '';
+        const response = await instanceRequest.getInstanceShortName({
             worldId: L.worldId,
             instanceId: L.instanceId
         });
@@ -9366,7 +9367,7 @@ $app.methods.launchGame = async function (location, shortName, desktopMode) {
 // #region | App: Copy To Clipboard
 
 $app.methods.copyToClipboard = function (text) {
-    var textArea = document.createElement('textarea');
+    const textArea = document.createElement('textarea');
     textArea.id = 'copy_to_clipboard';
     textArea.value = text;
     textArea.style.top = '0';
@@ -9396,7 +9397,7 @@ API.$on('LOGIN', function () {
 
 $app.methods.refreshVRCPlusIconsTable = function () {
     this.galleryDialogIconsLoading = true;
-    var params = {
+    const params = {
         n: 100,
         tag: 'icon'
     };
@@ -9419,7 +9420,7 @@ API.$on('VRCPLUSICON:ADD', function (args) {
 $app.data.uploadImage = '';
 
 $app.methods.inviteImageUpload = function (e) {
-    var files = e.target.files || e.dataTransfer.files;
+    const files = e.target.files || e.dataTransfer.files;
     if (!files.length) {
         return;
     }
@@ -9440,7 +9441,7 @@ $app.methods.inviteImageUpload = function (e) {
         this.clearInviteImageUpload();
         return;
     }
-    var r = new FileReader();
+    const r = new FileReader();
     r.onload = function () {
         $app.uploadImage = btoa(r.result);
     };
@@ -9448,7 +9449,7 @@ $app.methods.inviteImageUpload = function (e) {
 };
 
 $app.methods.clearInviteImageUpload = function () {
-    var buttonList = document.querySelectorAll('.inviteImageUploadButton');
+    const buttonList = document.querySelectorAll('.inviteImageUploadButton');
     buttonList.forEach((button) => (button.value = ''));
     this.uploadImage = '';
 };
@@ -9512,7 +9513,7 @@ $app.methods.showEditInviteMessageDialog = function (
     messageType,
     inviteMessage
 ) {
-    var D = this.editInviteMessageDialog;
+    const D = this.editInviteMessageDialog;
     D.newMessage = inviteMessage.message;
     D.visible = true;
     D.inviteMessage = inviteMessage;
@@ -9615,7 +9616,7 @@ $app.methods.getAllUserStats = async function () {
 };
 
 $app.methods.getUserStats = async function (ctx) {
-    var ref = await database.getUserStats(ctx);
+    const ref = await database.getUserStats(ctx);
     /* eslint-disable require-atomic-updates */
     ctx.$joinCount = ref.joinCount;
     ctx.$lastSeen = ref.lastSeen;
@@ -9627,9 +9628,9 @@ $app.methods.getUserStats = async function (ctx) {
 
 $app.methods.checkPreviousImageAvailable = async function (images) {
     this.previousImagesTable = [];
-    for (var image of images) {
+    for (let image of images) {
         if (image.file && image.file.url) {
-            var response = await fetch(image.file.url, {
+            const response = await fetch(image.file.url, {
                 method: 'HEAD',
                 redirect: 'follow'
             }).catch((error) => {
@@ -9655,7 +9656,7 @@ API.$on('LOGIN', function () {
 API.cachedAvatarNames = new Map();
 
 $app.methods.getAvatarName = async function (imageUrl) {
-    var fileId = extractFileId(imageUrl);
+    const fileId = extractFileId(imageUrl);
     if (!fileId) {
         return {
             ownerId: '',
@@ -9665,7 +9666,7 @@ $app.methods.getAvatarName = async function (imageUrl) {
     if (API.cachedAvatarNames.has(fileId)) {
         return API.cachedAvatarNames.get(fileId);
     }
-    var args = await imageRequest.getAvatarImages({ fileId });
+    const args = await imageRequest.getAvatarImages({ fileId });
     return storeAvatarImage(args);
 };
 
@@ -9689,10 +9690,10 @@ $app.methods.openShortcutFolder = function () {
 // Screenshot Helper
 
 $app.methods.processScreenshot = async function (path) {
-    var newPath = path;
+    let newPath = path;
     if (this.screenshotHelper) {
-        var location = parseLocation(this.lastLocation.location);
-        var metadata = {
+        const location = parseLocation(this.lastLocation.location);
+        const metadata = {
             application: 'VRCX',
             version: 1,
             author: {
@@ -9706,7 +9707,7 @@ $app.methods.processScreenshot = async function (path) {
             },
             players: []
         };
-        for (var user of this.lastLocation.playerList.values()) {
+        for (let user of this.lastLocation.playerList.values()) {
             metadata.players.push({
                 id: user.userId,
                 displayName: user.displayName
@@ -9773,7 +9774,7 @@ $app.methods.showYouTubeApiDialog = function () {
 // Asset Bundle Cacher
 
 $app.methods.updateVRChatWorldCache = function () {
-    var D = this.worldDialog;
+    const D = this.worldDialog;
     if (D.visible) {
         D.inCache = false;
         D.cacheSize = 0;
@@ -9791,7 +9792,7 @@ $app.methods.updateVRChatWorldCache = function () {
 };
 
 $app.methods.updateVRChatAvatarCache = function () {
-    var D = this.avatarDialog;
+    const D = this.avatarDialog;
     if (D.visible) {
         D.inCache = false;
         D.cacheSize = 0;
@@ -9810,7 +9811,7 @@ $app.methods.updateVRChatAvatarCache = function () {
 
 $app.methods.getDisplayName = function (userId) {
     if (userId) {
-        var ref = API.cachedUsers.get(userId);
+        const ref = API.cachedUsers.get(userId);
         if (ref.displayName) {
             return ref.displayName;
         }
@@ -9832,7 +9833,7 @@ $app.methods.autoVRChatCacheManagement = function () {
 };
 
 $app.methods.sweepVRChatCache = async function () {
-    var output = await AssetBundleManager.SweepCache();
+    const output = await AssetBundleManager.SweepCache();
     console.log('SweepCache', output);
     if (this.isVRChatConfigDialogVisible) {
         this.getVRChatCacheSize();
@@ -9843,13 +9844,13 @@ $app.methods.checkIfGameCrashed = function () {
     if (!this.relaunchVRChatAfterCrash) {
         return;
     }
-    var { location } = this.lastLocation;
+    let { location } = this.lastLocation;
     AppApi.VrcClosedGracefully().then((result) => {
         if (result || !isRealInstance(location)) {
             return;
         }
         // wait a bit for SteamVR to potentially close before deciding to relaunch
-        var restartDelay = 8000;
+        let restartDelay = 8000;
         if (this.isGameNoVR) {
             // wait for game to close before relaunching
             restartDelay = 2000;
@@ -9867,12 +9868,12 @@ $app.methods.restartCrashedGame = function (location) {
         return;
     }
     AppApi.FocusWindow();
-    var message = 'VRChat crashed, attempting to rejoin last instance';
+    const message = 'VRChat crashed, attempting to rejoin last instance';
     this.$message({
         message,
         type: 'info'
     });
-    var entry = {
+    const entry = {
         created_at: new Date().toJSON(),
         type: 'Event',
         data: message
@@ -9889,9 +9890,9 @@ $app.data.VRChatCacheSizeLoading = false;
 
 $app.methods.getVRChatCacheSize = async function () {
     this.VRChatCacheSizeLoading = true;
-    var totalCacheSize = 30;
+    const totalCacheSize = 30;
     this.VRChatTotalCacheSize = totalCacheSize;
-    var usedCacheSize = await AssetBundleManager.GetCacheSize();
+    const usedCacheSize = await AssetBundleManager.GetCacheSize();
     this.VRChatUsedCacheSize = (usedCacheSize / 1073741824).toFixed(2);
     this.VRChatCacheSizeLoading = false;
 };
@@ -9899,10 +9900,10 @@ $app.methods.getVRChatCacheSize = async function () {
 // Parse User URL
 
 $app.methods.parseUserUrl = function (user) {
-    var url = new URL(user);
-    var urlPath = url.pathname;
+    const url = new URL(user);
+    const urlPath = url.pathname;
     if (urlPath.substring(5, 11) === '/user/') {
-        var userId = urlPath.substring(11);
+        const userId = urlPath.substring(11);
         return userId;
     }
     return void 0;
@@ -9922,7 +9923,7 @@ $app.methods.getVRChatRegistryKey = async function (key) {
 $app.methods.updateInGameGroupOrder = async function () {
     this.inGameGroupOrder = [];
     try {
-        var json = await this.getVRChatRegistryKey(
+        const json = await this.getVRChatRegistryKey(
             `VRC_GROUP_ORDER_${API.currentUser.id}`
         );
         if (!json) {
@@ -9935,8 +9936,8 @@ $app.methods.updateInGameGroupOrder = async function () {
 };
 
 $app.methods.sortGroupInstancesByInGame = function (a, b) {
-    var aIndex = this.inGameGroupOrder.indexOf(a?.group?.id);
-    var bIndex = this.inGameGroupOrder.indexOf(b?.group?.id);
+    const aIndex = this.inGameGroupOrder.indexOf(a?.group?.id);
+    const bIndex = this.inGameGroupOrder.indexOf(b?.group?.id);
     if (aIndex === -1 && bIndex === -1) {
         return 0;
     }
@@ -9985,7 +9986,7 @@ $app.methods.setGalleryTab = function (pageNum) {
 
 $app.methods.refreshGalleryTable = function () {
     this.galleryDialogGalleryLoading = true;
-    var params = {
+    const params = {
         n: 100,
         tag: 'gallery'
     };
@@ -10013,7 +10014,7 @@ API.$on('LOGIN', function () {
 
 $app.methods.refreshStickerTable = function () {
     this.galleryDialogStickersLoading = true;
-    var params = {
+    const params = {
         n: 100,
         tag: 'sticker'
     };
@@ -10045,16 +10046,16 @@ $app.methods.trySaveStickerToFile = async function (displayName, fileId) {
     if ($app.stickersCache.size > 100) {
         $app.stickersCache.shift();
     }
-    var args = await API.call(`file/${fileId}`);
-    var imageUrl = args.versions[1].file.url;
-    var createdAt = args.versions[0].created_at;
-    var monthFolder = createdAt.slice(0, 7);
-    var fileNameDate = createdAt
+    const args = await API.call(`file/${fileId}`);
+    const imageUrl = args.versions[1].file.url;
+    const createdAt = args.versions[0].created_at;
+    const monthFolder = createdAt.slice(0, 7);
+    const fileNameDate = createdAt
         .replace(/:/g, '-')
         .replace(/T/g, '_')
         .replace(/Z/g, '');
-    var fileName = `${displayName}_${fileNameDate}_${fileId}.png`;
-    var filePath = await AppApi.SaveStickerToFile(
+    const fileName = `${displayName}_${fileNameDate}_${fileId}.png`;
+    const filePath = await AppApi.SaveStickerToFile(
         imageUrl,
         this.ugcFolderPath,
         monthFolder,
@@ -10085,7 +10086,7 @@ $app.methods.cropPrintsChanged = function () {
             showInput: false,
             callback: async (action) => {
                 if (action === 'confirm') {
-                    var msgBox = this.$message({
+                    const msgBox = this.$message({
                         message: 'Batch print cropping in progress...',
                         type: 'warning',
                         duration: 0
@@ -10117,7 +10118,7 @@ API.$on('LOGIN', function () {
 
 $app.methods.refreshPrintTable = function () {
     this.galleryDialogPrintsLoading = true;
-    var params = {
+    const params = {
         n: 100
     };
     vrcPlusImageRequest.getPrints(params);
@@ -10157,16 +10158,16 @@ $app.methods.queueSavePrintToFile = function (printId) {
 };
 
 $app.methods.trySavePrintToFile = async function (printId) {
-    var args = await vrcPlusImageRequest.getPrint({ printId });
-    var imageUrl = args.json?.files?.image;
+    const args = await vrcPlusImageRequest.getPrint({ printId });
+    const imageUrl = args.json?.files?.image;
     if (!imageUrl) {
         console.error('Print image URL is missing', args);
         return;
     }
-    var print = args.json;
-    var createdAt = getPrintLocalDate(print);
+    const print = args.json;
+    const createdAt = getPrintLocalDate(print);
     try {
-        var owner = await userRequest.getCachedUser({
+        const owner = await userRequest.getCachedUser({
             userId: print.ownerId
         });
         console.log(
@@ -10175,9 +10176,9 @@ $app.methods.trySavePrintToFile = async function (printId) {
     } catch (err) {
         console.error(err);
     }
-    var monthFolder = createdAt.toISOString().slice(0, 7);
-    var fileName = getPrintFileName(print);
-    var filePath = await AppApi.SavePrintToFile(
+    const monthFolder = createdAt.toISOString().slice(0, 7);
+    const fileName = getPrintFileName(print);
+    const filePath = await AppApi.SavePrintToFile(
         imageUrl,
         this.ugcFolderPath,
         monthFolder,
@@ -10207,7 +10208,7 @@ API.$on('LOGIN', function () {
 
 $app.methods.refreshEmojiTable = function () {
     this.galleryDialogEmojisLoading = true;
-    var params = {
+    const params = {
         n: 100,
         tag: 'emoji'
     };
@@ -10244,8 +10245,8 @@ $app.methods.removeEmojis = function (text) {
 };
 
 $app.methods.checkCanInvite = function (location) {
-    var L = parseLocation(location);
-    var instance = API.cachedInstances.get(location);
+    const L = parseLocation(location);
+    const instance = API.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }
@@ -10266,8 +10267,8 @@ $app.methods.checkCanInvite = function (location) {
 };
 
 $app.methods.checkCanInviteSelf = function (location) {
-    var L = parseLocation(location);
-    var instance = API.cachedInstances.get(location);
+    const L = parseLocation(location);
+    const instance = API.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }
@@ -10481,7 +10482,7 @@ $app.methods.ipcEvent = function (json) {
             break;
         case 'Event7List':
             this.photonEvent7List.clear();
-            for (var [id, dt] of Object.entries(data.Event7List)) {
+            for (let [id, dt] of Object.entries(data.Event7List)) {
                 this.photonEvent7List.set(parseInt(id, 10), dt);
             }
             this.photonLastEvent7List = Date.parse(data.dt);
@@ -10527,7 +10528,7 @@ $app.methods.addCustomTag = function (data) {
     } else {
         this.customUserTags.delete(data.UserId);
     }
-    var feedUpdate = {
+    const feedUpdate = {
         userId: data.UserId,
         colour: data.TagColour
     };
@@ -10535,7 +10536,7 @@ $app.methods.addCustomTag = function (data) {
         'updateHudFeedTag',
         JSON.stringify(feedUpdate)
     );
-    var ref = API.cachedUsers.get(data.UserId);
+    const ref = API.cachedUsers.get(data.UserId);
     if (typeof ref !== 'undefined') {
         ref.$customTag = data.Tag;
         ref.$customTagColour = data.TagColour;
@@ -10616,9 +10617,9 @@ $app.methods.parseOperationResponse = function (data, dateTime) {
                 this.photonLobbyCurrentUser = data.Parameters[254];
             }
             if (typeof data.Parameters[249] !== 'undefined') {
-                for (var i in data.Parameters[249]) {
-                    var id = parseInt(i, 10);
-                    var user = data.Parameters[249][i];
+                for (let i in data.Parameters[249]) {
+                    const id = parseInt(i, 10);
+                    const user = data.Parameters[249][i];
                     this.parsePhotonUser(id, user.user, dateTime);
                     this.parsePhotonAvatarChange(
                         id,
@@ -10634,8 +10635,8 @@ $app.methods.parseOperationResponse = function (data, dateTime) {
                     );
                     this.parsePhotonAvatar(user.avatarDict);
                     this.parsePhotonAvatar(user.favatarDict);
-                    var hasInstantiated = false;
-                    var lobbyJointime = this.photonLobbyJointime.get(id);
+                    let hasInstantiated = false;
+                    const lobbyJointime = this.photonLobbyJointime.get(id);
                     if (typeof lobbyJointime !== 'undefined') {
                         hasInstantiated = lobbyJointime.hasInstantiated;
                     }
@@ -10662,7 +10663,7 @@ $app.methods.parseOperationResponse = function (data, dateTime) {
 };
 
 API.$on('LOGIN', async function () {
-    var command = await AppApi.GetLaunchCommand();
+    const command = await AppApi.GetLaunchCommand();
     if (command) {
         $app.eventLaunchCommand(command);
     }
@@ -10673,10 +10674,10 @@ $app.methods.eventLaunchCommand = function (input) {
         return;
     }
     console.log('LaunchCommand:', input);
-    var args = input.split('/');
-    var command = args[0];
-    var commandArg = args[1]?.trim();
-    var shouldFocusWindow = true;
+    const args = input.split('/');
+    const command = args[0];
+    const commandArg = args[1]?.trim();
+    let shouldFocusWindow = true;
     switch (command) {
         case 'world':
             this.directAccessWorld(input.replace('world/', ''));
@@ -10692,7 +10693,7 @@ $app.methods.eventLaunchCommand = function (input) {
             break;
         case 'local-favorite-world':
             console.log('local-favorite-world', commandArg);
-            var [id, group] = commandArg.split(':');
+            let [id, group] = commandArg.split(':');
             worldRequest.getCachedWorld({ worldId: id }).then((args1) => {
                 this.directAccessWorld(id);
                 this.addLocalWorldFavorite(id, group);
@@ -10703,8 +10704,8 @@ $app.methods.eventLaunchCommand = function (input) {
             this.addAvatarProvider(input.replace('addavatardb/', ''));
             break;
         case 'switchavatar':
-            var avatarId = commandArg;
-            var regexAvatarId =
+            const avatarId = commandArg;
+            const regexAvatarId =
                 /avtr_[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}/g;
             if (!avatarId.match(regexAvatarId) || avatarId.length !== 41) {
                 this.$message({
@@ -10723,9 +10724,9 @@ $app.methods.eventLaunchCommand = function (input) {
             }
             break;
         case 'import':
-            var type = args[1];
+            const type = args[1];
             if (!type) break;
-            var data = input.replace(`import/${type}/`, '');
+            const data = input.replace(`import/${type}/`, '');
             if (type === 'avatar') {
                 this.avatarImportDialogInput = data;
                 this.showAvatarImportDialog();
@@ -10778,19 +10779,19 @@ $app.methods.toggleCustomEndpoint = async function () {
 };
 
 $app.methods.getNameColour = async function (userId) {
-    var hue = await AppApi.GetColourFromUserID(userId);
+    const hue = await AppApi.GetColourFromUserID(userId);
     return this.HueToHex(hue);
 };
 
 $app.methods.userColourInit = async function () {
-    var dictObject = await AppApi.GetColourBulk(
+    let dictObject = await AppApi.GetColourBulk(
         Array.from(API.cachedUsers.keys())
     );
     if (LINUX) {
         dictObject = Object.fromEntries(dictObject);
     }
-    for (var [userId, hue] of Object.entries(dictObject)) {
-        var ref = API.cachedUsers.get(userId);
+    for (let [userId, hue] of Object.entries(dictObject)) {
+        const ref = API.cachedUsers.get(userId);
         if (typeof ref !== 'undefined') {
             ref.$userColour = this.HueToHex(hue);
         }
@@ -10869,7 +10870,7 @@ $app.methods.onPlayerTraveling = function (ref) {
         return;
     }
 
-    var onPlayerJoining = {
+    const onPlayerJoining = {
         created_at: new Date(ref.created_at).toJSON(),
         userId: ref.id,
         displayName: ref.displayName,
@@ -10879,14 +10880,14 @@ $app.methods.onPlayerTraveling = function (ref) {
 };
 
 $app.methods.updateCurrentUserLocation = function () {
-    var ref = API.cachedUsers.get(API.currentUser.id);
+    const ref = API.cachedUsers.get(API.currentUser.id);
     if (typeof ref === 'undefined') {
         return;
     }
 
     // update cached user with both gameLog and API locations
-    var currentLocation = API.currentUser.$locationTag;
-    var L = parseLocation(currentLocation);
+    let currentLocation = API.currentUser.$locationTag;
+    const L = parseLocation(currentLocation);
     if (L.isTraveling) {
         currentLocation = API.currentUser.$travelingToLocation;
     }
@@ -10938,9 +10939,9 @@ $app.methods.setCurrentUserLocation = async function (
         // with the current state of things, lets not run this if we don't need to
         return;
     }
-    var lastLocation = '';
-    for (var i = this.gameLogSessionTable.length - 1; i > -1; i--) {
-        var item = this.gameLogSessionTable[i];
+    let lastLocation = '';
+    for (let i = this.gameLogSessionTable.length - 1; i > -1; i--) {
+        const item = this.gameLogSessionTable[i];
         if (item.type === 'Location') {
             lastLocation = item.location;
             break;
@@ -10953,13 +10954,13 @@ $app.methods.setCurrentUserLocation = async function (
     this.lastLocationDestinationTime = 0;
 
     if (isRealInstance(location)) {
-        var dt = new Date().toJSON();
-        var L = parseLocation(location);
+        const dt = new Date().toJSON();
+        const L = parseLocation(location);
 
         this.lastLocation.location = location;
         this.lastLocation.date = dt;
 
-        var entry = {
+        const entry = {
             created_at: dt,
             type: 'Location',
             location,
@@ -10987,10 +10988,10 @@ $app.data.avatarHistoryArray = [];
 
 $app.methods.getAvatarHistory = async function () {
     this.avatarHistory = new Set();
-    var historyArray = await database.getAvatarHistory(API.currentUser.id);
+    const historyArray = await database.getAvatarHistory(API.currentUser.id);
     this.avatarHistoryArray = historyArray;
-    for (var i = 0; i < historyArray.length; i++) {
-        var avatar = historyArray[i];
+    for (let i = 0; i < historyArray.length; i++) {
+        const avatar = historyArray[i];
         if (avatar.authorId === API.currentUser.id) {
             continue;
         }
@@ -11001,7 +11002,7 @@ $app.methods.getAvatarHistory = async function () {
 
 $app.methods.addAvatarToHistory = function (avatarId) {
     avatarRequest.getAvatar({ avatarId }).then((args) => {
-        var { ref } = args;
+        let { ref } = args;
 
         database.addAvatarToCache(ref);
         database.addAvatarToHistory(ref.id);
@@ -11010,8 +11011,8 @@ $app.methods.addAvatarToHistory = function (avatarId) {
             return;
         }
 
-        var historyArray = this.avatarHistoryArray;
-        for (var i = 0; i < historyArray.length; ++i) {
+        const historyArray = this.avatarHistoryArray;
+        for (let i = 0; i < historyArray.length; ++i) {
             if (historyArray[i].id === ref.id) {
                 historyArray.splice(i, 1);
             }
@@ -11056,7 +11057,7 @@ $app.data.databaseVersion = await configRepository.getInt(
 );
 
 $app.methods.updateDatabaseVersion = async function () {
-    var databaseVersion = 12;
+    const databaseVersion = 12;
     if (this.databaseVersion < databaseVersion) {
         if (this.databaseVersion) {
             var msgBox = this.$message({
@@ -11174,7 +11175,7 @@ $app.methods.folderSelectorDialog = async function (oldPath) {
     }
 
     this.folderSelectorDialogVisible = true;
-    var newFolder = '';
+    let newFolder = '';
     if (LINUX) {
         newFolder = await window.electron.openDirectoryDialog();
     } else {
@@ -11186,7 +11187,7 @@ $app.methods.folderSelectorDialog = async function (oldPath) {
 };
 
 $app.methods.openUGCFolderSelector = async function () {
-    var path = await this.folderSelectorDialog(this.ugcFolderPath);
+    const path = await this.folderSelectorDialog(this.ugcFolderPath);
     await this.setUGCFolderPath(path);
 };
 
@@ -11210,8 +11211,8 @@ $app.methods.addAvatarProvider = function (url) {
 };
 
 $app.methods.removeAvatarProvider = function (url) {
-    var length = this.avatarRemoteDatabaseProviderList.length;
-    for (var i = 0; i < length; ++i) {
+    const length = this.avatarRemoteDatabaseProviderList.length;
+    for (let i = 0; i < length; ++i) {
         if (this.avatarRemoteDatabaseProviderList[i] === url) {
             this.avatarRemoteDatabaseProviderList.splice(i, 1);
         }
@@ -11220,8 +11221,8 @@ $app.methods.removeAvatarProvider = function (url) {
 };
 
 $app.methods.saveAvatarProviderList = async function () {
-    var length = this.avatarRemoteDatabaseProviderList.length;
-    for (var i = 0; i < length; ++i) {
+    const length = this.avatarRemoteDatabaseProviderList.length;
+    for (let i = 0; i < length; ++i) {
         if (!this.avatarRemoteDatabaseProviderList[i]) {
             this.avatarRemoteDatabaseProviderList.splice(i, 1);
         }
@@ -11310,7 +11311,7 @@ $app.methods.addLocalWorldFavorite = function (worldId, group) {
     if (this.hasLocalWorldFavorite(worldId, group)) {
         return;
     }
-    var ref = API.cachedWorlds.get(worldId);
+    const ref = API.cachedWorlds.get(worldId);
     if (typeof ref === 'undefined') {
         return;
     }
@@ -11421,11 +11422,11 @@ $app.methods.getLocalWorldFavorites = async function () {
 };
 
 $app.methods.hasLocalWorldFavorite = function (worldId, group) {
-    var favoriteGroup = this.localWorldFavorites[group];
+    const favoriteGroup = this.localWorldFavorites[group];
     if (!favoriteGroup) {
         return false;
     }
-    for (var i = 0; i < favoriteGroup.length; ++i) {
+    for (let i = 0; i < favoriteGroup.length; ++i) {
         if (favoriteGroup[i].id === worldId) {
             return true;
         }
@@ -11434,7 +11435,7 @@ $app.methods.hasLocalWorldFavorite = function (worldId, group) {
 };
 
 $app.methods.getLocalWorldFavoriteGroupLength = function (group) {
-    var favoriteGroup = this.localWorldFavorites[group];
+    const favoriteGroup = this.localWorldFavorites[group];
     if (!favoriteGroup) {
         return 0;
     }
@@ -11546,7 +11547,7 @@ $app.methods.addLocalAvatarFavorite = function (avatarId, group) {
     if (this.hasLocalAvatarFavorite(avatarId, group)) {
         return;
     }
-    var ref = API.cachedAvatars.get(avatarId);
+    const ref = API.cachedAvatars.get(avatarId);
     if (typeof ref === 'undefined') {
         return;
     }
@@ -11621,17 +11622,17 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
 
 API.$on('AVATAR', function (args) {
     if ($app.localAvatarFavoritesList.includes(args.ref.id)) {
-        for (var i = 0; i < $app.localAvatarFavoriteGroups.length; ++i) {
-            var groupName = $app.localAvatarFavoriteGroups[i];
+        for (let i = 0; i < $app.localAvatarFavoriteGroups.length; ++i) {
+            const groupName = $app.localAvatarFavoriteGroups[i];
             if (!$app.localAvatarFavorites[groupName]) {
                 continue;
             }
             for (
-                var j = 0;
+                let j = 0;
                 j < $app.localAvatarFavorites[groupName].length;
                 ++j
             ) {
-                var ref = $app.localAvatarFavorites[groupName][j];
+                const ref = $app.localAvatarFavorites[groupName][j];
                 if (ref.id === args.ref.id) {
                     $app.localAvatarFavorites[groupName][j] = args.ref;
                 }
@@ -11692,11 +11693,11 @@ $app.methods.getLocalAvatarFavorites = async function () {
 };
 
 $app.methods.hasLocalAvatarFavorite = function (avatarId, group) {
-    var favoriteGroup = this.localAvatarFavorites[group];
+    const favoriteGroup = this.localAvatarFavorites[group];
     if (!favoriteGroup) {
         return false;
     }
-    for (var i = 0; i < favoriteGroup.length; ++i) {
+    for (let i = 0; i < favoriteGroup.length; ++i) {
         if (favoriteGroup[i].id === avatarId) {
             return true;
         }
@@ -11892,8 +11893,8 @@ $app.methods.updateLocalFavoriteFriends = function (value) {
 };
 
 $app.methods.updateSidebarFriendsList = function () {
-    for (var ctx of this.friends.values()) {
-        var isVIP = this.localFavoriteFriends.has(ctx.id);
+    for (let ctx of this.friends.values()) {
+        const isVIP = this.localFavoriteFriends.has(ctx.id);
         if (ctx.isVIP === isVIP) {
             continue;
         }
@@ -11917,7 +11918,7 @@ $app.methods.updateSidebarFriendsList = function () {
 // #region | App: ChatBox Blacklist
 
 $app.methods.checkChatboxBlacklist = function (msg) {
-    for (var i = 0; i < this.chatboxBlacklist.length; ++i) {
+    for (let i = 0; i < this.chatboxBlacklist.length; ++i) {
         if (msg.includes(this.chatboxBlacklist[i])) {
             return true;
         }
@@ -11939,7 +11940,7 @@ if (await configRepository.getString('VRCX_chatboxUserBlacklist')) {
 }
 
 $app.methods.getLocalAvatarFavoriteGroupLength = function (group) {
-    var favoriteGroup = this.localAvatarFavorites[group];
+    const favoriteGroup = this.localAvatarFavorites[group];
     if (!favoriteGroup) {
         return 0;
     }
@@ -11970,7 +11971,7 @@ $app.methods.removeAllQueuedInstances = function () {
 };
 
 $app.methods.removeQueuedInstance = function (instanceId) {
-    var ref = API.queuedInstances.get(instanceId);
+    const ref = API.queuedInstances.get(instanceId);
     if (typeof ref !== 'undefined') {
         ref.$msgBox.close();
         API.queuedInstances.delete(instanceId);
@@ -11994,7 +11995,7 @@ API.applyQueuedInstance = function (instanceId) {
         return;
     }
     if (!API.queuedInstances.has(instanceId)) {
-        var L = parseLocation(instanceId);
+        const L = parseLocation(instanceId);
         if (L.isRealInstance) {
             instanceRequest
                 .getInstance({
@@ -12016,21 +12017,21 @@ API.applyQueuedInstance = function (instanceId) {
 };
 
 $app.methods.instanceQueueReady = function (instanceId) {
-    var ref = API.queuedInstances.get(instanceId);
+    const ref = API.queuedInstances.get(instanceId);
     if (typeof ref !== 'undefined') {
         ref.$msgBox.close();
         API.queuedInstances.delete(instanceId);
     }
-    var L = parseLocation(instanceId);
-    var group = API.cachedGroups.get(L.groupId);
-    var groupName = group?.name ?? '';
-    var worldName = ref?.$worldName ?? '';
+    const L = parseLocation(instanceId);
+    const group = API.cachedGroups.get(L.groupId);
+    const groupName = group?.name ?? '';
+    const worldName = ref?.$worldName ?? '';
     const location = displayLocation(instanceId, worldName, groupName);
     this.$message({
         message: `Instance ready to join ${location}`,
         type: 'success'
     });
-    var noty = {
+    const noty = {
         created_at: new Date().toJSON(),
         type: 'group.queueReady',
         imageUrl: group?.iconUrl,
@@ -12055,7 +12056,7 @@ $app.methods.instanceQueueUpdate = async function (
     position,
     queueSize
 ) {
-    var ref = API.queuedInstances.get(instanceId);
+    let ref = API.queuedInstances.get(instanceId);
     if (typeof ref === 'undefined') {
         ref = {
             $msgBox: null,
@@ -12110,7 +12111,8 @@ $app.methods.checkVRChatDebugLogging = async function () {
         return;
     }
     try {
-        var loggingEnabled = await this.getVRChatRegistryKey('LOGGING_ENABLED');
+        const loggingEnabled =
+            await this.getVRChatRegistryKey('LOGGING_ENABLED');
         if (loggingEnabled === null || typeof loggingEnabled === 'undefined') {
             // key not found
             return;
@@ -12119,7 +12121,7 @@ $app.methods.checkVRChatDebugLogging = async function () {
             // already enabled
             return;
         }
-        var result = await AppApi.SetVRChatRegistryKey(
+        const result = await AppApi.SetVRChatRegistryKey(
             'LOGGING_ENABLED',
             '1',
             4
@@ -12231,15 +12233,15 @@ $app.methods.applyLanguageStrings = function () {
 
 $app.methods.initLanguage = async function () {
     if (!(await configRepository.getString('VRCX_appLanguage'))) {
-        var result = await AppApi.CurrentLanguage();
+        const result = await AppApi.CurrentLanguage();
         if (!result) {
             console.error('Failed to get current language');
             this.changeAppLanguage('en');
             return;
         }
-        var lang = result.split('-')[0];
+        const lang = result.split('-')[0];
         i18n.availableLocales.forEach((ref) => {
-            var refLang = ref.split('_')[0];
+            const refLang = ref.split('_')[0];
             if (refLang === lang) {
                 this.changeAppLanguage(ref);
             }
@@ -12436,7 +12438,7 @@ $app.methods.addInstanceJoinHistory = function (location, dateTime) {
         this.instanceJoinHistory.delete(location);
     }
 
-    var epoch = new Date(dateTime).getTime();
+    const epoch = new Date(dateTime).getTime();
     this.instanceJoinHistory.set(location, epoch);
 };
 
