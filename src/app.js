@@ -56,7 +56,7 @@ import discordRpc from './classes/discordRpc.js';
 import feed from './classes/feed.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
-import _groups from './classes/groups.js';
+import groups from './classes/groups.js';
 import languages from './classes/languages.js';
 import memos from './classes/memos.js';
 import prompts from './classes/prompts.js';
@@ -242,35 +242,9 @@ pinia.use(() => ({ i18n }));
 // everything in this program is global stored in $app, I hate it, it is what it is
 let $app = {};
 
-// eslint-disable-next-line no-unused-vars
-const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
+new _vrcxJsonStorage(VRCXStorage);
 
 import API from './classes/apiInit';
-
-const vrcxClasses = {
-    // other classes
-    // API,
-    // apiRequestHandler: new _apiRequestHandler($app, API, $t, webApiService),
-    // uiComponents: new _uiComponents($app, API, $t),
-    // webSocket: new _websocket($app, API, $t),
-    // main classes
-    // sharedFeed: new sharedFeed($app, API, $t),
-    // prompts: new _prompts($app, API, $t),
-    // vrcxNotifications: new _vrcxNotifications($app, API, $t),
-    // apiLogin: new _apiLogin($app, API, $t, webApiService),
-    // currentUser: new _currentUser($app, API, $t),
-    // updateLoop: new _updateLoop($app, API, $t),
-    // discordRpc: new _discordRpc($app, API, $t),
-    // gameLog: new _gameLog($app, API, $t),
-    // gameRealtimeLogging: new _gameRealtimeLogging($app, API, $t),
-    // feed: new _feed($app, API, $t),
-    // memos: new _memos($app, API, $t),
-    // config: new _config($app, API, $t),
-    // languages: new _languages($app, API, $t),
-    groups: new _groups($app, API, $t)
-    // vrcRegistry: new _vrcRegistry($app, API, $t),
-    // restoreFriendOrder: new _restoreFriendOrder($app, API, $t)
-};
 
 await configRepository.init();
 
@@ -986,19 +960,7 @@ const app = {
     pinia
 };
 
-for (const value of Object.values(vrcxClasses)) {
-    app.methods = { ...app.methods, ...value._methods };
-    app.data = { ...app.data, ...value._data };
-}
-
 Object.assign($app, app);
-
-/**
- * The $app of the parameter is not a vue instance, it's a $app that needs to be mounted,
- * and the $app inside methods needs to be a vue instance, so import app.js bottom to use it.
- *
- * I think this reference state sucks, there is no concept of reference at all
- */
 
 apiRequestHandler();
 uiComponents();
@@ -1017,7 +979,7 @@ feed($app);
 memos($app);
 config($app);
 languages($app);
-// groups($app);
+groups($app);
 vrcRegistry($app);
 restoreFriendOrder($app);
 
@@ -12825,9 +12787,6 @@ $app = new Vue($app);
 window.$app = $app;
 window.API = API;
 window.$t = $t;
-for (const value of Object.values(vrcxClasses)) {
-    value.updateRef($app);
-}
 
 export { $app, API, $t };
 

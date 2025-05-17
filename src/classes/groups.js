@@ -8,468 +8,458 @@ import {
 import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import { replaceBioSymbols } from '../shared/utils';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
+export default function init(app) {
+    API.cachedGroups = new Map();
+    API.currentUserGroups = new Map();
 
-    init() {
-        API.cachedGroups = new Map();
-        API.currentUserGroups = new Map();
+    API.$on('GROUP', function (args) {
+        args.ref = this.applyGroup(args.json);
+    });
 
-        API.$on('GROUP', function (args) {
-            args.ref = this.applyGroup(args.json);
-        });
+    API.$on('GROUP', function (args) {
+        var { ref } = args;
+        var D = $app.groupDialog;
+        if (D.visible === false || D.id !== ref.id) {
+            return;
+        }
+        D.inGroup = ref.membershipStatus === 'member';
+        D.ref = ref;
+    });
 
-        API.$on('GROUP', function (args) {
-            var { ref } = args;
-            var D = $app.groupDialog;
-            if (D.visible === false || D.id !== ref.id) {
-                return;
+    API.$on('GROUP:REPRESENTED', function (args) {
+        var json = args.json;
+        if (!json.groupId) {
+            // no group
+            return;
+        }
+        json.$memberId = json.id;
+        json.id = json.groupId;
+        this.$emit('GROUP', {
+            json,
+            params: {
+                groupId: json.groupId,
+                userId: args.params.userId
             }
-            D.inGroup = ref.membershipStatus === 'member';
-            D.ref = ref;
         });
+    });
 
-        API.$on('GROUP:REPRESENTED', function (args) {
-            var json = args.json;
-            if (!json.groupId) {
-                // no group
-                return;
-            }
+    API.$on('GROUP:LIST', function (args) {
+        for (var json of args.json) {
             json.$memberId = json.id;
             json.id = json.groupId;
             this.$emit('GROUP', {
                 json,
                 params: {
-                    groupId: json.groupId,
+                    groupId: json.id,
                     userId: args.params.userId
                 }
             });
-        });
+        }
+    });
 
-        API.$on('GROUP:LIST', function (args) {
-            for (var json of args.json) {
-                json.$memberId = json.id;
-                json.id = json.groupId;
-                this.$emit('GROUP', {
-                    json,
-                    params: {
-                        groupId: json.id,
-                        userId: args.params.userId
-                    }
-                });
+    API.$on('GROUP:MEMBER:PROPS', function (args) {
+        if (args.userId !== this.currentUser.id) {
+            return;
+        }
+        var json = args.json;
+        json.$memberId = json.id;
+        json.id = json.groupId;
+        if ($app.groupDialog.visible && $app.groupDialog.id === json.groupId) {
+            $app.groupDialog.ref.myMember.visibility = json.visibility;
+            $app.groupDialog.ref.myMember.isSubscribedToAnnouncements =
+                json.isSubscribedToAnnouncements;
+        }
+        if (
+            $app.userDialog.visible &&
+            $app.userDialog.id === this.currentUser.id
+        ) {
+            $app.getCurrentUserRepresentedGroup();
+        }
+        this.$emit('GROUP:MEMBER', {
+            json,
+            params: {
+                groupId: json.groupId
             }
         });
+    });
 
-        API.$on('GROUP:MEMBER:PROPS', function (args) {
-            if (args.userId !== this.currentUser.id) {
-                return;
-            }
-            var json = args.json;
-            json.$memberId = json.id;
-            json.id = json.groupId;
-            if (
-                $app.groupDialog.visible &&
-                $app.groupDialog.id === json.groupId
-            ) {
-                $app.groupDialog.ref.myMember.visibility = json.visibility;
-                $app.groupDialog.ref.myMember.isSubscribedToAnnouncements =
-                    json.isSubscribedToAnnouncements;
-            }
-            if (
-                $app.userDialog.visible &&
-                $app.userDialog.id === this.currentUser.id
-            ) {
-                $app.getCurrentUserRepresentedGroup();
-            }
-            this.$emit('GROUP:MEMBER', {
-                json,
-                params: {
-                    groupId: json.groupId
-                }
-            });
-        });
-
-        API.$on('GROUP:MEMBER:PROPS', function (args) {
-            if ($app.groupDialog.id === args.json.groupId) {
-                for (var i = 0; i < $app.groupDialog.members.length; ++i) {
-                    var member = $app.groupDialog.members[i];
-                    if (member.userId === args.json.userId) {
-                        Object.assign(member, this.applyGroupMember(args.json));
-                        break;
-                    }
-                }
-                for (
-                    var i = 0;
-                    i < $app.groupDialog.memberSearchResults.length;
-                    ++i
-                ) {
-                    var member = $app.groupDialog.memberSearchResults[i];
-                    if (member.userId === args.json.userId) {
-                        Object.assign(member, this.applyGroupMember(args.json));
-                        break;
-                    }
-                }
-            }
-
-            // The 'GROUP:MEMBER:PROPS' event is triggered by the setGroupVisibility, setGroupSubscription, or groupMembersSaveNote.
-            // The first two methods originate from the Group Dialog (visibility/Subscription);
-            // Group Member Moderation Dialog is necessarily not visible then.
-
-            // if (
-            //     $app.groupMemberModeration.visible &&
-            //     $app.groupMemberModeration.id === args.json.groupId
-            // ) {
-            //     // force redraw table
-            //     $app.groupMembersSearch();
-            // }
-        });
-
-        API.$on('GROUP:PERMISSIONS', function (args) {
-            if (args.params.userId !== this.currentUser.id) {
-                return;
-            }
-            var json = args.json;
-            for (var groupId in json) {
-                var permissions = json[groupId];
-                var group = this.cachedGroups.get(groupId);
-                if (group) {
-                    group.myMember.permissions = permissions;
-                }
-            }
-        });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getAllGroupPosts = async function (params) {
-            var posts = [];
-            var offset = 0;
-            var n = 100;
-            var total = 0;
-            do {
-                var args = await groupRequest.getGroupPosts({
-                    groupId: params.groupId,
-                    n,
-                    offset
-                });
-                posts = posts.concat(args.json.posts);
-                total = args.json.total;
-                offset += n;
-            } while (offset < total);
-            var returnArgs = {
-                posts,
-                params
-            };
-            this.$emit('GROUP:POSTS:ALL', returnArgs);
-            return returnArgs;
-        };
-
-        API.$on('GROUP:POSTS:ALL', function (args) {
-            var D = $app.groupDialog;
-            if (D.id === args.params.groupId) {
-                for (var post of args.posts) {
-                    post.title = replaceBioSymbols(post.title);
-                    post.text = replaceBioSymbols(post.text);
-                }
-                if (args.posts.length > 0) {
-                    D.announcement = args.posts[0];
-                }
-                D.posts = args.posts;
-                $app.updateGroupPostSearch();
-            }
-        });
-
-        API.$on('GROUP:POST', function (args) {
-            var D = $app.groupDialog;
-            if (D.id !== args.params.groupId) {
-                return;
-            }
-
-            var newPost = args.json;
-            newPost.title = replaceBioSymbols(newPost.title);
-            newPost.text = replaceBioSymbols(newPost.text);
-            var hasPost = false;
-            // update existing post
-            for (var post of D.posts) {
-                if (post.id === newPost.id) {
-                    Object.assign(post, newPost);
-                    hasPost = true;
+    API.$on('GROUP:MEMBER:PROPS', function (args) {
+        if ($app.groupDialog.id === args.json.groupId) {
+            for (var i = 0; i < $app.groupDialog.members.length; ++i) {
+                var member = $app.groupDialog.members[i];
+                if (member.userId === args.json.userId) {
+                    Object.assign(member, this.applyGroupMember(args.json));
                     break;
                 }
             }
-            // set or update announcement
-            if (newPost.id === D.announcement.id || !D.announcement.id) {
-                D.announcement = newPost;
+            for (
+                var i = 0;
+                i < $app.groupDialog.memberSearchResults.length;
+                ++i
+            ) {
+                var member = $app.groupDialog.memberSearchResults[i];
+                if (member.userId === args.json.userId) {
+                    Object.assign(member, this.applyGroupMember(args.json));
+                    break;
+                }
             }
-            // add new post
-            if (!hasPost) {
-                D.posts.unshift(newPost);
+        }
+
+        // The 'GROUP:MEMBER:PROPS' event is triggered by the setGroupVisibility, setGroupSubscription, or groupMembersSaveNote.
+        // The first two methods originate from the Group Dialog (visibility/Subscription);
+        // Group Member Moderation Dialog is necessarily not visible then.
+
+        // if (
+        //     $app.groupMemberModeration.visible &&
+        //     $app.groupMemberModeration.id === args.json.groupId
+        // ) {
+        //     // force redraw table
+        //     $app.groupMembersSearch();
+        // }
+    });
+
+    API.$on('GROUP:PERMISSIONS', function (args) {
+        if (args.params.userId !== this.currentUser.id) {
+            return;
+        }
+        var json = args.json;
+        for (var groupId in json) {
+            var permissions = json[groupId];
+            var group = this.cachedGroups.get(groupId);
+            if (group) {
+                group.myMember.permissions = permissions;
             }
+        }
+    });
+
+    /**
+     * @param {{ groupId: string }} params
+     * @return { Promise<{json: any, params}> }
+     */
+    API.getAllGroupPosts = async function (params) {
+        var posts = [];
+        var offset = 0;
+        var n = 100;
+        var total = 0;
+        do {
+            var args = await groupRequest.getGroupPosts({
+                groupId: params.groupId,
+                n,
+                offset
+            });
+            posts = posts.concat(args.json.posts);
+            total = args.json.total;
+            offset += n;
+        } while (offset < total);
+        var returnArgs = {
+            posts,
+            params
+        };
+        this.$emit('GROUP:POSTS:ALL', returnArgs);
+        return returnArgs;
+    };
+
+    API.$on('GROUP:POSTS:ALL', function (args) {
+        var D = $app.groupDialog;
+        if (D.id === args.params.groupId) {
+            for (var post of args.posts) {
+                post.title = replaceBioSymbols(post.title);
+                post.text = replaceBioSymbols(post.text);
+            }
+            if (args.posts.length > 0) {
+                D.announcement = args.posts[0];
+            }
+            D.posts = args.posts;
             $app.updateGroupPostSearch();
-        });
+        }
+    });
 
-        API.$on('GROUP:MEMBERS', function (args) {
-            for (var json of args.json) {
-                this.$emit('GROUP:MEMBER', {
-                    json,
-                    params: {
-                        groupId: args.params.groupId
-                    }
-                });
+    API.$on('GROUP:POST', function (args) {
+        var D = $app.groupDialog;
+        if (D.id !== args.params.groupId) {
+            return;
+        }
+
+        var newPost = args.json;
+        newPost.title = replaceBioSymbols(newPost.title);
+        newPost.text = replaceBioSymbols(newPost.text);
+        var hasPost = false;
+        // update existing post
+        for (var post of D.posts) {
+            if (post.id === newPost.id) {
+                Object.assign(post, newPost);
+                hasPost = true;
+                break;
             }
-        });
+        }
+        // set or update announcement
+        if (newPost.id === D.announcement.id || !D.announcement.id) {
+            D.announcement = newPost;
+        }
+        // add new post
+        if (!hasPost) {
+            D.posts.unshift(newPost);
+        }
+        $app.updateGroupPostSearch();
+    });
 
-        API.$on('GROUP:MEMBER', function (args) {
-            args.ref = this.applyGroupMember(args.json);
-        });
-
-        API.$on('GROUP:USER:INSTANCES', function (args) {
-            $app.groupInstances = [];
-            for (const json of args.json.instances) {
-                if (args.json.fetchedAt) {
-                    // tack on fetchedAt
-                    json.$fetchedAt = args.json.fetchedAt;
-                }
-                this.$emit('INSTANCE', {
-                    json,
-                    params: {
-                        fetchedAt: args.json.fetchedAt
-                    }
-                });
-                const ref = this.cachedGroups.get(json.ownerId);
-                if (typeof ref === 'undefined') {
-                    if ($app.friendLogInitStatus) {
-                        groupRequest.getGroup({ groupId: json.ownerId });
-                    }
-                    return;
-                }
-                $app.groupInstances.push({
-                    group: ref,
-                    instance: this.applyInstance(json)
-                });
-            }
-        });
-
-        /**
-         * @param {{ groupId: string }} params
-         * @return { Promise<{json: any, params}> }
-         */
-        API.getCachedGroup = function (params) {
-            return new Promise((resolve, reject) => {
-                var ref = this.cachedGroups.get(params.groupId);
-                if (typeof ref === 'undefined') {
-                    groupRequest.getGroup(params).catch(reject).then(resolve);
-                } else {
-                    resolve({
-                        cache: true,
-                        json: ref,
-                        params,
-                        ref
-                    });
+    API.$on('GROUP:MEMBERS', function (args) {
+        for (var json of args.json) {
+            this.$emit('GROUP:MEMBER', {
+                json,
+                params: {
+                    groupId: args.params.groupId
                 }
             });
-        };
+        }
+    });
 
-        API.applyGroup = function (json) {
-            var ref = this.cachedGroups.get(json.id);
-            json.rules = replaceBioSymbols(json.rules);
-            json.name = replaceBioSymbols(json.name);
-            json.description = replaceBioSymbols(json.description);
+    API.$on('GROUP:MEMBER', function (args) {
+        args.ref = this.applyGroupMember(args.json);
+    });
+
+    API.$on('GROUP:USER:INSTANCES', function (args) {
+        $app.groupInstances = [];
+        for (const json of args.json.instances) {
+            if (args.json.fetchedAt) {
+                // tack on fetchedAt
+                json.$fetchedAt = args.json.fetchedAt;
+            }
+            this.$emit('INSTANCE', {
+                json,
+                params: {
+                    fetchedAt: args.json.fetchedAt
+                }
+            });
+            const ref = this.cachedGroups.get(json.ownerId);
             if (typeof ref === 'undefined') {
-                ref = {
-                    id: '',
-                    name: '',
-                    shortCode: '',
-                    description: '',
-                    bannerId: '',
-                    bannerUrl: '',
-                    createdAt: '',
-                    discriminator: '',
-                    galleries: [],
-                    iconId: '',
-                    iconUrl: '',
-                    isVerified: false,
-                    joinState: '',
-                    languages: [],
-                    links: [],
-                    memberCount: 0,
-                    memberCountSyncedAt: '',
-                    membershipStatus: '',
-                    onlineMemberCount: 0,
-                    ownerId: '',
-                    privacy: '',
-                    rules: null,
-                    tags: [],
-                    // in group
-                    initialRoleIds: [],
-                    myMember: {
-                        bannedAt: null,
-                        groupId: '',
-                        has2FA: false,
-                        id: '',
-                        isRepresenting: false,
-                        isSubscribedToAnnouncements: false,
-                        joinedAt: '',
-                        managerNotes: '',
-                        membershipStatus: '',
-                        permissions: [],
-                        roleIds: [],
-                        userId: '',
-                        visibility: '',
-                        _created_at: '',
-                        _id: '',
-                        _updated_at: ''
-                    },
-                    updatedAt: '',
-                    // includeRoles: true
-                    roles: [],
-                    // group list
-                    $memberId: '',
-                    groupId: '',
-                    isRepresenting: false,
-                    memberVisibility: false,
-                    mutualGroup: false,
-                    // VRCX
-                    $languages: [],
-                    ...json
-                };
-                this.cachedGroups.set(ref.id, ref);
-            } else {
-                if (this.currentUserGroups.has(ref.id)) {
-                    // compare group props
-                    if (
-                        ref.ownerId &&
-                        json.ownerId &&
-                        ref.ownerId !== json.ownerId
-                    ) {
-                        // owner changed
-                        $app.groupOwnerChange(json, ref.ownerId, json.ownerId);
-                    }
-                    if (ref.name && json.name && ref.name !== json.name) {
-                        // name changed
-                        $app.groupChange(
-                            json,
-                            `Name changed from ${ref.name} to ${json.name}`
-                        );
-                    }
-                    if (ref.myMember?.roleIds && json.myMember?.roleIds) {
-                        var oldRoleIds = ref.myMember.roleIds;
-                        var newRoleIds = json.myMember.roleIds;
-                        if (
-                            oldRoleIds.length !== newRoleIds.length ||
-                            !oldRoleIds.every(
-                                (value, index) => value === newRoleIds[index]
-                            )
-                        ) {
-                            // roleIds changed
-                            $app.groupRoleChange(
-                                json,
-                                ref.roles,
-                                json.roles,
-                                oldRoleIds,
-                                newRoleIds
-                            );
-                        }
-                    }
+                if ($app.friendLogInitStatus) {
+                    groupRequest.getGroup({ groupId: json.ownerId });
                 }
-                if (json.myMember) {
-                    if (typeof json.myMember.roleIds === 'undefined') {
-                        // keep roleIds
-                        json.myMember.roleIds = ref.myMember.roleIds;
-                    }
-                    Object.assign(ref.myMember, json.myMember);
-                }
-                Object.assign(ref, json);
-            }
-            // update myMember without fetching member
-            if (typeof json.memberVisibility !== 'undefined') {
-                ref.myMember.visibility = json.memberVisibility;
-            }
-            if (typeof json.isRepresenting !== 'undefined') {
-                ref.myMember.isRepresenting = json.isRepresenting;
-            }
-            if (typeof json.membershipStatus !== 'undefined') {
-                ref.myMember.membershipStatus = json.membershipStatus;
-            }
-            if (typeof json.roleIds !== 'undefined') {
-                ref.myMember.roleIds = json.roleIds;
-            }
-            ref.$url = `https://vrc.group/${ref.shortCode}.${ref.discriminator}`;
-            this.applyGroupLanguage(ref);
-
-            var currentUserGroupRef = this.currentUserGroups.get(ref.id);
-            if (currentUserGroupRef && currentUserGroupRef !== ref) {
-                this.currentUserGroups.set(ref.id, ref);
-            }
-
-            return ref;
-        };
-
-        API.applyGroupMember = function (json) {
-            if (typeof json?.user !== 'undefined') {
-                if (json.userId === this.currentUser.id) {
-                    json.user = this.currentUser;
-                    json.$displayName = this.currentUser.displayName;
-                } else {
-                    var ref = this.cachedUsers.get(json.user.id);
-                    if (typeof ref !== 'undefined') {
-                        json.user = ref;
-                        json.$displayName = ref.displayName;
-                    } else {
-                        json.$displayName = json.user?.displayName;
-                    }
-                }
-            }
-            // update myMember without fetching member
-            if (json?.userId === this.currentUser.id) {
-                var ref = this.cachedGroups.get(json.groupId);
-                if (typeof ref !== 'undefined') {
-                    this.$emit('GROUP', {
-                        json: {
-                            ...ref,
-                            memberVisibility: json.visibility,
-                            isRepresenting: json.isRepresenting,
-                            isSubscribedToAnnouncements:
-                                json.isSubscribedToAnnouncements,
-                            joinedAt: json.joinedAt,
-                            roleIds: json.roleIds,
-                            membershipStatus: json.membershipStatus
-                        },
-                        params: {
-                            groupId: json.groupId
-                        }
-                    });
-                }
-            }
-
-            return json;
-        };
-
-        API.applyGroupLanguage = function (ref) {
-            ref.$languages = [];
-            var { languages } = ref;
-            if (!languages) {
                 return;
             }
-            for (var language of languages) {
-                var value = $app.subsetOfLanguages[language];
-                if (typeof value === 'undefined') {
-                    continue;
-                }
-                ref.$languages.push({
-                    key: language,
-                    value
+            $app.groupInstances.push({
+                group: ref,
+                instance: this.applyInstance(json)
+            });
+        }
+    });
+
+    /**
+     * @param {{ groupId: string }} params
+     * @return { Promise<{json: any, params}> }
+     */
+    API.getCachedGroup = function (params) {
+        return new Promise((resolve, reject) => {
+            var ref = this.cachedGroups.get(params.groupId);
+            if (typeof ref === 'undefined') {
+                groupRequest.getGroup(params).catch(reject).then(resolve);
+            } else {
+                resolve({
+                    cache: true,
+                    json: ref,
+                    params,
+                    ref
                 });
             }
-        };
-    }
+        });
+    };
 
-    _data = {
+    API.applyGroup = function (json) {
+        var ref = this.cachedGroups.get(json.id);
+        json.rules = replaceBioSymbols(json.rules);
+        json.name = replaceBioSymbols(json.name);
+        json.description = replaceBioSymbols(json.description);
+        if (typeof ref === 'undefined') {
+            ref = {
+                id: '',
+                name: '',
+                shortCode: '',
+                description: '',
+                bannerId: '',
+                bannerUrl: '',
+                createdAt: '',
+                discriminator: '',
+                galleries: [],
+                iconId: '',
+                iconUrl: '',
+                isVerified: false,
+                joinState: '',
+                languages: [],
+                links: [],
+                memberCount: 0,
+                memberCountSyncedAt: '',
+                membershipStatus: '',
+                onlineMemberCount: 0,
+                ownerId: '',
+                privacy: '',
+                rules: null,
+                tags: [],
+                // in group
+                initialRoleIds: [],
+                myMember: {
+                    bannedAt: null,
+                    groupId: '',
+                    has2FA: false,
+                    id: '',
+                    isRepresenting: false,
+                    isSubscribedToAnnouncements: false,
+                    joinedAt: '',
+                    managerNotes: '',
+                    membershipStatus: '',
+                    permissions: [],
+                    roleIds: [],
+                    userId: '',
+                    visibility: '',
+                    _created_at: '',
+                    _id: '',
+                    _updated_at: ''
+                },
+                updatedAt: '',
+                // includeRoles: true
+                roles: [],
+                // group list
+                $memberId: '',
+                groupId: '',
+                isRepresenting: false,
+                memberVisibility: false,
+                mutualGroup: false,
+                // VRCX
+                $languages: [],
+                ...json
+            };
+            this.cachedGroups.set(ref.id, ref);
+        } else {
+            if (this.currentUserGroups.has(ref.id)) {
+                // compare group props
+                if (
+                    ref.ownerId &&
+                    json.ownerId &&
+                    ref.ownerId !== json.ownerId
+                ) {
+                    // owner changed
+                    $app.groupOwnerChange(json, ref.ownerId, json.ownerId);
+                }
+                if (ref.name && json.name && ref.name !== json.name) {
+                    // name changed
+                    $app.groupChange(
+                        json,
+                        `Name changed from ${ref.name} to ${json.name}`
+                    );
+                }
+                if (ref.myMember?.roleIds && json.myMember?.roleIds) {
+                    var oldRoleIds = ref.myMember.roleIds;
+                    var newRoleIds = json.myMember.roleIds;
+                    if (
+                        oldRoleIds.length !== newRoleIds.length ||
+                        !oldRoleIds.every(
+                            (value, index) => value === newRoleIds[index]
+                        )
+                    ) {
+                        // roleIds changed
+                        $app.groupRoleChange(
+                            json,
+                            ref.roles,
+                            json.roles,
+                            oldRoleIds,
+                            newRoleIds
+                        );
+                    }
+                }
+            }
+            if (json.myMember) {
+                if (typeof json.myMember.roleIds === 'undefined') {
+                    // keep roleIds
+                    json.myMember.roleIds = ref.myMember.roleIds;
+                }
+                Object.assign(ref.myMember, json.myMember);
+            }
+            Object.assign(ref, json);
+        }
+        // update myMember without fetching member
+        if (typeof json.memberVisibility !== 'undefined') {
+            ref.myMember.visibility = json.memberVisibility;
+        }
+        if (typeof json.isRepresenting !== 'undefined') {
+            ref.myMember.isRepresenting = json.isRepresenting;
+        }
+        if (typeof json.membershipStatus !== 'undefined') {
+            ref.myMember.membershipStatus = json.membershipStatus;
+        }
+        if (typeof json.roleIds !== 'undefined') {
+            ref.myMember.roleIds = json.roleIds;
+        }
+        ref.$url = `https://vrc.group/${ref.shortCode}.${ref.discriminator}`;
+        this.applyGroupLanguage(ref);
+
+        var currentUserGroupRef = this.currentUserGroups.get(ref.id);
+        if (currentUserGroupRef && currentUserGroupRef !== ref) {
+            this.currentUserGroups.set(ref.id, ref);
+        }
+
+        return ref;
+    };
+
+    API.applyGroupMember = function (json) {
+        if (typeof json?.user !== 'undefined') {
+            if (json.userId === this.currentUser.id) {
+                json.user = this.currentUser;
+                json.$displayName = this.currentUser.displayName;
+            } else {
+                var ref = this.cachedUsers.get(json.user.id);
+                if (typeof ref !== 'undefined') {
+                    json.user = ref;
+                    json.$displayName = ref.displayName;
+                } else {
+                    json.$displayName = json.user?.displayName;
+                }
+            }
+        }
+        // update myMember without fetching member
+        if (json?.userId === this.currentUser.id) {
+            var ref = this.cachedGroups.get(json.groupId);
+            if (typeof ref !== 'undefined') {
+                this.$emit('GROUP', {
+                    json: {
+                        ...ref,
+                        memberVisibility: json.visibility,
+                        isRepresenting: json.isRepresenting,
+                        isSubscribedToAnnouncements:
+                            json.isSubscribedToAnnouncements,
+                        joinedAt: json.joinedAt,
+                        roleIds: json.roleIds,
+                        membershipStatus: json.membershipStatus
+                    },
+                    params: {
+                        groupId: json.groupId
+                    }
+                });
+            }
+        }
+
+        return json;
+    };
+
+    API.applyGroupLanguage = function (ref) {
+        ref.$languages = [];
+        var { languages } = ref;
+        if (!languages) {
+            return;
+        }
+        for (var language of languages) {
+            var value = $app.subsetOfLanguages[language];
+            if (typeof value === 'undefined') {
+                continue;
+            }
+            ref.$languages.push({
+                key: language,
+                value
+            });
+        }
+    };
+
+    const _data = {
         currentUserGroupsInit: false,
         // maybe unnecessary
         // groupDialogLastMembers: '',
@@ -517,7 +507,7 @@ export default class extends baseClass {
         }
     };
 
-    _methods = {
+    const _methods = {
         blockGroup(groupId) {
             this.$confirm(
                 'Are you sure you want to block this group?',
@@ -1051,4 +1041,7 @@ export default class extends baseClass {
                 });
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

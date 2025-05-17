@@ -1,4 +1,4 @@
-import { API } from '../baseClass.js';
+import { API } from '../../app';
 
 export default function init() {
     API.getConfig = function () {
