@@ -1,14 +1,8 @@
 import * as workerTimers from 'worker-timers';
 import { groupRequest, worldRequest } from '../api';
-import { $app, API } from '../app.js';
-import { baseClass } from './baseClass.js';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
-
-    _data = {
+export default function init($app, API) {
+    const _data = {
         sharedFeed: {
             gameLog: {
                 wrist: [],
@@ -37,7 +31,7 @@ export default class extends baseClass {
         updateSharedFeedPendingForceUpdate: false
     };
 
-    _methods = {
+    const _methods = {
         updateSharedFeed(forceUpdate) {
             if (!this.friendLogInitStatus) {
                 return;
@@ -77,11 +71,11 @@ export default class extends baseClass {
             this.updateSharedFeedNotificationTable(forceUpdate);
             this.updateSharedFeedFriendLogTable(forceUpdate);
             this.updateSharedFeedModerationAgainstTable(forceUpdate);
-            var feeds = this.sharedFeed;
+            const feeds = this.sharedFeed;
             if (!feeds.pendingUpdate) {
                 return;
             }
-            var wristFeed = [];
+            let wristFeed = [];
             wristFeed = wristFeed.concat(
                 feeds.gameLog.wrist,
                 feeds.feedTable.wrist,
@@ -91,7 +85,7 @@ export default class extends baseClass {
             );
             // OnPlayerJoining/Traveling
             API.currentTravelers.forEach((ref) => {
-                var isFavorite = this.localFavoriteFriends.has(ref.id);
+                const isFavorite = this.localFavoriteFriends.has(ref.id);
                 if (
                     (this.sharedFeedFilters.wrist.OnPlayerJoining ===
                         'Friends' ||
@@ -109,12 +103,12 @@ export default class extends baseClass {
                         };
                         wristFeed.unshift(feedEntry);
                     } else {
-                        var worldRef = API.cachedWorlds.get(
+                        const worldRef = API.cachedWorlds.get(
                             ref.$location.worldId
                         );
-                        var groupName = '';
+                        let groupName = '';
                         if (ref.$location.groupId) {
-                            var groupRef = API.cachedGroups.get(
+                            const groupRef = API.cachedGroups.get(
                                 ref.$location.groupId
                             );
                             if (typeof groupRef !== 'undefined') {
@@ -198,7 +192,7 @@ export default class extends baseClass {
 
         updateSharedFeedGameLog(forceUpdate) {
             // Location, OnPlayerJoined, OnPlayerLeft
-            var sessionTable = this.gameLogSessionTable;
+            const sessionTable = this.gameLogSessionTable;
             var i = sessionTable.length;
             if (i > 0) {
                 if (
@@ -213,14 +207,14 @@ export default class extends baseClass {
             } else {
                 return;
             }
-            var bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
-            var wristArr = [];
-            var w = 0;
-            var wristFilter = this.sharedFeedFilters.wrist;
-            var currentUserLeaveTime = 0;
-            var locationJoinTime = 0;
+            const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
+            const wristArr = [];
+            let w = 0;
+            const wristFilter = this.sharedFeedFilters.wrist;
+            let currentUserLeaveTime = 0;
+            let locationJoinTime = 0;
             for (var i = sessionTable.length - 1; i > -1; i--) {
-                var ctx = sessionTable[i];
+                const ctx = sessionTable[i];
                 if (ctx.created_at < bias) {
                     break;
                 }
@@ -230,7 +224,7 @@ export default class extends baseClass {
                 // on Location change remove OnPlayerLeft
                 if (ctx.type === 'LocationDestination') {
                     currentUserLeaveTime = Date.parse(ctx.created_at);
-                    var currentUserLeaveTimeOffset =
+                    const currentUserLeaveTimeOffset =
                         currentUserLeaveTime + 5 * 1000;
                     for (var k = w - 1; k > -1; k--) {
                         var feedItem = wristArr[k];
@@ -251,7 +245,7 @@ export default class extends baseClass {
                 // on Location change remove OnPlayerJoined
                 if (ctx.type === 'Location') {
                     locationJoinTime = Date.parse(ctx.created_at);
-                    var locationJoinTimeOffset = locationJoinTime + 20 * 1000;
+                    const locationJoinTimeOffset = locationJoinTime + 20 * 1000;
                     for (var k = w - 1; k > -1; k--) {
                         var feedItem = wristArr[k];
                         if (
@@ -277,8 +271,8 @@ export default class extends baseClass {
                 ) {
                     continue;
                 }
-                var isFriend = false;
-                var isFavorite = false;
+                let isFriend = false;
+                let isFavorite = false;
                 if (ctx.userId) {
                     isFriend = this.friends.has(ctx.userId);
                     isFavorite = this.localFavoriteFriends.has(ctx.userId);
@@ -292,9 +286,9 @@ export default class extends baseClass {
                     }
                 }
                 // add tag colour
-                var tagColour = '';
+                let tagColour = '';
                 if (ctx.userId) {
-                    var tagRef = this.customUserTags.get(ctx.userId);
+                    const tagRef = this.customUserTags.get(ctx.userId);
                     if (typeof tagRef !== 'undefined') {
                         tagColour = tagRef.colour;
                     }
@@ -320,7 +314,7 @@ export default class extends baseClass {
                             continue;
                         }
 
-                        var entry = {
+                        const entry = {
                             created_at: ctx.created_at,
                             type,
                             displayName: ref.targetDisplayName,
@@ -366,7 +360,7 @@ export default class extends baseClass {
 
         updateSharedFeedFeedTable(forceUpdate) {
             // GPS, Online, Offline, Status, Avatar
-            var feedSession = this.feedSessionTable;
+            const feedSession = this.feedSessionTable;
             var i = feedSession.length;
             if (i > 0) {
                 if (
@@ -381,12 +375,12 @@ export default class extends baseClass {
             } else {
                 return;
             }
-            var bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
-            var wristArr = [];
-            var w = 0;
-            var wristFilter = this.sharedFeedFilters.wrist;
+            const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
+            const wristArr = [];
+            let w = 0;
+            const wristFilter = this.sharedFeedFilters.wrist;
             for (var i = feedSession.length - 1; i > -1; i--) {
-                var ctx = feedSession[i];
+                const ctx = feedSession[i];
                 if (ctx.created_at < bias) {
                     break;
                 }
@@ -401,8 +395,8 @@ export default class extends baseClass {
                 ) {
                     continue;
                 }
-                var isFriend = this.friends.has(ctx.userId);
-                var isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFriend = this.friends.has(ctx.userId);
+                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 if (
                     w < 20 &&
                     wristFilter[ctx.type] &&
@@ -423,7 +417,7 @@ export default class extends baseClass {
 
         updateSharedFeedNotificationTable(forceUpdate) {
             // invite, requestInvite, requestInviteResponse, inviteResponse, friendRequest
-            var notificationTable = this.notificationTable.data;
+            const notificationTable = this.notificationTable.data;
             var i = notificationTable.length;
             if (i > 0) {
                 if (
@@ -438,20 +432,20 @@ export default class extends baseClass {
             } else {
                 return;
             }
-            var bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
-            var wristArr = [];
-            var w = 0;
-            var wristFilter = this.sharedFeedFilters.wrist;
+            const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
+            const wristArr = [];
+            let w = 0;
+            const wristFilter = this.sharedFeedFilters.wrist;
             for (var i = notificationTable.length - 1; i > -1; i--) {
-                var ctx = notificationTable[i];
+                const ctx = notificationTable[i];
                 if (ctx.created_at < bias) {
                     break;
                 }
                 if (ctx.senderUserId === API.currentUser.id) {
                     continue;
                 }
-                var isFriend = this.friends.has(ctx.senderUserId);
-                var isFavorite = this.localFavoriteFriends.has(
+                const isFriend = this.friends.has(ctx.senderUserId);
+                const isFavorite = this.localFavoriteFriends.has(
                     ctx.senderUserId
                 );
                 if (
@@ -475,7 +469,7 @@ export default class extends baseClass {
 
         updateSharedFeedFriendLogTable(forceUpdate) {
             // TrustLevel, Friend, FriendRequest, Unfriend, DisplayName
-            var friendLog = this.friendLogTable.data;
+            const friendLog = this.friendLogTable.data;
             var i = friendLog.length;
             if (i > 0) {
                 if (
@@ -490,20 +484,20 @@ export default class extends baseClass {
             } else {
                 return;
             }
-            var bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
-            var wristArr = [];
-            var w = 0;
-            var wristFilter = this.sharedFeedFilters.wrist;
+            const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
+            const wristArr = [];
+            let w = 0;
+            const wristFilter = this.sharedFeedFilters.wrist;
             for (var i = friendLog.length - 1; i > -1; i--) {
-                var ctx = friendLog[i];
+                const ctx = friendLog[i];
                 if (ctx.created_at < bias) {
                     break;
                 }
                 if (ctx.type === 'FriendRequest') {
                     continue;
                 }
-                var isFriend = this.friends.has(ctx.userId);
-                var isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFriend = this.friends.has(ctx.userId);
+                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 if (
                     w < 20 &&
                     wristFilter[ctx.type] &&
@@ -525,7 +519,7 @@ export default class extends baseClass {
 
         updateSharedFeedModerationAgainstTable(forceUpdate) {
             // Unblocked, Blocked, Muted, Unmuted
-            var moderationAgainst = this.moderationAgainstTable;
+            const moderationAgainst = this.moderationAgainstTable;
             var i = moderationAgainst.length;
             if (i > 0) {
                 if (
@@ -540,20 +534,20 @@ export default class extends baseClass {
             } else {
                 return;
             }
-            var bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
-            var wristArr = [];
-            var w = 0;
-            var wristFilter = this.sharedFeedFilters.wrist;
+            const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
+            const wristArr = [];
+            let w = 0;
+            const wristFilter = this.sharedFeedFilters.wrist;
             for (var i = moderationAgainst.length - 1; i > -1; i--) {
-                var ctx = moderationAgainst[i];
+                const ctx = moderationAgainst[i];
                 if (ctx.created_at < bias) {
                     break;
                 }
-                var isFriend = this.friends.has(ctx.userId);
-                var isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFriend = this.friends.has(ctx.userId);
+                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 // add tag colour
-                var tagColour = '';
-                var tagRef = this.customUserTags.get(ctx.userId);
+                let tagColour = '';
+                const tagRef = this.customUserTags.get(ctx.userId);
                 if (typeof tagRef !== 'undefined') {
                     tagColour = tagRef.colour;
                 }
@@ -575,4 +569,7 @@ export default class extends baseClass {
             this.sharedFeed.pendingUpdate = true;
         }
     };
+
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

@@ -63,7 +63,7 @@ import _prompts from './classes/prompts.js';
 import _restoreFriendOrder from './classes/restoreFriendOrder.js';
 
 // main app classes
-import _sharedFeed from './classes/sharedFeed.js';
+import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import _updateLoop from './classes/updateLoop.js';
 import _vrcRegistry from './classes/vrcRegistry.js';
@@ -241,7 +241,7 @@ pinia.use(() => ({ i18n }));
 
 // everything in this program is global stored in $app, I hate it, it is what it is
 let $app = {};
-// const API = new _apiInit($app);
+
 // eslint-disable-next-line no-unused-vars
 const vrcxJsonStorage = new _vrcxJsonStorage(VRCXStorage);
 
@@ -254,7 +254,7 @@ const vrcxClasses = {
     // uiComponents: new _uiComponents($app, API, $t),
     // webSocket: new _websocket($app, API, $t),
     // main classes
-    sharedFeed: new _sharedFeed($app, API, $t),
+    // sharedFeed: new sharedFeed($app, API, $t),
     prompts: new _prompts($app, API, $t),
     vrcxNotifications: new _vrcxNotifications($app, API, $t),
     // apiLogin: new _apiLogin($app, API, $t, webApiService),
@@ -990,6 +990,7 @@ websocket(API);
 uiComponents();
 apiLogin(app, API);
 apiRequestHandler(API);
+sharedFeed(app, API);
 
 for (const value of Object.values(vrcxClasses)) {
     app.methods = { ...app.methods, ...value._methods };
