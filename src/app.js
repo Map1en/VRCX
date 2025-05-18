@@ -154,6 +154,7 @@ import FeedTab from './views/Feed/Feed.vue';
 import FriendListTab from './views/FriendList/FriendList.vue';
 import FriendLogTab from './views/FriendLog/FriendLog.vue';
 import GameLogTab from './views/GameLog/GameLog.vue';
+import SettingsTab from './views/Settings/Settings.vue';
 
 import LoginPage from './views/Login/Login.vue';
 
@@ -806,6 +807,7 @@ const app = {
         FeedTab,
         ProfileTab,
         PlayerListTab,
+        SettingsTab,
 
         // components
         // - common
@@ -12744,6 +12746,66 @@ $app.computed.loginPageEvent = function () {
         deleteSavedLogin: this.deleteSavedLogin,
         login: this.login,
         relogin: this.relogin
+    };
+};
+
+$app.computed.settingsTabBind = function () {
+    return {
+        menuActiveIndex: this.menuActiveIndex,
+        zoomLevel: this.zoomLevel,
+        getTTSVoiceName: this.getTTSVoiceName,
+        TTSvoices: this.TTSvoices,
+        notificationTTSTest: this.notificationTTSTest,
+        ugcFolderPath: this.ugcFolderPath,
+        notificationPosition: this.notificationPosition,
+        currentlyDroppingFile: this.currentlyDroppingFile,
+        fullscreenImageDialog: this.fullscreenImageDialog,
+        backupVrcRegistry: this.backupVrcRegistry,
+        lookupYouTubeVideo: this.lookupYouTubeVideo,
+        youTubeApiKey: this.youTubeApiKey,
+        isTestTTSVisible: this.isTestTTSVisible
+    };
+};
+
+$app.computed.settingsTabEvent = function () {
+    return {
+        lookupUser: this.lookupUser,
+        changeNotificationPosition: this.changeNotificationPosition,
+        saveVRCXWindowOption: this.saveVRCXWindowOption,
+        promptProxySettings: this.promptProxySettings,
+        saveOpenVROption: this.saveOpenVROption,
+        changeAppLanguage: this.changeAppLanguage,
+        saveThemeMode: this.saveThemeMode,
+        setZoomLevel: this.setZoomLevel,
+        saveSortFavoritesOption: this.saveSortFavoritesOption,
+        promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
+        saveSidebarSortOrder: this.saveSidebarSortOrder,
+        updateTrustColor: this.updateTrustColor,
+        promptNotificationTimeout: this.promptNotificationTimeout,
+        saveNotificationTTS: this.saveNotificationTTS,
+        changeTTSVoice: this.changeTTSVoice,
+        testNotificationTTS: this.testNotificationTTS,
+        saveDiscordOption: this.saveDiscordOption,
+        showVRChatConfig: this.showVRChatConfig,
+        enablePrimaryPasswordChange: this.enablePrimaryPasswordChange,
+        openUGCFolder: this.openUGCFolder,
+        openUGCFolderSelector: this.openUGCFolderSelector,
+        resetUGCFolder: this.resetUGCFolder,
+        changeYouTubeApi: this.changeYouTubeApi,
+        saveEventOverlay: this.saveEventOverlay,
+        promptPhotonOverlayMessageTimeout:
+            this.promptPhotonOverlayMessageTimeout,
+        photonEventTableFilterChange: this.photonEventTableFilterChange,
+        promptPhotonLobbyTimeoutThreshold:
+            this.promptPhotonLobbyTimeoutThreshold,
+        disableGameLogDialog: this.disableGameLogDialog,
+        clearVRCXCache: this.clearVRCXCache,
+        promptAutoClearVRCXCacheFrequency:
+            this.promptAutoClearVRCXCacheFrequency,
+        showConsole: this.showConsole,
+        showLaunchOptions: this.showLaunchOptions,
+        handleSetTablePageSize: this.handleSetTablePageSize,
+        showAvatarProviderDialog: this.showAvatarProviderDialog
     };
 };
 

@@ -154,19 +154,9 @@ mixin dialogs
 
     LaunchOptionsDialog(:isLaunchOptionsDialogVisible.sync='isLaunchOptionsDialogVisible')
 
-    OpenSourceSoftwareNoticeDialog(:ossDialog.sync='ossDialog')
-
     ChangelogDialog(:changeLogDialog.sync='changeLogDialog')
 
-    ScreenshotMetadataDialog(
-        :screenshotMetadataDialog='screenshotMetadataDialog'
-        :currentlyDroppingFile='currentlyDroppingFile'
-        :fullscreenImageDialog='fullscreenImageDialog'
-        @lookupUser='lookupUser')
-
     EditInviteMessageDialog(:editInviteMessageDialog.sync='editInviteMessageDialog')
-
-    NoteExportDialog(:isNoteExportDialogVisible.sync='isNoteExportDialogVisible' :friends='friends')
 
     VRChatConfigDialog(
         :isVRChatConfigDialogVisible.sync='isVRChatConfigDialogVisible'
@@ -177,25 +167,11 @@ mixin dialogs
         @getVRChatCacheSize='getVRChatCacheSize'
         @sweepVRChatCache='sweepVRChatCache')
 
-    YouTubeApiDialog(
-        :isYouTubeApiDialogVisible.sync='isYouTubeApiDialogVisible'
-        :lookupYouTubeVideo='lookupYouTubeVideo'
-        :youTubeApiKey.sync='youTubeApiKey')
-
-    NotificationPositionDialog(
-        :isNotificationPositionDialogVisible.sync='isNotificationPositionDialogVisible'
-        :notificationPosition.sync='notificationPosition'
-        @changeNotificationPosition='changeNotificationPosition')
-
     AvatarProviderDialog(
         :isAvatarProviderDialogVisible.sync='isAvatarProviderDialogVisible'
         :avatarRemoteDatabaseProviderList='avatarRemoteDatabaseProviderList'
         @saveAvatarProviderList='saveAvatarProviderList'
         @removeAvatarProvider='removeAvatarProvider')
-
-    RegistryBackupDialog(
-        :isRegistryBackupDialogVisible.sync='isRegistryBackupDialogVisible'
-        :backupVrcRegistry='backupVrcRegistry')
 
     PrimaryPasswordDialog(
         :enablePrimaryPasswordDialog.sync='enablePrimaryPasswordDialog'

@@ -310,13 +310,13 @@
                         <el-dropdown trigger="click" size="small" @click.native.stop>
                             <el-button size="mini">
                                 <span
-                                    >{{ i18n.messages[appLanguage]?.language }}
+                                    >{{ messages[appLanguage]?.language }}
                                     <i class="el-icon-arrow-down el-icon--right"></i
                                 ></span>
                             </el-button>
                             <el-dropdown-menu>
                                 <el-dropdown-item
-                                    v-for="(obj, language) in i18n.messages"
+                                    v-for="(obj, language) in messages"
                                     :key="language"
                                     @click.native="changeAppLanguage(language)"
                                     v-text="obj.language" />
@@ -1838,7 +1838,8 @@
     import ScreenshotMetadataDialog from './dialogs/ScreenshotMetadataDialog.vue';
     import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
     import YouTubeApiDialog from './dialogs/YouTubeApiDialog.vue';
-    const { i18n } = useI18n();
+
+    const { messages, t } = useI18n();
 
     const { $message } = getCurrentInstance().proxy;
 
@@ -2062,8 +2063,6 @@
     const friendStore = useFriendStore();
     const { updateLocalFavoriteFriends } = friendStore;
 
-    const { t } = useI18n();
-
     const API = inject('API');
     const openExternalLink = inject('openExternalLink');
 
@@ -2115,8 +2114,49 @@
         youTubeApiKey: {
             type: String,
             default: ''
+        },
+        isTestTTSVisible: {
+            type: Boolean,
+            default: false
         }
     });
+
+    const emit = defineEmits([
+        'lookupUser',
+        'changeNotificationPosition',
+        'saveVRCXWindowOption',
+        'promptProxySettings',
+        'saveOpenVROption',
+        'changeAppLanguage',
+        'saveThemeMode',
+        'setZoomLevel',
+        'saveSortFavoritesOption',
+        'promptMaxTableSizeDialog',
+        'saveSidebarSortOrder',
+        'updateTrustColor',
+        'promptNotificationTimeout',
+        'saveNotificationTTS',
+        'changeTTSVoice',
+        'testNotificationTTS',
+        'saveDiscordOption',
+        'showVRChatConfig',
+        'enablePrimaryPasswordChange',
+        'openUGCFolder',
+        'openUGCFolderSelector',
+        'resetUGCFolder',
+        'changeYouTubeApi',
+        'saveEventOverlay',
+        'promptPhotonOverlayMessageTimeout',
+        'photonEventTableFilterChange',
+        'promptPhotonLobbyTimeoutThreshold',
+        'disableGameLogDialog',
+        'clearVRCXCache',
+        'promptAutoClearVRCXCacheFrequency',
+        'showConsole',
+        'showLaunchOptions',
+        'handleSetTablePageSize',
+        'showAvatarProviderDialog'
+    ]);
 
     const instanceTypes = ref([
         'invite',
@@ -2129,14 +2169,11 @@
         'groupOnly'
     ]);
 
-    const emit = defineEmits([]);
-
     const ossDialog = ref(false);
     const isNoteExportDialogVisible = ref(false);
     const feedFiltersDialogMode = ref('');
     const isNotificationPositionDialogVisible = ref(false);
 
-    const screenshotMetadataDialog = ref(false);
     const isRegistryBackupDialogVisible = ref(false);
     const isYouTubeApiDialogVisible = ref(false);
     const screenshotMetadataDialog = ref({

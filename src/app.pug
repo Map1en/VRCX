@@ -32,9 +32,7 @@ doctype html
         KeepAlive
             ChartsTab(v-if='menuActiveIndex === "charts"' v-bind='chartsTabBind' v-on='chartsTabEvent')
 
-        //- settings
-        include ./mixins/tabs/settings.pug
-        +settingsTab
+        SettingsTab(v-bind='settingsTabBind' v-on='settingsTabEvent')
 
         SideBar(v-bind='sideBarTabBind' v-on='sideBarTabEvent')
 
