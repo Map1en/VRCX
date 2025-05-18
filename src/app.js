@@ -11165,6 +11165,7 @@ $app.methods.showFriendImportDialog = function () {
 // #endregion
 // #region | App: note export
 
+// todo : del
 $app.data.isNoteExportDialogVisible = false;
 
 $app.methods.showNoteExportDialog = function () {

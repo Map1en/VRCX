@@ -88,11 +88,13 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { miscRequest } from '../../../api';
     import { removeFromArray } from '../../../shared/utils';
+    import { useFriendStore } from '../../../stores/friend';
 
     const { t } = useI18n();
 
@@ -101,13 +103,12 @@
     const showUserDialog = inject('showUserDialog');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
+    const friendStore = useFriendStore();
+    const { friends } = storeToRefs(friendStore);
+
     const props = defineProps({
         isNoteExportDialogVisible: {
             type: Boolean
-        },
-        friends: {
-            type: Map,
-            default: () => new Map()
         }
     });
 

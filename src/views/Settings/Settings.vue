@@ -378,7 +378,7 @@
                             size="small"
                             :precision="0"
                             style="width: 128px"
-                            @change="setZoomLevel"></el-input-number>
+                            @change="setZoomLevel" />
                     </div>
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.vrcplus_profile_icons')"
@@ -404,7 +404,7 @@
                     <simple-switch
                         :label="t('view.settings.appearance.appearance.age_gated_instances')"
                         :value="isAgeGatedInstancesVisible"
-                        @change="setIsAgeGatedInstancesVisible"></simple-switch>
+                        @change="setIsAgeGatedInstancesVisible" />
                     <div class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.appearance.sort_favorite_by') }}</span>
                         <el-radio-group :value="sortFavorites" @change="saveSortFavoritesOption">
@@ -449,7 +449,7 @@
                                     v-for="number in [10, 15, 20, 25, 50, 100]"
                                     :key="number"
                                     @click.native="handleSetTablePageSize(number)"
-                                    v-text="number"></el-dropdown-item>
+                                    v-text="number" />
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
@@ -477,7 +477,7 @@
                     <simple-switch
                         :label="t('view.settings.appearance.timedate.force_iso_date_format')"
                         :value="dtIsoFormat"
-                        @change="setDtIsoFormat"></simple-switch>
+                        @change="setDtIsoFormat" />
                 </div>
                 <!--//- Appearance | Side Panel-->
                 <div class="options-container">
@@ -581,31 +581,31 @@
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.alphabetical')"
-                                    value="Sort Alphabetically"></el-option>
+                                    value="Sort Alphabetically" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.status')"
-                                    value="Sort by Status"></el-option>
+                                    value="Sort by Status" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.private_to_bottom')"
-                                    value="Sort Private to Bottom"></el-option>
+                                    value="Sort Private to Bottom" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.last_active')"
-                                    value="Sort by Last Active"></el-option>
+                                    value="Sort by Last Active" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.last_seen')"
-                                    value="Sort by Last Seen"></el-option>
+                                    value="Sort by Last Seen" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.time_in_instance')"
-                                    value="Sort by Time in Instance"></el-option>
+                                    value="Sort by Time in Instance" />
                                 <el-option
                                     class="x-friend-item"
                                     :label="t('view.settings.appearance.side_panel.sorting.location')"
-                                    value="Sort by Location"></el-option>
+                                    value="Sort by Location" />
                             </el-option-group>
                         </el-select>
                     </div>
@@ -1791,6 +1791,7 @@
             </el-tab-pane>
         </el-tabs>
         <OpenSourceSoftwareNoticeDialog :ossDialog.sync="ossDialog" />
+        <NoteExportDialog :isNoteExportDialogVisible.sync="isNoteExportDialogVisible" />
     </div>
 </template>
 
@@ -1816,6 +1817,7 @@
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
+    import NoteExportDialog from './dialogs/NoteExportDialog.vue';
 
     const { i18n } = useI18n();
 
@@ -2090,6 +2092,7 @@
     const emit = defineEmits([]);
 
     const ossDialog = ref(false);
+    const isNoteExportDialogVisible = ref(false);
 
     function isLinux() {
         return LINUX;
@@ -2119,15 +2122,15 @@
     }
 
     function changeAppLanguage() {
-        // Function to change the app language
+        emit('changeAppLanguage');
     }
 
     function saveThemeMode() {
-        // Function to save the theme mode
+        emit('saveThemeMode');
     }
 
     function setZoomLevel() {
-        // Function to set the zoom level
+        emit('setZoomLevel');
     }
 
     function toggleIsAgeGatedInstancesVisible() {
@@ -2139,7 +2142,7 @@
     }
 
     function promptMaxTableSizeDialog() {
-        // Function to prompt for the maximum table size
+        emit('promptMaxTableSizeDialog');
     }
 
     function setTablePageSize() {
@@ -2151,7 +2154,7 @@
     }
 
     function saveSidebarSortOrder() {
-        // Function to save the sidebar sort order
+        emit('saveSidebarSortOrder');
     }
 
     function toggleGroupByInstance() {
@@ -2171,7 +2174,7 @@
     }
 
     function showNoteExportDialog() {
-        // Function to show the note export dialog
+        isNoteExportDialogVisible.value = true;
     }
 
     function saveFriendLogOptions() {
@@ -2327,7 +2330,7 @@
     }
 
     function handleSetTablePageSize() {
-        // setTablePageSize(tablePageSize);
+        emit('handleSetTablePageSize');
     }
 
     function openOSSDialog() {
