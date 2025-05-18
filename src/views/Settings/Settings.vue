@@ -854,7 +854,7 @@
                             @change="
                                 setXsNotifications();
                                 saveOpenVROption();
-                            "></simple-switch>
+                            " />
                     </template>
                     <simple-switch
                         :label="
@@ -998,7 +998,7 @@
                                     v-if="voice"
                                     :key="index"
                                     :command="index"
-                                    v-text="voice.name"></el-dropdown-item>
+                                    v-text="voice.name" />
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
@@ -1384,7 +1384,7 @@
                         @change="
                             setCropInstancePrints();
                             saveVRCXWindowOption('VRCX_cropInstancePrints');
-                        "></simple-switch>
+                        " />
                     <br />
                     <span class="sub-header">{{
                         t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
@@ -1485,7 +1485,7 @@
                         :value="youTubeApi"
                         :tooltip="t('view.settings.advanced.advanced.youtube_api.enable_tooltip')"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_youtubeAPI')"></simple-switch>
+                        @change="changeYouTubeApi('VRCX_youtubeAPI')"/>
                     <div class="options-container-item">
                         <el-button size="small" icon="el-icon-caret-right" @click="showYouTubeApiDialog">{{
                             t('view.settings.advanced.advanced.youtube_api.youtube_api_key')
@@ -1501,13 +1501,13 @@
                         :disabled="!openVR"
                         :tooltip="t('view.settings.advanced.advanced.video_progress_pie.enable_tooltip')"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_progressPie')"></simple-switch>
+                        @change="changeYouTubeApi('VRCX_progressPie')"/>
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.video_progress_pie.dance_world_only')"
                         :value="progressPieFilter"
                         :disabled="!openVR"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_progressPieFilter')"></simple-switch>
+                        @change="changeYouTubeApi('VRCX_progressPieFilter')"/>
                 </div>
 
                 <div class="options-container">
@@ -1792,6 +1792,18 @@
         </el-tabs>
         <OpenSourceSoftwareNoticeDialog :ossDialog.sync="ossDialog" />
         <NoteExportDialog :isNoteExportDialogVisible.sync="isNoteExportDialogVisible" />
+        <NotificationPositionDialog
+            :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible"
+            :notificationPosition.sync="notificationPosition"
+            @changeNotificationPosition="changeNotificationPosition" />
+        <ScreenshotMetadataDialog
+            :screenshotMetadataDialog="screenshotMetadataDialog"
+            :currentlyDroppingFile="currentlyDroppingFile"
+            :fullscreenImageDialog="fullscreenImageDialog"
+            @lookupUser="lookupUser" />
+        <RegistryBackupDialog
+            :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
+            :backupVrcRegistry="backupVrcRegistry" />
     </div>
 </template>
 
@@ -1803,8 +1815,9 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref } from 'vue';
+    import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { $app } from '../../app';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
@@ -1818,8 +1831,13 @@
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
     import NoteExportDialog from './dialogs/NoteExportDialog.vue';
+    import NotificationPositionDialog from './dialogs/NotificationPositionDialog.vue';
+    import ScreenshotMetadataDialog from './dialogs/ScreenshotMetadataDialog.vue';
+    import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
 
     const { i18n } = useI18n();
+
+    const { $message } = getCurrentInstance().proxy;
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
     const generalSettingsStore = useGeneralSettingsStore();
@@ -2093,9 +2111,21 @@
 
     const ossDialog = ref(false);
     const isNoteExportDialogVisible = ref(false);
+    const feedFiltersDialogMode = ref('');
+    const isNotificationPositionDialogVisible = ref(false);
+
+    const screenshotMetadataDialog = ref(false);
+    const isRegistryBackupDialogVisible = ref(false);
 
     function isLinux() {
         return LINUX;
+    }
+
+    function showNotyFeedFiltersDialog() {
+        feedFiltersDialogMode.value = 'noty';
+    }
+    function showWristFeedFiltersDialog() {
+        feedFiltersDialogMode.value = 'wrist';
     }
 
     function saveVRCXWindowOption(option) {
@@ -2190,26 +2220,22 @@
     }
 
     function showNotificationPositionDialog() {
-        // Function to show the notification position dialog
+        isNotificationPositionDialogVisible.value = true;
     }
 
     function promptNotificationTimeout() {
-        // Function to prompt for the notification timeout
+        emit('promptNotificationTimeout');
     }
     function saveNotificationTTS() {
         // Function to save the notification TTS option
     }
 
     function changeTTSVoice() {
-        // Function to change the TTS voice
+        emit('changeTTSVoice');
     }
 
     function testNotificationTTS() {
-        // Function to test the notification TTS
-    }
-
-    function showWristFeedFiltersDialog() {
-        // Function to show the wrist feed filters dialog
+        emit('testNotificationTTS');
     }
 
     function saveDiscordOption() {
@@ -2217,7 +2243,7 @@
     }
 
     function showVRChatConfig() {
-        // Function to show the VRChat config
+        emit('showVRChatConfig');
     }
 
     function showScreenshotMetadataDialog() {
@@ -2225,15 +2251,87 @@
     }
 
     function showRegistryBackupDialog() {
-        // Function to show the registry backup dialog
+        isRegistryBackupDialogVisible.value = true;
     }
 
     function openVrcxAppDataFolder() {
-        // Function to open the VRCX app data folder
+        AppApi.OpenVrcxAppDataFolder().then((result) => {
+            if (result) {
+                $message({
+                    message: 'Folder opened',
+                    type: 'success'
+                });
+            } else {
+                $message({
+                    message: "Folder dosn't exist",
+                    type: 'error'
+                });
+            }
+        });
     }
 
     function openVrcAppDataFolder() {
-        // Function to open the VRChat app data folder
+        AppApi.OpenVrcAppDataFolder().then((result) => {
+            if (result) {
+                $message({
+                    message: 'Folder opened',
+                    type: 'success'
+                });
+            } else {
+                $message({
+                    message: "Folder dosn't exist",
+                    type: 'error'
+                });
+            }
+        });
+    }
+
+    function openVrcPhotosFolder() {
+        AppApi.OpenVrcPhotosFolder().then((result) => {
+            if (result) {
+                $message({
+                    message: 'Folder opened',
+                    type: 'success'
+                });
+            } else {
+                $message({
+                    message: "Folder dosn't exist",
+                    type: 'error'
+                });
+            }
+        });
+    }
+
+    function openVrcScreenshotsFolder() {
+        AppApi.OpenVrcScreenshotsFolder().then((result) => {
+            if (result) {
+                $message({
+                    message: 'Folder opened',
+                    type: 'success'
+                });
+            } else {
+                $message({
+                    message: "Folder dosn't exist",
+                    type: 'error'
+                });
+            }
+        });
+    }
+
+    function openCrashVrcCrashDumps() {
+        AppApi.OpenCrashVrcCrashDumps().then((result) => {
+            if (result) {
+                $message({
+                    message: 'Folder opened',
+                    type: 'success'
+                });
+            } else {
+                $message({
+                    message: "Folder dosn't exist",
+                    type: 'error'
+                });
+            }
+        });
     }
 
     function openVrcPhotosFolder() {
@@ -2249,35 +2347,31 @@
     }
 
     function enablePrimaryPasswordChange() {
-        // Function to enable the primary password change
+        emit('enablePrimaryPasswordChange');
     }
 
     function openUGCFolder() {
-        // Function to open the UGC folder
+        emit('openUGCFolder');
     }
 
     function openUGCFolderSelector() {
-        // Function to open the UGC folder selector
+        emit('openUGCFolderSelector');
     }
 
     function resetUGCFolder() {
-        // Function to reset the UGC folder
+        emit('resetUGCFolder');
     }
 
     function showAvatarProviderDialog() {
-        // Function to show the avatar provider dialog
+        emit('showAvatarProviderDialog');
     }
 
     function openShortcutFolder() {
-        // Function to open the shortcut folder
-    }
-
-    function updateAppLauncherSettings() {
-        // Function to update the app launcher settings
+        AppApi.OpenShortcutFolder();
     }
 
     function changeYouTubeApi() {
-        // Function to change the YouTube API settings
+        emit('changeYouTubeApi');
     }
 
     function showYouTubeApiDialog() {
@@ -2289,7 +2383,7 @@
     }
 
     function promptPhotonOverlayMessageTimeout() {
-        // Function to prompt for the photon overlay message timeout
+        emit('promptPhotonOverlayMessageTimeout')
     }
 
     function photonEventTableFilterChange() {
@@ -2297,7 +2391,7 @@
     }
 
     function promptPhotonLobbyTimeoutThreshold() {
-        // Function to prompt for the photon lobby timeout threshold
+        emit('promptPhotonLobbyTimeoutThreshold');
     }
 
     function disableGameLogDialog() {
@@ -2316,17 +2410,8 @@
         // Function to show the console
     }
 
-    function saveAutoUpdateVRCX(value) {
-        if (value === 'Off') {
-            // todo
-            this.pendingVRCXUpdate = false;
-        }
-        setAutoUpdateVRCX(value);
-    }
-
     function showLaunchOptions() {
         emit('showLaunchOptions');
-        // Function to show the launch options
     }
 
     function handleSetTablePageSize() {

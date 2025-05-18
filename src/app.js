@@ -6469,6 +6469,7 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
     this.updateVRConfigVars();
 };
 
+// todo :del
 $app.data.isRegistryBackupDialogVisible = false;
 
 $app.methods.showRegistryBackupDialog = function () {
@@ -9268,6 +9269,7 @@ $app.methods.showLaunchOptions = function () {
 // #endregion
 // #region | App: Notification position
 
+// todo: del
 $app.data.isNotificationPositionDialogVisible = false;
 
 $app.methods.showNotificationPositionDialog = function () {
@@ -9278,6 +9280,7 @@ $app.methods.showNotificationPositionDialog = function () {
 // #region | App: Noty feed filters
 // #region | App: Wrist feed filters
 
+// todo: del
 $app.data.feedFiltersDialogMode = '';
 
 $app.methods.showNotyFeedFiltersDialog = function () {
@@ -9708,9 +9711,9 @@ $app.methods.showVRChatConfig = async function () {
 
 // Auto Launch Shortcuts
 
-$app.methods.openShortcutFolder = function () {
-    AppApi.OpenShortcutFolder();
-};
+// $app.methods.openShortcutFolder = function () {
+//     AppApi.OpenShortcutFolder();
+// };
 
 // Screenshot Helper
 
@@ -9762,6 +9765,7 @@ $app.data.screenshotMetadataDialog = {
     isUploading: false
 };
 
+// todo :del
 $app.methods.showScreenshotMetadataDialog = function () {
     this.screenshotMetadataDialog.visible = true;
 };
@@ -12270,85 +12274,85 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 // #endregion
 // #region | Open common folders
 
-$app.methods.openVrcxAppDataFolder = function () {
-    AppApi.OpenVrcxAppDataFolder().then((result) => {
-        if (result) {
-            this.$message({
-                message: 'Folder opened',
-                type: 'success'
-            });
-        } else {
-            this.$message({
-                message: "Folder dosn't exist",
-                type: 'error'
-            });
-        }
-    });
-};
+// $app.methods.openVrcxAppDataFolder = function () {
+//     AppApi.OpenVrcxAppDataFolder().then((result) => {
+//         if (result) {
+//             this.$message({
+//                 message: 'Folder opened',
+//                 type: 'success'
+//             });
+//         } else {
+//             this.$message({
+//                 message: "Folder dosn't exist",
+//                 type: 'error'
+//             });
+//         }
+//     });
+// };
+//
+// $app.methods.openVrcAppDataFolder = function () {
+//     AppApi.OpenVrcAppDataFolder().then((result) => {
+//         if (result) {
+//             this.$message({
+//                 message: 'Folder opened',
+//                 type: 'success'
+//             });
+//         } else {
+//             this.$message({
+//                 message: "Folder dosn't exist",
+//                 type: 'error'
+//             });
+//         }
+//     });
+// };
 
-$app.methods.openVrcAppDataFolder = function () {
-    AppApi.OpenVrcAppDataFolder().then((result) => {
-        if (result) {
-            this.$message({
-                message: 'Folder opened',
-                type: 'success'
-            });
-        } else {
-            this.$message({
-                message: "Folder dosn't exist",
-                type: 'error'
-            });
-        }
-    });
-};
-
-$app.methods.openVrcPhotosFolder = function () {
-    AppApi.OpenVrcPhotosFolder().then((result) => {
-        if (result) {
-            this.$message({
-                message: 'Folder opened',
-                type: 'success'
-            });
-        } else {
-            this.$message({
-                message: "Folder dosn't exist",
-                type: 'error'
-            });
-        }
-    });
-};
-
-$app.methods.openVrcScreenshotsFolder = function () {
-    AppApi.OpenVrcScreenshotsFolder().then((result) => {
-        if (result) {
-            this.$message({
-                message: 'Folder opened',
-                type: 'success'
-            });
-        } else {
-            this.$message({
-                message: "Folder dosn't exist",
-                type: 'error'
-            });
-        }
-    });
-};
-
-$app.methods.openCrashVrcCrashDumps = function () {
-    AppApi.OpenCrashVrcCrashDumps().then((result) => {
-        if (result) {
-            this.$message({
-                message: 'Folder opened',
-                type: 'success'
-            });
-        } else {
-            this.$message({
-                message: "Folder dosn't exist",
-                type: 'error'
-            });
-        }
-    });
-};
+// $app.methods.openVrcPhotosFolder = function () {
+//     AppApi.OpenVrcPhotosFolder().then((result) => {
+//         if (result) {
+//             this.$message({
+//                 message: 'Folder opened',
+//                 type: 'success'
+//             });
+//         } else {
+//             this.$message({
+//                 message: "Folder dosn't exist",
+//                 type: 'error'
+//             });
+//         }
+//     });
+// };
+//
+// $app.methods.openVrcScreenshotsFolder = function () {
+//     AppApi.OpenVrcScreenshotsFolder().then((result) => {
+//         if (result) {
+//             this.$message({
+//                 message: 'Folder opened',
+//                 type: 'success'
+//             });
+//         } else {
+//             this.$message({
+//                 message: "Folder dosn't exist",
+//                 type: 'error'
+//             });
+//         }
+//     });
+// };
+//
+// $app.methods.openCrashVrcCrashDumps = function () {
+//     AppApi.OpenCrashVrcCrashDumps().then((result) => {
+//         if (result) {
+//             this.$message({
+//                 message: 'Folder opened',
+//                 type: 'success'
+//             });
+//         } else {
+//             this.$message({
+//                 message: "Folder dosn't exist",
+//                 type: 'error'
+//             });
+//         }
+//     });
+// };
 
 // #endregion
 // #region | Close instance
