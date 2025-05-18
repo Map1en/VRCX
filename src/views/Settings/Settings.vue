@@ -1,5 +1,5 @@
 <template>
-    <div v-if="menuActiveIndex === 'settings'" class="x-container">
+    <div v-show="menuActiveIndex === 'settings'" class="x-container">
         <div class="options-container" style="margin-top: 0; padding: 5px">
             <span class="header">{{ t('view.settings.header') }}</span>
         </div>
