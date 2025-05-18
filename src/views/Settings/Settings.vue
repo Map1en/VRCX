@@ -1485,7 +1485,7 @@
                         :value="youTubeApi"
                         :tooltip="t('view.settings.advanced.advanced.youtube_api.enable_tooltip')"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_youtubeAPI')"/>
+                        @change="changeYouTubeApi('VRCX_youtubeAPI')" />
                     <div class="options-container-item">
                         <el-button size="small" icon="el-icon-caret-right" @click="showYouTubeApiDialog">{{
                             t('view.settings.advanced.advanced.youtube_api.youtube_api_key')
@@ -1501,13 +1501,13 @@
                         :disabled="!openVR"
                         :tooltip="t('view.settings.advanced.advanced.video_progress_pie.enable_tooltip')"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_progressPie')"/>
+                        @change="changeYouTubeApi('VRCX_progressPie')" />
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.video_progress_pie.dance_world_only')"
                         :value="progressPieFilter"
                         :disabled="!openVR"
                         :long-label="true"
-                        @change="changeYouTubeApi('VRCX_progressPieFilter')"/>
+                        @change="changeYouTubeApi('VRCX_progressPieFilter')" />
                 </div>
 
                 <div class="options-container">
@@ -1652,7 +1652,7 @@
                             :label="t('view.settings.advanced.advanced.cache_debug.disable_gamelog')"
                             :value="gameLogDisabled"
                             :long-label="true"
-                            @change="disableGameLogDialog()"></simple-switch>
+                            @change="disableGameLogDialog()" />
                         <span class="name" style="margin-left: 15px">{{
                             t('view.settings.advanced.advanced.cache_debug.disable_gamelog_notice')
                         }}</span>
@@ -1804,6 +1804,10 @@
         <RegistryBackupDialog
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
+        <YouTubeApiDialog
+            :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible"
+            :lookupYouTubeVideo="lookupYouTubeVideo"
+            :youTubeApiKey.sync="youTubeApiKey" />
     </div>
 </template>
 
@@ -1817,7 +1821,6 @@
     import { storeToRefs } from 'pinia';
     import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { $app } from '../../app';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
@@ -1834,7 +1837,7 @@
     import NotificationPositionDialog from './dialogs/NotificationPositionDialog.vue';
     import ScreenshotMetadataDialog from './dialogs/ScreenshotMetadataDialog.vue';
     import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
-
+    import YouTubeApiDialog from './dialogs/YouTubeApiDialog.vue';
     const { i18n } = useI18n();
 
     const { $message } = getCurrentInstance().proxy;
@@ -2089,11 +2092,30 @@
         ugcFolderPath: {
             type: String,
             default: ''
+        },
+        notificationPosition: {
+            type: String,
+            default: ''
+        },
+        currentlyDroppingFile: {
+            type: String,
+            default: ''
+        },
+        fullscreenImageDialog: {
+            type: Object
+        },
+        backupVrcRegistry: {
+            type: Function,
+            default: () => {}
+        },
+        lookupYouTubeVideo: {
+            type: Function,
+            default: () => {}
+        },
+        youTubeApiKey: {
+            type: String,
+            default: ''
         }
-        // timeoutHudOverlayFilter: {
-        //     type: String,
-        //     default: ''
-        // }
     });
 
     const instanceTypes = ref([
@@ -2116,6 +2138,24 @@
 
     const screenshotMetadataDialog = ref(false);
     const isRegistryBackupDialogVisible = ref(false);
+    const isYouTubeApiDialogVisible = ref(false);
+    const screenshotMetadataDialog = ref({
+        visible: false,
+        loading: false,
+        search: '',
+        searchType: 'Player Name',
+        searchTypes: ['Player Name', 'Player ID', 'World  Name', 'World  ID'],
+        metadata: {},
+        isUploading: false
+    });
+
+    function lookupUser(ref) {
+        emit('lookupUser', ref);
+    }
+
+    function changeNotificationPosition(value) {
+        emit('changeNotificationPosition', value);
+    }
 
     function isLinux() {
         return LINUX;
@@ -2129,8 +2169,7 @@
     }
 
     function saveVRCXWindowOption(option) {
-        // todo
-        // Function to save VRCX window options
+        emit('saveVRCXWindowOption', option);
     }
 
     function promptProxySettings() {
@@ -2141,82 +2180,36 @@
         emit('saveOpenVROption');
     }
 
-    function saveLoggingOptions(option) {
-        emit('saveLoggingOptions');
-        // Function to save logging options
+    function changeAppLanguage(language) {
+        emit('changeAppLanguage', language);
     }
 
-    function saveAutomationOptions(option) {
-        emit('saveAutomationOptions');
-        // Function to save automation options
-    }
-
-    function changeAppLanguage() {
-        emit('changeAppLanguage');
-    }
-
-    function saveThemeMode() {
-        emit('saveThemeMode');
+    function saveThemeMode(newThemeMode) {
+        emit('saveThemeMode', newThemeMode);
     }
 
     function setZoomLevel() {
         emit('setZoomLevel');
     }
 
-    function toggleIsAgeGatedInstancesVisible() {
-        // Function to toggle the visibility of age-gated instances
-    }
-
     function saveSortFavoritesOption() {
-        // Function to save the sort favorites option
+        emit('saveSortFavoritesOption');
     }
 
     function promptMaxTableSizeDialog() {
         emit('promptMaxTableSizeDialog');
     }
 
-    function setTablePageSize() {
-        // Function to set the table page size
-    }
-
-    function setDatetimeFormat() {
-        // Function to set the datetime format
-    }
-
     function saveSidebarSortOrder() {
         emit('saveSidebarSortOrder');
-    }
-
-    function toggleGroupByInstance() {
-        // Function to toggle the group by instance option
-    }
-
-    function toggleHideFriendsInSameInstance() {
-        // Function to toggle the hide friends in the same instance option
-    }
-
-    function handleSwitchDivideByFriendGroup() {
-        // Function to handle the switch divide by friend group option
-    }
-
-    function saveUserDialogOption() {
-        // Function to save the user dialog option
     }
 
     function showNoteExportDialog() {
         isNoteExportDialogVisible.value = true;
     }
 
-    function saveFriendLogOptions() {
-        // Function to save the friend log options
-    }
-
     function updateTrustColor() {
-        // Function to update the trust color
-    }
-
-    function showNotyFeedFiltersDialog() {
-        // Function to show the Noty feed filters dialog
+        emit('updateTrustColor');
     }
 
     function showNotificationPositionDialog() {
@@ -2226,12 +2219,12 @@
     function promptNotificationTimeout() {
         emit('promptNotificationTimeout');
     }
-    function saveNotificationTTS() {
-        // Function to save the notification TTS option
+    function saveNotificationTTS(value) {
+        emit('saveNotificationTTS', value);
     }
 
-    function changeTTSVoice() {
-        emit('changeTTSVoice');
+    function changeTTSVoice(index) {
+        emit('changeTTSVoice', index);
     }
 
     function testNotificationTTS() {
@@ -2239,7 +2232,7 @@
     }
 
     function saveDiscordOption() {
-        // Function to save the Discord option
+        emit('saveDiscordOption');
     }
 
     function showVRChatConfig() {
@@ -2247,7 +2240,7 @@
     }
 
     function showScreenshotMetadataDialog() {
-        // Function to show the screenshot metadata dialog
+        screenshotMetadataDialog.value.visible = true;
     }
 
     function showRegistryBackupDialog() {
@@ -2334,18 +2327,6 @@
         });
     }
 
-    function openVrcPhotosFolder() {
-        // Function to open the VRChat photos folder
-    }
-
-    function openVrcScreenshotsFolder() {
-        // Function to open the VRChat screenshots folder
-    }
-
-    function openCrashVrcCrashDumps() {
-        // Function to open the VRChat crash dumps folder
-    }
-
     function enablePrimaryPasswordChange() {
         emit('enablePrimaryPasswordChange');
     }
@@ -2370,24 +2351,24 @@
         AppApi.OpenShortcutFolder();
     }
 
-    function changeYouTubeApi() {
-        emit('changeYouTubeApi');
+    function changeYouTubeApi(configKey) {
+        emit('changeYouTubeApi', configKey);
     }
 
     function showYouTubeApiDialog() {
-        // Function to show the YouTube API dialog
+        isYouTubeApiDialogVisible.value = true;
     }
 
-    function saveEventOverlay() {
-        // Function to save the event overlay settings
+    function saveEventOverlay(configKey) {
+        emit('saveEventOverlay', configKey);
     }
 
     function promptPhotonOverlayMessageTimeout() {
-        emit('promptPhotonOverlayMessageTimeout')
+        emit('promptPhotonOverlayMessageTimeout');
     }
 
     function photonEventTableFilterChange() {
-        // Function to handle the photon event table filter change
+        emit('photonEventTableFilterChange');
     }
 
     function promptPhotonLobbyTimeoutThreshold() {
@@ -2395,27 +2376,27 @@
     }
 
     function disableGameLogDialog() {
-        // Function to disable the game log dialog
+        emit('disableGameLogDialog');
     }
 
     function clearVRCXCache() {
-        // Function to clear the VRCX cache
+        emit('clearVRCXCache');
     }
 
     function promptAutoClearVRCXCacheFrequency() {
-        // Function to prompt for the auto-clear VRCX cache frequency
+        emit('promptAutoClearVRCXCacheFrequency');
     }
 
     function showConsole() {
-        // Function to show the console
+        emit('showConsole');
     }
 
     function showLaunchOptions() {
         emit('showLaunchOptions');
     }
 
-    function handleSetTablePageSize() {
-        emit('handleSetTablePageSize');
+    function handleSetTablePageSize(pageSize) {
+        emit('handleSetTablePageSize', pageSize);
     }
 
     function openOSSDialog() {

@@ -9755,6 +9755,7 @@ $app.methods.processScreenshot = async function (path) {
     }
 };
 
+// todo:del
 $app.data.screenshotMetadataDialog = {
     visible: false,
     loading: false,
@@ -9796,6 +9797,7 @@ $app.methods.changeYouTubeApi = async function (configKey = '') {
     this.updateOpenVR();
 };
 
+// todo: del
 $app.methods.showYouTubeApiDialog = function () {
     this.isYouTubeApiDialogVisible = true;
 };
