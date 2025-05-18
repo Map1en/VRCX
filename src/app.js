@@ -170,17 +170,10 @@ import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDi
 import ProfileTab from './views/Profile/Profile.vue';
 import SearchTab from './views/Search/Search.vue';
 import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
-import ChangelogDialog from './views/Settings/dialogs/ChangelogDialog.vue';
 import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
-import NoteExportDialog from './views/Settings/dialogs/NoteExportDialog.vue';
-import NotificationPositionDialog from './views/Settings/dialogs/NotificationPositionDialog.vue';
-import OpenSourceSoftwareNoticeDialog from './views/Settings/dialogs/OpenSourceSoftwareNoticeDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
-import RegistryBackupDialog from './views/Settings/dialogs/RegistryBackupDialog.vue';
-import ScreenshotMetadataDialog from './views/Settings/dialogs/ScreenshotMetadataDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
-import YouTubeApiDialog from './views/Settings/dialogs/YouTubeApiDialog.vue';
 import SideBar from './views/SideBar/SideBar.vue';
 
 // #endregion
@@ -268,24 +261,12 @@ const app = {
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
 
-        const {
-            appVersion,
-            autoUpdateVRCX,
-            latestAppVersion,
-            branch,
-            currentVersion,
-            vrcxId,
-            checkingForVRCXUpdate,
-            VRCXUpdateDialog,
-            changeLogDialog
-        } = storeToRefs(VRCXUpdaterStore);
+        const { autoUpdateVRCX, vrcxId } = storeToRefs(VRCXUpdaterStore);
 
         const {
-            setAutoUpdateVRCX,
-            setBranch,
             compareAppVersion,
             checkForVRCXUpdate,
-            showVRCXUpdateDialog,
+
             showChangeLogDialog
         } = VRCXUpdaterStore;
 
@@ -539,21 +520,13 @@ const app = {
             debugWebRequests,
 
             // VRCXUpdaterStore
-            appVersion,
-            autoUpdateVRCX,
-            latestAppVersion,
-            branch,
-            currentVersion,
-            vrcxId,
-            checkingForVRCXUpdate,
-            VRCXUpdateDialog,
-            changeLogDialog,
 
-            setAutoUpdateVRCX,
-            setBranch,
+            autoUpdateVRCX,
+            vrcxId,
+
             compareAppVersion,
             checkForVRCXUpdate,
-            showVRCXUpdateDialog,
+
             showChangeLogDialog,
 
             // generalSettingsStore
@@ -844,17 +817,11 @@ const app = {
         //  - settings
         FeedFiltersDialog,
         LaunchOptionsDialog,
-        OpenSourceSoftwareNoticeDialog,
-        ChangelogDialog,
+
         VRCXUpdateDialog,
-        ScreenshotMetadataDialog,
         EditInviteMessageDialog,
-        NoteExportDialog,
         VRChatConfigDialog,
-        YouTubeApiDialog,
-        NotificationPositionDialog,
         AvatarProviderDialog,
-        RegistryBackupDialog,
         PrimaryPasswordDialog,
         FullscreenImageDialog
     },
@@ -12763,7 +12730,8 @@ $app.computed.settingsTabBind = function () {
         backupVrcRegistry: this.backupVrcRegistry,
         lookupYouTubeVideo: this.lookupYouTubeVideo,
         youTubeApiKey: this.youTubeApiKey,
-        isTestTTSVisible: this.isTestTTSVisible
+        isTestTTSVisible: this.isTestTTSVisible,
+        notifyMenu: this.notifyMenu
     };
 };
 

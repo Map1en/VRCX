@@ -1808,6 +1808,7 @@
             :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible"
             :lookupYouTubeVideo="lookupYouTubeVideo"
             :youTubeApiKey.sync="youTubeApiKey" />
+        <ChangelogDialog />
     </div>
 </template>
 
@@ -1838,6 +1839,7 @@
     import ScreenshotMetadataDialog from './dialogs/ScreenshotMetadataDialog.vue';
     import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
     import YouTubeApiDialog from './dialogs/YouTubeApiDialog.vue';
+    import ChangelogDialog from './dialogs/ChangelogDialog.vue';
 
     const { messages, t } = useI18n();
 
@@ -2118,6 +2120,10 @@
         isTestTTSVisible: {
             type: Boolean,
             default: false
+        },
+        notifyMenu: {
+            type: Function,
+            default: () => {}
         }
     });
 
