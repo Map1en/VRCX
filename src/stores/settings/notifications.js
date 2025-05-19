@@ -22,8 +22,8 @@ export const useNotificationsSettingsStore = defineStore(
         async function initSettings() {
             const [
                 overlayToast,
-                openVR,
                 overlayNotifications,
+                openVR,
                 xsNotifications,
                 ovrtHudNotifications,
                 ovrtWristNotifications,
@@ -35,7 +35,7 @@ export const useNotificationsSettingsStore = defineStore(
             ] = await Promise.all([
                 configRepository.getString('VRCX_overlayToast', 'Game Running'),
                 configRepository.getBool('VRCX_overlayNotifications', true),
-                configRepository.getBool('openVR', false),
+                configRepository.getBool('openVR'),
                 configRepository.getBool('VRCX_xsNotifications', true),
                 configRepository.getBool('VRCX_ovrtHudNotifications', true),
                 configRepository.getBool('VRCX_ovrtWristNotifications', false),

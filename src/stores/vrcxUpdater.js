@@ -146,7 +146,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         if (lastVersion !== currentVersion.value) {
             await configRepository.setString(
                 'VRCX_lastVRCXVersion',
-                currentVersion
+                currentVersion.value
             );
             return state.branch === 'Stable' && !!lastVersion;
         }

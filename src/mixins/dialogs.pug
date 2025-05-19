@@ -145,13 +145,6 @@ mixin dialogs
 
     FullscreenImageDialog(:fullscreenImageDialog='fullscreenImageDialog')
 
-    //- settings
-    FeedFiltersDialog(
-        :feedFiltersDialogMode.sync='feedFiltersDialogMode'
-        :sharedFeedFilters='sharedFeedFilters'
-        :sharedFeedFiltersDefaults='sharedFeedFiltersDefaults'
-        @updateSharedFeed='updateSharedFeed')
-
     LaunchOptionsDialog(:isLaunchOptionsDialogVisible.sync='isLaunchOptionsDialogVisible')
 
     EditInviteMessageDialog(:editInviteMessageDialog.sync='editInviteMessageDialog')

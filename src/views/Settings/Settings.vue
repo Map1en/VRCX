@@ -1808,6 +1808,11 @@
             :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible"
             :lookupYouTubeVideo="lookupYouTubeVideo"
             :youTubeApiKey.sync="youTubeApiKey" />
+        <FeedFiltersDialog
+            :feedFiltersDialogMode.sync="feedFiltersDialogMode"
+            :sharedFeedFilters="sharedFeedFilters"
+            :sharedFeedFiltersDefaults="sharedFeedFiltersDefaults"
+            @updateSharedFeed="updateSharedFeed" />
         <ChangelogDialog />
     </div>
 </template>
@@ -1840,6 +1845,7 @@
     import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
     import YouTubeApiDialog from './dialogs/YouTubeApiDialog.vue';
     import ChangelogDialog from './dialogs/ChangelogDialog.vue';
+    import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
 
     const { messages, t } = useI18n();
 
@@ -2124,10 +2130,19 @@
         notifyMenu: {
             type: Function,
             default: () => {}
+        },
+        sharedFeedFilters: {
+            type: Object,
+            default: () => ({})
+        },
+        sharedFeedFiltersDefaults: {
+            type: Object,
+            default: () => ({})
         }
     });
 
     const emit = defineEmits([
+        'updateSharedFeed',
         'lookupUser',
         'changeNotificationPosition',
         'saveVRCXWindowOption',
@@ -2191,6 +2206,10 @@
         metadata: {},
         isUploading: false
     });
+
+    function updateSharedFeed($event) {
+        emit('updateSharedFeed', $event);
+    }
 
     function lookupUser(ref) {
         emit('lookupUser', ref);

@@ -170,7 +170,6 @@ import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDi
 import ProfileTab from './views/Profile/Profile.vue';
 import SearchTab from './views/Search/Search.vue';
 import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
-import FeedFiltersDialog from './views/Settings/dialogs/FeedFiltersDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
@@ -815,7 +814,6 @@ const app = {
         //  - profile
         DiscordNamesDialog,
         //  - settings
-        FeedFiltersDialog,
         LaunchOptionsDialog,
 
         VRCXUpdateDialog,
@@ -857,6 +855,7 @@ const app = {
         const generalSettingsStore = useGeneralSettingsStore();
         const appearanceSettingsStore = useAppearanceSettingsStore();
         const notificationsSettingsStore = useNotificationsSettingsStore();
+        const wristOverlaySettingsStore = useWristOverlaySettingsStore();
         const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
         const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
@@ -868,6 +867,7 @@ const app = {
             generalSettingsStore.initSettings(),
             appearanceSettingsStore.initSettings(),
             notificationsSettingsStore.initSettings(),
+            wristOverlaySettingsStore.initSettings(),
             discordPresenceSettingsStore.initSettings(),
             advancedSettingsStore.initSettings(),
             photonStore.initPhotonStates()
@@ -12731,7 +12731,9 @@ $app.computed.settingsTabBind = function () {
         lookupYouTubeVideo: this.lookupYouTubeVideo,
         youTubeApiKey: this.youTubeApiKey,
         isTestTTSVisible: this.isTestTTSVisible,
-        notifyMenu: this.notifyMenu
+        notifyMenu: this.notifyMenu,
+        sharedFeedFilters: this.sharedFeedFilters,
+        sharedFeedFiltersDefaults: this.sharedFeedFiltersDefaults
     };
 };
 
@@ -12773,7 +12775,8 @@ $app.computed.settingsTabEvent = function () {
         showConsole: this.showConsole,
         showLaunchOptions: this.showLaunchOptions,
         handleSetTablePageSize: this.handleSetTablePageSize,
-        showAvatarProviderDialog: this.showAvatarProviderDialog
+        showAvatarProviderDialog: this.showAvatarProviderDialog,
+        updateSharedFeed: this.updateSharedFeed
     };
 };
 
