@@ -2270,8 +2270,8 @@
         isNoteExportDialogVisible.value = true;
     }
 
-    function updateTrustColor() {
-        emit('updateTrustColor');
+    function updateTrustColor(value) {
+        emit('updateTrustColor', value);
     }
 
     function showNotificationPositionDialog() {
