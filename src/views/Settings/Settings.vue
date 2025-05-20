@@ -686,8 +686,8 @@
                                 size="mini"
                                 :predefine="['#CCCCCC']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-untrusted">Visitor</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-untrusted">Visitor</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -695,8 +695,8 @@
                                 size="mini"
                                 :predefine="['#1778ff']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-basic">New User</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-basic">New User</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -704,8 +704,8 @@
                                 size="mini"
                                 :predefine="['#2bcf5c']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-known">User</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-known">User</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -713,8 +713,8 @@
                                 size="mini"
                                 :predefine="['#ff7b42']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-trusted">Known User</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-trusted">Known User</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -722,8 +722,8 @@
                                 size="mini"
                                 :predefine="['#b18fff', '#8143e6', '#ff69b4', '#b52626', '#ffd000', '#abcdef']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-veteran">Trusted User</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-veteran">Trusted User</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -731,8 +731,8 @@
                                 size="mini"
                                 :predefine="['#ff2626']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-vip">VRChat Team</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-vip">VRChat Team</span>
                         </div>
                         <div>
                             <el-color-picker
@@ -740,8 +740,8 @@
                                 size="mini"
                                 :predefine="['#782f2f']"
                                 @change="updateTrustColor(false)">
-                                <span slot="trigger" class="color-picker x-tag-troll">Nuisance</span>
                             </el-color-picker>
+                            <span slot="trigger" class="color-picker x-tag-troll">Nuisance</span>
                         </div>
                     </div>
                 </div>
