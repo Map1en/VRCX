@@ -365,7 +365,8 @@ const app = {
             setYouTubeApi,
             setProgressPie,
             setProgressPieFilter,
-            setGameLogDisabled
+            setGameLogDisabled,
+            lookupYouTubeVideo
         } = advancedSettingsStore;
 
         const {
@@ -508,6 +509,7 @@ const app = {
             setProgressPie,
             setProgressPieFilter,
             setGameLogDisabled,
+            lookupYouTubeVideo,
 
             // photonStore
             photonLoggingEnabled,
@@ -4729,37 +4731,6 @@ $app.methods.silentSearchUser = function (displayName) {
     });
 };
 
-$app.methods.lookupYouTubeVideo = async function (videoId) {
-    let data = null;
-    let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
-    if (this.youTubeApiKey) {
-        apiKey = this.youTubeApiKey;
-    }
-    try {
-        const response = await webApiService.execute({
-            url: `https://www.googleapis.com/youtube/v3/videos?id=${encodeURIComponent(
-                videoId
-            )}&part=snippet,contentDetails&key=${apiKey}`,
-            method: 'GET',
-            headers: {
-                Referer: 'https://vrcx.app'
-            }
-        });
-        const json = JSON.parse(response.data);
-        if (this.debugWebRequests) {
-            console.log(json, response);
-        }
-        if (response.status === 200) {
-            data = json;
-        } else {
-            throw new Error(`Error: ${response.data}`);
-        }
-    } catch {
-        console.error(`YouTube video lookup failed for ${videoId}`);
-    }
-    return data;
-};
-
 $app.data.nowPlaying = {
     url: '',
     name: '',
@@ -6374,11 +6345,6 @@ $app.methods.changeNotificationPosition = async function (value) {
     );
     this.updateVRConfigVars();
 };
-
-$app.data.youTubeApiKey = await configRepository.getString(
-    'VRCX_youtubeAPIKey',
-    ''
-);
 
 $app.methods.updateVRConfigVars = function () {
     let notificationTheme = 'relax';
@@ -12460,8 +12426,6 @@ $app.computed.settingsTabBind = function () {
         currentlyDroppingFile: this.currentlyDroppingFile,
         fullscreenImageDialog: this.fullscreenImageDialog,
         backupVrcRegistry: this.backupVrcRegistry,
-        lookupYouTubeVideo: this.lookupYouTubeVideo,
-        youTubeApiKey: this.youTubeApiKey,
         isTestTTSVisible: this.isTestTTSVisible,
         notifyMenu: this.notifyMenu,
         sharedFeedFilters: this.sharedFeedFilters,

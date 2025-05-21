@@ -34,8 +34,16 @@
 
 <script setup>
     import { inject, getCurrentInstance } from 'vue';
-    import configRepository from '../../../service/config';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
+    import { storeToRefs } from 'pinia';
+
+    const advancedSettingsStore = useAdvancedSettingsStore();
+
+    const { youTubeApiKey } = storeToRefs(advancedSettingsStore);
+
+    const { lookupYouTubeVideo, setYouTubeApiKey } = advancedSettingsStore;
+
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
@@ -47,38 +55,29 @@
         isYouTubeApiDialogVisible: {
             type: Boolean,
             default: false
-        },
-        lookupYouTubeVideo: {
-            type: Function,
-            default: () => {}
-        },
-        youTubeApiKey: {
-            type: String,
-            default: ''
         }
     });
 
-    const emit = defineEmits(['update:isYouTubeApiDialogVisible', 'update:youTubeApiKey']);
+    const emit = defineEmits(['update:isYouTubeApiDialogVisible']);
 
     async function testYouTubeApiKey() {
-        if (!props.youTubeApiKey) {
+        if (!youTubeApiKey.value) {
             $message({
                 message: 'YouTube API key removed',
                 type: 'success'
             });
-            await configRepository.setString('VRCX_youtubeAPIKey', '');
             closeDialog();
             return;
         }
-        const data = await props.lookupYouTubeVideo('dQw4w9WgXcQ');
+        const data = await lookupYouTubeVideo('dQw4w9WgXcQ');
         if (!data) {
-            updateYouTubeApiKey('');
+            setYouTubeApiKey('');
             $message({
                 message: 'Invalid YouTube API key',
                 type: 'error'
             });
         } else {
-            await configRepository.setString('VRCX_youtubeAPIKey', props.youTubeApiKey);
+            setYouTubeApiKey(youTubeApiKey.value);
             $message({
                 message: 'YouTube API key valid!',
                 type: 'success'

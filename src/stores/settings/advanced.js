@@ -1,9 +1,14 @@
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
 import database from '../../service/database';
+import webApiService from '../../service/webapi';
+import { useDebugStore } from '../debug';
 
 export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
+    const debugStore = useDebugStore();
+    const { debugWebRequests } = storeToRefs(debugStore);
+
     const state = reactive({
         enablePrimaryPassword: false,
         relaunchVRChatAfterCrash: false,
@@ -20,6 +25,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         screenshotHelperModifyFilename: false,
         screenshotHelperCopyToClipboard: false,
         youTubeApi: false,
+        youTubeApiKey: '',
         progressPie: false,
         progressPieFilter: true,
         showConfirmationOnSwitchAvatar: false,
@@ -44,6 +50,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             screenshotHelperModifyFilename,
             screenshotHelperCopyToClipboard,
             youTubeApi,
+            youTubeApiKey,
             progressPie,
             progressPieFilter,
             showConfirmationOnSwitchAvatar,
@@ -70,6 +77,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
                 false
             ),
             configRepository.getBool('VRCX_youtubeAPI', false),
+            configRepository.getString('VRCX_youtubeAPIKey', ''),
             configRepository.getBool('VRCX_progressPie', false),
             configRepository.getBool('VRCX_progressPieFilter', true),
             configRepository.getBool(
@@ -94,6 +102,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.screenshotHelperModifyFilename = screenshotHelperModifyFilename;
         state.screenshotHelperCopyToClipboard = screenshotHelperCopyToClipboard;
         state.youTubeApi = youTubeApi;
+        state.youTubeApiKey = youTubeApiKey;
         state.progressPie = progressPie;
         state.progressPieFilter = progressPieFilter;
         state.showConfirmationOnSwitchAvatar = showConfirmationOnSwitchAvatar;
@@ -129,6 +138,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         () => state.screenshotHelperCopyToClipboard
     );
     const youTubeApi = computed(() => state.youTubeApi);
+    const youTubeApiKey = computed(() => state.youTubeApiKey);
     const progressPie = computed(() => state.progressPie);
     const progressPieFilter = computed(() => state.progressPieFilter);
     const showConfirmationOnSwitchAvatar = computed(
@@ -236,6 +246,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.youTubeApi = !state.youTubeApi;
         await configRepository.setBool('VRCX_youtubeAPI', state.youTubeApi);
     }
+    async function setYouTubeApiKey(value) {
+        state.youTubeApiKey = value;
+        await configRepository.setString(
+            'VRCX_youtubeAPIKey',
+            state.youTubeApiKey
+        );
+    }
     async function setProgressPie() {
         state.progressPie = !state.progressPie;
         await configRepository.setBool('VRCX_progressPie', state.progressPie);
@@ -318,6 +335,37 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    async function lookupYouTubeVideo(videoId) {
+        let data = null;
+        let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
+        if (state.youTubeApiKey) {
+            apiKey = state.youTubeApiKey;
+        }
+        try {
+            const response = await webApiService.execute({
+                url: `https://www.googleapis.com/youtube/v3/videos?id=${encodeURIComponent(
+                    videoId
+                )}&part=snippet,contentDetails&key=${apiKey}`,
+                method: 'GET',
+                headers: {
+                    Referer: 'https://vrcx.app'
+                }
+            });
+            const json = JSON.parse(response.data);
+            if (debugWebRequests.value) {
+                console.log(json, response);
+            }
+            if (response.status === 200) {
+                data = json;
+            } else {
+                throw new Error(`Error: ${response.data}`);
+            }
+        } catch {
+            console.error(`YouTube video lookup failed for ${videoId}`);
+        }
+        return data;
+    }
+
     return {
         state,
         initSettings,
@@ -337,6 +385,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         screenshotHelperModifyFilename,
         screenshotHelperCopyToClipboard,
         youTubeApi,
+        youTubeApiKey,
         progressPie,
         progressPieFilter,
         showConfirmationOnSwitchAvatar,
@@ -358,12 +407,15 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setScreenshotHelperModifyFilename,
         setScreenshotHelperCopyToClipboard,
         setYouTubeApi,
+        setYouTubeApiKey,
         setProgressPie,
         setProgressPieFilter,
         setShowConfirmationOnSwitchAvatar,
         setGameLogDisabled,
 
         getSqliteTableSizes,
-        handleSetAppLauncherSettings
+        handleSetAppLauncherSettings,
+
+        lookupYouTubeVideo
     };
 });

@@ -1804,10 +1804,7 @@
         <RegistryBackupDialog
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
-        <YouTubeApiDialog
-            :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible"
-            :lookupYouTubeVideo="lookupYouTubeVideo"
-            :youTubeApiKey.sync="youTubeApiKey" />
+        <YouTubeApiDialog :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible" />
         <FeedFiltersDialog
             :feedFiltersDialogMode.sync="feedFiltersDialogMode"
             :sharedFeedFilters="sharedFeedFilters"
@@ -2029,7 +2026,8 @@
         progressPieFilter,
         showConfirmationOnSwitchAvatar,
         gameLogDisabled,
-        sqliteTableSizes
+        sqliteTableSizes,
+        youTubeApiKey
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2114,14 +2112,6 @@
         backupVrcRegistry: {
             type: Function,
             default: () => {}
-        },
-        lookupYouTubeVideo: {
-            type: Function,
-            default: () => {}
-        },
-        youTubeApiKey: {
-            type: String,
-            default: ''
         },
         isTestTTSVisible: {
             type: Boolean,
