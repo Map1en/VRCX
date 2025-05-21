@@ -138,7 +138,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         () => state.screenshotHelperCopyToClipboard
     );
     const youTubeApi = computed(() => state.youTubeApi);
-    const youTubeApiKey = computed(() => state.youTubeApiKey);
+    const youTubeApiKey = computed({
+        get: () => state.youTubeApiKey,
+        set: (value) => (state.youTubeApiKey = value)
+    });
     const progressPie = computed(() => state.progressPie);
     const progressPieFilter = computed(() => state.progressPieFilter);
     const showConfirmationOnSwitchAvatar = computed(

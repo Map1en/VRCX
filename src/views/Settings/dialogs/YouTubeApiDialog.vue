@@ -8,13 +8,12 @@
         <div style="font-size: 12px">{{ t('dialog.youtube_api.description') }} <br /></div>
 
         <el-input
-            :value="youTubeApiKey"
+            v-model="youTubeApiKey"
             type="textarea"
             :placeholder="t('dialog.youtube_api.placeholder')"
             maxlength="39"
             show-word-limit
-            style="display: block; margin-top: 10px"
-            @input="updateYouTubeApiKey">
+            style="display: block; margin-top: 10px">
         </el-input>
 
         <template #footer>
@@ -33,7 +32,7 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
+    import { inject, getCurrentInstance, watch, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { storeToRefs } from 'pinia';
@@ -61,6 +60,7 @@
     const emit = defineEmits(['update:isYouTubeApiDialogVisible']);
 
     async function testYouTubeApiKey() {
+        const previousKey = youTubeApiKey.value;
         if (!youTubeApiKey.value) {
             $message({
                 message: 'YouTube API key removed',
@@ -71,7 +71,7 @@
         }
         const data = await lookupYouTubeVideo('dQw4w9WgXcQ');
         if (!data) {
-            setYouTubeApiKey('');
+            setYouTubeApiKey(previousKey);
             $message({
                 message: 'Invalid YouTube API key',
                 type: 'error'
@@ -84,10 +84,6 @@
             });
             closeDialog();
         }
-    }
-
-    function updateYouTubeApiKey(value) {
-        emit('update:youTubeApiKey', value);
     }
 
     function closeDialog() {
