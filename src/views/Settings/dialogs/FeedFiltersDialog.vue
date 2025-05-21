@@ -65,33 +65,23 @@
     import configRepository from '../../../service/config';
     import { feedFiltersOptions } from '../../../shared/constants';
     import { usePhotonStore } from '../../../stores/photon';
+    import { useNotificationsSettingsStore } from '../../../stores/settings/notifications';
+    import { sharedFeedFiltersDefaults } from '../../../shared/constants/feedFiltersOptions';
 
     const photonStore = usePhotonStore();
+    const notificationsSettingsStore = useNotificationsSettingsStore();
     const { photonLoggingEnabled } = storeToRefs(photonStore);
 
     const { t } = useI18n();
 
     const { notyFeedFiltersOptions, wristFeedFiltersOptions, photonFeedFiltersOptions } = feedFiltersOptions();
+    const { sharedFeedFilters } = storeToRefs(notificationsSettingsStore);
 
     const props = defineProps({
         feedFiltersDialogMode: {
             type: String,
             required: true,
             default: ''
-        },
-        sharedFeedFilters: {
-            type: Object,
-            default: () => ({
-                noty: {},
-                wrist: {}
-            })
-        },
-        sharedFeedFiltersDefaults: {
-            type: Object,
-            default: () => ({
-                noty: {},
-                wrist: {}
-            })
         }
     });
 
@@ -101,8 +91,8 @@
 
     const currentSharedFeedFilters = computed(() => {
         return props.feedFiltersDialogMode === 'noty'
-            ? props.sharedFeedFilters['noty']
-            : props.sharedFeedFilters['wrist'];
+            ? sharedFeedFilters.value['noty']
+            : sharedFeedFilters.value['wrist'];
     });
 
     const dialogTitle = computed(() => {
@@ -120,20 +110,20 @@
     const emit = defineEmits(['update:feedFiltersDialogMode', 'updateSharedFeed']);
 
     function saveSharedFeedFilters() {
-        configRepository.setString('sharedFeedFilters', JSON.stringify(props.sharedFeedFilters));
+        configRepository.setString('sharedFeedFilters', JSON.stringify(sharedFeedFilters.value));
         emit('updateSharedFeed', true);
     }
 
     function resetNotyFeedFilters() {
-        props.sharedFeedFilters.noty = {
-            ...props.sharedFeedFiltersDefaults.noty
+        sharedFeedFilters.value.noty = {
+            ...sharedFeedFiltersDefaults.noty
         };
         saveSharedFeedFilters();
     }
 
     async function resetWristFeedFilters() {
-        props.sharedFeedFilters.wrist = {
-            ...props.sharedFeedFiltersDefaults.wrist
+        sharedFeedFilters.value.wrist = {
+            ...sharedFeedFiltersDefaults.wrist
         };
         saveSharedFeedFilters();
     }

@@ -1805,11 +1805,7 @@
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
         <YouTubeApiDialog :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible" />
-        <FeedFiltersDialog
-            :feedFiltersDialogMode.sync="feedFiltersDialogMode"
-            :sharedFeedFilters="sharedFeedFilters"
-            :sharedFeedFiltersDefaults="sharedFeedFiltersDefaults"
-            @updateSharedFeed="updateSharedFeed" />
+        <FeedFiltersDialog :feedFiltersDialogMode.sync="feedFiltersDialogMode" @updateSharedFeed="updateSharedFeed" />
         <ChangelogDialog />
     </div>
 </template>
@@ -2120,14 +2116,6 @@
         notifyMenu: {
             type: Function,
             default: () => {}
-        },
-        sharedFeedFilters: {
-            type: Object,
-            default: () => ({})
-        },
-        sharedFeedFiltersDefaults: {
-            type: Object,
-            default: () => ({})
         }
     });
 

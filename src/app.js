@@ -132,7 +132,7 @@ import {
     timeToText
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
-import { updateTrustColorClasses } from './shared/utils/base/ui';
+import { updateTrustColorClasses } from './shared/utils';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useGeneralSettingsStore } from './stores/settings/general';
@@ -315,7 +315,8 @@ const app = {
             desktopToast,
             afkDesktopToast,
             notificationTTS,
-            notificationTTSNickName
+            notificationTTSNickName,
+            sharedFeedFilters
         } = storeToRefs(notificationsSettingsStore);
 
         const {
@@ -464,6 +465,7 @@ const app = {
             afkDesktopToast,
             notificationTTS,
             notificationTTSNickName,
+            sharedFeedFilters,
 
             // wristOverlaySettingsStore
             overlayWrist,
@@ -6144,147 +6146,6 @@ $app.methods.saveSidebarSortOrder = async function () {
     this.sortActiveFriends = true;
     this.sortOfflineFriends = true;
 };
-
-// setting defaults
-$app.data.sharedFeedFiltersDefaults = {
-    noty: {
-        Location: 'Off',
-        OnPlayerJoined: 'VIP',
-        OnPlayerLeft: 'VIP',
-        OnPlayerJoining: 'VIP',
-        Online: 'VIP',
-        Offline: 'VIP',
-        GPS: 'Off',
-        Status: 'Off',
-        invite: 'Friends',
-        requestInvite: 'Friends',
-        inviteResponse: 'Friends',
-        requestInviteResponse: 'Friends',
-        friendRequest: 'On',
-        Friend: 'On',
-        Unfriend: 'On',
-        DisplayName: 'VIP',
-        TrustLevel: 'VIP',
-        boop: 'Off',
-        groupChange: 'On',
-        'group.announcement': 'On',
-        'group.informative': 'On',
-        'group.invite': 'On',
-        'group.joinRequest': 'Off',
-        'group.transfer': 'On',
-        'group.queueReady': 'On',
-        'instance.closed': 'On',
-        PortalSpawn: 'Everyone',
-        Event: 'On',
-        External: 'On',
-        VideoPlay: 'Off',
-        BlockedOnPlayerJoined: 'Off',
-        BlockedOnPlayerLeft: 'Off',
-        MutedOnPlayerJoined: 'Off',
-        MutedOnPlayerLeft: 'Off',
-        AvatarChange: 'Off',
-        ChatBoxMessage: 'Off',
-        Blocked: 'Off',
-        Unblocked: 'Off',
-        Muted: 'Off',
-        Unmuted: 'Off'
-    },
-    wrist: {
-        Location: 'On',
-        OnPlayerJoined: 'Everyone',
-        OnPlayerLeft: 'Everyone',
-        OnPlayerJoining: 'Friends',
-        Online: 'Friends',
-        Offline: 'Friends',
-        GPS: 'Friends',
-        Status: 'Friends',
-        invite: 'Friends',
-        requestInvite: 'Friends',
-        inviteResponse: 'Friends',
-        requestInviteResponse: 'Friends',
-        friendRequest: 'On',
-        Friend: 'On',
-        Unfriend: 'On',
-        DisplayName: 'Friends',
-        TrustLevel: 'Friends',
-        boop: 'On',
-        groupChange: 'On',
-        'group.announcement': 'On',
-        'group.informative': 'On',
-        'group.invite': 'On',
-        'group.joinRequest': 'On',
-        'group.transfer': 'On',
-        'group.queueReady': 'On',
-        'instance.closed': 'On',
-        PortalSpawn: 'Everyone',
-        Event: 'On',
-        External: 'On',
-        VideoPlay: 'On',
-        BlockedOnPlayerJoined: 'Off',
-        BlockedOnPlayerLeft: 'Off',
-        MutedOnPlayerJoined: 'Off',
-        MutedOnPlayerLeft: 'Off',
-        AvatarChange: 'Everyone',
-        ChatBoxMessage: 'Off',
-        Blocked: 'On',
-        Unblocked: 'On',
-        Muted: 'On',
-        Unmuted: 'On'
-    }
-};
-$app.data.sharedFeedFilters = $app.data.sharedFeedFiltersDefaults;
-if (await configRepository.getString('sharedFeedFilters')) {
-    $app.data.sharedFeedFilters = JSON.parse(
-        await configRepository.getString(
-            'sharedFeedFilters',
-            JSON.stringify($app.data.sharedFeedFiltersDefaults)
-        )
-    );
-}
-if (!$app.data.sharedFeedFilters.noty.Blocked) {
-    $app.data.sharedFeedFilters.noty.Blocked = 'Off';
-    $app.data.sharedFeedFilters.noty.Unblocked = 'Off';
-    $app.data.sharedFeedFilters.noty.Muted = 'Off';
-    $app.data.sharedFeedFilters.noty.Unmuted = 'Off';
-    $app.data.sharedFeedFilters.wrist.Blocked = 'On';
-    $app.data.sharedFeedFilters.wrist.Unblocked = 'On';
-    $app.data.sharedFeedFilters.wrist.Muted = 'On';
-    $app.data.sharedFeedFilters.wrist.Unmuted = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty['group.announcement']) {
-    $app.data.sharedFeedFilters.noty['group.announcement'] = 'On';
-    $app.data.sharedFeedFilters.noty['group.informative'] = 'On';
-    $app.data.sharedFeedFilters.noty['group.invite'] = 'On';
-    $app.data.sharedFeedFilters.noty['group.joinRequest'] = 'Off';
-    $app.data.sharedFeedFilters.wrist['group.announcement'] = 'On';
-    $app.data.sharedFeedFilters.wrist['group.informative'] = 'On';
-    $app.data.sharedFeedFilters.wrist['group.invite'] = 'On';
-    $app.data.sharedFeedFilters.wrist['group.joinRequest'] = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty['group.queueReady']) {
-    $app.data.sharedFeedFilters.noty['group.queueReady'] = 'On';
-    $app.data.sharedFeedFilters.wrist['group.queueReady'] = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty['instance.closed']) {
-    $app.data.sharedFeedFilters.noty['instance.closed'] = 'On';
-    $app.data.sharedFeedFilters.wrist['instance.closed'] = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty.External) {
-    $app.data.sharedFeedFilters.noty.External = 'On';
-    $app.data.sharedFeedFilters.wrist.External = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty.groupChange) {
-    $app.data.sharedFeedFilters.noty.groupChange = 'On';
-    $app.data.sharedFeedFilters.wrist.groupChange = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty['group.transfer']) {
-    $app.data.sharedFeedFilters.noty['group.transfer'] = 'On';
-    $app.data.sharedFeedFilters.wrist['group.transfer'] = 'On';
-}
-if (!$app.data.sharedFeedFilters.noty.boop) {
-    $app.data.sharedFeedFilters.noty.boop = 'Off';
-    $app.data.sharedFeedFilters.wrist.boop = 'On';
-}
 
 $app.methods.updateTrustColor = async function (
     setRandomColor = false,
@@ -12346,9 +12207,7 @@ $app.computed.settingsTabBind = function () {
         fullscreenImageDialog: this.fullscreenImageDialog,
         backupVrcRegistry: this.backupVrcRegistry,
         isTestTTSVisible: this.isTestTTSVisible,
-        notifyMenu: this.notifyMenu,
-        sharedFeedFilters: this.sharedFeedFilters,
-        sharedFeedFiltersDefaults: this.sharedFeedFiltersDefaults
+        notifyMenu: this.notifyMenu
     };
 };
 
