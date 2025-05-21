@@ -4878,18 +4878,6 @@ $app.methods.convertYoutubeTime = function (duration) {
     return length;
 };
 
-// todo del
-$app.data.instanceTypes = [
-    'invite',
-    'invite+',
-    'friends',
-    'friends+',
-    'public',
-    'groupPublic',
-    'groupPlus',
-    'groupOnly'
-];
-
 $app.methods.updateAutoStateChange = function () {
     if (
         !this.autoStateChangeEnabled ||
@@ -6148,13 +6136,6 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
     }
     this.updateOpenVR();
     this.updateVRConfigVars();
-};
-
-// todo :del
-$app.data.isRegistryBackupDialogVisible = false;
-
-$app.methods.showRegistryBackupDialog = function () {
-    this.isRegistryBackupDialogVisible = true;
 };
 
 $app.methods.saveSidebarSortOrder = async function () {
@@ -8943,30 +8924,6 @@ $app.methods.showLaunchOptions = function () {
 };
 
 // #endregion
-// #region | App: Notification position
-
-// todo: del
-$app.data.isNotificationPositionDialogVisible = false;
-
-$app.methods.showNotificationPositionDialog = function () {
-    this.isNotificationPositionDialogVisible = true;
-};
-
-// #endregion
-// #region | App: Noty feed filters
-// #region | App: Wrist feed filters
-
-// todo: del
-$app.data.feedFiltersDialogMode = '';
-
-$app.methods.showNotyFeedFiltersDialog = function () {
-    this.feedFiltersDialogMode = 'noty';
-};
-$app.methods.showWristFeedFiltersDialog = function () {
-    this.feedFiltersDialogMode = 'wrist';
-};
-
-// #endregion
 // #region | App: Launch Dialog
 
 $app.data.launchDialogData = {
@@ -9431,22 +9388,6 @@ $app.methods.processScreenshot = async function (path) {
     }
 };
 
-// todo:del
-$app.data.screenshotMetadataDialog = {
-    visible: false,
-    loading: false,
-    search: '',
-    searchType: 'Player Name',
-    searchTypes: ['Player Name', 'Player ID', 'World  Name', 'World  ID'],
-    metadata: {},
-    isUploading: false
-};
-
-// todo :del
-$app.methods.showScreenshotMetadataDialog = function () {
-    this.screenshotMetadataDialog.visible = true;
-};
-
 $app.data.currentlyDroppingFile = null;
 /**
  * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
@@ -9471,11 +9412,6 @@ $app.methods.changeYouTubeApi = async function (configKey = '') {
 
     this.updateVRLastLocation();
     this.updateOpenVR();
-};
-
-// todo: del
-$app.methods.showYouTubeApiDialog = function () {
-    this.isYouTubeApiDialogVisible = true;
 };
 
 // Asset Bundle Cacher
@@ -10847,13 +10783,6 @@ $app.methods.showFriendImportDialog = function () {
 // #endregion
 // #region | App: note export
 
-// todo : del
-$app.data.isNoteExportDialogVisible = false;
-
-$app.methods.showNoteExportDialog = function () {
-    this.isNoteExportDialogVisible = true;
-};
-
 // user generated content
 $app.data.ugcFolderPath = await configRepository.getString(
     'VRCX_userGeneratedContentPath',
@@ -12069,7 +11998,6 @@ API.$on('INSTANCE:CLOSE', function (args) {
 // #endregion
 // #region | Settings: Zoom
 
-// todo del
 $app.data.zoomLevel = ((await AppApi.GetZoom()) + 10) * 10;
 
 $app.methods.getZoomLevel = async function () {
@@ -12129,15 +12057,6 @@ API.$on('WORLD:PERSIST:DELETE', function (args) {
         $app.worldDialog.hasPersistData = false;
     }
 });
-
-// #endregion
-
-$app.data.ossDialog = false;
-
-// todo: del
-$app.methods.isLinux = function () {
-    return LINUX;
-};
 
 // #endregion
 // #region | Tab Props
