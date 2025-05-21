@@ -117,7 +117,6 @@ import {
     extractFileId,
     extractFileVersion,
     getAvailablePlatforms,
-    getFriendsSortFunction,
     getPlatformInfo,
     getPrintFileName,
     getPrintLocalDate,
@@ -271,10 +270,6 @@ const app = {
 
         const {
             isStartAtWindowsStartup,
-            isStartAsMinimizedState,
-            isCloseToTray,
-            disableGpuAcceleration,
-            disableVrOverlayGpuAcceleration,
             localFavoriteFriendsGroups,
             udonExceptionLogging,
             logResourceLoad,
@@ -288,47 +283,14 @@ const app = {
         } = storeToRefs(generalSettingsStore);
 
         const {
-            setIsStartAtWindowsStartup,
-            setIsStartAsMinimizedState,
-            setIsCloseToTray,
-            setDisableGpuAcceleration,
-            setDisableVrOverlayGpuAcceleration,
-            setUdonExceptionLogging,
-            setLogResourceLoad,
-            setLogEmptyAvatars,
-            setAutoStateChangeEnabled,
-            setAutoStateChangeAloneStatus,
-            setAutoStateChangeCompanyStatus,
-            setAutoStateChangeInstanceTypes,
-            setAutoStateChangeNoFriends,
-            setAutoAcceptInviteRequests,
-
-            setLocalFavoriteFriendsGroups
-        } = generalSettingsStore;
-
-        const {
             appLanguage,
-            themeMode,
             isDarkMode,
             displayVRCPlusIconsAsAvatar,
-            hideNicknames,
-            hideTooltips,
-            isAgeGatedInstancesVisible,
             sortFavorites,
             instanceUsersSortAlphabetical,
             tablePageSize,
             dtHour12,
-            dtIsoFormat,
-            sidebarSortMethod1,
-            sidebarSortMethod2,
-            sidebarSortMethod3,
             sidebarSortMethods,
-            asideWidth,
-            isSidebarGroupByInstance,
-            isHideFriendsInSameInstance,
-            isSidebarDivideByFriendGroup,
-            hideUserNotes,
-            hideUserMemos,
             hideUnfriends,
             randomUserColours,
             trustColor
@@ -337,27 +299,7 @@ const app = {
         const {
             setAppLanguage,
             setThemeMode,
-            setIsDarkMode,
-            setDisplayVRCPlusIconsAsAvatar,
-            setHideNicknames,
-            setHideTooltips,
-            setIsAgeGatedInstancesVisible,
-            setSortFavorites,
-            setInstanceUsersSortAlphabetical,
             setTablePageSize,
-            setDtHour12,
-            setDtIsoFormat,
-            setSidebarSortMethod1,
-            setSidebarSortMethod2,
-            setSidebarSortMethod3,
-            setSidebarSortMethods,
-            setAsideWidth,
-            setIsSidebarGroupByInstance,
-            setIsHideFriendsInSameInstance,
-            setIsSidebarDivideByFriendGroup,
-            setHideUserNotes,
-            setHideUserMemos,
-            setHideUnfriends,
             setRandomUserColours,
             setTrustColor
         } = appearanceSettingsStore;
@@ -377,20 +319,6 @@ const app = {
         } = storeToRefs(notificationsSettingsStore);
 
         const {
-            setOverlayToast,
-            setOpenVR,
-            setOverlayNotifications,
-            setXsNotifications,
-            setOvrtHudNotifications,
-            setOvrtWristNotifications,
-            setImageNotifications,
-            setDesktopToast,
-            setAfkDesktopToast,
-            setNotificationTTS,
-            setNotificationTTSNickName
-        } = notificationsSettingsStore;
-
-        const {
             overlayWrist,
             hidePrivateFromFeed,
             openVRAlways,
@@ -405,20 +333,6 @@ const app = {
         } = storeToRefs(wristOverlaySettingsStore);
 
         const {
-            setOverlayWrist,
-            setHidePrivateFromFeed,
-            setOpenVRAlways,
-            setOverlaybutton,
-            setOverlayHand,
-            setVrBackgroundEnabled,
-            setMinimalFeed,
-            setHideDevicesFromFeed,
-            setVrOverlayCpuUsage,
-            setHideUptimeFromFeed,
-            setPcUptimeOnFeed
-        } = wristOverlaySettingsStore;
-
-        const {
             discordActive,
             discordInstance,
             discordHideInvite,
@@ -427,25 +341,14 @@ const app = {
         } = storeToRefs(discordPresenceSettingsStore);
 
         const {
-            setDiscordActive,
-            setDiscordInstance,
-            setDiscordHideInvite,
-            setDiscordJoinButton,
-            setDiscordHideImage
-        } = discordPresenceSettingsStore;
-
-        const {
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
             vrcQuitFix,
             autoSweepVRChatCache,
-            disableWorldDatabase,
             saveInstancePrints,
             cropInstancePrints,
             saveInstanceStickers,
             avatarRemoteDatabase,
-            enableAppLauncher,
-            enableAppLauncherAutoClose,
             screenshotHelper,
             screenshotHelperModifyFilename,
             screenshotHelperCopyToClipboard,
@@ -453,33 +356,16 @@ const app = {
             progressPie,
             progressPieFilter,
             showConfirmationOnSwitchAvatar,
-            gameLogDisabled,
-            sqliteTableSizes
+            gameLogDisabled
         } = storeToRefs(advancedSettingsStore);
 
         const {
             setEnablePrimaryPasswordConfigRepository,
-            setRelaunchVRChatAfterCrash,
-            setVrcQuitFix,
-            setAutoSweepVRChatCache,
-            setDisableWorldDatabase,
-            setSaveInstancePrints,
-            setCropInstancePrints,
-            setSaveInstanceStickers,
             setAvatarRemoteDatabase,
-            setEnableAppLauncher,
-            setEnableAppLauncherAutoClose,
-            setScreenshotHelper,
-            setScreenshotHelperModifyFilename,
-            setScreenshotHelperCopyToClipboard,
             setYouTubeApi,
             setProgressPie,
             setProgressPieFilter,
-            setShowConfirmationOnSwitchAvatar,
-            setGameLogDisabled,
-
-            getSqliteTableSizes,
-            handleSetAppLauncherSettings
+            setGameLogDisabled
         } = advancedSettingsStore;
 
         const {
@@ -487,16 +373,13 @@ const app = {
             photonEventOverlay,
             photonEventOverlayFilter,
             photonEventTableTypeOverlayFilter,
-            timeoutHudOverlay,
-            timeoutHudOverlayFilter
+            timeoutHudOverlay
         } = storeToRefs(photonStore);
         const {
             setPhotonLoggingEnabled,
             setPhotonEventOverlay,
-            setPhotonEventOverlayFilter,
             setPhotonEventTableTypeOverlayFilter,
-            setTimeoutHudOverlay,
-            setTimeoutHudOverlayFilter
+            setTimeoutHudOverlay
         } = photonStore;
 
         const { debugWebRequests } = storeToRefs(debugStore);
@@ -506,8 +389,16 @@ const app = {
             friends,
             onlineFriends_,
             vipFriends_,
+            activeFriends_,
+            offlineFriends_,
+            vipFriends,
+            onlineFriends,
+            activeFriends,
+            offlineFriends,
             sortOnlineFriends,
             sortVIPFriends,
+            sortActiveFriends,
+            sortOfflineFriends,
             localFavoriteFriends
         } = storeToRefs(friendStore);
 
@@ -530,10 +421,6 @@ const app = {
 
             // generalSettingsStore
             isStartAtWindowsStartup,
-            isStartAsMinimizedState,
-            isCloseToTray,
-            disableGpuAcceleration,
-            disableVrOverlayGpuAcceleration,
             localFavoriteFriendsGroups,
             udonExceptionLogging,
             logResourceLoad,
@@ -545,72 +432,22 @@ const app = {
             autoStateChangeNoFriends,
             autoAcceptInviteRequests,
 
-            setIsStartAtWindowsStartup,
-            setIsStartAsMinimizedState,
-            setIsCloseToTray,
-            setDisableGpuAcceleration,
-            setDisableVrOverlayGpuAcceleration,
-            setUdonExceptionLogging,
-            setLogResourceLoad,
-            setLogEmptyAvatars,
-            setAutoStateChangeEnabled,
-            setAutoStateChangeAloneStatus,
-            setAutoStateChangeCompanyStatus,
-            setAutoStateChangeInstanceTypes,
-            setAutoStateChangeNoFriends,
-            setAutoAcceptInviteRequests,
-            setLocalFavoriteFriendsGroups,
-
             // appearanceSettingsStore
             appLanguage,
-            themeMode,
             isDarkMode,
             displayVRCPlusIconsAsAvatar,
-            hideNicknames,
-            hideTooltips,
-            isAgeGatedInstancesVisible,
             sortFavorites,
             instanceUsersSortAlphabetical,
             tablePageSize,
             dtHour12,
-            dtIsoFormat,
-            sidebarSortMethod1,
-            sidebarSortMethod2,
-            sidebarSortMethod3,
             sidebarSortMethods,
-            asideWidth,
-            isSidebarGroupByInstance,
-            isHideFriendsInSameInstance,
-            isSidebarDivideByFriendGroup,
-            hideUserNotes,
-            hideUserMemos,
             hideUnfriends,
             randomUserColours,
             trustColor,
 
             setAppLanguage,
             setThemeMode,
-            setIsDarkMode,
-            setDisplayVRCPlusIconsAsAvatar,
-            setHideNicknames,
-            setHideTooltips,
-            setIsAgeGatedInstancesVisible,
-            setSortFavorites,
-            setInstanceUsersSortAlphabetical,
             setTablePageSize,
-            setDtHour12,
-            setDtIsoFormat,
-            setSidebarSortMethod1,
-            setSidebarSortMethod2,
-            setSidebarSortMethod3,
-            setSidebarSortMethods,
-            setAsideWidth,
-            setIsSidebarGroupByInstance,
-            setIsHideFriendsInSameInstance,
-            setIsSidebarDivideByFriendGroup,
-            setHideUserNotes,
-            setHideUserMemos,
-            setHideUnfriends,
             setRandomUserColours,
             setTrustColor,
 
@@ -627,18 +464,6 @@ const app = {
             notificationTTS,
             notificationTTSNickName,
 
-            setOverlayToast,
-            setOpenVR,
-            setOverlayNotifications,
-            setXsNotifications,
-            setOvrtHudNotifications,
-            setOvrtWristNotifications,
-            setImageNotifications,
-            setDesktopToast,
-            setAfkDesktopToast,
-            setNotificationTTS,
-            setNotificationTTSNickName,
-
             // wristOverlaySettingsStore
             overlayWrist,
             hidePrivateFromFeed,
@@ -652,18 +477,6 @@ const app = {
             hideUptimeFromFeed,
             pcUptimeOnFeed,
 
-            setOverlayWrist,
-            setHidePrivateFromFeed,
-            setOpenVRAlways,
-            setOverlaybutton,
-            setOverlayHand,
-            setVrBackgroundEnabled,
-            setMinimalFeed,
-            setHideDevicesFromFeed,
-            setVrOverlayCpuUsage,
-            setHideUptimeFromFeed,
-            setPcUptimeOnFeed,
-
             // discordPresenceSettingsStore
             discordActive,
             discordInstance,
@@ -671,24 +484,15 @@ const app = {
             discordJoinButton,
             discordHideImage,
 
-            setDiscordActive,
-            setDiscordInstance,
-            setDiscordHideInvite,
-            setDiscordJoinButton,
-            setDiscordHideImage,
-
             // advancedSettingsStore
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
             vrcQuitFix,
             autoSweepVRChatCache,
-            disableWorldDatabase,
             saveInstancePrints,
             cropInstancePrints,
             saveInstanceStickers,
             avatarRemoteDatabase,
-            enableAppLauncher,
-            enableAppLauncherAutoClose,
             screenshotHelper,
             screenshotHelperModifyFilename,
             screenshotHelperCopyToClipboard,
@@ -697,30 +501,13 @@ const app = {
             progressPieFilter,
             showConfirmationOnSwitchAvatar,
             gameLogDisabled,
-            sqliteTableSizes,
 
             setEnablePrimaryPasswordConfigRepository,
-            setRelaunchVRChatAfterCrash,
-            setVrcQuitFix,
-            setAutoSweepVRChatCache,
-            setDisableWorldDatabase,
-            setSaveInstancePrints,
-            setCropInstancePrints,
-            setSaveInstanceStickers,
             setAvatarRemoteDatabase,
-            setEnableAppLauncher,
-            setEnableAppLauncherAutoClose,
-            setScreenshotHelper,
-            setScreenshotHelperModifyFilename,
-            setScreenshotHelperCopyToClipboard,
             setYouTubeApi,
             setProgressPie,
             setProgressPieFilter,
-            setShowConfirmationOnSwitchAvatar,
             setGameLogDisabled,
-
-            getSqliteTableSizes,
-            handleSetAppLauncherSettings,
 
             // photonStore
             photonLoggingEnabled,
@@ -731,7 +518,6 @@ const app = {
 
             setPhotonLoggingEnabled,
             setPhotonEventOverlay,
-            setPhotonEventOverlayFilter,
             setPhotonEventTableTypeOverlayFilter,
             setTimeoutHudOverlay,
 
@@ -739,8 +525,19 @@ const app = {
             friends,
             onlineFriends_,
             vipFriends_,
+            activeFriends_,
+            offlineFriends_,
+
+            vipFriends,
+            onlineFriends,
+            activeFriends,
+            offlineFriends,
+
             sortOnlineFriends,
             sortVIPFriends,
+            sortActiveFriends,
+            sortOfflineFriends,
+
             localFavoriteFriends,
 
             updateLocalFavoriteFriends,
@@ -3522,7 +3319,6 @@ $app.methods.migrateStoredUsers = async function () {
 // #endregion
 // #region | App: Friends
 
-$app.data.friends = new Map();
 $app.data.pendingActiveFriends = new Set();
 $app.data.friendNumber = 0;
 $app.data.isFriendsGroupMe = true;
@@ -3532,14 +3328,6 @@ $app.data.isActiveFriends = true;
 $app.data.isOfflineFriends = false;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
-$app.data.vipFriends_ = [];
-$app.data.onlineFriends_ = [];
-$app.data.activeFriends_ = [];
-$app.data.offlineFriends_ = [];
-$app.data.sortVIPFriends = false;
-$app.data.sortOnlineFriends = false;
-$app.data.sortActiveFriends = false;
-$app.data.sortOfflineFriends = false;
 
 $app.methods.fetchActiveFriend = function (userId) {
     this.pendingActiveFriends.add(userId);
@@ -4099,53 +3887,6 @@ $app.methods.updateOnlineFriendCoutner = function () {
         );
         this.onlineFriendCount = onlineFriendCount;
     }
-};
-
-// VIP friends
-$app.computed.vipFriends = function () {
-    if (!this.sortVIPFriends) {
-        return this.vipFriends_;
-    }
-    this.sortVIPFriends = false;
-
-    this.vipFriends_.sort(getFriendsSortFunction(this.sidebarSortMethods));
-    return this.vipFriends_;
-};
-
-// Online friends
-$app.computed.onlineFriends = function () {
-    if (!this.sortOnlineFriends) {
-        return this.onlineFriends_;
-    }
-    this.sortOnlineFriends = false;
-
-    this.onlineFriends_.sort(getFriendsSortFunction(this.sidebarSortMethods));
-
-    return this.onlineFriends_;
-};
-
-// Active friends
-$app.computed.activeFriends = function () {
-    if (!this.sortActiveFriends) {
-        return this.activeFriends_;
-    }
-    this.sortActiveFriends = false;
-
-    this.activeFriends_.sort(getFriendsSortFunction(this.sidebarSortMethods));
-
-    return this.activeFriends_;
-};
-
-// Offline friends
-$app.computed.offlineFriends = function () {
-    if (!this.sortOfflineFriends) {
-        return this.offlineFriends_;
-    }
-    this.sortOfflineFriends = false;
-
-    this.offlineFriends_.sort(getFriendsSortFunction(this.sidebarSortMethods));
-
-    return this.offlineFriends_;
 };
 
 $app.methods.userStatusClass = function (user, pendingOffline) {
@@ -12446,7 +12187,6 @@ $app.computed.moderationTabBind = function () {
 $app.computed.friendsListTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        friends: this.friends,
         randomUserColours: this.randomUserColours,
         confirmDeleteFriend: this.confirmDeleteFriend,
         friendsListSearch: this.friendsListSearch,
@@ -12465,17 +12205,12 @@ $app.computed.friendsListTabEvent = function () {
 $app.computed.sideBarTabBind = function () {
     return {
         isSideBarTabShow: this.isSideBarTabShow,
-        vipFriends: this.vipFriends,
-        onlineFriends: this.onlineFriends,
         quickSearchRemoteMethod: this.quickSearchRemoteMethod,
         quickSearchItems: this.quickSearchItems,
         onlineFriendCount: this.onlineFriendCount,
-        friends: this.friends,
         isGameRunning: this.isGameRunning,
         lastLocation: this.lastLocation,
         lastLocationDestination: this.lastLocationDestination,
-        activeFriends: this.activeFriends,
-        offlineFriends: this.offlineFriends,
         groupInstances: this.groupInstances,
         inGameGroupOrder: this.inGameGroupOrder,
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends
@@ -12549,7 +12284,6 @@ $app.computed.chartsTabBind = function () {
     return {
         getWorldName: this.getWorldName,
         dtHour12: this.dtHour12,
-        friendsMap: this.friends,
         localFavoriteFriends: this.localFavoriteFriends
     };
 };
@@ -12573,7 +12307,6 @@ $app.computed.gameLogTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         gameLogTable: this.gameLogTable,
         shiftHeld: this.shiftHeld,
-        hideTooltips: this.hideTooltips,
         gameLogIsFriend: this.gameLogIsFriend,
         gameLogIsFavorite: this.gameLogIsFavorite
     };
@@ -12656,7 +12389,6 @@ $app.computed.profileTabBind = function () {
         inviteRequestResponseMessageTable:
             this.inviteRequestResponseMessageTable,
         pastDisplayNameTable: this.pastDisplayNameTable,
-        friends: this.friends,
         directAccessWorld: this.directAccessWorld
     };
 };

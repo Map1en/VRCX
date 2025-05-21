@@ -79,9 +79,6 @@
         </template>
         <InviteDialog
             :invite-dialog="inviteDialog"
-            :vip-friends="vipFriends"
-            :online-friends="onlineFriends"
-            :active-friends="activeFriends"
             :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             @close-invite-dialog="closeInviteDialog" />
@@ -91,8 +88,9 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { instanceRequest, worldRequest } from '../../api';
-    import { getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
     import configRepository from '../../service/config';
+    import { getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
+    import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
@@ -105,18 +103,6 @@
             checkCanInvite: {
                 type: Function,
                 required: true
-            },
-            vipFriends: {
-                type: Array,
-                default: () => []
-            },
-            onlineFriends: {
-                type: Array,
-                default: () => []
-            },
-            activeFriends: {
-                type: Array,
-                default: () => []
             },
             inviteMessageTable: {
                 type: Object,
@@ -133,9 +119,14 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const friendStore = useFriendStore();
+            const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                vipFriends,
+                onlineFriends,
+                activeFriends
             };
         },
         data() {

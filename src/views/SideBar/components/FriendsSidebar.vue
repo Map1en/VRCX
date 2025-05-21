@@ -177,8 +177,9 @@
     import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
     import { isRealInstance as _isRealInstance } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useFriendStore } from '../../../stores/friend';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     export default {
         name: 'FriendsSidebar',
@@ -189,21 +190,15 @@
         inject: ['API', 'showUserDialog', 'userImage', 'userStatusClass'],
         props: {
             isGameRunning: Boolean,
-
             lastLocation: Object,
             lastLocationDestination: String,
-
-            activeFriends: Array,
-            offlineFriends: Array,
-
-            vipFriends: Array,
-            onlineFriends: Array,
-
             groupedByGroupKeyFavoriteFriends: Object
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const advancedSettingsStore = useAdvancedSettingsStore();
+            const friendStore = useFriendStore();
+            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
             const { isSidebarGroupByInstance, isHideFriendsInSameInstance, isSidebarDivideByFriendGroup } =
                 storeToRefs(appearanceSettingsStore);
             const { gameLogDisabled } = storeToRefs(advancedSettingsStore);
@@ -211,7 +206,11 @@
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
                 isSidebarDivideByFriendGroup,
-                gameLogDisabled
+                gameLogDisabled,
+                vipFriends,
+                onlineFriends,
+                activeFriends,
+                offlineFriends
             };
         },
 

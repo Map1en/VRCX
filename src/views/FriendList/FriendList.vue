@@ -280,6 +280,7 @@
         sortStatus as _sortStatus,
         timeToText as _timeToText
     } from '../../shared/utils';
+    import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     export default {
@@ -293,10 +294,6 @@
             'openExternalLink'
         ],
         props: {
-            friends: {
-                type: Map,
-                required: true
-            },
             confirmDeleteFriend: Function,
             friendsListSearch: String,
             menuActiveIndex: String,
@@ -304,11 +301,14 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const friendsStore = useFriendStore();
+            const { friends } = storeToRefs(friendsStore);
             const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
             return {
                 appLanguage,
                 hideTooltips,
-                randomUserColours
+                randomUserColours,
+                friends
             };
         },
         data() {

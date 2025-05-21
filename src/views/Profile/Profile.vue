@@ -505,6 +505,10 @@
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useFriendStore } from '../../stores/friend';
+
+    const friendStore = useFriendStore();
+    const { friends } = storeToRefs(friendStore);
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -559,10 +563,6 @@
                 visible: false,
                 data: []
             })
-        },
-        friends: {
-            type: Map,
-            default: () => new Map()
         },
         directAccessWorld: {
             type: Function,

@@ -73,10 +73,6 @@
                     :is-game-running="isGameRunning"
                     :last-location="lastLocation"
                     :last-location-destination="lastLocationDestination"
-                    :active-friends="activeFriends"
-                    :offline-friends="offlineFriends"
-                    :online-friends="onlineFriends"
-                    :vip-friends="vipFriends"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
             </el-tab-pane>
@@ -97,11 +93,12 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
+    import Location from '../../components/Location.vue';
+    import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
-    import Location from '../../components/Location.vue';
-    import { storeToRefs } from 'pinia';
 
     export default {
         name: 'SideBar',
@@ -119,28 +116,23 @@
             quickSearchRemoteMethod: Function,
             quickSearchItems: Array,
             onlineFriendCount: Number,
-            friends: Map,
 
             lastLocation: Object,
             lastLocationDestination: String,
 
-            // friends
-            vipFriends: Array,
-            onlineFriends: Array,
-
-            // no
-            activeFriends: Array,
-            offlineFriends: Array,
             groupInstances: Array,
             inGameGroupOrder: Array,
             groupedByGroupKeyFavoriteFriends: Object
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const friendsStore = useFriendStore();
+            const { friends } = storeToRefs(friendsStore);
             const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
             return {
                 hideTooltips,
-                asideWidth
+                asideWidth,
+                friends
             };
         }
     };

@@ -132,17 +132,17 @@
         inject: ['API'],
         props: {
             getWorldName: { type: Function, default: () => [] },
-            dtHour12: Boolean,
-            friendsMap: Map
+            dtHour12: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();
             const { isDarkMode } = storeToRefs(appearanceSettingsStore);
-            const { localFavoriteFriends } = storeToRefs(friendStore);
+            const { localFavoriteFriends, friends } = storeToRefs(friendStore);
             return {
                 isDarkMode,
-                localFavoriteFriends
+                localFavoriteFriends,
+                friends
             };
         },
         data() {
@@ -618,7 +618,7 @@
                     joinTime: dayjs(item.created_at).subtract(item.time, 'millisecond'),
                     leaveTime: dayjs(item.created_at),
                     time: item.time < 0 ? 0 : item.time,
-                    isFriend: item.user_id === this.API.currentUser.id ? null : this.friendsMap.has(item.user_id),
+                    isFriend: item.user_id === this.API.currentUser.id ? null : this.friends.has(item.user_id),
                     isFavorite:
                         item.user_id === this.API.currentUser.id ? null : this.localFavoriteFriends.has(item.user_id)
                 });

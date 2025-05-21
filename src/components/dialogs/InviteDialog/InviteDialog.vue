@@ -165,12 +165,17 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
     import { parseLocation } from '../../../shared/utils';
+    import { useFriendStore } from '../../../stores/friend';
     import Location from '../../Location.vue';
     import SendInviteDialog from './SendInviteDialog.vue';
+
+    const friendStore = useFriendStore();
+    const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -184,18 +189,6 @@
     const props = defineProps({
         inviteDialog: {
             type: Object,
-            required: true
-        },
-        vipFriends: {
-            type: Array,
-            required: true
-        },
-        onlineFriends: {
-            type: Array,
-            required: true
-        },
-        activeFriends: {
-            type: Array,
             required: true
         },
         // SendInviteDialog

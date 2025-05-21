@@ -754,10 +754,6 @@
             :new-instance-dialog-location-tag="newInstanceDialogLocationTag"
             :create-new-instance="createNewInstance"
             :instance-content-settings="instanceContentSettings"
-            :offline-friends="offlineFriends"
-            :active-friends="activeFriends"
-            :online-friends="onlineFriends"
-            :vip-friends="vipFriends"
             :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             :last-location="lastLocation" />
@@ -825,10 +821,6 @@
 
             createNewInstance: Function,
             instanceContentSettings: Array,
-            offlineFriends: Array,
-            activeFriends: Array,
-            onlineFriends: Array,
-            vipFriends: Array,
             inviteMessageTable: Object,
             uploadImage: String,
 

@@ -1721,12 +1721,7 @@
         <PreviousImagesDialog
             :previous-images-dialog-visible.sync="previousImagesDialogVisible"
             :previous-images-table="previousImagesTable" />
-        <InviteGroupDialog
-            :dialog-data.sync="inviteGroupDialog"
-            :vip-friends="vipFriends"
-            :online-friends="onlineFriends"
-            :offline-friends="offlineFriends"
-            :active-friends="activeFriends" />
+        <InviteGroupDialog :dialog-data.sync="inviteGroupDialog" />
         <SocialStatusDialog
             :social-status-dialog="socialStatusDialog"
             :social-status-history-table="socialStatusHistoryTable" />
@@ -1792,8 +1787,8 @@
         timeToText,
         userOnlineForTimestamp
     } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1906,22 +1901,6 @@
         shiftHeld: {
             type: Boolean,
             default: false
-        },
-        vipFriends: {
-            type: Array,
-            default: () => []
-        },
-        onlineFriends: {
-            type: Array,
-            default: () => []
-        },
-        offlineFriends: {
-            type: Array,
-            default: () => []
-        },
-        activeFriends: {
-            type: Array,
-            default: () => []
         },
         // Gallery Dialog
         galleryDialogVisible: {
@@ -2916,8 +2895,6 @@
         });
         handleNoteChange(args);
     }
-
-
 
     function handleNoteChange(args) {
         // API.$on('NOTE')

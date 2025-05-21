@@ -167,8 +167,10 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { groupRequest, userRequest } from '../../api';
     import { hasGroupPermission } from '../../shared/utils';
+    import { useFriendStore } from '../../stores/friend';
 
     export default {
         name: 'InviteGroupDialog',
@@ -177,23 +179,17 @@
             dialogData: {
                 type: Object,
                 required: true
-            },
-            vipFriends: {
-                type: Array,
-                required: true
-            },
-            onlineFriends: {
-                type: Array,
-                required: true
-            },
-            activeFriends: {
-                type: Array,
-                required: true
-            },
-            offlineFriends: {
-                type: Array,
-                required: true
             }
+        },
+        setup() {
+            const friendStore = useFriendStore();
+            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            return {
+                vipFriends,
+                onlineFriends,
+                activeFriends,
+                offlineFriends
+            };
         },
         computed: {
             inviteGroupDialog: {

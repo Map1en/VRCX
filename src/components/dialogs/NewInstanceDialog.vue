@@ -485,9 +485,6 @@
         </template>
         <InviteDialog
             :invite-dialog="inviteDialog"
-            :vip-friends="vipFriends"
-            :online-friends="onlineFriends"
-            :active-friends="activeFriends"
             :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             @close-invite-dialog="closeInviteDialog" />
@@ -495,14 +492,16 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { groupRequest, instanceRequest, worldRequest } from '../../api';
     import configRepository from '../../service/config';
     import {
-        hasGroupPermission as _hasGroupPermission,
         getLaunchURL,
+        hasGroupPermission as _hasGroupPermission,
         isRealInstance,
         parseLocation
     } from '../../shared/utils';
+    import { useFriendStore } from '../../stores/friend';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {
@@ -510,22 +509,6 @@
         components: { InviteDialog },
         inject: ['API', 'userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
-            vipFriends: {
-                type: Array,
-                required: true
-            },
-            onlineFriends: {
-                type: Array,
-                required: true
-            },
-            activeFriends: {
-                type: Array,
-                required: true
-            },
-            offlineFriends: {
-                type: Array,
-                required: true
-            },
             instanceContentSettings: {
                 type: Array,
                 required: true
@@ -550,6 +533,16 @@
                 type: Object,
                 default: () => ({})
             }
+        },
+        setup() {
+            const friendStore = useFriendStore();
+            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            return {
+                vipFriends,
+                onlineFriends,
+                activeFriends,
+                offlineFriends
+            };
         },
         data() {
             return {

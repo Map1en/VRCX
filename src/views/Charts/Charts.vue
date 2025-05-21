@@ -6,7 +6,6 @@
         <InstanceActivity
             :get-world-name="getWorldName"
             :dt-hour12="dtHour12"
-            :friends-map="friendsMap"
             @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
         <el-backtop target="#chart" :right="30" :bottom="30"></el-backtop>
     </div>
@@ -22,8 +21,7 @@
         },
         props: {
             getWorldName: Function,
-            dtHour12: Boolean,
-            friendsMap: Map
+            dtHour12: Boolean
         }
     };
 </script>

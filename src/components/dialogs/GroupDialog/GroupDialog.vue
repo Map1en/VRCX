@@ -1160,12 +1160,7 @@
             @load-all-group-members="loadAllGroupMembers"
             @set-group-member-filter="setGroupMemberFilter"
             @set-group-member-sort-order="setGroupMemberSortOrder" />
-        <InviteGroupDialog
-            :dialog-data.sync="inviteGroupDialog"
-            :vip-friends="vipFriends"
-            :online-friends="onlineFriends"
-            :offline-friends="offlineFriends"
-            :active-friends="activeFriends" />
+        <InviteGroupDialog :dialog-data.sync="inviteGroupDialog" />
     </safe-dialog>
 </template>
 
@@ -1227,22 +1222,6 @@
         groupDialogFilterOptions: {
             type: Object,
             required: true
-        },
-        vipFriends: {
-            type: Array,
-            default: () => []
-        },
-        onlineFriends: {
-            type: Array,
-            default: () => []
-        },
-        offlineFriends: {
-            type: Array,
-            default: () => []
-        },
-        activeFriends: {
-            type: Array,
-            default: () => []
         }
     });
 
