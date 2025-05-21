@@ -6,11 +6,11 @@
                     <img v-lazy="smallThumbnail" />
                 </div>
                 <div class="detail">
-                    <span class="name">{{ localFavFakeRef.name }}</span>
-                    <span v-if="localFavFakeRef.occupants" class="extra"
+                    <span class="name" v-once>{{ localFavFakeRef.name }}</span>
+                    <span v-if="localFavFakeRef.occupants" class="extra" v-once
                         >{{ localFavFakeRef.authorName }} ({{ localFavFakeRef.occupants }})</span
                     >
-                    <span v-else class="extra">{{ localFavFakeRef.authorName }}</span>
+                    <span v-else class="extra" v-once>{{ localFavFakeRef.authorName }}</span>
                 </div>
                 <template v-if="editFavoritesMode">
                     <el-dropdown trigger="click" size="mini" style="margin-left: 5px" @click.native.stop>
@@ -109,7 +109,7 @@
             <template v-else>
                 <div class="avatar"></div>
                 <div class="detail">
-                    <span>{{ favorite.name || favorite.id }}</span>
+                    <span v-once>{{ favorite.name || favorite.id }}</span>
                     <el-tooltip
                         v-if="!isLocalFavorite && favorite.deleted"
                         placement="left"
