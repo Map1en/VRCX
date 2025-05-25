@@ -487,7 +487,7 @@
             :invite-dialog="inviteDialog"
             :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
-            @close-invite-dialog="closeInviteDialog" />
+            @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
