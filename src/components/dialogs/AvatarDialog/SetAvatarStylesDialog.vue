@@ -64,7 +64,7 @@
     import { watch, getCurrentInstance } from 'vue';
 
     import { useI18n } from 'vue-i18n-bridge';
-    import utils from '../../../classes/utils';
+    import { arraysMatch } from '../../../shared/utils';
     import { avatarRequest } from '../../../api';
 
     const { t } = useI18n();
@@ -125,7 +125,7 @@
         if (
             props.setAvatarStylesDialog.initialPrimaryStyle === props.setAvatarStylesDialog.primaryStyle &&
             props.setAvatarStylesDialog.initialSecondaryStyle === props.setAvatarStylesDialog.secondaryStyle &&
-            utils.arraysMatch(props.setAvatarStylesDialog.initialTags, tags)
+            arraysMatch(props.setAvatarStylesDialog.initialTags, tags)
         ) {
             props.setAvatarStylesDialog.visible = false;
             return;

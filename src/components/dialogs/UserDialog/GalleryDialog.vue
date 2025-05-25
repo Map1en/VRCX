@@ -447,10 +447,9 @@
 <script setup>
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest,miscRequest } from '../../../api';
-    import { extractFileId } from '../../../composables/shared/utils';
-    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../composables/user/constants/emoji';
-    import { getPrintFileName } from '../../../composables/user/utils';
+    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest, miscRequest } from '../../../api';
+    import { extractFileId, getPrintFileName } from '../../../shared/utils';
+    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
     import Location from '../../Location.vue';
 
     const { t } = useI18n();

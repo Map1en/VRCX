@@ -593,6 +593,7 @@
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
+    import { $app } from '../../../app';
     import database from '../../../service/database';
     import {
         buildTreeData,
@@ -618,8 +619,6 @@
     const showFavoriteDialog = inject('showFavoriteDialog');
     const openExternalLink = inject('openExternalLink');
     const adjustDialogZ = inject('adjustDialogZ');
-    const getImageUrlFromImageId = inject('getImageUrlFromImageId');
-    const getAvatarGallery = inject('getAvatarGallery');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -719,6 +718,26 @@
             }
         }
     );
+
+    async function getAvatarGallery(avatarId) {
+        const D = this.avatarDialog;
+        const args = await avatarRequest.getAvatarGallery(avatarId);
+        if (args.params.galleryId !== D.id) {
+            return;
+        }
+        D.galleryImages = [];
+        for (const file of args.json) {
+            const url = file.versions[file.versions.length - 1].file.url;
+            D.galleryImages.push(url);
+        }
+
+        // for JSON tab treeData
+        D.ref.gallery = args.json;
+    }
+
+    function getImageUrlFromImageId(imageId) {
+        return `https://api.vrchat.cloud/api/1/file/${imageId}/1/`;
+    }
 
     function handleDialogOpen() {
         fileAnalysis.value = {};
