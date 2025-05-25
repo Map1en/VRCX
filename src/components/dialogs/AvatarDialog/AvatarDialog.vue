@@ -611,7 +611,6 @@
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
-    import { $app } from '../../../app';
     import database from '../../../service/database';
     import {
         buildTreeData,
@@ -622,7 +621,8 @@
         replaceVrcPackageUrl,
         timeToText,
         compareUnityVersion,
-        storeAvatarImage
+        storeAvatarImage,
+        moveArrayItem
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
@@ -1378,9 +1378,9 @@
             return;
         }
         if (direction === -1) {
-            utils.moveArrayItem(fileIds, index, index - 1);
+            moveArrayItem(fileIds, index, index - 1);
         } else {
-            utils.moveArrayItem(fileIds, index, index + 1);
+            moveArrayItem(fileIds, index, index + 1);
         }
         avatarRequest.setAvatarGalleryOrder(fileIds).then((args) => {
             $message({

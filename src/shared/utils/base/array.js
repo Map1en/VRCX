@@ -22,4 +22,19 @@ function arraysMatch(a, b) {
     );
 }
 
-export { removeFromArray, arraysMatch };
+function moveArrayItem(array, fromIndex, toIndex) {
+    if (!Array.isArray(array) || fromIndex === toIndex) {
+        return;
+    }
+    if (fromIndex < 0 || fromIndex >= array.length) {
+        return;
+    }
+    if (toIndex < 0 || toIndex >= array.length) {
+        return;
+    }
+    const item = array[fromIndex];
+    array.splice(fromIndex, 1);
+    array.splice(toIndex, 0, item);
+}
+
+export { removeFromArray, arraysMatch, moveArrayItem };
