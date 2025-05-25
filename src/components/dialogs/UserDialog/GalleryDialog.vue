@@ -447,9 +447,10 @@
 <script setup>
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../../api';
-    import { extractFileId, getPrintFileName } from '../../../shared/utils';
-    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
+    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest,miscRequest } from '../../../api';
+    import { extractFileId } from '../../../composables/shared/utils';
+    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../composables/user/constants/emoji';
+    import { getPrintFileName } from '../../../composables/user/utils';
     import Location from '../../Location.vue';
 
     const { t } = useI18n();
@@ -622,7 +623,7 @@
     }
 
     function deleteGalleryImage(fileId) {
-        vrcPlusIconRequest.deleteFile(fileId).then((args) => {
+        miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('GALLERYIMAGE:DELETE', args);
             // API.$on('GALLERYIMAGE:DELETE')
             const array = props.galleryTable;
@@ -725,7 +726,7 @@
     }
 
     function deleteVRCPlusIcon(fileId) {
-        vrcPlusIconRequest.deleteFile(fileId).then((args) => {
+        miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('VRCPLUSICON:DELETE', args);
             // API.$on('VRCPLUSICON:DELETE')
             const array = props.VRCPlusIconsTable;
@@ -856,7 +857,7 @@
     }
 
     function deleteEmoji(fileId) {
-        vrcPlusIconRequest.deleteFile(fileId).then((args) => {
+        miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('EMOJI:DELETE', args);
             // API.$on('EMOJI:DELETE')
             const array = props.emojiTable;
@@ -926,7 +927,7 @@
     }
 
     function deleteSticker(fileId) {
-        vrcPlusIconRequest.deleteFile(fileId).then((args) => {
+        miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('STICKER:DELETE', args);
             // API.$on('STICKER:DELETE')
             const array = props.stickerTable;

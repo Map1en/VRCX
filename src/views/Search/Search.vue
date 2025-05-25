@@ -583,7 +583,8 @@
             searchAvatarSort.value = 'name';
         }
         const avatars = new Map();
-        const query = props.searchText.toUpperCase();
+        const query = props.searchText;
+        const queryUpper = query.toUpperCase();
         if (!query) {
             for (ref of API.cachedAvatars.values()) {
                 switch (searchAvatarFilter.value) {
@@ -606,12 +607,12 @@
         } else {
             if (searchAvatarFilterRemote.value === 'all' || searchAvatarFilterRemote.value === 'local') {
                 for (ref of API.cachedAvatars.values()) {
-                    let match = ref.name.toUpperCase().includes(query);
+                    let match = ref.name.toUpperCase().includes(queryUpper);
                     if (!match && ref.description) {
-                        match = ref.description.toUpperCase().includes(query);
+                        match = ref.description.toUpperCase().includes(queryUpper);
                     }
                     if (!match && ref.authorName) {
-                        match = ref.authorName.toUpperCase().includes(query);
+                        match = ref.authorName.toUpperCase().includes(queryUpper);
                     }
                     if (match) {
                         switch (searchAvatarFilter.value) {

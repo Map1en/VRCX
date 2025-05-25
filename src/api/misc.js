@@ -187,6 +187,18 @@ const miscReq = {
             // API.$emit('VISITS', args);
             return args;
         });
+    },
+
+    deleteFile(fileId) {
+        return window.API.call(`file/${fileId}`, {
+            method: 'DELETE'
+        }).then((json) => {
+            const args = {
+                json,
+                fileId
+            };
+            return args;
+        });
     }
 
     // /**

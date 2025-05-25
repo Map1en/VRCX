@@ -694,6 +694,17 @@ const app = {
         }
         await AppApi.SetUserAgent();
 
+        //
+        await this.loadVrcxId();
+        this.appVersion = await AppApi.GetVersion();
+        await this.compareAppVersion();
+        await this.setBranch();
+        await AppApi.SetAppLauncherSettings(
+            this.enableAppLauncher,
+            this.enableAppLauncherAutoClose
+        );
+        //
+
         if (await this.compareAppVersion()) {
             this.showChangeLogDialog();
         }
@@ -1761,25 +1772,30 @@ API.applyAvatar = function (json) {
     let ref = this.cachedAvatars.get(json.id);
     if (typeof ref === 'undefined') {
         ref = {
-            id: '',
-            name: '',
-            description: '',
+            acknowledgements: '',
             authorId: '',
             authorName: '',
-            tags: [],
-            assetUrl: '',
-            assetUrlObject: {},
+            created_at: '',
+            description: '',
+            featured: false,
+            highestPrice: null,
+            id: '',
             imageUrl: '',
-            thumbnailImageUrl: '',
+            lock: false,
+            lowestPrice: null,
+            name: '',
+            productId: null,
+            publishedListings: [],
             releaseStatus: '',
+            searchable: false,
             styles: [],
-            version: 0,
-            unityPackages: [],
+            tags: [],
+            thumbnailImageUrl: '',
             unityPackageUrl: '',
             unityPackageUrlObject: {},
-            created_at: '',
+            unityPackages: [],
             updated_at: '',
-            featured: false,
+            version: 0,
             ...json
         };
         this.cachedAvatars.set(ref.id, ref);
@@ -1794,8 +1810,12 @@ API.applyAvatar = function (json) {
             ref.unityPackages = unityPackages;
         }
     }
-    ref.name = replaceBioSymbols(ref.name);
-    ref.description = replaceBioSymbols(ref.description);
+    for (const listing of ref?.publishedListings) {
+        listing.displayName = $utils.replaceBioSymbols(listing.displayName);
+        listing.description = $utils.replaceBioSymbols(listing.description);
+    }
+    ref.name = $utils.replaceBioSymbols(ref.name);
+    ref.description = $utils.replaceBioSymbols(ref.description);
     return ref;
 };
 
@@ -8373,6 +8393,7 @@ $app.data.avatarDialog = {
     isIos: false,
     bundleSizes: [],
     platformInfo: {},
+    galleryImages: [],
     lastUpdated: '',
     inCache: false,
     cacheSize: 0,
@@ -8415,6 +8436,7 @@ $app.methods.showAvatarDialog = function (avatarId) {
     D.lastUpdated = '';
     D.bundleSizes = [];
     D.platformInfo = {};
+    D.galleryImages = [];
     D.isFavorite =
         API.cachedFavoritesByObjectId.has(avatarId) ||
         (API.currentUser.$isVRCPlus &&
@@ -8471,6 +8493,22 @@ $app.methods.showAvatarDialog = function (avatarId) {
         });
 };
 
+$app.methods.getAvatarGallery = async function (avatarId) {
+    var D = this.avatarDialog;
+    const args = await avatarRequest.getAvatarGallery(avatarId);
+    if (args.params.galleryId !== D.id) {
+        return;
+    }
+    D.galleryImages = [];
+    for (const file of args.json) {
+        const url = file.versions[file.versions.length - 1].file.url;
+        D.galleryImages.push(url);
+    }
+
+    // for JSON tab treeData
+    D.ref.gallery = args.json;
+};
+
 $app.methods.selectAvatarWithConfirmation = function (id) {
     this.$confirm(`Continue? Select Avatar`, 'Confirm', {
         confirmButtonText: 'Confirm',
@@ -8484,6 +8522,20 @@ $app.methods.selectAvatarWithConfirmation = function (id) {
         }
     });
 };
+
+    $app.methods.selectAvatarWithConfirmation = function (id) {
+        this.$confirm(`Continue? Select Avatar`, 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action !== 'confirm') {
+                    return;
+                }
+                $app.selectAvatarWithoutConfirmation(id);
+            }
+        });
+    };
 
 $app.methods.selectAvatarWithoutConfirmation = function (id) {
     if (API.currentUser.currentAvatar === id) {
@@ -9859,25 +9911,29 @@ $app.methods.userImageFull = function (user) {
     return user.currentAvatarImageUrl;
 };
 
-$app.methods.showConsole = function () {
-    AppApi.ShowDevTools();
-    if (
-        this.debug ||
-        this.debugWebRequests ||
-        this.debugWebSocket ||
-        this.debugUserDiff
-    ) {
-        return;
-    }
-    console.log(
-        '%cCareful! This might not do what you think.',
-        'background-color: red; color: yellow; font-size: 32px; font-weight: bold'
-    );
-    console.log(
-        '%cIf someone told you to copy-paste something here, it can give them access to your account.',
-        'font-size: 20px;'
-    );
-};
+    $app.methods.getImageUrlFromImageId = function (imageId) {
+        return `https://api.vrchat.cloud/api/1/file/${imageId}/1/`;
+    };
+
+    $app.methods.showConsole = function () {
+        AppApi.ShowDevTools();
+        if (
+            this.debug ||
+            this.debugWebRequests ||
+            this.debugWebSocket ||
+            this.debugUserDiff
+        ) {
+            return;
+        }
+        console.log(
+            '%cCareful! This might not do what you think.',
+            'background-color: red; color: yellow; font-size: 32px; font-weight: bold'
+        );
+        console.log(
+            '%cIf someone told you to copy-paste something here, it can give them access to your account.',
+            'font-size: 20px;'
+        );
+    };
 
 $app.methods.clearVRCXCache = function () {
     API.failedGetRequests = new Map();
@@ -12254,13 +12310,25 @@ $app.computed.settingsTabEvent = function () {
     };
 };
 
-$app.methods.languageClass = function (key) {
-    return languageClass(key);
-};
 
-// #endregion
+//
+    $app.computed.vrcxUpdateDialogEvent = function () {
+        return {
+            'update:branch': (value) => (this.branch = value),
+            loadBranchVersions: this.loadBranchVersions,
+            cancelUpdate: this.cancelUpdate,
+            installVRCXUpdate: this.installVRCXUpdate,
+            restartVRCX: this.restartVRCX
+        };
+    };
+    //
 
-// #region | Electron
+    $app.methods.languageClass = function (key) {
+        return languageClass(key);
+    };
+
+    // #endregion
+    // #region | Electron
 
 if (LINUX) {
     window.electron.onWindowPositionChanged((event, position) => {

@@ -156,153 +156,154 @@ export default function init() {
         });
     });
 
-    API.applyCurrentUser = function (json) {
-        var ref = this.currentUser;
-        if (this.isLoggedIn) {
-            if (json.currentAvatar !== ref.currentAvatar) {
-                $app.addAvatarToHistory(json.currentAvatar);
+        API.applyCurrentUser = function (json) {
+            var ref = this.currentUser;
+            if (this.isLoggedIn) {
+                if (json.currentAvatar !== ref.currentAvatar) {
+                    $app.addAvatarToHistory(json.currentAvatar);
+                    if ($app.isGameRunning) {
+                        $app.addAvatarWearTime(ref.currentAvatar);
+                        ref.$previousAvatarSwapTime = Date.now();
+                    }
+                }
+                Object.assign(ref, json);
+                if (ref.homeLocation !== ref.$homeLocation.tag) {
+                    ref.$homeLocation = parseLocation(ref.homeLocation);
+                    // apply home location name to user dialog
+                    if ($app.userDialog.visible && $app.userDialog.id === ref.id) {
+                        $app.getWorldName(API.currentUser.homeLocation).then(
+                            (worldName) => {
+                                $app.userDialog.$homeLocationName = worldName;
+                            }
+                        );
+                    }
+                }
+                ref.$isVRCPlus = ref.tags.includes('system_supporter');
+                this.applyUserTrustLevel(ref);
+                this.applyUserLanguage(ref);
+                this.applyPresenceLocation(ref);
+                this.applyQueuedInstance(ref.queuedInstance);
+                this.applyPresenceGroups(ref);
+            } else {
+                ref = {
+                    acceptedPrivacyVersion: 0,
+                    acceptedTOSVersion: 0,
+                    accountDeletionDate: null,
+                    accountDeletionLog: null,
+                    activeFriends: [],
+                    ageVerificationStatus: '',
+                    ageVerified: false,
+                    allowAvatarCopying: false,
+                    badges: [],
+                    bio: '',
+                    bioLinks: [],
+                    currentAvatar: '',
+                    currentAvatarImageUrl: '',
+                    currentAvatarTags: [],
+                    currentAvatarThumbnailImageUrl: '',
+                    date_joined: '',
+                    developerType: '',
+                    displayName: '',
+                    emailVerified: false,
+                    fallbackAvatar: '',
+                    friendGroupNames: [],
+                    friendKey: '',
+                    friends: [],
+                    googleId: '',
+                    hasBirthday: false,
+                    hasEmail: false,
+                    hasLoggedInFromClient: false,
+                    hasPendingEmail: false,
+                    hideContentFilterSettings: false,
+                    homeLocation: '',
+                    id: '',
+                    isAdult: true,
+                    isBoopingEnabled: false,
+                    isFriend: false,
+                    last_activity: '',
+                    last_login: '',
+                    last_mobile: null,
+                    last_platform: '',
+                    obfuscatedEmail: '',
+                    obfuscatedPendingEmail: '',
+                    oculusId: '',
+                    offlineFriends: [],
+                    onlineFriends: [],
+                    pastDisplayNames: [],
+                    picoId: '',
+                    presence: {
+                        avatarThumbnail: '',
+                        currentAvatarTags: '',
+                        displayName: '',
+                        groups: [],
+                        id: '',
+                        instance: '',
+                        instanceType: '',
+                        platform: '',
+                        profilePicOverride: '',
+                        status: '',
+                        travelingToInstance: '',
+                        travelingToWorld: '',
+                        userIcon: '',
+                        world: '',
+                        ...json.presence
+                    },
+                    profilePicOverride: '',
+                    pronouns: '',
+                    queuedInstance: '',
+                    state: '',
+                    status: '',
+                    statusDescription: '',
+                    statusFirstTime: false,
+                    statusHistory: [],
+                    steamDetails: {},
+                    steamId: '',
+                    tags: [],
+                    twoFactorAuthEnabled: false,
+                    twoFactorAuthEnabledDate: null,
+                    unsubscribe: false,
+                    updated_at: '',
+                    userIcon: '',
+                    userLanguage: '',
+                    userLanguageCode: '',
+                    username: '',
+                    viveId: '',
+                    // VRCX
+                    $online_for: Date.now(),
+                    $offline_for: '',
+                    $location_at: Date.now(),
+                    $travelingToTime: Date.now(),
+                    $previousAvatarSwapTime: '',
+                    $homeLocation: {},
+                    $isVRCPlus: false,
+                    $isModerator: false,
+                    $isTroll: false,
+                    $isProbableTroll: false,
+                    $trustLevel: 'Visitor',
+                    $trustClass: 'x-tag-untrusted',
+                    $userColour: '',
+                    $trustSortNum: 1,
+                    $languages: [],
+                    $locationTag: '',
+                    $travelingToLocation: '',
+                    ...json
+                };
                 if ($app.isGameRunning) {
-                    $app.addAvatarWearTime(ref.currentAvatar);
                     ref.$previousAvatarSwapTime = Date.now();
                 }
-            }
-            Object.assign(ref, json);
-            if (ref.homeLocation !== ref.$homeLocation.tag) {
                 ref.$homeLocation = parseLocation(ref.homeLocation);
-                // apply home location name to user dialog
-                if ($app.userDialog.visible && $app.userDialog.id === ref.id) {
-                    $app.getWorldName(API.currentUser.homeLocation).then(
-                        (worldName) => {
-                            $app.userDialog.$homeLocationName = worldName;
-                        }
-                    );
-                }
+                ref.$isVRCPlus = ref.tags.includes('system_supporter');
+                this.applyUserTrustLevel(ref);
+                this.applyUserLanguage(ref);
+                this.applyPresenceLocation(ref);
+                this.applyPresenceGroups(ref);
+                this.currentUser = ref;
+                this.isLoggedIn = true;
+                this.$emit('LOGIN', {
+                    json,
+                    ref
+                });
             }
-            ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            this.applyUserTrustLevel(ref);
-            this.applyUserLanguage(ref);
-            this.applyPresenceLocation(ref);
-            this.applyQueuedInstance(ref.queuedInstance);
-            this.applyPresenceGroups(ref);
-        } else {
-            ref = {
-                acceptedPrivacyVersion: 0,
-                acceptedTOSVersion: 0,
-                accountDeletionDate: null,
-                accountDeletionLog: null,
-                activeFriends: [],
-                ageVerificationStatus: '',
-                ageVerified: false,
-                allowAvatarCopying: false,
-                badges: [],
-                bio: '',
-                bioLinks: [],
-                currentAvatar: '',
-                currentAvatarImageUrl: '',
-                currentAvatarTags: [],
-                currentAvatarThumbnailImageUrl: '',
-                date_joined: '',
-                developerType: '',
-                displayName: '',
-                emailVerified: false,
-                fallbackAvatar: '',
-                friendGroupNames: [],
-                friendKey: '',
-                friends: [],
-                googleId: '',
-                hasBirthday: false,
-                hasEmail: false,
-                hasLoggedInFromClient: false,
-                hasPendingEmail: false,
-                hideContentFilterSettings: false,
-                homeLocation: '',
-                id: '',
-                isBoopingEnabled: false,
-                isFriend: false,
-                last_activity: '',
-                last_login: '',
-                last_mobile: null,
-                last_platform: '',
-                obfuscatedEmail: '',
-                obfuscatedPendingEmail: '',
-                oculusId: '',
-                offlineFriends: [],
-                onlineFriends: [],
-                pastDisplayNames: [],
-                picoId: '',
-                presence: {
-                    avatarThumbnail: '',
-                    currentAvatarTags: '',
-                    displayName: '',
-                    groups: [],
-                    id: '',
-                    instance: '',
-                    instanceType: '',
-                    platform: '',
-                    profilePicOverride: '',
-                    status: '',
-                    travelingToInstance: '',
-                    travelingToWorld: '',
-                    userIcon: '',
-                    world: '',
-                    ...json.presence
-                },
-                profilePicOverride: '',
-                pronouns: '',
-                queuedInstance: '',
-                state: '',
-                status: '',
-                statusDescription: '',
-                statusFirstTime: false,
-                statusHistory: [],
-                steamDetails: {},
-                steamId: '',
-                tags: [],
-                twoFactorAuthEnabled: false,
-                twoFactorAuthEnabledDate: null,
-                unsubscribe: false,
-                updated_at: '',
-                userIcon: '',
-                userLanguage: '',
-                userLanguageCode: '',
-                username: '',
-                viveId: '',
-                // VRCX
-                $online_for: Date.now(),
-                $offline_for: '',
-                $location_at: Date.now(),
-                $travelingToTime: Date.now(),
-                $previousAvatarSwapTime: '',
-                $homeLocation: {},
-                $isVRCPlus: false,
-                $isModerator: false,
-                $isTroll: false,
-                $isProbableTroll: false,
-                $trustLevel: 'Visitor',
-                $trustClass: 'x-tag-untrusted',
-                $userColour: '',
-                $trustSortNum: 1,
-                $languages: [],
-                $locationTag: '',
-                $travelingToLocation: '',
-                ...json
-            };
-            if ($app.isGameRunning) {
-                ref.$previousAvatarSwapTime = Date.now();
-            }
-            ref.$homeLocation = parseLocation(ref.homeLocation);
-            ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            this.applyUserTrustLevel(ref);
-            this.applyUserLanguage(ref);
-            this.applyPresenceLocation(ref);
-            this.applyPresenceGroups(ref);
-            this.currentUser = ref;
-            this.isLoggedIn = true;
-            this.$emit('LOGIN', {
-                json,
-                ref
-            });
-        }
-        return ref;
-    };
-}
+            return ref;
+        };
+    }

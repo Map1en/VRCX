@@ -260,10 +260,63 @@ function buildTreeData(json) {
     return node;
 }
 
-function replaceBioSymbols(text) {
-    if (!text) {
-        return '';
+// ---------------------- devtool method --------------------------
+
+async function getBundleLocation(input) {
+    const $app = window.$app;
+    var assetUrl = input;
+    var variant = '';
+    if (assetUrl) {
+        // continue
+    } else if (
+        $app.avatarDialog.visible &&
+        $app.avatarDialog.ref.unityPackages.length > 0
+    ) {
+        var unityPackages = $app.avatarDialog.ref.unityPackages;
+        for (let i = unityPackages.length - 1; i > -1; i--) {
+            var unityPackage = unityPackages[i];
+            if (
+                unityPackage.variant &&
+                unityPackage.variant !== 'standard' &&
+                unityPackage.variant !== 'security'
+            ) {
+                continue;
+            }
+            if (
+                unityPackage.platform === 'standalonewindows' &&
+                compareUnityVersion(unityPackage.unitySortNumber)
+            ) {
+                assetUrl = unityPackage.assetUrl;
+                if (unityPackage.variant !== 'standard') {
+                    variant = unityPackage.variant;
+                }
+                break;
+            }
+        }
+    } else if (
+        $app.worldDialog.visible &&
+        $app.worldDialog.ref.unityPackages.length > 0
+    ) {
+        var unityPackages = $app.worldDialog.ref.unityPackages;
+        for (let i = unityPackages.length - 1; i > -1; i--) {
+            var unityPackage = unityPackages[i];
+            if (
+                unityPackage.platform === 'standalonewindows' &&
+                compareUnityVersion(unityPackage.unitySortNumber)
+            ) {
+                assetUrl = unityPackage.assetUrl;
+                break;
+            }
+        }
     }
+    if (!assetUrl) {
+        return null;
+    }
+
+    function replaceBioSymbols(text) {
+        if (!text) {
+            return '';
+        }
     const symbolList = {
         '@': '＠',
         '#': '＃',

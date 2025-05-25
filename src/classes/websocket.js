@@ -507,50 +507,55 @@ export default function init() {
                 // $app.instanceQueueClear();
                 break;
 
-            case 'content-refresh':
-                var contentType = content.contentType;
-                console.log('content-refresh', content);
-                if (contentType === 'icon') {
-                    if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogIconsLoading
+                case 'content-refresh':
+                    var contentType = content.contentType;
+                    console.log('content-refresh', content);
+                    if (contentType === 'icon') {
+                        if (
+                            $app.galleryDialogVisible &&
+                            !$app.galleryDialogIconsLoading
+                        ) {
+                            $app.refreshVRCPlusIconsTable();
+                        }
+                    } else if (contentType === 'gallery') {
+                        if (
+                            $app.galleryDialogVisible &&
+                            !$app.galleryDialogGalleryLoading
+                        ) {
+                            $app.refreshGalleryTable();
+                        }
+                    } else if (contentType === 'emoji') {
+                        if (
+                            $app.galleryDialogVisible &&
+                            !$app.galleryDialogEmojisLoading
+                        ) {
+                            $app.refreshEmojiTable();
+                        }
+                    } else if (
+                        contentType === 'print' ||
+                        contentType === 'prints'
                     ) {
-                        $app.refreshVRCPlusIconsTable();
+                        if (
+                            $app.galleryDialogVisible &&
+                            !$app.galleryDialogPrintsLoading
+                        ) {
+                            $app.refreshPrintTable();
+                        }
+                    } else if (contentType === 'avatar') {
+                        // hmm, utilizing this might be too spamy and cause UI to move around
+                    } else if (contentType === 'world') {
+                        // hmm
+                    } else if (contentType === 'created') {
+                        // on avatar upload
+                    } else if (contentType === 'avatargallery') {
+                        // on avatar gallery image upload
+                    } else {
+                        console.log(
+                            'Unknown content-refresh type',
+                            content.contentType
+                        );
                     }
-                } else if (contentType === 'gallery') {
-                    if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogGalleryLoading
-                    ) {
-                        $app.refreshGalleryTable();
-                    }
-                } else if (contentType === 'emoji') {
-                    if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogEmojisLoading
-                    ) {
-                        $app.refreshEmojiTable();
-                    }
-                } else if (
-                    contentType === 'print' ||
-                    contentType === 'prints'
-                ) {
-                    if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogPrintsLoading
-                    ) {
-                        $app.refreshPrintTable();
-                    }
-                } else if (contentType === 'avatar') {
-                    // hmm, utilizing this might be too spamy and cause UI to move around
-                } else if (contentType === 'world') {
-                    // hmm
-                } else if (contentType === 'created') {
-                    // on avatar upload
-                } else {
-                    console.log('Unknown content-refresh', content);
-                }
-                break;
+                    break;
 
             case 'instance-closed':
                 // TODO: get worldName, groupName, hardClose
