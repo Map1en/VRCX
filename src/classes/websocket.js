@@ -549,6 +549,8 @@ export default function init() {
                         // on avatar upload
                     } else if (contentType === 'avatargallery') {
                         // on avatar gallery image upload
+                    } else if (contentType === 'invitePhoto') {
+                        // on uploading invite photo
                     } else {
                         console.log(
                             'Unknown content-refresh type',
