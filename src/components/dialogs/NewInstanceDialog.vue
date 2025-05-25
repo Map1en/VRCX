@@ -507,7 +507,7 @@
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['API', 'friends', 'userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
+        inject: ['API', 'userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
             instanceContentSettings: {
                 type: Array,
@@ -536,8 +536,9 @@
         },
         setup() {
             const friendStore = useFriendStore();
-            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
             return {
+                friends,
                 vipFriends,
                 onlineFriends,
                 activeFriends,

@@ -647,7 +647,11 @@ const app = {
             languageClass: this.languageClass,
             showGroupDialog: this.showGroupDialog,
             showGallerySelectDialog: this.showGallerySelectDialog,
-            showGalleryDialog: this.showGalleryDialog
+            showGalleryDialog: this.showGalleryDialog,
+            getAvatarGallery: this.getAvatarGallery,
+            inviteImageUpload: this.inviteImageUpload,
+            clearInviteImageUpload: this.clearInviteImageUpload,
+            isLinux: this.isLinux
         };
     },
     el: '#root',
@@ -8366,30 +8370,30 @@ $app.methods.newInstanceSelfInvite = function (worldId) {
 // #endregion
 // #region | App: Avatar Dialog
 
-    $app.data.avatarDialog = {
-        visible: false,
-        loading: false,
-        id: '',
-        memo: '',
-        ref: {},
-        isFavorite: false,
-        isBlocked: false,
-        isQuestFallback: false,
-        hasImposter: false,
-        imposterVersion: '',
-        isPC: false,
-        isQuest: false,
-        isIos: false,
-        bundleSizes: [],
-        platformInfo: {},
-        galleryImages: [],
-        galleryLoading: false,
-        lastUpdated: '',
-        inCache: false,
-        cacheSize: 0,
-        cacheLocked: false,
-        cachePath: ''
-    };
+$app.data.avatarDialog = {
+    visible: false,
+    loading: false,
+    id: '',
+    memo: '',
+    ref: {},
+    isFavorite: false,
+    isBlocked: false,
+    isQuestFallback: false,
+    hasImposter: false,
+    imposterVersion: '',
+    isPC: false,
+    isQuest: false,
+    isIos: false,
+    bundleSizes: [],
+    platformInfo: {},
+    galleryImages: [],
+    galleryLoading: false,
+    lastUpdated: '',
+    inCache: false,
+    cacheSize: 0,
+    cacheLocked: false,
+    cachePath: ''
+};
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
@@ -8408,90 +8412,88 @@ API.$on('FAVORITE:@DELETE', function (args) {
     D.isFavorite = false;
 });
 
-    $app.methods.showAvatarDialog = function (avatarId) {
-        const D = this.avatarDialog;
-        D.visible = true;
-        D.loading = true;
-        D.id = avatarId;
-        D.inCache = false;
-        D.cacheSize = 0;
-        D.cacheLocked = false;
-        D.cachePath = '';
-        D.isQuestFallback = false;
-        D.isPC = false;
-        D.isQuest = false;
-        D.isIos = false;
-        D.hasImposter = false;
-        D.imposterVersion = '';
-        D.lastUpdated = '';
-        D.bundleSizes = [];
-        D.platformInfo = {};
-        D.galleryImages = [];
-        D.galleryLoading = true;
-        D.isFavorite =
-            API.cachedFavoritesByObjectId.has(avatarId) ||
-            (API.currentUser.$isVRCPlus &&
-                this.localAvatarFavoritesList.includes(avatarId));
-        D.isBlocked = API.cachedAvatarModerations.has(avatarId);
-        const ref2 = API.cachedAvatars.get(avatarId);
-        if (typeof ref2 !== 'undefined') {
-            D.ref = ref2;
-            this.updateVRChatAvatarCache();
-            if (
-                ref2.releaseStatus !== 'public' &&
-                ref2.authorId !== API.currentUser.id
-            ) {
-                D.loading = false;
-                return;
-            }
+$app.methods.showAvatarDialog = function (avatarId) {
+    const D = this.avatarDialog;
+    D.visible = true;
+    D.loading = true;
+    D.id = avatarId;
+    D.inCache = false;
+    D.cacheSize = 0;
+    D.cacheLocked = false;
+    D.cachePath = '';
+    D.isQuestFallback = false;
+    D.isPC = false;
+    D.isQuest = false;
+    D.isIos = false;
+    D.hasImposter = false;
+    D.imposterVersion = '';
+    D.lastUpdated = '';
+    D.bundleSizes = [];
+    D.platformInfo = {};
+    D.galleryImages = [];
+    D.galleryLoading = true;
+    D.isFavorite =
+        API.cachedFavoritesByObjectId.has(avatarId) ||
+        (API.currentUser.$isVRCPlus &&
+            this.localAvatarFavoritesList.includes(avatarId));
+    D.isBlocked = API.cachedAvatarModerations.has(avatarId);
+    const ref2 = API.cachedAvatars.get(avatarId);
+    if (typeof ref2 !== 'undefined') {
+        D.ref = ref2;
+        this.updateVRChatAvatarCache();
+        if (
+            ref2.releaseStatus !== 'public' &&
+            ref2.authorId !== API.currentUser.id
+        ) {
+            D.loading = false;
+            return;
         }
-        avatarRequest
-            .getAvatar({ avatarId })
-            .then((args) => {
-                let { ref } = args;
-                D.ref = ref;
-                this.getAvatarGallery(avatarId);
-                this.updateVRChatAvatarCache();
-                if (/quest/.test(ref.tags)) {
-                    D.isQuestFallback = true;
+    }
+    avatarRequest
+        .getAvatar({ avatarId })
+        .then((args) => {
+            let { ref } = args;
+            D.ref = ref;
+            this.getAvatarGallery(avatarId);
+            this.updateVRChatAvatarCache();
+            if (/quest/.test(ref.tags)) {
+                D.isQuestFallback = true;
+            }
+            let { isPC, isQuest, isIos } = getAvailablePlatforms(
+                args.ref.unityPackages
+            );
+            D.isPC = isPC;
+            D.isQuest = isQuest;
+            D.isIos = isIos;
+            D.platformInfo = getPlatformInfo(args.ref.unityPackages);
+            for (let i = ref.unityPackages.length - 1; i > -1; i--) {
+                const unityPackage = ref.unityPackages[i];
+                if (unityPackage.variant === 'impostor') {
+                    D.hasImposter = true;
+                    D.imposterVersion = unityPackage.impostorizerVersion;
+                    break;
                 }
-                let { isPC, isQuest, isIos } = getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                D.isPC = isPC;
-                D.isQuest = isQuest;
-                D.isIos = isIos;
-                D.platformInfo = getPlatformInfo(args.ref.unityPackages);
-                for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-                    const unityPackage = ref.unityPackages[i];
-                    if (unityPackage.variant === 'impostor') {
-                        D.hasImposter = true;
-                        D.imposterVersion = unityPackage.impostorizerVersion;
-                        break;
-                    }
-                }
-                if (D.bundleSizes.length === 0) {
-                    this.getBundleDateSize(ref).then((bundleSizes) => {
-                        D.bundleSizes = bundleSizes;
-                    });
-                }
-            })
-            .catch((err) => {
-                D.visible = false;
-                throw err;
-            })
-            .finally(() => {
-                this.$nextTick(() => (D.loading = false));
-            });
-    };
+            }
+            if (D.bundleSizes.length === 0) {
+                this.getBundleDateSize(ref).then((bundleSizes) => {
+                    D.bundleSizes = bundleSizes;
+                });
+            }
+        })
+        .catch((err) => {
+            D.visible = false;
+            throw err;
+        })
+        .finally(() => {
+            this.$nextTick(() => (D.loading = false));
+        });
+};
 
 $app.methods.getAvatarGallery = async function (avatarId) {
     const D = this.avatarDialog;
-    const args = await avatarRequest
-        .getAvatarGallery(avatarId)
-        .finally(() => {
-            D.galleryLoading = false;
-        });
+    const args = await avatarRequest.getAvatarGallery(avatarId).finally(() => {
+        D.galleryLoading = false;
+    });
     if (args.params.galleryId !== D.id) {
         return;
     }
@@ -12117,7 +12119,7 @@ $app.computed.notificationTabBind = function () {
         lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning,
         inviteResponseMessageTable: this.inviteResponseMessageTable,
-        updateImage: this.updateImage,
+        uploadImage: this.uploadImage,
         checkCanInvite: this.checkCanInvite,
         inviteRequestResponseMessageTable:
             this.inviteRequestResponseMessageTable
