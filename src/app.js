@@ -8888,15 +8888,17 @@ $app.methods.launchGame = async function (location, shortName, desktopMode) {
         'vrcLaunchPathOverride'
     );
 
-    if (launchArguments) {
-        args.push(launchArguments);
-    }
-    if (desktopMode) {
-        args.push('--no-vr');
-    }
-    if (vrcLaunchPathOverride) {
-        AppApi.StartGameFromPath(vrcLaunchPathOverride, args.join(' ')).then(
-            (result) => {
+        if (launchArguments) {
+            args.push(launchArguments);
+        }
+        if (desktopMode) {
+            args.push('--no-vr');
+        }
+        if (vrcLaunchPathOverride && !LINUX) {
+            AppApi.StartGameFromPath(
+                vrcLaunchPathOverride,
+                args.join(' ')
+            ).then((result) => {
                 if (!result) {
                     this.$message({
                         message:
