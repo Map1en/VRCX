@@ -8366,29 +8366,30 @@ $app.methods.newInstanceSelfInvite = function (worldId) {
 // #endregion
 // #region | App: Avatar Dialog
 
-$app.data.avatarDialog = {
-    visible: false,
-    loading: false,
-    id: '',
-    memo: '',
-    ref: {},
-    isFavorite: false,
-    isBlocked: false,
-    isQuestFallback: false,
-    hasImposter: false,
-    imposterVersion: '',
-    isPC: false,
-    isQuest: false,
-    isIos: false,
-    bundleSizes: [],
-    platformInfo: {},
-    galleryImages: [],
-    lastUpdated: '',
-    inCache: false,
-    cacheSize: 0,
-    cacheLocked: false,
-    cachePath: ''
-};
+    $app.data.avatarDialog = {
+        visible: false,
+        loading: false,
+        id: '',
+        memo: '',
+        ref: {},
+        isFavorite: false,
+        isBlocked: false,
+        isQuestFallback: false,
+        hasImposter: false,
+        imposterVersion: '',
+        isPC: false,
+        isQuest: false,
+        isIos: false,
+        bundleSizes: [],
+        platformInfo: {},
+        galleryImages: [],
+        galleryLoading: false,
+        lastUpdated: '',
+        inCache: false,
+        cacheSize: 0,
+        cacheLocked: false,
+        cachePath: ''
+    };
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
@@ -8407,95 +8408,110 @@ API.$on('FAVORITE:@DELETE', function (args) {
     D.isFavorite = false;
 });
 
-$app.methods.showAvatarDialog = function (avatarId) {
-    const D = this.avatarDialog;
-    D.visible = true;
-    D.loading = true;
-    D.id = avatarId;
-    D.inCache = false;
-    D.cacheSize = 0;
-    D.cacheLocked = false;
-    D.cachePath = '';
-    D.isQuestFallback = false;
-    D.isPC = false;
-    D.isQuest = false;
-    D.isIos = false;
-    D.hasImposter = false;
-    D.imposterVersion = '';
-    D.lastUpdated = '';
-    D.bundleSizes = [];
-    D.platformInfo = {};
-    D.galleryImages = [];
-    D.isFavorite =
-        API.cachedFavoritesByObjectId.has(avatarId) ||
-        (API.currentUser.$isVRCPlus &&
-            this.localAvatarFavoritesList.includes(avatarId));
-    D.isBlocked = API.cachedAvatarModerations.has(avatarId);
-    const ref2 = API.cachedAvatars.get(avatarId);
-    if (typeof ref2 !== 'undefined') {
-        D.ref = ref2;
-        this.updateVRChatAvatarCache();
-        if (
-            ref2.releaseStatus !== 'public' &&
-            ref2.authorId !== API.currentUser.id
-        ) {
-            D.loading = false;
-            return;
-        }
-    }
-    avatarRequest
-        .getAvatar({ avatarId })
-        .then((args) => {
-            let { ref } = args;
-            D.ref = ref;
+    $app.methods.showAvatarDialog = function (avatarId) {
+        const D = this.avatarDialog;
+        D.visible = true;
+        D.loading = true;
+        D.id = avatarId;
+        D.inCache = false;
+        D.cacheSize = 0;
+        D.cacheLocked = false;
+        D.cachePath = '';
+        D.isQuestFallback = false;
+        D.isPC = false;
+        D.isQuest = false;
+        D.isIos = false;
+        D.hasImposter = false;
+        D.imposterVersion = '';
+        D.lastUpdated = '';
+        D.bundleSizes = [];
+        D.platformInfo = {};
+        D.galleryImages = [];
+        D.galleryLoading = true;
+        D.isFavorite =
+            API.cachedFavoritesByObjectId.has(avatarId) ||
+            (API.currentUser.$isVRCPlus &&
+                this.localAvatarFavoritesList.includes(avatarId));
+        D.isBlocked = API.cachedAvatarModerations.has(avatarId);
+        const ref2 = API.cachedAvatars.get(avatarId);
+        if (typeof ref2 !== 'undefined') {
+            D.ref = ref2;
             this.updateVRChatAvatarCache();
-            if (/quest/.test(ref.tags)) {
-                D.isQuestFallback = true;
-            }
-            let { isPC, isQuest, isIos } = getAvailablePlatforms(
-                args.ref.unityPackages
-            );
-            D.isPC = isPC;
-            D.isQuest = isQuest;
-            D.isIos = isIos;
-            D.platformInfo = getPlatformInfo(args.ref.unityPackages);
-            for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-                const unityPackage = ref.unityPackages[i];
-                if (unityPackage.variant === 'impostor') {
-                    D.hasImposter = true;
-                    D.imposterVersion = unityPackage.impostorizerVersion;
-                    break;
-                }
-            }
-            if (D.bundleSizes.length === 0) {
-                this.getBundleDateSize(ref).then((bundleSizes) => {
-                    D.bundleSizes = bundleSizes;
-                });
-            }
-        })
-        .catch((err) => {
-            D.visible = false;
-            throw err;
-        })
-        .finally(() => {
-            this.$nextTick(() => (D.loading = false));
-        });
-};
-
-$app.methods.selectAvatarWithConfirmation = function (id) {
-    this.$confirm(`Continue? Select Avatar`, 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action !== 'confirm') {
+            if (
+                ref2.releaseStatus !== 'public' &&
+                ref2.authorId !== API.currentUser.id
+            ) {
+                D.loading = false;
                 return;
             }
-            $app.selectAvatarWithoutConfirmation(id);
         }
-    });
-};
+        avatarRequest
+            .getAvatar({ avatarId })
+            .then((args) => {
+                let { ref } = args;
+                D.ref = ref;
+                this.getAvatarGallery(avatarId);
+                this.updateVRChatAvatarCache();
+                if (/quest/.test(ref.tags)) {
+                    D.isQuestFallback = true;
+                }
+                let { isPC, isQuest, isIos } = getAvailablePlatforms(
+                    args.ref.unityPackages
+                );
+                D.isPC = isPC;
+                D.isQuest = isQuest;
+                D.isIos = isIos;
+                D.platformInfo = getPlatformInfo(args.ref.unityPackages);
+                for (let i = ref.unityPackages.length - 1; i > -1; i--) {
+                    const unityPackage = ref.unityPackages[i];
+                    if (unityPackage.variant === 'impostor') {
+                        D.hasImposter = true;
+                        D.imposterVersion = unityPackage.impostorizerVersion;
+                        break;
+                    }
+                }
+                if (D.bundleSizes.length === 0) {
+                    this.getBundleDateSize(ref).then((bundleSizes) => {
+                        D.bundleSizes = bundleSizes;
+                    });
+                }
+            })
+            .catch((err) => {
+                D.visible = false;
+                throw err;
+            })
+            .finally(() => {
+                this.$nextTick(() => (D.loading = false));
+            });
+    };
 
+$app.methods.getAvatarGallery = async function (avatarId) {
+    const D = this.avatarDialog;
+    const args = await avatarRequest
+        .getAvatarGallery(avatarId)
+        .finally(() => {
+            D.galleryLoading = false;
+        });
+    if (args.params.galleryId !== D.id) {
+        return;
+    }
+    D.galleryImages = [];
+    // wtf is this? why is order sorting only needed if it's your own avatar?
+    const sortedGallery = args.json.sort((a, b) => {
+        if (!a.order && !b.order) {
+            return 0;
+        }
+        return a.order - b.order;
+    });
+    for (const file of sortedGallery) {
+        const url = file.versions[file.versions.length - 1].file.url;
+        D.galleryImages.push(url);
+    }
+
+    // for JSON tab treeData
+    D.ref.gallery = args.json;
+    return D.galleryImages;
+};
 $app.methods.selectAvatarWithConfirmation = function (id) {
     this.$confirm(`Continue? Select Avatar`, 'Confirm', {
         confirmButtonText: 'Confirm',
