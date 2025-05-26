@@ -333,11 +333,15 @@
     } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
+    import { useAvatarProviderStore } from '../../stores/avatarProvider';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const avatarProviderStore = useAvatarProviderStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
+    const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
+    const { setAvatarProvider } = avatarProviderStore;
 
     const { t } = useI18n();
 
@@ -361,14 +365,6 @@
             type: Array,
             default: () => []
         },
-        avatarRemoteDatabaseProviderList: {
-            type: Array,
-            default: () => []
-        },
-        avatarRemoteDatabaseProvider: {
-            type: String,
-            default: ''
-        },
         userDialog: {
             type: Object,
             default: () => ({})
@@ -383,7 +379,7 @@
         }
     });
 
-    const emit = defineEmits(['clearSearch', 'setAvatarProvider', 'refreshUserDialogAvatars', 'update:searchText']);
+    const emit = defineEmits(['clearSearch', 'refreshUserDialogAvatars', 'update:searchText']);
 
     const searchTabRef = ref(null);
 
@@ -560,9 +556,6 @@
             });
     }
 
-    function setAvatarProvider(provider) {
-        emit('setAvatarProvider', provider);
-    }
     function refreshUserDialogAvatars(fileId) {
         emit('refreshUserDialogAvatars', fileId);
     }

@@ -33,7 +33,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         sqliteTableSizes: {}
     });
 
-    async function initSettings() {
+    async function initAdvancedSettings() {
         const [
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
@@ -369,9 +369,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         return data;
     }
 
+    initAdvancedSettings();
+
     return {
         state,
-        initSettings,
 
         enablePrimaryPassword,
         relaunchVRChatAfterCrash,

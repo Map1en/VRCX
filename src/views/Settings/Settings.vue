@@ -1807,6 +1807,7 @@
         <YouTubeApiDialog :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible" />
         <FeedFiltersDialog :feedFiltersDialogMode.sync="feedFiltersDialogMode" @updateSharedFeed="updateSharedFeed" />
         <ChangelogDialog />
+        <AvatarProviderDialog :isAvatarProviderDialogVisible.sync="isAvatarProviderDialogVisible" />
     </div>
 </template>
 
@@ -1829,6 +1830,7 @@
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import { usePhotonStore } from '../../stores/photon';
     import { useFriendStore } from '../../stores/friend';
+    import { useAvatarProviderStore } from '../../stores/avatarProvider';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
@@ -1839,6 +1841,7 @@
     import YouTubeApiDialog from './dialogs/YouTubeApiDialog.vue';
     import ChangelogDialog from './dialogs/ChangelogDialog.vue';
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
+    import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
 
     const { messages, t } = useI18n();
 
@@ -1852,7 +1855,10 @@
     const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
     const photonStore = usePhotonStore();
+    const avatarProviderStore = useAvatarProviderStore();
 
+    const { isAvatarProviderDialogVisible } = storeToRefs(avatarProviderStore);
+    const { showAvatarProviderDialog } = avatarProviderStore;
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
 
     // checkForVRCXUpdate,showChangeLogDialog => notifyMenu,
@@ -2153,8 +2159,7 @@
         'promptAutoClearVRCXCacheFrequency',
         'showConsole',
         'showLaunchOptions',
-        'handleSetTablePageSize',
-        'showAvatarProviderDialog'
+        'handleSetTablePageSize'
     ]);
 
     const instanceTypes = ref([
@@ -2381,10 +2386,6 @@
 
     function resetUGCFolder() {
         emit('resetUGCFolder');
-    }
-
-    function showAvatarProviderDialog() {
-        emit('showAvatarProviderDialog');
     }
 
     function openShortcutFolder() {

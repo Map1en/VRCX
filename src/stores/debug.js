@@ -22,7 +22,5 @@ export const useDebugStore = defineStore('Debug', () => {
         }
     });
 
-    return {
-        debugWebRequests
-    };
+    return { state, debugWebRequests };
 });

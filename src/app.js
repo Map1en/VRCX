@@ -144,6 +144,7 @@ import { useAdvancedSettingsStore } from './stores/settings/advanced';
 import { usePhotonStore } from './stores/photon';
 import { useDebugStore } from './stores/debug';
 import { useFriendStore } from './stores/friend';
+import { useAvatarProviderStore } from './stores/avatarProvider';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -258,8 +259,13 @@ const app = {
         const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
+        const avatarProviderStore = useAvatarProviderStore();
 
         const { autoUpdateVRCX, vrcxId } = storeToRefs(VRCXUpdaterStore);
+
+        const { avatarRemoteDatabaseProvider } =
+            storeToRefs(avatarProviderStore);
+        const { addAvatarProvider } = avatarProviderStore;
 
         const {
             compareAppVersion,
@@ -545,7 +551,11 @@ const app = {
             localFavoriteFriends,
 
             updateLocalFavoriteFriends,
-            updateSidebarFriendsList
+            updateSidebarFriendsList,
+
+            avatarRemoteDatabaseProvider,
+
+            addAvatarProvider
         };
     },
     data: {
@@ -662,8 +672,7 @@ const app = {
         const notificationsSettingsStore = useNotificationsSettingsStore();
         const wristOverlaySettingsStore = useWristOverlaySettingsStore();
         const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
-        const advancedSettingsStore = useAdvancedSettingsStore();
-        const photonStore = usePhotonStore();
+        // const advancedSettingsStore = useAdvancedSettingsStore();
 
         this.setThemeMode(initThemeMode);
 
@@ -673,9 +682,8 @@ const app = {
             appearanceSettingsStore.initSettings(),
             notificationsSettingsStore.initSettings(),
             wristOverlaySettingsStore.initSettings(),
-            discordPresenceSettingsStore.initSettings(),
-            advancedSettingsStore.initSettings(),
-            photonStore.initPhotonStates()
+            discordPresenceSettingsStore.initSettings()
+            // advancedSettingsStore.initSettings()
         ]);
 
         /**
@@ -5967,52 +5975,8 @@ $app.data.clearVRCXCacheFrequency = await configRepository.getInt(
     'VRCX_clearVRCXCacheFrequency',
     172800
 );
-$app.data.avatarRemoteDatabaseProvider = '';
-$app.data.avatarRemoteDatabaseProviderList = JSON.parse(
-    await configRepository.getString(
-        'VRCX_avatarRemoteDatabaseProviderList',
-        '[ "https://api.avtrdb.com/v2/avatar/search/vrcx", "https://avtr.just-h.party/vrcx_search.php" ]'
-    )
-);
-if (
-    $app.data.avatarRemoteDatabaseProviderList.length === 1 &&
-    $app.data.avatarRemoteDatabaseProviderList[0] ===
-        'https://avtr.just-h.party/vrcx_search.php'
-) {
-    $app.data.avatarRemoteDatabaseProviderList.unshift(
-        'https://api.avtrdb.com/v2/avatar/search/vrcx'
-    );
-    await configRepository.setString(
-        'VRCX_avatarRemoteDatabaseProviderList',
-        JSON.stringify($app.data.avatarRemoteDatabaseProviderList)
-    );
-}
 $app.data.pendingOfflineDelay = 180000;
 
-if (await configRepository.getString('VRCX_avatarRemoteDatabaseProvider')) {
-    // move existing provider to new list
-    const avatarRemoteDatabaseProvider = await configRepository.getString(
-        'VRCX_avatarRemoteDatabaseProvider'
-    );
-    if (
-        !$app.data.avatarRemoteDatabaseProviderList.includes(
-            avatarRemoteDatabaseProvider
-        )
-    ) {
-        $app.data.avatarRemoteDatabaseProviderList.push(
-            avatarRemoteDatabaseProvider
-        );
-    }
-    await configRepository.remove('VRCX_avatarRemoteDatabaseProvider');
-    await configRepository.setString(
-        'VRCX_avatarRemoteDatabaseProviderList',
-        JSON.stringify($app.data.avatarRemoteDatabaseProviderList)
-    );
-}
-if ($app.data.avatarRemoteDatabaseProviderList.length > 0) {
-    $app.data.avatarRemoteDatabaseProvider =
-        $app.data.avatarRemoteDatabaseProviderList[0];
-}
 $app.methods.saveOpenVROption = async function (configKey = '') {
     this.updateSharedFeed(true);
     this.updateVRConfigVars();
@@ -8888,17 +8852,15 @@ $app.methods.launchGame = async function (location, shortName, desktopMode) {
         'vrcLaunchPathOverride'
     );
 
-        if (launchArguments) {
-            args.push(launchArguments);
-        }
-        if (desktopMode) {
-            args.push('--no-vr');
-        }
-        if (vrcLaunchPathOverride && !LINUX) {
-            AppApi.StartGameFromPath(
-                vrcLaunchPathOverride,
-                args.join(' ')
-            ).then((result) => {
+    if (launchArguments) {
+        args.push(launchArguments);
+    }
+    if (desktopMode) {
+        args.push('--no-vr');
+    }
+    if (vrcLaunchPathOverride && !LINUX) {
+        AppApi.StartGameFromPath(vrcLaunchPathOverride, args.join(' ')).then(
+            (result) => {
                 if (!result) {
                     this.$message({
                         message:
@@ -10736,60 +10698,6 @@ $app.methods.openUGCFolderSelector = async function () {
     await this.setUGCFolderPath(path);
 };
 
-// avatar database provider
-
-$app.data.isAvatarProviderDialogVisible = false;
-
-$app.methods.showAvatarProviderDialog = function () {
-    this.isAvatarProviderDialogVisible = true;
-};
-
-$app.methods.addAvatarProvider = function (url) {
-    if (!url) {
-        return;
-    }
-    this.showAvatarProviderDialog();
-    if (!this.avatarRemoteDatabaseProviderList.includes(url)) {
-        this.avatarRemoteDatabaseProviderList.push(url);
-    }
-    this.saveAvatarProviderList();
-};
-
-$app.methods.removeAvatarProvider = function (url) {
-    const length = this.avatarRemoteDatabaseProviderList.length;
-    for (let i = 0; i < length; ++i) {
-        if (this.avatarRemoteDatabaseProviderList[i] === url) {
-            this.avatarRemoteDatabaseProviderList.splice(i, 1);
-        }
-    }
-    this.saveAvatarProviderList();
-};
-
-$app.methods.saveAvatarProviderList = async function () {
-    const length = this.avatarRemoteDatabaseProviderList.length;
-    for (let i = 0; i < length; ++i) {
-        if (!this.avatarRemoteDatabaseProviderList[i]) {
-            this.avatarRemoteDatabaseProviderList.splice(i, 1);
-        }
-    }
-    await configRepository.setString(
-        'VRCX_avatarRemoteDatabaseProviderList',
-        JSON.stringify(this.avatarRemoteDatabaseProviderList)
-    );
-    if (this.avatarRemoteDatabaseProviderList.length > 0) {
-        this.avatarRemoteDatabaseProvider =
-            this.avatarRemoteDatabaseProviderList[0];
-        this.setAvatarRemoteDatabase(true);
-    } else {
-        this.avatarRemoteDatabaseProvider = '';
-        this.setAvatarRemoteDatabase(false);
-    }
-};
-
-$app.methods.setAvatarProvider = function (provider) {
-    this.avatarRemoteDatabaseProvider = provider;
-};
-
 // #endregion
 // #region | App: bulk unfavorite
 
@@ -12154,8 +12062,6 @@ $app.computed.searchTabBind = function () {
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
         randomUserColours: this.randomUserColours,
-        avatarRemoteDatabaseProviderList: this.avatarRemoteDatabaseProviderList,
-        avatarRemoteDatabaseProvider: this.avatarRemoteDatabaseProvider,
         userDialog: this.userDialog,
         lookupAvatars: this.lookupAvatars
     };
@@ -12164,7 +12070,6 @@ $app.computed.searchTabBind = function () {
 $app.computed.searchTabEvent = function () {
     return {
         clearSearch: this.clearSearch,
-        setAvatarProvider: this.setAvatarProvider,
         refreshUserDialogAvatars: this.refreshUserDialogAvatars,
         moreSearchUser: this.moreSearchUser,
         'update:searchText': (value) => (this.searchText = value)
@@ -12294,7 +12199,6 @@ $app.computed.settingsTabEvent = function () {
         showConsole: this.showConsole,
         showLaunchOptions: this.showLaunchOptions,
         handleSetTablePageSize: this.handleSetTablePageSize,
-        showAvatarProviderDialog: this.showAvatarProviderDialog,
         updateSharedFeed: this.updateSharedFeed
     };
 };
