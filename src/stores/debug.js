@@ -3,7 +3,8 @@ import { computed, reactive } from 'vue';
 
 export const useDebugStore = defineStore('Debug', () => {
     const state = reactive({
-        debugWebRequests: false
+        debugWebRequests: false,
+        debugFriendState: false
 
         // $app.data.debug = false;
         // $app.data.debugWebRequests = false;
@@ -22,5 +23,12 @@ export const useDebugStore = defineStore('Debug', () => {
         }
     });
 
-    return { state, debugWebRequests };
+    const debugFriendState = computed({
+        get: () => state.debugFriendState,
+        set: (value) => {
+            state.debugFriendState = value;
+        }
+    });
+
+    return { state, debugWebRequests, debugFriendState };
 });

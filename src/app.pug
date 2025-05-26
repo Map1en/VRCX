@@ -25,12 +25,12 @@ doctype html
 
         NotificationTab(v-bind='notificationTabBind' v-on='notificationTabEvent')
 
-        ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
-
         FriendListTab(v-bind='friendsListTabBind' v-on='friendsListTabEvent')
 
         KeepAlive
             ChartsTab(v-if='menuActiveIndex === "charts"' v-bind='chartsTabBind' v-on='chartsTabEvent')
+
+        ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
 
         SettingsTab(v-bind='settingsTabBind' v-on='settingsTabEvent')
 

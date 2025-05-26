@@ -75,7 +75,6 @@ import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
 import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
-import InviteGroupDialog from './components/dialogs/InviteGroupDialog.vue';
 import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
 import SafeDialog from './components/dialogs/SafeDialog.vue';
@@ -163,15 +162,11 @@ import LoginPage from './views/Login/Login.vue';
 // tabs
 import ModerationTab from './views/Moderation/Moderation.vue';
 import NotificationTab from './views/Notifications/Notification.vue';
-import ChatboxBlacklistDialog from './views/PlayerList/dialogs/ChatboxBlacklistDialog.vue';
 import PlayerListTab from './views/PlayerList/PlayerList.vue';
-import DiscordNamesDialog from './views/Profile/dialogs/DiscordNamesDialog.vue';
 import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
-import ExportAvatarsListDialog from './views/Profile/dialogs/ExportAvatarsListDialog.vue';
-import ExportFriendsListDialog from './views/Profile/dialogs/ExportFriendsListDialog.vue';
+
 import ProfileTab from './views/Profile/Profile.vue';
 import SearchTab from './views/Search/Search.vue';
-import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
@@ -392,7 +387,7 @@ const app = {
             setTimeoutHudOverlay
         } = photonStore;
 
-        const { debugWebRequests } = storeToRefs(debugStore);
+        const { debugWebRequests, debugFriendState } = storeToRefs(debugStore);
 
         const friendStore = useFriendStore();
         const {
@@ -418,6 +413,7 @@ const app = {
         return {
             // debugStore
             debugWebRequests,
+            debugFriendState,
 
             // VRCXUpdaterStore
 
@@ -577,62 +573,40 @@ const app = {
     watch: {},
     components: {
         LoginPage,
-        // tabs
-        ModerationTab,
-        ChartsTab,
-        FriendListTab,
-        FavoritesTab,
-        NotificationTab,
-        SearchTab,
-        // - others
-        Sidebar,
         NavMenu,
-        FriendLogTab,
-        GameLogTab,
         FeedTab,
-        ProfileTab,
+        GameLogTab,
         PlayerListTab,
+        SearchTab,
+        FavoritesTab,
+        FriendLogTab,
+        ModerationTab,
+        NotificationTab,
+        FriendListTab,
+        ChartsTab,
+        ProfileTab,
         SettingsTab,
+        Sidebar,
 
         // components
-        // - common
         Location,
-
-        // - settings
         SimpleSwitch,
 
         // - dialogs
-        //  - previous instances
         PreviousInstancesInfoDialog,
         UserDialog,
-        //  - world
         WorldDialog,
-        //  - group
         GroupDialog,
-        InviteGroupDialog,
-        //  - avatar
         AvatarDialog,
-        //  - favorites
         FriendImportDialog,
         WorldImportDialog,
         AvatarImportDialog,
-        //  - favorites dialog
         ChooseFavoriteGroupDialog,
-        ExportFriendsListDialog,
-        ExportAvatarsListDialog,
-        //  - launch
         LaunchDialog,
-        //  - player list
-        ChatboxBlacklistDialog,
-        //  - profile
-        DiscordNamesDialog,
-        //  - settings
         LaunchOptionsDialog,
-
         VRCXUpdateDialog,
         EditInviteMessageDialog,
         VRChatConfigDialog,
-        AvatarProviderDialog,
         PrimaryPasswordDialog,
         FullscreenImageDialog
     },
