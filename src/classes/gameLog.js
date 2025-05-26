@@ -5,7 +5,11 @@ import { $app, API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import gameLogService from '../service/gamelog.js';
-import { parseLocation, replaceBioSymbols } from '../shared/utils';
+import {
+    getGroupName,
+    parseLocation,
+    replaceBioSymbols
+} from '../shared/utils';
 
 export default function init(app) {
     const _data = {
@@ -107,7 +111,7 @@ export default function init(app) {
                         groupName: '',
                         time: 0
                     };
-                    this.getGroupName(gameLog.location).then((groupName) => {
+                    getGroupName(gameLog.location).then((groupName) => {
                         entry.groupName = groupName;
                     });
                     this.addGamelogLocationToDatabase(entry);
@@ -488,7 +492,7 @@ export default function init(app) {
         },
 
         async addGamelogLocationToDatabase(input) {
-            var groupName = await this.getGroupName(input.location);
+            var groupName = await getGroupName(input.location);
             var entry = {
                 ...input,
                 groupName

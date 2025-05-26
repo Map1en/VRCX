@@ -1,6 +1,6 @@
 import { worldRequest } from '../api';
 import { API } from '../app.js';
-import { getLaunchURL, parseLocation } from '../shared/utils';
+import { getGroupName, getLaunchURL, parseLocation } from '../shared/utils';
 
 export default function init(app) {
     const _data = {
@@ -84,7 +84,7 @@ export default function init(app) {
                             break;
                         case 'group':
                             L.accessName = `Group #${L.instanceName} (${platform})`;
-                            this.getGroupName(L.groupId).then((groupName) => {
+                            getGroupName(L.groupId).then((groupName) => {
                                 if (groupName) {
                                     L.accessName = `Group${groupAccessType}(${groupName}) #${L.instanceName} (${platform})`;
                                 }

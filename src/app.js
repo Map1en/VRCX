@@ -129,7 +129,9 @@ import {
     replaceBioSymbols,
     storeAvatarImage,
     textToHex,
-    timeToText
+    timeToText,
+    getWorldName,
+    getGroupName
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -639,10 +641,8 @@ const app = {
             API,
             showUserDialog: this.showUserDialog,
             adjustDialogZ: this.adjustDialogZ,
-            getWorldName: this.getWorldName,
             userImage: this.userImage,
             userStatusClass: this.userStatusClass,
-            getGroupName: this.getGroupName,
             userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             statusClass: this.statusClass,
@@ -3765,8 +3765,8 @@ $app.methods.updateFriendDelayedCheck = async function (
             }
             const ts = Date.now();
             const time = ts - $location_at;
-            worldName = await this.getWorldName(location);
-            groupName = await this.getGroupName(location);
+            worldName = await getWorldName(location);
+            groupName = await getGroupName(location);
             feed = {
                 created_at: new Date().toJSON(),
                 type: 'Offline',
@@ -3789,8 +3789,8 @@ $app.methods.updateFriendDelayedCheck = async function (
             ctx.ref.$online_for = Date.now();
             ctx.ref.$offline_for = '';
             ctx.ref.$active_for = '';
-            worldName = await this.getWorldName(location);
-            groupName = await this.getGroupName(location);
+            worldName = await getWorldName(location);
+            groupName = await getGroupName(location);
             feed = {
                 created_at: new Date().toJSON(),
                 type: 'Online',
@@ -3842,44 +3842,6 @@ $app.methods.updateFriendDelayedCheck = async function (
         ctx.name = ref.displayName;
     }
     ctx.isVIP = isVIP;
-};
-
-$app.methods.getWorldName = async function (location) {
-    let worldName = '';
-
-    const L = parseLocation(location);
-    if (L.isRealInstance && L.worldId) {
-        const args = await worldRequest.getCachedWorld({
-            worldId: L.worldId
-        });
-        worldName = args.ref.name;
-    }
-
-    return worldName;
-};
-
-$app.methods.getGroupName = async function (data) {
-    if (!data) {
-        return '';
-    }
-    let groupName = '';
-    let groupId = data;
-    if (!data.startsWith('grp_')) {
-        const L = parseLocation(data);
-        groupId = L.groupId;
-        if (!L.groupId) {
-            return '';
-        }
-    }
-    try {
-        const args = await API.getCachedGroup({
-            groupId
-        });
-        groupName = args.ref.name;
-    } catch (err) {
-        console.error(err);
-    }
-    return groupName;
 };
 
 $app.methods.updateFriendGPS = function (userId) {
@@ -4360,8 +4322,8 @@ API.$on('USER:UPDATE', async function (args) {
             // location traveled to is the same
             ref.$location_at = Date.now() - time;
         } else {
-            const worldName = await $app.getWorldName(newLocation);
-            const groupName = await $app.getGroupName(newLocation);
+            const worldName = await getWorldName(newLocation);
+            const groupName = await getGroupName(newLocation);
             feed = {
                 created_at: new Date().toJSON(),
                 type: 'GPS',
@@ -6830,7 +6792,7 @@ $app.methods.showUserDialog = function (userId) {
     D.unFriended = false;
     D.dateFriendedInfo = [];
     if (userId === API.currentUser.id) {
-        this.getWorldName(API.currentUser.homeLocation).then((worldName) => {
+        getWorldName(API.currentUser.homeLocation).then((worldName) => {
             D.$homeLocationName = worldName;
         });
     }
@@ -10467,8 +10429,8 @@ $app.methods.setCurrentUserLocation = async function (
             type: 'Location',
             location,
             worldId: L.worldId,
-            worldName: await this.getWorldName(L.worldId),
-            groupName: await this.getGroupName(L.groupId),
+            worldName: await getWorldName(L.worldId),
+            groupName: await getGroupName(L.groupId),
             time: 0
         };
         database.addGamelogLocationToDatabase(entry);
@@ -11480,10 +11442,10 @@ $app.methods.instanceQueueUpdate = async function (
         });
     }
     if (!ref.$groupName) {
-        ref.$groupName = await this.getGroupName(instanceId);
+        ref.$groupName = await getGroupName(instanceId);
     }
     if (!ref.$worldName) {
-        ref.$worldName = await this.getWorldName(instanceId);
+        ref.$worldName = await getWorldName(instanceId);
     }
     const location = displayLocation(
         instanceId,
@@ -11891,7 +11853,7 @@ $app.computed.friendsListTabEvent = function () {
     };
 };
 
-$app.computed.sideBarTabBind = function () {
+$app.computed.sidebarTabBind = function () {
     return {
         isSideBarTabShow: this.isSideBarTabShow,
         quickSearchRemoteMethod: this.quickSearchRemoteMethod,
@@ -11906,7 +11868,7 @@ $app.computed.sideBarTabBind = function () {
     };
 };
 
-$app.computed.sideBarTabEvent = function () {
+$app.computed.sidebarTabEvent = function () {
     return {
         'show-group-dialog': this.showGroupDialog,
         'quick-search-change': this.quickSearchChange,
@@ -11971,9 +11933,7 @@ $app.computed.favoritesTabEvent = function () {
 
 $app.computed.chartsTabBind = function () {
     return {
-        getWorldName: this.getWorldName,
-        dtHour12: this.dtHour12,
-        localFavoriteFriends: this.localFavoriteFriends
+        dtHour12: this.dtHour12
     };
 };
 $app.computed.chartsTabEvent = function () {

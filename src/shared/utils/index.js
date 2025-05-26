@@ -14,3 +14,4 @@ export * from './setting';
 export * from './user';
 export * from './gallery';
 export * from './location';
+export * from './world';

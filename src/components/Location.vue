@@ -17,16 +17,12 @@
 
 <script>
     import { parseLocation } from '../shared/utils';
+    import { getWorldName, getGroupName } from '../shared/utils';
 
     export default {
-        // eslint-disable-next-line vue/multi-word-component-names
         name: 'Location',
         inject: {
-            // prevent randomly error
-            // not good idea, it's temporary
             API: { default: window.API },
-            getWorldName: { default: window.$app?.getWorldName },
-            getGroupName: { default: window.$app?.getGroupName },
             showWorldDialog: { default: window.$app?.showWorldDialog },
             showGroupDialog: { default: window.$app?.showGroupDialog }
         },
@@ -90,7 +86,7 @@
                 } else if (L.worldId) {
                     var ref = this.API.cachedWorlds.get(L.worldId);
                     if (typeof ref === 'undefined') {
-                        this.getWorldName(L.worldId).then((worldName) => {
+                        getWorldName(L.worldId).then((worldName) => {
                             if (L.tag === instanceId) {
                                 if (L.instanceId) {
                                     this.text = `${worldName} #${L.instanceName} ${L.accessTypeName}`;
@@ -109,7 +105,7 @@
                     this.groupName = this.grouphint;
                 } else if (L.groupId) {
                     this.groupName = L.groupId;
-                    this.getGroupName(instanceId).then((groupName) => {
+                    getGroupName(instanceId).then((groupName) => {
                         if (L.tag === instanceId) {
                             this.groupName = groupName;
                         }

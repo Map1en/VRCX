@@ -4,7 +4,6 @@
             <span class="header">{{ $t('view.charts.header') }}</span>
         </div>
         <InstanceActivity
-            :get-world-name="getWorldName"
             :dt-hour12="dtHour12"
             @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
         <el-backtop target="#chart" :right="30" :bottom="30"></el-backtop>
@@ -20,7 +19,6 @@
             InstanceActivity
         },
         props: {
-            getWorldName: Function,
             dtHour12: Boolean
         }
     };

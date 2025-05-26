@@ -123,6 +123,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useFriendStore } from '../../../stores/friend';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
+    import { getWorldName } from '../../../shared/utils';
 
     export default {
         name: 'InstanceActivity',
@@ -131,7 +132,6 @@
         },
         inject: ['API'],
         props: {
-            getWorldName: { type: Function, default: () => [] },
             dtHour12: Boolean
         },
         setup() {
@@ -584,7 +584,7 @@
                 this.worldNameArray = await Promise.all(
                     this.activityData.map(async (item) => {
                         try {
-                            return await this.getWorldName(item.location);
+                            return await getWorldName(item.location);
                         } catch {
                             // TODO: no notification
                             console.error('getWorldName failed location', item.location);

@@ -2,7 +2,11 @@ import Vue from 'vue';
 import VueMarkdown from 'vue-markdown';
 import { instanceRequest, userRequest } from '../api';
 import { $app, API } from '../app.js';
-import { hasGroupPermission, parseLocation } from '../shared/utils';
+import {
+    getGroupName,
+    hasGroupPermission,
+    parseLocation
+} from '../shared/utils';
 
 export default function init() {
     Vue.component('VueMarkdown', VueMarkdown);
@@ -139,7 +143,7 @@ export default function init() {
                     this.groupName = this.grouphint;
                 } else if (this.locationobject.groupId) {
                     this.groupName = this.locationobject.groupId;
-                    $app.getGroupName(this.locationobject.groupId).then(
+                    getGroupName(this.locationobject.groupId).then(
                         (groupName) => {
                             this.groupName = groupName;
                         }

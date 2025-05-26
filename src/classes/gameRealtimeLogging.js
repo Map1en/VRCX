@@ -7,6 +7,8 @@ import { photonEmojis, photonEventType } from '../shared/constants';
 import {
     checkVRChatCache,
     displayLocation,
+    getGroupName,
+    getWorldName,
     parseLocation,
     removeFromArray,
     replaceBioSymbols,
@@ -882,7 +884,7 @@ export default function init(app) {
         ) {
             var worldName = shortName;
             if (instanceId) {
-                worldName = await this.getWorldName(instanceId);
+                worldName = await getWorldName(instanceId);
             }
             this.addEntryPhotonEvent({
                 photonId,
@@ -912,11 +914,10 @@ export default function init(app) {
             var L = parseLocation(location);
             var groupName = '';
             if (L.groupId) {
-                groupName = await this.getGroupName(L.groupId);
+                groupName = await getGroupName(L.groupId);
             }
             if (!worldName) {
-                // eslint-disable-next-line no-param-reassign
-                worldName = await this.getWorldName(location);
+                worldName = await getWorldName(location);
             }
             // var newShortName = instance.json.shortName;
             // var portalType = 'Secure';
@@ -1343,9 +1344,8 @@ export default function init(app) {
                 groupOnNameplate !== groupId &&
                 photonId !== this.photonLobbyCurrentUser
             ) {
-                var groupName = await this.getGroupName(groupId);
-                var previousGroupName =
-                    await this.getGroupName(groupOnNameplate);
+                var groupName = await getGroupName(groupId);
+                var previousGroupName = await getGroupName(groupOnNameplate);
                 this.addEntryPhotonEvent({
                     photonId,
                     displayName: user.displayName,
