@@ -19,7 +19,7 @@ export const useWristOverlaySettingsStore = defineStore(
             pcUptimeOnFeed: false
         });
 
-        async function initSettings() {
+        async function initWristOverlaySettings() {
             const [
                 overlayWrist,
                 hidePrivateFromFeed,
@@ -137,9 +137,10 @@ export const useWristOverlaySettingsStore = defineStore(
             );
         }
 
+        initWristOverlaySettings();
+
         return {
             state,
-            initSettings,
 
             overlayWrist,
             hidePrivateFromFeed,

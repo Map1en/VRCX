@@ -106,7 +106,7 @@ export const useNotificationsSettingsStore = defineStore(
             }
         });
 
-        async function initSettings() {
+        async function initNotificationsSettings() {
             const [
                 overlayToast,
                 overlayNotifications,
@@ -286,9 +286,10 @@ export const useNotificationsSettingsStore = defineStore(
             }
         }
 
+        initNotificationsSettings();
+
         return {
             state,
-            initSettings,
 
             overlayToast,
             openVR,

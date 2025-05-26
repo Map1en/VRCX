@@ -13,7 +13,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
             discordHideImage: false
         });
 
-        async function initSettings() {
+        async function initDiscordPresenceSettings() {
             const [
                 discordActive,
                 discordInstance,
@@ -71,9 +71,10 @@ export const useDiscordPresenceSettingsStore = defineStore(
             );
         }
 
+        initDiscordPresenceSettings();
+
         return {
             state,
-            initSettings,
 
             discordActive,
             discordInstance,

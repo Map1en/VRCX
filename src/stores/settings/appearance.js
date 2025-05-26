@@ -51,7 +51,7 @@ export const useAppearanceSettingsStore = defineStore(
             }
         });
 
-        async function initSettings() {
+        async function initAppearanceSettings() {
             const [
                 appLanguage,
                 displayVRCPlusIconsAsAvatar,
@@ -442,8 +442,7 @@ export const useAppearanceSettingsStore = defineStore(
 
         return {
             state,
-
-            initSettings,
+            initAppearanceSettings,
 
             appLanguage,
             themeMode,

@@ -21,7 +21,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         autoAcceptInviteRequests: 'Off'
     });
 
-    async function initSettings() {
+    async function initGeneralSettings() {
         const [
             isStartAtWindowsStartup,
             isStartAsMinimizedState,
@@ -231,9 +231,11 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         );
     }
 
+    initGeneralSettings();
+
     return {
         state,
-        initSettings,
+
         isStartAtWindowsStartup,
         isStartAsMinimizedState,
         isCloseToTray,

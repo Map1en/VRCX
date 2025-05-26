@@ -667,23 +667,13 @@ const app = {
     el: '#root',
     async created() {
         const VRCXUpdaterStore = useVRCXUpdaterStore();
-        const generalSettingsStore = useGeneralSettingsStore();
         const appearanceSettingsStore = useAppearanceSettingsStore();
-        const notificationsSettingsStore = useNotificationsSettingsStore();
-        const wristOverlaySettingsStore = useWristOverlaySettingsStore();
-        const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
-        // const advancedSettingsStore = useAdvancedSettingsStore();
 
         this.setThemeMode(initThemeMode);
 
         await Promise.all([
             VRCXUpdaterStore.initSettings(),
-            generalSettingsStore.initSettings(),
-            appearanceSettingsStore.initSettings(),
-            notificationsSettingsStore.initSettings(),
-            wristOverlaySettingsStore.initSettings(),
-            discordPresenceSettingsStore.initSettings()
-            // advancedSettingsStore.initSettings()
+            appearanceSettingsStore.initAppearanceSettings()
         ]);
 
         /**
