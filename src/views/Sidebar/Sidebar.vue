@@ -101,7 +101,7 @@
     import GroupsSidebar from './components/GroupsSidebar.vue';
 
     export default {
-        name: 'SideBar',
+        name: 'Sidebar',
         components: {
             FriendsSidebar,
             GroupsSidebar,

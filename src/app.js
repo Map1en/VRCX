@@ -173,7 +173,7 @@ import AvatarProviderDialog from './views/Settings/dialogs/AvatarProviderDialog.
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
-import SideBar from './views/SideBar/SideBar.vue';
+import Sidebar from './views/Sidebar/Sidebar.vue';
 
 // #endregion
 
@@ -583,7 +583,7 @@ const app = {
         NotificationTab,
         SearchTab,
         // - others
-        SideBar,
+        Sidebar,
         NavMenu,
         FriendLogTab,
         GameLogTab,

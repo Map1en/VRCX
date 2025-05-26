@@ -4,7 +4,7 @@ import * as workerTimers from 'worker-timers';
 import { $t } from '../app';
 import configRepository from '../service/config';
 import { branches } from '../shared/constants/vrcxUpdater';
-import { changeLogRemoveLinks } from '../shared/utils/base/string';
+import { changeLogRemoveLinks } from '../shared/utils';
 import { useDebugStore } from './debug';
 
 export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
