@@ -31,6 +31,15 @@ export default defineConfig([
             }
         }
     },
+    {
+        files: ['**/webpack.*.js', 'src-electron/*.js'],
+        languageOptions: {
+            sourceType: 'commonjs',
+            globals: {
+                ...globals.node
+            }
+        }
+    },
     pluginVue.configs['flat/vue2-essential'],
     {
         rules: {
