@@ -190,7 +190,7 @@ const miscReq = {
     },
 
     deleteFile(fileId) {
-        return window.API.call(`file/${fileId}`, {
+        return API.call(`file/${fileId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {

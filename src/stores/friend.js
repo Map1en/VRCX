@@ -1,7 +1,18 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
+import * as workerTimers from 'worker-timers';
+import { userRequest } from '../api';
+import { $app } from '../app';
 import API from '../classes/apiInit';
-import { getFriendsSortFunction, removeFromArray } from '../shared/utils';
+import database from '../service/database';
+import {
+    getFriendsSortFunction,
+    getGroupName,
+    getWorldName,
+    isRealInstance,
+    removeFromArray
+} from '../shared/utils';
+import { useDebugStore } from './debug';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 
@@ -11,6 +22,8 @@ export const useFriendStore = defineStore('Friend', () => {
     const generalSettingsStore = useGeneralSettingsStore();
     const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
     const { setLocalFavoriteFriendsGroups } = generalSettingsStore;
+    const debugStore = useDebugStore();
+    const { debugFriendState } = storeToRefs(debugStore);
     const state = reactive({
         friends: new Map(),
         onlineFriends_: [],
@@ -21,7 +34,8 @@ export const useFriendStore = defineStore('Friend', () => {
         sortVIPFriends: false,
         sortActiveFriends: false,
         sortOfflineFriends: false,
-        localFavoriteFriends: new Set()
+        localFavoriteFriends: new Set(),
+        friendLogInitStatus: false
     });
 
     const friends = state.friends;
@@ -92,6 +106,14 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     });
     const localFavoriteFriends = state.localFavoriteFriends;
+    const friendLogInitStatus = computed({
+        get() {
+            return state.friendLogInitStatus;
+        },
+        set(value) {
+            state.friendLogInitStatus = value;
+        }
+    });
 
     // VIP friends
     const vipFriends = computed(() => {
@@ -188,6 +210,400 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    const pendingOfflineDelay = 180000;
+
+    function updateFriend(args) {
+        const { id, state: state_input, fromGetCurrentUser } = args;
+        const stateInput = state_input;
+        const ctx = state.friends.get(id);
+        if (typeof ctx === 'undefined') {
+            return;
+        }
+        const ref = API.cachedUsers.get(id);
+        if (stateInput) {
+            ctx.pendingState = stateInput;
+            if (typeof ref !== 'undefined') {
+                ctx.ref.state = stateInput;
+            }
+        }
+        if (stateInput === 'online') {
+            if (debugFriendState.value && ctx.pendingOffline) {
+                const time = (Date.now() - ctx.pendingOfflineTime) / 1000;
+                console.log(`${ctx.name} pendingOfflineCancelTime ${time}`);
+            }
+            ctx.pendingOffline = false;
+            ctx.pendingOfflineTime = '';
+        }
+        const isVIP = state.localFavoriteFriends.has(id);
+        let location = '';
+        let $location_at = '';
+        if (typeof ref !== 'undefined') {
+            location = ref.location;
+            $location_at = ref.$location_at;
+        }
+        if (typeof stateInput === 'undefined' || ctx.state === stateInput) {
+            // this is should be: undefined -> user
+            if (ctx.ref !== ref) {
+                ctx.ref = ref;
+                // NOTE
+                // AddFriend (CurrentUser) 이후,
+                // 서버에서 오는 순서라고 보면 될 듯.
+                if (ctx.state === 'online') {
+                    if (state.friendLogInitStatus) {
+                        userRequest.getUser({
+                            userId: id
+                        });
+                    }
+                    if (ctx.isVIP) {
+                        state.sortVIPFriends = true;
+                    } else {
+                        state.sortOnlineFriends = true;
+                    }
+                }
+            }
+            if (ctx.isVIP !== isVIP) {
+                ctx.isVIP = isVIP;
+                if (ctx.state === 'online') {
+                    if (ctx.isVIP) {
+                        removeFromArray(state.onlineFriends_, ctx);
+                        state.vipFriends_.push(ctx);
+                        state.sortVIPFriends = true;
+                    } else {
+                        removeFromArray(state.vipFriends_, ctx);
+                        state.onlineFriends_.push(ctx);
+                        state.sortOnlineFriends = true;
+                    }
+                }
+            }
+            if (typeof ref !== 'undefined' && ctx.name !== ref.displayName) {
+                ctx.name = ref.displayName;
+                if (ctx.state === 'online') {
+                    if (ctx.isVIP) {
+                        state.sortVIPFriends = true;
+                    } else {
+                        state.sortOnlineFriends = true;
+                    }
+                } else if (ctx.state === 'active') {
+                    state.sortActiveFriends = true;
+                } else {
+                    state.sortOfflineFriends = true;
+                }
+            }
+            // from getCurrentUser only, fetch user if offline in an instance
+            if (
+                fromGetCurrentUser &&
+                ctx.state !== 'online' &&
+                typeof ref !== 'undefined' &&
+                isRealInstance(ref.location)
+            ) {
+                if (debugFriendState.value) {
+                    console.log(
+                        `Fetching offline friend in an instance from getCurrentUser ${ctx.name}`
+                    );
+                }
+                userRequest.getUser({
+                    userId: id
+                });
+            }
+        } else if (
+            ctx.state === 'online' &&
+            (stateInput === 'active' || stateInput === 'offline')
+        ) {
+            ctx.ref = ref;
+            ctx.isVIP = isVIP;
+            if (typeof ref !== 'undefined') {
+                ctx.name = ref.displayName;
+            }
+            if (!state.friendLogInitStatus) {
+                updateFriendDelayedCheck(ctx, location, $location_at);
+                return;
+            }
+            // prevent status flapping
+            if (ctx.pendingOffline) {
+                if (debugFriendState.value) {
+                    console.log(ctx.name, 'pendingOfflineAlreadyWaiting');
+                }
+                return;
+            }
+            if (debugFriendState.value) {
+                console.log(ctx.name, 'pendingOfflineBegin');
+            }
+            ctx.pendingOffline = true;
+            ctx.pendingOfflineTime = Date.now();
+            // wait 2minutes then check if user came back online
+            workerTimers.setTimeout(() => {
+                if (!ctx.pendingOffline) {
+                    if (debugFriendState.value) {
+                        console.log(ctx.name, 'pendingOfflineAlreadyCancelled');
+                    }
+                    return;
+                }
+                ctx.pendingOffline = false;
+                ctx.pendingOfflineTime = '';
+                if (ctx.pendingState === ctx.state) {
+                    if (debugFriendState.value) {
+                        console.log(
+                            ctx.name,
+                            'pendingOfflineCancelledStateMatched'
+                        );
+                    }
+                    return;
+                }
+                if (debugFriendState.value) {
+                    console.log(ctx.name, 'pendingOfflineEnd');
+                }
+                updateFriendDelayedCheck(ctx, location, $location_at);
+            }, pendingOfflineDelay);
+        } else {
+            ctx.ref = ref;
+            ctx.isVIP = isVIP;
+            if (typeof ref !== 'undefined') {
+                ctx.name = ref.displayName;
+
+                // wtf, from getCurrentUser only, fetch user if online in offline location
+                if (fromGetCurrentUser && stateInput === 'online') {
+                    if (debugFriendState.value) {
+                        console.log(
+                            `Fetching friend coming online from getCurrentUser ${ctx.name}`
+                        );
+                    }
+                    userRequest.getUser({
+                        userId: id
+                    });
+                    return;
+                }
+            }
+            updateFriendDelayedCheck(ctx, location, $location_at);
+        }
+    }
+
+    async function updateFriendDelayedCheck(ctx, location, $location_at) {
+        let feed;
+        let groupName;
+        let worldName;
+        const id = ctx.id;
+        const newState = ctx.pendingState;
+        if (debugFriendState.value) {
+            console.log(
+                `${ctx.name} updateFriendState ${ctx.state} -> ${newState}`
+            );
+            if (
+                typeof ctx.ref !== 'undefined' &&
+                location !== ctx.ref.location
+            ) {
+                console.log(
+                    `${ctx.name} pendingOfflineLocation ${location} -> ${ctx.ref.location}`
+                );
+            }
+        }
+        if (!state.friends.has(id)) {
+            console.log('Friend not found', id);
+            return;
+        }
+        const isVIP = state.localFavoriteFriends.has(id);
+        const ref = ctx.ref;
+        if (ctx.state !== newState && typeof ctx.ref !== 'undefined') {
+            if (
+                (newState === 'offline' || newState === 'active') &&
+                ctx.state === 'online'
+            ) {
+                ctx.ref.$online_for = '';
+                ctx.ref.$offline_for = Date.now();
+                ctx.ref.$active_for = '';
+                if (newState === 'active') {
+                    ctx.ref.$active_for = Date.now();
+                }
+                const ts = Date.now();
+                const time = ts - $location_at;
+                worldName = await getWorldName(location);
+                groupName = await getGroupName(location);
+                feed = {
+                    created_at: new Date().toJSON(),
+                    type: 'Offline',
+                    userId: ref.id,
+                    displayName: ref.displayName,
+                    location,
+                    worldName,
+                    groupName,
+                    time
+                };
+                $app.addFeed(feed);
+                database.addOnlineOfflineToDatabase(feed);
+            } else if (
+                newState === 'online' &&
+                (ctx.state === 'offline' || ctx.state === 'active')
+            ) {
+                ctx.ref.$previousLocation = '';
+                ctx.ref.$travelingToTime = Date.now();
+                ctx.ref.$location_at = Date.now();
+                ctx.ref.$online_for = Date.now();
+                ctx.ref.$offline_for = '';
+                ctx.ref.$active_for = '';
+                worldName = await getWorldName(location);
+                groupName = await getGroupName(location);
+                feed = {
+                    created_at: new Date().toJSON(),
+                    type: 'Online',
+                    userId: id,
+                    displayName: ctx.name,
+                    location,
+                    worldName,
+                    groupName,
+                    time: ''
+                };
+                $app.addFeed(feed);
+                database.addOnlineOfflineToDatabase(feed);
+            }
+            if (newState === 'active') {
+                ctx.ref.$active_for = Date.now();
+            }
+        }
+        if (ctx.state === 'online') {
+            if (ctx.isVIP) {
+                removeFromArray(state.vipFriends_, ctx);
+            } else {
+                removeFromArray(state.onlineFriends_, ctx);
+            }
+        } else if (ctx.state === 'active') {
+            removeFromArray(state.activeFriends_, ctx);
+        } else {
+            removeFromArray(state.offlineFriends_, ctx);
+        }
+        if (newState === 'online') {
+            if (isVIP) {
+                state.vipFriends_.push(ctx);
+                state.sortVIPFriends = true;
+            } else {
+                state.onlineFriends_.push(ctx);
+                state.sortOnlineFriends = true;
+            }
+        } else if (newState === 'active') {
+            state.activeFriends_.push(ctx);
+            state.sortActiveFriends = true;
+        } else {
+            state.offlineFriends_.push(ctx);
+            state.sortOfflineFriends = true;
+        }
+        if (ctx.state !== newState) {
+            $app.updateOnlineFriendCoutner();
+        }
+        ctx.state = newState;
+        if (ref?.displayName) {
+            ctx.name = ref.displayName;
+        }
+        ctx.isVIP = isVIP;
+    }
+
+    function deleteFriend(id) {
+        const ctx = state.friends.get(id);
+        if (typeof ctx === 'undefined') {
+            return;
+        }
+        state.friends.delete(id);
+        if (ctx.state === 'online') {
+            if (ctx.isVIP) {
+                removeFromArray(state.vipFriends_, ctx);
+            } else {
+                removeFromArray(state.onlineFriends_, ctx);
+            }
+        } else if (ctx.state === 'active') {
+            removeFromArray(state.activeFriends_, ctx);
+        } else {
+            removeFromArray(state.offlineFriends_, ctx);
+        }
+    }
+
+    function refreshFriends(ref, fromGetCurrentUser) {
+        let id;
+        const map = new Map();
+        for (id of ref.friends) {
+            map.set(id, 'offline');
+        }
+        for (id of ref.offlineFriends) {
+            map.set(id, 'offline');
+        }
+        for (id of ref.activeFriends) {
+            map.set(id, 'active');
+        }
+        for (id of ref.onlineFriends) {
+            map.set(id, 'online');
+        }
+        for (const friend of map) {
+            const [id, state_input] = friend;
+            if (state.friends.has(id)) {
+                updateFriend({ id, state_input, fromGetCurrentUser });
+            } else {
+                addFriend(id, state_input);
+            }
+        }
+        for (id of state.friends.keys()) {
+            if (map.has(id) === false) {
+                deleteFriend(id);
+            }
+        }
+    }
+
+    function addFriend(id, state_input) {
+        if (state.friends.has(id)) {
+            return;
+        }
+        const ref = API.cachedUsers.get(id);
+        const isVIP = state.localFavoriteFriends.has(id);
+        let name = '';
+        const friend = $app.friendLog.get(id);
+        if (friend) {
+            name = friend.displayName;
+        }
+        const ctx = {
+            id,
+            state: state_input || 'offline',
+            isVIP,
+            ref,
+            name,
+            memo: '',
+            pendingOffline: false,
+            pendingOfflineTime: '',
+            pendingState: '',
+            $nickName: ''
+        };
+        if ($app.friendLogInitStatus) {
+            $app.getUserMemo(id).then((memo) => {
+                if (memo.userId === id) {
+                    ctx.memo = memo.memo;
+                    ctx.$nickName = '';
+                    if (memo.memo) {
+                        const array = memo.memo.split('\n');
+                        ctx.$nickName = array[0];
+                    }
+                }
+            });
+        }
+        if (typeof ref === 'undefined') {
+            const friendLogRef = $app.friendLog.get(id);
+            if (friendLogRef?.displayName) {
+                ctx.name = friendLogRef.displayName;
+            }
+        } else {
+            ctx.name = ref.name;
+        }
+        state.friends.set(id, ctx);
+        if (ctx.state === 'online') {
+            if (ctx.isVIP) {
+                state.vipFriends_.push(ctx);
+                state.sortVIPFriends = true;
+            } else {
+                state.onlineFriends_.push(ctx);
+                state.sortOnlineFriends = true;
+            }
+        } else if (ctx.state === 'active') {
+            state.activeFriends_.push(ctx);
+            state.sortActiveFriends = true;
+        } else {
+            state.offlineFriends_.push(ctx);
+            state.sortOfflineFriends = true;
+        }
+    }
+
     return {
         state,
 
@@ -208,8 +624,13 @@ export const useFriendStore = defineStore('Friend', () => {
         sortOfflineFriends,
 
         localFavoriteFriends,
+        friendLogInitStatus,
 
         updateLocalFavoriteFriends,
-        updateSidebarFriendsList
+        updateSidebarFriendsList,
+        updateFriend,
+        deleteFriend,
+        refreshFriends,
+        addFriend
     };
 });

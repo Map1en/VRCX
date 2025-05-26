@@ -260,8 +260,10 @@ const app = {
 
         const { autoUpdateVRCX, vrcxId } = storeToRefs(VRCXUpdaterStore);
 
-        const { avatarRemoteDatabaseProvider } =
-            storeToRefs(avatarProviderStore);
+        const {
+            avatarRemoteDatabaseProvider,
+            avatarRemoteDatabaseProviderList
+        } = storeToRefs(avatarProviderStore);
         const { addAvatarProvider } = avatarProviderStore;
 
         const {
@@ -404,11 +406,18 @@ const app = {
             sortVIPFriends,
             sortActiveFriends,
             sortOfflineFriends,
-            localFavoriteFriends
+            localFavoriteFriends,
+            friendLogInitStatus
         } = storeToRefs(friendStore);
 
-        const { updateLocalFavoriteFriends, updateSidebarFriendsList } =
-            friendStore;
+        const {
+            updateLocalFavoriteFriends,
+            updateSidebarFriendsList,
+            updateFriend,
+            deleteFriend,
+            refreshFriends,
+            addFriend
+        } = friendStore;
 
         return {
             // debugStore
@@ -547,11 +556,17 @@ const app = {
             sortOfflineFriends,
 
             localFavoriteFriends,
+            friendLogInitStatus,
 
             updateLocalFavoriteFriends,
             updateSidebarFriendsList,
+            updateFriend,
+            deleteFriend,
+            refreshFriends,
+            addFriend,
 
             avatarRemoteDatabaseProvider,
+            avatarRemoteDatabaseProviderList,
 
             addAvatarProvider
         };
@@ -3424,400 +3439,6 @@ $app.methods.refreshFriendsList = async function () {
     API.reconnectWebSocket();
 };
 
-$app.methods.refreshFriends = function (ref, fromGetCurrentUser) {
-    let id;
-    const map = new Map();
-    for (id of ref.friends) {
-        map.set(id, 'offline');
-    }
-    for (id of ref.offlineFriends) {
-        map.set(id, 'offline');
-    }
-    for (id of ref.activeFriends) {
-        map.set(id, 'active');
-    }
-    for (id of ref.onlineFriends) {
-        map.set(id, 'online');
-    }
-    for (const friend of map) {
-        const [id, state] = friend;
-        if (this.friends.has(id)) {
-            this.updateFriend({ id, state, fromGetCurrentUser });
-        } else {
-            this.addFriend(id, state);
-        }
-    }
-    for (id of this.friends.keys()) {
-        if (map.has(id) === false) {
-            this.deleteFriend(id);
-        }
-    }
-};
-
-$app.methods.addFriend = function (id, state) {
-    if (this.friends.has(id)) {
-        return;
-    }
-    const ref = API.cachedUsers.get(id);
-    const isVIP = this.localFavoriteFriends.has(id);
-    let name = '';
-    const friend = this.friendLog.get(id);
-    if (friend) {
-        name = friend.displayName;
-    }
-    const ctx = {
-        id,
-        state: state || 'offline',
-        isVIP,
-        ref,
-        name,
-        memo: '',
-        pendingOffline: false,
-        pendingOfflineTime: '',
-        pendingState: '',
-        $nickName: ''
-    };
-    if (this.friendLogInitStatus) {
-        this.getUserMemo(id).then((memo) => {
-            if (memo.userId === id) {
-                ctx.memo = memo.memo;
-                ctx.$nickName = '';
-                if (memo.memo) {
-                    const array = memo.memo.split('\n');
-                    ctx.$nickName = array[0];
-                }
-            }
-        });
-    }
-    if (typeof ref === 'undefined') {
-        const friendLogRef = this.friendLog.get(id);
-        if (friendLogRef?.displayName) {
-            ctx.name = friendLogRef.displayName;
-        }
-    } else {
-        ctx.name = ref.name;
-    }
-    this.friends.set(id, ctx);
-    if (ctx.state === 'online') {
-        if (ctx.isVIP) {
-            this.vipFriends_.push(ctx);
-            this.sortVIPFriends = true;
-        } else {
-            this.onlineFriends_.push(ctx);
-            this.sortOnlineFriends = true;
-        }
-    } else if (ctx.state === 'active') {
-        this.activeFriends_.push(ctx);
-        this.sortActiveFriends = true;
-    } else {
-        this.offlineFriends_.push(ctx);
-        this.sortOfflineFriends = true;
-    }
-};
-
-$app.methods.deleteFriend = function (id) {
-    const ctx = this.friends.get(id);
-    if (typeof ctx === 'undefined') {
-        return;
-    }
-    this.friends.delete(id);
-    if (ctx.state === 'online') {
-        if (ctx.isVIP) {
-            removeFromArray(this.vipFriends_, ctx);
-        } else {
-            removeFromArray(this.onlineFriends_, ctx);
-        }
-    } else if (ctx.state === 'active') {
-        removeFromArray(this.activeFriends_, ctx);
-    } else {
-        removeFromArray(this.offlineFriends_, ctx);
-    }
-};
-
-$app.methods.updateFriend = function (args) {
-    const { id, state, fromGetCurrentUser } = args;
-    const stateInput = state;
-    const ctx = this.friends.get(id);
-    if (typeof ctx === 'undefined') {
-        return;
-    }
-    const ref = API.cachedUsers.get(id);
-    if (stateInput) {
-        ctx.pendingState = stateInput;
-        if (typeof ref !== 'undefined') {
-            ctx.ref.state = stateInput;
-        }
-    }
-    if (stateInput === 'online') {
-        if (this.debugFriendState && ctx.pendingOffline) {
-            const time = (Date.now() - ctx.pendingOfflineTime) / 1000;
-            console.log(`${ctx.name} pendingOfflineCancelTime ${time}`);
-        }
-        ctx.pendingOffline = false;
-        ctx.pendingOfflineTime = '';
-    }
-    const isVIP = this.localFavoriteFriends.has(id);
-    let location = '';
-    let $location_at = '';
-    if (typeof ref !== 'undefined') {
-        location = ref.location;
-        $location_at = ref.$location_at;
-    }
-    if (typeof stateInput === 'undefined' || ctx.state === stateInput) {
-        // this is should be: undefined -> user
-        if (ctx.ref !== ref) {
-            ctx.ref = ref;
-            // NOTE
-            // AddFriend (CurrentUser) 이후,
-            // 서버에서 오는 순서라고 보면 될 듯.
-            if (ctx.state === 'online') {
-                if (this.friendLogInitStatus) {
-                    userRequest.getUser({
-                        userId: id
-                    });
-                }
-                if (ctx.isVIP) {
-                    this.sortVIPFriends = true;
-                } else {
-                    this.sortOnlineFriends = true;
-                }
-            }
-        }
-        if (ctx.isVIP !== isVIP) {
-            ctx.isVIP = isVIP;
-            if (ctx.state === 'online') {
-                if (ctx.isVIP) {
-                    removeFromArray(this.onlineFriends_, ctx);
-                    this.vipFriends_.push(ctx);
-                    this.sortVIPFriends = true;
-                } else {
-                    removeFromArray(this.vipFriends_, ctx);
-                    this.onlineFriends_.push(ctx);
-                    this.sortOnlineFriends = true;
-                }
-            }
-        }
-        if (typeof ref !== 'undefined' && ctx.name !== ref.displayName) {
-            ctx.name = ref.displayName;
-            if (ctx.state === 'online') {
-                if (ctx.isVIP) {
-                    this.sortVIPFriends = true;
-                } else {
-                    this.sortOnlineFriends = true;
-                }
-            } else if (ctx.state === 'active') {
-                this.sortActiveFriends = true;
-            } else {
-                this.sortOfflineFriends = true;
-            }
-        }
-        // from getCurrentUser only, fetch user if offline in an instance
-        if (
-            fromGetCurrentUser &&
-            ctx.state !== 'online' &&
-            typeof ref !== 'undefined' &&
-            isRealInstance(ref.location)
-        ) {
-            if (this.debugFriendState) {
-                console.log(
-                    `Fetching offline friend in an instance from getCurrentUser ${ctx.name}`
-                );
-            }
-            userRequest.getUser({
-                userId: id
-            });
-        }
-    } else if (
-        ctx.state === 'online' &&
-        (stateInput === 'active' || stateInput === 'offline')
-    ) {
-        ctx.ref = ref;
-        ctx.isVIP = isVIP;
-        if (typeof ref !== 'undefined') {
-            ctx.name = ref.displayName;
-        }
-        if (!this.friendLogInitStatus) {
-            this.updateFriendDelayedCheck(ctx, location, $location_at);
-            return;
-        }
-        // prevent status flapping
-        if (ctx.pendingOffline) {
-            if (this.debugFriendState) {
-                console.log(ctx.name, 'pendingOfflineAlreadyWaiting');
-            }
-            return;
-        }
-        if (this.debugFriendState) {
-            console.log(ctx.name, 'pendingOfflineBegin');
-        }
-        ctx.pendingOffline = true;
-        ctx.pendingOfflineTime = Date.now();
-        // wait 2minutes then check if user came back online
-        workerTimers.setTimeout(() => {
-            if (!ctx.pendingOffline) {
-                if (this.debugFriendState) {
-                    console.log(ctx.name, 'pendingOfflineAlreadyCancelled');
-                }
-                return;
-            }
-            ctx.pendingOffline = false;
-            ctx.pendingOfflineTime = '';
-            if (ctx.pendingState === ctx.state) {
-                if (this.debugFriendState) {
-                    console.log(
-                        ctx.name,
-                        'pendingOfflineCancelledStateMatched'
-                    );
-                }
-                return;
-            }
-            if (this.debugFriendState) {
-                console.log(ctx.name, 'pendingOfflineEnd');
-            }
-            this.updateFriendDelayedCheck(ctx, location, $location_at);
-        }, this.pendingOfflineDelay);
-    } else {
-        ctx.ref = ref;
-        ctx.isVIP = isVIP;
-        if (typeof ref !== 'undefined') {
-            ctx.name = ref.displayName;
-
-            // wtf, from getCurrentUser only, fetch user if online in offline location
-            if (fromGetCurrentUser && stateInput === 'online') {
-                if (this.debugFriendState) {
-                    console.log(
-                        `Fetching friend coming online from getCurrentUser ${ctx.name}`
-                    );
-                }
-                userRequest.getUser({
-                    userId: id
-                });
-                return;
-            }
-        }
-
-        this.updateFriendDelayedCheck(ctx, location, $location_at);
-    }
-};
-
-$app.methods.updateFriendDelayedCheck = async function (
-    ctx,
-    location,
-    $location_at
-) {
-    let feed;
-    let groupName;
-    let worldName;
-    const id = ctx.id;
-    const newState = ctx.pendingState;
-    if (this.debugFriendState) {
-        console.log(
-            `${ctx.name} updateFriendState ${ctx.state} -> ${newState}`
-        );
-        if (typeof ctx.ref !== 'undefined' && location !== ctx.ref.location) {
-            console.log(
-                `${ctx.name} pendingOfflineLocation ${location} -> ${ctx.ref.location}`
-            );
-        }
-    }
-    if (!this.friends.has(id)) {
-        console.log('Friend not found', id);
-        return;
-    }
-    const isVIP = this.localFavoriteFriends.has(id);
-    const ref = ctx.ref;
-    if (ctx.state !== newState && typeof ctx.ref !== 'undefined') {
-        if (
-            (newState === 'offline' || newState === 'active') &&
-            ctx.state === 'online'
-        ) {
-            ctx.ref.$online_for = '';
-            ctx.ref.$offline_for = Date.now();
-            ctx.ref.$active_for = '';
-            if (newState === 'active') {
-                ctx.ref.$active_for = Date.now();
-            }
-            const ts = Date.now();
-            const time = ts - $location_at;
-            worldName = await getWorldName(location);
-            groupName = await getGroupName(location);
-            feed = {
-                created_at: new Date().toJSON(),
-                type: 'Offline',
-                userId: ref.id,
-                displayName: ref.displayName,
-                location,
-                worldName,
-                groupName,
-                time
-            };
-            this.addFeed(feed);
-            database.addOnlineOfflineToDatabase(feed);
-        } else if (
-            newState === 'online' &&
-            (ctx.state === 'offline' || ctx.state === 'active')
-        ) {
-            ctx.ref.$previousLocation = '';
-            ctx.ref.$travelingToTime = Date.now();
-            ctx.ref.$location_at = Date.now();
-            ctx.ref.$online_for = Date.now();
-            ctx.ref.$offline_for = '';
-            ctx.ref.$active_for = '';
-            worldName = await getWorldName(location);
-            groupName = await getGroupName(location);
-            feed = {
-                created_at: new Date().toJSON(),
-                type: 'Online',
-                userId: id,
-                displayName: ctx.name,
-                location,
-                worldName,
-                groupName,
-                time: ''
-            };
-            this.addFeed(feed);
-            database.addOnlineOfflineToDatabase(feed);
-        }
-        if (newState === 'active') {
-            ctx.ref.$active_for = Date.now();
-        }
-    }
-    if (ctx.state === 'online') {
-        if (ctx.isVIP) {
-            removeFromArray(this.vipFriends_, ctx);
-        } else {
-            removeFromArray(this.onlineFriends_, ctx);
-        }
-    } else if (ctx.state === 'active') {
-        removeFromArray(this.activeFriends_, ctx);
-    } else {
-        removeFromArray(this.offlineFriends_, ctx);
-    }
-    if (newState === 'online') {
-        if (isVIP) {
-            this.vipFriends_.push(ctx);
-            this.sortVIPFriends = true;
-        } else {
-            this.onlineFriends_.push(ctx);
-            this.sortOnlineFriends = true;
-        }
-    } else if (newState === 'active') {
-        this.activeFriends_.push(ctx);
-        this.sortActiveFriends = true;
-    } else {
-        this.offlineFriends_.push(ctx);
-        this.sortOfflineFriends = true;
-    }
-    if (ctx.state !== newState) {
-        this.updateOnlineFriendCoutner();
-    }
-    ctx.state = newState;
-    if (ref?.displayName) {
-        ctx.name = ref.displayName;
-    }
-    ctx.isVIP = isVIP;
-};
-
 $app.methods.updateFriendGPS = function (userId) {
     const ctx = this.friends.get(userId);
     if (ctx.isVIP) {
@@ -5305,7 +4926,8 @@ API.$on('FRIEND:DELETE', function (args) {
     $app.deleteFriendship(args.params.userId);
 });
 
-$app.data.friendLogInitStatus = false;
+// todo: maybe put in friendlog store
+// $app.data.friendLogInitStatus = false;
 $app.data.notificationInitStatus = false;
 
 $app.methods.initFriendLog = async function (currentUser) {
@@ -5901,7 +5523,6 @@ $app.data.clearVRCXCacheFrequency = await configRepository.getInt(
     'VRCX_clearVRCXCacheFrequency',
     172800
 );
-$app.data.pendingOfflineDelay = 180000;
 
 $app.methods.saveOpenVROption = async function (configKey = '') {
     this.updateSharedFeed(true);

@@ -1,6 +1,7 @@
 import Noty from 'noty';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
+import { $app } from '../../app';
 
 function getAvailablePlatforms(unityPackages) {
     let isPC = false;
@@ -124,14 +125,14 @@ function copyToClipboard(text, message = 'Copied successfully!') {
     navigator.clipboard
         .writeText(text)
         .then(() => {
-            window.$app.$message({
+            $app.$message({
                 message: message,
                 type: 'success'
             });
         })
         .catch((err) => {
             console.error('Copy failed:', err);
-            window.$app.$message.error('Copy failed!');
+            $app.$message.error('Copy failed!');
         });
 }
 

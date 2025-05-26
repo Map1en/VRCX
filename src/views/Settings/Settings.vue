@@ -18,7 +18,7 @@
                             </div>
                         </div>
                         <!--//- General | General | Latest App Version-->
-                        <div class="x-friend-item" @click="checkForVRCXUpdate(notifyMenu)">
+                        <div class="x-friend-item" @click="checkForVRCXUpdate">
                             <div class="detail">
                                 <span class="name">{{ t('view.settings.general.general.latest_app_version') }}</span>
                                 <span v-if="latestAppVersion" class="extra" v-text="latestAppVersion"></span>
@@ -47,7 +47,7 @@
                 <div class="options-container">
                     <span class="header">{{ t('view.settings.general.vrcx_updater.header') }}</span>
                     <div class="options-container-item">
-                        <el-button size="small" icon="el-icon-document" @click="showChangeLogDialog(notifyMenu)">{{
+                        <el-button size="small" icon="el-icon-document" @click="showChangeLogDialog">{{
                             t('view.settings.general.vrcx_updater.change_log')
                         }}</el-button>
                         <el-button size="small" icon="el-icon-upload" @click="showVRCXUpdateDialog()">{{
@@ -1861,7 +1861,6 @@
     const { showAvatarProviderDialog } = avatarProviderStore;
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
 
-    // checkForVRCXUpdate,showChangeLogDialog => notifyMenu,
     const { setAutoUpdateVRCX, checkForVRCXUpdate, showVRCXUpdateDialog, showChangeLogDialog } = VRCXUpdaterStore;
 
     const {

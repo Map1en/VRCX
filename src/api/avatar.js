@@ -181,7 +181,7 @@ const avatarReq = {
             n: 100,
             offset: 0
         };
-        return window.API.call(`files`, {
+        return API.call(`files`, {
             params,
             method: 'GET'
         }).then((json) => {
@@ -203,7 +203,7 @@ const avatarReq = {
             tag: 'avatargallery',
             galleryId: avatarId
         };
-        return window.API.call('file/image', {
+        return API.call('file/image', {
             uploadImage: true,
             matchingDimensions: false,
             postData: JSON.stringify(params),
@@ -226,7 +226,7 @@ const avatarReq = {
         const params = {
             ids: order
         };
-        return window.API.call('files/order', {
+        return API.call('files/order', {
             method: 'PUT',
             params
         }).then((json) => {

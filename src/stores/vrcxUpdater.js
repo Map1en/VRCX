@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $t } from '../app';
+import { $t, $app, API } from '../app';
 import configRepository from '../service/config';
 import { branches } from '../shared/constants/vrcxUpdater';
 import { changeLogRemoveLinks } from '../shared/utils';
@@ -158,9 +158,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
             await configRepository.setString('VRCX_id', state.vrcxId);
         }
     }
-    async function checkForVRCXUpdate(notifyMenu) {
-        // const { setLatestAppVersion } = useVRCXUpdaterStore();
-
+    async function checkForVRCXUpdate() {
         if (
             !currentVersion.value ||
             currentVersion.value === 'VRCX Nightly Build' ||
@@ -247,9 +245,9 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
                     return;
                 }
                 state.pendingVRCXUpdate = true;
-                notifyMenu('settings');
+                $app.notifyMenu('settings');
                 const type = 'Auto';
-                if (!window.API.isLoggedIn) {
+                if (!API.isLoggedIn) {
                     showVRCXUpdateDialog();
                 } else if (state.autoUpdateVRCX === 'Notify') {
                     // this.showVRCXUpdateDialog();
@@ -296,7 +294,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         }
         const releases = [];
         if (typeof json !== 'object' || json.message) {
-            window.$app.$message({
+            $app.$message({
                 message: $t('message.vrcx_updater.failed', {
                     message: json.message
                 }),
@@ -347,7 +345,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
             state.pendingVRCXInstall = releaseName;
         } catch (err) {
             console.error(err);
-            window.$app.$message({
+            $app.$message({
                 message: `${$t('message.vrcx_updater.failed_install')} ${err}`,
                 type: 'error'
             });
@@ -418,9 +416,9 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
             break;
         }
     }
-    function showChangeLogDialog(notifyMenu) {
+    function showChangeLogDialog() {
         state.changeLogDialog.visible = true;
-        checkForVRCXUpdate(notifyMenu);
+        checkForVRCXUpdate();
     }
     function restartVRCX(isUpgrade) {
         if (!LINUX) {
