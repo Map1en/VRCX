@@ -96,7 +96,9 @@ module.exports = {
     plugins: [
         new webpack.DefinePlugin({
             LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
-            WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows')
+            WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
+            __VUE_I18N_LEGACY_API__: JSON.stringify(false),
+            __VUE_I18N_FULL_INSTALL__: JSON.stringify(false)
         }),
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({

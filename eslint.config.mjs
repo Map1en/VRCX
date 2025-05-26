@@ -32,7 +32,11 @@ export default defineConfig([
         }
     },
     {
-        files: ['**/webpack.*.js', 'src-electron/*.js'],
+        files: [
+            '**/webpack.*.js',
+            'src-electron/*.js',
+            'src/localization/*.js'
+        ],
         languageOptions: {
             sourceType: 'commonjs',
             globals: {
