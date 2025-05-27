@@ -789,6 +789,7 @@
     import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
+    import { API } from '../../../app';
 
     export default {
         name: 'WorldDialog',
