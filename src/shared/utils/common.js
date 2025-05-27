@@ -302,6 +302,30 @@ function replaceBioSymbols(text) {
     return newText.replace(/ {1,}/g, ' ').trimRight();
 }
 
+function openExternalLink(link) {
+    $app.$confirm(`${link}`, 'Open External Link', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Open',
+        cancelButtonText: 'Copy',
+        type: 'info',
+        callback: (action) => {
+            if (action === 'confirm') {
+                AppApi.OpenLink(link);
+            } else if (action === 'cancel') {
+                this.copyLink(link);
+            }
+        }
+    });
+}
+
+function copyLink(text) {
+    $app.$message({
+        message: 'Link copied to clipboard',
+        type: 'success'
+    });
+    copyToClipboard(text);
+}
+
 export {
     getAvailablePlatforms,
     downloadAndSaveJson,
@@ -315,5 +339,7 @@ export {
     extractFileVersion,
     extractVariantVersion,
     buildTreeData,
-    replaceBioSymbols
+    replaceBioSymbols,
+    openExternalLink,
+    copyLink
 };

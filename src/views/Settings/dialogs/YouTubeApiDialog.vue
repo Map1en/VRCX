@@ -32,10 +32,11 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance, watch, ref } from 'vue';
-    import { useI18n } from 'vue-i18n-bridge';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { storeToRefs } from 'pinia';
+    import { getCurrentInstance } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
+    import { openExternalLink } from '../../../shared/utils';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
 
     const advancedSettingsStore = useAdvancedSettingsStore();
 
@@ -47,8 +48,6 @@
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-
-    const openExternalLink = inject('openExternalLink');
 
     const props = defineProps({
         isYouTubeApiDialogVisible: {

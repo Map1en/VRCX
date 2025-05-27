@@ -201,7 +201,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
-    import { removeFromArray } from '../../shared/utils';
+    import { removeFromArray, openExternalLink } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -211,7 +211,6 @@
     const { $confirm } = getCurrentInstance().proxy;
 
     const showWorldDialog = inject('showWorldDialog');
-    const openExternalLink = inject('openExternalLink');
     const showPreviousInstancesInfoDialog = inject('showPreviousInstancesInfoDialog');
 
     const props = defineProps({

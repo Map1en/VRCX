@@ -187,10 +187,10 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { computed, getCurrentInstance, inject, ref, watch } from 'vue';
+    import { computed, getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
-    import { getVRChatResolution } from '../../../shared/utils';
+    import { getVRChatResolution, openExternalLink } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -201,8 +201,6 @@
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
     const $message = instance.proxy.$message;
-
-    const openExternalLink = inject('openExternalLink');
 
     const props = defineProps({
         isVRChatConfigDialogVisible: {

@@ -59,8 +59,8 @@
     import { ref, inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
+    import { openExternalLink } from '../../../shared/utils';
 
-    const openExternalLink = inject('openExternalLink');
     const isLinux = inject('isLinux');
 
     const { t } = useI18n();

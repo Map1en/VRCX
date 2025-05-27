@@ -1178,7 +1178,8 @@
         hasGroupPermission,
         languageClass,
         refreshInstancePlayerCount,
-        removeFromArray
+        removeFromArray,
+        openExternalLink
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
@@ -1191,7 +1192,6 @@
     const showUserDialog = inject('showUserDialog');
     const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
-    const openExternalLink = inject('openExternalLink');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

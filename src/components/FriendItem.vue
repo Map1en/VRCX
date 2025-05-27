@@ -63,10 +63,10 @@
 </template>
 
 <script>
-    import { useAppearanceSettingsStore } from '../stores/settings/appearance';
-    import { useFriendStore } from '../stores/friend';
-    import Location from './Location.vue';
     import { storeToRefs } from 'pinia';
+    import { useFriendStore } from '../stores/friend';
+    import { useAppearanceSettingsStore } from '../stores/settings/appearance';
+    import Location from './Location.vue';
 
     export default {
         name: 'FriendItem',

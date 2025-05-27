@@ -278,21 +278,15 @@
         languageClass as _languageClass,
         localeIncludes,
         sortStatus as _sortStatus,
-        timeToText as _timeToText
+        timeToText as _timeToText,
+        openExternalLink
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     export default {
         name: 'FriendListTab',
-        inject: [
-            'userImage',
-            'userImageFull',
-            'showFullscreenImageDialog',
-            'showUserDialog',
-            'statusClass',
-            'openExternalLink'
-        ],
+        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog', 'statusClass'],
         props: {
             confirmDeleteFriend: Function,
             friendsListSearch: String,
@@ -350,6 +344,7 @@
             }
         },
         methods: {
+            openExternalLink,
             sortStatus(a, b) {
                 return _sortStatus(a, b);
             },

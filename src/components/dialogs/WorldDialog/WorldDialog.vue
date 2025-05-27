@@ -779,7 +779,8 @@
         extractFileId,
         refreshInstancePlayerCount as _refreshInstancePlayerCount,
         replaceVrcPackageUrl as _replaceVrcPackageUrl,
-        timeToText
+        timeToText,
+        openExternalLink
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
@@ -809,8 +810,7 @@
             'showLaunchDialog',
             'showFullscreenImageDialog',
             'showWorldDialog',
-            'showFavoriteDialog',
-            'openExternalLink'
+            'showFavoriteDialog'
         ],
         props: {
             worldDialog: Object,
@@ -934,6 +934,7 @@
             }
         },
         methods: {
+            openExternalLink,
             displayPreviousImages(command) {
                 this.previousImagesFileId = '';
                 this.previousImagesTable = [];

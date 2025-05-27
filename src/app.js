@@ -130,7 +130,9 @@ import {
     textToHex,
     timeToText,
     getWorldName,
-    getGroupName
+    getGroupName,
+    refreshCustomCss,
+    refreshCustomScript
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -644,7 +646,6 @@ const app = {
             userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             statusClass: this.statusClass,
-            openExternalLink: this.openExternalLink,
             showWorldDialog: this.showWorldDialog,
             showAvatarDialog: this.showAvatarDialog,
             showPreviousInstancesInfoDialog:
@@ -697,8 +698,8 @@ const app = {
         await this.changeThemeMode();
     },
     async mounted() {
-        this.refreshCustomCss();
-        this.refreshCustomScript();
+        refreshCustomCss();
+        refreshCustomScript();
 
         AppApi.SetUserAgent();
 
@@ -808,7 +809,7 @@ document.addEventListener('keyup', function (e) {
             location.reload();
         }
     } else if (e.altKey && e.key === 'R') {
-        $app.refreshCustomCss();
+        refreshCustomCss();
     }
 
     if (!e.shiftKey) {
@@ -2819,53 +2820,6 @@ workerTimers.setInterval(function () {
 
 // #endregion
 // #region | initialise
-
-$app.methods.refreshCustomCss = function () {
-    if (document.contains(document.getElementById('app-custom-style'))) {
-        document.getElementById('app-custom-style').remove();
-    }
-    AppApi.CustomCssPath().then((customCss) => {
-        const head = document.head;
-        if (customCss) {
-            const $appCustomStyle = document.createElement('link');
-            $appCustomStyle.setAttribute('id', 'app-custom-style');
-            $appCustomStyle.rel = 'stylesheet';
-            $appCustomStyle.href = `file://${customCss}?_=${Date.now()}`;
-            head.appendChild($appCustomStyle);
-        }
-    });
-};
-
-$app.methods.refreshCustomScript = function () {
-    if (document.contains(document.getElementById('app-custom-script'))) {
-        document.getElementById('app-custom-script').remove();
-    }
-    AppApi.CustomScriptPath().then((customScript) => {
-        const head = document.head;
-        if (customScript) {
-            const $appCustomScript = document.createElement('script');
-            $appCustomScript.setAttribute('id', 'app-custom-script');
-            $appCustomScript.src = `file://${customScript}?_=${Date.now()}`;
-            head.appendChild($appCustomScript);
-        }
-    });
-};
-
-$app.methods.openExternalLink = function (link) {
-    this.$confirm(`${link}`, 'Open External Link', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: 'Open',
-        cancelButtonText: 'Copy',
-        type: 'info',
-        callback: (action) => {
-            if (action === 'confirm') {
-                AppApi.OpenLink(link);
-            } else if (action === 'cancel') {
-                this.copyLink(link);
-            }
-        }
-    });
-};
 
 $app.methods.updateIsGameRunning = async function (
     isGameRunning,
@@ -8312,14 +8266,6 @@ $app.methods.copyToClipboard = function (text) {
     textArea.select();
     document.execCommand('copy');
     document.getElementById('copy_to_clipboard').remove();
-};
-
-$app.methods.copyLink = function (text) {
-    this.$message({
-        message: 'Link copied to clipboard',
-        type: 'success'
-    });
-    this.copyToClipboard(text);
 };
 
 // #endregion

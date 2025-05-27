@@ -161,6 +161,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import { openExternalLink } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const VRCXUpdaterStore = useVRCXUpdaterStore();
@@ -171,7 +172,6 @@
     const { t } = useI18n();
 
     const API = inject('API');
-    const openExternalLink = inject('openExternalLink');
     const userImage = inject('userImage');
 
     defineProps({

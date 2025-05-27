@@ -1842,6 +1842,7 @@
     import ChangelogDialog from './dialogs/ChangelogDialog.vue';
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
+    import { openExternalLink } from '../../shared/utils';
 
     const { messages, t } = useI18n();
 
@@ -2071,7 +2072,6 @@
     const { updateLocalFavoriteFriends } = friendStore;
 
     const API = inject('API');
-    const openExternalLink = inject('openExternalLink');
 
     const props = defineProps({
         menuActiveIndex: {

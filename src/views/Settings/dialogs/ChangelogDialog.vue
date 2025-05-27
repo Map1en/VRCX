@@ -34,16 +34,15 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useVRCXUpdaterStore } from '../../../stores/vrcxUpdater';
+    import { openExternalLink } from '../../../shared/utils';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
     const { changeLogDialog } = storeToRefs(VRCXUpdaterStore);
 
     const { t } = useI18n();
-    const openExternalLink = inject('openExternalLink');
 
     function closeDialog() {
         changeLogDialog.value.visible = false;

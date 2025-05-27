@@ -622,7 +622,7 @@
         timeToText,
         compareUnityVersion,
         storeAvatarImage,
-        moveArrayItem
+        openExternalLink
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
@@ -635,7 +635,6 @@
     const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
-    const openExternalLink = inject('openExternalLink');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

@@ -117,4 +117,41 @@ function updateTrustColorClasses(trustColor) {
     document.getElementsByTagName('head')[0].appendChild(style);
 }
 
-export { changeAppThemeStyle, changeCJKFontsOrder, updateTrustColorClasses };
+function refreshCustomCss() {
+    if (document.contains(document.getElementById('app-custom-style'))) {
+        document.getElementById('app-custom-style').remove();
+    }
+    AppApi.CustomCssPath().then((customCss) => {
+        const head = document.head;
+        if (customCss) {
+            const $appCustomStyle = document.createElement('link');
+            $appCustomStyle.setAttribute('id', 'app-custom-style');
+            $appCustomStyle.rel = 'stylesheet';
+            $appCustomStyle.href = `file://${customCss}?_=${Date.now()}`;
+            head.appendChild($appCustomStyle);
+        }
+    });
+}
+
+function refreshCustomScript() {
+    if (document.contains(document.getElementById('app-custom-script'))) {
+        document.getElementById('app-custom-script').remove();
+    }
+    AppApi.CustomScriptPath().then((customScript) => {
+        const head = document.head;
+        if (customScript) {
+            const $appCustomScript = document.createElement('script');
+            $appCustomScript.setAttribute('id', 'app-custom-script');
+            $appCustomScript.src = `file://${customScript}?_=${Date.now()}`;
+            head.appendChild($appCustomScript);
+        }
+    });
+}
+
+export {
+    changeAppThemeStyle,
+    changeCJKFontsOrder,
+    updateTrustColorClasses,
+    refreshCustomCss,
+    refreshCustomScript
+};

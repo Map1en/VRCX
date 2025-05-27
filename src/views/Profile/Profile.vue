@@ -500,7 +500,7 @@
     import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, miscRequest, userRequest } from '../../api';
-    import { parseAvatarUrl, buildTreeData } from '../../shared/utils';
+    import { parseAvatarUrl, buildTreeData, openExternalLink } from '../../shared/utils';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
@@ -522,7 +522,6 @@
     const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');
     const showGalleryDialog = inject('showGalleryDialog');
-    const openExternalLink = inject('openExternalLink');
 
     const props = defineProps({
         menuActiveIndex: {
