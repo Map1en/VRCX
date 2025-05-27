@@ -32,7 +32,6 @@
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const API = inject('API');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const props = defineProps({

@@ -503,11 +503,12 @@
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
+    import { API } from '../../app';
 
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['API', 'userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
+        inject: ['userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
             instanceContentSettings: {
                 type: Array,
@@ -542,7 +543,8 @@
                 vipFriends,
                 onlineFriends,
                 activeFriends,
-                offlineFriends
+                offlineFriends,
+                API
             };
         },
         data() {

@@ -429,6 +429,7 @@
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
     import Location from '../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -437,7 +438,6 @@
 
     const { $confirm, $message } = getCurrentInstance().proxy;
 
-    const API = inject('API');
     const showWorldDialog = inject('showWorldDialog');
     const showGroupDialog = inject('showGroupDialog');
     const showUserDialog = inject('showUserDialog');

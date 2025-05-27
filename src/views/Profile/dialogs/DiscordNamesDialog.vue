@@ -22,8 +22,7 @@
 <script setup>
     import { ref, watch, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-
-    const API = inject('API');
+    import { API } from '../../../app';
 
     const { t } = useI18n();
 

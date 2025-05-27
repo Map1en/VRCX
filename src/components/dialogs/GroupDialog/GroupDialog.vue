@@ -1170,6 +1170,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
+    import { API } from '../../../app';
     import {
         buildTreeData,
         copyToClipboard,
@@ -1177,9 +1178,9 @@
         getFaviconUrl,
         hasGroupPermission,
         languageClass,
+        openExternalLink,
         refreshInstancePlayerCount,
-        removeFromArray,
-        openExternalLink
+        removeFromArray
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
@@ -1187,7 +1188,6 @@
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showUserDialog = inject('showUserDialog');
     const userStatusClass = inject('userStatusClass');

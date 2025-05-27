@@ -80,15 +80,21 @@
 </template>
 
 <script>
+    import { API } from '../../../app';
+
     export default {
         name: 'AvatarExportDialog',
-        inject: ['API'],
         props: {
             avatarExportDialogVisible: Boolean,
             favoriteAvatars: Array,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
             localAvatarFavoritesList: Array
+        },
+        setup() {
+            return {
+                API
+            };
         },
         data() {
             return {

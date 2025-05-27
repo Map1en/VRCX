@@ -50,16 +50,15 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
-
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
+    import { API } from '../../../app';
+
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
-
-    const API = inject('API');
 
     const props = defineProps({
         gallerySelectDialog: {

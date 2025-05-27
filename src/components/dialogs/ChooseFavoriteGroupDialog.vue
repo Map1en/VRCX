@@ -68,10 +68,11 @@
 <script>
     import { favoriteRequest } from '../../api';
     import Noty from 'noty';
+    import { API } from '../../app';
 
     export default {
         name: 'ChooseFavoriteGroupDialog',
-        inject: ['API', 'adjustDialogZ'],
+        inject: ['adjustDialogZ'],
         props: {
             favoriteDialog: {
                 type: Object,
@@ -106,6 +107,11 @@
                 type: Function,
                 default: () => () => 0
             }
+        },
+        setup() {
+            return {
+                API
+            };
         },
         data() {
             return {

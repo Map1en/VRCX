@@ -82,15 +82,19 @@
 </template>
 
 <script>
+    import { API } from '../../../app';
+
     export default {
         name: 'WorldExportDialog',
-        inject: ['API'],
         props: {
             favoriteWorlds: Array,
             worldExportDialogVisible: Boolean,
             localWorldFavorites: Object,
             localWorldFavoriteGroups: Array,
             localWorldFavoritesList: Array
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

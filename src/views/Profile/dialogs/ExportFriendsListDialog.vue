@@ -28,12 +28,18 @@
 </template>
 
 <script>
+    import { API } from '../../../app';
+
     export default {
         name: 'ExportFriendsListDialog',
-        inject: ['API'],
         props: {
             friends: Map,
             isExportFriendsListDialogVisible: Boolean
+        },
+        setup() {
+            return {
+                API
+            };
         },
         data() {
             return {

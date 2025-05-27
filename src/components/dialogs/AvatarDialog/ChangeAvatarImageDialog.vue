@@ -46,13 +46,12 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { extractFileId } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-
-    const API = inject('API');
 
     const props = defineProps({
         changeAvatarImageDialogVisible: {

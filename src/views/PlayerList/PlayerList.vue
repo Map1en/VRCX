@@ -840,6 +840,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { usePhotonStore } from '../../stores/photon';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
+    import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -848,7 +849,6 @@
 
     const { t } = useI18n();
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showWorldDialog = inject('showWorldDialog');
     const showUserDialog = inject('showUserDialog');

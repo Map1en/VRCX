@@ -69,16 +69,20 @@
 <script>
     import { removeFromArray, timeToText, parseLocation, compareByCreatedAt } from '../../../shared/utils';
     import database from '../../../service/database';
+    import { API } from '../../../app';
 
     export default {
         name: 'PreviousInstancesWorldDialog',
-        inject: ['API', 'showLaunchDialog', 'showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['showLaunchDialog', 'showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             previousInstancesWorldDialog: {
                 type: Object,
                 required: true
             },
             shiftHeld: Boolean
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

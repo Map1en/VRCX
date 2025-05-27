@@ -67,12 +67,12 @@
 <script setup>
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { API } from '../../../app';
     import EditAndSendInviteDialog from '../InviteDialog/EditAndSendInviteDialog.vue';
     import SendInviteConfirmDialog from '../InviteDialog/SendInviteConfirmDialog.vue';
 
     const { t } = useI18n();
 
-    const API = inject('API');
     const inviteImageUpload = inject('inviteImageUpload');
 
     const props = defineProps({

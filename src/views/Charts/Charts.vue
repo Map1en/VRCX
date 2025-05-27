@@ -6,7 +6,6 @@
         <keep-alive>
             <InstanceActivity
                 v-if="menuActiveIndex === 'charts'"
-                :dt-hour12="dtHour12"
                 @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
             <el-backtop target="#chart" :right="30" :bottom="30"></el-backtop>
         </keep-alive>
@@ -22,7 +21,6 @@
             InstanceActivity
         },
         props: {
-            dtHour12: Boolean,
             menuActiveIndex: String
         }
     };

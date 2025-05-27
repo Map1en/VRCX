@@ -30,15 +30,14 @@
 </template>
 
 <script setup>
-    import { getCurrentInstance, inject } from 'vue';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, notificationRequest } from '../../../api';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-
-    const API = inject('API');
 
     const props = defineProps({
         editAndSendInviteResponseDialog: {

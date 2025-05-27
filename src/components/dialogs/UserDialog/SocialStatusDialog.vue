@@ -56,13 +56,13 @@
 </template>
 
 <script setup>
-    import { inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
     const { $message } = getCurrentInstance().proxy;
-    const API = inject('API');
 
     const props = defineProps({
         socialStatusDialog: {

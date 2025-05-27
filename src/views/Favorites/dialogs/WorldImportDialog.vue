@@ -177,17 +177,21 @@
 </template>
 
 <script>
+    import { API } from '../../../app';
     import { favoriteRequest, worldRequest } from '../../../api';
     import { removeFromArray } from '../../../shared/utils';
 
     export default {
         name: 'WorldImportDialog',
-        inject: ['API', 'showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ', 'showWorldDialog'],
+        inject: ['showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ', 'showWorldDialog'],
         props: {
             worldImportDialogVisible: Boolean,
             worldImportDialogInput: String,
             getLocalWorldFavoriteGroupLength: Function,
             localWorldFavoriteGroups: Array
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

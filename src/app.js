@@ -638,7 +638,6 @@ const app = {
     },
     provide() {
         return {
-            API,
             showUserDialog: this.showUserDialog,
             adjustDialogZ: this.adjustDialogZ,
             userImage: this.userImage,
@@ -11310,7 +11309,6 @@ $app.computed.favoritesTabEvent = function () {
 
 $app.computed.chartsTabBind = function () {
     return {
-        dtHour12: this.dtHour12,
         menuActiveIndex: this.menuActiveIndex
     };
 };

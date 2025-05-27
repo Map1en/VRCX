@@ -171,15 +171,21 @@
     import { groupRequest, userRequest } from '../../api';
     import { hasGroupPermission } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { API } from '../../app';
 
     export default {
         name: 'InviteGroupDialog',
-        inject: ['API', 'userStatusClass', 'userImage', 'adjustDialogZ'],
+        inject: ['userStatusClass', 'userImage', 'adjustDialogZ'],
         props: {
             dialogData: {
                 type: Object,
                 required: true
             }
+        },
+        data() {
+            return {
+                API
+            };
         },
         setup() {
             const friendStore = useFriendStore();

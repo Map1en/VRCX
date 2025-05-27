@@ -43,12 +43,17 @@
 </template>
 
 <script>
+    import { API } from '../../../app';
+
     export default {
         name: 'FriendExportDialog',
-        inject: ['API'],
+
         props: {
             friendExportDialogVisible: Boolean,
             favoriteFriends: Array
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

@@ -180,6 +180,7 @@
     import { useFriendStore } from '../../../stores/friend';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { API } from '../../../app';
 
     export default {
         name: 'FriendsSidebar',
@@ -187,7 +188,7 @@
             FriendItem,
             Location
         },
-        inject: ['API', 'showUserDialog', 'userImage', 'userStatusClass'],
+        inject: ['showUserDialog', 'userImage', 'userStatusClass'],
         props: {
             isGameRunning: Boolean,
             lastLocation: Object,
@@ -210,7 +211,8 @@
                 vipFriends,
                 onlineFriends,
                 activeFriends,
-                offlineFriends
+                offlineFriends,
+                API
             };
         },
 

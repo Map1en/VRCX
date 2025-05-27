@@ -98,10 +98,11 @@
     import { playerModerationRequest } from '../../api';
     import configRepository from '../../service/config.js';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { API } from '../../app';
 
     export default {
         name: 'ModerationTab',
-        inject: ['API', 'showUserDialog'],
+        inject: ['showUserDialog'],
         props: {
             menuActiveIndex: String,
             tableData: Object,
@@ -111,7 +112,8 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                API
             };
         },
         data() {

@@ -132,10 +132,11 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { API } from '../../../app';
 
     export default {
         name: 'FavoritesWorldItem',
-        inject: ['API', 'showFavoriteDialog'],
+        inject: ['showFavoriteDialog'],
         props: {
             group: [Object, String],
             favorite: Object,
@@ -147,7 +148,8 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                API
             };
         },
         computed: {

@@ -99,6 +99,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
+    import { API } from '../../app';
 
     export default {
         name: 'Sidebar',
@@ -107,7 +108,7 @@
             GroupsSidebar,
             Location
         },
-        inject: ['API', 'userImage'],
+        inject: ['userImage'],
         props: {
             isGameRunning: Boolean,
 
@@ -133,7 +134,8 @@
                 hideTooltips,
                 asideWidth,
                 friends,
-                isRefreshFriendsLoading
+                isRefreshFriendsLoading,
+                API
             };
         }
     };

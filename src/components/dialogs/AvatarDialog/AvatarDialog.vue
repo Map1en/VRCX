@@ -629,8 +629,8 @@
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
+    import { API } from '../../../app.js';
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');

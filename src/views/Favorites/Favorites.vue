@@ -86,6 +86,7 @@
     import { storeToRefs } from 'pinia';
     import * as workerTimers from 'worker-timers';
     import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
+    import { API } from '../../app';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
@@ -98,7 +99,6 @@
             FavoritesWorldTab,
             FavoritesAvatarTab
         },
-        inject: ['API'],
         props: {
             menuActiveIndex: String,
             shiftHeld: Boolean,
@@ -118,7 +118,8 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                API
             };
         },
         data() {

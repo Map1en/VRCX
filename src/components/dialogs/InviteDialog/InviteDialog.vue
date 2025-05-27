@@ -169,6 +169,7 @@
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
+    import { API } from '../../../app';
     import { parseLocation } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
     import Location from '../../Location.vue';
@@ -184,7 +185,6 @@
 
     const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
-    const API = inject('API');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const props = defineProps({

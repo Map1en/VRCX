@@ -124,25 +124,24 @@
     import { useFriendStore } from '../../../stores/friend';
     import InstanceActivityDetail from './InstanceActivityDetail.vue';
     import { getWorldName } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     export default {
         name: 'InstanceActivity',
         components: {
             InstanceActivityDetail
         },
-        inject: ['API'],
-        props: {
-            dtHour12: Boolean
-        },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();
-            const { isDarkMode } = storeToRefs(appearanceSettingsStore);
+            const { isDarkMode, dtHour12 } = storeToRefs(appearanceSettingsStore);
             const { localFavoriteFriends, friends } = storeToRefs(friendStore);
             return {
                 isDarkMode,
                 localFavoriteFriends,
-                friends
+                friends,
+                dtHour12,
+                API
             };
         },
         data() {

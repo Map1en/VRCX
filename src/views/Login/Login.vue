@@ -162,6 +162,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import { openExternalLink } from '../../shared/utils';
+    import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const VRCXUpdaterStore = useVRCXUpdaterStore();
@@ -171,7 +172,6 @@
 
     const { t } = useI18n();
 
-    const API = inject('API');
     const userImage = inject('userImage');
 
     defineProps({

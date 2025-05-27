@@ -230,6 +230,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
+    import { API } from '../../../app';
 
     export default {
         name: 'FavoritesWorldTab',
@@ -237,7 +238,7 @@
             FavoritesWorldItem,
             WorldExportDialog
         },
-        inject: ['API', 'showWorldDialog'],
+        inject: ['showWorldDialog'],
         props: {
             favoriteWorlds: Array,
             editFavoritesMode: Boolean,
@@ -253,7 +254,8 @@
             return {
                 hideTooltips,
                 sortFavorites,
-                setSortFavorites
+                setSortFavorites,
+                API
             };
         },
         data() {

@@ -334,6 +334,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import { useAvatarProviderStore } from '../../stores/avatarProvider';
+    import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -345,7 +346,6 @@
 
     const { t } = useI18n();
 
-    const API = inject('API');
     const showUserDialog = inject('showUserDialog');
     const userImage = inject('userImage');
     const showWorldDialog = inject('showWorldDialog');

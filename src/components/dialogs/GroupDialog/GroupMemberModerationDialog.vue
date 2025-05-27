@@ -811,6 +811,7 @@
     import { getCurrentInstance, inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
+    import { API } from '../../../app';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
     import { hasGroupPermission } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -819,7 +820,6 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { randomUserColours } = storeToRefs(appearanceSettingsStore);
 
-    const API = inject('API');
     const showUserDialog = inject('showUserDialog');
     const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');

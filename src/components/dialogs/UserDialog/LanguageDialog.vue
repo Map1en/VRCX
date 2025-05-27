@@ -46,16 +46,12 @@
 </template>
 
 <script setup>
-    import { inject } from 'vue';
-
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
-
+    import { API } from '../../../app';
     import { languageClass } from '../../../shared/utils';
 
     const { t } = useI18n();
-
-    const API = inject('API');
 
     const props = defineProps({
         languageDialog: {

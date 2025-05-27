@@ -18,11 +18,11 @@
 <script>
     import { parseLocation } from '../shared/utils';
     import { getWorldName, getGroupName } from '../shared/utils';
+    import { API } from '../app';
 
     export default {
         name: 'Location',
         inject: {
-            API: { default: window.API },
             showWorldDialog: { default: window.$app?.showWorldDialog },
             showGroupDialog: { default: window.$app?.showGroupDialog }
         },
@@ -42,6 +42,9 @@
                 default: true
             },
             isOpenPreviousInstanceInfoDialog: Boolean
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

@@ -1843,6 +1843,7 @@
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
+    import { API } from '../../app';
 
     const { messages, t } = useI18n();
 
@@ -2070,8 +2071,6 @@
 
     const friendStore = useFriendStore();
     const { updateLocalFavoriteFriends } = friendStore;
-
-    const API = inject('API');
 
     const props = defineProps({
         menuActiveIndex: {

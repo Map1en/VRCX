@@ -87,10 +87,11 @@
     import { favoriteRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { API } from '../../../app';
 
     export default {
         components: { Location },
-        inject: ['showUserDialog', 'userImage', 'userStatusClass', 'API', 'showFavoriteDialog'],
+        inject: ['showUserDialog', 'userImage', 'userStatusClass', 'showFavoriteDialog'],
         props: {
             favorite: {
                 type: Object,
@@ -110,7 +111,8 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             return {
-                hideTooltips
+                hideTooltips,
+                API
             };
         },
         methods: {

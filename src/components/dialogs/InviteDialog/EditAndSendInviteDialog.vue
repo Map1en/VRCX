@@ -35,13 +35,13 @@
     import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
+    import { API } from '../../../app';
     import { parseLocation } from '../../../shared/utils';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const API = inject('API');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const props = defineProps({

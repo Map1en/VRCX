@@ -239,11 +239,12 @@
     import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
+    import { API } from '../../../app';
 
     export default {
         name: 'FavoritesAvatarTab',
         components: { FavoritesAvatarItem, FavoritesAvatarLocalHistoryItem, AvatarExportDialog },
-        inject: ['API', 'showAvatarDialog'],
+        inject: ['showAvatarDialog'],
         props: {
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
@@ -261,7 +262,8 @@
             return {
                 hideTooltips,
                 sortFavorites,
-                setSortFavorites
+                setSortFavorites,
+                API
             };
         },
         data() {

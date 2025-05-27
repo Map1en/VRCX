@@ -82,11 +82,12 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
+    import { API } from '../../../app';
 
     export default {
         name: 'FavoritesFriendTab',
         components: { FriendExportDialog, FavoritesFriendItem },
-        inject: ['showUserDialog', 'API'],
+        inject: ['showUserDialog'],
         props: {
             favoriteFriends: Array,
             groupedByGroupKeyFavoriteFriends: Object,
@@ -99,7 +100,8 @@
             return {
                 hideTooltips,
                 sortFavorites,
-                setSortFavorites
+                setSortFavorites,
+                API
             };
         },
         data() {

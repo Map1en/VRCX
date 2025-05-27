@@ -451,13 +451,13 @@
     import { extractFileId, getPrintFileName } from '../../../shared/utils';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
     import Location from '../../Location.vue';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({

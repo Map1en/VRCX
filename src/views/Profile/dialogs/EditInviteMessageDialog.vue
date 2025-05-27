@@ -27,14 +27,14 @@
 </template>
 
 <script setup>
-    import { ref, watch, inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest } from '../../../api';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-    const API = inject('API');
 
     const props = defineProps({
         editInviteMessageDialog: {

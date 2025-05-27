@@ -21,13 +21,14 @@
     import dayjs from 'dayjs';
     import Location from '../../../components/Location.vue';
     import { loadEcharts, timeToText } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     export default {
         name: 'InstanceActivityDetail',
         components: {
             Location
         },
-        inject: ['API', 'showUserDialog'],
+        inject: ['showUserDialog'],
         props: {
             activityDetailData: {
                 type: Array,
@@ -46,6 +47,9 @@
                 required: true,
                 default: 10
             }
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {
@@ -101,7 +105,6 @@
             // prevent switch tab play resize animation
             this.resizeObserver.disconnect();
         },
-
         methods: {
             async initEcharts(isFirstLoad = false) {
                 if (!this.echarts) {

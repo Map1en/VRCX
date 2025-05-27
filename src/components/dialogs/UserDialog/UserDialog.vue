@@ -1825,9 +1825,8 @@
         userRequest,
         worldRequest
     } from '../../../api';
-
+    import { API } from '../../../app';
     import database from '../../../service/database';
-
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import {
         compareByMemberCount,
@@ -1839,12 +1838,12 @@
         isFriendOnline,
         isRealInstance,
         languageClass,
+        openExternalLink,
         parseLocation,
         refreshInstancePlayerCount,
         replaceBioSymbols,
         timeToText,
-        userOnlineForTimestamp,
-        openExternalLink
+        userOnlineForTimestamp
     } from '../../../shared/utils';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -1870,7 +1869,6 @@
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 

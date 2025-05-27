@@ -174,15 +174,21 @@
 <script>
     import { avatarRequest, favoriteRequest } from '../../../api';
     import { removeFromArray } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     export default {
         name: 'AvatarImportDialog',
-        inject: ['API', 'adjustDialogZ', 'showFullscreenImageDialog', 'showUserDialog', 'showAvatarDialog'],
+        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showUserDialog', 'showAvatarDialog'],
         props: {
             getLocalAvatarFavoriteGroupLength: Function,
             localAvatarFavoriteGroups: Array,
             avatarImportDialogInput: String,
             avatarImportDialogVisible: Boolean
+        },
+        setup() {
+            return {
+                API
+            };
         },
         data() {
             return {

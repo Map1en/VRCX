@@ -15,12 +15,17 @@
 
 <script>
     import { avatarRequest } from '../../../api';
+    import { API } from '../../../app';
 
     export default {
         name: 'ExportAvatarsListDialog',
-        inject: ['API'],
         props: {
             isExportAvatarsListDialogVisible: Boolean
+        },
+        setup() {
+            return {
+                API
+            };
         },
         data() {
             return {

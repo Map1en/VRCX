@@ -125,10 +125,11 @@
 <script>
     import { favoriteRequest, userRequest } from '../../../api';
     import { removeFromArray } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     export default {
         name: 'FriendImportDialog',
-        inject: ['API', 'userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ'],
+        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ'],
         props: {
             friendImportDialogVisible: {
                 type: Boolean,
@@ -139,6 +140,9 @@
                 required: false,
                 default: ''
             }
+        },
+        setup() {
+            return { API };
         },
         data() {
             return {

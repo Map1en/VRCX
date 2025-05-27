@@ -777,10 +777,10 @@
         buildTreeData,
         downloadAndSaveJson as _downloadAndSaveJson,
         extractFileId,
+        openExternalLink,
         refreshInstancePlayerCount as _refreshInstancePlayerCount,
         replaceVrcPackageUrl as _replaceVrcPackageUrl,
-        timeToText,
-        openExternalLink
+        timeToText
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
@@ -801,7 +801,6 @@
             ChangeWorldImageDialog
         },
         inject: [
-            'API',
             'showUserDialog',
             'userStatusClass',
             'userImage',
@@ -832,7 +831,8 @@
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
             return {
                 hideTooltips,
-                isAgeGatedInstancesVisible
+                isAgeGatedInstancesVisible,
+                API
             };
         },
         data() {

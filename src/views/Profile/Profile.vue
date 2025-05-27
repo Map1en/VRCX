@@ -506,6 +506,7 @@
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useFriendStore } from '../../stores/friend';
+    import { API } from '../../app';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -517,7 +518,6 @@
 
     const { $prompt, $message } = getCurrentInstance().proxy;
 
-    const API = inject('API');
     const userImage = inject('userImage');
     const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');

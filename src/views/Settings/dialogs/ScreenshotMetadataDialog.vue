@@ -166,8 +166,8 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
+    import { API } from '../../../app';
 
-    const API = inject('API');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const { t } = useI18n();
