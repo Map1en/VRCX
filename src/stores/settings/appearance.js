@@ -142,6 +142,7 @@ export const useAppearanceSettingsStore = defineStore(
                 // i18n.locale = appLanguage;
                 state.appLanguage = appLanguage;
             }
+            changeCJKFontsOrder(state.appLanguage);
             $app.applyLanguageStrings();
 
             state.displayVRCPlusIconsAsAvatar = displayVRCPlusIconsAsAvatar;
