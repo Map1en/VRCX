@@ -11364,7 +11364,8 @@ $app.computed.favoritesTabEvent = function () {
 
 $app.computed.chartsTabBind = function () {
     return {
-        dtHour12: this.dtHour12
+        dtHour12: this.dtHour12,
+        menuActiveIndex: this.menuActiveIndex
     };
 };
 $app.computed.chartsTabEvent = function () {

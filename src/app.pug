@@ -2,13 +2,14 @@ doctype html
 #x-app.x-app(@dragenter.prevent @dragover.prevent @drop.prevent)
     //- ### Login ###
     LoginPage(v-if="!API.isLoggedIn" v-bind="loginPageBind" v-on="loginPageEvent")
+
     VRCXUpdateDialog
 
-    //- ### Menu ###
-    NavMenu(ref='menu' @select='selectMenu' :menu-active-index='menuActiveIndex')
-
-    //- ### Tabs ###
     template(v-if='API.isLoggedIn')
+        //- ### Menu ###
+        NavMenu(ref='menu' @select='selectMenu' :menu-active-index='menuActiveIndex')
+
+        //- ### Tabs ###
         FeedTab(v-bind='feedTabBind' v-on='feedTabEvent')
 
         GameLogTab(v-bind='gameLogTabBind' v-on='gameLogTabEvent')
@@ -27,8 +28,7 @@ doctype html
 
         FriendListTab(v-bind='friendsListTabBind' v-on='friendsListTabEvent')
 
-        KeepAlive
-            ChartsTab(v-if='menuActiveIndex === "charts"' v-bind='chartsTabBind' v-on='chartsTabEvent')
+        ChartsTab(v-bind='chartsTabBind' v-on='chartsTabEvent')
 
         ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
 
@@ -40,4 +40,4 @@ doctype html
         include mixins/dialogs
         +dialogs
 
-    //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")
+        //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")
