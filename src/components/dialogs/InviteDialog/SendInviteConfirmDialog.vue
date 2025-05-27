@@ -26,6 +26,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, notificationRequest } from '../../../api';
     import { parseLocation } from '../../../shared/utils';
+    import { API } from '../../../app';
 
     const { t } = useI18n();
 
