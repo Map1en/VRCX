@@ -228,7 +228,6 @@ Vue.use(ElementUI, {
 // init pinia
 Vue.use(PiniaVuePlugin);
 const pinia = createPinia();
-pinia.use(() => ({ i18n }));
 
 // #endregion
 
@@ -239,10 +238,16 @@ new _vrcxJsonStorage(VRCXStorage);
 
 await configRepository.init();
 
-const initThemeMode = await configRepository.getString(
-    'VRCX_ThemeMode',
-    'system'
-);
+/** Temporary solution, no way store initialization is too slow
+ *  Probably the few need to be preloaded like this,
+ *  it's normal, frontend always with a bunch of messy requirements.
+ */
+const [initThemeMode, appLanguage] = await Promise.all([
+    configRepository.getString('VRCX_ThemeMode', 'system'),
+    configRepository.getString('VRCX_appLanguage')
+]);
+
+i18n.locale = appLanguage;
 
 const app = {
     template: pugTemplate,
@@ -655,13 +660,24 @@ const app = {
     },
     el: '#root',
     async created() {
+        this.loginForm.savedCredentials =
+            (await configRepository.getString('savedCredentials')) !== null
+                ? JSON.parse(
+                      await configRepository.getString('savedCredentials')
+                  )
+                : {};
+        this.loginForm.lastUserLoggedIn =
+            await configRepository.getString('lastUserLoggedIn');
+        await AppApi.CheckGameRunning();
+        this.isGameNoVR = await configRepository.getBool('isGameNoVR');
+
         const VRCXUpdaterStore = useVRCXUpdaterStore();
         const appearanceSettingsStore = useAppearanceSettingsStore();
 
         this.setThemeMode(initThemeMode);
 
         await Promise.all([
-            VRCXUpdaterStore.initSettings(),
+            VRCXUpdaterStore.initVRCXUpdaterSettings(),
             appearanceSettingsStore.initAppearanceSettings()
         ]);
 
@@ -677,77 +693,63 @@ const app = {
         await this.changeThemeMode();
     },
     async mounted() {
-        await this.initLanguage();
-        try {
-            this.isRunningUnderWine = await AppApi.IsRunningUnderWine();
-        } catch (err) {
-            console.error(err);
-        }
-        await AppApi.SetUserAgent();
+        this.refreshCustomCss();
+        this.refreshCustomScript();
+
+        AppApi.SetUserAgent();
 
         if (await this.compareAppVersion()) {
             this.showChangeLogDialog();
         }
-
         if (this.autoUpdateVRCX !== 'Off') {
             await this.checkForVRCXUpdate(this.notifyMenu);
         }
-        await AppApi.CheckGameRunning();
-        this.isGameNoVR = await configRepository.getBool('isGameNoVR');
+
         API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
             this.verifyShortName('', tag)
         );
         this.updateLoop();
         this.getGameLogTable();
-        this.refreshCustomCss();
-        this.refreshCustomScript();
         this.checkVRChatDebugLogging();
         this.checkAutoBackupRestoreVrcRegistry();
         await this.migrateStoredUsers();
-        this.loginForm.savedCredentials =
-            (await configRepository.getString('savedCredentials')) !== null
-                ? JSON.parse(
-                      await configRepository.getString('savedCredentials')
-                  )
-                : {};
-        this.loginForm.lastUserLoggedIn =
-            await configRepository.getString('lastUserLoggedIn');
-        this.$nextTick(async function () {
-            this.$el.style.display = '';
-            if (
-                !this.enablePrimaryPassword &&
-                (await configRepository.getString('lastUserLoggedIn')) !== null
-            ) {
-                const user =
-                    this.loginForm.savedCredentials[
-                        this.loginForm.lastUserLoggedIn
-                    ];
-                if (user?.loginParmas?.endpoint) {
-                    API.endpointDomain = user.loginParmas.endpoint;
-                    API.websocketDomain = user.loginParmas.websocket;
-                }
-                // login at startup
-                this.loginForm.loading = true;
-                API.getConfig()
-                    .catch((err) => {
-                        this.loginForm.loading = false;
-                        throw err;
-                    })
-                    .then((args) => {
-                        API.getCurrentUser()
-                            .finally(() => {
-                                this.loginForm.loading = false;
-                            })
-                            .catch((err) => {
-                                this.nextCurrentUserRefresh = 60; // 1min
-                                console.error(err);
-                            });
-                        return args;
-                    });
-            } else {
-                this.loginForm.loading = false;
+        if (
+            !this.enablePrimaryPassword &&
+            (await configRepository.getString('lastUserLoggedIn')) !== null
+        ) {
+            const user =
+                this.loginForm.savedCredentials[
+                    this.loginForm.lastUserLoggedIn
+                ];
+            if (user?.loginParmas?.endpoint) {
+                API.endpointDomain = user.loginParmas.endpoint;
+                API.websocketDomain = user.loginParmas.websocket;
             }
-        });
+            // login at startup
+            this.loginForm.loading = true;
+            API.getConfig()
+                .catch((err) => {
+                    this.loginForm.loading = false;
+                    throw err;
+                })
+                .then((args) => {
+                    API.getCurrentUser()
+                        .finally(() => {
+                            this.loginForm.loading = false;
+                        })
+                        .catch((err) => {
+                            this.nextCurrentUserRefresh = 60; // 1min
+                            console.error(err);
+                        });
+                    return args;
+                });
+        }
+        try {
+            this.isRunningUnderWine = await AppApi.IsRunningUnderWine();
+            this.applyWineEmojis();
+        } catch (err) {
+            console.error(err);
+        }
         if (LINUX) {
             setTimeout(() => {
                 this.updateTTSVoices();
@@ -5585,14 +5587,8 @@ $app.methods.saveThemeMode = async function (newThemeMode) {
 
 $app.methods.changeThemeMode = async function () {
     await changeAppThemeStyle(this.themeMode);
-    if (this.isDarkMode) {
-        AppApi.ChangeTheme(1);
-    } else {
-        AppApi.ChangeTheme(0);
-    }
     this.updateVRConfigVars();
     await this.updateTrustColor();
-    await this.applyWineEmojis();
 };
 
 $app.methods.applyWineEmojis = async function () {
@@ -11187,26 +11183,6 @@ $app.methods.applyLanguageStrings = function () {
         this.groupDialogSortingOptions.joinedAtDesc;
 };
 
-$app.methods.initLanguage = async function () {
-    if (!(await configRepository.getString('VRCX_appLanguage'))) {
-        const result = await AppApi.CurrentLanguage();
-        if (!result) {
-            console.error('Failed to get current language');
-            this.changeAppLanguage('en');
-            return;
-        }
-        const lang = result.split('-')[0];
-        i18n.availableLocales.forEach((ref) => {
-            const refLang = ref.split('_')[0];
-            if (refLang === lang) {
-                this.changeAppLanguage(ref);
-            }
-        });
-    }
-
-    $app.applyLanguageStrings();
-};
-
 $app.methods.changeAppLanguage = function (language) {
     this.setAppLanguage(language);
     this.applyLanguageStrings();
@@ -11786,7 +11762,7 @@ window.$app = $app;
 window.API = API;
 window.$t = $t;
 
-export { $app, API, $t };
+export { $app, API, $t, i18n };
 
 // #endregion
 

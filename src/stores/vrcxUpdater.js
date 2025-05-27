@@ -32,11 +32,12 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         },
         pendingVRCXUpdate: false,
         pendingVRCXInstall: false,
+
         updateInProgress: false,
         updateProgress: 0
     });
 
-    async function initSettings() {
+    async function initVRCXUpdaterSettings() {
         const [autoUpdateVRCX, vrcxId] = await Promise.all([
             configRepository.getString('VRCX_autoUpdateVRCX', 'Auto Download'),
             configRepository.getString('VRCX_id', '')
@@ -441,7 +442,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
 
     return {
         state,
-        initSettings,
+        initVRCXUpdaterSettings,
 
         appVersion,
         autoUpdateVRCX,

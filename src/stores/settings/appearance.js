@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
+import { $app, i18n } from '../../app';
 import configRepository from '../../service/config';
 import {
     changeCJKFontsOrder,
     formatDateFilter,
     systemIsDarkMode
 } from '../../shared/utils';
-import { updateTrustColorClasses } from '../../shared/utils/base/ui';
+import { updateTrustColorClasses } from '../../shared/utils';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
@@ -74,7 +75,7 @@ export const useAppearanceSettingsStore = defineStore(
                 randomUserColours,
                 trustColor
             ] = await Promise.all([
-                configRepository.getString('VRCX_appLanguage', 'en'),
+                configRepository.getString('VRCX_appLanguage'),
                 configRepository.getBool('displayVRCPlusIconsAsAvatar', true),
                 configRepository.getBool('VRCX_hideNicknames', false),
                 configRepository.getBool('VRCX_hideTooltips', false),
@@ -126,9 +127,22 @@ export const useAppearanceSettingsStore = defineStore(
                 )
             ]);
 
-            state.appLanguage = appLanguage;
-            changeCJKFontsOrder(state.appLanguage);
-            this.i18n.locale = state.appLanguage;
+            // $app.methods.initLanguage
+            if (!appLanguage) {
+                const result = await AppApi.CurrentLanguage();
+
+                const lang = result.split('-')[0];
+                i18n.availableLocales.forEach((ref) => {
+                    const refLang = ref.split('_')[0];
+                    if (refLang === lang) {
+                        $app.changeAppLanguage(ref);
+                    }
+                });
+            } else {
+                // i18n.locale = appLanguage;
+                state.appLanguage = appLanguage;
+            }
+            $app.applyLanguageStrings();
 
             state.displayVRCPlusIconsAsAvatar = displayVRCPlusIconsAsAvatar;
             state.hideNicknames = hideNicknames;
@@ -215,7 +229,7 @@ export const useAppearanceSettingsStore = defineStore(
             state.appLanguage = language;
             configRepository.setString('VRCX_appLanguage', language);
             changeCJKFontsOrder(state.appLanguage);
-            this.i18n.locale = state.appLanguage;
+            i18n.locale = state.appLanguage;
         }
         function setThemeMode(mode) {
             state.themeMode = mode;
@@ -230,6 +244,11 @@ export const useAppearanceSettingsStore = defineStore(
         }
         function setIsDarkMode(isDark) {
             state.isDarkMode = isDark;
+            if (isDark) {
+                AppApi.ChangeTheme(1);
+            } else {
+                AppApi.ChangeTheme(0);
+            }
             configRepository.setString('VRCX_isDarkMode', isDark);
         }
         function setDisplayVRCPlusIconsAsAvatar() {
