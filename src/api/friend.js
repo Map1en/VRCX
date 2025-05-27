@@ -16,7 +16,19 @@ const friendReq = {
                 json,
                 params
             };
-            API.$emit('FRIEND:LIST', args);
+            // API.$emit('FRIEND:LIST', args);
+            for (let json of args.json) {
+                if (!json.displayName) {
+                    console.error('/friends gave us garbage', json);
+                    continue;
+                }
+                API.$emit('USER', {
+                    json,
+                    params: {
+                        userId: json.id
+                    }
+                });
+            }
             return args;
         });
     },

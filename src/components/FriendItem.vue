@@ -37,7 +37,7 @@
                 </template>
             </div>
         </template>
-        <template v-else-if="!friend.ref && !API.isRefreshFriendsLoading">
+        <template v-else-if="!friend.ref && !isRefreshFriendsLoading">
             <span>{{ friend.name || friend.id }}</span>
             <el-button
                 ttype="text"
@@ -64,6 +64,7 @@
 
 <script>
     import { useAppearanceSettingsStore } from '../stores/settings/appearance';
+    import { useFriendStore } from '../stores/friend';
     import Location from './Location.vue';
     import { storeToRefs } from 'pinia';
 
@@ -72,7 +73,7 @@
         components: {
             Location
         },
-        inject: ['API', 'userImage', 'userStatusClass'],
+        inject: ['userImage', 'userStatusClass'],
         props: {
             friend: {
                 type: Object,
@@ -82,9 +83,12 @@
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
+            const friendStore = useFriendStore();
             const { hideNicknames } = storeToRefs(appearanceSettingsStore);
+            const { isRefreshFriendsLoading } = storeToRefs(friendStore);
             return {
-                hideNicknames
+                hideNicknames,
+                isRefreshFriendsLoading
             };
         },
         computed: {

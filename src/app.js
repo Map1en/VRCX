@@ -412,7 +412,8 @@ const app = {
             sortActiveFriends,
             sortOfflineFriends,
             localFavoriteFriends,
-            friendLogInitStatus
+            friendLogInitStatus,
+            isRefreshFriendsLoading
         } = storeToRefs(friendStore);
 
         const {
@@ -421,7 +422,8 @@ const app = {
             updateFriend,
             deleteFriend,
             refreshFriends,
-            addFriend
+            addFriend,
+            APIRefreshFriends
         } = friendStore;
 
         return {
@@ -562,6 +564,7 @@ const app = {
 
             localFavoriteFriends,
             friendLogInitStatus,
+            isRefreshFriendsLoading,
 
             updateLocalFavoriteFriends,
             updateSidebarFriendsList,
@@ -569,6 +572,7 @@ const app = {
             deleteFriend,
             refreshFriends,
             addFriend,
+            APIRefreshFriends,
 
             avatarRemoteDatabaseProvider,
             avatarRemoteDatabaseProviderList,
@@ -1556,150 +1560,6 @@ API.$on('INSTANCE', function (args) {
     // old comment: hacky workaround to force update instance info
     $app.updateInstanceInfo++;
 });
-
-// #endregion
-// #region | API: Friend
-
-API.$on('FRIEND:LIST', function (args) {
-    for (let json of args.json) {
-        if (!json.displayName) {
-            console.error('/friends gave us garbage', json);
-            continue;
-        }
-        this.$emit('USER', {
-            json,
-            params: {
-                userId: json.id
-            }
-        });
-    }
-});
-
-API.isRefreshFriendsLoading = false;
-
-API.refreshFriends = async function () {
-    this.isRefreshFriendsLoading = true;
-    try {
-        const onlineFriends = await this.bulkRefreshFriends({
-            offline: false
-        });
-        const offlineFriends = await this.bulkRefreshFriends({
-            offline: true
-        });
-        let friends = onlineFriends.concat(offlineFriends);
-        friends = await this.refetchBrokenFriends(friends);
-        if (!$app.friendLogInitStatus) {
-            friends = await this.refreshRemainingFriends(friends);
-        }
-
-        this.isRefreshFriendsLoading = false;
-        return friends;
-    } catch (err) {
-        this.isRefreshFriendsLoading = false;
-        throw err;
-    }
-};
-
-API.bulkRefreshFriends = async function (args) {
-    let friends = [];
-    const params = {
-        ...args,
-        n: 50,
-        offset: 0
-    };
-    // API offset limit *was* 5000
-    // it is now 7500
-    mainLoop: for (let i = 150; i > -1; i--) {
-        retryLoop: for (let j = 0; j < 10; j++) {
-            // handle 429 ratelimit error, retry 10 times
-            try {
-                const args = await friendRequest.getFriends(params);
-                if (!args.json || args.json.length === 0) {
-                    break mainLoop;
-                }
-                friends = friends.concat(args.json);
-                break retryLoop;
-            } catch (err) {
-                console.error(err);
-                if (!API.currentUser.isLoggedIn) {
-                    console.error(`User isn't logged in`);
-                    break mainLoop;
-                }
-                if (err?.message?.includes('Not Found')) {
-                    console.error('Awful workaround for awful VRC API bug');
-                    break retryLoop;
-                }
-                await new Promise((resolve) => {
-                    workerTimers.setTimeout(resolve, 5000);
-                });
-            }
-        }
-        params.offset += 50;
-    }
-    return friends;
-};
-
-API.refreshRemainingFriends = async function (friends) {
-    for (let userId of this.currentUser.friends) {
-        if (!friends.some((x) => x.id === userId)) {
-            try {
-                if (!API.isLoggedIn) {
-                    console.error(`User isn't logged in`);
-                    return friends;
-                }
-                console.log('Fetching remaining friend', userId);
-                const args = await userRequest.getUser({ userId });
-                friends.push(args.json);
-            } catch (err) {
-                console.error(err);
-            }
-        }
-    }
-    return friends;
-};
-
-API.refetchBrokenFriends = async function (friends) {
-    // attempt to fix broken data from bulk friend fetch
-    for (let i = 0; i < friends.length; i++) {
-        const friend = friends[i];
-        try {
-            // we don't update friend state here, it's not reliable
-            let state = 'offline';
-            if (friend.platform === 'web') {
-                state = 'active';
-            } else if (friend.platform) {
-                state = 'online';
-            }
-            const ref = $app.friends.get(friend.id);
-            if (ref?.state !== state) {
-                if ($app.debugFriendState) {
-                    console.log(
-                        `Refetching friend state it does not match ${friend.displayName} from ${ref?.state} to ${state}`,
-                        friend
-                    );
-                }
-                const args = await userRequest.getUser({
-                    userId: friend.id
-                });
-                friends[i] = args.json;
-            } else if (friend.location === 'traveling') {
-                if ($app.debugFriendState) {
-                    console.log(
-                        'Refetching traveling friend',
-                        friend.displayName
-                    );
-                }
-                const args = await userRequest.getUser({
-                    userId: friend.id
-                });
-                friends[i] = args.json;
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-    return friends;
-};
 
 // #endregion
 // #region | API: Avatar
@@ -3435,7 +3295,7 @@ $app.methods.refreshFriendsList = async function () {
             console.error(err);
         });
     }
-    await API.refreshFriends().catch((err) => {
+    await this.APIRefreshFriends().catch((err) => {
         console.error(err);
     });
     API.reconnectWebSocket();
@@ -4981,7 +4841,7 @@ $app.methods.getFriendLog = async function (currentUser) {
     this.friendLogTable.data = [];
     this.friendLogTable.data = await database.getFriendLogHistory();
     this.refreshFriends(currentUser, true);
-    await API.refreshFriends();
+    await this.APIRefreshFriends();
     await this.tryRestoreFriendNumber();
     this.friendLogInitStatus = true;
 

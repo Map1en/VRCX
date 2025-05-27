@@ -52,7 +52,7 @@
             <el-tooltip placement="bottom" :content="$t('side_panel.refresh_tooltip')" :disabled="hideTooltips">
                 <el-button
                     type="default"
-                    :loading="API.isRefreshFriendsLoading"
+                    :loading="isRefreshFriendsLoading"
                     size="mini"
                     icon="el-icon-refresh"
                     circle
@@ -127,12 +127,13 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendsStore = useFriendStore();
-            const { friends } = storeToRefs(friendsStore);
+            const { friends, isRefreshFriendsLoading } = storeToRefs(friendsStore);
             const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
             return {
                 hideTooltips,
                 asideWidth,
-                friends
+                friends,
+                isRefreshFriendsLoading
             };
         }
     };

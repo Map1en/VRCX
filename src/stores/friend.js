@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { userRequest } from '../api';
+import { friendRequest, userRequest } from '../api';
 import { $app } from '../app';
 import API from '../classes/apiInit';
 import database from '../service/database';
@@ -35,7 +35,8 @@ export const useFriendStore = defineStore('Friend', () => {
         sortActiveFriends: false,
         sortOfflineFriends: false,
         localFavoriteFriends: new Set(),
-        friendLogInitStatus: false
+        friendLogInitStatus: false,
+        isRefreshFriendsLoading: false
     });
 
     const friends = state.friends;
@@ -168,6 +169,15 @@ export const useFriendStore = defineStore('Friend', () => {
         );
 
         return state.offlineFriends_;
+    });
+
+    const isRefreshFriendsLoading = computed({
+        get() {
+            return state.isRefreshFriendsLoading;
+        },
+        set(value) {
+            state.isRefreshFriendsLoading = value;
+        }
     });
 
     function updateLocalFavoriteFriends(value) {
@@ -604,6 +614,136 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    // #region | API: Friend
+
+    async function APIRefreshFriends() {
+        // API.refreshFriends
+        state.isRefreshFriendsLoading = true;
+        try {
+            const onlineFriends = await bulkRefreshFriends({
+                offline: false
+            });
+            const offlineFriends = await bulkRefreshFriends({
+                offline: true
+            });
+            let friends = onlineFriends.concat(offlineFriends);
+            friends = await refetchBrokenFriends(friends);
+            if (!state.friendLogInitStatus) {
+                friends = await refreshRemainingFriends(friends);
+            }
+
+            state.isRefreshFriendsLoading = false;
+            // return friends;
+        } catch (err) {
+            state.isRefreshFriendsLoading = false;
+            throw err;
+        }
+    }
+
+    async function bulkRefreshFriends(args) {
+        // API.bulkRefreshFriends
+        let friends = [];
+        const params = {
+            ...args,
+            n: 50,
+            offset: 0
+        };
+        // API offset limit *was* 5000
+        // it is now 7500
+        mainLoop: for (let i = 150; i > -1; i--) {
+            retryLoop: for (let j = 0; j < 10; j++) {
+                // handle 429 ratelimit error, retry 10 times
+                try {
+                    const args = await friendRequest.getFriends(params);
+                    if (!args.json || args.json.length === 0) {
+                        break mainLoop;
+                    }
+                    friends = friends.concat(args.json);
+                    break retryLoop;
+                } catch (err) {
+                    console.error(err);
+                    if (!API.currentUser.isLoggedIn) {
+                        console.error(`User isn't logged in`);
+                        break mainLoop;
+                    }
+                    if (err?.message?.includes('Not Found')) {
+                        console.error('Awful workaround for awful VRC API bug');
+                        break retryLoop;
+                    }
+                    await new Promise((resolve) => {
+                        workerTimers.setTimeout(resolve, 5000);
+                    });
+                }
+            }
+            params.offset += 50;
+        }
+        return friends;
+    }
+
+    async function refetchBrokenFriends(friends) {
+        // API.refetchBrokenFriends
+        // attempt to fix broken data from bulk friend fetch
+        for (let i = 0; i < friends.length; i++) {
+            const friend = friends[i];
+            try {
+                // we don't update friend state here, it's not reliable
+                let state_input = 'offline';
+                if (friend.platform === 'web') {
+                    state_input = 'active';
+                } else if (friend.platform) {
+                    state_input = 'online';
+                }
+                const ref = state.friends.get(friend.id);
+                if (ref?.state !== state_input) {
+                    if (debugFriendState.value) {
+                        console.log(
+                            `Refetching friend state it does not match ${friend.displayName} from ${ref?.state} to ${state_input}`,
+                            friend
+                        );
+                    }
+                    const args = await userRequest.getUser({
+                        userId: friend.id
+                    });
+                    friends[i] = args.json;
+                } else if (friend.location === 'traveling') {
+                    if (debugFriendState.value) {
+                        console.log(
+                            'Refetching traveling friend',
+                            friend.displayName
+                        );
+                    }
+                    const args = await userRequest.getUser({
+                        userId: friend.id
+                    });
+                    friends[i] = args.json;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        return friends;
+    }
+
+    async function refreshRemainingFriends(friends) {
+        // API.refreshRemainingFriends
+        for (let userId of API.currentUser.friends) {
+            if (!friends.some((x) => x.id === userId)) {
+                try {
+                    if (!API.isLoggedIn) {
+                        console.error(`User isn't logged in`);
+                        return friends;
+                    }
+                    console.log('Fetching remaining friend', userId);
+                    const args = await userRequest.getUser({ userId });
+                    friends.push(args.json);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+        return friends;
+    }
+
     return {
         state,
 
@@ -625,12 +765,14 @@ export const useFriendStore = defineStore('Friend', () => {
 
         localFavoriteFriends,
         friendLogInitStatus,
+        isRefreshFriendsLoading,
 
         updateLocalFavoriteFriends,
         updateSidebarFriendsList,
         updateFriend,
         deleteFriend,
         refreshFriends,
-        addFriend
+        addFriend,
+        APIRefreshFriends
     };
 });
