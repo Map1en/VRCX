@@ -240,6 +240,8 @@ new _vrcxJsonStorage(VRCXStorage);
 
 await configRepository.init();
 
+// todo: seiri
+
 /** Temporary solution, no way store initialization is too slow
  *  Probably the few need to be preloaded like this,
  *  it's normal, frontend always with a bunch of messy requirements.

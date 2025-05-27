@@ -127,6 +127,7 @@ export const useAppearanceSettingsStore = defineStore(
                 )
             ]);
 
+            // todo: seiri
             // $app.methods.initLanguage
             if (!appLanguage) {
                 const result = await AppApi.CurrentLanguage();
