@@ -22,10 +22,7 @@
 
     export default {
         name: 'Location',
-        inject: {
-            showWorldDialog: { default: window.$app?.showWorldDialog },
-            showGroupDialog: { default: window.$app?.showGroupDialog }
-        },
+        inject: ['showWorldDialog', 'showGroupDialog'],
         props: {
             location: String,
             traveling: String,
