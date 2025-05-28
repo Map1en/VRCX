@@ -48,8 +48,8 @@ export default function init(app) {
                     }
                     if (--this.nextAppUpdateCheck <= 0) {
                         this.nextAppUpdateCheck = 3600; // 1hour
-                        if (this.$store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
-                            this.$store.vrcxUpdater.checkForVRCXUpdate(
+                        if (this.store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
+                            this.store.vrcxUpdater.checkForVRCXUpdate(
                                 this.notifyMenu
                             );
                         }

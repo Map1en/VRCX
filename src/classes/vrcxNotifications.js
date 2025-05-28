@@ -341,7 +341,8 @@ export default function init(app) {
                             return '';
                         }
                         if (
-                            this.displayVRCPlusIconsAsAvatar &&
+                            this.store.appearanceSettings
+                                .displayVRCPlusIconsAsAvatar &&
                             args.json.userIcon
                         ) {
                             return args.json.userIcon;

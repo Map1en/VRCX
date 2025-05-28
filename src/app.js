@@ -255,10 +255,8 @@ i18n.locale = appLanguage;
 const app = {
     template: pugTemplate,
     pinia,
-    beforeCreate() {
-        this.$store = createGlobalStores();
-    },
     setup() {
+        const store = createGlobalStores();
         const appearanceSettingsStore = useAppearanceSettingsStore();
         const notificationsSettingsStore = useNotificationsSettingsStore();
         const wristOverlaySettingsStore = useWristOverlaySettingsStore();
@@ -268,10 +266,6 @@ const app = {
         const debugStore = useDebugStore();
 
         const {
-            appLanguage,
-            isDarkMode,
-            displayVRCPlusIconsAsAvatar,
-            sortFavorites,
             instanceUsersSortAlphabetical,
             tablePageSize,
             dtHour12,
@@ -405,11 +399,6 @@ const app = {
             debugWebRequests,
             debugFriendState,
 
-            // appearanceSettingsStore
-            appLanguage,
-            isDarkMode,
-            displayVRCPlusIconsAsAvatar,
-            sortFavorites,
             instanceUsersSortAlphabetical,
             tablePageSize,
             dtHour12,
@@ -522,7 +511,9 @@ const app = {
             deleteFriend,
             refreshFriends,
             addFriend,
-            APIRefreshFriends
+            APIRefreshFriends,
+
+            store
         };
     },
     data: {
@@ -645,11 +636,11 @@ const app = {
 
         AppApi.SetUserAgent();
 
-        if (await this.$store.vrcxUpdater.compareAppVersion()) {
-            this.$store.vrcxUpdater.showChangeLogDialog();
+        if (await this.store.vrcxUpdater.compareAppVersion()) {
+            this.store.vrcxUpdater.showChangeLogDialog();
         }
-        if (this.$store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
-            await this.$store.vrcxUpdater.checkForVRCXUpdate(this.notifyMenu);
+        if (this.store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
+            await this.store.vrcxUpdater.checkForVRCXUpdate(this.notifyMenu);
         }
 
         API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
@@ -2179,7 +2170,7 @@ API.$on('FAVORITE:ADD', function (args) {
 
     if (
         args.params.type === 'friend' &&
-        $app.$store.generalSettings.localFavoriteFriendsGroups.includes(
+        $app.store.generalSettings.localFavoriteFriendsGroups.includes(
             'friend:' + args.params.tags
         )
     ) {
@@ -2312,9 +2303,9 @@ API.applyFavorite = function (json) {
         this.cachedFavoritesByObjectId.set(ref.favoriteId, ref);
         if (
             ref.type === 'friend' &&
-            ($app.$store.generalSettings.localFavoriteFriendsGroups.length ===
+            ($app.store.generalSettings.localFavoriteFriendsGroups.length ===
                 0 ||
-                $app.$store.generalSettings.localFavoriteFriendsGroups.includes(
+                $app.store.generalSettings.localFavoriteFriendsGroups.includes(
                     ref.groupKey
                 ))
         ) {
@@ -3214,7 +3205,7 @@ $app.methods.updateFriendGPS = function (userId) {
 $app.data.onlineFriendCount = 0;
 $app.methods.updateOnlineFriendCoutner = function () {
     const onlineFriendCount =
-        this.vipFriends.length + this.$store.friend.onlineFriends.length;
+        this.vipFriends.length + this.store.friend.onlineFriends.length;
     if (onlineFriendCount !== this.onlineFriendCount) {
         AppApi.ExecuteVrFeedFunction(
             'updateOnlineFriendCount',
@@ -3338,7 +3329,7 @@ $app.data.quickSearchItems = [];
 $app.computed.stringComparer = function () {
     if (typeof this._stringComparer === 'undefined') {
         this._stringComparer = Intl.Collator(
-            this.appLanguage.replace('_', '-'),
+            this.store.appearanceSettings.appLanguage.replace('_', '-'),
             { usage: 'search', sensitivity: 'base' }
         );
     }
@@ -3767,7 +3758,7 @@ API.$on('USER:UPDATE', async function (args) {
             previousCurrentAvatarTags = ref.currentAvatarTags;
         }
         if (
-            this.$store.generalSettings.logEmptyAvatars ||
+            $app.store.generalSettings.logEmptyAvatars ||
             ref.currentAvatarImageUrl
         ) {
             let avatarInfo = {
@@ -4216,7 +4207,7 @@ $app.methods.convertYoutubeTime = function (duration) {
 
 $app.methods.updateAutoStateChange = function () {
     if (
-        !this.$store.generalSettings.autoStateChangeEnabled ||
+        !this.store.generalSettings.autoStateChangeEnabled ||
         !this.isGameRunning ||
         !this.lastLocation.playerList.size ||
         this.lastLocation.location === '' ||
@@ -4237,8 +4228,8 @@ $app.methods.updateAutoStateChange = function () {
         }
     }
     if (
-        this.$store.generalSettings.autoStateChangeInstanceTypes.length > 0 &&
-        !this.$store.generalSettings.autoStateChangeInstanceTypes.includes(
+        this.store.generalSettings.autoStateChangeInstanceTypes.length > 0 &&
+        !this.store.generalSettings.autoStateChangeInstanceTypes.includes(
             instanceType
         )
     ) {
@@ -4246,14 +4237,14 @@ $app.methods.updateAutoStateChange = function () {
     }
 
     let withCompany = this.lastLocation.playerList.size > 1;
-    if (this.$store.generalSettings.autoStateChangeNoFriends) {
+    if (this.store.generalSettings.autoStateChangeNoFriends) {
         withCompany = this.lastLocation.friendList.size >= 1;
     }
 
     const currentStatus = API.currentUser.status;
     const newStatus = withCompany
-        ? this.$store.generalSettings.autoStateChangeCompanyStatus
-        : this.$store.generalSettings.autoStateChangeAloneStatus;
+        ? this.store.generalSettings.autoStateChangeCompanyStatus
+        : this.store.generalSettings.autoStateChangeAloneStatus;
 
     if (currentStatus === newStatus) {
         return;
@@ -4588,7 +4579,7 @@ $app.computed.favoriteFriends = function () {
         this.sortFavoriteFriends = false;
         this.favoriteFriendsSorted.sort(compareByName);
     }
-    if (this.sortFavorites) {
+    if (this.store.appearanceSettings.sortFavorites) {
         return this.favoriteFriends_;
     }
     return this.favoriteFriendsSorted;
@@ -4614,7 +4605,7 @@ $app.computed.favoriteWorlds = function () {
         this.sortFavoriteWorlds = false;
         this.favoriteWorldsSorted.sort(compareByName);
     }
-    if (this.sortFavorites) {
+    if (this.store.appearanceSettings.sortFavorites) {
         return this.favoriteWorlds_;
     }
     return this.favoriteWorldsSorted;
@@ -4625,7 +4616,7 @@ $app.computed.favoriteAvatars = function () {
         this.sortFavoriteAvatars = false;
         this.favoriteAvatarsSorted.sort(compareByName);
     }
-    if (this.sortFavorites) {
+    if (this.store.appearanceSettings.sortFavorites) {
         return this.favoriteAvatars_;
     }
     return this.favoriteAvatarsSorted;
@@ -5053,7 +5044,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
     const ref = args.json;
     if (
         ref.type !== 'requestInvite' ||
-        $app.$store.generalSettings.autoAcceptInviteRequests === 'Off'
+        $app.store.generalSettings.autoAcceptInviteRequests === 'Off'
     ) {
         return;
     }
@@ -5066,14 +5057,14 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
         return;
     }
     if (
-        $app.$store.generalSettings.autoAcceptInviteRequests ===
+        $app.store.generalSettings.autoAcceptInviteRequests ===
             'All Favorites' &&
         !$app.favoriteFriends.some((x) => x.id === ref.senderUserId)
     ) {
         return;
     }
     if (
-        $app.$store.generalSettings.autoAcceptInviteRequests ===
+        $app.store.generalSettings.autoAcceptInviteRequests ===
             'Selected Favorites' &&
         !$app.localFavoriteFriends.has(ref.senderUserId)
     ) {
@@ -5475,7 +5466,7 @@ $app.methods.changeNotificationPosition = async function (value) {
 
 $app.methods.updateVRConfigVars = function () {
     let notificationTheme = 'relax';
-    if (this.isDarkMode) {
+    if (this.store.appearanceSettings.isDarkMode) {
         notificationTheme = 'sunset';
     }
     const VRConfigVars = {
@@ -5490,7 +5481,7 @@ $app.methods.updateVRConfigVars = function () {
         backgroundEnabled: this.vrBackgroundEnabled,
         dtHour12: this.dtHour12,
         pcUptimeOnFeed: this.pcUptimeOnFeed,
-        appLanguage: this.appLanguage
+        appLanguage: this.store.appearanceSettings.appLanguage
     };
     const json = JSON.stringify(VRConfigVars);
     AppApi.ExecuteVrFeedFunction('configUpdate', json);
@@ -6759,12 +6750,12 @@ $app.methods.lookupAvatars = async function (type, search) {
         try {
             const response = await webApiService.execute({
                 url: `${
-                    this.$store.avatarProvider.avatarRemoteDatabaseProvider
+                    this.store.avatarProvider.avatarRemoteDatabaseProvider
                 }?${type}=${encodeURIComponent(search)}&n=5000`,
                 method: 'GET',
                 headers: {
                     Referer: 'https://vrcx.app',
-                    'VRCX-ID': this.$store.vrcxUpdater.vrcxId
+                    'VRCX-ID': this.store.vrcxUpdater.vrcxId
                 }
             });
             const json = JSON.parse(response.data);
@@ -6794,7 +6785,7 @@ $app.methods.lookupAvatars = async function (type, search) {
                 throw new Error(`Error: ${response.data}`);
             }
         } catch (err) {
-            const msg = `Avatar search failed for ${search} with ${this.$store.avatarProvider.avatarRemoteDatabaseProvider}\n${err}`;
+            const msg = `Avatar search failed for ${search} with ${this.store.avatarProvider.avatarRemoteDatabaseProvider}\n${err}`;
             console.error(msg);
             this.$message({
                 message: msg,
@@ -6803,10 +6794,10 @@ $app.methods.lookupAvatars = async function (type, search) {
         }
     } else if (type === 'authorId') {
         const length =
-            this.$store.avatarProvider.avatarRemoteDatabaseProviderList.length;
+            this.store.avatarProvider.avatarRemoteDatabaseProviderList.length;
         for (let i = 0; i < length; ++i) {
             const url =
-                this.$store.avatarProvider.avatarRemoteDatabaseProviderList[i];
+                this.store.avatarProvider.avatarRemoteDatabaseProviderList[i];
             const avatarArray = await this.lookupAvatarsByAuthor(url, search);
             avatarArray.forEach((avatar) => {
                 if (!avatars.has(avatar.id)) {
@@ -6820,10 +6811,10 @@ $app.methods.lookupAvatars = async function (type, search) {
 
 $app.methods.lookupAvatarByImageFileId = async function (authorId, fileId) {
     const length =
-        this.$store.avatarProvider.avatarRemoteDatabaseProviderList.length;
+        this.store.avatarProvider.avatarRemoteDatabaseProviderList.length;
     for (let i = 0; i < length; ++i) {
         const url =
-            this.$store.avatarProvider.avatarRemoteDatabaseProviderList[i];
+            this.store.avatarProvider.avatarRemoteDatabaseProviderList[i];
         const avatarArray = await this.lookupAvatarsByAuthor(url, authorId);
         for (let avatar of avatarArray) {
             if (extractFileId(avatar.imageUrl) === fileId) {
@@ -6845,7 +6836,7 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
             method: 'GET',
             headers: {
                 Referer: 'https://vrcx.app',
-                'VRCX-ID': this.$store.vrcxUpdater.vrcxId
+                'VRCX-ID': this.store.vrcxUpdater.vrcxId
             }
         });
         const json = JSON.parse(response.data);
@@ -9119,7 +9110,8 @@ $app.methods.userImage = function (
     }
     if (
         (isUserDialogIcon && user.userIcon) ||
-        (this.displayVRCPlusIconsAsAvatar && user.userIcon)
+        (this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
+            user.userIcon)
     ) {
         if (isIcon) {
             return convertFileUrlToImageUrl(user.userIcon);
@@ -9161,7 +9153,10 @@ $app.methods.userImage = function (
 };
 
 $app.methods.userImageFull = function (user) {
-    if (this.displayVRCPlusIconsAsAvatar && user.userIcon) {
+    if (
+        this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
+        user.userIcon
+    ) {
         return user.userIcon;
     }
     if (user.profilePicOverride) {
@@ -9517,7 +9512,7 @@ $app.methods.eventLaunchCommand = function (input) {
             });
             break;
         case 'addavatardb':
-            this.$store.avatarProvider.addAvatarProvider(
+            this.store.avatarProvider.addAvatarProvider(
                 input.replace('addavatardb/', '')
             );
             break;
@@ -9618,7 +9613,7 @@ $app.methods.userColourInit = async function () {
 
 $app.methods.HueToHex = function (hue) {
     // this.HSVtoRGB(hue / 65535, .8, .8);
-    if (this.isDarkMode) {
+    if (this.store.appearanceSettings.isDarkMode) {
         return this.HSVtoRGB(hue / 65535, 0.6, 1);
     }
     return this.HSVtoRGB(hue / 65535, 1, 0.7);
@@ -10241,7 +10236,7 @@ $app.methods.renameLocalWorldFavoriteGroup = function (newName, group) {
 
 $app.methods.sortLocalWorldFavorites = function () {
     this.localWorldFavoriteGroups.sort();
-    if (!this.sortFavorites) {
+    if (!this.store.appearanceSettings.sortFavorites) {
         for (let i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
             const group = this.localWorldFavoriteGroups[i];
             if (this.localWorldFavorites[group]) {
@@ -10563,7 +10558,7 @@ $app.methods.promptLocalAvatarFavoriteGroupDelete = function (group) {
 
 $app.methods.sortLocalAvatarFavorites = function () {
     this.localAvatarFavoriteGroups.sort();
-    if (!this.sortFavorites) {
+    if (!this.store.appearanceSettings.sortFavorites) {
         for (let i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
             const group = this.localAvatarFavoriteGroups[i];
             if (this.localAvatarFavorites[group]) {
