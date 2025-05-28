@@ -229,7 +229,7 @@ export default function init(app) {
                 case 'resource-load-string':
                 case 'resource-load-image':
                     if (
-                        !this.logResourceLoad ||
+                        !this.$store.generalSettings.logResourceLoad ||
                         this.lastResourceloadUrl === gameLog.resourceUrl
                     ) {
                         break;
@@ -413,7 +413,7 @@ export default function init(app) {
                     this.updateOpenVR();
                     break;
                 case 'udon-exception':
-                    if (this.udonExceptionLogging) {
+                    if (this.$store.generalSettings.udonExceptionLogging) {
                         console.log('UdonException', gameLog.data);
                     }
                     // var entry = {

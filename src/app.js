@@ -138,7 +138,6 @@ import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
-import { useGeneralSettingsStore } from './stores/settings/general';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater';
 import { useNotificationsSettingsStore } from './stores/settings/notifications';
 import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
@@ -147,7 +146,6 @@ import { useAdvancedSettingsStore } from './stores/settings/advanced';
 import { usePhotonStore } from './stores/photon';
 import { useDebugStore } from './stores/debug';
 import { useFriendStore } from './stores/friend';
-import { useAvatarProviderStore } from './stores/avatarProvider';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -261,8 +259,6 @@ const app = {
         this.$store = createGlobalStores();
     },
     setup() {
-        const VRCXUpdaterStore = useVRCXUpdaterStore();
-        const generalSettingsStore = useGeneralSettingsStore();
         const appearanceSettingsStore = useAppearanceSettingsStore();
         const notificationsSettingsStore = useNotificationsSettingsStore();
         const wristOverlaySettingsStore = useWristOverlaySettingsStore();
@@ -270,36 +266,6 @@ const app = {
         const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
-        const avatarProviderStore = useAvatarProviderStore();
-
-        const { autoUpdateVRCX, vrcxId } = storeToRefs(VRCXUpdaterStore);
-
-        const {
-            avatarRemoteDatabaseProvider,
-            avatarRemoteDatabaseProviderList
-        } = storeToRefs(avatarProviderStore);
-        const { addAvatarProvider } = avatarProviderStore;
-
-        const {
-            compareAppVersion,
-            checkForVRCXUpdate,
-
-            showChangeLogDialog
-        } = VRCXUpdaterStore;
-
-        const {
-            isStartAtWindowsStartup,
-            localFavoriteFriendsGroups,
-            udonExceptionLogging,
-            logResourceLoad,
-            logEmptyAvatars,
-            autoStateChangeEnabled,
-            autoStateChangeAloneStatus,
-            autoStateChangeCompanyStatus,
-            autoStateChangeInstanceTypes,
-            autoStateChangeNoFriends,
-            autoAcceptInviteRequests
-        } = storeToRefs(generalSettingsStore);
 
         const {
             appLanguage,
@@ -439,29 +405,6 @@ const app = {
             debugWebRequests,
             debugFriendState,
 
-            // VRCXUpdaterStore
-
-            autoUpdateVRCX,
-            vrcxId,
-
-            compareAppVersion,
-            checkForVRCXUpdate,
-
-            showChangeLogDialog,
-
-            // generalSettingsStore
-            isStartAtWindowsStartup,
-            localFavoriteFriendsGroups,
-            udonExceptionLogging,
-            logResourceLoad,
-            logEmptyAvatars,
-            autoStateChangeEnabled,
-            autoStateChangeAloneStatus,
-            autoStateChangeCompanyStatus,
-            autoStateChangeInstanceTypes,
-            autoStateChangeNoFriends,
-            autoAcceptInviteRequests,
-
             // appearanceSettingsStore
             appLanguage,
             isDarkMode,
@@ -579,12 +522,7 @@ const app = {
             deleteFriend,
             refreshFriends,
             addFriend,
-            APIRefreshFriends,
-
-            avatarRemoteDatabaseProvider,
-            avatarRemoteDatabaseProviderList,
-
-            addAvatarProvider
+            APIRefreshFriends
         };
     },
     data: {
@@ -707,11 +645,11 @@ const app = {
 
         AppApi.SetUserAgent();
 
-        if (await this.compareAppVersion()) {
-            this.showChangeLogDialog();
+        if (await this.$store.vrcxUpdater.compareAppVersion()) {
+            this.$store.vrcxUpdater.showChangeLogDialog();
         }
-        if (this.autoUpdateVRCX !== 'Off') {
-            await this.checkForVRCXUpdate(this.notifyMenu);
+        if (this.$store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
+            await this.$store.vrcxUpdater.checkForVRCXUpdate(this.notifyMenu);
         }
 
         API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
@@ -1656,6 +1594,7 @@ API.applyAvatar = function (json) {
             ref.unityPackages = unityPackages;
         }
     }
+    // eslint-disable-next-line no-unsafe-optional-chaining
     for (const listing of ref?.publishedListings) {
         listing.displayName = replaceBioSymbols(listing.displayName);
         listing.description = replaceBioSymbols(listing.description);
@@ -2240,7 +2179,9 @@ API.$on('FAVORITE:ADD', function (args) {
 
     if (
         args.params.type === 'friend' &&
-        $app.localFavoriteFriendsGroups.includes('friend:' + args.params.tags)
+        $app.$store.generalSettings.localFavoriteFriendsGroups.includes(
+            'friend:' + args.params.tags
+        )
     ) {
         $app.updateLocalFavoriteFriends();
     }
@@ -2371,8 +2312,11 @@ API.applyFavorite = function (json) {
         this.cachedFavoritesByObjectId.set(ref.favoriteId, ref);
         if (
             ref.type === 'friend' &&
-            ($app.localFavoriteFriendsGroups.length === 0 ||
-                $app.localFavoriteFriendsGroups.includes(ref.groupKey))
+            ($app.$store.generalSettings.localFavoriteFriendsGroups.length ===
+                0 ||
+                $app.$store.generalSettings.localFavoriteFriendsGroups.includes(
+                    ref.groupKey
+                ))
         ) {
             $app.localFavoriteFriends.add(ref.favoriteId);
             $app.updateSidebarFriendsList();
@@ -3822,7 +3766,10 @@ API.$on('USER:UPDATE', async function (args) {
             currentAvatarTags = ref.currentAvatarTags;
             previousCurrentAvatarTags = ref.currentAvatarTags;
         }
-        if (this.logEmptyAvatars || ref.currentAvatarImageUrl) {
+        if (
+            this.$store.generalSettings.logEmptyAvatars ||
+            ref.currentAvatarImageUrl
+        ) {
             let avatarInfo = {
                 ownerId: '',
                 avatarName: ''
@@ -4269,7 +4216,7 @@ $app.methods.convertYoutubeTime = function (duration) {
 
 $app.methods.updateAutoStateChange = function () {
     if (
-        !this.autoStateChangeEnabled ||
+        !this.$store.generalSettings.autoStateChangeEnabled ||
         !this.isGameRunning ||
         !this.lastLocation.playerList.size ||
         this.lastLocation.location === '' ||
@@ -4290,21 +4237,23 @@ $app.methods.updateAutoStateChange = function () {
         }
     }
     if (
-        this.autoStateChangeInstanceTypes.length > 0 &&
-        !this.autoStateChangeInstanceTypes.includes(instanceType)
+        this.$store.generalSettings.autoStateChangeInstanceTypes.length > 0 &&
+        !this.$store.generalSettings.autoStateChangeInstanceTypes.includes(
+            instanceType
+        )
     ) {
         return;
     }
 
     let withCompany = this.lastLocation.playerList.size > 1;
-    if (this.autoStateChangeNoFriends) {
+    if (this.$store.generalSettings.autoStateChangeNoFriends) {
         withCompany = this.lastLocation.friendList.size >= 1;
     }
 
     const currentStatus = API.currentUser.status;
     const newStatus = withCompany
-        ? this.autoStateChangeCompanyStatus
-        : this.autoStateChangeAloneStatus;
+        ? this.$store.generalSettings.autoStateChangeCompanyStatus
+        : this.$store.generalSettings.autoStateChangeAloneStatus;
 
     if (currentStatus === newStatus) {
         return;
@@ -5104,7 +5053,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
     const ref = args.json;
     if (
         ref.type !== 'requestInvite' ||
-        $app.autoAcceptInviteRequests === 'Off'
+        $app.$store.generalSettings.autoAcceptInviteRequests === 'Off'
     ) {
         return;
     }
@@ -5117,13 +5066,15 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
         return;
     }
     if (
-        $app.autoAcceptInviteRequests === 'All Favorites' &&
+        $app.$store.generalSettings.autoAcceptInviteRequests ===
+            'All Favorites' &&
         !$app.favoriteFriends.some((x) => x.id === ref.senderUserId)
     ) {
         return;
     }
     if (
-        $app.autoAcceptInviteRequests === 'Selected Favorites' &&
+        $app.$store.generalSettings.autoAcceptInviteRequests ===
+            'Selected Favorites' &&
         !$app.localFavoriteFriends.has(ref.senderUserId)
     ) {
         return;
@@ -5343,7 +5294,7 @@ $app.data.clearVRCXCacheFrequency = await configRepository.getInt(
     172800
 );
 
-$app.methods.saveOpenVROption = async function (configKey = '') {
+$app.methods.saveOpenVROption = async function () {
     this.updateSharedFeed(true);
     this.updateVRConfigVars();
     this.updateVRLastLocation();
@@ -5459,9 +5410,6 @@ $app.methods.saveVRCXWindowOption = async function (configKey = '') {
         VRCXStorage.Set('VRCX_WindowState', this.windowState);
         VRCXStorage.Flush();
     }
-    // else {
-    //     AppApi.SetStartup(this.isStartAtWindowsStartup);
-    // }
 };
 
 $app.data.photonOverlayMessageTimeout = Number(
@@ -6811,12 +6759,12 @@ $app.methods.lookupAvatars = async function (type, search) {
         try {
             const response = await webApiService.execute({
                 url: `${
-                    this.avatarRemoteDatabaseProvider
+                    this.$store.avatarProvider.avatarRemoteDatabaseProvider
                 }?${type}=${encodeURIComponent(search)}&n=5000`,
                 method: 'GET',
                 headers: {
                     Referer: 'https://vrcx.app',
-                    'VRCX-ID': this.vrcxId
+                    'VRCX-ID': this.$store.vrcxUpdater.vrcxId
                 }
             });
             const json = JSON.parse(response.data);
@@ -6846,7 +6794,7 @@ $app.methods.lookupAvatars = async function (type, search) {
                 throw new Error(`Error: ${response.data}`);
             }
         } catch (err) {
-            const msg = `Avatar search failed for ${search} with ${this.avatarRemoteDatabaseProvider}\n${err}`;
+            const msg = `Avatar search failed for ${search} with ${this.$store.avatarProvider.avatarRemoteDatabaseProvider}\n${err}`;
             console.error(msg);
             this.$message({
                 message: msg,
@@ -6854,9 +6802,11 @@ $app.methods.lookupAvatars = async function (type, search) {
             });
         }
     } else if (type === 'authorId') {
-        const length = this.avatarRemoteDatabaseProviderList.length;
+        const length =
+            this.$store.avatarProvider.avatarRemoteDatabaseProviderList.length;
         for (let i = 0; i < length; ++i) {
-            const url = this.avatarRemoteDatabaseProviderList[i];
+            const url =
+                this.$store.avatarProvider.avatarRemoteDatabaseProviderList[i];
             const avatarArray = await this.lookupAvatarsByAuthor(url, search);
             avatarArray.forEach((avatar) => {
                 if (!avatars.has(avatar.id)) {
@@ -6869,9 +6819,11 @@ $app.methods.lookupAvatars = async function (type, search) {
 };
 
 $app.methods.lookupAvatarByImageFileId = async function (authorId, fileId) {
-    const length = this.avatarRemoteDatabaseProviderList.length;
+    const length =
+        this.$store.avatarProvider.avatarRemoteDatabaseProviderList.length;
     for (let i = 0; i < length; ++i) {
-        const url = this.avatarRemoteDatabaseProviderList[i];
+        const url =
+            this.$store.avatarProvider.avatarRemoteDatabaseProviderList[i];
         const avatarArray = await this.lookupAvatarsByAuthor(url, authorId);
         for (let avatar of avatarArray) {
             if (extractFileId(avatar.imageUrl) === fileId) {
@@ -6893,7 +6845,7 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
             method: 'GET',
             headers: {
                 Referer: 'https://vrcx.app',
-                'VRCX-ID': this.vrcxId
+                'VRCX-ID': this.$store.vrcxUpdater.vrcxId
             }
         });
         const json = JSON.parse(response.data);
@@ -7908,7 +7860,7 @@ $app.methods.showAvatarAuthorDialog = async function (
     } else if (refUserId === API.currentUser.id) {
         this.showAvatarDialog(API.currentUser.currentAvatar);
     } else {
-        let avatarId = await this.checkAvatarCache(fileId);
+        let avatarId = this.checkAvatarCache(fileId);
         let avatarInfo;
         if (!avatarId) {
             avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
@@ -9565,7 +9517,9 @@ $app.methods.eventLaunchCommand = function (input) {
             });
             break;
         case 'addavatardb':
-            this.addAvatarProvider(input.replace('addavatardb/', ''));
+            this.$store.avatarProvider.addAvatarProvider(
+                input.replace('addavatardb/', '')
+            );
             break;
         case 'switchavatar':
             const avatarId = commandArg;
