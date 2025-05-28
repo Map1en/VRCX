@@ -276,12 +276,12 @@ export default function init(app) {
                 let isFriend = false;
                 let isFavorite = false;
                 if (ctx.userId) {
-                    isFriend = this.friends.has(ctx.userId);
+                    isFriend = this.store.friend.friends.has(ctx.userId);
                     isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 } else if (ctx.displayName) {
                     for (var ref of API.cachedUsers.values()) {
                         if (ref.displayName === ctx.displayName) {
-                            isFriend = this.friends.has(ref.id);
+                            isFriend = this.store.friend.friends.has(ref.id);
                             isFavorite = this.localFavoriteFriends.has(ref.id);
                             break;
                         }
@@ -398,7 +398,7 @@ export default function init(app) {
                 ) {
                     continue;
                 }
-                const isFriend = this.friends.has(ctx.userId);
+                const isFriend = this.store.friend.friends.has(ctx.userId);
                 const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 if (
                     w < 20 &&
@@ -448,7 +448,9 @@ export default function init(app) {
                 if (ctx.senderUserId === API.currentUser.id) {
                     continue;
                 }
-                const isFriend = this.friends.has(ctx.senderUserId);
+                const isFriend = this.store.friend.friends.has(
+                    ctx.senderUserId
+                );
                 const isFavorite = this.localFavoriteFriends.has(
                     ctx.senderUserId
                 );
@@ -501,7 +503,7 @@ export default function init(app) {
                 if (ctx.type === 'FriendRequest') {
                     continue;
                 }
-                const isFriend = this.friends.has(ctx.userId);
+                const isFriend = this.store.friend.friends.has(ctx.userId);
                 const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 if (
                     w < 20 &&
@@ -549,7 +551,7 @@ export default function init(app) {
                 if (ctx.created_at < bias) {
                     break;
                 }
-                const isFriend = this.friends.has(ctx.userId);
+                const isFriend = this.store.friend.friends.has(ctx.userId);
                 const isFavorite = this.localFavoriteFriends.has(ctx.userId);
                 // add tag colour
                 let tagColour = '';

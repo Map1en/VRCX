@@ -257,12 +257,9 @@ const app = {
     pinia,
     setup() {
         const store = createGlobalStores();
-        const photonStore = usePhotonStore();
-        const debugStore = useDebugStore();
 
         const friendStore = useFriendStore();
         const {
-            friends,
             onlineFriends_,
             vipFriends_,
             activeFriends_,
@@ -290,7 +287,6 @@ const app = {
         } = friendStore;
 
         return {
-            friends,
             onlineFriends_,
             vipFriends_,
             activeFriends_,
@@ -1011,7 +1007,7 @@ API.applyUser = function (json) {
             showcased: false
         });
     }
-    const friendCtx = $app.friends.get(ref.id);
+    const friendCtx = $app.store.friend.friends.get(ref.id);
     if (friendCtx) {
         friendCtx.ref = ref;
         friendCtx.name = ref.displayName;
@@ -2942,7 +2938,7 @@ $app.methods.checkActiveFriends = function (ref) {
 };
 
 API.$on('LOGIN', function () {
-    $app.friends.clear();
+    $app.store.friend.friends.clear();
     $app.pendingActiveFriends.clear();
     $app.friendNumber = 0;
     $app.isGroupInstances = false;
@@ -3009,7 +3005,7 @@ $app.methods.refreshFriendsList = async function () {
 };
 
 $app.methods.updateFriendGPS = function (userId) {
-    const ctx = this.friends.get(userId);
+    const ctx = this.store.friend.friends.get(userId);
     if (ctx.isVIP) {
         this.sortVIPFriends = true;
     } else {
@@ -3160,7 +3156,7 @@ $app.methods.quickSearchRemoteMethod = function (query) {
     const results = [];
     const cleanQuery = removeWhitespace(query);
 
-    for (const ctx of this.friends.values()) {
+    for (const ctx of this.store.friend.friends.values()) {
         if (typeof ctx.ref === 'undefined') {
             continue;
         }
@@ -3373,7 +3369,7 @@ $app.methods.loadPlayerList = function () {
                     lastAvatar: ''
                 };
                 this.lastLocation.playerList.set(ctx.userId, userMap);
-                if (this.friends.has(ctx.userId)) {
+                if (this.store.friend.friends.has(ctx.userId)) {
                     this.lastLocation.friendList.set(ctx.userId, userMap);
                 }
             }
@@ -3410,7 +3406,7 @@ API.$on('USER:UPDATE', async function (args) {
     let newLocation;
     let previousLocation;
     const { ref, props } = args;
-    const friend = $app.friends.get(ref.id);
+    const friend = $app.store.friend.friends.get(ref.id);
     if (typeof friend === 'undefined') {
         return;
     }
@@ -4595,7 +4591,7 @@ $app.methods.addFriendship = function (id) {
         .then((args) => {
             if (args.json.isFriend && !this.friendLog.has(id)) {
                 if (this.friendNumber === 0) {
-                    this.friendNumber = this.friends.size;
+                    this.friendNumber = this.store.friend.friends.size;
                 }
                 ref.$friendNumber = ++this.friendNumber;
                 configRepository.setInt(
@@ -5909,7 +5905,7 @@ $app.methods.showUserDialog = function (userId) {
     this.getUserMemo(userId).then((memo) => {
         if (memo.userId === userId) {
             D.memo = memo.memo;
-            const ref = this.friends.get(userId);
+            const ref = this.store.friend.friends.get(userId);
             if (ref) {
                 ref.memo = String(memo.memo || '');
                 if (memo.memo) {
@@ -5982,7 +5978,7 @@ $app.methods.showUserDialog = function (userId) {
             if (args.ref.id === D.id) {
                 requestAnimationFrame(() => {
                     D.ref = args.ref;
-                    D.friend = this.friends.get(D.id);
+                    D.friend = this.store.friend.friends.get(D.id);
                     D.isFriend = Boolean(D.friend);
                     D.note = String(D.ref.note || '');
                     D.incomingRequest = false;
@@ -6181,7 +6177,7 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
         friendCount = users.length - 1;
     }
     if (!L.isOffline) {
-        for (friend of this.friends.values()) {
+        for (friend of this.store.friend.friends.values()) {
             if (typeof friend.ref === 'undefined') {
                 continue;
             }
@@ -6258,7 +6254,7 @@ API.$on('USER:APPLY', function (ref) {
         // add/remove friends from lastLocation.friendList
         if (
             !$app.lastLocation.friendList.has(ref.id) &&
-            $app.friends.has(ref.id)
+            $app.store.friend.friends.has(ref.id)
         ) {
             const userMap = {
                 displayName: ref.displayName,
@@ -6269,7 +6265,7 @@ API.$on('USER:APPLY', function (ref) {
         }
         if (
             $app.lastLocation.friendList.has(ref.id) &&
-            !$app.friends.has(ref.id)
+            !$app.store.friend.friends.has(ref.id)
         ) {
             $app.lastLocation.friendList.delete(ref.id);
         }
@@ -7111,7 +7107,7 @@ $app.methods.applyWorldDialogInstances = function () {
             }
         }
     }
-    for (const friend of this.friends.values()) {
+    for (const friend of this.store.friend.friends.values()) {
         const { ref } = friend;
         if (
             typeof ref === 'undefined' ||
@@ -7299,7 +7295,7 @@ $app.methods.applyGroupDialogInstances = function (inputInstances) {
             }
         }
     }
-    for (const friend of this.friends.values()) {
+    for (const friend of this.store.friend.friends.values()) {
         const { ref } = friend;
         if (
             typeof ref === 'undefined' ||
@@ -8210,7 +8206,7 @@ $app.methods.getAllUserStats = async function () {
     let item;
     const userIds = [];
     const displayNames = [];
-    for (const ctx of this.friends.values()) {
+    for (const ctx of this.store.friend.friends.values()) {
         userIds.push(ctx.id);
         if (ctx.ref?.displayName) {
             displayNames.push(ctx.ref.displayName);
@@ -8229,7 +8225,7 @@ $app.methods.getAllUserStats = async function () {
             }
             // if still no userId, find userId from friends list
             if (!item.userId) {
-                for (ref of this.friends.values()) {
+                for (ref of this.store.friend.friends.values()) {
                     if (
                         ref?.ref?.id &&
                         ref.ref.displayName === item.displayName
@@ -8258,7 +8254,7 @@ $app.methods.getAllUserStats = async function () {
         friendListMap.set(item.userId, friend);
     }
     for (item of friendListMap.values()) {
-        ref = this.friends.get(item.userId);
+        ref = this.store.friend.friends.get(item.userId);
         if (ref?.ref) {
             ref.ref.$joinCount = item.joinCount;
             ref.ref.$lastSeen = item.lastSeen;
@@ -8907,7 +8903,10 @@ $app.methods.checkCanInviteSelf = function (location) {
     if (L.userId === API.currentUser.id) {
         return true;
     }
-    if (L.accessType === 'friends' && !this.friends.has(L.userId)) {
+    if (
+        L.accessType === 'friends' &&
+        !this.store.friend.friends.has(L.userId)
+    ) {
         return false;
     }
     return true;
@@ -9015,7 +9014,7 @@ $app.methods.clearVRCXCache = function () {
     API.failedGetRequests = new Map();
     API.cachedUsers.forEach((ref, id) => {
         if (
-            !this.friends.has(id) &&
+            !this.store.friend.friends.has(id) &&
             !this.lastLocation.playerList.has(ref.id) &&
             id !== API.currentUser.id
         ) {

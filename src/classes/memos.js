@@ -40,7 +40,7 @@ export default function init(app) {
             } else {
                 await database.deleteUserMemo(id);
             }
-            var ref = this.friends.get(id);
+            var ref = this.store.friend.friends.get(id);
             if (ref) {
                 ref.memo = String(memo || '');
                 if (memo) {
@@ -55,7 +55,7 @@ export default function init(app) {
         async getAllUserMemos() {
             var memos = await database.getAllUserMemos();
             memos.forEach((memo) => {
-                var ref = $app.friends.get(memo.userId);
+                var ref = $app.store.friend.friends.get(memo.userId);
                 if (typeof ref !== 'undefined') {
                     ref.memo = memo.memo;
                     ref.$nickName = '';

@@ -130,7 +130,7 @@ export default function init(app) {
                         console.error('Missing userId:', gameLog.displayName);
                     } else if (userId === API.currentUser.id) {
                         // skip
-                    } else if (this.friends.has(userId)) {
+                    } else if (this.store.friend.friends.has(userId)) {
                         this.lastLocation.friendList.set(userId, userMap);
                         if (
                             ref.location !== this.lastLocation.location &&
@@ -169,7 +169,7 @@ export default function init(app) {
                     if (typeof ref === 'undefined') {
                         break;
                     }
-                    var friendRef = this.friends.get(userId);
+                    var friendRef = this.store.friend.friends.get(userId);
                     if (typeof friendRef?.ref !== 'undefined') {
                         friendRef.ref.$joinCount++;
                         friendRef.ref.$lastSeen = new Date().toJSON();
@@ -1066,7 +1066,7 @@ export default function init(app) {
             if (!row.userId) {
                 return false;
             }
-            row.isFriend = this.friends.has(row.userId);
+            row.isFriend = this.store.friend.friends.has(row.userId);
             return row.isFriend;
         },
 

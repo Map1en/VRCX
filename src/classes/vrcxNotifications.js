@@ -62,12 +62,12 @@ export default function init(app) {
             noty.isFriend = false;
             noty.isFavorite = false;
             if (noty.userId) {
-                noty.isFriend = this.friends.has(noty.userId);
+                noty.isFriend = this.store.friend.friends.has(noty.userId);
                 noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
             } else if (noty.displayName) {
                 for (var ref of API.cachedUsers.values()) {
                     if (ref.displayName === noty.displayName) {
-                        noty.isFriend = this.friends.has(ref.id);
+                        noty.isFriend = this.store.friend.friends.has(ref.id);
                         noty.isFavorite = this.localFavoriteFriends.has(ref.id);
                         break;
                     }
@@ -98,7 +98,7 @@ export default function init(app) {
             ) {
                 return;
             }
-            noty.isFriend = this.friends.has(noty.userId);
+            noty.isFriend = this.store.friend.friends.has(noty.userId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
@@ -113,7 +113,7 @@ export default function init(app) {
         },
 
         queueNotificationNoty(noty) {
-            noty.isFriend = this.friends.has(noty.senderUserId);
+            noty.isFriend = this.store.friend.friends.has(noty.senderUserId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.senderUserId);
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
@@ -131,7 +131,7 @@ export default function init(app) {
             if (noty.type === 'FriendRequest') {
                 return;
             }
-            noty.isFriend = this.friends.has(noty.userId);
+            noty.isFriend = this.store.friend.friends.has(noty.userId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
@@ -149,7 +149,7 @@ export default function init(app) {
             noty.isFriend = false;
             noty.isFavorite = false;
             if (noty.userId) {
-                noty.isFriend = this.friends.has(noty.userId);
+                noty.isFriend = this.store.friend.friends.has(noty.userId);
                 noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
             }
             var notyFilter =

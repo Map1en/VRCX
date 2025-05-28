@@ -170,7 +170,7 @@ export default function init(app) {
                                 filteredHudTimeout.push(item);
                             } else if (
                                 this.timeoutHudOverlayFilter === 'Friends' &&
-                                this.friends.has(item.userId)
+                                this.store.friend.friends.has(item.userId)
                             ) {
                                 filteredHudTimeout.push(item);
                             }

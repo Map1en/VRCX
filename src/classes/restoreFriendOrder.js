@@ -149,7 +149,7 @@ export default function init(app) {
                 ref.friendNumber = ++this.friendNumber;
                 this.friendLog.set(ref.userId, ref);
                 database.setFriendLogCurrent(ref);
-                var friendRef = this.friends.get(friendLog.id);
+                var friendRef = this.store.friend.friends.get(friendLog.id);
                 if (friendRef?.ref) {
                     friendRef.ref.$friendNumber = ref.friendNumber;
                 }
@@ -157,7 +157,7 @@ export default function init(app) {
         },
 
         applyFriendLogFriendOrderInReverse() {
-            this.friendNumber = this.friends.size + 1;
+            this.friendNumber = this.store.friend.friends.size + 1;
             var friendLogTable = this.getFriendLogFriendOrder();
             for (var i = friendLogTable.length - 1; i > -1; i--) {
                 var friendLog = friendLogTable[i];
@@ -171,12 +171,12 @@ export default function init(app) {
                 ref.friendNumber = --this.friendNumber;
                 this.friendLog.set(ref.userId, ref);
                 database.setFriendLogCurrent(ref);
-                var friendRef = this.friends.get(friendLog.id);
+                var friendRef = this.store.friend.friends.get(friendLog.id);
                 if (friendRef?.ref) {
                     friendRef.ref.$friendNumber = ref.friendNumber;
                 }
             }
-            this.friendNumber = this.friends.size;
+            this.friendNumber = this.store.friend.friends.size;
             console.log('Applied friend order from friendLog');
         },
 
@@ -184,7 +184,7 @@ export default function init(app) {
             var backupTable = [];
             for (var i = 0; i < backupUserIds.length; i++) {
                 var userId = backupUserIds[i];
-                var ctx = this.friends.get(userId);
+                var ctx = this.store.friend.friends.get(userId);
                 if (ctx) {
                     backupTable.push({
                         id: ctx.id,
@@ -245,7 +245,7 @@ export default function init(app) {
         applyFriendOrderBackup(userIdOrder) {
             for (var i = 0; i < userIdOrder.length; i++) {
                 var userId = userIdOrder[i];
-                var ctx = this.friends.get(userId);
+                var ctx = this.store.friend.friends.get(userId);
                 var ref = ctx?.ref;
                 if (!ref || ref.$friendNumber) {
                     continue;
