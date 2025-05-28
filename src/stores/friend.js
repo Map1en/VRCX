@@ -853,14 +853,14 @@ export const useFriendStore = defineStore('Friend', () => {
     /**
      * @param {string} userId
      */
-    $app.methods.updateFriendGPS = function (userId) {
+    function updateFriendGPS(userId) {
         const ctx = state.friends.get(userId);
         if (ctx.isVIP) {
             state.sortVIPFriends = true;
         } else {
             state.sortOnlineFriends = true;
         }
-    };
+    }
 
     function updateOnlineFriendCoutner() {
         const onlineFriendCount =
@@ -908,6 +908,7 @@ export const useFriendStore = defineStore('Friend', () => {
         refreshFriends,
         checkActiveFriends,
         refreshFriendsList,
-        updateOnlineFriendCoutner
+        updateOnlineFriendCoutner,
+        updateFriendGPS
     };
 });
