@@ -537,7 +537,12 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
-    function refreshFriends(ref, fromGetCurrentUser) {
+    /**
+     * alias: `$app.refreshFriends`
+     * @param ref
+     * @param fromGetCurrentUser
+     */
+    function refreshFriendsStatus(ref, fromGetCurrentUser) {
         let id;
         const map = new Map();
         for (id of ref.friends) {
@@ -632,10 +637,11 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
-    // #region | API: Friend
-
-    async function APIRefreshFriends() {
-        // API.refreshFriends
+    /**
+     * alias: `API.refreshFriends`
+     * @returns {Promise<void>}
+     */
+    async function refreshFriends() {
         state.isRefreshFriendsLoading = true;
         try {
             const onlineFriends = await bulkRefreshFriends({
@@ -801,8 +807,8 @@ export const useFriendStore = defineStore('Friend', () => {
         updateSidebarFriendsList,
         updateFriend,
         deleteFriend,
-        refreshFriends,
+        refreshFriendsStatus,
         addFriend,
-        APIRefreshFriends
+        refreshFriends
     };
 });

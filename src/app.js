@@ -139,13 +139,6 @@ import { updateTrustColorClasses } from './shared/utils';
 
 import { useAppearanceSettingsStore } from './stores/settings/appearance';
 import { useVRCXUpdaterStore } from './stores/vrcxUpdater';
-import { useNotificationsSettingsStore } from './stores/settings/notifications';
-import { useWristOverlaySettingsStore } from './stores/settings/wristOverlay';
-import { useDiscordPresenceSettingsStore } from './stores/settings/discordPresence';
-import { useAdvancedSettingsStore } from './stores/settings/advanced';
-import { usePhotonStore } from './stores/photon';
-import { useDebugStore } from './stores/debug';
-import { useFriendStore } from './stores/friend';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -258,27 +251,7 @@ const app = {
     setup() {
         const store = createGlobalStores();
 
-        const friendStore = useFriendStore();
-
-        const {
-            updateLocalFavoriteFriends,
-            updateSidebarFriendsList,
-            updateFriend,
-            deleteFriend,
-            refreshFriends,
-            addFriend,
-            APIRefreshFriends
-        } = friendStore;
-
         return {
-            updateLocalFavoriteFriends,
-            updateSidebarFriendsList,
-            updateFriend,
-            deleteFriend,
-            refreshFriends,
-            addFriend,
-            APIRefreshFriends,
-
             store
         };
     },
@@ -602,9 +575,15 @@ API.$on('USER', function (args) {
     }
     if (args.json.state === 'online') {
         args.ref = this.applyUser(args.json); // GPS
-        $app.updateFriend({ id: args.json.id, state: args.json.state }); // online/offline
+        $app.store.friend.updateFriend({
+            id: args.json.id,
+            state: args.json.state
+        }); // online/offline
     } else {
-        $app.updateFriend({ id: args.json.id, state: args.json.state }); // online/offline
+        $app.store.friend.updateFriend({
+            id: args.json.id,
+            state: args.json.state
+        }); // online/offline
         args.ref = this.applyUser(args.json); // GPS
     }
 });
@@ -1946,7 +1925,7 @@ API.$on('FAVORITE:ADD', function (args) {
             'friend:' + args.params.tags
         )
     ) {
-        $app.updateLocalFavoriteFriends();
+        $app.store.friend.updateLocalFavoriteFriends();
     }
 });
 
@@ -1958,7 +1937,7 @@ API.$on('FAVORITE:DELETE', function (args) {
     // 애초에 $isDeleted인데 여기로 올 수 가 있나..?
     this.cachedFavoritesByObjectId.delete(args.params.objectId);
     $app.store.friend.localFavoriteFriends.delete(args.params.objectId);
-    $app.updateSidebarFriendsList();
+    $app.store.friend.updateSidebarFriendsList();
     if (ref.$isDeleted) {
         return;
     }
@@ -2012,7 +1991,7 @@ API.$on('FAVORITE:GROUP:CLEAR', function (args) {
         }
         this.cachedFavoritesByObjectId.delete(ref.favoriteId);
         $app.store.friend.localFavoriteFriends.delete(ref.favoriteId);
-        $app.updateSidebarFriendsList();
+        $app.store.friend.updateSidebarFriendsList();
         ref.$isDeleted = true;
         API.$emit('FAVORITE:@DELETE', {
             ref,
@@ -2082,7 +2061,7 @@ API.applyFavorite = function (json) {
                 ))
         ) {
             $app.store.friend.localFavoriteFriends.add(ref.favoriteId);
-            $app.updateSidebarFriendsList();
+            $app.store.friend.updateSidebarFriendsList();
         }
     } else {
         Object.assign(ref, json);
@@ -2213,7 +2192,7 @@ API.refreshFavorites = async function () {
             }
             this.refreshFavoriteItems();
             this.refreshFavoriteGroups();
-            $app.updateLocalFavoriteFriends();
+            $app.store.friend.updateLocalFavoriteFriends();
             this.isFavoriteLoading = false;
         }
     });
@@ -2923,7 +2902,10 @@ API.$on('LOGIN', function () {
 API.$on('USER:CURRENT', function (args) {
     // USER:CURRENT에서 처리를 함
     if ($app.store.friend.friendLogInitStatus) {
-        $app.refreshFriends(args.ref, args.fromGetCurrentUser);
+        $app.store.friend.refreshFriendsStatus(
+            args.ref,
+            args.fromGetCurrentUser
+        );
     }
     $app.updateOnlineFriendCoutner();
 
@@ -2935,26 +2917,26 @@ API.$on('USER:CURRENT', function (args) {
 });
 
 API.$on('FRIEND:ADD', function (args) {
-    $app.addFriend(args.params.userId);
+    $app.store.friend.addFriend(args.params.userId);
 });
 
 API.$on('FRIEND:DELETE', function (args) {
-    $app.deleteFriend(args.params.userId);
+    $app.store.friend.deleteFriend(args.params.userId);
 });
 
 API.$on('FRIEND:STATE', function (args) {
-    $app.updateFriend({
+    $app.store.friend.updateFriend({
         id: args.params.userId,
         state: args.json.state
     });
 });
 
 API.$on('FAVORITE', function (args) {
-    $app.updateFriend({ id: args.ref.favoriteId });
+    $app.store.friend.updateFriend({ id: args.ref.favoriteId });
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    $app.updateFriend({ id: args.ref.favoriteId });
+    $app.store.friend.updateFriend({ id: args.ref.favoriteId });
 });
 
 $app.methods.refreshFriendsList = async function () {
@@ -2964,7 +2946,7 @@ $app.methods.refreshFriendsList = async function () {
             console.error(err);
         });
     }
-    await this.APIRefreshFriends().catch((err) => {
+    await this.store.friend.refreshFriends().catch((err) => {
         console.error(err);
     });
     API.reconnectWebSocket();
@@ -4468,9 +4450,9 @@ API.$on('FRIEND:DELETE', function (args) {
 $app.data.notificationInitStatus = false;
 
 $app.methods.initFriendLog = async function (currentUser) {
-    this.refreshFriends(currentUser, true);
+    this.store.friend.refreshFriendsStatus(currentUser, true);
     const sqlValues = [];
-    const friends = await API.refreshFriends();
+    const friends = await this.store.friend.refreshFriends();
     for (let friend of friends) {
         const ref = API.applyUser(friend);
         const row = {
@@ -4515,8 +4497,8 @@ $app.methods.getFriendLog = async function (currentUser) {
     }
     this.friendLogTable.data = [];
     this.friendLogTable.data = await database.getFriendLogHistory();
-    this.refreshFriends(currentUser, true);
-    await this.APIRefreshFriends();
+    this.store.friend.refreshFriendsStatus(currentUser, true);
+    await this.store.friend.refreshFriends();
     await this.tryRestoreFriendNumber();
     this.store.friend.friendLogInitStatus = true;
 
@@ -4565,7 +4547,7 @@ $app.methods.addFriendship = function (id) {
                     `VRCX_friendNumber_${API.currentUser.id}`,
                     this.friendNumber
                 );
-                this.addFriend(id, ref.state);
+                this.store.friend.addFriend(id, ref.state);
                 const friendLogHistory = {
                     created_at: new Date().toJSON(),
                     type: 'Friend',
@@ -4642,7 +4624,7 @@ $app.methods.deleteFriendship = function (id) {
                     this.notifyMenu('friendLog');
                 }
                 this.updateSharedFeed(true);
-                this.deleteFriend(id);
+                this.store.friend.deleteFriend(id);
             }
         });
 };
