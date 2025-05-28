@@ -173,7 +173,7 @@ export default function init(app) {
                         friendRef.ref.$timeSpent +=
                             dayjs(gameLog.dt) - ref.joinTime;
                         if (
-                            this.sidebarSortMethods.includes(
+                            this.store.appearanceSettings.sidebarSortMethods.includes(
                                 'Sort by Last Seen'
                             )
                         ) {

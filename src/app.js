@@ -257,31 +257,12 @@ const app = {
     pinia,
     setup() {
         const store = createGlobalStores();
-        const appearanceSettingsStore = useAppearanceSettingsStore();
         const notificationsSettingsStore = useNotificationsSettingsStore();
         const wristOverlaySettingsStore = useWristOverlaySettingsStore();
         const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
         const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
-
-        const {
-            instanceUsersSortAlphabetical,
-            tablePageSize,
-            dtHour12,
-            sidebarSortMethods,
-            hideUnfriends,
-            randomUserColours,
-            trustColor
-        } = storeToRefs(appearanceSettingsStore);
-
-        const {
-            setAppLanguage,
-            setThemeMode,
-            setTablePageSize,
-            setRandomUserColours,
-            setTrustColor
-        } = appearanceSettingsStore;
 
         const {
             overlayToast,
@@ -399,19 +380,19 @@ const app = {
             debugWebRequests,
             debugFriendState,
 
-            instanceUsersSortAlphabetical,
-            tablePageSize,
-            dtHour12,
-            sidebarSortMethods,
-            hideUnfriends,
-            randomUserColours,
-            trustColor,
+            // instanceUsersSortAlphabetical,
+            // tablePageSize,
+            // dtHour12,
+            // sidebarSortMethods,
+            // hideUnfriends,
+            // randomUserColours,
+            // trustColor,
 
-            setAppLanguage,
-            setThemeMode,
-            setTablePageSize,
-            setRandomUserColours,
-            setTrustColor,
+            // setAppLanguage,
+            // setThemeMode,
+            // setTablePageSize,
+            // setRandomUserColours,
+            // setTrustColor,
 
             // notificationsSettingsStore
             overlayToast,
@@ -612,7 +593,10 @@ const app = {
         const VRCXUpdaterStore = useVRCXUpdaterStore();
         const appearanceSettingsStore = useAppearanceSettingsStore();
 
-        this.setThemeMode(initThemeMode);
+        // todo: seiri
+        const { setThemeMode } = appearanceSettingsStore;
+
+        setThemeMode(initThemeMode);
 
         await Promise.all([
             VRCXUpdaterStore.initVRCXUpdaterSettings(),
@@ -904,14 +888,17 @@ API.applyUserTrustLevel = function (ref) {
         trustColor = 'vip';
         ref.$trustSortNum += 0.3;
     }
-    if ($app.randomUserColours && $app.friendLogInitStatus) {
+    if (
+        $app.store.appearanceSettings.randomUserColours &&
+        $app.friendLogInitStatus
+    ) {
         if (!ref.$userColour) {
             $app.getNameColour(ref.id).then((colour) => {
                 ref.$userColour = colour;
             });
         }
     } else {
-        ref.$userColour = $app.trustColor[trustColor];
+        ref.$userColour = $app.store.appearanceSettings.trustColor[trustColor];
     }
 };
 
@@ -3150,7 +3137,7 @@ API.$on('USER:CURRENT', function (args) {
     }
     $app.updateOnlineFriendCoutner();
 
-    if ($app.randomUserColours) {
+    if ($app.store.appearanceSettings.randomUserColours) {
         $app.getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
         });
@@ -3491,7 +3478,7 @@ API.$on('LOGIN', async function (args) {
     }
     await $app.getAvatarHistory();
     await $app.getAllUserMemos();
-    if ($app.randomUserColours) {
+    if ($app.store.appearanceSettings.randomUserColours) {
         $app.getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
         });
@@ -4860,7 +4847,7 @@ $app.methods.deleteFriendship = function (id) {
                 this.queueFriendLogNoty(friendLogHistory);
                 this.friendLog.delete(id);
                 database.deleteFriendLogCurrent(id);
-                if (!this.hideUnfriends) {
+                if (!this.store.appearanceSettings.hideUnfriends) {
                     this.notifyMenu('friendLog');
                 }
                 this.updateSharedFeed(true);
@@ -5340,7 +5327,7 @@ window
     });
 
 $app.methods.saveThemeMode = async function (newThemeMode) {
-    this.setThemeMode(newThemeMode);
+    this.store.appearanceSettings.setThemeMode(newThemeMode);
     await this.changeThemeMode();
 };
 
@@ -5429,15 +5416,18 @@ $app.methods.updateTrustColor = async function (
     color
 ) {
     if (setRandomColor) {
-        this.setRandomUserColours();
+        this.store.appearanceSettings.setRandomUserColours();
     }
     if (typeof API.currentUser?.id === 'undefined') {
         return;
     }
     if (field && color) {
-        this.setTrustColor({ ...this.trustColor, [field]: color });
+        this.store.appearanceSettings.setTrustColor({
+            ...this.store.appearanceSettings.trustColor,
+            [field]: color
+        });
     }
-    if (this.randomUserColours) {
+    if (this.store.appearanceSettings.randomUserColours) {
         this.getNameColour(API.currentUser.id).then((colour) => {
             API.currentUser.$userColour = colour;
         });
@@ -5448,7 +5438,7 @@ $app.methods.updateTrustColor = async function (
             API.applyUserTrustLevel(ref);
         });
     }
-    updateTrustColorClasses(this.trustColor);
+    updateTrustColorClasses(this.store.appearanceSettings.trustColor);
 };
 
 $app.data.notificationPosition = await configRepository.getString(
@@ -5479,7 +5469,7 @@ $app.methods.updateVRConfigVars = function () {
         photonOverlayMessageTimeout: this.photonOverlayMessageTimeout,
         notificationTheme,
         backgroundEnabled: this.vrBackgroundEnabled,
-        dtHour12: this.dtHour12,
+        dtHour12: this.store.appearanceSettings.dtHour12,
         pcUptimeOnFeed: this.pcUptimeOnFeed,
         appLanguage: this.store.appearanceSettings.appLanguage
     };
@@ -5795,7 +5785,7 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.friendLogTable.pageSize = pageSize;
     this.playerModerationTable.pageSize = pageSize;
     this.notificationTable.pageSize = pageSize;
-    this.setTablePageSize(pageSize);
+    this.store.appearanceSettings.setTablePageSize(pageSize);
 };
 
 // #endregion
@@ -6225,7 +6215,11 @@ $app.methods.showUserDialog = function (userId) {
                                         if (!D.dateFriended) {
                                             if (ref2.type === 'Unfriend') {
                                                 D.unFriended = true;
-                                                if (!this.hideUnfriends) {
+                                                if (
+                                                    !this.store
+                                                        .appearanceSettings
+                                                        .hideUnfriends
+                                                ) {
                                                     D.dateFriended =
                                                         ref2.created_at;
                                                 }
@@ -6239,7 +6233,8 @@ $app.methods.showUserDialog = function (userId) {
                                         if (
                                             ref2.type === 'Friend' ||
                                             (ref2.type === 'Unfriend' &&
-                                                !this.hideUnfriends)
+                                                !this.store.appearanceSettings
+                                                    .hideUnfriends)
                                         ) {
                                             D.dateFriendedInfo.push(ref2);
                                         }
@@ -6382,7 +6377,7 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
         }
         friendCount = users.length;
     }
-    if (this.instanceUsersSortAlphabetical) {
+    if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
         users.sort(compareByDisplayName);
     } else {
         users.sort(compareByLocationAt);
@@ -7363,7 +7358,7 @@ $app.methods.applyWorldDialogInstances = function () {
         if (instance.friendCount === 0) {
             instance.friendCount = instance.users.length;
         }
-        if (this.instanceUsersSortAlphabetical) {
+        if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
             instance.users.sort(compareByDisplayName);
         } else {
             instance.users.sort(compareByLocationAt);
@@ -7533,7 +7528,7 @@ $app.methods.applyGroupDialogInstances = function (inputInstances) {
         if (instance.friendCount === 0) {
             instance.friendCount = instance.users.length;
         }
-        if (this.instanceUsersSortAlphabetical) {
+        if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
             instance.users.sort(compareByDisplayName);
         } else {
             instance.users.sort(compareByLocationAt);
@@ -10942,7 +10937,7 @@ $app.methods.applyLanguageStrings = function () {
 };
 
 $app.methods.changeAppLanguage = function (language) {
-    this.setAppLanguage(language);
+    this.store.appearanceSettings.setAppLanguage(language);
     this.applyLanguageStrings();
     this.updateVRConfigVars();
 };
@@ -11167,7 +11162,6 @@ $app.computed.moderationTabBind = function () {
 $app.computed.friendsListTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        randomUserColours: this.randomUserColours,
         confirmDeleteFriend: this.confirmDeleteFriend,
         friendsListSearch: this.friendsListSearch,
         stringComparer: this.stringComparer
@@ -11340,7 +11334,6 @@ $app.computed.searchTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
-        randomUserColours: this.randomUserColours,
         userDialog: this.userDialog,
         lookupAvatars: this.lookupAvatars
     };
@@ -11392,7 +11385,6 @@ $app.computed.playerListTabBind = function () {
         photonEventTablePrevious: this.photonEventTablePrevious,
         currentInstanceUserList: this.currentInstanceUserList,
         chatboxUserBlacklist: this.chatboxUserBlacklist,
-        randomUserColours: this.randomUserColours,
         lastLocation: this.lastLocation
     };
 };
