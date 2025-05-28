@@ -71,10 +71,8 @@ import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import vrcxNotifications from './classes/vrcxNotifications.js';
 import websocket from './classes/websocket.js';
-import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
-import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
 import SafeDialog from './components/dialogs/SafeDialog.vue';
@@ -82,7 +80,6 @@ import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 
 // dialogs
-import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 import Location from './components/Location.vue';
 import NavMenu from './components/NavMenu.vue';
 
@@ -146,7 +143,6 @@ import FeedTab from './views/Feed/Feed.vue';
 import FriendListTab from './views/FriendList/FriendList.vue';
 import FriendLogTab from './views/FriendLog/FriendLog.vue';
 import GameLogTab from './views/GameLog/GameLog.vue';
-import SettingsTab from './views/Settings/Settings.vue';
 
 import LoginPage from './views/Login/Login.vue';
 
@@ -282,7 +278,7 @@ const app = {
         FriendListTab,
         ChartsTab,
         ProfileTab,
-        SettingsTab,
+        SettingsTab: () => import('./views/Settings/Settings.vue'),
         Sidebar,
 
         // components
@@ -292,9 +288,12 @@ const app = {
         // - dialogs
         PreviousInstancesInfoDialog,
         UserDialog,
-        WorldDialog,
-        GroupDialog,
-        AvatarDialog,
+        WorldDialog: () =>
+            import('./components/dialogs/WorldDialog/WorldDialog.vue'),
+        GroupDialog: () =>
+            import('./components/dialogs/GroupDialog/GroupDialog.vue'),
+        AvatarDialog: () =>
+            import('./components/dialogs/AvatarDialog/AvatarDialog.vue'),
         FriendImportDialog,
         WorldImportDialog,
         AvatarImportDialog,

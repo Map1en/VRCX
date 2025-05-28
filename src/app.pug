@@ -9,6 +9,9 @@ doctype html
         //- ### Menu ###
         NavMenu(ref='menu' @select='selectMenu' :menu-active-index='menuActiveIndex')
 
+        //- ### Sidebar ###
+        Sidebar(v-bind='sidebarTabBind' v-on='sidebarTabEvent')
+
         //- ### Tabs ###
         FeedTab(v-bind='feedTabBind' v-on='feedTabEvent')
 
@@ -33,8 +36,6 @@ doctype html
         ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
 
         SettingsTab(v-bind='settingsTabBind' v-on='settingsTabEvent')
-
-        Sidebar(v-bind='sidebarTabBind' v-on='sidebarTabEvent')
 
         //- ## Dialogs ## -\\
         include mixins/dialogs
