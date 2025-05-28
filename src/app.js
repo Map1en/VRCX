@@ -257,49 +257,9 @@ const app = {
     pinia,
     setup() {
         const store = createGlobalStores();
-        const notificationsSettingsStore = useNotificationsSettingsStore();
-        const wristOverlaySettingsStore = useWristOverlaySettingsStore();
-        const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
         const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
-
-        const {
-            overlayToast,
-            openVR,
-            overlayNotifications,
-            xsNotifications,
-            ovrtHudNotifications,
-            ovrtWristNotifications,
-            imageNotifications,
-            desktopToast,
-            afkDesktopToast,
-            notificationTTS,
-            notificationTTSNickName,
-            sharedFeedFilters
-        } = storeToRefs(notificationsSettingsStore);
-
-        const {
-            overlayWrist,
-            hidePrivateFromFeed,
-            openVRAlways,
-            overlaybutton,
-            overlayHand,
-            vrBackgroundEnabled,
-            minimalFeed,
-            hideDevicesFromFeed,
-            vrOverlayCpuUsage,
-            hideUptimeFromFeed,
-            pcUptimeOnFeed
-        } = storeToRefs(wristOverlaySettingsStore);
-
-        const {
-            discordActive,
-            discordInstance,
-            discordHideInvite,
-            discordJoinButton,
-            discordHideImage
-        } = storeToRefs(discordPresenceSettingsStore);
 
         const {
             enablePrimaryPassword,
@@ -376,59 +336,9 @@ const app = {
         } = friendStore;
 
         return {
-            // debugStore
             debugWebRequests,
             debugFriendState,
 
-            // instanceUsersSortAlphabetical,
-            // tablePageSize,
-            // dtHour12,
-            // sidebarSortMethods,
-            // hideUnfriends,
-            // randomUserColours,
-            // trustColor,
-
-            // setAppLanguage,
-            // setThemeMode,
-            // setTablePageSize,
-            // setRandomUserColours,
-            // setTrustColor,
-
-            // notificationsSettingsStore
-            overlayToast,
-            openVR,
-            overlayNotifications,
-            xsNotifications,
-            ovrtHudNotifications,
-            ovrtWristNotifications,
-            imageNotifications,
-            desktopToast,
-            afkDesktopToast,
-            notificationTTS,
-            notificationTTSNickName,
-            sharedFeedFilters,
-
-            // wristOverlaySettingsStore
-            overlayWrist,
-            hidePrivateFromFeed,
-            openVRAlways,
-            overlaybutton,
-            overlayHand,
-            vrBackgroundEnabled,
-            minimalFeed,
-            hideDevicesFromFeed,
-            vrOverlayCpuUsage,
-            hideUptimeFromFeed,
-            pcUptimeOnFeed,
-
-            // discordPresenceSettingsStore
-            discordActive,
-            discordInstance,
-            discordHideInvite,
-            discordJoinButton,
-            discordHideImage,
-
-            // advancedSettingsStore
             enablePrimaryPassword,
             relaunchVRChatAfterCrash,
             vrcQuitFix,
@@ -454,7 +364,6 @@ const app = {
             setGameLogDisabled,
             lookupYouTubeVideo,
 
-            // photonStore
             photonLoggingEnabled,
             photonEventOverlay,
             photonEventOverlayFilter,
@@ -466,7 +375,6 @@ const app = {
             setPhotonEventTableTypeOverlayFilter,
             setTimeoutHudOverlay,
 
-            // friendStore
             friends,
             onlineFriends_,
             vipFriends_,
@@ -5460,17 +5368,19 @@ $app.methods.updateVRConfigVars = function () {
         notificationTheme = 'sunset';
     }
     const VRConfigVars = {
-        overlayNotifications: this.overlayNotifications,
-        hideDevicesFromFeed: this.hideDevicesFromFeed,
-        vrOverlayCpuUsage: this.vrOverlayCpuUsage,
-        minimalFeed: this.minimalFeed,
+        overlayNotifications:
+            this.store.notificationsSettings.overlayNotifications,
+        hideDevicesFromFeed:
+            this.store.wristOverlaySettings.hideDevicesFromFeed,
+        vrOverlayCpuUsage: this.store.wristOverlaySettings.vrOverlayCpuUsage,
+        minimalFeed: this.store.wristOverlaySettings.minimalFeed,
         notificationPosition: this.notificationPosition,
         notificationTimeout: this.notificationTimeout,
         photonOverlayMessageTimeout: this.photonOverlayMessageTimeout,
         notificationTheme,
-        backgroundEnabled: this.vrBackgroundEnabled,
+        backgroundEnabled: this.store.wristOverlaySettings.vrBackgroundEnabled,
         dtHour12: this.store.appearanceSettings.dtHour12,
-        pcUptimeOnFeed: this.pcUptimeOnFeed,
+        pcUptimeOnFeed: this.store.wristOverlaySettings.pcUptimeOnFeed,
         appLanguage: this.store.appearanceSettings.appLanguage
     };
     const json = JSON.stringify(VRConfigVars);
@@ -5511,7 +5421,7 @@ $app.methods.updateVRLastLocation = function () {
         }
     }
     let onlineFor = '';
-    if (!this.hideUptimeFromFeed) {
+    if (!this.store.wristOverlaySettings.hideUptimeFromFeed) {
         onlineFor = API.currentUser.$online_for;
     }
     const lastLocation = {
@@ -5549,13 +5459,14 @@ API.$on('USER:CURRENT', function (args) {
 
 $app.methods.updateOpenVR = function () {
     if (
-        this.openVR &&
+        this.store.notificationsSettings.openVR &&
         this.isSteamVRRunning &&
-        ((this.isGameRunning && !this.isGameNoVR) || this.openVRAlways)
+        ((this.isGameRunning && !this.isGameNoVR) ||
+            this.store.wristOverlaySettings.openVRAlways)
     ) {
         let hmdOverlay = false;
         if (
-            this.overlayNotifications ||
+            this.store.notificationsSettings.overlayNotifications ||
             this.progressPie ||
             this.photonEventOverlay ||
             this.timeoutHudOverlay
@@ -5566,9 +5477,9 @@ $app.methods.updateOpenVR = function () {
         AppApi.SetVR(
             true,
             hmdOverlay,
-            this.overlayWrist,
-            this.overlaybutton,
-            this.overlayHand
+            this.store.wristOverlaySettings.overlayWrist,
+            this.store.wristOverlaySettings.overlaybutton,
+            this.store.wristOverlaySettings.overlayHand
         );
     } else {
         AppApi.SetVR(false, false, false, false, 0);

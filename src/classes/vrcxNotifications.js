@@ -73,7 +73,8 @@ export default function init(app) {
                     }
                 }
             }
-            var notyFilter = this.sharedFeedFilters.noty;
+            var notyFilter =
+                this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
                 notyFilter[noty.type] &&
                 (notyFilter[noty.type] === 'On' ||
@@ -91,7 +92,7 @@ export default function init(app) {
             }
             // hide private worlds from feed
             if (
-                this.hidePrivateFromFeed &&
+                this.store.wristOverlaySettings.hidePrivateFromFeed &&
                 noty.type === 'GPS' &&
                 noty.location === 'private'
             ) {
@@ -99,7 +100,8 @@ export default function init(app) {
             }
             noty.isFriend = this.friends.has(noty.userId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
-            var notyFilter = this.sharedFeedFilters.noty;
+            var notyFilter =
+                this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
                 notyFilter[noty.type] &&
                 (notyFilter[noty.type] === 'Everyone' ||
@@ -113,7 +115,8 @@ export default function init(app) {
         queueNotificationNoty(noty) {
             noty.isFriend = this.friends.has(noty.senderUserId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.senderUserId);
-            var notyFilter = this.sharedFeedFilters.noty;
+            var notyFilter =
+                this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
                 notyFilter[noty.type] &&
                 (notyFilter[noty.type] === 'On' ||
@@ -130,7 +133,8 @@ export default function init(app) {
             }
             noty.isFriend = this.friends.has(noty.userId);
             noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
-            var notyFilter = this.sharedFeedFilters.noty;
+            var notyFilter =
+                this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
                 notyFilter[noty.type] &&
                 (notyFilter[noty.type] === 'On' ||
@@ -148,7 +152,8 @@ export default function init(app) {
                 noty.isFriend = this.friends.has(noty.userId);
                 noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
             }
-            var notyFilter = this.sharedFeedFilters.noty;
+            var notyFilter =
+                this.store.notificationsSettings.sharedFeedFilters.noty;
             if (notyFilter[noty.type] && notyFilter[noty.type] === 'On') {
                 this.playNoty(noty);
             }
@@ -194,26 +199,37 @@ export default function init(app) {
                 'Game Running': () => this.isGameRunning, // Also known as "Inside VRChat"
                 'Desktop Mode': () => this.isGameNoVR && this.isGameRunning,
                 AFK: () =>
-                    this.afkDesktopToast &&
+                    this.store.notificationsSettings.afkDesktopToast &&
                     this.isHmdAfk &&
                     this.isGameRunning &&
                     !this.isGameNoVR
             };
 
             const playNotificationTTS =
-                notiConditions[this.notificationTTS]?.();
+                notiConditions[
+                    this.store.notificationsSettings.notificationTTS
+                ]?.();
             const playDesktopToast =
-                notiConditions[this.desktopToast]?.() ||
-                notiConditions['AFK']();
+                notiConditions[
+                    this.store.notificationsSettings.desktopToast
+                ]?.() || notiConditions['AFK']();
 
-            const playOverlayToast = notiConditions[this.overlayToast]?.();
+            const playOverlayToast =
+                notiConditions[
+                    this.store.notificationsSettings.overlayToast
+                ]?.();
             const playOverlayNotification =
-                this.overlayNotifications && playOverlayToast;
-            const playXSNotification = this.xsNotifications && playOverlayToast;
+                this.store.notificationsSettings.overlayNotifications &&
+                playOverlayToast;
+            const playXSNotification =
+                this.store.notificationsSettings.xsNotifications &&
+                playOverlayToast;
             const playOvrtHudNotifications =
-                this.ovrtHudNotifications && playOverlayToast;
+                this.store.notificationsSettings.ovrtHudNotifications &&
+                playOverlayToast;
             const playOvrtWristNotifications =
-                this.ovrtWristNotifications && playOverlayToast;
+                this.store.notificationsSettings.ovrtWristNotifications &&
+                playOverlayToast;
 
             var message = '';
             if (noty.title) {
@@ -244,7 +260,7 @@ export default function init(app) {
                 playOvrtWristNotifications ||
                 playOverlayNotification
             ) {
-                if (this.imageNotifications) {
+                if (this.store.notificationsSettings.imageNotifications) {
                     this.notySaveImage(noty).then((image) => {
                         if (playXSNotification) {
                             this.displayXSNotification(noty, message, image);
@@ -395,7 +411,7 @@ export default function init(app) {
         },
 
         async playNotyTTS(noty, displayName, message) {
-            if (this.notificationTTSNickName) {
+            if (this.store.notificationsSettings.notificationTTSNickName) {
                 var userId = this.getUserIdFromNoty(noty);
                 var memo = await $app.getUserMemo(userId);
                 if (memo.memo) {

@@ -88,10 +88,10 @@ export default function init(app) {
             API.currentTravelers.forEach((ref) => {
                 const isFavorite = this.localFavoriteFriends.has(ref.id);
                 if (
-                    (this.sharedFeedFilters.wrist.OnPlayerJoining ===
-                        'Friends' ||
-                        (this.sharedFeedFilters.wrist.OnPlayerJoining ===
-                            'VIP' &&
+                    (this.store.notificationsSettings.sharedFeedFilters.wrist
+                        .OnPlayerJoining === 'Friends' ||
+                        (this.store.notificationsSettings.sharedFeedFilters
+                            .wrist.OnPlayerJoining === 'VIP' &&
                             isFavorite)) &&
                     !$app.lastLocation.playerList.has(ref.id)
                 ) {
@@ -211,7 +211,8 @@ export default function init(app) {
             const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
             const wristArr = [];
             let w = 0;
-            const wristFilter = this.sharedFeedFilters.wrist;
+            const wristFilter =
+                this.store.notificationsSettings.sharedFeedFilters.wrist;
             let currentUserLeaveTime = 0;
             let locationJoinTime = 0;
             for (var i = sessionTable.length - 1; i > -1; i--) {
@@ -379,7 +380,8 @@ export default function init(app) {
             const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
             const wristArr = [];
             let w = 0;
-            const wristFilter = this.sharedFeedFilters.wrist;
+            const wristFilter =
+                this.store.notificationsSettings.sharedFeedFilters.wrist;
             for (var i = feedSession.length - 1; i > -1; i--) {
                 const ctx = feedSession[i];
                 if (ctx.created_at < bias) {
@@ -390,7 +392,7 @@ export default function init(app) {
                 }
                 // hide private worlds from feed
                 if (
-                    this.hidePrivateFromFeed &&
+                    this.store.wristOverlaySettings.hidePrivateFromFeed &&
                     ctx.type === 'GPS' &&
                     ctx.location === 'private'
                 ) {
@@ -436,7 +438,8 @@ export default function init(app) {
             const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
             const wristArr = [];
             let w = 0;
-            const wristFilter = this.sharedFeedFilters.wrist;
+            const wristFilter =
+                this.store.notificationsSettings.sharedFeedFilters.wrist;
             for (var i = notificationTable.length - 1; i > -1; i--) {
                 const ctx = notificationTable[i];
                 if (ctx.created_at < bias) {
@@ -488,7 +491,8 @@ export default function init(app) {
             const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
             const wristArr = [];
             let w = 0;
-            const wristFilter = this.sharedFeedFilters.wrist;
+            const wristFilter =
+                this.store.notificationsSettings.sharedFeedFilters.wrist;
             for (var i = friendLog.length - 1; i > -1; i--) {
                 const ctx = friendLog[i];
                 if (ctx.created_at < bias) {
@@ -538,7 +542,8 @@ export default function init(app) {
             const bias = new Date(Date.now() - 86400000).toJSON(); // 24 hours
             const wristArr = [];
             let w = 0;
-            const wristFilter = this.sharedFeedFilters.wrist;
+            const wristFilter =
+                this.store.notificationsSettings.sharedFeedFilters.wrist;
             for (var i = moderationAgainst.length - 1; i > -1; i--) {
                 const ctx = moderationAgainst[i];
                 if (ctx.created_at < bias) {

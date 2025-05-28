@@ -16,7 +16,7 @@ export default function init(app) {
                 timeStamp = this.lastLocationDestinationTime;
             }
             if (
-                !this.discordActive ||
+                !this.store.discordPresenceSettings.discordActive ||
                 (!this.isGameRunning && !this.gameLogDisabled) ||
                 (!currentLocation && !this.lastLocation$.tag)
             ) {
@@ -96,7 +96,7 @@ export default function init(app) {
             }
             var hidePrivate = false;
             if (
-                this.discordHideInvite &&
+                this.store.discordPresenceSettings.discordHideInvite &&
                 (L.accessType === 'invite' ||
                     L.accessType === 'invite+' ||
                     L.groupAccessType === 'members')
@@ -115,7 +115,7 @@ export default function init(app) {
                 case 'ask me':
                     L.statusName = 'Ask Me';
                     L.statusImage = 'askme';
-                    if (this.discordHideInvite) {
+                    if (this.store.discordPresenceSettings.discordHideInvite) {
                         hidePrivate = true;
                     }
                     break;
@@ -135,11 +135,11 @@ export default function init(app) {
             }
             var buttonText = 'Join';
             var buttonUrl = L.joinUrl;
-            if (!this.discordJoinButton) {
+            if (!this.store.discordPresenceSettings.discordJoinButton) {
                 buttonText = '';
                 buttonUrl = '';
             }
-            if (!this.discordInstance) {
+            if (!this.store.discordPresenceSettings.discordInstance) {
                 partySize = 0;
                 partyMaxSize = 0;
             }
@@ -196,7 +196,10 @@ export default function init(app) {
                             1000
                     );
                 }
-            } else if (!this.discordHideImage && L.thumbnailImageUrl) {
+            } else if (
+                !this.store.discordPresenceSettings.discordHideImage &&
+                L.thumbnailImageUrl
+            ) {
                 bigIcon = L.thumbnailImageUrl;
             }
             Discord.SetAssets(
@@ -219,7 +222,7 @@ export default function init(app) {
             if (hidePrivate) {
                 Discord.SetText('Private', '');
                 Discord.SetTimestamps(0, 0);
-            } else if (this.discordInstance) {
+            } else if (this.store.discordPresenceSettings.discordInstance) {
                 Discord.SetText(L.worldName, L.accessName);
             } else {
                 Discord.SetText(L.worldName, '');

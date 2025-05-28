@@ -67,7 +67,7 @@ export default function init(app) {
                     }
                     if (--this.nextDiscordUpdate <= 0) {
                         this.nextDiscordUpdate = 3;
-                        if (this.discordActive) {
+                        if (this.store.discordPresenceSettings.discordActive) {
                             this.updateDiscord();
                         }
                     }
