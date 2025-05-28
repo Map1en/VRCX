@@ -75,7 +75,7 @@ export default function init() {
                 }
                 try {
                     response.data = JSON.parse(response.data);
-                    if ($app.debugWebRequests) {
+                    if ($app.store.debug.debugWebRequests) {
                         console.log(init, response.data);
                     }
                     return response;

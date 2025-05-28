@@ -257,54 +257,8 @@ const app = {
     pinia,
     setup() {
         const store = createGlobalStores();
-        const advancedSettingsStore = useAdvancedSettingsStore();
         const photonStore = usePhotonStore();
         const debugStore = useDebugStore();
-
-        const {
-            enablePrimaryPassword,
-            relaunchVRChatAfterCrash,
-            vrcQuitFix,
-            autoSweepVRChatCache,
-            saveInstancePrints,
-            cropInstancePrints,
-            saveInstanceStickers,
-            avatarRemoteDatabase,
-            screenshotHelper,
-            screenshotHelperModifyFilename,
-            screenshotHelperCopyToClipboard,
-            youTubeApi,
-            progressPie,
-            progressPieFilter,
-            showConfirmationOnSwitchAvatar,
-            gameLogDisabled
-        } = storeToRefs(advancedSettingsStore);
-
-        const {
-            setEnablePrimaryPasswordConfigRepository,
-            setAvatarRemoteDatabase,
-            setYouTubeApi,
-            setProgressPie,
-            setProgressPieFilter,
-            setGameLogDisabled,
-            lookupYouTubeVideo
-        } = advancedSettingsStore;
-
-        const {
-            photonLoggingEnabled,
-            photonEventOverlay,
-            photonEventOverlayFilter,
-            photonEventTableTypeOverlayFilter,
-            timeoutHudOverlay
-        } = storeToRefs(photonStore);
-        const {
-            setPhotonLoggingEnabled,
-            setPhotonEventOverlay,
-            setPhotonEventTableTypeOverlayFilter,
-            setTimeoutHudOverlay
-        } = photonStore;
-
-        const { debugWebRequests, debugFriendState } = storeToRefs(debugStore);
 
         const friendStore = useFriendStore();
         const {
@@ -336,45 +290,6 @@ const app = {
         } = friendStore;
 
         return {
-            debugWebRequests,
-            debugFriendState,
-
-            enablePrimaryPassword,
-            relaunchVRChatAfterCrash,
-            vrcQuitFix,
-            autoSweepVRChatCache,
-            saveInstancePrints,
-            cropInstancePrints,
-            saveInstanceStickers,
-            avatarRemoteDatabase,
-            screenshotHelper,
-            screenshotHelperModifyFilename,
-            screenshotHelperCopyToClipboard,
-            youTubeApi,
-            progressPie,
-            progressPieFilter,
-            showConfirmationOnSwitchAvatar,
-            gameLogDisabled,
-
-            setEnablePrimaryPasswordConfigRepository,
-            setAvatarRemoteDatabase,
-            setYouTubeApi,
-            setProgressPie,
-            setProgressPieFilter,
-            setGameLogDisabled,
-            lookupYouTubeVideo,
-
-            photonLoggingEnabled,
-            photonEventOverlay,
-            photonEventOverlayFilter,
-            photonEventTableTypeOverlayFilter,
-            timeoutHudOverlay,
-
-            setPhotonLoggingEnabled,
-            setPhotonEventOverlay,
-            setPhotonEventTableTypeOverlayFilter,
-            setTimeoutHudOverlay,
-
             friends,
             onlineFriends_,
             vipFriends_,
@@ -544,7 +459,7 @@ const app = {
         this.checkAutoBackupRestoreVrcRegistry();
         await this.migrateStoredUsers();
         if (
-            !this.enablePrimaryPassword &&
+            !this.store.advancedSettings.enablePrimaryPassword &&
             (await configRepository.getString('lastUserLoggedIn')) !== null
         ) {
             const user =
@@ -2659,7 +2574,7 @@ $app.methods.updateIsGameRunning = async function (
     isSteamVRRunning,
     isHmdAfk
 ) {
-    if (this.gameLogDisabled) {
+    if (this.store.advancedSettings.gameLogDisabled) {
         return;
     }
     if (isGameRunning !== this.isGameRunning) {
@@ -2704,7 +2619,6 @@ $app.data.debugUserDiff = false;
 $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
-$app.data.debugFriendState = false;
 
 $app.data.menuActiveIndex = 'feed';
 
@@ -2813,7 +2727,7 @@ API.$on('LOGOUT', async function () {
 
 $app.methods.checkPrimaryPassword = function (args) {
     return new Promise((resolve, reject) => {
-        if (!this.enablePrimaryPassword) {
+        if (!this.store.advancedSettings.enablePrimaryPassword) {
             resolve(args.password);
         }
         $app.$prompt(
@@ -2844,11 +2758,12 @@ $app.data.enablePrimaryPasswordDialog = {
     }
 };
 $app.methods.enablePrimaryPasswordChange = function () {
-    this.enablePrimaryPassword = !this.enablePrimaryPassword;
+    this.store.advancedSettings.enablePrimaryPassword =
+        !this.store.advancedSettings.enablePrimaryPassword;
 
     this.enablePrimaryPasswordDialog.password = '';
     this.enablePrimaryPasswordDialog.rePassword = '';
-    if (this.enablePrimaryPassword) {
+    if (this.store.advancedSettings.enablePrimaryPassword) {
         this.enablePrimaryPasswordDialog.visible = true;
     } else {
         this.$prompt(
@@ -2883,24 +2798,29 @@ $app.methods.enablePrimaryPasswordChange = function () {
                             );
                         })
                         .catch(async () => {
-                            this.enablePrimaryPassword = true;
-                            this.setEnablePrimaryPasswordConfigRepository(true);
+                            this.store.advancedSettings.enablePrimaryPassword =
+                                true;
+                            this.store.advancedSettings.setEnablePrimaryPasswordConfigRepository(
+                                true
+                            );
                         });
                 }
             })
             .catch(async () => {
-                this.enablePrimaryPassword = true;
-                this.setEnablePrimaryPasswordConfigRepository(true);
+                this.store.advancedSettings.enablePrimaryPassword = true;
+                this.store.advancedSettings.setEnablePrimaryPasswordConfigRepository(
+                    true
+                );
             });
     }
 };
 $app.methods.setPrimaryPassword = async function () {
     await configRepository.setBool(
         'enablePrimaryPassword',
-        this.enablePrimaryPassword
+        this.store.advancedSettings.enablePrimaryPassword
     );
     this.enablePrimaryPasswordDialog.visible = false;
-    if (this.enablePrimaryPassword) {
+    if (this.store.advancedSettings.enablePrimaryPassword) {
         const key = this.enablePrimaryPasswordDialog.password;
         for (const userId in this.loginForm.savedCredentials) {
             security
@@ -3545,7 +3465,7 @@ API.$on('USER:UPDATE', async function (args) {
                 time = 0;
             }
         }
-        if ($app.debugFriendState && previousLocation) {
+        if ($app.store.debug.debugFriendState && previousLocation) {
             console.log(
                 `${ref.displayName} GPS ${previousLocation} -> ${newLocation}`
             );
@@ -3555,7 +3475,7 @@ API.$on('USER:UPDATE', async function (args) {
         }
         if (!previousLocation) {
             // no previous location
-            if ($app.debugFriendState) {
+            if ($app.store.debug.debugFriendState) {
                 console.log(
                     ref.displayName,
                     'Ignoring GPS, no previous location',
@@ -5303,9 +5223,9 @@ $app.data.photonOverlayMessageTimeout = Number(
 );
 $app.methods.saveEventOverlay = async function (configKey = '') {
     if (configKey === 'VRCX_PhotonEventOverlay') {
-        this.setPhotonEventOverlay();
+        this.store.photon.setPhotonEventOverlay();
     } else if (configKey === 'VRCX_TimeoutHudOverlay') {
-        this.setTimeoutHudOverlay();
+        this.store.photon.setTimeoutHudOverlay();
     }
     this.updateOpenVR();
     this.updateVRConfigVars();
@@ -5414,7 +5334,7 @@ $app.methods.updateVRLastLocation = function () {
     let progressPie = false;
     if (this.progressPie) {
         progressPie = true;
-        if (this.progressPieFilter) {
+        if (this.store.advancedSettings.progressPieFilter) {
             if (!this.isRpcWorld(this.lastLocation.location)) {
                 progressPie = false;
             }
@@ -5467,9 +5387,9 @@ $app.methods.updateOpenVR = function () {
         let hmdOverlay = false;
         if (
             this.store.notificationsSettings.overlayNotifications ||
-            this.progressPie ||
-            this.photonEventOverlay ||
-            this.timeoutHudOverlay
+            this.store.advancedSettings.progressPie ||
+            this.store.photon.photonEventOverlay ||
+            this.store.photon.timeoutHudOverlay
         ) {
             hmdOverlay = true;
         }
@@ -6665,7 +6585,7 @@ $app.methods.lookupAvatars = async function (type, search) {
                 }
             });
             const json = JSON.parse(response.data);
-            if (this.debugWebRequests) {
+            if (this.store.debug.debugWebRequests) {
                 console.log(json, response);
             }
             if (response.status === 200 && typeof json === 'object') {
@@ -6746,7 +6666,7 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
             }
         });
         const json = JSON.parse(response.data);
-        if (this.debugWebRequests) {
+        if (this.store.debug.debugWebRequests) {
             console.log(json, response);
         }
         if (response.status === 200 && typeof json === 'object') {
@@ -7733,7 +7653,7 @@ $app.methods.checkAvatarCache = function (fileId) {
 };
 
 $app.methods.checkAvatarCacheRemote = async function (fileId, ownerUserId) {
-    if (this.avatarRemoteDatabase) {
+    if (this.store.advancedSettings.avatarRemoteDatabase) {
         const avatarId = await this.lookupAvatarByImageFileId(
             ownerUserId,
             fileId
@@ -8421,7 +8341,7 @@ $app.methods.showVRChatConfig = async function () {
 
 $app.methods.processScreenshot = async function (path) {
     let newPath = path;
-    if (this.screenshotHelper) {
+    if (this.store.advancedSettings.screenshotHelper) {
         const location = parseLocation(this.lastLocation.location);
         const metadata = {
             application: 'VRCX',
@@ -8447,11 +8367,11 @@ $app.methods.processScreenshot = async function (path) {
             path,
             JSON.stringify(metadata),
             location.worldId,
-            this.screenshotHelperModifyFilename
+            this.store.advancedSettings.screenshotHelperModifyFilename
         );
         console.log('Screenshot metadata added', newPath);
     }
-    if (this.screenshotHelperCopyToClipboard) {
+    if (this.store.advancedSettings.screenshotHelperCopyToClipboard) {
         await AppApi.CopyImageToClipboard(newPath);
         console.log('Screenshot copied to clipboard', newPath);
     }
@@ -8472,11 +8392,11 @@ $app.data.isYouTubeApiDialogVisible = false;
 
 $app.methods.changeYouTubeApi = async function (configKey = '') {
     if (configKey === 'VRCX_youtubeAPI') {
-        this.setYouTubeApi();
+        this.store.advancedSettings.setYouTubeApi();
     } else if (configKey === 'VRCX_progressPie') {
-        this.setProgressPie();
+        this.store.advancedSettings.setProgressPie();
     } else if (configKey === 'VRCX_progressPieFilter') {
-        this.setProgressPieFilter();
+        this.store.advancedSettings.setProgressPieFilter();
     }
 
     this.updateVRLastLocation();
@@ -8539,7 +8459,7 @@ $app.methods.deleteVRChatCache = async function (ref) {
 };
 
 $app.methods.autoVRChatCacheManagement = function () {
-    if (this.autoSweepVRChatCache) {
+    if (this.store.advancedSettings.autoSweepVRChatCache) {
         this.sweepVRChatCache();
     }
 };
@@ -8553,7 +8473,7 @@ $app.methods.sweepVRChatCache = async function () {
 };
 
 $app.methods.checkIfGameCrashed = function () {
-    if (!this.relaunchVRChatAfterCrash) {
+    if (!this.store.advancedSettings.relaunchVRChatAfterCrash) {
         return;
     }
     let { location } = this.lastLocation;
@@ -8782,7 +8702,7 @@ $app.methods.trySaveStickerToFile = async function (displayName, fileId) {
 // #region | Prints
 // todo: move to settings.vue
 $app.methods.cropPrintsChanged = function () {
-    if (!this.cropInstancePrints) return;
+    if (!this.store.advancedSettings.cropInstancePrints) return;
     this.$confirm(
         $t(
             'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old'
@@ -8898,7 +8818,7 @@ $app.methods.trySavePrintToFile = async function (printId) {
     );
     if (filePath) {
         console.log(`Print saved to file: ${monthFolder}\\${fileName}`);
-        if (this.cropInstancePrints) {
+        if (this.store.advancedSettings.cropInstancePrints) {
             if (!(await AppApi.CropPrintImage(filePath))) {
                 console.error('Failed to crop print image');
             }
@@ -9075,7 +8995,7 @@ $app.methods.showConsole = function () {
     AppApi.ShowDevTools();
     if (
         this.debug ||
-        this.debugWebRequests ||
+        this.store.debug.debugWebRequests ||
         this.debugWebSocket ||
         this.debugUserDiff
     ) {
@@ -9211,8 +9131,8 @@ $app.methods.ipcEvent = function (json) {
             this.eventVrcxMessage(data);
             break;
         case 'Ping':
-            if (!this.photonLoggingEnabled) {
-                this.setPhotonLoggingEnabled();
+            if (!this.store.photon.photonLoggingEnabled) {
+                this.store.photon.setPhotonLoggingEnabled();
             }
             this.ipcEnabled = true;
             this.ipcTimeout = 60; // 30secs
@@ -9279,7 +9199,7 @@ $app.methods.eventVrcxMessage = function (data) {
             break;
         case 'Noty':
             if (
-                this.photonLoggingEnabled ||
+                this.store.photon.photonLoggingEnabled ||
                 (this.externalNotifierVersion &&
                     this.externalNotifierVersion > 21)
             ) {
@@ -9433,7 +9353,7 @@ $app.methods.eventLaunchCommand = function (input) {
                 });
                 break;
             }
-            if (this.showConfirmationOnSwitchAvatar) {
+            if (this.store.advancedSettings.showConfirmationOnSwitchAvatar) {
                 this.selectAvatarWithConfirmation(avatarId);
                 // Makes sure the window is focused
                 shouldFocusWindow = true;
@@ -9615,7 +9535,7 @@ $app.methods.updateCurrentUserLocation = function () {
 
     if (
         this.isGameRunning &&
-        !this.gameLogDisabled &&
+        !this.store.advancedSettings.gameLogDisabled &&
         this.lastLocation.location !== ''
     ) {
         // use gameLog instead of API when game is running
@@ -9630,7 +9550,7 @@ $app.methods.updateCurrentUserLocation = function () {
     ref.$online_for = API.currentUser.$online_for;
     ref.$offline_for = API.currentUser.$offline_for;
     ref.$location = parseLocation(currentLocation);
-    if (!this.isGameRunning || this.gameLogDisabled) {
+    if (!this.isGameRunning || this.store.advancedSettings.gameLogDisabled) {
         ref.$location_at = API.currentUser.$location_at;
         ref.$travelingToTime = API.currentUser.$travelingToTime;
         this.applyUserDialogLocation();
@@ -10723,7 +10643,7 @@ $app.methods.instanceQueueClear = function () {
 // #endregion
 
 $app.methods.checkVRChatDebugLogging = async function () {
-    if (this.gameLogDisabled) {
+    if (this.store.advancedSettings.gameLogDisabled) {
         return;
     }
     try {
@@ -11287,7 +11207,7 @@ $app.computed.playerListTabBind = function () {
         currentInstanceLocation: this.currentInstanceLocation,
         currentInstanceWorldDescriptionExpanded:
             this.currentInstanceWorldDescriptionExpanded,
-        photonLoggingEnabled: this.photonLoggingEnabled,
+        photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
         photonEventTableTypeFilter: this.photonEventTableTypeFilter,
         photonEventTableFilter: this.photonEventTableFilter,
         ipcEnabled: this.ipcEnabled,

@@ -40,7 +40,7 @@ export default function init(app) {
 
     const _methods = {
         addGameLogEntry(gameLog, location) {
-            if (this.gameLogDisabled) {
+            if (this.store.advancedSettings.gameLogDisabled) {
                 return;
             }
             var userId = String(gameLog.userId || '');
@@ -144,7 +144,10 @@ export default function init(app) {
                         // set $location_at to join time if user isn't a friend
                         ref.$location_at = joinTime;
                     } else {
-                        if (this.debugGameLog || this.debugWebRequests) {
+                        if (
+                            this.debugGameLog ||
+                            this.store.debug.debugWebRequests
+                        ) {
                             console.log('Fetching user from gameLog:', userId);
                         }
                         userRequest.getUser({ userId });
@@ -277,7 +280,7 @@ export default function init(app) {
                     //     break;
                     // }
 
-                    if (!$app.saveInstancePrints) {
+                    if (!$app.store.advancedSettings.saveInstancePrints) {
                         break;
                     }
                     try {
@@ -299,7 +302,7 @@ export default function init(app) {
                 case 'avatar-change':
                     var ref = this.lastLocation.playerList.get(userId);
                     if (
-                        this.photonLoggingEnabled ||
+                        this.store.photon.photonLoggingEnabled ||
                         typeof ref === 'undefined' ||
                         ref.lastAvatar === gameLog.avatarName
                     ) {
@@ -379,7 +382,7 @@ export default function init(app) {
                     if (!this.isGameRunning) {
                         break;
                     }
-                    if (this.vrcQuitFix) {
+                    if (this.store.advancedSettings.vrcQuitFix) {
                         var bias = Date.parse(gameLog.dt) + 3000;
                         if (bias < Date.now()) {
                             console.log(
@@ -424,7 +427,7 @@ export default function init(app) {
                     // database.addGamelogEventToDatabase(entry);
                     break;
                 case 'sticker-spawn':
-                    if (!$app.saveInstanceStickers) {
+                    if (!$app.store.advancedSettings.saveInstanceStickers) {
                         break;
                     }
 
@@ -543,9 +546,14 @@ export default function init(app) {
                         // https://music.youtube.com/watch?v=
                         youtubeVideoId = id2;
                     }
-                    if (this.youTubeApi && youtubeVideoId) {
+                    if (
+                        this.store.advancedSettings.youTubeApi &&
+                        youtubeVideoId
+                    ) {
                         var data =
-                            await this.lookupYouTubeVideo(youtubeVideoId);
+                            await this.store.advancedSettings.lookupYouTubeVideo(
+                                youtubeVideoId
+                            );
                         if (data || data.pageInfo.totalResults !== 0) {
                             videoId = 'YouTube';
                             videoName = data.items[0].snippet.title;
@@ -1082,19 +1090,19 @@ export default function init(app) {
                 });
                 return;
             }
-            if (!this.gameLogDisabled) {
+            if (!this.store.advancedSettings.gameLogDisabled) {
                 this.$confirm('Continue? Disable GameLog', 'Confirm', {
                     confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel',
                     type: 'info',
                     callback: async (action) => {
                         if (action === 'confirm') {
-                            this.setGameLogDisabled();
+                            this.store.advancedSettings.setGameLogDisabled();
                         }
                     }
                 });
             } else {
-                this.setGameLogDisabled();
+                this.store.advancedSettings.setGameLogDisabled();
             }
         }
     };

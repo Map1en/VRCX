@@ -156,7 +156,7 @@ export default function init(app) {
                     }
                     return 0;
                 });
-                if (this.timeoutHudOverlay) {
+                if (this.store.photon.timeoutHudOverlay) {
                     if (
                         this.timeoutHudOverlayFilter === 'VIP' ||
                         this.timeoutHudOverlayFilter === 'Friends'
@@ -223,21 +223,26 @@ export default function init(app) {
             };
             this.photonEventTable.data.unshift(feed);
             if (
-                this.photonEventTableTypeOverlayFilter.length > 0 &&
-                !this.photonEventTableTypeOverlayFilter.includes(feed.type)
+                this.store.photon.photonEventTableTypeOverlayFilter.length >
+                    0 &&
+                !this.store.photon.photonEventTableTypeOverlayFilter.includes(
+                    feed.type
+                )
             ) {
                 return;
             }
-            if (this.photonEventOverlay) {
+            if (this.store.photon.photonEventOverlay) {
                 if (
-                    this.photonEventOverlayFilter === 'VIP' ||
-                    this.photonEventOverlayFilter === 'Friends'
+                    this.store.photon.photonEventOverlayFilter === 'VIP' ||
+                    this.store.photon.photonEventOverlayFilter === 'Friends'
                 ) {
                     if (
                         feed.userId &&
-                        ((this.photonEventOverlayFilter === 'VIP' &&
+                        ((this.store.photon.photonEventOverlayFilter ===
+                            'VIP' &&
                             isFavorite) ||
-                            (this.photonEventOverlayFilter === 'Friends' &&
+                            (this.store.photon.photonEventOverlayFilter ===
+                                'Friends' &&
                                 isFriend))
                     ) {
                         AppApi.ExecuteVrOverlayFunction(

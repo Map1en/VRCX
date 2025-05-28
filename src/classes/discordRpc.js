@@ -17,7 +17,8 @@ export default function init(app) {
             }
             if (
                 !this.store.discordPresenceSettings.discordActive ||
-                (!this.isGameRunning && !this.gameLogDisabled) ||
+                (!this.isGameRunning &&
+                    !this.store.advancedSettings.gameLogDisabled) ||
                 (!currentLocation && !this.lastLocation$.tag)
             ) {
                 this.setIsDiscordActive(false);

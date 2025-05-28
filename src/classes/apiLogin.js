@@ -61,7 +61,7 @@ export default async function init(app) {
             this.attemptingAutoLogin = false;
             return;
         }
-        if ($app.enablePrimaryPassword) {
+        if ($app.store.advancedSettings.enablePrimaryPassword) {
             console.error(
                 'Primary password is enabled, this disables auto login.'
             );
@@ -174,7 +174,7 @@ export default async function init(app) {
             }
             return new Promise((resolve, reject) => {
                 this.loginForm.loading = true;
-                if (this.enablePrimaryPassword) {
+                if (this.store.advancedSettings.enablePrimaryPassword) {
                     this.checkPrimaryPassword(loginParmas)
                         .then((pwd) => {
                             return API.getConfig()
@@ -236,8 +236,10 @@ export default async function init(app) {
             delete savedCredentials[userId];
             // Disable primary password when no account is available.
             if (Object.keys(savedCredentials).length === 0) {
-                this.enablePrimaryPassword = false;
-                this.setEnablePrimaryPasswordConfigRepository(false);
+                this.store.advancedSettings.enablePrimaryPassword = false;
+                this.store.advancedSettings.setEnablePrimaryPasswordConfigRepository(
+                    false
+                );
             }
             this.loginForm.savedCredentials = savedCredentials;
             const jsonCredentials = JSON.stringify(savedCredentials);
@@ -270,7 +272,7 @@ export default async function init(app) {
                     .then((args) => {
                         if (
                             this.loginForm.saveCredentials &&
-                            this.enablePrimaryPassword
+                            this.store.advancedSettings.enablePrimaryPassword
                         ) {
                             $app.$prompt(
                                 $t('prompt.primary_password.description'),
