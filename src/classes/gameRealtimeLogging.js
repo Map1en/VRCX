@@ -205,7 +205,7 @@ export default function init(app) {
                 userId = photonUserRef.id;
                 isFriend = photonUserRef.isFriend;
             }
-            var isFavorite = this.localFavoriteFriends.has(userId);
+            var isFavorite = this.store.friend.localFavoriteFriends.has(userId);
             var colour = '';
             var tagRef = this.customUserTags.get(userId);
             if (typeof tagRef !== 'undefined') {

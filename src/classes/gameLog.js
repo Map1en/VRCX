@@ -180,8 +180,8 @@ export default function init(app) {
                                 'Sort by Last Seen'
                             )
                         ) {
-                            this.sortVIPFriends = true;
-                            this.sortOnlineFriends = true;
+                            this.store.friend.sortVIPFriends = true;
+                            this.store.friend.sortOnlineFriends = true;
                         }
                     }
                     var time = dayjs(gameLog.dt) - ref.joinTime;
@@ -342,7 +342,10 @@ export default function init(app) {
                     }
                     break;
                 case 'photon-id':
-                    if (!this.isGameRunning || !this.friendLogInitStatus) {
+                    if (
+                        !this.isGameRunning ||
+                        !this.store.friend.friendLogInitStatus
+                    ) {
                         break;
                     }
                     var photonId = parseInt(gameLog.photonId, 10);
@@ -461,7 +464,7 @@ export default function init(app) {
             // If the VIP friend filter is enabled, logs from other friends will be ignored.
             if (
                 this.gameLogTable.vip &&
-                !this.localFavoriteFriends.has(entry.userId) &&
+                !this.store.friend.localFavoriteFriends.has(entry.userId) &&
                 (entry.type === 'OnPlayerJoined' ||
                     entry.type === 'OnPlayerLeft' ||
                     entry.type === 'VideoPlay' ||
@@ -898,7 +901,9 @@ export default function init(app) {
             this.gameLogTable.loading = true;
             let vipList = [];
             if (this.gameLogTable.vip) {
-                vipList = Array.from(this.localFavoriteFriends.values());
+                vipList = Array.from(
+                    this.store.friend.localFavoriteFriends.values()
+                );
             }
             this.gameLogTable.data = await database.lookupGameLogDatabase(
                 this.gameLogTable.search,
@@ -1077,7 +1082,9 @@ export default function init(app) {
             if (!row.userId) {
                 return false;
             }
-            row.isFavorite = this.localFavoriteFriends.has(row.userId);
+            row.isFavorite = this.store.friend.localFavoriteFriends.has(
+                row.userId
+            );
             return row.isFavorite;
         },
 

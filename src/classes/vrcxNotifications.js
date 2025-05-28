@@ -63,12 +63,15 @@ export default function init(app) {
             noty.isFavorite = false;
             if (noty.userId) {
                 noty.isFriend = this.store.friend.friends.has(noty.userId);
-                noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
+                noty.isFavorite = this.store.friend.localFavoriteFriends.has(
+                    noty.userId
+                );
             } else if (noty.displayName) {
                 for (var ref of API.cachedUsers.values()) {
                     if (ref.displayName === noty.displayName) {
                         noty.isFriend = this.store.friend.friends.has(ref.id);
-                        noty.isFavorite = this.localFavoriteFriends.has(ref.id);
+                        noty.isFavorite =
+                            this.store.friend.localFavoriteFriends.has(ref.id);
                         break;
                     }
                 }
@@ -99,7 +102,9 @@ export default function init(app) {
                 return;
             }
             noty.isFriend = this.store.friend.friends.has(noty.userId);
-            noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
+            noty.isFavorite = this.store.friend.localFavoriteFriends.has(
+                noty.userId
+            );
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
@@ -114,7 +119,9 @@ export default function init(app) {
 
         queueNotificationNoty(noty) {
             noty.isFriend = this.store.friend.friends.has(noty.senderUserId);
-            noty.isFavorite = this.localFavoriteFriends.has(noty.senderUserId);
+            noty.isFavorite = this.store.friend.localFavoriteFriends.has(
+                noty.senderUserId
+            );
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
@@ -132,7 +139,9 @@ export default function init(app) {
                 return;
             }
             noty.isFriend = this.store.friend.friends.has(noty.userId);
-            noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
+            noty.isFavorite = this.store.friend.localFavoriteFriends.has(
+                noty.userId
+            );
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
             if (
@@ -150,7 +159,9 @@ export default function init(app) {
             noty.isFavorite = false;
             if (noty.userId) {
                 noty.isFriend = this.store.friend.friends.has(noty.userId);
-                noty.isFavorite = this.localFavoriteFriends.has(noty.userId);
+                noty.isFavorite = this.store.friend.localFavoriteFriends.has(
+                    noty.userId
+                );
             }
             var notyFilter =
                 this.store.notificationsSettings.sharedFeedFilters.noty;
@@ -162,7 +173,7 @@ export default function init(app) {
         playNoty(noty) {
             if (
                 API.currentUser.status === 'busy' ||
-                !this.friendLogInitStatus
+                !this.store.friend.friendLogInitStatus
             ) {
                 return;
             }

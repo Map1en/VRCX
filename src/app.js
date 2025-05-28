@@ -259,22 +259,6 @@ const app = {
         const store = createGlobalStores();
 
         const friendStore = useFriendStore();
-        const {
-            onlineFriends_,
-            vipFriends_,
-            activeFriends_,
-            offlineFriends_,
-            vipFriends,
-            activeFriends,
-            offlineFriends,
-            sortOnlineFriends,
-            sortVIPFriends,
-            sortActiveFriends,
-            sortOfflineFriends,
-            localFavoriteFriends,
-            friendLogInitStatus,
-            isRefreshFriendsLoading
-        } = storeToRefs(friendStore);
 
         const {
             updateLocalFavoriteFriends,
@@ -287,24 +271,6 @@ const app = {
         } = friendStore;
 
         return {
-            onlineFriends_,
-            vipFriends_,
-            activeFriends_,
-            offlineFriends_,
-
-            vipFriends,
-            activeFriends,
-            offlineFriends,
-
-            sortOnlineFriends,
-            sortVIPFriends,
-            sortActiveFriends,
-            sortOfflineFriends,
-
-            localFavoriteFriends,
-            friendLogInitStatus,
-            isRefreshFriendsLoading,
-
             updateLocalFavoriteFriends,
             updateSidebarFriendsList,
             updateFriend,
@@ -709,7 +675,7 @@ API.applyUserTrustLevel = function (ref) {
     }
     if (
         $app.store.appearanceSettings.randomUserColours &&
-        $app.friendLogInitStatus
+        $app.store.friend.friendLogInitStatus
     ) {
         if (!ref.$userColour) {
             $app.getNameColour(ref.id).then((colour) => {
@@ -1913,7 +1879,7 @@ API.favoriteLimits = {
 };
 
 API.$on('LOGIN', function () {
-    $app.localFavoriteFriends.clear();
+    $app.store.friend.localFavoriteFriends.clear();
     $app.currentUserGroupsInit = false;
     this.cachedFavorites.clear();
     this.cachedFavoritesByObjectId.clear();
@@ -1991,7 +1957,7 @@ API.$on('FAVORITE:DELETE', function (args) {
     }
     // 애초에 $isDeleted인데 여기로 올 수 가 있나..?
     this.cachedFavoritesByObjectId.delete(args.params.objectId);
-    $app.localFavoriteFriends.delete(args.params.objectId);
+    $app.store.friend.localFavoriteFriends.delete(args.params.objectId);
     $app.updateSidebarFriendsList();
     if (ref.$isDeleted) {
         return;
@@ -2045,7 +2011,7 @@ API.$on('FAVORITE:GROUP:CLEAR', function (args) {
             continue;
         }
         this.cachedFavoritesByObjectId.delete(ref.favoriteId);
-        $app.localFavoriteFriends.delete(ref.favoriteId);
+        $app.store.friend.localFavoriteFriends.delete(ref.favoriteId);
         $app.updateSidebarFriendsList();
         ref.$isDeleted = true;
         API.$emit('FAVORITE:@DELETE', {
@@ -2115,7 +2081,7 @@ API.applyFavorite = function (json) {
                     ref.groupKey
                 ))
         ) {
-            $app.localFavoriteFriends.add(ref.favoriteId);
+            $app.store.friend.localFavoriteFriends.add(ref.favoriteId);
             $app.updateSidebarFriendsList();
         }
     } else {
@@ -2135,7 +2101,7 @@ API.applyFavorite = function (json) {
 };
 
 API.expireFavorites = function () {
-    $app.localFavoriteFriends.clear();
+    $app.store.friend.localFavoriteFriends.clear();
     this.cachedFavorites.clear();
     this.cachedFavoritesByObjectId.clear();
     $app.favoriteObjects.clear();
@@ -2699,7 +2665,7 @@ API.$on('LOGOUT', function () {
         }).show();
     }
     this.isLoggedIn = false;
-    $app.friendLogInitStatus = false;
+    $app.store.friend.friendLogInitStatus = false;
     $app.notificationInitStatus = false;
 });
 
@@ -2918,7 +2884,7 @@ API.$on('USER:CURRENT', function (args) {
 $app.methods.checkActiveFriends = function (ref) {
     if (
         Array.isArray(ref.activeFriends) === false ||
-        !this.friendLogInitStatus
+        !this.store.friend.friendLogInitStatus
     ) {
         return;
     }
@@ -2943,20 +2909,20 @@ API.$on('LOGIN', function () {
     $app.friendNumber = 0;
     $app.isGroupInstances = false;
     $app.groupInstances = [];
-    $app.vipFriends_ = [];
-    $app.onlineFriends_ = [];
-    $app.activeFriends_ = [];
-    $app.offlineFriends_ = [];
-    $app.sortVIPFriends = false;
-    $app.sortOnlineFriends = false;
-    $app.sortActiveFriends = false;
-    $app.sortOfflineFriends = false;
+    $app.store.friend.vipFriends_ = [];
+    $app.store.friend.onlineFriends_ = [];
+    $app.store.friend.activeFriends_ = [];
+    $app.store.friend.offlineFriends_ = [];
+    $app.store.friend.sortVIPFriends = false;
+    $app.store.friend.sortOnlineFriends = false;
+    $app.store.friend.sortActiveFriends = false;
+    $app.store.friend.sortOfflineFriends = false;
     $app.updateInGameGroupOrder();
 });
 
 API.$on('USER:CURRENT', function (args) {
     // USER:CURRENT에서 처리를 함
-    if ($app.friendLogInitStatus) {
+    if ($app.store.friend.friendLogInitStatus) {
         $app.refreshFriends(args.ref, args.fromGetCurrentUser);
     }
     $app.updateOnlineFriendCoutner();
@@ -3007,16 +2973,17 @@ $app.methods.refreshFriendsList = async function () {
 $app.methods.updateFriendGPS = function (userId) {
     const ctx = this.store.friend.friends.get(userId);
     if (ctx.isVIP) {
-        this.sortVIPFriends = true;
+        this.store.friend.sortVIPFriends = true;
     } else {
-        this.sortOnlineFriends = true;
+        this.store.friend.sortOnlineFriends = true;
     }
 };
 
 $app.data.onlineFriendCount = 0;
 $app.methods.updateOnlineFriendCoutner = function () {
     const onlineFriendCount =
-        this.vipFriends.length + this.store.friend.onlineFriends.length;
+        this.store.friend.vipFriends.length +
+        this.store.friend.onlineFriends.length;
     if (onlineFriendCount !== this.onlineFriendCount) {
         AppApi.ExecuteVrFeedFunction(
             'updateOnlineFriendCount',
@@ -3263,13 +3230,13 @@ $app.data.dontLogMeOut = false;
 
 API.$on('LOGIN', async function (args) {
     // early loading indicator
-    this.isRefreshFriendsLoading = true;
+    $app.store.friend.isRefreshFriendsLoading = true;
     $app.feedTable.loading = true;
 
     $app.friendLog = new Map();
     $app.feedTable.data = [];
     $app.feedSessionTable = [];
-    $app.friendLogInitStatus = false;
+    $app.store.friend.friendLogInitStatus = false;
     $app.notificationInitStatus = false;
     await database.initUserTables(args.json.id);
     $app.menuActiveIndex = 'feed';
@@ -3309,10 +3276,10 @@ API.$on('LOGIN', async function (args) {
         await $app.userColourInit();
     }
     await $app.getAllUserStats();
-    $app.sortVIPFriends = true;
-    $app.sortOnlineFriends = true;
-    $app.sortActiveFriends = true;
-    $app.sortOfflineFriends = true;
+    $app.store.friend.sortVIPFriends = true;
+    $app.store.friend.sortOnlineFriends = true;
+    $app.store.friend.sortActiveFriends = true;
+    $app.store.friend.sortOfflineFriends = true;
     this.getAuth();
     $app.updateSharedFeed(true);
     if ($app.isGameRunning) {
@@ -4479,7 +4446,7 @@ API.$on('USER:CURRENT', function (args) {
 API.$on('USER', function (args) {
     $app.updateFriendship(args.ref);
     if (
-        $app.friendLogInitStatus &&
+        $app.store.friend.friendLogInitStatus &&
         args.json.isFriend &&
         !$app.friendLog.has(args.ref.id) &&
         args.json.id !== this.currentUser.id
@@ -4517,7 +4484,7 @@ $app.methods.initFriendLog = async function (currentUser) {
     }
     database.setFriendLogCurrentArray(sqlValues);
     await configRepository.setBool(`friendLogInit_${currentUser.id}`, true);
-    this.friendLogInitStatus = true;
+    this.store.friend.friendLogInitStatus = true;
 };
 
 $app.methods.migrateFriendLog = async function (userId) {
@@ -4551,7 +4518,7 @@ $app.methods.getFriendLog = async function (currentUser) {
     this.refreshFriends(currentUser, true);
     await this.APIRefreshFriends();
     await this.tryRestoreFriendNumber();
-    this.friendLogInitStatus = true;
+    this.store.friend.friendLogInitStatus = true;
 
     // check for friend/name/rank change AFTER friendLogInitStatus is set
     for (friend of friendLogCurrentArray) {
@@ -4567,7 +4534,7 @@ $app.methods.getFriendLog = async function (currentUser) {
 
 $app.methods.addFriendship = function (id) {
     if (
-        !this.friendLogInitStatus ||
+        !this.store.friend.friendLogInitStatus ||
         this.friendLog.has(id) ||
         id === API.currentUser.id
     ) {
@@ -4699,7 +4666,7 @@ $app.methods.updateFriendships = function (ref) {
 
 $app.methods.updateFriendship = function (ref) {
     const ctx = this.friendLog.get(ref.id);
-    if (!this.friendLogInitStatus || typeof ctx === 'undefined') {
+    if (!this.store.friend.friendLogInitStatus || typeof ctx === 'undefined') {
         return;
     }
     if (ctx.friendNumber) {
@@ -4877,7 +4844,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
     if (
         $app.store.generalSettings.autoAcceptInviteRequests ===
             'Selected Favorites' &&
-        !$app.localFavoriteFriends.has(ref.senderUserId)
+        !$app.store.friend.localFavoriteFriends.has(ref.senderUserId)
     ) {
         return;
     }
@@ -4943,7 +4910,10 @@ API.$on('NOTIFICATION', function (args) {
         ) {
             database.addNotificationToDatabase(ref);
         }
-        if ($app.friendLogInitStatus && $app.notificationInitStatus) {
+        if (
+            $app.store.friend.friendLogInitStatus &&
+            $app.notificationInitStatus
+        ) {
             if (
                 $app.notificationTable.filters[0].value.length === 0 ||
                 $app.notificationTable.filters[0].value.includes(ref.type)
@@ -5228,10 +5198,10 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
 };
 
 $app.methods.saveSidebarSortOrder = async function () {
-    this.sortVIPFriends = true;
-    this.sortOnlineFriends = true;
-    this.sortActiveFriends = true;
-    this.sortOfflineFriends = true;
+    this.store.friend.sortVIPFriends = true;
+    this.store.friend.sortOnlineFriends = true;
+    this.store.friend.sortActiveFriends = true;
+    this.store.friend.sortOfflineFriends = true;
 };
 
 $app.methods.updateTrustColor = async function (
@@ -6288,7 +6258,7 @@ API.$on('USER:APPLY', function (ref) {
 $app.data.updatePlayerListTimer = null;
 $app.data.updatePlayerListPending = false;
 $app.methods.getCurrentInstanceUserList = function () {
-    if (!this.friendLogInitStatus) {
+    if (!this.store.friend.friendLogInitStatus) {
         return;
     }
     if (this.updatePlayerListTimer) {

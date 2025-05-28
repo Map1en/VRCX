@@ -234,7 +234,7 @@ export default function init(app) {
             });
             const ref = this.cachedGroups.get(json.ownerId);
             if (typeof ref === 'undefined') {
-                if ($app.friendLogInitStatus) {
+                if ($app.store.friend.friendLogInitStatus) {
                     groupRequest.getGroup({ groupId: json.ownerId });
                 }
                 return;

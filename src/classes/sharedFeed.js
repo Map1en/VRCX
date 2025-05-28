@@ -34,7 +34,7 @@ export default function init(app) {
 
     const _methods = {
         updateSharedFeed(forceUpdate) {
-            if (!this.friendLogInitStatus) {
+            if (!this.store.friend.friendLogInitStatus) {
                 return;
             }
             if (this.updateSharedFeedTimer) {
@@ -86,7 +86,9 @@ export default function init(app) {
             );
             // OnPlayerJoining/Traveling
             API.currentTravelers.forEach((ref) => {
-                const isFavorite = this.localFavoriteFriends.has(ref.id);
+                const isFavorite = this.store.friend.localFavoriteFriends.has(
+                    ref.id
+                );
                 if (
                     (this.store.notificationsSettings.sharedFeedFilters.wrist
                         .OnPlayerJoining === 'Friends' ||
@@ -277,12 +279,17 @@ export default function init(app) {
                 let isFavorite = false;
                 if (ctx.userId) {
                     isFriend = this.store.friend.friends.has(ctx.userId);
-                    isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                    isFavorite = this.store.friend.localFavoriteFriends.has(
+                        ctx.userId
+                    );
                 } else if (ctx.displayName) {
                     for (var ref of API.cachedUsers.values()) {
                         if (ref.displayName === ctx.displayName) {
                             isFriend = this.store.friend.friends.has(ref.id);
-                            isFavorite = this.localFavoriteFriends.has(ref.id);
+                            isFavorite =
+                                this.store.friend.localFavoriteFriends.has(
+                                    ref.id
+                                );
                             break;
                         }
                     }
@@ -399,7 +406,9 @@ export default function init(app) {
                     continue;
                 }
                 const isFriend = this.store.friend.friends.has(ctx.userId);
-                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFavorite = this.store.friend.localFavoriteFriends.has(
+                    ctx.userId
+                );
                 if (
                     w < 20 &&
                     wristFilter[ctx.type] &&
@@ -451,7 +460,7 @@ export default function init(app) {
                 const isFriend = this.store.friend.friends.has(
                     ctx.senderUserId
                 );
-                const isFavorite = this.localFavoriteFriends.has(
+                const isFavorite = this.store.friend.localFavoriteFriends.has(
                     ctx.senderUserId
                 );
                 if (
@@ -504,7 +513,9 @@ export default function init(app) {
                     continue;
                 }
                 const isFriend = this.store.friend.friends.has(ctx.userId);
-                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFavorite = this.store.friend.localFavoriteFriends.has(
+                    ctx.userId
+                );
                 if (
                     w < 20 &&
                     wristFilter[ctx.type] &&
@@ -552,7 +563,9 @@ export default function init(app) {
                     break;
                 }
                 const isFriend = this.store.friend.friends.has(ctx.userId);
-                const isFavorite = this.localFavoriteFriends.has(ctx.userId);
+                const isFavorite = this.store.friend.localFavoriteFriends.has(
+                    ctx.userId
+                );
                 // add tag colour
                 let tagColour = '';
                 const tagRef = this.customUserTags.get(ctx.userId);

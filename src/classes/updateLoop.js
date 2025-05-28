@@ -40,7 +40,7 @@ export default function init(app) {
                         }
                     }
                     if (--this.nextGroupInstanceRefresh <= 0) {
-                        if (this.friendLogInitStatus) {
+                        if (this.store.friend.friendLogInitStatus) {
                             this.nextGroupInstanceRefresh = 300; // 5min
                             groupRequest.getUsersGroupInstances();
                         }
@@ -109,7 +109,7 @@ export default function init(app) {
                     }
                 }
             } catch (err) {
-                API.isRefreshFriendsLoading = false;
+                this.store.friend.isRefreshFriendsLoading = false;
                 console.error(err);
             }
             workerTimers.setTimeout(() => this.updateLoop(), 1000);

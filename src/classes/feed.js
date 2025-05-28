@@ -115,7 +115,9 @@ export default function init(app) {
             this.feedTable.loading = true;
             var vipList = [];
             if (this.feedTable.vip) {
-                vipList = Array.from(this.localFavoriteFriends.values());
+                vipList = Array.from(
+                    this.store.friend.localFavoriteFriends.values()
+                );
             }
             this.feedTable.data = await database.lookupFeedDatabase(
                 this.feedTable.search,
@@ -137,7 +139,7 @@ export default function init(app) {
             }
             if (
                 this.feedTable.vip &&
-                !this.localFavoriteFriends.has(feed.userId)
+                !this.store.friend.localFavoriteFriends.has(feed.userId)
             ) {
                 return;
             }

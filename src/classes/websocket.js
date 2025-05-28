@@ -9,7 +9,7 @@ export default function init() {
     API.lastWebSocketMessage = '';
 
     API.$on('USER:CURRENT', function () {
-        if ($app.friendLogInitStatus && this.webSocket === null) {
+        if ($app.store.friend.friendLogInitStatus && this.webSocket === null) {
             this.getAuth();
         }
     });
@@ -55,7 +55,7 @@ export default function init() {
             workerTimers.setTimeout(() => {
                 if (
                     this.isLoggedIn &&
-                    $app.friendLogInitStatus &&
+                    $app.store.friend.friendLogInitStatus &&
                     this.webSocket === null
                 ) {
                     this.getAuth();
@@ -122,7 +122,7 @@ export default function init() {
     };
 
     API.reconnectWebSocket = function () {
-        if (!this.isLoggedIn || !$app.friendLogInitStatus) {
+        if (!this.isLoggedIn || !$app.store.friend.friendLogInitStatus) {
             return;
         }
         this.closeWebSocket();
@@ -507,62 +507,59 @@ export default function init() {
                 // $app.instanceQueueClear();
                 break;
 
-                case 'content-refresh':
-                    var contentType = content.contentType;
-                    console.log('content-refresh', content);
-                    if (contentType === 'icon') {
-                        if (
-                            $app.galleryDialogVisible &&
-                            !$app.galleryDialogIconsLoading
-                        ) {
-                            $app.refreshVRCPlusIconsTable();
-                        }
-                    } else if (contentType === 'gallery') {
-                        if (
-                            $app.galleryDialogVisible &&
-                            !$app.galleryDialogGalleryLoading
-                        ) {
-                            $app.refreshGalleryTable();
-                        }
-                    } else if (contentType === 'emoji') {
-                        if (
-                            $app.galleryDialogVisible &&
-                            !$app.galleryDialogEmojisLoading
-                        ) {
-                            $app.refreshEmojiTable();
-                        }
-                    } else if (
-                        contentType === 'print' ||
-                        contentType === 'prints'
+            case 'content-refresh':
+                var contentType = content.contentType;
+                console.log('content-refresh', content);
+                if (contentType === 'icon') {
+                    if (
+                        $app.galleryDialogVisible &&
+                        !$app.galleryDialogIconsLoading
                     ) {
-                        if (
-                            $app.galleryDialogVisible &&
-                            !$app.galleryDialogPrintsLoading
-                        ) {
-                            $app.refreshPrintTable();
-                        }
-                    } else if (contentType === 'avatar') {
-                        // hmm, utilizing this might be too spamy and cause UI to move around
-                    } else if (contentType === 'world') {
-                        // hmm
-                    } else if (contentType === 'created') {
-                        // on avatar upload, might be gone now
-                    } else if (contentType === 'avatargallery') {
-                        // on avatar gallery image upload
-                    } else if (contentType === 'invitePhoto') {
-                        // on uploading invite photo
-                    } else if (!contentType) {
-                        console.log(
-                            'content-refresh without contentType',
-                            content
-                        );
-                    } else {
-                        console.log(
-                            'Unknown content-refresh type',
-                            content.contentType
-                        );
+                        $app.refreshVRCPlusIconsTable();
                     }
-                    break;
+                } else if (contentType === 'gallery') {
+                    if (
+                        $app.galleryDialogVisible &&
+                        !$app.galleryDialogGalleryLoading
+                    ) {
+                        $app.refreshGalleryTable();
+                    }
+                } else if (contentType === 'emoji') {
+                    if (
+                        $app.galleryDialogVisible &&
+                        !$app.galleryDialogEmojisLoading
+                    ) {
+                        $app.refreshEmojiTable();
+                    }
+                } else if (
+                    contentType === 'print' ||
+                    contentType === 'prints'
+                ) {
+                    if (
+                        $app.galleryDialogVisible &&
+                        !$app.galleryDialogPrintsLoading
+                    ) {
+                        $app.refreshPrintTable();
+                    }
+                } else if (contentType === 'avatar') {
+                    // hmm, utilizing this might be too spamy and cause UI to move around
+                } else if (contentType === 'world') {
+                    // hmm
+                } else if (contentType === 'created') {
+                    // on avatar upload, might be gone now
+                } else if (contentType === 'avatargallery') {
+                    // on avatar gallery image upload
+                } else if (contentType === 'invitePhoto') {
+                    // on uploading invite photo
+                } else if (!contentType) {
+                    console.log('content-refresh without contentType', content);
+                } else {
+                    console.log(
+                        'Unknown content-refresh type',
+                        content.contentType
+                    );
+                }
+                break;
 
             case 'instance-closed':
                 // TODO: get worldName, groupName, hardClose
