@@ -217,6 +217,9 @@ export const useNotificationsSettingsStore = defineStore(
                 state.imageNotifications
             );
         }
+        /**
+         * @param {string} value
+         */
         function setDesktopToast(value) {
             state.desktopToast = value;
             configRepository.setString('VRCX_desktopToast', value);
@@ -228,6 +231,9 @@ export const useNotificationsSettingsStore = defineStore(
                 state.afkDesktopToast
             );
         }
+        /**
+         * @param {string} value
+         */
         function setNotificationTTS(value) {
             state.notificationTTS = value;
             configRepository.setString('VRCX_notificationTTS', value);

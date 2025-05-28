@@ -166,6 +166,9 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             state.disableVrOverlayGpuAcceleration.toString()
         );
     }
+    /**
+     * @param {string} value
+     */
     function setLocalFavoriteFriendsGroups(value) {
         state.localFavoriteFriendsGroups = value;
         configRepository.setString(
@@ -195,6 +198,9 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             state.autoStateChangeEnabled
         );
     }
+    /**
+     * @param {string} value
+     */
     function setAutoStateChangeAloneStatus(value) {
         state.autoStateChangeAloneStatus = value;
         configRepository.setString(
@@ -202,6 +208,9 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             state.autoStateChangeAloneStatus
         );
     }
+    /**
+     * @param {string} value
+     */
     function setAutoStateChangeCompanyStatus(value) {
         state.autoStateChangeCompanyStatus = value;
         configRepository.setString(
@@ -223,6 +232,9 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             state.autoStateChangeNoFriends
         );
     }
+    /**
+     * @param {string} value
+     */
     function setAutoAcceptInviteRequests(value) {
         state.autoAcceptInviteRequests = value;
         configRepository.setString(

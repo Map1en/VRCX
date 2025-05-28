@@ -84,6 +84,7 @@ export const usePhotonStore = defineStore('Photon', () => {
             state.photonEventOverlay
         );
     }
+
     function setPhotonEventOverlayFilter(value) {
         state.photonEventOverlayFilter = value;
         configRepository.setString(

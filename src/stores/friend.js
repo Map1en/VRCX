@@ -180,7 +180,9 @@ export const useFriendStore = defineStore('Friend', () => {
             state.isRefreshFriendsLoading = value;
         }
     });
-
+    /**
+     * @param {string} value
+     */
     function updateLocalFavoriteFriends(value) {
         setLocalFavoriteFriendsGroups(
             value || localFavoriteFriendsGroups.value
@@ -223,6 +225,9 @@ export const useFriendStore = defineStore('Friend', () => {
 
     const pendingOfflineDelay = 180000;
 
+    /**
+     * @param {Object} args
+     */
     function updateFriend(args) {
         const { id, state: state_input, fromGetCurrentUser } = args;
         const stateInput = state_input;
@@ -388,6 +393,11 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    /**
+     * @param {Object} ctx
+     * @param {string} location
+     * @param {number} $location_at
+     */
     async function updateFriendDelayedCheck(ctx, location, $location_at) {
         let feed;
         let groupName;
@@ -505,6 +515,9 @@ export const useFriendStore = defineStore('Friend', () => {
         ctx.isVIP = isVIP;
     }
 
+    /**
+     * @param {string} id
+     */
     function deleteFriend(id) {
         const ctx = state.friends.get(id);
         if (typeof ctx === 'undefined') {
@@ -554,6 +567,10 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    /**
+     * @param {string} id
+     * @param {string} state_input
+     */
     function addFriend(id, state_input) {
         if (state.friends.has(id)) {
             return;
@@ -641,6 +658,10 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    /**
+     * @param {Object} args
+     * @returns {Promise<*[]>}
+     */
     async function bulkRefreshFriends(args) {
         // API.bulkRefreshFriends
         let friends = [];
@@ -681,6 +702,10 @@ export const useFriendStore = defineStore('Friend', () => {
         return friends;
     }
 
+    /**
+     * @param {Array} friends
+     * @returns {Promise<*>}
+     */
     async function refetchBrokenFriends(friends) {
         // API.refetchBrokenFriends
         // attempt to fix broken data from bulk friend fetch
@@ -725,6 +750,10 @@ export const useFriendStore = defineStore('Friend', () => {
         return friends;
     }
 
+    /**
+     * @param {Array} friends
+     * @returns {Promise<*>}
+     */
     async function refreshRemainingFriends(friends) {
         // API.refreshRemainingFriends
         for (let userId of API.currentUser.friends) {

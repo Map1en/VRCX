@@ -150,6 +150,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const gameLogDisabled = computed(() => state.gameLogDisabled);
     const sqliteTableSizes = computed(() => state.sqliteTableSizes);
 
+    /**
+     * @param {boolean} value
+     */
     function setEnablePrimaryPasswordConfigRepository(value) {
         configRepository.setBool('enablePrimaryPassword', value);
     }
@@ -199,6 +202,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.saveInstanceStickers
         );
     }
+    /**
+     * @param {boolean} value
+     */
     function setAvatarRemoteDatabase(value) {
         state.avatarRemoteDatabase = value;
         configRepository.setBool(
@@ -249,6 +255,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.youTubeApi = !state.youTubeApi;
         await configRepository.setBool('VRCX_youtubeAPI', state.youTubeApi);
     }
+    /**
+     * @param {string} value
+     */
     async function setYouTubeApiKey(value) {
         state.youTubeApiKey = value;
         await configRepository.setString(
@@ -338,6 +347,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    /**
+     * @param {boolean} videoId
+     */
     async function lookupYouTubeVideo(videoId) {
         let data = null;
         let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';

@@ -226,6 +226,9 @@ export const useAppearanceSettingsStore = defineStore(
         const randomUserColours = computed(() => state.randomUserColours);
         const trustColor = computed(() => state.trustColor);
 
+        /**
+         * @param {string} language
+         */
         function setAppLanguage(language) {
             console.log('Language changed:', language);
             state.appLanguage = language;
@@ -233,6 +236,9 @@ export const useAppearanceSettingsStore = defineStore(
             changeCJKFontsOrder(state.appLanguage);
             i18n.locale = state.appLanguage;
         }
+        /**
+         * @param {string} mode
+         */
         function setThemeMode(mode) {
             state.themeMode = mode;
             configRepository.setString('VRCX_ThemeMode', mode);
@@ -244,6 +250,9 @@ export const useAppearanceSettingsStore = defineStore(
                 setIsDarkMode(true);
             }
         }
+        /**
+         * @param {boolean} isDark
+         */
         function setIsDarkMode(isDark) {
             state.isDarkMode = isDark;
             if (isDark) {
@@ -289,6 +298,9 @@ export const useAppearanceSettingsStore = defineStore(
                 state.instanceUsersSortAlphabetical
             );
         }
+        /**
+         * @param {number} size
+         */
         function setTablePageSize(size) {
             state.tablePageSize = size;
             configRepository.setInt('VRCX_tablePageSize', size);
@@ -303,18 +315,30 @@ export const useAppearanceSettingsStore = defineStore(
             configRepository.setBool('VRCX_dtIsoFormat', state.dtIsoFormat);
             handleSetDatetimeFormat();
         }
+        /**
+         * @param {string} method
+         */
         function setSidebarSortMethod1(method) {
             state.sidebarSortMethod1 = method;
             handleSaveSidebarSortOrder();
         }
+        /**
+         * @param {string} method
+         */
         function setSidebarSortMethod2(method) {
             state.sidebarSortMethod2 = method;
             handleSaveSidebarSortOrder();
         }
+        /**
+         * @param {string} method
+         */
         function setSidebarSortMethod3(method) {
             state.sidebarSortMethod3 = method;
             handleSaveSidebarSortOrder();
         }
+        /**
+         * @param {Array<string>} methods
+         */
         function setSidebarSortMethods(methods) {
             state.sidebarSortMethods = methods;
             configRepository.setString(
@@ -322,6 +346,9 @@ export const useAppearanceSettingsStore = defineStore(
                 JSON.stringify(methods)
             );
         }
+        /**
+         * @param {number} width
+         */
         function setAsideWidth(width) {
             requestAnimationFrame(() => {
                 state.asideWidth = width;
@@ -370,6 +397,9 @@ export const useAppearanceSettingsStore = defineStore(
                 state.randomUserColours
             );
         }
+        /**
+         * @param {Object<string>} color
+         */
         function setTrustColor(color) {
             state.trustColor = color;
             configRepository.setString(

@@ -90,6 +90,9 @@ export const useWristOverlaySettingsStore = defineStore(
             state.overlaybutton = !state.overlaybutton;
             configRepository.setBool('VRCX_overlaybutton', state.overlaybutton);
         }
+        /**
+         * @param {string} value
+         */
         function setOverlayHand(value) {
             state.overlayHand = parseInt(value, 10);
             if (isNaN(state.overlayHand)) {

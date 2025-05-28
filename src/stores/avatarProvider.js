@@ -95,6 +95,9 @@ export const useAvatarProviderStore = defineStore('AvatarProvider', () => {
         }
     });
 
+    /**
+     * @param {string} url
+     */
     function addAvatarProvider(url) {
         if (!url) {
             return;
@@ -106,6 +109,9 @@ export const useAvatarProviderStore = defineStore('AvatarProvider', () => {
         saveAvatarProviderList();
     }
 
+    /**
+     * @param {string} url
+     */
     function removeAvatarProvider(url) {
         const length = state.avatarRemoteDatabaseProviderList.length;
         for (let i = 0; i < length; ++i) {
@@ -141,6 +147,9 @@ export const useAvatarProviderStore = defineStore('AvatarProvider', () => {
         state.isAvatarProviderDialogVisible = true;
     }
 
+    /**
+     * @param {string} provider
+     */
     function setAvatarProvider(provider) {
         state.avatarRemoteDatabaseProvider = provider;
     }

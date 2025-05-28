@@ -111,7 +111,9 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
             state.updateProgress = value;
         }
     });
-
+    /**
+     * @param {string} value
+     */
     async function setAutoUpdateVRCX(value) {
         if (value === 'Off') {
             state.pendingVRCXUpdate = false;
@@ -119,9 +121,15 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         state.autoUpdateVRCX = value;
         await configRepository.setString('VRCX_autoUpdateVRCX', value);
     }
+    /**
+     * @param {string} value
+     */
     function setLatestAppVersion(value) {
         state.latestAppVersion = value;
     }
+    /**
+     * @param {string} value
+     */
     function setBranch(value) {
         state.branch = value;
         configRepository.setString('VRCX_branch', value);
