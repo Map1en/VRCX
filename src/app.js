@@ -2811,7 +2811,6 @@ $app.methods.migrateStoredUsers = async function () {
 // #endregion
 // #region | App: Friends
 
-$app.data.pendingActiveFriends = new Set();
 $app.data.friendNumber = 0;
 $app.data.isFriendsGroupMe = true;
 $app.data.isVIPFriends = true;
@@ -2821,48 +2820,13 @@ $app.data.isOfflineFriends = false;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
 
-$app.methods.fetchActiveFriend = function (userId) {
-    this.pendingActiveFriends.add(userId);
-    // FIXME: handle error
-    return userRequest
-        .getUser({
-            userId
-        })
-        .then((args) => {
-            this.pendingActiveFriends.delete(userId);
-            return args;
-        });
-};
-
 API.$on('USER:CURRENT', function (args) {
-    $app.checkActiveFriends(args.json);
+    $app.store.friend.checkActiveFriends(args.json);
 });
-
-$app.methods.checkActiveFriends = function (ref) {
-    if (
-        Array.isArray(ref.activeFriends) === false ||
-        !this.store.friend.friendLogInitStatus
-    ) {
-        return;
-    }
-    for (let userId of ref.activeFriends) {
-        if (this.pendingActiveFriends.has(userId)) {
-            continue;
-        }
-        const user = API.cachedUsers.get(userId);
-        if (typeof user !== 'undefined' && user.status !== 'offline') {
-            continue;
-        }
-        if (this.pendingActiveFriends.size >= 5) {
-            break;
-        }
-        this.fetchActiveFriend(userId);
-    }
-};
 
 API.$on('LOGIN', function () {
     $app.store.friend.friends.clear();
-    $app.pendingActiveFriends.clear();
+    $app.store.friend.pendingActiveFriends.clear();
     $app.friendNumber = 0;
     $app.isGroupInstances = false;
     $app.groupInstances = [];
@@ -2885,7 +2849,7 @@ API.$on('USER:CURRENT', function (args) {
             args.fromGetCurrentUser
         );
     }
-    $app.updateOnlineFriendCoutner();
+    $app.store.friend.updateOnlineFriendCoutner();
 
     if ($app.store.appearanceSettings.randomUserColours) {
         $app.getNameColour(this.currentUser.id).then((colour) => {
@@ -2916,42 +2880,6 @@ API.$on('FAVORITE', function (args) {
 API.$on('FAVORITE:@DELETE', function (args) {
     $app.store.friend.updateFriend({ id: args.ref.favoriteId });
 });
-
-$app.methods.refreshFriendsList = async function () {
-    // If we just got user less then 2 min before code call, don't call it again
-    if (this.nextCurrentUserRefresh < 300) {
-        await API.getCurrentUser().catch((err) => {
-            console.error(err);
-        });
-    }
-    await this.store.friend.refreshFriends().catch((err) => {
-        console.error(err);
-    });
-    API.reconnectWebSocket();
-};
-
-$app.methods.updateFriendGPS = function (userId) {
-    const ctx = this.store.friend.friends.get(userId);
-    if (ctx.isVIP) {
-        this.store.friend.sortVIPFriends = true;
-    } else {
-        this.store.friend.sortOnlineFriends = true;
-    }
-};
-
-$app.data.onlineFriendCount = 0;
-$app.methods.updateOnlineFriendCoutner = function () {
-    const onlineFriendCount =
-        this.store.friend.vipFriends.length +
-        this.store.friend.onlineFriends.length;
-    if (onlineFriendCount !== this.onlineFriendCount) {
-        AppApi.ExecuteVrFeedFunction(
-            'updateOnlineFriendCount',
-            `${onlineFriendCount}`
-        );
-        this.onlineFriendCount = onlineFriendCount;
-    }
-};
 
 $app.methods.userStatusClass = function (user, pendingOffline) {
     const style = {};
@@ -3424,7 +3352,7 @@ API.$on('USER:UPDATE', async function (args) {
             };
             $app.addFeed(feed);
             database.addGPSToDatabase(feed);
-            $app.updateFriendGPS(ref.id);
+            $app.store.friend.updateFriendGPS(ref.id);
             // clear previousLocation after GPS
             ref.$previousLocation = '';
             ref.$travelingToTime = Date.now();
@@ -3438,7 +3366,7 @@ API.$on('USER:UPDATE', async function (args) {
         // store previous location when user is traveling
         ref.$previousLocation = props.location[1];
         ref.$travelingToTime = Date.now();
-        $app.updateFriendGPS(ref.id);
+        $app.store.friend.updateFriendGPS(ref.id);
     }
     let imageMatches = false;
     if (
@@ -5289,8 +5217,8 @@ $app.methods.vrInit = function () {
     this.updateVRLastLocation();
     this.updateVrNowPlaying();
     this.updateSharedFeed(true);
-    this.onlineFriendCount = 0;
-    this.updateOnlineFriendCoutner();
+    this.store.friend.onlineFriendCount = 0;
+    this.store.friend.updateOnlineFriendCoutner();
 };
 
 API.$on('LOGIN', function () {
@@ -10941,7 +10869,6 @@ $app.computed.sidebarTabBind = function () {
         isSideBarTabShow: this.isSideBarTabShow,
         quickSearchRemoteMethod: this.quickSearchRemoteMethod,
         quickSearchItems: this.quickSearchItems,
-        onlineFriendCount: this.onlineFriendCount,
         isGameRunning: this.isGameRunning,
         lastLocation: this.lastLocation,
         lastLocationDestination: this.lastLocationDestination,
@@ -10956,7 +10883,6 @@ $app.computed.sidebarTabEvent = function () {
         'show-group-dialog': this.showGroupDialog,
         'quick-search-change': this.quickSearchChange,
         'direct-access-paste': this.directAccessPaste,
-        'refresh-friends-list': this.refreshFriendsList,
         'confirm-delete-friend': this.confirmDeleteFriend
     };
 };

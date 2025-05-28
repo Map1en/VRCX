@@ -33,7 +33,7 @@ export default function init(app) {
                     }
                     if (--this.nextFriendsRefresh <= 0) {
                         this.nextFriendsRefresh = 3600; // 1hour
-                        this.refreshFriendsList();
+                        this.store.friend.refreshFriendsList();
                         this.updateStoredUser(API.currentUser);
                         if (this.isGameRunning) {
                             API.refreshPlayerModerations();

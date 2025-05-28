@@ -57,7 +57,7 @@
                     icon="el-icon-refresh"
                     circle
                     style="margin-right: 10px"
-                    @click="$emit('refresh-friends-list')"></el-button>
+                    @click="refreshFriendsList" />
             </el-tooltip>
         </div>
         <el-tabs class="zero-margin-tabs" stretch style="height: calc(100% - 60px); margin-top: 5px">
@@ -116,7 +116,6 @@
 
             quickSearchRemoteMethod: Function,
             quickSearchItems: Array,
-            onlineFriendCount: Number,
 
             lastLocation: Object,
             lastLocationDestination: String,
@@ -128,13 +127,16 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendsStore = useFriendStore();
-            const { friends, isRefreshFriendsLoading } = storeToRefs(friendsStore);
+            const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
+            const { refreshFriendsList } = friendsStore;
             const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
             return {
                 hideTooltips,
                 asideWidth,
                 friends,
                 isRefreshFriendsLoading,
+                refreshFriendsList,
+                onlineFriendCount,
                 API
             };
         }

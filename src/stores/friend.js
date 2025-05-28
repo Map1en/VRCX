@@ -37,7 +37,9 @@ export const useFriendStore = defineStore('Friend', () => {
         sortOfflineFriends: false,
         localFavoriteFriends: new Set(),
         friendLogInitStatus: false,
-        isRefreshFriendsLoading: false
+        isRefreshFriendsLoading: false,
+        pendingActiveFriends: new Set(),
+        onlineFriendCount: 0
     });
 
     const friends = state.friends;
@@ -180,6 +182,16 @@ export const useFriendStore = defineStore('Friend', () => {
             state.isRefreshFriendsLoading = value;
         }
     });
+    const pendingActiveFriends = state.pendingActiveFriends;
+    const onlineFriendCount = computed({
+        get() {
+            return state.onlineFriendCount;
+        },
+        set(value) {
+            state.onlineFriendCount = value;
+        }
+    });
+
     /**
      * @param {string} value
      */
@@ -506,7 +518,7 @@ export const useFriendStore = defineStore('Friend', () => {
             state.sortOfflineFriends = true;
         }
         if (ctx.state !== newState) {
-            $app.updateOnlineFriendCoutner();
+            updateOnlineFriendCoutner();
         }
         ctx.state = newState;
         if (ref?.displayName) {
@@ -780,6 +792,88 @@ export const useFriendStore = defineStore('Friend', () => {
         return friends;
     }
 
+    /**
+     * @param {string} userId
+     * @returns {Promise<{json: *, params}>}
+     */
+    function fetchActiveFriend(userId) {
+        state.pendingActiveFriends.add(userId);
+        // FIXME: handle error
+        return userRequest
+            .getUser({
+                userId
+            })
+            .then((args) => {
+                state.pendingActiveFriends.delete(userId);
+                return args;
+            });
+    }
+
+    /**
+     * @param {Object} ref
+     */
+    function checkActiveFriends(ref) {
+        if (
+            Array.isArray(ref.activeFriends) === false ||
+            !state.friendLogInitStatus
+        ) {
+            return;
+        }
+        for (let userId of ref.activeFriends) {
+            if (state.pendingActiveFriends.has(userId)) {
+                continue;
+            }
+            const user = API.cachedUsers.get(userId);
+            if (typeof user !== 'undefined' && user.status !== 'offline') {
+                continue;
+            }
+            if (state.pendingActiveFriends.size >= 5) {
+                break;
+            }
+            fetchActiveFriend(userId);
+        }
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    async function refreshFriendsList() {
+        // If we just got user less then 2 min before code call, don't call it again
+        if ($app.nextCurrentUserRefresh < 300) {
+            await API.getCurrentUser().catch((err) => {
+                console.error(err);
+            });
+        }
+        await refreshFriends().catch((err) => {
+            console.error(err);
+        });
+        API.reconnectWebSocket();
+    }
+
+    /**
+     * @param {string} userId
+     */
+    $app.methods.updateFriendGPS = function (userId) {
+        const ctx = state.friends.get(userId);
+        if (ctx.isVIP) {
+            state.sortVIPFriends = true;
+        } else {
+            state.sortOnlineFriends = true;
+        }
+    };
+
+    function updateOnlineFriendCoutner() {
+        const onlineFriendCount =
+            vipFriends.value.length + onlineFriends.value.length;
+        if (onlineFriendCount !== state.onlineFriendCount) {
+            AppApi.ExecuteVrFeedFunction(
+                'updateOnlineFriendCount',
+                `${onlineFriendCount}`
+            );
+            state.onlineFriendCount = onlineFriendCount;
+        }
+    }
+
     return {
         state,
 
@@ -802,6 +896,8 @@ export const useFriendStore = defineStore('Friend', () => {
         localFavoriteFriends,
         friendLogInitStatus,
         isRefreshFriendsLoading,
+        pendingActiveFriends,
+        onlineFriendCount,
 
         updateLocalFavoriteFriends,
         updateSidebarFriendsList,
@@ -809,6 +905,9 @@ export const useFriendStore = defineStore('Friend', () => {
         deleteFriend,
         refreshFriendsStatus,
         addFriend,
-        refreshFriends
+        refreshFriends,
+        checkActiveFriends,
+        refreshFriendsList,
+        updateOnlineFriendCoutner
     };
 });
