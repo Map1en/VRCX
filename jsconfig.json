@@ -12,11 +12,6 @@
         "forceConsistentCasingInFileNames": true,
         "lib": ["esnext", "dom", "dom.iterable"]
     },
-    "include": [
-        "src/**/*.vue",
-        "src/store/**/*",
-        "src/shared/**/*",
-        "src-electron/**/*"
-    ],
+    "include": ["src/store/**/*", "src-electron/**/*"],
     "exclude": ["node_modules", "build"]
 }
