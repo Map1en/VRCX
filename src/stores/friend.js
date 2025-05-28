@@ -24,6 +24,7 @@ export const useFriendStore = defineStore('Friend', () => {
     const { setLocalFavoriteFriendsGroups } = generalSettingsStore;
     const debugStore = useDebugStore();
     const { debugFriendState } = storeToRefs(debugStore);
+
     const state = reactive({
         friends: new Map(),
         onlineFriends_: [],

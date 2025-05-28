@@ -19,7 +19,7 @@ import ElementUI from 'element-ui';
 import Noty from 'noty';
 
 // pinia
-import { createPinia, PiniaVuePlugin, storeToRefs } from 'pinia';
+import { PiniaVuePlugin, storeToRefs } from 'pinia';
 import Vue from 'vue';
 import { DataTables } from 'vue-data-tables';
 import VueI18n from 'vue-i18n';
@@ -174,6 +174,8 @@ import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialo
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
 import Sidebar from './views/Sidebar/Sidebar.vue';
 
+import { pinia, createGlobalStores } from './stores';
+
 // #endregion
 
 // some workaround for failing to get voice list first run
@@ -229,7 +231,6 @@ Vue.use(ElementUI, {
 
 // init pinia
 Vue.use(PiniaVuePlugin);
-const pinia = createPinia();
 
 // #endregion
 
@@ -255,6 +256,10 @@ i18n.locale = appLanguage;
 
 const app = {
     template: pugTemplate,
+    pinia,
+    beforeCreate() {
+        this.$store = createGlobalStores();
+    },
     setup() {
         const VRCXUpdaterStore = useVRCXUpdaterStore();
         const generalSettingsStore = useGeneralSettingsStore();
@@ -408,7 +413,6 @@ const app = {
             activeFriends_,
             offlineFriends_,
             vipFriends,
-            onlineFriends,
             activeFriends,
             offlineFriends,
             sortOnlineFriends,
@@ -557,7 +561,6 @@ const app = {
             offlineFriends_,
 
             vipFriends,
-            onlineFriends,
             activeFriends,
             offlineFriends,
 
@@ -761,8 +764,7 @@ const app = {
                 this.updateTTSVoices();
             }, 5000);
         }
-    },
-    pinia
+    }
 };
 
 Object.assign($app, app);
@@ -3268,7 +3270,7 @@ $app.methods.updateFriendGPS = function (userId) {
 $app.data.onlineFriendCount = 0;
 $app.methods.updateOnlineFriendCoutner = function () {
     const onlineFriendCount =
-        this.vipFriends.length + this.onlineFriends.length;
+        this.vipFriends.length + this.$store.friend.onlineFriends.length;
     if (onlineFriendCount !== this.onlineFriendCount) {
         AppApi.ExecuteVrFeedFunction(
             'updateOnlineFriendCount',
