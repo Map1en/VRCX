@@ -4,6 +4,7 @@
         class="x-dialog"
         :visible.sync="VRCXUpdateDialog.visible"
         :title="t('dialog.vrcx_updater.header')"
+        append-to-body
         width="400px">
         <div v-loading="checkingForVRCXUpdate" style="margin-top: 15px">
             <template v-if="updateInProgress">

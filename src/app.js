@@ -19,7 +19,7 @@ import ElementUI from 'element-ui';
 import Noty from 'noty';
 
 // pinia
-import { PiniaVuePlugin, storeToRefs } from 'pinia';
+import { PiniaVuePlugin } from 'pinia';
 import Vue from 'vue';
 import { DataTables } from 'vue-data-tables';
 import VueI18n from 'vue-i18n';
@@ -137,8 +137,6 @@ import {
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
 
-import { useAppearanceSettingsStore } from './stores/settings/appearance';
-import { useVRCXUpdaterStore } from './stores/vrcxUpdater';
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -248,9 +246,10 @@ i18n.locale = appLanguage;
 const app = {
     template: pugTemplate,
     pinia,
+    i18n,
     setup() {
         const store = createGlobalStores();
-
+        store.appearanceSettings.setThemeMode(initThemeMode);
         return {
             store
         };
@@ -264,7 +263,6 @@ const app = {
         isRunningUnderWine: false,
         shiftHeld: false
     },
-    i18n,
     computed: {},
     methods: {
         ..._utils
@@ -337,40 +335,20 @@ const app = {
     },
     el: '#root',
     async created() {
-        this.loginForm.savedCredentials =
-            (await configRepository.getString('savedCredentials')) !== null
-                ? JSON.parse(
-                      await configRepository.getString('savedCredentials')
-                  )
-                : {};
-        this.loginForm.lastUserLoggedIn =
-            await configRepository.getString('lastUserLoggedIn');
+        this.changeThemeMode();
+        const [savedCredentials, lastUserLoggedIn] = await Promise.all([
+            configRepository.getString('savedCredentials'),
+            configRepository.getString('lastUserLoggedIn')
+        ]);
+        this.loginForm = {
+            ...this.loginForm,
+            savedCredentials: savedCredentials
+                ? JSON.parse(savedCredentials)
+                : {},
+            lastUserLoggedIn
+        };
         await AppApi.CheckGameRunning();
         this.isGameNoVR = await configRepository.getBool('isGameNoVR');
-
-        const VRCXUpdaterStore = useVRCXUpdaterStore();
-        const appearanceSettingsStore = useAppearanceSettingsStore();
-
-        // todo: seiri
-        const { setThemeMode } = appearanceSettingsStore;
-
-        setThemeMode(initThemeMode);
-
-        await Promise.all([
-            VRCXUpdaterStore.initVRCXUpdaterSettings(),
-            appearanceSettingsStore.initAppearanceSettings()
-        ]);
-
-        /**
-         * This is temporary, because of the order of execution,
-         * too many things are initialized before new Vue
-         */
-        const { tablePageSize } = appearanceSettingsStore;
-
-        this.handleSetTablePageSize(tablePageSize);
-    },
-    async beforeMount() {
-        await this.changeThemeMode();
     },
     async mounted() {
         refreshCustomCss();

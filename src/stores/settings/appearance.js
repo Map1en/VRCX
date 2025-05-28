@@ -152,7 +152,10 @@ export const useAppearanceSettingsStore = defineStore(
             state.isAgeGatedInstancesVisible = isAgeGatedInstancesVisible;
             state.sortFavorites = sortFavorites;
             state.instanceUsersSortAlphabetical = instanceUsersSortAlphabetical;
-            state.tablePageSize = tablePageSize;
+
+            setTablePageSize(tablePageSize);
+            $app.handleSetTablePageSize(state.tablePageSize);
+
             state.dtHour12 = dtHour12;
             state.dtIsoFormat = dtIsoFormat;
             await handleSetDatetimeFormat();
@@ -491,9 +494,10 @@ export const useAppearanceSettingsStore = defineStore(
             }
         }
 
+        initAppearanceSettings();
+
         return {
             state,
-            initAppearanceSettings,
 
             appLanguage,
             themeMode,
