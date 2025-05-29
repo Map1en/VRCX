@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const { EsbuildPlugin } = require('esbuild-loader');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const scssBasePath = './src/assets/scss/';
 const themeBasePath = `${scssBasePath}themes/`;
@@ -126,7 +127,8 @@ module.exports = {
                 }
             ]
         }),
-        new webpack.ProgressPlugin({})
+        new webpack.ProgressPlugin({}),
+        new CleanWebpackPlugin()
     ],
     optimization: {
         minimizer: [
