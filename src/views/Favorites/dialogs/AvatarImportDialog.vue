@@ -173,12 +173,13 @@
 
 <script>
     import { avatarRequest, favoriteRequest } from '../../../api';
-    import { removeFromArray } from '../../../shared/utils';
     import { API } from '../../../app';
+    import { removeFromArray } from '../../../shared/utils';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'AvatarImportDialog',
-        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showUserDialog', 'showAvatarDialog'],
+        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showAvatarDialog'],
         props: {
             getLocalAvatarFavoriteGroupLength: Function,
             localAvatarFavoriteGroups: Array,
@@ -186,8 +187,11 @@
             avatarImportDialogVisible: Boolean
         },
         setup() {
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
-                API
+                API,
+                showUserDialog
             };
         },
         data() {

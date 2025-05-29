@@ -317,7 +317,7 @@ export default function init() {
                 }
             },
             showUserDialog(userId) {
-                this.showUserDialog(userId);
+                this.store.user.showUserDialog(userId);
             }
         },
         template:
@@ -489,7 +489,7 @@ export default function init() {
                 }
             },
             showUserDialog() {
-                $app.showUserDialog(this.userid);
+                this.store.user.showUserDialog(this.userid);
             }
         },
         template:

@@ -101,9 +101,12 @@
     import database from '../../service/database';
     import { removeFromArray } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useUserStore } from '../../stores/user';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     watch(
         () => hideUnfriends.value,
@@ -118,8 +121,6 @@
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
     const { $confirm } = proxy;
-
-    const showUserDialog = inject('showUserDialog');
 
     const props = defineProps({
         menuActiveIndex: {

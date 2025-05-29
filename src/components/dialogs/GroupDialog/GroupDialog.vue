@@ -1184,18 +1184,20 @@
         userStatusClass
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showUserDialog = inject('showUserDialog');
     const userImage = inject('userImage');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

@@ -772,6 +772,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
+    import { API } from '../../../app';
     import database from '../../../service/database.js';
     import {
         buildTreeData,
@@ -784,13 +785,13 @@
         userStatusClass
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
     import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
-    import { API } from '../../../app';
 
     export default {
         name: 'WorldDialog',
@@ -803,7 +804,6 @@
             ChangeWorldImageDialog
         },
         inject: [
-            'showUserDialog',
             'userImage',
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
@@ -830,6 +830,8 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -837,7 +839,8 @@
                 downloadAndSaveJson,
                 refreshInstancePlayerCount,
                 replaceVrcPackageUrl,
-                userStatusClass
+                userStatusClass,
+                showUserDialog
             };
         },
         data() {

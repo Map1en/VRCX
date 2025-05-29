@@ -815,12 +815,14 @@
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
     import { hasGroupPermission } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { randomUserColours } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
-    const showUserDialog = inject('showUserDialog');
     const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');

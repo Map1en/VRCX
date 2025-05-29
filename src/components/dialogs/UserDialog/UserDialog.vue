@@ -1872,13 +1872,13 @@
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { userDialog } = storeToRefs(userStore);
+    const { showUserDialog } = userStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const userImage = inject('userImage');
     const showLaunchDialog = inject('showLaunchDialog');
-    const showUserDialog = inject('showUserDialog');
     const showGroupDialog = inject('showGroupDialog');
     const showWorldDialog = inject('showWorldDialog');
     const showAvatarDialog = inject('showAvatarDialog');

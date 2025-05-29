@@ -124,12 +124,13 @@
 
 <script>
     import { favoriteRequest, userRequest } from '../../../api';
-    import { removeFromArray } from '../../../shared/utils';
     import { API } from '../../../app';
+    import { removeFromArray } from '../../../shared/utils';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'FriendImportDialog',
-        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ'],
+        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'adjustDialogZ'],
         props: {
             friendImportDialogVisible: {
                 type: Boolean,
@@ -142,7 +143,9 @@
             }
         },
         setup() {
-            return { API };
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
+            return { API, showUserDialog };
         },
         data() {
             return {

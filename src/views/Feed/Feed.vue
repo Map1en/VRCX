@@ -327,15 +327,17 @@
     import { useI18n } from 'vue-i18n-bridge';
     import Location from '../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useUserStore } from '../../stores/user';
     import { timeToText, statusClass } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showUserDialog = inject('showUserDialog');
 
     defineProps({
         menuActiveIndex: {

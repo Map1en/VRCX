@@ -346,10 +346,10 @@
     const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
     const { setAvatarProvider } = avatarProviderStore;
     const { userDialog } = storeToRefs(userStore);
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
 
-    const showUserDialog = inject('showUserDialog');
     const userImage = inject('userImage');
     const showWorldDialog = inject('showWorldDialog');
     const showAvatarDialog = inject('showAvatarDialog');

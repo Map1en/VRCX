@@ -96,13 +96,13 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { playerModerationRequest } from '../../api';
+    import { API } from '../../app';
     import configRepository from '../../service/config.js';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { API } from '../../app';
+    import { useUserStore } from '../../stores/user';
 
     export default {
         name: 'ModerationTab',
-        inject: ['showUserDialog'],
         props: {
             menuActiveIndex: String,
             tableData: Object,
@@ -111,9 +111,12 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 hideTooltips,
-                API
+                API,
+                showUserDialog
             };
         },
         data() {

@@ -507,19 +507,21 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useFriendStore } from '../../stores/friend';
     import { API } from '../../app';
+    import { useUserStore } from '../../stores/user';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
 
     const userImage = inject('userImage');
-    const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');
     const showGalleryDialog = inject('showGalleryDialog');
 

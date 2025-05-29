@@ -293,7 +293,7 @@ export default function init(app) {
                 var ref = this.photonLobby.get(photonId);
                 if (typeof ref !== 'undefined') {
                     if (typeof ref.id !== 'undefined') {
-                        this.showUserDialog(ref.id);
+                        this.store.user.showUserDialog(ref.id);
                     } else if (typeof ref.displayName !== 'undefined') {
                         this.lookupUser(ref);
                     }

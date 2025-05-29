@@ -430,9 +430,12 @@
     import Location from '../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { API } from '../../app';
+    import { useUserStore } from '../../stores/user';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
 
@@ -440,7 +443,6 @@
 
     const showWorldDialog = inject('showWorldDialog');
     const showGroupDialog = inject('showGroupDialog');
-    const showUserDialog = inject('showUserDialog');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 

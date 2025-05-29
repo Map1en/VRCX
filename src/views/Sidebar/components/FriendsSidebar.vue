@@ -173,6 +173,7 @@
 
 <script>
     import { storeToRefs } from 'pinia';
+    import { API } from '../../../app';
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
@@ -180,7 +181,7 @@
     import { useFriendStore } from '../../../stores/friend';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { API } from '../../../app';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'FriendsSidebar',
@@ -188,7 +189,7 @@
             FriendItem,
             Location
         },
-        inject: ['showUserDialog', 'userImage'],
+        inject: ['userImage'],
         props: {
             isGameRunning: Boolean,
             lastLocation: Object,
@@ -203,6 +204,8 @@
             const { isSidebarGroupByInstance, isHideFriendsInSameInstance, isSidebarDivideByFriendGroup } =
                 storeToRefs(appearanceSettingsStore);
             const { gameLogDisabled } = storeToRefs(advancedSettingsStore);
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
@@ -214,7 +217,8 @@
                 offlineFriends,
                 API,
                 userStatusClass,
-                isRealInstance
+                isRealInstance,
+                showUserDialog
             };
         },
 

@@ -177,13 +177,14 @@
 </template>
 
 <script>
-    import { API } from '../../../app';
     import { favoriteRequest, worldRequest } from '../../../api';
+    import { API } from '../../../app';
     import { removeFromArray } from '../../../shared/utils';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'WorldImportDialog',
-        inject: ['showFullscreenImageDialog', 'showUserDialog', 'adjustDialogZ', 'showWorldDialog'],
+        inject: ['showFullscreenImageDialog', 'adjustDialogZ', 'showWorldDialog'],
         props: {
             worldImportDialogVisible: Boolean,
             worldImportDialogInput: String,
@@ -191,7 +192,9 @@
             localWorldFavoriteGroups: Array
         },
         setup() {
-            return { API };
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
+            return { API, showUserDialog };
         },
         data() {
             return {

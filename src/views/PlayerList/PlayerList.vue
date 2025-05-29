@@ -841,17 +841,19 @@
     import { usePhotonStore } from '../../stores/photon';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import { API } from '../../app';
+    import { useUserStore } from '../../stores/user';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
     const { photonLoggingEnabled } = storeToRefs(photonStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showWorldDialog = inject('showWorldDialog');
-    const showUserDialog = inject('showUserDialog');
     const showLaunchDialog = inject('showLaunchDialog');
     const showAvatarDialog = inject('showAvatarDialog');
     const showGroupDialog = inject('showGroupDialog');

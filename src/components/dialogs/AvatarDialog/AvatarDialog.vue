@@ -611,34 +611,36 @@
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
+    import { API } from '../../../app.js';
     import database from '../../../service/database';
     import {
         buildTreeData,
+        compareUnityVersion,
         copyToClipboard,
         downloadAndSaveJson,
         extractFileId,
         extractFileVersion,
+        openExternalLink,
         replaceVrcPackageUrl,
-        timeToText,
-        compareUnityVersion,
         storeAvatarImage,
-        openExternalLink
+        timeToText
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
-    import { API } from '../../../app.js';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showUserDialog = inject('showUserDialog');
     const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

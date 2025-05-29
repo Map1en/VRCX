@@ -277,17 +277,18 @@
         getFaviconUrl,
         languageClass,
         localeIncludes,
-        sortStatus,
-        timeToText,
         openExternalLink,
-        statusClass
+        sortStatus,
+        statusClass,
+        timeToText
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useUserStore } from '../../stores/user';
 
     export default {
         name: 'FriendListTab',
-        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog'],
+        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog'],
         props: {
             confirmDeleteFriend: Function,
             friendsListSearch: String,
@@ -299,6 +300,8 @@
             const friendsStore = useFriendStore();
             const { friends } = storeToRefs(friendsStore);
             const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 appLanguage,
                 hideTooltips,
@@ -309,7 +312,8 @@
                 sortStatus,
                 timeToText,
                 openExternalLink,
-                statusClass
+                statusClass,
+                showUserDialog
             };
         },
         data() {

@@ -95,16 +95,18 @@
     import { miscRequest } from '../../../api';
     import { removeFromArray } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
+    import { useUserStore } from '../../../stores/user';
 
     const { t } = useI18n();
 
     const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');
-    const showUserDialog = inject('showUserDialog');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
+    const userStore = useUserStore();
+    const { showUserDialog } = userStore;
 
     const props = defineProps({
         isNoteExportDialogVisible: {
@@ -147,7 +149,7 @@
 
     function updateNoteExportDialog() {
         const data = [];
-        props.friends.forEach((ctx) => {
+        friends.value.forEach((ctx) => {
             const newMemo = ctx.memo.replace(/[\r\n]/g, ' ');
             if (ctx.memo && ctx.ref && ctx.ref.note !== newMemo.slice(0, 256)) {
                 data.push({

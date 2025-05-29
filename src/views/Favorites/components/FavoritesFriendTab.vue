@@ -77,15 +77,15 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
+    import { API } from '../../../app';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
-    import { API } from '../../../app';
 
     export default {
         name: 'FavoritesFriendTab',
         components: { FriendExportDialog, FavoritesFriendItem },
-        inject: ['showUserDialog'],
         props: {
             groupedByGroupKeyFavoriteFriends: Object,
             editFavoritesMode: Boolean
@@ -94,11 +94,14 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites } = storeToRefs(appearanceSettingsStore);
             const setSortFavorites = appearanceSettingsStore;
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
-                API
+                API,
+                showUserDialog
             };
         },
         data() {

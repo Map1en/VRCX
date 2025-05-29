@@ -85,14 +85,15 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import Location from '../../../components/Location.vue';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { API } from '../../../app';
+    import Location from '../../../components/Location.vue';
     import { userStatusClass } from '../../../shared/utils';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         components: { Location },
-        inject: ['showUserDialog', 'userImage', 'showFavoriteDialog'],
+        inject: ['userImage', 'showFavoriteDialog'],
         props: {
             favorite: {
                 type: Object,
@@ -111,10 +112,13 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const userStore = useUserStore();
+            const { showUserDialog } = userStore;
             return {
                 hideTooltips,
                 API,
-                userStatusClass
+                userStatusClass,
+                showUserDialog
             };
         },
         methods: {
