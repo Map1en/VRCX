@@ -71,8 +71,8 @@ export default function init(app) {
                 json.isSubscribedToAnnouncements;
         }
         if (
-            $app.userDialog.visible &&
-            $app.userDialog.id === this.currentUser.id
+            $app.store.user.userDialog.visible &&
+            $app.store.user.userDialog.id === this.currentUser.id
         ) {
             $app.getCurrentUserRepresentedGroup();
         }
@@ -935,11 +935,11 @@ export default function init(app) {
                                         this.getGroupDialogGroup(groupId);
                                     }
                                     if (
-                                        this.userDialog.visible &&
-                                        this.userDialog.id ===
+                                        this.store.user.userDialog.visible &&
+                                        this.store.user.userDialog.id ===
                                             this.currentUser.id &&
-                                        this.userDialog.representedGroup.id ===
-                                            groupId
+                                        this.store.user.userDialog
+                                            .representedGroup.id === groupId
                                     ) {
                                         this.getCurrentUserRepresentedGroup();
                                     }
@@ -1039,7 +1039,7 @@ export default function init(app) {
                     userId: API.currentUser.id
                 })
                 .then((args) => {
-                    this.userDialog.representedGroup = args.json;
+                    this.store.user.userDialog.representedGroup = args.json;
                     return args;
                 });
         }

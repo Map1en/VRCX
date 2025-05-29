@@ -1848,6 +1848,7 @@
     } from '../../../shared/utils';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1867,8 +1868,10 @@
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const userStore = useUserStore();
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
+    const { userDialog } = storeToRefs(userStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -1883,10 +1886,6 @@
     const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({
-        userDialog: {
-            type: Object,
-            default: () => ({})
-        },
         languageDialog: {
             type: Object,
             required: true
@@ -2035,11 +2034,11 @@
     ]);
 
     watch(
-        () => props.userDialog.loading,
+        () => userDialog.value.loading,
         () => {
-            if (props.userDialog.visible) {
+            if (userDialog.value.visible) {
                 nextTick(() => adjustDialogZ(userDialogRef.value.$el));
-                !props.userDialog.loading && toggleLastActiveTab(props.userDialog.id);
+                !userDialog.value.loading && toggleLastActiveTab(userDialog.value.id);
             }
         }
     );
@@ -2123,7 +2122,7 @@
     });
 
     const userDialogAvatars = computed(() => {
-        const { avatars, avatarReleaseStatus } = props.userDialog;
+        const { avatars, avatarReleaseStatus } = userDialog.value;
         if (avatarReleaseStatus === 'public' || avatarReleaseStatus === 'private') {
             return avatars.filter((avatar) => avatar.releaseStatus === avatarReleaseStatus);
         }
@@ -2144,7 +2143,7 @@
 
     function cleanNote(note) {
         // remove newlines because they aren't supported
-        props.userDialog.note = note.replace(/[\r\n]/g, '');
+        userDialog.value.note = note.replace(/[\r\n]/g, '');
     }
 
     function closeGalleryDialog() {
@@ -2220,7 +2219,7 @@
 
     async function setUserDialogAvatarsRemote(userId) {
         if (avatarRemoteDatabase.value && userId !== API.currentUser.id) {
-            props.userDialog.isAvatarsLoading = true;
+            userDialog.value.isAvatarsLoading = true;
             const data = await props.lookupAvatars('authorId', userId);
             const avatars = new Set();
             userDialogAvatars.value.forEach((avatar) => {
@@ -2230,18 +2229,18 @@
                 data.forEach((avatar) => {
                     if (avatar.id && !avatars.has(avatar.id)) {
                         if (avatar.authorId === userId) {
-                            props.userDialog.avatars.push(avatar);
+                            userDialog.value.avatars.push(avatar);
                         } else {
                             console.error(`Avatar authorId mismatch for ${avatar.id} - ${avatar.name}`);
                         }
                     }
                 });
             }
-            props.userDialog.avatarSorting = 'name';
-            props.userDialog.avatarReleaseStatus = 'all';
-            props.userDialog.isAvatarsLoading = false;
+            userDialog.value.avatarSorting = 'name';
+            userDialog.value.avatarReleaseStatus = 'all';
+            userDialog.value.isAvatarsLoading = false;
         }
-        sortUserDialogAvatars(props.userDialog.avatars);
+        sortUserDialogAvatars(userDialog.value.avatars);
     }
 
     async function toggleBadgeVisibility(badge) {
@@ -2279,7 +2278,7 @@
     }
 
     function setPlayerModeration(userId, type) {
-        const D = props.userDialog;
+        const D = userDialog.value;
         AppApi.SetVRChatUserModeration(API.currentUser.id, userId, type).then((result) => {
             if (result) {
                 if (type === 4) {
@@ -2342,7 +2341,7 @@
 
     function displayPreviousImages() {
         previousImagesTable.value = [];
-        const imageUrl = props.userDialog.ref.currentAvatarImageUrl;
+        const imageUrl = userDialog.value.ref.currentAvatarImageUrl;
 
         const fileId = extractFileId(imageUrl);
         if (!fileId) {
@@ -2377,7 +2376,7 @@
 
     function userDialogCommand(command) {
         let L;
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.visible === false) {
             return;
         }
@@ -2534,7 +2533,7 @@
         database.addFriendLogHistory(friendLogHistory);
 
         // API.$on('FRIEND:REQUEST')
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.visible === false || D.id !== args.params.userId) {
             return;
         }
@@ -2561,7 +2560,7 @@
         database.addFriendLogHistory(friendLogHistory);
 
         // API.$on('FRIEND:REQUEST:CANCEL')
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.visible === false || D.id !== args.params.userId) {
             return;
         }
@@ -2705,7 +2704,7 @@
     }
 
     async function getUserGroups(userId) {
-        props.userDialog.isGroupsLoading = true;
+        userDialog.value.isGroupsLoading = true;
         userGroups.value = {
             groups: [],
             ownGroups: [],
@@ -2713,8 +2712,8 @@
             remainingGroups: []
         };
         const args = await groupRequest.getGroups({ userId });
-        if (userId !== props.userDialog.id) {
-            props.userDialog.isGroupsLoading = false;
+        if (userId !== userDialog.value.id) {
+            userDialog.value.isGroupsLoading = false;
             return;
         }
         if (userId === API.currentUser.id) {
@@ -2754,12 +2753,12 @@
             }
         }
         if (userId === API.currentUser.id) {
-            props.userDialog.groupSorting = userDialogGroupSortingOptions.inGame;
-        } else if (props.userDialog.groupSorting === userDialogGroupSortingOptions.inGame) {
-            props.userDialog.groupSorting = userDialogGroupSortingOptions.alphabetical;
+            userDialog.value.groupSorting = userDialogGroupSortingOptions.inGame;
+        } else if (userDialog.value.groupSorting === userDialogGroupSortingOptions.inGame) {
+            userDialog.value.groupSorting = userDialogGroupSortingOptions.alphabetical;
         }
         await sortCurrentUserGroups();
-        props.userDialog.isGroupsLoading = false;
+        userDialog.value.isGroupsLoading = false;
     }
 
     function sortGroupsByInGame(a, b) {
@@ -2778,7 +2777,7 @@
     }
 
     async function sortCurrentUserGroups() {
-        const D = props.userDialog;
+        const D = userDialog.value;
         let sortMethod = function () {};
 
         switch (D.groupSorting.value) {
@@ -2806,10 +2805,10 @@
         });
         for (const ref of API.cachedAvatars.values()) {
             if (ref.authorId === userId && !avatars.has(ref.id)) {
-                props.userDialog.avatars.push(ref);
+                userDialog.value.avatars.push(ref);
             }
         }
-        sortUserDialogAvatars(props.userDialog.avatars);
+        sortUserDialogAvatars(userDialog.value.avatars);
     }
 
     function setUserDialogWorlds(userId) {
@@ -2819,11 +2818,11 @@
                 worlds.push(ref);
             }
         }
-        props.userDialog.worlds = worlds;
+        userDialog.value.worlds = worlds;
     }
 
     function refreshUserDialogWorlds() {
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.isWorldsLoading) {
             return;
         }
@@ -2831,8 +2830,8 @@
         const params = {
             n: 50,
             offset: 0,
-            sort: props.userDialog.worldSorting.value,
-            order: props.userDialog.worldOrder.value,
+            sort: userDialog.value.worldSorting.value,
+            order: userDialog.value.worldOrder.value,
             // user: 'friends',
             userId: D.id,
             releaseStatus: 'public'
@@ -2869,7 +2868,7 @@
     }
 
     async function getUserFavoriteWorlds(userId) {
-        props.userDialog.isFavoriteWorldsLoading = true;
+        userDialog.value.isFavoriteWorldsLoading = true;
         if (favoriteWorldsRef.value) {
             favoriteWorldsRef.value.currentName = '0'; // select first tab
         }
@@ -2902,11 +2901,11 @@
             }
         }
         userFavoriteWorlds.value = worldLists;
-        props.userDialog.isFavoriteWorldsLoading = false;
+        userDialog.value.isFavoriteWorldsLoading = false;
     }
 
     function userDialogTabClick(obj) {
-        const userId = props.userDialog.id;
+        const userId = userDialog.value.id;
         if (userDialogLastActiveTab.value === obj.label) {
             return;
         }
@@ -2949,8 +2948,8 @@
     }
 
     async function addNote(userId, note) {
-        if (props.userDialog.id === userId) {
-            props.userDialog.noteSaving = true;
+        if (userDialog.value.id === userId) {
+            userDialog.value.noteSaving = true;
         }
         const args = await miscRequest.saveNote({
             targetUserId: userId,
@@ -2969,10 +2968,10 @@
         if (typeof args.params !== 'undefined') {
             targetUserId = args.params.targetUserId;
         }
-        if (targetUserId === props.userDialog.id) {
+        if (targetUserId === userDialog.value.id) {
             if (_note === args.params.note) {
-                props.userDialog.noteSaving = false;
-                props.userDialog.note = _note;
+                userDialog.value.noteSaving = false;
+                userDialog.value.note = _note;
             } else {
                 // response is cached sadge :<
                 userRequest.getUser({ userId: targetUserId });
@@ -2985,8 +2984,8 @@
     }
 
     async function deleteNote(userId) {
-        if (props.userDialog.id === userId) {
-            props.userDialog.noteSaving = true;
+        if (userDialog.value.id === userId) {
+            userDialog.value.noteSaving = true;
         }
         const args = await miscRequest.saveNote({
             targetUserId: userId,
@@ -2996,7 +2995,7 @@
     }
 
     function onUserMemoChange() {
-        const D = props.userDialog;
+        const D = userDialog.value;
         saveUserMemo(D.id, D.memo);
     }
 
@@ -3061,7 +3060,7 @@
     }
 
     async function setUserDialogGroupSorting(sortOrder) {
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.groupSorting === sortOrder) {
             return;
         }
@@ -3177,7 +3176,7 @@
     }
 
     async function setUserDialogWorldSorting(sortOrder) {
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.worldSorting === sortOrder) {
             return;
         }
@@ -3186,7 +3185,7 @@
     }
 
     async function setUserDialogWorldOrder(order) {
-        const D = props.userDialog;
+        const D = userDialog.value;
         if (D.worldOrder === order) {
             return;
         }
@@ -3195,7 +3194,7 @@
     }
 
     function changeUserDialogAvatarSorting(sortOption) {
-        const D = props.userDialog;
+        const D = userDialog.value;
         D.avatarSorting = sortOption;
         sortUserDialogAvatars(D.avatars);
     }

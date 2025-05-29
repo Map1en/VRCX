@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { friendRequest, userRequest } from '../api';
-import { $app } from '../app';
+import { $app, $t } from '../app';
 import API from '../classes/apiInit';
 import database from '../service/database';
 import {
@@ -34,7 +34,94 @@ export const useUserStore = defineStore('User', () => {
     const { randomUserColours, trustColor: appearanceSettingsTrustColor } =
         storeToRefs(appearanceSettingsStore);
 
-    const state = reactive({});
+    const state = reactive({
+        userDialog: {
+            visible: false,
+            loading: false,
+            id: '',
+            ref: {},
+            friend: {},
+            isFriend: false,
+            note: '',
+            noteSaving: false,
+            incomingRequest: false,
+            outgoingRequest: false,
+            isBlock: false,
+            isMute: false,
+            isHideAvatar: false,
+            isShowAvatar: false,
+            isInteractOff: false,
+            isMuteChat: false,
+            isFavorite: false,
+
+            $location: {},
+            $homeLocationName: '',
+            users: [],
+            instance: {},
+
+            worlds: [],
+            avatars: [],
+            isWorldsLoading: false,
+            isFavoriteWorldsLoading: false,
+            isAvatarsLoading: false,
+            isGroupsLoading: false,
+
+            worldSorting: {
+                name: $t('dialog.user.worlds.sorting.updated'),
+                value: 'updated'
+            },
+            worldOrder: {
+                name: $t('dialog.user.worlds.order.descending'),
+                value: 'descending'
+            },
+            // because userDialogGroupSortingOptions, just i18n key
+            groupSorting: {
+                name: 'dialog.user.groups.sorting.alphabetical',
+                value: 'alphabetical'
+            },
+            avatarSorting: 'update',
+            avatarReleaseStatus: 'all',
+
+            treeData: [],
+            memo: '',
+            $avatarInfo: {
+                ownerId: '',
+                avatarName: '',
+                fileCreatedAt: ''
+            },
+            representedGroup: {
+                bannerUrl: '',
+                description: '',
+                discriminator: '',
+                groupId: '',
+                iconUrl: '',
+                isRepresenting: false,
+                memberCount: 0,
+                memberVisibility: '',
+                name: '',
+                ownerId: '',
+                privacy: '',
+                shortCode: '',
+                $thumbnailUrl: ''
+            },
+            isRepresentedGroupLoading: false,
+            joinCount: 0,
+            timeSpent: 0,
+            lastSeen: '',
+            avatarModeration: 0,
+            previousDisplayNames: [],
+            dateFriended: '',
+            unFriended: false,
+            dateFriendedInfo: []
+        }
+    });
+
+    const userDialog = computed({
+        get: () => state.userDialog,
+        set: (value) => {
+            state.userDialog = value;
+        }
+    });
 
     /**
      * aka: `API.applyUserTrustLevel`
@@ -372,5 +459,5 @@ export const useUserStore = defineStore('User', () => {
         return ref;
     }
 
-    return { applyUserTrustLevel, applyUserLanguage, applyUser };
+    return { userDialog, applyUserTrustLevel, applyUserLanguage, applyUser };
 });

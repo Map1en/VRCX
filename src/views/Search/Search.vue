@@ -334,15 +334,18 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
     import { useAvatarProviderStore } from '../../stores/avatarProvider';
+    import { useUserStore } from '../../stores/user';
     import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
     const avatarProviderStore = useAvatarProviderStore();
+    const userStore = useUserStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
     const { setAvatarProvider } = avatarProviderStore;
+    const { userDialog } = storeToRefs(userStore);
 
     const { t } = useI18n();
 
@@ -364,10 +367,6 @@
         searchUserResults: {
             type: Array,
             default: () => []
-        },
-        userDialog: {
-            type: Object,
-            default: () => ({})
         },
         lookupAvatars: {
             type: Function,

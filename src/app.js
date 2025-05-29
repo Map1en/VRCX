@@ -655,7 +655,7 @@ API.$on('WORLD:DELETE', function (args) {
             }
         }
         const array = Array.from(map.values());
-        $app.userDialog.worlds = array;
+        $app.store.user.userDialog.worlds = array;
     }
 });
 
@@ -883,8 +883,8 @@ API.$on('INSTANCE', function (args) {
         return;
     }
     if (
-        $app.userDialog.visible &&
-        $app.userDialog.ref.$location.tag === args.json.id
+        $app.store.user.userDialog.visible &&
+        $app.store.user.userDialog.ref.$location.tag === args.json.id
     ) {
         $app.applyUserDialogLocation();
     }
@@ -939,7 +939,7 @@ API.$on('AVATAR:SELECT', function (args) {
 API.$on('AVATAR:DELETE', function (args) {
     let { json } = args;
     this.cachedAvatars.delete(json._id);
-    if ($app.userDialog.id === json.authorId) {
+    if ($app.store.user.userDialog.id === json.authorId) {
         const map = new Map();
         for (let ref of this.cachedAvatars.values()) {
             if (ref.authorId === json.authorId) {
@@ -2872,7 +2872,7 @@ API.$on('USER:UPDATE', async function (args) {
         newCount++;
         $app.instancePlayerCount.set(newLocation, newCount);
     }
-    if (props.location && ref.id === $app.userDialog.id) {
+    if (props.location && ref.id === $app.store.user.userDialog.id) {
         // update user dialog instance occupants
         $app.applyUserDialogLocation(true);
     }
@@ -3823,8 +3823,8 @@ $app.methods.addFriendship = function (id) {
                     })
                     .then(() => {
                         if (
-                            this.userDialog.visible &&
-                            id === this.userDialog.id
+                            this.store.user.userDialog.visible &&
+                            id === this.store.user.userDialog.id
                         ) {
                             this.applyUserDialogLocation(true);
                         }
@@ -4836,93 +4836,13 @@ $app.methods.adjustDialogZ = function (el) {
 // #endregion
 // #region | App: User Dialog
 
-$app.data.userDialog = {
-    visible: false,
-    loading: false,
-    id: '',
-    ref: {},
-    friend: {},
-    isFriend: false,
-    note: '',
-    noteSaving: false,
-    incomingRequest: false,
-    outgoingRequest: false,
-    isBlock: false,
-    isMute: false,
-    isHideAvatar: false,
-    isShowAvatar: false,
-    isInteractOff: false,
-    isMuteChat: false,
-    isFavorite: false,
-
-    $location: {},
-    $homeLocationName: '',
-    users: [],
-    instance: {},
-
-    worlds: [],
-    avatars: [],
-    isWorldsLoading: false,
-    isFavoriteWorldsLoading: false,
-    isAvatarsLoading: false,
-    isGroupsLoading: false,
-
-    worldSorting: {
-        name: $t('dialog.user.worlds.sorting.updated'),
-        value: 'updated'
-    },
-    worldOrder: {
-        name: $t('dialog.user.worlds.order.descending'),
-        value: 'descending'
-    },
-    // because userDialogGroupSortingOptions, just i18n key
-    groupSorting: {
-        name: 'dialog.user.groups.sorting.alphabetical',
-        value: 'alphabetical'
-    },
-    avatarSorting: 'update',
-    avatarReleaseStatus: 'all',
-
-    treeData: [],
-    memo: '',
-    $avatarInfo: {
-        ownerId: '',
-        avatarName: '',
-        fileCreatedAt: ''
-    },
-    representedGroup: {
-        bannerUrl: '',
-        description: '',
-        discriminator: '',
-        groupId: '',
-        iconUrl: '',
-        isRepresenting: false,
-        memberCount: 0,
-        memberVisibility: '',
-        name: '',
-        ownerId: '',
-        privacy: '',
-        shortCode: '',
-        $thumbnailUrl: ''
-    },
-    isRepresentedGroupLoading: false,
-    joinCount: 0,
-    timeSpent: 0,
-    lastSeen: '',
-    avatarModeration: 0,
-    previousDisplayNames: [],
-    dateFriended: '',
-    unFriended: false,
-    dateFriendedInfo: []
-};
-
 API.$on('LOGOUT', function () {
-    $app.userDialog.visible = false;
+    $app.store.user.userDialog.visible = false;
 });
 
 API.$on('USER', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== ref.id) {
         return;
     }
@@ -4941,8 +4861,8 @@ API.$on('USER', function (args) {
 API.$on('USER', function (args) {
     // refresh user dialog JSON tab
     if (
-        !$app.userDialog.visible ||
-        $app.userDialog.id !== args.ref.id ||
+        !$app.store.user.userDialog.visible ||
+        $app.store.user.userDialog.id !== args.ref.id ||
         $app.$refs.userDialogTabs?.currentName !== '5'
     ) {
         return;
@@ -4951,7 +4871,7 @@ API.$on('USER', function (args) {
 });
 
 API.$on('WORLD', function (args) {
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.$location.worldId !== args.ref.id) {
         return;
     }
@@ -4959,7 +4879,7 @@ API.$on('WORLD', function (args) {
 });
 
 API.$on('FRIEND:STATUS', function (args) {
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
@@ -4970,7 +4890,7 @@ API.$on('FRIEND:STATUS', function (args) {
 });
 
 API.$on('FRIEND:REQUEST:CANCEL', function (args) {
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
@@ -4979,7 +4899,7 @@ API.$on('FRIEND:REQUEST:CANCEL', function (args) {
 
 API.$on('NOTIFICATION', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (
         D.visible === false ||
         ref.$isDeleted ||
@@ -4993,7 +4913,7 @@ API.$on('NOTIFICATION', function (args) {
 
 API.$on('NOTIFICATION:ACCEPT', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     // 얘는 @DELETE가 오고나서 ACCEPT가 옴
     // 따라서 $isDeleted라면 ref가 undefined가 됨
     if (
@@ -5009,7 +4929,7 @@ API.$on('NOTIFICATION:ACCEPT', function (args) {
 
 API.$on('NOTIFICATION:EXPIRE', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (
         D.visible === false ||
         ref.type !== 'friendRequest' ||
@@ -5021,7 +4941,7 @@ API.$on('NOTIFICATION:EXPIRE', function (args) {
 });
 
 API.$on('FRIEND:DELETE', function (args) {
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
         return;
     }
@@ -5030,7 +4950,7 @@ API.$on('FRIEND:DELETE', function (args) {
 
 API.$on('PLAYER-MODERATION:@SEND', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (
         D.visible === false ||
         (ref.targetUserId !== D.id && ref.sourceUserId !== this.currentUser.id)
@@ -5056,7 +4976,7 @@ API.$on('PLAYER-MODERATION:@SEND', function (args) {
 
 API.$on('PLAYER-MODERATION:@DELETE', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (
         D.visible === false ||
         ref.targetUserId !== D.id ||
@@ -5079,7 +4999,7 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -5087,7 +5007,7 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.userDialog;
+    const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
@@ -5098,7 +5018,7 @@ $app.methods.showUserDialog = function (userId) {
     if (!userId) {
         return;
     }
-    const D = this.userDialog;
+    const D = this.store.user.userDialog;
     D.id = userId;
     D.treeData = [];
     D.memo = '';
@@ -5323,7 +5243,7 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
     let addUser;
     let friend;
     let ref;
-    const D = this.userDialog;
+    const D = this.store.user.userDialog;
     if (!D.visible) {
         return;
     }
@@ -5899,7 +5819,7 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
 };
 
 $app.methods.sortUserDialogAvatars = function (array) {
-    const D = this.userDialog;
+    const D = this.store.user.userDialog;
     if (D.avatarSorting === 'update') {
         array.sort(compareByUpdatedAt);
     } else {
@@ -5909,7 +5829,7 @@ $app.methods.sortUserDialogAvatars = function (array) {
 };
 
 $app.methods.refreshUserDialogAvatars = function (fileId) {
-    const D = this.userDialog;
+    const D = this.store.user.userDialog;
     if (D.isAvatarsLoading) {
         return;
     }
@@ -5967,7 +5887,7 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
 };
 
 $app.methods.refreshUserDialogTreeData = function () {
-    const D = this.userDialog;
+    const D = this.store.user.userDialog;
     if (D.id === API.currentUser.id) {
         const treeData = {
             ...API.currentUser,
@@ -9880,9 +9800,12 @@ $app.methods.applyLanguageStrings = function () {
     // repply sorting strings
     this.applyUserDialogSortingStrings();
     this.applyGroupDialogSortingStrings();
-    this.userDialog.worldSorting = this.userDialogWorldSortingOptions.updated;
-    this.userDialog.worldOrder = this.userDialogWorldOrderOptions.descending;
-    this.userDialog.groupSorting = userDialogGroupSortingOptions.alphabetical;
+    this.store.user.userDialog.worldSorting =
+        this.userDialogWorldSortingOptions.updated;
+    this.store.user.userDialog.worldOrder =
+        this.userDialogWorldOrderOptions.descending;
+    this.store.user.userDialog.groupSorting =
+        userDialogGroupSortingOptions.alphabetical;
 
     this.groupDialog.memberFilter = this.groupDialogFilterOptions.everyone;
     this.groupDialog.memberSortOrder =
@@ -10282,7 +10205,6 @@ $app.computed.searchTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
-        userDialog: this.userDialog,
         lookupAvatars: this.lookupAvatars,
         moreSearchUser: this.moreSearchUser
     };

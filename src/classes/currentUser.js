@@ -175,10 +175,14 @@ export default function init() {
             if (ref.homeLocation !== ref.$homeLocation.tag) {
                 ref.$homeLocation = parseLocation(ref.homeLocation);
                 // apply home location name to user dialog
-                if ($app.userDialog.visible && $app.userDialog.id === ref.id) {
+                if (
+                    $app.store.user.userDialog.visible &&
+                    $app.store.user.userDialog.id === ref.id
+                ) {
                     getWorldName(API.currentUser.homeLocation).then(
                         (worldName) => {
-                            $app.userDialog.$homeLocationName = worldName;
+                            $app.store.user.userDialog.$homeLocationName =
+                                worldName;
                         }
                     );
                 }
