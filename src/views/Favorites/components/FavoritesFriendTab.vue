@@ -70,9 +70,7 @@
                 </div>
             </el-collapse-item>
         </el-collapse>
-        <FriendExportDialog
-            :friend-export-dialog-visible.sync="friendExportDialogVisible"
-            :favorite-friends="favoriteFriends" />
+        <FriendExportDialog :friend-export-dialog-visible.sync="friendExportDialogVisible" />
     </div>
 </template>
 
@@ -89,7 +87,6 @@
         components: { FriendExportDialog, FavoritesFriendItem },
         inject: ['showUserDialog'],
         props: {
-            favoriteFriends: Array,
             groupedByGroupKeyFavoriteFriends: Object,
             editFavoritesMode: Boolean
         },

@@ -43,17 +43,23 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FriendExportDialog',
 
         props: {
-            friendExportDialogVisible: Boolean,
-            favoriteFriends: Array
+            friendExportDialogVisible: Boolean
         },
         setup() {
-            return { API };
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriends } = storeToRefs(favoriteStore);
+            return {
+                favoriteFriends,
+                API
+            };
         },
         data() {
             return {

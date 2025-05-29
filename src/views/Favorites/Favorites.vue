@@ -28,7 +28,6 @@
         <el-tabs v-model="currentTabName" v-loading="API.isFavoriteLoading" type="card" style="height: 100%">
             <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')" lazy>
                 <FavoritesFriendTab
-                    :favorite-friends="favoriteFriends"
                     :hide-tooltips="hideTooltips"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     :edit-favorites-mode="editFavoritesMode"
@@ -91,6 +90,7 @@
     import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
     import FavoritesWorldTab from './components/FavoritesWorldTab.vue';
+    import { useFavoriteStore } from '../../stores/favorite';
 
     export default {
         name: 'FavoritesTab',
@@ -102,7 +102,6 @@
         props: {
             menuActiveIndex: String,
             shiftHeld: Boolean,
-            favoriteFriends: Array,
             groupedByGroupKeyFavoriteFriends: Object,
             favoriteWorlds: Array,
             localWorldFavoriteGroups: Array,
@@ -117,8 +116,11 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriends } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
+                favoriteFriends,
                 API
             };
         },

@@ -550,7 +550,7 @@ export const useFriendStore = defineStore('Friend', () => {
     }
 
     /**
-     * alias: `$app.refreshFriends`
+     * aka: `$app.refreshFriends`
      * @param ref
      * @param fromGetCurrentUser
      */
@@ -650,7 +650,7 @@ export const useFriendStore = defineStore('Friend', () => {
     }
 
     /**
-     * alias: `API.refreshFriends`
+     * aka: `API.refreshFriends`
      * @returns {Promise<void>}
      */
     async function refreshFriends() {

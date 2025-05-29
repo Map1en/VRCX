@@ -37,7 +37,7 @@ export const useUserStore = defineStore('User', () => {
     const state = reactive({});
 
     /**
-     * alias: `API.applyUserTrustLevel`
+     * aka: `API.applyUserTrustLevel`
      * @param {object} ref
      */
     function applyUserTrustLevel(ref) {
@@ -101,7 +101,7 @@ export const useUserStore = defineStore('User', () => {
     }
 
     /**
-     * alias: `API.applyUserLanguage`
+     * aka: `API.applyUserLanguage`
      * @param {object} ref
      */
     function applyUserLanguage(ref) {
@@ -127,7 +127,7 @@ export const useUserStore = defineStore('User', () => {
 
     const robotUrl = `${API.endpointDomain}/file/file_0e8c4e32-7444-44ea-ade4-313c010d4bae/1/file`;
     /**
-     * alias: `API.applyUser`
+     * aka: `API.applyUser`
      * the biggest user data handler
      * @param json
      * @returns {any}

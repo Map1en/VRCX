@@ -101,4 +101,54 @@ async function formatDateFilter(isoFormat, hour12) {
     return formatDate1;
 }
 
-export { timeToText, formatDateFilter };
+function formatSeconds(duration) {
+    const pad = function (num, size) {
+            return `000${num}`.slice(size * -1);
+        },
+        time = parseFloat(duration).toFixed(3),
+        hours = Math.floor(time / 60 / 60),
+        minutes = Math.floor(time / 60) % 60,
+        seconds = Math.floor(time - minutes * 60);
+    let hoursOut = '';
+    if (hours > '0') {
+        hoursOut = `${pad(hours, 2)}:`;
+    }
+    return `${hoursOut + pad(minutes, 2)}:${pad(seconds, 2)}`;
+}
+
+function convertYoutubeTime(duration) {
+    let a = duration.match(/\d+/g);
+    if (
+        duration.indexOf('M') >= 0 &&
+        duration.indexOf('H') === -1 &&
+        duration.indexOf('S') === -1
+    ) {
+        a = [0, a[0], 0];
+    }
+    if (duration.indexOf('H') >= 0 && duration.indexOf('M') === -1) {
+        a = [a[0], 0, a[1]];
+    }
+    if (
+        duration.indexOf('H') >= 0 &&
+        duration.indexOf('M') === -1 &&
+        duration.indexOf('S') === -1
+    ) {
+        a = [a[0], 0, 0];
+    }
+    let length = 0;
+    if (a.length === 3) {
+        length += parseInt(a[0], 10) * 3600;
+        length += parseInt(a[1], 10) * 60;
+        length += parseInt(a[2], 10);
+    }
+    if (a.length === 2) {
+        length += parseInt(a[0], 10) * 60;
+        length += parseInt(a[1], 10);
+    }
+    if (a.length === 1) {
+        length += parseInt(a[0], 10);
+    }
+    return length;
+}
+
+export { timeToText, formatDateFilter, formatSeconds, convertYoutubeTime };

@@ -1,4 +1,5 @@
 import { createPinia } from 'pinia';
+import { useFavoriteStore } from './favorite';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useDiscordPresenceSettingsStore } from './settings/discordPresence';
@@ -24,6 +25,7 @@ export function createGlobalStores() {
         wristOverlaySettings: useWristOverlaySettingsStore(),
         avatarProvider: useAvatarProviderStore(),
         debug: useDebugStore(),
+        favorite: useFavoriteStore(),
         friend: useFriendStore(),
         photon: usePhotonStore(),
         user: useUserStore(),

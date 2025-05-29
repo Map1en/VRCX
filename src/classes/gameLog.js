@@ -6,6 +6,7 @@ import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import gameLogService from '../service/gamelog.js';
 import {
+    convertYoutubeTime,
     getGroupName,
     parseLocation,
     replaceBioSymbols
@@ -560,7 +561,7 @@ export default function init(app) {
                         if (data || data.pageInfo.totalResults !== 0) {
                             videoId = 'YouTube';
                             videoName = data.items[0].snippet.title;
-                            videoLength = this.convertYoutubeTime(
+                            videoLength = convertYoutubeTime(
                                 data.items[0].contentDetails.duration
                             );
                         }

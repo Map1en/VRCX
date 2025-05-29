@@ -131,7 +131,8 @@ import {
     refreshCustomCss,
     refreshCustomScript,
     getNameColour,
-    HueToHex
+    HueToHex,
+    formatSeconds
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -3395,7 +3396,7 @@ $app.methods.updateNowPlaying = function () {
         this.clearNowPlaying();
         return;
     }
-    np.remainingText = this.formatSeconds(np.length - np.elapsed);
+    np.remainingText = formatSeconds(np.length - np.elapsed);
     np.percentage = Math.round(((np.elapsed * 100) / np.length) * 10) / 10;
     this.updateVrNowPlaying();
     workerTimers.setTimeout(() => this.updateNowPlaying(), 1000);
@@ -3405,56 +3406,6 @@ $app.methods.updateVrNowPlaying = function () {
     const json = JSON.stringify(this.nowPlaying);
     AppApi.ExecuteVrFeedFunction('nowPlayingUpdate', json);
     AppApi.ExecuteVrOverlayFunction('nowPlayingUpdate', json);
-};
-
-$app.methods.formatSeconds = function (duration) {
-    const pad = function (num, size) {
-            return `000${num}`.slice(size * -1);
-        },
-        time = parseFloat(duration).toFixed(3),
-        hours = Math.floor(time / 60 / 60),
-        minutes = Math.floor(time / 60) % 60,
-        seconds = Math.floor(time - minutes * 60);
-    let hoursOut = '';
-    if (hours > '0') {
-        hoursOut = `${pad(hours, 2)}:`;
-    }
-    return `${hoursOut + pad(minutes, 2)}:${pad(seconds, 2)}`;
-};
-
-$app.methods.convertYoutubeTime = function (duration) {
-    let a = duration.match(/\d+/g);
-    if (
-        duration.indexOf('M') >= 0 &&
-        duration.indexOf('H') === -1 &&
-        duration.indexOf('S') === -1
-    ) {
-        a = [0, a[0], 0];
-    }
-    if (duration.indexOf('H') >= 0 && duration.indexOf('M') === -1) {
-        a = [a[0], 0, a[1]];
-    }
-    if (
-        duration.indexOf('H') >= 0 &&
-        duration.indexOf('M') === -1 &&
-        duration.indexOf('S') === -1
-    ) {
-        a = [a[0], 0, 0];
-    }
-    let length = 0;
-    if (a.length === 3) {
-        length += parseInt(a[0], 10) * 3600;
-        length += parseInt(a[1], 10) * 60;
-        length += parseInt(a[2], 10);
-    }
-    if (a.length === 2) {
-        length += parseInt(a[0], 10) * 60;
-        length += parseInt(a[1], 10);
-    }
-    if (a.length === 1) {
-        length += parseInt(a[0], 10);
-    }
-    return length;
 };
 
 $app.methods.updateAutoStateChange = function () {
@@ -3624,190 +3575,28 @@ API.$on('LOGIN', function () {
 });
 
 API.$on('FAVORITE', function (args) {
-    $app.applyFavorite(args.ref.type, args.ref.favoriteId, args.sortTop);
+    $app.store.favorite.applyFavorite(
+        args.ref.type,
+        args.ref.favoriteId,
+        args.sortTop
+    );
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    $app.applyFavorite(args.ref.type, args.ref.favoriteId);
+    $app.store.favorite.applyFavorite(args.ref.type, args.ref.favoriteId);
 });
 
 API.$on('USER', function (args) {
-    $app.applyFavorite('friend', args.ref.id);
+    $app.store.favorite.applyFavorite('friend', args.ref.id);
 });
 
 API.$on('WORLD', function (args) {
-    $app.applyFavorite('world', args.ref.id);
+    $app.store.favorite.applyFavorite('world', args.ref.id);
 });
 
 API.$on('AVATAR', function (args) {
-    $app.applyFavorite('avatar', args.ref.id);
+    $app.store.favorite.applyFavorite('avatar', args.ref.id);
 });
-
-$app.methods.applyFavorite = async function (type, objectId, sortTop) {
-    let ref;
-    const favorite = API.cachedFavoritesByObjectId.get(objectId);
-    let ctx = this.favoriteObjects.get(objectId);
-    if (typeof favorite !== 'undefined') {
-        let isTypeChanged = false;
-        if (typeof ctx === 'undefined') {
-            ctx = {
-                id: objectId,
-                type,
-                groupKey: favorite.$groupKey,
-                ref: null,
-                name: '',
-                $selected: false
-            };
-            this.favoriteObjects.set(objectId, ctx);
-            if (type === 'friend') {
-                ref = API.cachedUsers.get(objectId);
-                if (typeof ref === 'undefined') {
-                    ref = this.friendLog.get(objectId);
-                    if (typeof ref !== 'undefined' && ref.displayName) {
-                        ctx.name = ref.displayName;
-                    }
-                } else {
-                    ctx.ref = ref;
-                    ctx.name = ref.displayName;
-                }
-            } else if (type === 'world') {
-                ref = API.cachedWorlds.get(objectId);
-                if (typeof ref !== 'undefined') {
-                    ctx.ref = ref;
-                    ctx.name = ref.name;
-                }
-            } else if (type === 'avatar') {
-                ref = API.cachedAvatars.get(objectId);
-                if (typeof ref !== 'undefined') {
-                    ctx.ref = ref;
-                    ctx.name = ref.name;
-                }
-            }
-            isTypeChanged = true;
-        } else {
-            if (ctx.type !== type) {
-                // WTF???
-                isTypeChanged = true;
-                if (type === 'friend') {
-                    removeFromArray(this.favoriteFriends_, ctx);
-                    removeFromArray(this.favoriteFriendsSorted, ctx);
-                } else if (type === 'world') {
-                    removeFromArray(this.favoriteWorlds_, ctx);
-                    removeFromArray(this.favoriteWorldsSorted, ctx);
-                } else if (type === 'avatar') {
-                    removeFromArray(this.favoriteAvatars_, ctx);
-                    removeFromArray(this.favoriteAvatarsSorted, ctx);
-                }
-            }
-            if (type === 'friend') {
-                ref = API.cachedUsers.get(objectId);
-                if (typeof ref !== 'undefined') {
-                    if (ctx.ref !== ref) {
-                        ctx.ref = ref;
-                    }
-                    if (ctx.name !== ref.displayName) {
-                        ctx.name = ref.displayName;
-                        this.sortFavoriteFriends = true;
-                    }
-                }
-                // else too bad
-            } else if (type === 'world') {
-                ref = API.cachedWorlds.get(objectId);
-                if (typeof ref !== 'undefined') {
-                    if (ctx.ref !== ref) {
-                        ctx.ref = ref;
-                    }
-                    if (ctx.name !== ref.name) {
-                        ctx.name = ref.name;
-                        this.sortFavoriteWorlds = true;
-                    }
-                } else {
-                    // try fetch from local world favorites
-                    const world = await database.getCachedWorldById(objectId);
-                    if (world) {
-                        ctx.ref = world;
-                        ctx.name = world.name;
-                        ctx.deleted = true;
-                        this.sortFavoriteWorlds = true;
-                    }
-                    if (!world) {
-                        // try fetch from local world history
-                        const worldName =
-                            await database.getGameLogWorldNameByWorldId(
-                                objectId
-                            );
-                        if (worldName) {
-                            ctx.name = worldName;
-                            ctx.deleted = true;
-                            this.sortFavoriteWorlds = true;
-                        }
-                    }
-                }
-            } else if (type === 'avatar') {
-                ref = API.cachedAvatars.get(objectId);
-                if (typeof ref !== 'undefined') {
-                    if (ctx.ref !== ref) {
-                        ctx.ref = ref;
-                    }
-                    if (ctx.name !== ref.name) {
-                        ctx.name = ref.name;
-                        this.sortFavoriteAvatars = true;
-                    }
-                } else {
-                    // try fetch from local avatar history
-                    const avatar = await database.getCachedAvatarById(objectId);
-                    if (avatar) {
-                        ctx.ref = avatar;
-                        ctx.name = avatar.name;
-                        ctx.deleted = true;
-                        this.sortFavoriteAvatars = true;
-                    }
-                }
-            }
-        }
-        if (isTypeChanged) {
-            if (sortTop) {
-                if (type === 'friend') {
-                    this.favoriteFriends_.unshift(ctx);
-                    this.favoriteFriendsSorted.push(ctx);
-                    this.sortFavoriteFriends = true;
-                } else if (type === 'world') {
-                    this.favoriteWorlds_.unshift(ctx);
-                    this.favoriteWorldsSorted.push(ctx);
-                    this.sortFavoriteWorlds = true;
-                } else if (type === 'avatar') {
-                    this.favoriteAvatars_.unshift(ctx);
-                    this.favoriteAvatarsSorted.push(ctx);
-                    this.sortFavoriteAvatars = true;
-                }
-            } else if (type === 'friend') {
-                this.favoriteFriends_.push(ctx);
-                this.favoriteFriendsSorted.push(ctx);
-                this.sortFavoriteFriends = true;
-            } else if (type === 'world') {
-                this.favoriteWorlds_.push(ctx);
-                this.favoriteWorldsSorted.push(ctx);
-                this.sortFavoriteWorlds = true;
-            } else if (type === 'avatar') {
-                this.favoriteAvatars_.push(ctx);
-                this.favoriteAvatarsSorted.push(ctx);
-                this.sortFavoriteAvatars = true;
-            }
-        }
-    } else if (typeof ctx !== 'undefined') {
-        this.favoriteObjects.delete(objectId);
-        if (type === 'friend') {
-            removeFromArray(this.favoriteFriends_, ctx);
-            removeFromArray(this.favoriteFriendsSorted, ctx);
-        } else if (type === 'world') {
-            removeFromArray(this.favoriteWorlds_, ctx);
-            removeFromArray(this.favoriteWorldsSorted, ctx);
-        } else if (type === 'avatar') {
-            removeFromArray(this.favoriteAvatars_, ctx);
-            removeFromArray(this.favoriteAvatarsSorted, ctx);
-        }
-    }
-};
 
 $app.methods.deleteFavoriteNoConfirm = function (objectId) {
     if (!objectId) {
@@ -3826,21 +3615,10 @@ $app.methods.deleteFavoriteNoConfirm = function (objectId) {
         });
 };
 
-$app.computed.favoriteFriends = function () {
-    if (this.sortFavoriteFriends) {
-        this.sortFavoriteFriends = false;
-        this.favoriteFriendsSorted.sort(compareByName);
-    }
-    if (this.store.appearanceSettings.sortFavorites) {
-        return this.favoriteFriends_;
-    }
-    return this.favoriteFriendsSorted;
-};
-
 $app.computed.groupedByGroupKeyFavoriteFriends = function () {
     const groupedByGroupKeyFavoriteFriends = {};
 
-    this.favoriteFriends.forEach((friend) => {
+    this.store.favorite.favoriteFriends.forEach((friend) => {
         if (friend.groupKey) {
             if (!groupedByGroupKeyFavoriteFriends[friend.groupKey]) {
                 groupedByGroupKeyFavoriteFriends[friend.groupKey] = [];
@@ -4311,7 +4089,9 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
     if (
         $app.store.generalSettings.autoAcceptInviteRequests ===
             'All Favorites' &&
-        !$app.favoriteFriends.some((x) => x.id === ref.senderUserId)
+        !$app.store.favorite.favoriteFriends.some(
+            (x) => x.id === ref.senderUserId
+        )
     ) {
         return;
     }
@@ -9196,7 +8976,7 @@ $app.methods.bulkCopyFavoriteSelection = function (type) {
     let idList = '';
     switch (type) {
         case 'friend':
-            for (const ctx of this.favoriteFriends) {
+            for (const ctx of this.store.favorite.favoriteFriends) {
                 if (ctx.$selected) {
                     idList += `${ctx.id}\n`;
                 }
@@ -9233,7 +9013,7 @@ $app.methods.bulkCopyFavoriteSelection = function (type) {
 
 $app.methods.clearBulkFavoriteSelection = function () {
     let ctx;
-    for (ctx of this.favoriteFriends) {
+    for (ctx of this.store.favorite.favoriteFriends) {
         ctx.$selected = false;
     }
     for (ctx of this.favoriteWorlds) {
@@ -10405,7 +10185,6 @@ $app.computed.favoritesTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
-        favoriteFriends: this.favoriteFriends,
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
         favoriteWorlds: this.favoriteWorlds,
         localWorldFavoriteGroups: this.localWorldFavoriteGroups,
