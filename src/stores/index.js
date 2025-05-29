@@ -9,6 +9,7 @@ import { useAvatarProviderStore } from './avatarProvider';
 import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
 import { usePhotonStore } from './photon';
+import { useUserStore } from './user';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
 
 export const pinia = createPinia();
@@ -25,6 +26,7 @@ export function createGlobalStores() {
         debug: useDebugStore(),
         friend: useFriendStore(),
         photon: usePhotonStore(),
+        user: useUserStore(),
         vrcxUpdater: useVRCXUpdaterStore()
     };
 }

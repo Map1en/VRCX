@@ -108,7 +108,7 @@ export default function init() {
             travelingToInstance = json.presence.travelingToInstance;
             travelingToWorld = json.presence.travelingToWorld;
         }
-        this.applyUser({
+        $app.store.user.applyUser({
             allowAvatarCopying: json.allowAvatarCopying,
             badges: json.badges,
             bio: json.bio,
@@ -184,8 +184,8 @@ export default function init() {
                 }
             }
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            this.applyUserTrustLevel(ref);
-            this.applyUserLanguage(ref);
+            $app.store.user.applyUserTrustLevel(ref);
+            $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
             this.applyQueuedInstance(ref.queuedInstance);
             this.applyPresenceGroups(ref);
@@ -298,8 +298,8 @@ export default function init() {
             }
             ref.$homeLocation = parseLocation(ref.homeLocation);
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            this.applyUserTrustLevel(ref);
-            this.applyUserLanguage(ref);
+            $app.store.user.applyUserTrustLevel(ref);
+            $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
             this.applyPresenceGroups(ref);
             this.currentUser = ref;

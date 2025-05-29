@@ -1059,7 +1059,7 @@ export default function init(app) {
                     typeof ref.id !== 'undefined' &&
                     ref.currentAvatarImageUrl !== user.currentAvatarImageUrl
                 ) {
-                    API.applyUser({
+                    this.store.user.applyUser({
                         ...ref,
                         currentAvatarImageUrl: user.currentAvatarImageUrl,
                         currentAvatarThumbnailImageUrl:

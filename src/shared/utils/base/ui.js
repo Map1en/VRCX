@@ -1,3 +1,6 @@
+import { storeToRefs } from 'pinia';
+import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+
 function systemIsDarkMode() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
@@ -148,10 +151,75 @@ function refreshCustomScript() {
     });
 }
 
+function HueToHex(hue) {
+    const appSettingsStore = useAppearanceSettingsStore();
+    const { isDarkMode } = storeToRefs(appSettingsStore);
+    // this.HSVtoRGB(hue / 65535, .8, .8);
+    if (isDarkMode.value) {
+        return HSVtoRGB(hue / 65535, 0.6, 1);
+    }
+    return HSVtoRGB(hue / 65535, 1, 0.7);
+}
+
+function HSVtoRGB(h, s, v) {
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    if (arguments.length === 1) {
+        s = h.s;
+        v = h.v;
+        h = h.h;
+    }
+    const i = Math.floor(h * 6);
+    const f = h * 6 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        case 5:
+            r = v;
+            g = p;
+            b = q;
+            break;
+    }
+    const red = Math.round(r * 255);
+    const green = Math.round(g * 255);
+    const blue = Math.round(b * 255);
+    const decColor = 0x1000000 + blue + 0x100 * green + 0x10000 * red;
+    return `#${decColor.toString(16).substr(1)}`;
+}
+
 export {
     changeAppThemeStyle,
     changeCJKFontsOrder,
     updateTrustColorClasses,
     refreshCustomCss,
-    refreshCustomScript
+    refreshCustomScript,
+    HueToHex,
+    HSVtoRGB
 };

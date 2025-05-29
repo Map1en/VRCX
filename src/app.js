@@ -129,7 +129,9 @@ import {
     getWorldName,
     getGroupName,
     refreshCustomCss,
-    refreshCustomScript
+    refreshCustomScript,
+    getNameColour,
+    HueToHex
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -551,7 +553,7 @@ API.$on('USER', function (args) {
         return;
     }
     if (args.json.state === 'online') {
-        args.ref = this.applyUser(args.json); // GPS
+        args.ref = $app.store.user.applyUser(args.json); // GPS
         $app.store.friend.updateFriend({
             id: args.json.id,
             state: args.json.state
@@ -561,7 +563,7 @@ API.$on('USER', function (args) {
             id: args.json.id,
             state: args.json.state
         }); // online/offline
-        args.ref = this.applyUser(args.json); // GPS
+        args.ref = $app.store.user.applyUser(args.json); // GPS
     }
 });
 
@@ -579,90 +581,6 @@ API.$on('USER:LIST', function (args) {
         });
     }
 });
-
-API.applyUserTrustLevel = function (ref) {
-    ref.$isModerator = ref.developerType && ref.developerType !== 'none';
-    ref.$isTroll = false;
-    ref.$isProbableTroll = false;
-    let trustColor = '';
-    let { tags } = ref;
-    if (tags.includes('admin_moderator')) {
-        ref.$isModerator = true;
-    }
-    if (tags.includes('system_troll')) {
-        ref.$isTroll = true;
-    }
-    if (tags.includes('system_probable_troll') && !ref.$isTroll) {
-        ref.$isProbableTroll = true;
-    }
-    if (tags.includes('system_trust_veteran')) {
-        ref.$trustLevel = 'Trusted User';
-        ref.$trustClass = 'x-tag-veteran';
-        trustColor = 'veteran';
-        ref.$trustSortNum = 5;
-    } else if (tags.includes('system_trust_trusted')) {
-        ref.$trustLevel = 'Known User';
-        ref.$trustClass = 'x-tag-trusted';
-        trustColor = 'trusted';
-        ref.$trustSortNum = 4;
-    } else if (tags.includes('system_trust_known')) {
-        ref.$trustLevel = 'User';
-        ref.$trustClass = 'x-tag-known';
-        trustColor = 'known';
-        ref.$trustSortNum = 3;
-    } else if (tags.includes('system_trust_basic')) {
-        ref.$trustLevel = 'New User';
-        ref.$trustClass = 'x-tag-basic';
-        trustColor = 'basic';
-        ref.$trustSortNum = 2;
-    } else {
-        ref.$trustLevel = 'Visitor';
-        ref.$trustClass = 'x-tag-untrusted';
-        trustColor = 'untrusted';
-        ref.$trustSortNum = 1;
-    }
-    if (ref.$isTroll || ref.$isProbableTroll) {
-        trustColor = 'troll';
-        ref.$trustSortNum += 0.1;
-    }
-    if (ref.$isModerator) {
-        trustColor = 'vip';
-        ref.$trustSortNum += 0.3;
-    }
-    if (
-        $app.store.appearanceSettings.randomUserColours &&
-        $app.store.friend.friendLogInitStatus
-    ) {
-        if (!ref.$userColour) {
-            $app.getNameColour(ref.id).then((colour) => {
-                ref.$userColour = colour;
-            });
-        }
-    } else {
-        ref.$userColour = $app.store.appearanceSettings.trustColor[trustColor];
-    }
-};
-
-API.applyUserLanguage = function (ref) {
-    if (!ref || !ref.tags || !$app.subsetOfLanguages) {
-        return;
-    }
-
-    ref.$languages = [];
-    const languagePrefix = 'language_';
-    const prefixLength = languagePrefix.length;
-
-    for (const tag of ref.tags) {
-        if (tag.startsWith(languagePrefix)) {
-            const key = tag.substring(prefixLength);
-            const value = $app.subsetOfLanguages[key];
-
-            if (value !== undefined) {
-                ref.$languages.push({ key, value });
-            }
-        }
-    }
-};
 
 API.applyPresenceLocation = function (ref) {
     const presence = ref.presence;
@@ -705,243 +623,6 @@ API.applyPresenceGroups = function (ref) {
             $app.onGroupLeft(groupId);
         }
     }
-};
-
-API.applyUser = function (json) {
-    let ref = this.cachedUsers.get(json.id);
-    if (typeof json.statusDescription !== 'undefined') {
-        json.statusDescription = replaceBioSymbols(json.statusDescription);
-        json.statusDescription = $app.removeEmojis(json.statusDescription);
-    }
-    if (typeof json.bio !== 'undefined') {
-        json.bio = replaceBioSymbols(json.bio);
-    }
-    if (typeof json.note !== 'undefined') {
-        json.note = replaceBioSymbols(json.note);
-    }
-    if (json.currentAvatarImageUrl === $app.robotUrl) {
-        delete json.currentAvatarImageUrl;
-        delete json.currentAvatarThumbnailImageUrl;
-    }
-    if (typeof ref === 'undefined') {
-        ref = {
-            ageVerificationStatus: '',
-            ageVerified: false,
-            allowAvatarCopying: false,
-            badges: [],
-            bio: '',
-            bioLinks: [],
-            currentAvatarImageUrl: '',
-            currentAvatarTags: [],
-            currentAvatarThumbnailImageUrl: '',
-            date_joined: '',
-            developerType: '',
-            displayName: '',
-            friendKey: '',
-            friendRequestStatus: '',
-            id: '',
-            instanceId: '',
-            isFriend: false,
-            last_activity: '',
-            last_login: '',
-            last_mobile: null,
-            last_platform: '',
-            location: '',
-            platform: '',
-            note: '',
-            profilePicOverride: '',
-            profilePicOverrideThumbnail: '',
-            pronouns: '',
-            state: '',
-            status: '',
-            statusDescription: '',
-            tags: [],
-            travelingToInstance: '',
-            travelingToLocation: '',
-            travelingToWorld: '',
-            userIcon: '',
-            worldId: '',
-            // only in bulk request
-            fallbackAvatar: '',
-            // VRCX
-            $location: {},
-            $location_at: Date.now(),
-            $online_for: Date.now(),
-            $travelingToTime: Date.now(),
-            $offline_for: '',
-            $active_for: Date.now(),
-            $isVRCPlus: false,
-            $isModerator: false,
-            $isTroll: false,
-            $isProbableTroll: false,
-            $trustLevel: 'Visitor',
-            $trustClass: 'x-tag-untrusted',
-            $userColour: '',
-            $trustSortNum: 1,
-            $languages: [],
-            $joinCount: 0,
-            $timeSpent: 0,
-            $lastSeen: '',
-            $nickName: '',
-            $previousLocation: '',
-            $customTag: '',
-            $customTagColour: '',
-            $friendNumber: 0,
-            //
-            ...json
-        };
-        if ($app.lastLocation.playerList.has(json.id)) {
-            // update $location_at from instance join time
-            const player = $app.lastLocation.playerList.get(json.id);
-            ref.$location_at = player.joinTime;
-            ref.$online_for = player.joinTime;
-        }
-        if (ref.location === 'traveling') {
-            ref.$location = parseLocation(ref.travelingToLocation);
-            if (!this.currentTravelers.has(ref.id) && ref.travelingToLocation) {
-                const travelRef = {
-                    created_at: new Date().toJSON(),
-                    ...ref
-                };
-                this.currentTravelers.set(ref.id, travelRef);
-                $app.sharedFeed.pendingUpdate = true;
-                $app.updateSharedFeed(false);
-                $app.onPlayerTraveling(travelRef);
-            }
-        } else {
-            ref.$location = parseLocation(ref.location);
-            if (this.currentTravelers.has(ref.id)) {
-                this.currentTravelers.delete(ref.id);
-                $app.sharedFeed.pendingUpdate = true;
-                $app.updateSharedFeed(false);
-            }
-        }
-        if (ref.isFriend || ref.id === this.currentUser.id) {
-            // update instancePlayerCount
-            let newCount = $app.instancePlayerCount.get(ref.location);
-            if (typeof newCount === 'undefined') {
-                newCount = 0;
-            }
-            newCount++;
-            $app.instancePlayerCount.set(ref.location, newCount);
-        }
-        if ($app.customUserTags.has(json.id)) {
-            const tag = $app.customUserTags.get(json.id);
-            ref.$customTag = tag.tag;
-            ref.$customTagColour = tag.colour;
-        } else if (ref.$customTag) {
-            ref.$customTag = '';
-            ref.$customTagColour = '';
-        }
-        ref.$isVRCPlus = ref.tags.includes('system_supporter');
-        this.applyUserTrustLevel(ref);
-        this.applyUserLanguage(ref);
-        this.cachedUsers.set(ref.id, ref);
-    } else {
-        const props = {};
-        for (const prop in ref) {
-            if (ref[prop] !== Object(ref[prop])) {
-                props[prop] = true;
-            }
-        }
-        const $ref = { ...ref };
-        Object.assign(ref, json);
-        ref.$isVRCPlus = ref.tags.includes('system_supporter');
-        this.applyUserTrustLevel(ref);
-        this.applyUserLanguage(ref);
-        // traveling
-        if (ref.location === 'traveling') {
-            ref.$location = parseLocation(ref.travelingToLocation);
-            if (!this.currentTravelers.has(ref.id)) {
-                const travelRef = {
-                    created_at: new Date().toJSON(),
-                    ...ref
-                };
-                this.currentTravelers.set(ref.id, travelRef);
-                $app.sharedFeed.pendingUpdate = true;
-                $app.updateSharedFeed(false);
-                $app.onPlayerTraveling(travelRef);
-            }
-        } else {
-            ref.$location = parseLocation(ref.location);
-            if (this.currentTravelers.has(ref.id)) {
-                this.currentTravelers.delete(ref.id);
-                $app.sharedFeed.pendingUpdate = true;
-                $app.updateSharedFeed(false);
-            }
-        }
-        for (const prop in ref) {
-            if (Array.isArray(ref[prop]) && Array.isArray($ref[prop])) {
-                if (!arraysMatch(ref[prop], $ref[prop])) {
-                    props[prop] = true;
-                }
-            } else if (ref[prop] !== Object(ref[prop])) {
-                props[prop] = true;
-            }
-        }
-        let has = false;
-        for (const prop in props) {
-            const asis = $ref[prop];
-            const tobe = ref[prop];
-            if (asis === tobe) {
-                delete props[prop];
-            } else {
-                has = true;
-                props[prop] = [tobe, asis];
-            }
-        }
-        // FIXME
-        // if the status is offline, just ignore status and statusDescription only.
-        if (has && ref.status !== 'offline' && $ref.status !== 'offline') {
-            if (props.location && props.location[0] !== 'traveling') {
-                const ts = Date.now();
-                props.location.push(ts - ref.$location_at);
-                ref.$location_at = ts;
-            }
-            API.$emit('USER:UPDATE', {
-                ref,
-                props
-            });
-            if ($app.debugUserDiff) {
-                delete props.last_login;
-                delete props.last_activity;
-                if (Object.keys(props).length !== 0) {
-                    console.log('>', ref.displayName, props);
-                }
-            }
-        }
-    }
-    if (
-        ref.$isVRCPlus &&
-        ref.badges &&
-        ref.badges.every(
-            (x) => x.badgeId !== 'bdg_754f9935-0f97-49d8-b857-95afb9b673fa'
-        )
-    ) {
-        // I doubt this will last long
-        ref.badges.unshift({
-            badgeId: 'bdg_754f9935-0f97-49d8-b857-95afb9b673fa',
-            badgeName: 'Supporter',
-            badgeDescription: 'Supports VRChat through VRC+',
-            badgeImageUrl:
-                'https://assets.vrchat.com/badges/fa/bdgai_8c9cf371-ffd2-4177-9894-1093e2e34bf7.png',
-            hidden: true,
-            showcased: false
-        });
-    }
-    const friendCtx = $app.store.friend.friends.get(ref.id);
-    if (friendCtx) {
-        friendCtx.ref = ref;
-        friendCtx.name = ref.displayName;
-    }
-    if (ref.id === this.currentUser.id) {
-        if (ref.status) {
-            this.currentUser.status = ref.status;
-        }
-        $app.updateCurrentUserLocation();
-    }
-    this.$emit('USER:APPLY', ref);
-    return ref;
 };
 
 // #endregion
@@ -2851,7 +2532,7 @@ API.$on('USER:CURRENT', function (args) {
     $app.store.friend.updateOnlineFriendCoutner();
 
     if ($app.store.appearanceSettings.randomUserColours) {
-        $app.getNameColour(this.currentUser.id).then((colour) => {
+        getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
         });
     }
@@ -3157,7 +2838,7 @@ API.$on('LOGIN', async function (args) {
     await $app.getAvatarHistory();
     await $app.getAllUserMemos();
     if ($app.store.appearanceSettings.randomUserColours) {
-        $app.getNameColour(this.currentUser.id).then((colour) => {
+        getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
         });
         await $app.userColourInit();
@@ -3253,7 +2934,6 @@ $app.methods.loadPlayerList = function () {
 };
 
 $app.data.instancePlayerCount = new Map();
-$app.data.robotUrl = `${API.endpointDomain}/file/file_0e8c4e32-7444-44ea-ade4-313c010d4bae/1/file`;
 
 API.$on('USER:UPDATE', async function (args) {
     let feed;
@@ -4359,7 +4039,7 @@ $app.methods.initFriendLog = async function (currentUser) {
     const sqlValues = [];
     const friends = await this.store.friend.refreshFriends();
     for (let friend of friends) {
-        const ref = API.applyUser(friend);
+        const ref = $app.store.user.applyUser(friend);
         const row = {
             userId: ref.id,
             displayName: ref.displayName,
@@ -5109,14 +4789,14 @@ $app.methods.updateTrustColor = async function (
         });
     }
     if (this.store.appearanceSettings.randomUserColours) {
-        this.getNameColour(API.currentUser.id).then((colour) => {
+        getNameColour(API.currentUser.id).then((colour) => {
             API.currentUser.$userColour = colour;
         });
         this.userColourInit();
     } else {
-        API.applyUserTrustLevel(API.currentUser);
+        this.store.user.applyUserTrustLevel(API.currentUser);
         API.cachedUsers.forEach((ref) => {
-            API.applyUserTrustLevel(ref);
+            this.store.user.applyUserTrustLevel(ref);
         });
     }
     updateTrustColorClasses(this.store.appearanceSettings.trustColor);
@@ -8716,19 +8396,6 @@ API.$on('EMOJI:ADD', function (args) {
 // #endregion
 // #region Misc
 
-$app.methods.removeEmojis = function (text) {
-    if (!text) {
-        return '';
-    }
-    return text
-        .replace(
-            /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
-            ''
-        )
-        .replace(/\s+/g, ' ')
-        .trim();
-};
-
 $app.methods.checkCanInvite = function (location) {
     const L = parseLocation(location);
     const instance = API.cachedInstances.get(location);
@@ -9273,11 +8940,6 @@ $app.methods.toggleCustomEndpoint = async function () {
     this.loginForm.websocket = '';
 };
 
-$app.methods.getNameColour = async function (userId) {
-    const hue = await AppApi.GetColourFromUserID(userId);
-    return this.HueToHex(hue);
-};
-
 $app.methods.userColourInit = async function () {
     let dictObject = await AppApi.GetColourBulk(
         Array.from(API.cachedUsers.keys())
@@ -9288,70 +8950,9 @@ $app.methods.userColourInit = async function () {
     for (let [userId, hue] of Object.entries(dictObject)) {
         const ref = API.cachedUsers.get(userId);
         if (typeof ref !== 'undefined') {
-            ref.$userColour = this.HueToHex(hue);
+            ref.$userColour = HueToHex(hue);
         }
     }
-};
-
-$app.methods.HueToHex = function (hue) {
-    // this.HSVtoRGB(hue / 65535, .8, .8);
-    if (this.store.appearanceSettings.isDarkMode) {
-        return this.HSVtoRGB(hue / 65535, 0.6, 1);
-    }
-    return this.HSVtoRGB(hue / 65535, 1, 0.7);
-};
-
-$app.methods.HSVtoRGB = function (h, s, v) {
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    if (arguments.length === 1) {
-        s = h.s;
-        v = h.v;
-        h = h.h;
-    }
-    const i = Math.floor(h * 6);
-    const f = h * 6 - i;
-    const p = v * (1 - s);
-    const q = v * (1 - f * s);
-    const t = v * (1 - (1 - f) * s);
-    switch (i % 6) {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
-        case 5:
-            r = v;
-            g = p;
-            b = q;
-            break;
-    }
-    const red = Math.round(r * 255);
-    const green = Math.round(g * 255);
-    const blue = Math.round(b * 255);
-    const decColor = 0x1000000 + blue + 0x100 * green + 0x10000 * red;
-    return `#${decColor.toString(16).substr(1)}`;
 };
 
 $app.methods.onPlayerTraveling = function (ref) {
@@ -11020,7 +10621,8 @@ $app.computed.searchTabBind = function () {
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
         userDialog: this.userDialog,
-        lookupAvatars: this.lookupAvatars
+        lookupAvatars: this.lookupAvatars,
+        moreSearchUser: this.moreSearchUser
     };
 };
 
@@ -11028,7 +10630,6 @@ $app.computed.searchTabEvent = function () {
     return {
         clearSearch: this.clearSearch,
         refreshUserDialogAvatars: this.refreshUserDialogAvatars,
-        moreSearchUser: this.moreSearchUser,
         'update:searchText': (value) => (this.searchText = value)
     };
 };

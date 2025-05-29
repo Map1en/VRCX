@@ -4,12 +4,12 @@ import { computed, reactive } from 'vue';
 export const useDebugStore = defineStore('Debug', () => {
     const state = reactive({
         debugWebRequests: false,
-        debugFriendState: false
+        debugFriendState: false,
+        debugUserDiff: false
 
         // $app.data.debug = false;
         // $app.data.debugWebRequests = false;
         // $app.data.debugWebSocket = false;
-        // $app.data.debugUserDiff = false;
         // $app.data.debugCurrentUserDiff = false;
         // $app.data.debugPhotonLogging = false;
         // $app.data.debugGameLog = false;
@@ -30,5 +30,12 @@ export const useDebugStore = defineStore('Debug', () => {
         }
     });
 
-    return { state, debugWebRequests, debugFriendState };
+    const debugUserDiff = computed({
+        get: () => state.debugUserDiff,
+        set: (value) => {
+            state.debugUserDiff = value;
+        }
+    });
+
+    return { state, debugWebRequests, debugFriendState, debugUserDiff };
 });
