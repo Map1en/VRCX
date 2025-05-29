@@ -3630,28 +3630,6 @@ $app.computed.groupedByGroupKeyFavoriteFriends = function () {
     return groupedByGroupKeyFavoriteFriends;
 };
 
-$app.computed.favoriteWorlds = function () {
-    if (this.sortFavoriteWorlds) {
-        this.sortFavoriteWorlds = false;
-        this.favoriteWorldsSorted.sort(compareByName);
-    }
-    if (this.store.appearanceSettings.sortFavorites) {
-        return this.favoriteWorlds_;
-    }
-    return this.favoriteWorldsSorted;
-};
-
-$app.computed.favoriteAvatars = function () {
-    if (this.sortFavoriteAvatars) {
-        this.sortFavoriteAvatars = false;
-        this.favoriteAvatarsSorted.sort(compareByName);
-    }
-    if (this.store.appearanceSettings.sortFavorites) {
-        return this.favoriteAvatars_;
-    }
-    return this.favoriteAvatarsSorted;
-};
-
 // #endregion
 // #region | App: friendLog
 
@@ -8986,7 +8964,7 @@ $app.methods.bulkCopyFavoriteSelection = function (type) {
             break;
 
         case 'world':
-            for (const ctx of this.favoriteWorlds) {
+            for (const ctx of this.store.favorite.favoriteWorlds) {
                 if (ctx.$selected) {
                     idList += `${ctx.id}\n`;
                 }
@@ -8996,7 +8974,7 @@ $app.methods.bulkCopyFavoriteSelection = function (type) {
             break;
 
         case 'avatar':
-            for (const ctx of this.favoriteAvatars) {
+            for (const ctx of this.store.favorite.favoriteAvatars) {
                 if (ctx.$selected) {
                     idList += `${ctx.id}\n`;
                 }
@@ -9016,10 +8994,10 @@ $app.methods.clearBulkFavoriteSelection = function () {
     for (ctx of this.store.favorite.favoriteFriends) {
         ctx.$selected = false;
     }
-    for (ctx of this.favoriteWorlds) {
+    for (ctx of this.store.favorite.favoriteWorlds) {
         ctx.$selected = false;
     }
-    for (ctx of this.favoriteAvatars) {
+    for (ctx of this.store.favorite.favoriteAvatars) {
         ctx.$selected = false;
     }
 };
@@ -10186,13 +10164,11 @@ $app.computed.favoritesTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
-        favoriteWorlds: this.favoriteWorlds,
         localWorldFavoriteGroups: this.localWorldFavoriteGroups,
         localWorldFavorites: this.localWorldFavorites,
         avatarHistoryArray: this.avatarHistoryArray,
         localAvatarFavoriteGroups: this.localAvatarFavoriteGroups,
         localAvatarFavorites: this.localAvatarFavorites,
-        favoriteAvatars: this.favoriteAvatars,
         localAvatarFavoritesList: this.localAvatarFavoritesList,
         localWorldFavoritesList: this.localWorldFavoritesList
     };

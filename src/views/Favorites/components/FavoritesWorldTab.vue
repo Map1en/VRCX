@@ -216,7 +216,6 @@
             </el-collapse-item>
         </el-collapse>
         <WorldExportDialog
-            :favorite-worlds="favoriteWorlds"
             :world-export-dialog-visible.sync="worldExportDialogVisible"
             :local-world-favorites="localWorldFavorites"
             :local-world-favorite-groups="localWorldFavoriteGroups"
@@ -231,6 +230,7 @@
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesWorldTab',
@@ -240,7 +240,6 @@
         },
         inject: ['showWorldDialog'],
         props: {
-            favoriteWorlds: Array,
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
             refreshingLocalFavorites: Boolean,
@@ -251,10 +250,13 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
+            const favoriteStore = useFavoriteStore();
+            const { favoriteWorlds } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
+                favoriteWorlds,
                 API
             };
         },

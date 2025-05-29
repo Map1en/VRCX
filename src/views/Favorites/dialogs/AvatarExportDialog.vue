@@ -80,19 +80,23 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'AvatarExportDialog',
         props: {
             avatarExportDialogVisible: Boolean,
-            favoriteAvatars: Array,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
             localAvatarFavoritesList: Array
         },
         setup() {
+            const favoriteStore = useFavoriteStore();
+            const { favoriteAvatars } = storeToRefs(favoriteStore);
             return {
+                favoriteAvatars,
                 API
             };
         },

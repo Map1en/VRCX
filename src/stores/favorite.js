@@ -18,9 +18,6 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
-    /**
-     * aka: `$app.computed.favoriteFriends`
-     */
     const favoriteFriends = computed(() => {
         if ($app.sortFavoriteFriends) {
             $app.sortFavoriteFriends = false;
@@ -32,9 +29,31 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         return $app.favoriteFriendsSorted;
     });
 
+    const favoriteWorlds = computed(() => {
+        if ($app.sortFavoriteWorlds) {
+            $app.sortFavoriteWorlds = false;
+            $app.favoriteWorldsSorted.sort(compareByName);
+        }
+        if ($app.store.appearanceSettings.sortFavorites) {
+            return $app.favoriteWorlds_;
+        }
+        return $app.favoriteWorldsSorted;
+    });
+
+    const favoriteAvatars = computed(() => {
+        if ($app.sortFavoriteAvatars) {
+            $app.sortFavoriteAvatars = false;
+            $app.favoriteAvatarsSorted.sort(compareByName);
+        }
+        if ($app.store.appearanceSettings.sortFavorites) {
+            return $app.favoriteAvatars_;
+        }
+        return $app.favoriteAvatarsSorted;
+    });
+
     /**
      * aka: `$app.methods.applyFavorite`
-     * @param {'friend' | 'world' | 'avatar'}type
+     * @param {'friend' | 'world' | 'avatar'} type
      * @param {string} objectId
      * @param {boolean} sortTop
      * @returns {Promise<void>}
@@ -209,6 +228,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
 
     return {
         favoriteFriends,
+        favoriteWorlds,
+        favoriteAvatars,
         applyFavorite
     };
 });

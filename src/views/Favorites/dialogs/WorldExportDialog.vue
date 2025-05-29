@@ -82,19 +82,22 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'WorldExportDialog',
         props: {
-            favoriteWorlds: Array,
             worldExportDialogVisible: Boolean,
             localWorldFavorites: Object,
             localWorldFavoriteGroups: Array,
             localWorldFavoritesList: Array
         },
         setup() {
-            return { API };
+            const favoriteStore = useFavoriteStore();
+            const { favoriteWorlds } = storeToRefs(favoriteStore);
+            return { favoriteWorlds, API };
         },
         data() {
             return {

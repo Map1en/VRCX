@@ -37,7 +37,6 @@
             </el-tab-pane>
             <el-tab-pane name="world" :label="$t('view.favorite.worlds.header')" lazy>
                 <FavoritesWorldTab
-                    :favorite-worlds="favoriteWorlds"
                     :hide-tooltips="hideTooltips"
                     :edit-favorites-mode="editFavoritesMode"
                     :shift-held="shiftHeld"
@@ -64,7 +63,6 @@
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     :local-avatar-favorite-groups="localAvatarFavoriteGroups"
                     :local-avatar-favorites="localAvatarFavorites"
-                    :favorite-avatars="favoriteAvatars"
                     :local-avatar-favorites-list="localAvatarFavoritesList"
                     @show-avatar-import-dialog="showAvatarImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
@@ -103,13 +101,11 @@
             menuActiveIndex: String,
             shiftHeld: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
-            favoriteWorlds: Array,
             localWorldFavoriteGroups: Array,
             localWorldFavorites: Object,
             avatarHistoryArray: Array,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            favoriteAvatars: Array,
             localAvatarFavoritesList: Array,
             localWorldFavoritesList: Array
         },
@@ -117,10 +113,12 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriends } = storeToRefs(favoriteStore);
+            const { favoriteFriends, favoriteWorlds, favoriteAvatars } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 favoriteFriends,
+                favoriteWorlds,
+                favoriteAvatars,
                 API
             };
         },

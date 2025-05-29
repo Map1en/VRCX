@@ -225,7 +225,6 @@
         </el-collapse>
         <AvatarExportDialog
             :avatar-export-dialog-visible.sync="avatarExportDialogVisible"
-            :favorite-avatars="favoriteAvatars"
             :local-avatar-favorite-groups="localAvatarFavoriteGroups"
             :local-avatar-favorites="localAvatarFavorites"
             :local-avatar-favorites-list="localAvatarFavoritesList" />
@@ -240,6 +239,7 @@
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesAvatarTab',
@@ -252,17 +252,19 @@
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
             localAvatarFavorites: Object,
-            favoriteAvatars: Array,
             localAvatarFavoritesList: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites } = storeToRefs(appearanceSettingsStore);
             const { setSortFavorites } = appearanceSettingsStore;
+            const favoriteStore = useFavoriteStore();
+            const { favoriteAvatars } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
+                favoriteAvatars,
                 API
             };
         },
