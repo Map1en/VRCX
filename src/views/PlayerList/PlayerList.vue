@@ -834,7 +834,7 @@
     import { storeToRefs } from 'pinia';
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { languageClass, getFaviconUrl, openExternalLink } from '../../shared/utils';
+    import { languageClass, getFaviconUrl, openExternalLink, statusClass } from '../../shared/utils';
     import configRepository from '../../service/config';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
@@ -854,7 +854,6 @@
     const showUserDialog = inject('showUserDialog');
     const showLaunchDialog = inject('showLaunchDialog');
     const showAvatarDialog = inject('showAvatarDialog');
-    const statusClass = inject('statusClass');
     const showGroupDialog = inject('showGroupDialog');
     const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');

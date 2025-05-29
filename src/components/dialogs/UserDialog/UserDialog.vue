@@ -1843,7 +1843,8 @@
         refreshInstancePlayerCount,
         replaceBioSymbols,
         timeToText,
-        userOnlineForTimestamp
+        userOnlineForTimestamp,
+        userStatusClass
     } from '../../../shared/utils';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -1880,7 +1881,6 @@
     const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
-    const userStatusClass = inject('userStatusClass');
 
     const props = defineProps({
         userDialog: {

@@ -176,7 +176,7 @@
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
-    import { isRealInstance as _isRealInstance } from '../../../shared/utils';
+    import { isRealInstance, userStatusClass } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -188,7 +188,7 @@
             FriendItem,
             Location
         },
-        inject: ['showUserDialog', 'userImage', 'userStatusClass'],
+        inject: ['showUserDialog', 'userImage'],
         props: {
             isGameRunning: Boolean,
             lastLocation: Object,
@@ -212,7 +212,9 @@
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
-                API
+                API,
+                userStatusClass,
+                isRealInstance
             };
         },
 
@@ -341,9 +343,6 @@
                     'VRCX_sidebarGroupByInstanceCollapsed',
                     false
                 );
-            },
-            isRealInstance(locationTag) {
-                return _isRealInstance(locationTag);
             },
             toggleSwitchGroupByInstanceCollapsed() {
                 this.isSidebarGroupByInstanceCollapsed = !this.isSidebarGroupByInstanceCollapsed;

@@ -67,13 +67,14 @@
     import { useFriendStore } from '../stores/friend';
     import { useAppearanceSettingsStore } from '../stores/settings/appearance';
     import Location from './Location.vue';
+    import { userStatusClass } from '../shared/utils';
 
     export default {
         name: 'FriendItem',
         components: {
             Location
         },
-        inject: ['userImage', 'userStatusClass'],
+        inject: ['userImage'],
         props: {
             friend: {
                 type: Object,
@@ -88,7 +89,8 @@
             const { isRefreshFriendsLoading } = storeToRefs(friendStore);
             return {
                 hideNicknames,
-                isRefreshFriendsLoading
+                isRefreshFriendsLoading,
+                userStatusClass
             };
         },
         computed: {

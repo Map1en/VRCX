@@ -274,19 +274,20 @@
     import { friendRequest, userRequest } from '../../api';
     import removeConfusables, { removeWhitespace } from '../../service/confusables';
     import {
-        getFaviconUrl as _getFaviconUrl,
-        languageClass as _languageClass,
+        getFaviconUrl,
+        languageClass,
         localeIncludes,
-        sortStatus as _sortStatus,
-        timeToText as _timeToText,
-        openExternalLink
+        sortStatus,
+        timeToText,
+        openExternalLink,
+        statusClass
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 
     export default {
         name: 'FriendListTab',
-        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog', 'statusClass'],
+        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'showUserDialog'],
         props: {
             confirmDeleteFriend: Function,
             friendsListSearch: String,
@@ -302,7 +303,13 @@
                 appLanguage,
                 hideTooltips,
                 randomUserColours,
-                friends
+                friends,
+                getFaviconUrl,
+                languageClass,
+                sortStatus,
+                timeToText,
+                openExternalLink,
+                statusClass
             };
         },
         data() {
@@ -344,13 +351,6 @@
             }
         },
         methods: {
-            openExternalLink,
-            sortStatus(a, b) {
-                return _sortStatus(a, b);
-            },
-            languageClass(key) {
-                return _languageClass(key);
-            },
             friendsListSearchChange() {
                 this.friendsListLoading = true;
                 let query = '';
@@ -515,12 +515,6 @@
                 sortedA.sort();
                 sortedB.sort();
                 return JSON.stringify(sortedA).localeCompare(JSON.stringify(sortedB));
-            },
-            timeToText(val) {
-                return _timeToText(val);
-            },
-            getFaviconUrl(link) {
-                return _getFaviconUrl(link);
             }
         }
     };

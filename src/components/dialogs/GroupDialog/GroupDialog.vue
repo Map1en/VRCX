@@ -1180,7 +1180,8 @@
         languageClass,
         openExternalLink,
         refreshInstancePlayerCount,
-        removeFromArray
+        removeFromArray,
+        userStatusClass
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import Location from '../../Location.vue';
@@ -1190,7 +1191,6 @@
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showUserDialog = inject('showUserDialog');
-    const userStatusClass = inject('userStatusClass');
     const userImage = inject('userImage');
     const adjustDialogZ = inject('adjustDialogZ');
 

@@ -497,9 +497,10 @@
     import configRepository from '../../service/config';
     import {
         getLaunchURL,
-        hasGroupPermission as _hasGroupPermission,
+        hasGroupPermission,
         isRealInstance,
-        parseLocation
+        parseLocation,
+        userStatusClass
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
@@ -508,7 +509,7 @@
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['userImage', 'userStatusClass', 'showLaunchDialog', 'adjustDialogZ'],
+        inject: ['userImage', 'showLaunchDialog', 'adjustDialogZ'],
         props: {
             instanceContentSettings: {
                 type: Array,
@@ -544,7 +545,9 @@
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
-                API
+                API,
+                userStatusClass,
+                hasGroupPermission
             };
         },
         data() {
@@ -915,9 +918,6 @@
                     });
                     console.error(error.message);
                 }
-            },
-            hasGroupPermission(ref, permission) {
-                return _hasGroupPermission(ref, permission);
             }
         }
     };

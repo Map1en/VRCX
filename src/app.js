@@ -313,10 +313,8 @@ const app = {
             showUserDialog: this.showUserDialog,
             adjustDialogZ: this.adjustDialogZ,
             userImage: this.userImage,
-            userStatusClass: this.userStatusClass,
             userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
-            statusClass: this.statusClass,
             showWorldDialog: this.showWorldDialog,
             showAvatarDialog: this.showAvatarDialog,
             showPreviousInstancesInfoDialog:
@@ -2560,97 +2558,6 @@ API.$on('FAVORITE', function (args) {
 API.$on('FAVORITE:@DELETE', function (args) {
     $app.store.friend.updateFriend({ id: args.ref.favoriteId });
 });
-
-$app.methods.userStatusClass = function (user, pendingOffline) {
-    const style = {};
-    if (typeof user === 'undefined') {
-        return style;
-    }
-    let id = '';
-    if (user.id) {
-        id = user.id;
-    } else if (user.userId) {
-        id = user.userId;
-    }
-    if (id === API.currentUser.id) {
-        return this.statusClass(user.status);
-    }
-    if (!user.isFriend) {
-        return style;
-    }
-    if (pendingOffline) {
-        // Pending offline
-        style.offline = true;
-    } else if (
-        user.status !== 'active' &&
-        user.location === 'private' &&
-        user.state === '' &&
-        id &&
-        !API.currentUser.onlineFriends.includes(id)
-    ) {
-        // temp fix
-        if (API.currentUser.activeFriends.includes(id)) {
-            // Active
-            style.active = true;
-        } else {
-            // Offline
-            style.offline = true;
-        }
-    } else if (user.state === 'active') {
-        // Active
-        style.active = true;
-    } else if (user.location === 'offline') {
-        // Offline
-        style.offline = true;
-    } else if (user.status === 'active') {
-        // Online
-        style.online = true;
-    } else if (user.status === 'join me') {
-        // Join Me
-        style.joinme = true;
-    } else if (user.status === 'ask me') {
-        // Ask Me
-        style.askme = true;
-    } else if (user.status === 'busy') {
-        // Do Not Disturb
-        style.busy = true;
-    }
-    if (
-        user.platform &&
-        user.platform !== 'standalonewindows' &&
-        user.platform !== 'web'
-    ) {
-        style.mobile = true;
-    }
-    if (
-        user.last_platform &&
-        user.last_platform !== 'standalonewindows' &&
-        user.platform === 'web'
-    ) {
-        style.mobile = true;
-    }
-    return style;
-};
-
-$app.methods.statusClass = function (status) {
-    const style = {};
-    if (typeof status !== 'undefined') {
-        if (status === 'active') {
-            // Online
-            style.online = true;
-        } else if (status === 'join me') {
-            // Join Me
-            style.joinme = true;
-        } else if (status === 'ask me') {
-            // Ask Me
-            style.askme = true;
-        } else if (status === 'busy') {
-            // Do Not Disturb
-            style.busy = true;
-        }
-    }
-    return style;
-};
 
 $app.methods.confirmDeleteFriend = function (id) {
     this.$confirm('Continue? Unfriend', 'Confirm', {

@@ -327,7 +327,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import Location from '../../components/Location.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { timeToText } from '../../shared/utils';
+    import { timeToText, statusClass } from '../../shared/utils';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -335,7 +335,6 @@
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const statusClass = inject('statusClass');
     const showUserDialog = inject('showUserDialog');
 
     defineProps({

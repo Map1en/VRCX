@@ -1,3 +1,5 @@
+import { $app } from '../../app';
+import API from '../../classes/apiInit';
 import { languageMappings } from '../constants';
 import { HueToHex } from './base/ui';
 
@@ -41,4 +43,102 @@ function removeEmojis(text) {
         .trim();
 }
 
-export { userOnlineForTimestamp, languageClass, getNameColour, removeEmojis };
+function userStatusClass(user, pendingOffline) {
+    const style = {};
+    if (typeof user === 'undefined') {
+        return style;
+    }
+    let id = '';
+    if (user.id) {
+        id = user.id;
+    } else if (user.userId) {
+        id = user.userId;
+    }
+    if (id === API.currentUser.id) {
+        return statusClass(user.status);
+    }
+    if (!user.isFriend) {
+        return style;
+    }
+    if (pendingOffline) {
+        // Pending offline
+        style.offline = true;
+    } else if (
+        user.status !== 'active' &&
+        user.location === 'private' &&
+        user.state === '' &&
+        id &&
+        !API.currentUser.onlineFriends.includes(id)
+    ) {
+        // temp fix
+        if (API.currentUser.activeFriends.includes(id)) {
+            // Active
+            style.active = true;
+        } else {
+            // Offline
+            style.offline = true;
+        }
+    } else if (user.state === 'active') {
+        // Active
+        style.active = true;
+    } else if (user.location === 'offline') {
+        // Offline
+        style.offline = true;
+    } else if (user.status === 'active') {
+        // Online
+        style.online = true;
+    } else if (user.status === 'join me') {
+        // Join Me
+        style.joinme = true;
+    } else if (user.status === 'ask me') {
+        // Ask Me
+        style.askme = true;
+    } else if (user.status === 'busy') {
+        // Do Not Disturb
+        style.busy = true;
+    }
+    if (
+        user.platform &&
+        user.platform !== 'standalonewindows' &&
+        user.platform !== 'web'
+    ) {
+        style.mobile = true;
+    }
+    if (
+        user.last_platform &&
+        user.last_platform !== 'standalonewindows' &&
+        user.platform === 'web'
+    ) {
+        style.mobile = true;
+    }
+    return style;
+}
+
+function statusClass(status) {
+    const style = {};
+    if (typeof status !== 'undefined') {
+        if (status === 'active') {
+            // Online
+            style.online = true;
+        } else if (status === 'join me') {
+            // Join Me
+            style.joinme = true;
+        } else if (status === 'ask me') {
+            // Ask Me
+            style.askme = true;
+        } else if (status === 'busy') {
+            // Do Not Disturb
+            style.busy = true;
+        }
+    }
+    return style;
+}
+
+export {
+    userOnlineForTimestamp,
+    languageClass,
+    getNameColour,
+    removeEmojis,
+    userStatusClass,
+    statusClass
+};

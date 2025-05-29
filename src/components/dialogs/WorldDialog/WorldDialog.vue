@@ -775,12 +775,13 @@
     import database from '../../../service/database.js';
     import {
         buildTreeData,
-        downloadAndSaveJson as _downloadAndSaveJson,
+        downloadAndSaveJson,
         extractFileId,
         openExternalLink,
-        refreshInstancePlayerCount as _refreshInstancePlayerCount,
-        replaceVrcPackageUrl as _replaceVrcPackageUrl,
-        timeToText
+        refreshInstancePlayerCount,
+        replaceVrcPackageUrl,
+        timeToText,
+        userStatusClass
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
@@ -803,7 +804,6 @@
         },
         inject: [
             'showUserDialog',
-            'userStatusClass',
             'userImage',
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
@@ -833,7 +833,11 @@
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
-                API
+                API,
+                downloadAndSaveJson,
+                refreshInstancePlayerCount,
+                replaceVrcPackageUrl,
+                userStatusClass
             };
         },
         data() {
@@ -1137,12 +1141,6 @@
                         break;
                 }
             },
-            replaceVrcPackageUrl(url) {
-                _replaceVrcPackageUrl(url);
-            },
-            refreshInstancePlayerCount(tag) {
-                _refreshInstancePlayerCount(tag);
-            },
             onWorldMemoChange() {
                 const worldId = this.worldDialog.id;
                 const memo = this.worldDialog.memo;
@@ -1166,9 +1164,6 @@
             },
             refreshWorldDialogTreeData() {
                 this.treeData = buildTreeData(this.worldDialog.ref);
-            },
-            downloadAndSaveJson(fileName, data) {
-                _downloadAndSaveJson(fileName, data);
             },
             copyWorldId() {
                 navigator.clipboard
