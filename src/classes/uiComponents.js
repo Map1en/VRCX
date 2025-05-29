@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import VueMarkdown from 'vue-markdown';
 import { instanceRequest, userRequest } from '../api';
 import { $app, API } from '../app.js';
 import {
@@ -9,8 +8,6 @@ import {
 } from '../shared/utils';
 
 export default function init() {
-    Vue.component('VueMarkdown', VueMarkdown);
-
     Vue.component('Launch', {
         props: {
             location: String,

@@ -39,6 +39,8 @@
     import { useVRCXUpdaterStore } from '../../../stores/vrcxUpdater';
     import { openExternalLink } from '../../../shared/utils';
 
+    const VueMarkdown = () => import('vue-markdown');
+
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 
     const { changeLogDialog } = storeToRefs(VRCXUpdaterStore);
