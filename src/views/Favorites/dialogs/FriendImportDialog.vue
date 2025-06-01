@@ -43,7 +43,7 @@
                         ></span>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <template v-for="groupAPI in API.favoriteFriendGroups">
+                        <template v-for="groupAPI in favoriteFriendGroups">
                             <el-dropdown-item
                                 :key="groupAPI.name"
                                 style="display: block; margin: 10px 0"
@@ -123,9 +123,11 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
     import { removeFromArray } from '../../../shared/utils';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useUserStore } from '../../../stores/user';
 
     export default {
@@ -145,7 +147,9 @@
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
-            return { API, showUserDialog };
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            return { API, showUserDialog, favoriteFriendGroups };
         },
         data() {
             return {

@@ -21,7 +21,7 @@
         </div>
         <span style="display: block; margin-top: 30px">{{ $t('view.favorite.avatars.vrchat_favorites') }}</span>
         <el-collapse style="border: 0">
-            <el-collapse-item v-for="group in API.favoriteFriendGroups" :key="group.name">
+            <el-collapse-item v-for="group in favoriteFriendGroups" :key="group.name">
                 <template slot="title">
                     <span
                         style="font-weight: bold; font-size: 14px; margin-left: 10px"
@@ -80,6 +80,7 @@
     import { API } from '../../../app';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
 
@@ -96,12 +97,15 @@
             const setSortFavorites = appearanceSettingsStore;
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 API,
-                showUserDialog
+                showUserDialog,
+                favoriteFriendGroups
             };
         },
         data() {

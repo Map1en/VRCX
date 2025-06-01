@@ -59,7 +59,7 @@
             {{ $t('view.favorite.avatars.vrchat_favorites') }}
         </span>
         <el-collapse style="border: 0">
-            <el-collapse-item v-for="group in API.favoriteAvatarGroups" :key="group.name">
+            <el-collapse-item v-for="group in favoriteAvatarGroups" :key="group.name">
                 <template slot="title">
                     <span style="font-weight: bold; font-size: 14px; margin-left: 10px" v-text="group.displayName" />
                     <span style="color: #909399; font-size: 12px; margin-left: 10px">
@@ -259,12 +259,13 @@
             const { hideTooltips, sortFavorites } = storeToRefs(appearanceSettingsStore);
             const { setSortFavorites } = appearanceSettingsStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars } = storeToRefs(favoriteStore);
+            const { favoriteAvatars, favoriteAvatarGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 favoriteAvatars,
+                favoriteAvatarGroups,
                 API
             };
         },

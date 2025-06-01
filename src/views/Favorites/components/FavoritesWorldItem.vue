@@ -21,7 +21,7 @@
                             <el-button type="default" icon="el-icon-back" size="mini" circle></el-button>
                         </el-tooltip>
                         <el-dropdown-menu slot="dropdown">
-                            <template v-for="groupAPI in API.favoriteWorldGroups">
+                            <template v-for="groupAPI in favoriteWorldGroups">
                                 <el-dropdown-item
                                     v-if="isLocalFavorite || groupAPI.name !== group.name"
                                     :key="groupAPI.name"
@@ -133,6 +133,7 @@
     import { favoriteRequest } from '../../../api';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesWorldItem',
@@ -147,9 +148,12 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const favoriteStore = useFavoriteStore();
+            const { favoriteWorldGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
-                API
+                API,
+                favoriteWorldGroups
             };
         },
         computed: {

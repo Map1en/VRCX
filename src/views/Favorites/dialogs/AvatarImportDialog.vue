@@ -43,7 +43,7 @@
                         </span>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <template v-for="groupAPI in API.favoriteAvatarGroups">
+                        <template v-for="groupAPI in favoriteAvatarGroups">
                             <el-dropdown-item
                                 :key="groupAPI.name"
                                 style="display: block; margin: 10px 0"
@@ -172,10 +172,12 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { avatarRequest, favoriteRequest } from '../../../api';
     import { API } from '../../../app';
     import { removeFromArray } from '../../../shared/utils';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'AvatarImportDialog',
@@ -189,9 +191,12 @@
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const favoriteStore = useFavoriteStore();
+            const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
             return {
                 API,
-                showUserDialog
+                showUserDialog,
+                favoriteAvatarGroups
             };
         },
         data() {

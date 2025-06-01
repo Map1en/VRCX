@@ -122,7 +122,7 @@
                         @change="updateLocalFavoriteFriends">
                         <el-option-group :label="t('view.settings.general.favorites.group_placeholder')">
                             <el-option
-                                v-for="group in API.favoriteFriendGroups"
+                                v-for="group in favoriteFriendGroups"
                                 :key="group.key"
                                 :label="group.displayName"
                                 :value="group.key"
@@ -1819,8 +1819,9 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref, getCurrentInstance } from 'vue';
+    import { ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useFavoriteStore } from '../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
@@ -1864,6 +1865,9 @@
     const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
 
     const { setAutoUpdateVRCX, checkForVRCXUpdate, showVRCXUpdateDialog, showChangeLogDialog } = VRCXUpdaterStore;
+
+    const favoriteStore = useFavoriteStore();
+    const { favoriteFriendGroups } = storeToRefs(favoriteStore);
 
     const {
         isStartAtWindowsStartup,

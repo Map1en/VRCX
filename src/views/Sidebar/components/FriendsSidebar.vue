@@ -182,6 +182,7 @@
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FriendsSidebar',
@@ -206,6 +207,8 @@
             const { gameLogDisabled } = storeToRefs(advancedSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
@@ -218,7 +221,8 @@
                 API,
                 userStatusClass,
                 isRealInstance,
-                showUserDialog
+                showUserDialog,
+                favoriteFriendGroups
             };
         },
 
@@ -312,7 +316,7 @@
 
                         if (filteredFriends.length > 0) {
                             const groupName =
-                                this.API.favoriteFriendGroups.find((item) => item.key === key)?.displayName || '';
+                                this.favoriteFriendGroups.find((item) => item.key === key)?.displayName || '';
                             result.push(filteredFriends.map((item) => ({ groupName, key, ...item })));
                         }
                     }

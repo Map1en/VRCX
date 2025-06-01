@@ -59,7 +59,7 @@
         </div>
         <span style="display: block; margin-top: 20px">{{ $t('view.favorite.worlds.vrchat_favorites') }}</span>
         <el-collapse style="border: 0">
-            <el-collapse-item v-for="group in API.favoriteWorldGroups" :key="group.name">
+            <el-collapse-item v-for="group in favoriteWorldGroups" :key="group.name">
                 <template slot="title">
                     <div style="display: flex; align-items: center">
                         <span
@@ -251,13 +251,14 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds } = storeToRefs(favoriteStore);
+            const { favoriteWorlds, favoriteWorldGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 favoriteWorlds,
-                API
+                API,
+                favoriteWorldGroups
             };
         },
         data() {

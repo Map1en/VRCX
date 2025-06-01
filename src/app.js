@@ -1491,47 +1491,29 @@ API.applyAvatarModeration = function (json) {
 // #endregion
 // #region | API: Favorite
 
-API.cachedFavorites = new Map();
 API.cachedFavoritesByObjectId = new Map();
-API.cachedFavoriteGroups = new Map();
-API.cachedFavoriteGroupsByTypeName = new Map();
-API.favoriteFriendGroups = [];
-API.favoriteWorldGroups = [];
 API.favoriteAvatarGroups = [];
-API.isFavoriteLoading = false;
 API.isFavoriteGroupLoading = false;
-API.favoriteLimits = {
-    maxFavoriteGroups: {
-        avatar: 6,
-        friend: 3,
-        world: 4
-    },
-    maxFavoritesPerGroup: {
-        avatar: 50,
-        friend: 150,
-        world: 100
-    }
-};
 
 API.$on('LOGIN', function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.currentUserGroupsInit = false;
-    this.cachedFavorites.clear();
+    $app.store.favorite.cachedFavorites.clear();
     this.cachedFavoritesByObjectId.clear();
-    this.cachedFavoriteGroups.clear();
-    this.cachedFavoriteGroupsByTypeName.clear();
+    $app.store.favorite.cachedFavoriteGroups.clear();
+    $app.store.favorite.cachedFavoriteGroupsByTypeName.clear();
     this.currentUserGroups.clear();
     this.queuedInstances.clear();
-    this.favoriteFriendGroups = [];
+    $app.store.favorite.favoriteFriendGroups = [];
     this.favoriteWorldGroups = [];
     this.favoriteAvatarGroups = [];
-    this.isFavoriteLoading = false;
+    $app.store.favorite.isFavoriteLoading = false;
     this.isFavoriteGroupLoading = false;
-    this.refreshFavorites();
+    $app.store.favorite.refreshFavorites();
 });
 
 API.$on('FAVORITE', function (args) {
-    const ref = this.applyFavorite(args.json);
+    const ref = $app.store.favorite.applyFavoriteCached(args.json);
     if (ref.$isDeleted) {
         return;
     }
@@ -1572,7 +1554,7 @@ API.$on('FAVORITE:ADD', function (args) {
         args.params.type === 'avatar' &&
         !API.cachedAvatars.has(args.params.favoriteId)
     ) {
-        this.refreshFavoriteAvatars(args.params.tags);
+        $app.store.favorite.refreshFavoriteAvatars(args.params.tags);
     }
 
     if (
@@ -1608,7 +1590,7 @@ API.$on('FAVORITE:DELETE', function (args) {
 });
 
 API.$on('FAVORITE:GROUP', function (args) {
-    const ref = this.applyFavoriteGroup(args.json);
+    const ref = $app.store.favorite.applyFavoriteGroup(args.json);
     if (ref.$isDeleted) {
         return;
     }
@@ -1641,7 +1623,7 @@ API.$on('FAVORITE:GROUP:SAVE', function (args) {
 
 API.$on('FAVORITE:GROUP:CLEAR', function (args) {
     const key = `${args.params.type}:${args.params.group}`;
-    for (let ref of this.cachedFavorites.values()) {
+    for (let ref of $app.store.favorite.cachedFavorites.values()) {
         if (ref.$isDeleted || ref.$groupKey !== key) {
             continue;
         }
@@ -1690,54 +1672,9 @@ API.$on('FAVORITE:AVATAR:LIST', function (args) {
     }
 });
 
-API.applyFavorite = function (json) {
-    let ref = this.cachedFavorites.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            type: '',
-            favoriteId: '',
-            tags: [],
-            // VRCX
-            $isDeleted: false,
-            $isExpired: false,
-            $groupKey: '',
-            $groupRef: null,
-            //
-            ...json
-        };
-        this.cachedFavorites.set(ref.id, ref);
-        this.cachedFavoritesByObjectId.set(ref.favoriteId, ref);
-        if (
-            ref.type === 'friend' &&
-            ($app.store.generalSettings.localFavoriteFriendsGroups.length ===
-                0 ||
-                $app.store.generalSettings.localFavoriteFriendsGroups.includes(
-                    ref.groupKey
-                ))
-        ) {
-            $app.store.friend.localFavoriteFriends.add(ref.favoriteId);
-            $app.store.friend.updateSidebarFriendsList();
-        }
-    } else {
-        Object.assign(ref, json);
-        ref.$isExpired = false;
-    }
-    ref.$groupKey = `${ref.type}:${String(ref.tags[0])}`;
-
-    if (ref.$isDeleted === false && ref.$groupRef === null) {
-        const group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
-        if (typeof group !== 'undefined') {
-            ref.$groupRef = group;
-            ++group.count;
-        }
-    }
-    return ref;
-};
-
 API.expireFavorites = function () {
     $app.store.friend.localFavoriteFriends.clear();
-    this.cachedFavorites.clear();
+    $app.store.favorite.cachedFavorites.clear();
     this.cachedFavoritesByObjectId.clear();
     $app.favoriteObjects.clear();
     $app.favoriteFriends_ = [];
@@ -1746,314 +1683,6 @@ API.expireFavorites = function () {
     $app.favoriteWorldsSorted = [];
     $app.favoriteAvatars_ = [];
     $app.favoriteAvatarsSorted = [];
-};
-
-API.deleteExpiredFavorites = function () {
-    for (let ref of this.cachedFavorites.values()) {
-        if (ref.$isDeleted || ref.$isExpired === false) {
-            continue;
-        }
-        ref.$isDeleted = true;
-        this.$emit('FAVORITE:@DELETE', {
-            ref,
-            params: {
-                favoriteId: ref.id
-            }
-        });
-    }
-};
-
-API.refreshFavoriteAvatars = function (tag) {
-    const n = Math.floor(Math.random() * (50 + 1)) + 50;
-    const params = {
-        n,
-        offset: 0,
-        tag
-    };
-    favoriteRequest.getFavoriteAvatars(params);
-};
-
-API.refreshFavoriteItems = function () {
-    const types = {
-        world: [0, favoriteRequest.getFavoriteWorlds],
-        avatar: [0, favoriteRequest.getFavoriteAvatars]
-    };
-    const tags = [];
-    for (const ref of this.cachedFavorites.values()) {
-        if (ref.$isDeleted) {
-            continue;
-        }
-        const type = types[ref.type];
-        if (typeof type === 'undefined') {
-            continue;
-        }
-        if (ref.type === 'avatar' && !tags.includes(ref.tags[0])) {
-            tags.push(ref.tags[0]);
-        }
-        ++type[0];
-    }
-    for (const type in types) {
-        const [N, fn] = types[type];
-        if (N > 0) {
-            if (type === 'avatar') {
-                for (const tag of tags) {
-                    const n = Math.floor(Math.random() * (50 + 1)) + 50;
-                    this.bulk({
-                        fn,
-                        N,
-                        params: {
-                            n,
-                            offset: 0,
-                            tag
-                        }
-                    });
-                }
-            } else {
-                const n = Math.floor(Math.random() * (36 + 1)) + 64;
-                this.bulk({
-                    fn,
-                    N,
-                    params: {
-                        n,
-                        offset: 0
-                    }
-                });
-            }
-        }
-    }
-};
-
-API.refreshFavorites = async function () {
-    if (this.isFavoriteLoading) {
-        return;
-    }
-    this.isFavoriteLoading = true;
-    try {
-        await favoriteRequest.getFavoriteLimits();
-    } catch (err) {
-        console.error(err);
-    }
-    this.expireFavorites();
-    this.cachedFavoriteGroupsByTypeName.clear();
-    this.bulk({
-        fn: favoriteRequest.getFavorites,
-        N: -1,
-        params: {
-            n: 50,
-            offset: 0
-        },
-        done(ok) {
-            if (ok) {
-                this.deleteExpiredFavorites();
-            }
-            this.refreshFavoriteItems();
-            this.refreshFavoriteGroups();
-            $app.store.friend.updateLocalFavoriteFriends();
-            this.isFavoriteLoading = false;
-        }
-    });
-};
-
-API.applyFavoriteGroup = function (json) {
-    let ref = this.cachedFavoriteGroups.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            ownerId: '',
-            ownerDisplayName: '',
-            name: '',
-            displayName: '',
-            type: '',
-            visibility: '',
-            tags: [],
-            // VRCX
-            $isDeleted: false,
-            $isExpired: false,
-            $groupRef: null,
-            //
-            ...json
-        };
-        this.cachedFavoriteGroups.set(ref.id, ref);
-    } else {
-        Object.assign(ref, json);
-        ref.$isExpired = false;
-    }
-    return ref;
-};
-
-API.buildFavoriteGroups = function () {
-    let group;
-    let groups;
-    let ref;
-    let i;
-    // 450 = ['group_0', 'group_1', 'group_2'] x 150
-    this.favoriteFriendGroups = [];
-    for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.friend; ++i) {
-        this.favoriteFriendGroups.push({
-            assign: false,
-            key: `friend:group_${i}`,
-            type: 'friend',
-            name: `group_${i}`,
-            displayName: `Group ${i + 1}`,
-            capacity: this.favoriteLimits.maxFavoritesPerGroup.friend,
-            count: 0,
-            visibility: 'private'
-        });
-    }
-    // 400 = ['worlds1', 'worlds2', 'worlds3', 'worlds4'] x 100
-    this.favoriteWorldGroups = [];
-    for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.world; ++i) {
-        this.favoriteWorldGroups.push({
-            assign: false,
-            key: `world:worlds${i + 1}`,
-            type: 'world',
-            name: `worlds${i + 1}`,
-            displayName: `Group ${i + 1}`,
-            capacity: this.favoriteLimits.maxFavoritesPerGroup.world,
-            count: 0,
-            visibility: 'private'
-        });
-    }
-    // 350 = ['avatars1', ...] x 50
-    // Favorite Avatars (0/50)
-    // VRC+ Group 1..5 (0/50)
-    this.favoriteAvatarGroups = [];
-    for (i = 0; i < this.favoriteLimits.maxFavoriteGroups.avatar; ++i) {
-        this.favoriteAvatarGroups.push({
-            assign: false,
-            key: `avatar:avatars${i + 1}`,
-            type: 'avatar',
-            name: `avatars${i + 1}`,
-            displayName: `Group ${i + 1}`,
-            capacity: this.favoriteLimits.maxFavoritesPerGroup.avatar,
-            count: 0,
-            visibility: 'private'
-        });
-    }
-    const types = {
-        friend: this.favoriteFriendGroups,
-        world: this.favoriteWorldGroups,
-        avatar: this.favoriteAvatarGroups
-    };
-    const assigns = new Set();
-    // assign the same name first
-    for (ref of this.cachedFavoriteGroups.values()) {
-        if (ref.$isDeleted) {
-            continue;
-        }
-        groups = types[ref.type];
-        if (typeof groups === 'undefined') {
-            continue;
-        }
-        for (group of groups) {
-            if (group.assign === false && group.name === ref.name) {
-                group.assign = true;
-                if (ref.displayName) {
-                    group.displayName = ref.displayName;
-                }
-                group.visibility = ref.visibility;
-                ref.$groupRef = group;
-                assigns.add(ref.id);
-                break;
-            }
-        }
-    }
-    // assign the rest
-    // FIXME
-    // The order (cachedFavoriteGroups) is very important. It should be
-    // processed in the order in which the server responded. But since we
-    // used Map(), the order would be a mess. So we need something to solve
-    // this.
-    for (ref of this.cachedFavoriteGroups.values()) {
-        if (ref.$isDeleted || assigns.has(ref.id)) {
-            continue;
-        }
-        groups = types[ref.type];
-        if (typeof groups === 'undefined') {
-            continue;
-        }
-        for (group of groups) {
-            if (group.assign === false) {
-                group.assign = true;
-                group.key = `${group.type}:${ref.name}`;
-                group.name = ref.name;
-                group.displayName = ref.displayName;
-                ref.$groupRef = group;
-                assigns.add(ref.id);
-                break;
-            }
-        }
-    }
-    // update favorites
-    this.cachedFavoriteGroupsByTypeName.clear();
-    for (const type in types) {
-        for (group of types[type]) {
-            this.cachedFavoriteGroupsByTypeName.set(group.key, group);
-        }
-    }
-    for (ref of this.cachedFavorites.values()) {
-        ref.$groupRef = null;
-        if (ref.$isDeleted) {
-            continue;
-        }
-        group = this.cachedFavoriteGroupsByTypeName.get(ref.$groupKey);
-        if (typeof group === 'undefined') {
-            continue;
-        }
-        ref.$groupRef = group;
-        ++group.count;
-    }
-};
-
-API.expireFavoriteGroups = function () {
-    for (let ref of this.cachedFavoriteGroups.values()) {
-        ref.$isExpired = true;
-    }
-};
-
-API.deleteExpiredFavoriteGroups = function () {
-    for (let ref of this.cachedFavoriteGroups.values()) {
-        if (ref.$isDeleted || ref.$isExpired === false) {
-            continue;
-        }
-        ref.$isDeleted = true;
-        this.$emit('FAVORITE:GROUP:@DELETE', {
-            ref,
-            params: {
-                favoriteGroupId: ref.id
-            }
-        });
-    }
-};
-
-API.$on('FAVORITE:LIMITS', function (args) {
-    this.favoriteLimits = {
-        ...this.favoriteLimits,
-        ...args.json
-    };
-});
-
-API.refreshFavoriteGroups = function () {
-    if (this.isFavoriteGroupLoading) {
-        return;
-    }
-    this.isFavoriteGroupLoading = true;
-    this.expireFavoriteGroups();
-    this.bulk({
-        fn: favoriteRequest.getFavoriteGroups,
-        N: -1,
-        params: {
-            n: 50,
-            offset: 0
-        },
-        done(ok) {
-            if (ok) {
-                this.deleteExpiredFavoriteGroups();
-                this.buildFavoriteGroups();
-            }
-            this.isFavoriteGroupLoading = false;
-        }
-    });
 };
 
 // #endregion
@@ -6644,7 +6273,7 @@ $app.methods.updateFavoriteDialog = function (objectId) {
                 return;
             }
         }
-        for (group of API.favoriteFriendGroups) {
+        for (group of this.store.favorite.favoriteFriendGroups) {
             if (favorite.groupKey === group.key) {
                 D.currentGroup = group;
                 return;

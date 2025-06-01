@@ -13,6 +13,7 @@ import {
     removeFromArray
 } from '../shared/utils';
 import { useDebugStore } from './debug';
+import { useFavoriteStore } from './favorite';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 
@@ -196,11 +197,13 @@ export const useFriendStore = defineStore('Friend', () => {
      * @param {string} value
      */
     function updateLocalFavoriteFriends(value) {
+        const favoriteStore = useFavoriteStore();
+        const { cachedFavorites } = favoriteStore;
         setLocalFavoriteFriendsGroups(
             value || localFavoriteFriendsGroups.value
         );
         state.localFavoriteFriends.clear();
-        for (const ref of API.cachedFavorites.values()) {
+        for (const ref of cachedFavorites.values()) {
             if (
                 !ref.$isDeleted &&
                 ref.type === 'friend' &&

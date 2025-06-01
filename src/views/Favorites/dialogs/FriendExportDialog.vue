@@ -19,7 +19,7 @@
                 <el-dropdown-item style="display: block; margin: 10px 0" @click.native="selectFriendExportGroup(null)">
                     All Favorites
                 </el-dropdown-item>
-                <template v-for="groupAPI in API.favoriteFriendGroups">
+                <template v-for="groupAPI in favoriteFriendGroups">
                     <el-dropdown-item
                         :key="groupAPI.name"
                         style="display: block; margin: 10px 0"
@@ -55,10 +55,11 @@
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriends } = storeToRefs(favoriteStore);
+            const { favoriteFriends, favoriteFriendGroups } = storeToRefs(favoriteStore);
             return {
                 favoriteFriends,
-                API
+                API,
+                favoriteFriendGroups
             };
         },
         data() {
@@ -117,7 +118,7 @@
                     return str;
                 };
                 const lines = ['UserID,Name'];
-                this.API.favoriteFriendGroups.forEach((group) => {
+                this.favoriteFriendGroups.forEach((group) => {
                     if (!this.friendExportFavoriteGroup || this.friendExportFavoriteGroup === group) {
                         this.favoriteFriends.forEach((ref) => {
                             if (group.key === ref.groupKey) {

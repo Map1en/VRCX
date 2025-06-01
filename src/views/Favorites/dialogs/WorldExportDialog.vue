@@ -26,7 +26,7 @@
                 <el-dropdown-item style="display: block; margin: 10px 0" @click.native="selectWorldExportGroup(null)">
                     None
                 </el-dropdown-item>
-                <template v-for="groupAPI in API.favoriteWorldGroups">
+                <template v-for="groupAPI in favoriteWorldGroups">
                     <el-dropdown-item
                         :key="groupAPI.name"
                         style="display: block; margin: 10px 0"
@@ -96,8 +96,8 @@
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds } = storeToRefs(favoriteStore);
-            return { favoriteWorlds, API };
+            const { favoriteWorlds, favoriteWorldGroups } = storeToRefs(favoriteStore);
+            return { favoriteWorlds, API, favoriteWorldGroups };
         },
         data() {
             return {
@@ -181,7 +181,7 @@
                 const lines = [this.exportSelectedOptions.join(',')];
 
                 if (this.worldExportFavoriteGroup) {
-                    this.API.favoriteWorldGroups.forEach((group) => {
+                    this.favoriteWorldGroups.forEach((group) => {
                         if (this.worldExportFavoriteGroup === group) {
                             this.favoriteWorlds.forEach((ref) => {
                                 if (group.key === ref.groupKey) {

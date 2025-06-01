@@ -9,7 +9,7 @@ const favoriteReq = {
             const args = {
                 json
             };
-            API.$emit('FAVORITE:LIMITS', args);
+            // API.$emit('FAVORITE:LIMITS', args);
             return args;
         });
     },

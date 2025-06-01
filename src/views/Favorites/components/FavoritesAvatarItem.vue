@@ -16,7 +16,7 @@
                         </el-tooltip>
                         <el-dropdown-menu slot="dropdown">
                             <template
-                                v-for="groupAPI in API.favoriteAvatarGroups"
+                                v-for="groupAPI in favoriteAvatarGroups"
                                 v-if="isLocalFavorite || groupAPI.name !== group.name">
                                 <el-dropdown-item
                                     :key="groupAPI.name"
@@ -144,6 +144,7 @@
     import { favoriteRequest } from '../../../api';
     import { API } from '../../../app';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesAvatarItem',
@@ -158,9 +159,12 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const favoriteStore = useFavoriteStore();
+            const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
-                API
+                API,
+                favoriteAvatarGroups
             };
         },
         computed: {

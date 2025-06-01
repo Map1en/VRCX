@@ -27,7 +27,7 @@
                             <el-button type="default" icon="el-icon-back" size="mini" circle></el-button>
                         </el-tooltip>
                         <el-dropdown-menu slot="dropdown">
-                            <template v-for="groupAPI in API.favoriteFriendGroups">
+                            <template v-for="groupAPI in favoriteFriendGroups">
                                 <el-dropdown-item
                                     v-if="groupAPI.name !== group.name"
                                     :key="groupAPI.name"
@@ -90,6 +90,7 @@
     import { userStatusClass } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         components: { Location },
@@ -114,11 +115,14 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
                 API,
                 userStatusClass,
-                showUserDialog
+                showUserDialog,
+                favoriteFriendGroups
             };
         },
         methods: {

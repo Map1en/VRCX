@@ -15,17 +15,17 @@
             <el-tooltip placement="bottom" :content="$t('view.favorite.refresh_tooltip')" :disabled="hideTooltips">
                 <el-button
                     type="default"
-                    :loading="API.isFavoriteLoading"
+                    :loading="isFavoriteLoading"
                     size="small"
                     icon="el-icon-refresh"
                     circle
                     @click="
-                        API.refreshFavorites();
+                        refreshFavorites();
                         getLocalWorldFavorites();
                     "></el-button>
             </el-tooltip>
         </div>
-        <el-tabs v-model="currentTabName" v-loading="API.isFavoriteLoading" type="card" style="height: 100%">
+        <el-tabs v-model="currentTabName" v-loading="isFavoriteLoading" type="card" style="height: 100%">
             <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')" lazy>
                 <FavoritesFriendTab
                     :hide-tooltips="hideTooltips"
@@ -113,13 +113,17 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriends, favoriteWorlds, favoriteAvatars } = storeToRefs(favoriteStore);
+            const { favoriteFriends, favoriteWorlds, favoriteAvatars, isFavoriteLoading } = storeToRefs(favoriteStore);
+            const { refreshFavorites, refreshFavoriteGroups } = favoriteStore;
             return {
                 hideTooltips,
                 favoriteFriends,
                 favoriteWorlds,
                 favoriteAvatars,
-                API
+                API,
+                refreshFavorites,
+                refreshFavoriteGroups,
+                isFavoriteLoading
             };
         },
         data() {
@@ -202,7 +206,7 @@
                                             type: 'success'
                                         });
                                         // load new group name
-                                        this.API.refreshFavoriteGroups();
+                                        this.refreshFavoriteGroups();
                                     });
                             }
                         }

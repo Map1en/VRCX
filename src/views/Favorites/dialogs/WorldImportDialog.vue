@@ -46,7 +46,7 @@
                         </span>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <template v-for="groupAPI in API.favoriteWorldGroups">
+                        <template v-for="groupAPI in favoriteWorldGroups">
                             <el-dropdown-item
                                 :key="groupAPI.name"
                                 style="display: block; margin: 10px 0"
@@ -177,10 +177,12 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest, worldRequest } from '../../../api';
     import { API } from '../../../app';
     import { removeFromArray } from '../../../shared/utils';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'WorldImportDialog',
@@ -194,7 +196,9 @@
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
-            return { API, showUserDialog };
+            const favoriteStore = useFavoriteStore();
+            const { favoriteWorldGroups } = storeToRefs(favoriteStore);
+            return { API, showUserDialog, favoriteWorldGroups };
         },
         data() {
             return {

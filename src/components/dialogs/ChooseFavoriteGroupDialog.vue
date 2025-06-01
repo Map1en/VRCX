@@ -66,9 +66,11 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../api';
     import Noty from 'noty';
     import { API } from '../../app';
+    import { useFavoriteStore } from '../../stores/favorite';
 
     export default {
         name: 'ChooseFavoriteGroupDialog',
@@ -114,9 +116,14 @@
             };
         },
         data() {
+            const favoriteStore = useFavoriteStore();
+            const { favoriteFriendGroups, favoriteAvatarGroups, favoriteWorldGroups } = storeToRefs(favoriteStore);
             return {
                 groups: [],
-                loading: false
+                loading: false,
+                favoriteFriendGroups,
+                favoriteAvatarGroups,
+                favoriteWorldGroups
             };
         },
         computed: {
@@ -145,11 +152,11 @@
         methods: {
             initFavoriteDialog() {
                 if (this.favoriteDialog.type === 'friend') {
-                    this.groups = this.API.favoriteFriendGroups;
+                    this.groups = this.favoriteFriendGroups;
                 } else if (this.favoriteDialog.type === 'world') {
-                    this.groups = this.API.favoriteWorldGroups;
+                    this.groups = this.favoriteWorldGroups;
                 } else if (this.favoriteDialog.type === 'avatar') {
-                    this.groups = this.API.favoriteAvatarGroups;
+                    this.groups = this.favoriteAvatarGroups;
                 }
             },
             addFavorite(group) {

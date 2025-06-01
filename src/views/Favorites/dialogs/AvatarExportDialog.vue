@@ -26,7 +26,7 @@
                 <el-dropdown-item style="display: block; margin: 10px 0" @click.native="selectAvatarExportGroup(null)">
                     All Favorites
                 </el-dropdown-item>
-                <template v-for="groupAPI in API.favoriteAvatarGroups">
+                <template v-for="groupAPI in favoriteAvatarGroups">
                     <el-dropdown-item
                         :key="groupAPI.name"
                         style="display: block; margin: 10px 0"
@@ -94,10 +94,11 @@
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars } = storeToRefs(favoriteStore);
+            const { favoriteAvatars, favoriteAvatarGroups } = storeToRefs(favoriteStore);
             return {
                 favoriteAvatars,
-                API
+                API,
+                favoriteAvatarGroups
             };
         },
         data() {
@@ -178,7 +179,7 @@
                 const lines = [this.exportSelectedOptions.join(',')];
 
                 if (this.avatarExportFavoriteGroup) {
-                    this.API.favoriteAvatarGroups.forEach((group) => {
+                    this.favoriteAvatarGroups.forEach((group) => {
                         if (!this.avatarExportFavoriteGroup || this.avatarExportFavoriteGroup === group) {
                             this.favoriteAvatars.forEach((ref) => {
                                 if (group.key === ref.groupKey) {
