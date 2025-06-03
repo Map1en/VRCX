@@ -3,7 +3,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between">
             <div>
                 <el-button size="small" @click="showExportDialog">{{ $t('view.favorite.export') }}</el-button>
-                <el-button size="small" style="margin-left: 5px" @click="$emit('show-world-import-dialog')">{{
+                <el-button size="small" style="margin-left: 5px" @click="showWorldImportDialog">{{
                     $t('view.favorite.import')
                 }}</el-button>
             </div>
@@ -252,13 +252,15 @@
             const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteWorlds, favoriteWorldGroups } = storeToRefs(favoriteStore);
+            const { showWorldImportDialog } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 favoriteWorlds,
                 API,
-                favoriteWorldGroups
+                favoriteWorldGroups,
+                showWorldImportDialog
             };
         },
         data() {

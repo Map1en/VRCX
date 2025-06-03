@@ -188,8 +188,6 @@
         name: 'WorldImportDialog',
         inject: ['showFullscreenImageDialog', 'adjustDialogZ', 'showWorldDialog'],
         props: {
-            worldImportDialogVisible: Boolean,
-            worldImportDialogInput: String,
             getLocalWorldFavoriteGroupLength: Function,
             localWorldFavoriteGroups: Array
         },
@@ -197,8 +195,9 @@
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorldGroups } = storeToRefs(favoriteStore);
-            return { API, showUserDialog, favoriteWorldGroups };
+            const { favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible } =
+                storeToRefs(favoriteStore);
+            return { API, showUserDialog, favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible };
         },
         data() {
             return {
@@ -230,7 +229,7 @@
                     return this.worldImportDialogVisible;
                 },
                 set(visible) {
-                    this.$emit('update:world-import-dialog-visible', visible);
+                    this.worldImportDialogVisible = visible;
                 }
             }
         },

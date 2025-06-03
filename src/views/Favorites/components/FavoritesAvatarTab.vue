@@ -260,13 +260,15 @@
             const { setSortFavorites } = appearanceSettingsStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatars, favoriteAvatarGroups } = storeToRefs(favoriteStore);
+            const { showAvatarImportDialog } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 favoriteAvatars,
                 favoriteAvatarGroups,
-                API
+                API,
+                showAvatarImportDialog
             };
         },
         data() {
@@ -379,9 +381,6 @@
             },
             showAvatarExportDialog() {
                 this.avatarExportDialogVisible = true;
-            },
-            showAvatarImportDialog() {
-                this.$emit('show-avatar-import-dialog');
             },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');

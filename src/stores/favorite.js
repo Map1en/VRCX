@@ -47,7 +47,13 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         cachedFavorites: new Map(),
         favoriteWorldGroups: [],
         favoriteAvatarGroups: [],
-        isFavoriteLoading: false
+        isFavoriteLoading: false,
+        friendImportDialogInput: '',
+        worldImportDialogInput: '',
+        avatarImportDialogInput: '',
+        worldImportDialogVisible: false,
+        avatarImportDialogVisible: false,
+        friendImportDialogVisible: false
     });
 
     const favoriteFriends = computed(() => {
@@ -136,6 +142,60 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         },
         set(value) {
             state.isFavoriteLoading = value;
+        }
+    });
+
+    const friendImportDialogInput = computed({
+        get() {
+            return state.friendImportDialogInput;
+        },
+        set(value) {
+            state.friendImportDialogInput = value;
+        }
+    });
+
+    const worldImportDialogInput = computed({
+        get() {
+            return state.worldImportDialogInput;
+        },
+        set(value) {
+            state.worldImportDialogInput = value;
+        }
+    });
+
+    const avatarImportDialogInput = computed({
+        get() {
+            return state.avatarImportDialogInput;
+        },
+        set(value) {
+            state.avatarImportDialogInput = value;
+        }
+    });
+
+    const worldImportDialogVisible = computed({
+        get() {
+            return state.worldImportDialogVisible;
+        },
+        set(value) {
+            state.worldImportDialogVisible = value;
+        }
+    });
+
+    const avatarImportDialogVisible = computed({
+        get() {
+            return state.avatarImportDialogVisible;
+        },
+        set(value) {
+            state.avatarImportDialogVisible = value;
+        }
+    });
+
+    const friendImportDialogVisible = computed({
+        get() {
+            return state.friendImportDialogVisible;
+        },
+        set(value) {
+            state.friendImportDialogVisible = value;
         }
     });
 
@@ -704,6 +764,77 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     }
 
+    /**
+     * aka: `$app.methods.bulkCopyFavoriteSelection`
+     * @param {'friend'|'world'|'avatar'} type
+     */
+    function bulkCopyFavoriteSelection(type) {
+        let idList = '';
+        switch (type) {
+            case 'friend':
+                for (const ctx of state.favoriteFriends) {
+                    if (ctx.$selected) {
+                        idList += `${ctx.id}\n`;
+                    }
+                }
+                state.friendImportDialogInput = idList;
+                showFriendImportDialog();
+                break;
+
+            case 'world':
+                for (const ctx of state.favoriteWorlds) {
+                    if (ctx.$selected) {
+                        idList += `${ctx.id}\n`;
+                    }
+                }
+                state.worldImportDialogInput = idList;
+                showWorldImportDialog();
+                break;
+
+            case 'avatar':
+                for (const ctx of state.favoriteAvatars) {
+                    if (ctx.$selected) {
+                        idList += `${ctx.id}\n`;
+                    }
+                }
+                state.avatarImportDialogInput = idList;
+                showAvatarImportDialog();
+                break;
+
+            default:
+                break;
+        }
+        console.log('Favorite selection\n', idList);
+    }
+
+    /**
+     * aka: `$app.methods.clearBulkFavoriteSelection`
+     */
+    function clearBulkFavoriteSelection() {
+        let ctx;
+        for (ctx of state.favoriteFriends) {
+            ctx.$selected = false;
+        }
+        for (ctx of state.favoriteWorlds) {
+            ctx.$selected = false;
+        }
+        for (ctx of state.favoriteAvatars) {
+            ctx.$selected = false;
+        }
+    }
+
+    function showWorldImportDialog() {
+        state.worldImportDialogVisible = true;
+    }
+
+    function showAvatarImportDialog() {
+        state.avatarImportDialogVisible = true;
+    }
+
+    function showFriendImportDialog() {
+        state.friendImportDialogVisible = true;
+    }
+
     return {
         state,
 
@@ -719,12 +850,23 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         favoriteWorldGroups,
         favoriteAvatarGroups,
         isFavoriteLoading,
+        friendImportDialogInput,
+        worldImportDialogInput,
+        avatarImportDialogInput,
+        worldImportDialogVisible,
+        avatarImportDialogVisible,
+        friendImportDialogVisible,
 
         applyFavorite,
         refreshFavoriteGroups,
         refreshFavorites,
         applyFavoriteGroup,
         applyFavoriteCached,
-        refreshFavoriteAvatars
+        refreshFavoriteAvatars,
+        clearBulkFavoriteSelection,
+        showWorldImportDialog,
+        showAvatarImportDialog,
+        showFriendImportDialog,
+        bulkCopyFavoriteSelection
     };
 });

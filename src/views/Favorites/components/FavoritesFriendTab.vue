@@ -99,13 +99,15 @@
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            const { showFriendImportDialog } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
                 setSortFavorites,
                 API,
                 showUserDialog,
-                favoriteFriendGroups
+                favoriteFriendGroups,
+                showFriendImportDialog
             };
         },
         data() {
@@ -126,9 +128,6 @@
         methods: {
             showFriendExportDialog() {
                 this.friendExportDialogVisible = true;
-            },
-            showFriendImportDialog() {
-                this.$emit('show-friend-import-dialog');
             },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');

@@ -133,23 +133,13 @@
     export default {
         name: 'FriendImportDialog',
         inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'adjustDialogZ'],
-        props: {
-            friendImportDialogVisible: {
-                type: Boolean,
-                required: true
-            },
-            friendImportDialogInput: {
-                type: String,
-                required: false,
-                default: ''
-            }
-        },
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
-            return { API, showUserDialog, favoriteFriendGroups };
+            const { favoriteFriendGroups, friendImportDialogInput, friendImportDialogVisible } =
+                storeToRefs(favoriteStore);
+            return { API, showUserDialog, favoriteFriendGroups, friendImportDialogInput, friendImportDialogVisible };
         },
         data() {
             return {
@@ -180,7 +170,7 @@
                     return this.friendImportDialogVisible;
                 },
                 set(value) {
-                    this.$emit('update:friend-import-dialog-visible', value);
+                    this.friendImportDialogVisible = value;
                 }
             }
         },

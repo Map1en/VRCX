@@ -31,7 +31,6 @@
                     :hide-tooltips="hideTooltips"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     :edit-favorites-mode="editFavoritesMode"
-                    @show-friend-import-dialog="showFriendImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName" />
             </el-tab-pane>
@@ -44,7 +43,6 @@
                     :local-world-favorite-groups="localWorldFavoriteGroups"
                     :local-world-favorites="localWorldFavorites"
                     :local-world-favorites-list="localWorldFavoritesList"
-                    @show-world-import-dialog="showWorldImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @new-instance-self-invite="newInstanceSelfInvite"
@@ -64,7 +62,6 @@
                     :local-avatar-favorite-groups="localAvatarFavoriteGroups"
                     :local-avatar-favorites="localAvatarFavorites"
                     :local-avatar-favorites-list="localAvatarFavoritesList"
-                    @show-avatar-import-dialog="showAvatarImportDialog"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @remove-local-avatar-favorite="removeLocalAvatarFavorite"
@@ -114,7 +111,8 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteFriends, favoriteWorlds, favoriteAvatars, isFavoriteLoading } = storeToRefs(favoriteStore);
-            const { refreshFavorites, refreshFavoriteGroups } = favoriteStore;
+            const { refreshFavorites, refreshFavoriteGroups, clearBulkFavoriteSelection, bulkCopyFavoriteSelection } =
+                favoriteStore;
             return {
                 hideTooltips,
                 favoriteFriends,
@@ -123,7 +121,9 @@
                 API,
                 refreshFavorites,
                 refreshFavoriteGroups,
-                isFavoriteLoading
+                isFavoriteLoading,
+                clearBulkFavoriteSelection,
+                bulkCopyFavoriteSelection
             };
         },
         data() {
@@ -258,23 +258,11 @@
                 }
                 this.refreshingLocalFavorites = false;
             },
-            clearBulkFavoriteSelection() {
-                this.$emit('clear-bulk-favorite-selection');
-            },
-            bulkCopyFavoriteSelection() {
-                this.$emit('bulk-copy-favorite-selection', this.currentTabName);
-            },
             getLocalWorldFavorites() {
                 this.$emit('get-local-world-favorites');
             },
-            showFriendImportDialog() {
-                this.$emit('show-friend-import-dialog');
-            },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
-            },
-            showWorldImportDialog() {
-                this.$emit('show-world-import-dialog');
             },
             newInstanceSelfInvite(worldId) {
                 this.$emit('new-instance-self-invite', worldId);
@@ -284,9 +272,6 @@
             },
             removeLocalWorldFavorite(worldId, group) {
                 this.$emit('remove-local-world-favorite', worldId, group);
-            },
-            showAvatarImportDialog() {
-                this.$emit('show-avatar-import-dialog');
             },
             removeLocalAvatarFavorite(avatarId, group) {
                 this.$emit('remove-local-avatar-favorite', avatarId, group);

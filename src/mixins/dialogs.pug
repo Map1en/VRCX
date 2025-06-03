@@ -8,20 +8,15 @@ mixin dialogs
         :lookupUser='lookupUser')
 
     //- favorites
-    FriendImportDialog(
-        :friendImportDialogVisible.sync='friendImportDialogVisible'
-        :friendImportDialogInput.sync='friendImportDialogInput')
+    FriendImportDialog
 
     WorldImportDialog(
-        :worldImportDialogVisible.sync='worldImportDialogVisible'
-        :worldImportDialogInput.sync='worldImportDialogInput'
         :getLocalWorldFavoriteGroupLength='getLocalWorldFavoriteGroupLength'
         :localWorldFavoriteGroups='localWorldFavoriteGroups'
         @addLocalWorldFavorite='addLocalWorldFavorite')
 
     AvatarImportDialog(
-        :avatarImportDialogVisible.sync='avatarImportDialogVisible'
-        :avatarImportDialogInput.sync='avatarImportDialogInput'
+
         :getLocalAvatarFavoriteGroupLength='getLocalAvatarFavoriteGroupLength'
         :localAvatarFavoriteGroups='localAvatarFavoriteGroups'
         @addLocalAvatarFavorite='addLocalAvatarFavorite')

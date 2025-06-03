@@ -184,19 +184,20 @@
         inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showAvatarDialog'],
         props: {
             getLocalAvatarFavoriteGroupLength: Function,
-            localAvatarFavoriteGroups: Array,
-            avatarImportDialogInput: String,
-            avatarImportDialogVisible: Boolean
+            localAvatarFavoriteGroups: Array
         },
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
+            const { favoriteAvatarGroups, avatarImportDialogInput, avatarImportDialogVisible } =
+                storeToRefs(favoriteStore);
             return {
                 API,
                 showUserDialog,
-                favoriteAvatarGroups
+                favoriteAvatarGroups,
+                avatarImportDialogInput,
+                avatarImportDialogVisible
             };
         },
         data() {
@@ -229,7 +230,7 @@
                     return this.avatarImportDialogVisible;
                 },
                 set(value) {
-                    this.$emit('update:avatar-import-dialog-visible', value);
+                    this.avatarImportDialogVisible = value;
                 }
             }
         },

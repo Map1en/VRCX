@@ -7878,14 +7878,14 @@ $app.methods.eventLaunchCommand = function (input) {
             if (!type) break;
             const data = input.replace(`import/${type}/`, '');
             if (type === 'avatar') {
-                this.avatarImportDialogInput = data;
-                this.showAvatarImportDialog();
+                this.store.favorite.avatarImportDialogInput = data;
+                this.store.favorite.showAvatarImportDialog();
             } else if (type === 'world') {
-                this.worldImportDialogInput = data;
-                this.showWorldImportDialog();
+                this.store.favorite.worldImportDialogInput = data;
+                this.store.favorite.showWorldImportDialog();
             } else if (type === 'friend') {
-                this.friendImportDialogInput = data;
-                this.showFriendImportDialog();
+                this.store.favorite.friendImportDialogInput = data;
+                this.store.favorite.showFriendImportDialog();
             }
             break;
     }
@@ -8195,32 +8195,6 @@ $app.methods.updateDatabaseVersion = async function () {
 };
 
 // #endregion
-// #region | App: world favorite import
-
-$app.data.worldImportDialogVisible = false;
-$app.data.worldImportDialogInput = '';
-$app.methods.showWorldImportDialog = function () {
-    this.worldImportDialogVisible = true;
-};
-
-// #endregion
-// #region | App: avatar favorite import
-
-$app.data.avatarImportDialogVisible = false;
-$app.data.avatarImportDialogInput = '';
-$app.methods.showAvatarImportDialog = function () {
-    this.avatarImportDialogVisible = true;
-};
-
-// #endregion
-// #region | App: friend favorite import
-$app.data.friendImportDialogVisible = false;
-$app.data.friendImportDialogInput = '';
-$app.methods.showFriendImportDialog = function () {
-    this.friendImportDialogVisible = true;
-};
-
-// #endregion
 // #region | App: note export
 
 // user generated content
@@ -8268,61 +8242,6 @@ $app.methods.folderSelectorDialog = async function (oldPath) {
 $app.methods.openUGCFolderSelector = async function () {
     const path = await this.folderSelectorDialog(this.ugcFolderPath);
     await this.setUGCFolderPath(path);
-};
-
-// #endregion
-// #region | App: bulk unfavorite
-
-$app.methods.bulkCopyFavoriteSelection = function (type) {
-    let idList = '';
-    switch (type) {
-        case 'friend':
-            for (const ctx of this.store.favorite.favoriteFriends) {
-                if (ctx.$selected) {
-                    idList += `${ctx.id}\n`;
-                }
-            }
-            this.friendImportDialogInput = idList;
-            this.showFriendImportDialog();
-            break;
-
-        case 'world':
-            for (const ctx of this.store.favorite.favoriteWorlds) {
-                if (ctx.$selected) {
-                    idList += `${ctx.id}\n`;
-                }
-            }
-            this.worldImportDialogInput = idList;
-            this.showWorldImportDialog();
-            break;
-
-        case 'avatar':
-            for (const ctx of this.store.favorite.favoriteAvatars) {
-                if (ctx.$selected) {
-                    idList += `${ctx.id}\n`;
-                }
-            }
-            this.avatarImportDialogInput = idList;
-            this.showAvatarImportDialog();
-            break;
-
-        default:
-            break;
-    }
-    console.log('Favorite selection\n', idList);
-};
-
-$app.methods.clearBulkFavoriteSelection = function () {
-    let ctx;
-    for (ctx of this.store.favorite.favoriteFriends) {
-        ctx.$selected = false;
-    }
-    for (ctx of this.store.favorite.favoriteWorlds) {
-        ctx.$selected = false;
-    }
-    for (ctx of this.store.favorite.favoriteAvatars) {
-        ctx.$selected = false;
-    }
 };
 
 // #endregion
@@ -9502,17 +9421,12 @@ $app.computed.favoritesTabBind = function () {
 
 $app.computed.favoritesTabEvent = function () {
     return {
-        'clear-bulk-favorite-selection': this.clearBulkFavoriteSelection,
-        'bulk-copy-favorite-selection': this.bulkCopyFavoriteSelection,
         'get-local-world-favorites': this.getLocalWorldFavorites,
-        'show-friend-import-dialog': this.showFriendImportDialog,
         'save-sort-favorites-option': this.saveSortFavoritesOption,
-        'show-world-import-dialog': this.showWorldImportDialog,
         'show-world-dialog': this.showWorldDialog,
         'new-instance-self-invite': this.newInstanceSelfInvite,
         'delete-local-world-favorite-group': this.deleteLocalWorldFavoriteGroup,
         'remove-local-world-favorite': this.removeLocalWorldFavorite,
-        'show-avatar-import-dialog': this.showAvatarImportDialog,
         'show-avatar-dialog': this.showAvatarDialog,
         'remove-local-avatar-favorite': this.removeLocalAvatarFavorite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
