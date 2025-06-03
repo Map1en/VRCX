@@ -76,32 +76,20 @@
         name: 'ChooseFavoriteGroupDialog',
         inject: ['adjustDialogZ'],
         props: {
-            favoriteDialog: {
-                type: Object,
-                default: () => ({
-                    visible: false,
-                    type: '',
-                    objectId: '',
-                    currentGroup: {}
-                })
-            },
             localWorldFavoriteGroups: {
-                type: Array,
-                default: () => []
-            },
-            localAvatarFavoriteGroups: {
                 type: Array,
                 default: () => []
             }
         },
         setup() {
-            return {
-                API
-            };
-        },
-        data() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups, favoriteAvatarGroups, favoriteWorldGroups } = storeToRefs(favoriteStore);
+            const {
+                favoriteFriendGroups,
+                favoriteAvatarGroups,
+                favoriteWorldGroups,
+                localAvatarFavoriteGroups,
+                favoriteDialog
+            } = storeToRefs(favoriteStore);
             const {
                 getLocalWorldFavoriteGroupLength,
                 addLocalWorldFavorite,
@@ -111,8 +99,7 @@
                 getLocalAvatarFavoriteGroupLength
             } = favoriteStore;
             return {
-                groups: [],
-                loading: false,
+                API,
                 favoriteFriendGroups,
                 favoriteAvatarGroups,
                 favoriteWorldGroups,
@@ -121,7 +108,15 @@
                 hasLocalWorldFavorite,
                 hasLocalAvatarFavorite,
                 addLocalAvatarFavorite,
-                getLocalAvatarFavoriteGroupLength
+                getLocalAvatarFavoriteGroupLength,
+                localAvatarFavoriteGroups,
+                favoriteDialog
+            };
+        },
+        data() {
+            return {
+                groups: [],
+                loading: false
             };
         },
         computed: {
@@ -130,7 +125,7 @@
                     return this.favoriteDialog.visible;
                 },
                 set(value) {
-                    this.$emit('update:favorite-dialog', { ...this.favoriteDialog, visible: value });
+                    this.favoriteDialog.visible = value;
                 }
             },
             isLocalUserVrcplusSupporter() {

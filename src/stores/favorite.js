@@ -55,7 +55,17 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         avatarImportDialogVisible: false,
         friendImportDialogVisible: false,
         localWorldFavorites: {},
-        localAvatarFavorites: {}
+        localAvatarFavorites: {},
+        localAvatarFavoritesList: [],
+        localAvatarFavoriteGroups: [],
+        favoriteDialog: {
+            visible: false,
+            loading: false,
+            type: '',
+            objectId: '',
+            currentGroup: {}
+        },
+        favoriteObjects: new Map()
     });
 
     const favoriteFriends = computed(() => {
@@ -219,6 +229,42 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     });
 
+    const localAvatarFavoritesList = computed({
+        get() {
+            return state.localAvatarFavoritesList;
+        },
+        set(value) {
+            state.localAvatarFavoritesList = value;
+        }
+    });
+
+    const localAvatarFavoriteGroups = computed({
+        get() {
+            return state.localAvatarFavoriteGroups;
+        },
+        set(value) {
+            state.localAvatarFavoriteGroups = value;
+        }
+    });
+
+    const favoriteDialog = computed({
+        get() {
+            return state.favoriteDialog;
+        },
+        set(value) {
+            state.favoriteDialog = value;
+        }
+    });
+
+    const favoriteObjects = computed({
+        get() {
+            return state.favoriteObjects;
+        },
+        set(value) {
+            state.favoriteObjects = value;
+        }
+    });
+
     /**
      * aka: `$app.methods.applyFavorite`
      * @param {'friend' | 'world' | 'avatar'} type
@@ -229,7 +275,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     async function applyFavorite(type, objectId, sortTop) {
         let ref;
         const favorite = API.cachedFavoritesByObjectId.get(objectId);
-        let ctx = $app.favoriteObjects.get(objectId);
+        let ctx = state.favoriteObjects.get(objectId);
         if (typeof favorite !== 'undefined') {
             let isTypeChanged = false;
             if (typeof ctx === 'undefined') {
@@ -241,7 +287,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     name: '',
                     $selected: false
                 };
-                $app.favoriteObjects.set(objectId, ctx);
+                state.favoriteObjects.set(objectId, ctx);
                 if (type === 'friend') {
                     ref = API.cachedUsers.get(objectId);
                     if (typeof ref === 'undefined') {
@@ -380,7 +426,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 }
             }
         } else if (typeof ctx !== 'undefined') {
-            $app.favoriteObjects.delete(objectId);
+            state.favoriteObjects.delete(objectId);
             if (type === 'friend') {
                 removeFromArray($app.favoriteFriends_, ctx);
                 removeFromArray($app.favoriteFriendsSorted, ctx);
@@ -894,10 +940,10 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         database.addWorldToCache(ref);
         database.addWorldToFavorites(worldId, group);
         if (
-            $app.favoriteDialog.visible &&
-            $app.favoriteDialog.objectId === worldId
+            state.favoriteDialog.visible &&
+            state.favoriteDialog.objectId === worldId
         ) {
-            $app.updateFavoriteDialog(worldId);
+            updateFavoriteDialog(worldId);
         }
         if ($app.worldDialog.visible && $app.worldDialog.id === worldId) {
             $app.worldDialog.isFavorite = true;
@@ -936,23 +982,23 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (typeof ref === 'undefined') {
             return;
         }
-        if (!$app.localAvatarFavoritesList.includes(avatarId)) {
-            $app.localAvatarFavoritesList.push(avatarId);
+        if (!state.localAvatarFavoritesList.includes(avatarId)) {
+            state.localAvatarFavoritesList.push(avatarId);
         }
         if (!state.localAvatarFavorites[group]) {
             state.localAvatarFavorites[group] = [];
         }
-        if (!$app.localAvatarFavoriteGroups.includes(group)) {
-            $app.localAvatarFavoriteGroups.push(group);
+        if (!state.localAvatarFavoriteGroups.includes(group)) {
+            state.localAvatarFavoriteGroups.push(group);
         }
         state.localAvatarFavorites[group].unshift(ref);
         database.addAvatarToCache(ref);
         database.addAvatarToFavorites(avatarId, group);
         if (
-            $app.favoriteDialog.visible &&
-            $app.favoriteDialog.objectId === avatarId
+            state.favoriteDialog.visible &&
+            state.favoriteDialog.objectId === avatarId
         ) {
-            $app.updateFavoriteDialog(avatarId);
+            updateFavoriteDialog(avatarId);
         }
         if ($app.avatarDialog.visible && $app.avatarDialog.id === avatarId) {
             this.avatarDialog.isFavorite = true;
@@ -991,6 +1037,36 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         return favoriteGroup.length;
     }
 
+    function updateFavoriteDialog(objectId) {
+        const D = state.favoriteDialog;
+        if (!D.visible || D.objectId !== objectId) {
+            return;
+        }
+        D.currentGroup = {};
+        const favorite = state.favoriteObjects.get(objectId);
+        if (favorite) {
+            let group;
+            for (group of API.favoriteWorldGroups) {
+                if (favorite.groupKey === group.key) {
+                    D.currentGroup = group;
+                    return;
+                }
+            }
+            for (group of API.favoriteAvatarGroups) {
+                if (favorite.groupKey === group.key) {
+                    D.currentGroup = group;
+                    return;
+                }
+            }
+            for (group of state.favoriteFriendGroups) {
+                if (favorite.groupKey === group.key) {
+                    D.currentGroup = group;
+                    return;
+                }
+            }
+        }
+    }
+
     return {
         state,
 
@@ -1013,6 +1089,11 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         avatarImportDialogVisible,
         friendImportDialogVisible,
         localWorldFavorites,
+        localAvatarFavorites,
+        localAvatarFavoritesList,
+        localAvatarFavoriteGroups,
+        favoriteDialog,
+        favoriteObjects,
 
         applyFavorite,
         refreshFavoriteGroups,
@@ -1030,6 +1111,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         hasLocalWorldFavorite,
         hasLocalAvatarFavorite,
         addLocalAvatarFavorite,
-        getLocalAvatarFavoriteGroupLength
+        getLocalAvatarFavoriteGroupLength,
+        updateFavoriteDialog
     };
 });

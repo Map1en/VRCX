@@ -223,10 +223,7 @@
                 </div>
             </el-collapse-item>
         </el-collapse>
-        <AvatarExportDialog
-            :avatar-export-dialog-visible.sync="avatarExportDialogVisible"
-            :local-avatar-favorite-groups="localAvatarFavoriteGroups"
-            :local-avatar-favorites-list="localAvatarFavoritesList" />
+        <AvatarExportDialog :avatar-export-dialog-visible.sync="avatarExportDialogVisible" />
     </div>
 </template>
 
@@ -248,16 +245,15 @@
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
             avatarHistoryArray: Array,
-            refreshingLocalFavorites: Boolean,
-            localAvatarFavoriteGroups: Array,
-            localAvatarFavoritesList: Array
+            refreshingLocalFavorites: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites } = storeToRefs(appearanceSettingsStore);
             const { setSortFavorites } = appearanceSettingsStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites } = storeToRefs(favoriteStore);
+            const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites, localAvatarFavoriteGroups } =
+                storeToRefs(favoriteStore);
             const { showAvatarImportDialog, getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 hideTooltips,
@@ -268,7 +264,8 @@
                 API,
                 showAvatarImportDialog,
                 getLocalAvatarFavoriteGroupLength,
-                localAvatarFavorites
+                localAvatarFavorites,
+                localAvatarFavoriteGroups
             };
         },
         data() {

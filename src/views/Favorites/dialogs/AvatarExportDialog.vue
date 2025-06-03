@@ -87,20 +87,26 @@
     export default {
         name: 'AvatarExportDialog',
         props: {
-            avatarExportDialogVisible: Boolean,
-            localAvatarFavoriteGroups: Array,
-            localAvatarFavoritesList: Array
+            avatarExportDialogVisible: Boolean
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites } = storeToRefs(favoriteStore);
+            const {
+                favoriteAvatars,
+                favoriteAvatarGroups,
+                localAvatarFavorites,
+                localAvatarFavoritesList,
+                localAvatarFavoriteGroups
+            } = storeToRefs(favoriteStore);
             const { getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 favoriteAvatars,
                 API,
                 favoriteAvatarGroups,
                 getLocalAvatarFavoriteGroupLength,
-                localAvatarFavorites
+                localAvatarFavorites,
+                localAvatarFavoritesList,
+                localAvatarFavoriteGroups
             };
         },
         data() {

@@ -58,8 +58,6 @@
                     :edit-favorites-mode="editFavoritesMode"
                     :avatar-history-array="avatarHistoryArray"
                     :refreshing-local-favorites="refreshingLocalFavorites"
-                    :local-avatar-favorite-groups="localAvatarFavoriteGroups"
-                    :local-avatar-favorites-list="localAvatarFavoritesList"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @remove-local-avatar-favorite="removeLocalAvatarFavorite"
@@ -98,15 +96,14 @@
             groupedByGroupKeyFavoriteFriends: Object,
             localWorldFavoriteGroups: Array,
             avatarHistoryArray: Array,
-            localAvatarFavoriteGroups: Array,
-            localAvatarFavoritesList: Array,
             localWorldFavoritesList: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriends, favoriteWorlds, favoriteAvatars, isFavoriteLoading } = storeToRefs(favoriteStore);
+            const { favoriteFriends, favoriteWorlds, favoriteAvatars, isFavoriteLoading, localAvatarFavoritesList } =
+                storeToRefs(favoriteStore);
             const { refreshFavorites, refreshFavoriteGroups, clearBulkFavoriteSelection, bulkCopyFavoriteSelection } =
                 favoriteStore;
             return {
@@ -119,7 +116,8 @@
                 refreshFavoriteGroups,
                 isFavoriteLoading,
                 clearBulkFavoriteSelection,
-                bulkCopyFavoriteSelection
+                bulkCopyFavoriteSelection,
+                localAvatarFavoritesList
             };
         },
         data() {

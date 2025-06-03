@@ -182,15 +182,16 @@
     export default {
         name: 'AvatarImportDialog',
         inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showAvatarDialog'],
-        props: {
-            localAvatarFavoriteGroups: Array
-        },
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatarGroups, avatarImportDialogInput, avatarImportDialogVisible } =
-                storeToRefs(favoriteStore);
+            const {
+                favoriteAvatarGroups,
+                avatarImportDialogInput,
+                avatarImportDialogVisible,
+                localAvatarFavoriteGroups
+            } = storeToRefs(favoriteStore);
             const { addLocalAvatarFavorite, getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 API,
@@ -199,7 +200,8 @@
                 avatarImportDialogInput,
                 avatarImportDialogVisible,
                 addLocalAvatarFavorite,
-                getLocalAvatarFavoriteGroupLength
+                getLocalAvatarFavoriteGroupLength,
+                localAvatarFavoriteGroups
             };
         },
         data() {

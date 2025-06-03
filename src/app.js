@@ -1676,7 +1676,7 @@ API.expireFavorites = function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.store.favorite.cachedFavorites.clear();
     this.cachedFavoritesByObjectId.clear();
-    $app.favoriteObjects.clear();
+    $app.store.favorite.favoriteObjects.clear();
     $app.favoriteFriends_ = [];
     $app.favoriteFriendsSorted = [];
     $app.favoriteWorlds_ = [];
@@ -3178,7 +3178,6 @@ $app.methods.moreSearchUser = async function (go, params) {
 // #endregion
 // #region | App: Favorite
 
-$app.data.favoriteObjects = new Map();
 $app.data.favoriteFriends_ = [];
 $app.data.favoriteFriendsSorted = [];
 $app.data.favoriteWorlds_ = [];
@@ -3190,7 +3189,7 @@ $app.data.sortFavoriteWorlds = false;
 $app.data.sortFavoriteAvatars = false;
 
 API.$on('LOGIN', function () {
-    $app.favoriteObjects.clear();
+    $app.store.favorite.favoriteObjects.clear();
     $app.favoriteFriends_ = [];
     $app.favoriteFriendsSorted = [];
     $app.favoriteWorlds_ = [];
@@ -3230,16 +3229,16 @@ $app.methods.deleteFavoriteNoConfirm = function (objectId) {
     if (!objectId) {
         return;
     }
-    this.favoriteDialog.visible = true;
+    this.store.favorite.favoriteDialog.visible = true;
     favoriteRequest
         .deleteFavorite({
             objectId
         })
         .then(() => {
-            this.favoriteDialog.visible = false;
+            this.store.favorite.favoriteDialog.visible = false;
         })
         .finally(() => {
-            this.favoriteDialog.loading = false;
+            this.store.favorite.favoriteDialog.loading = false;
         });
 };
 
@@ -6049,7 +6048,7 @@ $app.methods.showAvatarDialog = function (avatarId) {
     D.isFavorite =
         API.cachedFavoritesByObjectId.has(avatarId) ||
         (API.currentUser.$isVRCPlus &&
-            this.localAvatarFavoritesList.includes(avatarId));
+            this.store.favorite.localAvatarFavoritesList.includes(avatarId));
     D.isBlocked = API.cachedAvatarModerations.has(avatarId);
     const ref2 = API.cachedAvatars.get(avatarId);
     if (typeof ref2 !== 'undefined') {
@@ -6236,58 +6235,20 @@ $app.methods.showAvatarAuthorDialog = async function (
 // #endregion
 // #region | App: Favorite Dialog
 
-$app.data.favoriteDialog = {
-    visible: false,
-    loading: false,
-    type: '',
-    objectId: '',
-    currentGroup: {}
-};
-
 $app.methods.showFavoriteDialog = function (type, objectId) {
-    const D = this.favoriteDialog;
+    const D = this.store.favorite.favoriteDialog;
     D.type = type;
     D.objectId = objectId;
     D.visible = true;
-    this.updateFavoriteDialog(objectId);
-};
-
-$app.methods.updateFavoriteDialog = function (objectId) {
-    const D = this.favoriteDialog;
-    if (!D.visible || D.objectId !== objectId) {
-        return;
-    }
-    D.currentGroup = {};
-    const favorite = this.favoriteObjects.get(objectId);
-    if (favorite) {
-        let group;
-        for (group of API.favoriteWorldGroups) {
-            if (favorite.groupKey === group.key) {
-                D.currentGroup = group;
-                return;
-            }
-        }
-        for (group of API.favoriteAvatarGroups) {
-            if (favorite.groupKey === group.key) {
-                D.currentGroup = group;
-                return;
-            }
-        }
-        for (group of this.store.favorite.favoriteFriendGroups) {
-            if (favorite.groupKey === group.key) {
-                D.currentGroup = group;
-                return;
-            }
-        }
-    }
+    this.store.favorite.updateFavoriteDialog(objectId);
 };
 
 API.$on('FAVORITE:ADD', function (args) {
-    $app.updateFavoriteDialog(args.params.favoriteId);
+    $app.store.favorite.updateFavoriteDialog(args.params.favoriteId);
 });
 
 API.$on('FAVORITE:DELETE', function (args) {
-    $app.updateFavoriteDialog(args.params.objectId);
+    $app.store.favorite.updateFavoriteDialog(args.params.objectId);
 });
 
 // #endregion
@@ -7546,7 +7507,7 @@ $app.methods.clearVRCXCache = function () {
         if (
             !API.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
-            !this.localAvatarFavoritesList.includes(id) &&
+            !this.store.favorite.localAvatarFavoritesList.includes(id) &&
             !$app.avatarHistory.has(id)
         ) {
             API.cachedAvatars.delete(id);
@@ -8287,10 +8248,10 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
     }
     database.removeWorldFromFavorites(worldId, group);
     if (
-        this.favoriteDialog.visible &&
-        this.favoriteDialog.objectId === worldId
+        this.store.favorite.favoriteDialog.visible &&
+        this.store.favorite.favoriteDialog.objectId === worldId
     ) {
-        this.updateFavoriteDialog(worldId);
+        this.store.favorite.updateFavoriteDialog(worldId);
     }
     if (this.worldDialog.visible && this.worldDialog.id === worldId) {
         this.worldDialog.isFavorite =
@@ -8455,9 +8416,6 @@ API.$on('LOGIN', function () {
 // #endregion
 // #region | App: Local Avatar Favorites
 
-$app.data.localAvatarFavoriteGroups = [];
-$app.data.localAvatarFavoritesList = [];
-
 $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
     let i;
     const favoriteGroup = this.store.favorite.localAvatarFavorites[group];
@@ -8469,8 +8427,8 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
 
     // remove from cache if no longer in favorites
     let avatarInFavorites = false;
-    for (i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-        const groupName = this.localAvatarFavoriteGroups[i];
+    for (i = 0; i < this.store.favorite.localAvatarFavoriteGroups.length; ++i) {
+        const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
         if (
             !this.store.favorite.localAvatarFavorites[groupName] ||
             group === groupName
@@ -8491,17 +8449,17 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
         }
     }
     if (!avatarInFavorites) {
-        removeFromArray(this.localAvatarFavoritesList, avatarId);
+        removeFromArray(this.store.favorite.localAvatarFavoritesList, avatarId);
         if (!this.avatarHistory.has(avatarId)) {
             database.removeAvatarFromCache(avatarId);
         }
     }
     database.removeAvatarFromFavorites(avatarId, group);
     if (
-        this.favoriteDialog.visible &&
-        this.favoriteDialog.objectId === avatarId
+        this.store.favorite.favoriteDialog.visible &&
+        this.store.favorite.favoriteDialog.objectId === avatarId
     ) {
-        this.updateFavoriteDialog(avatarId);
+        this.store.favorite.updateFavoriteDialog(avatarId);
     }
     if (this.avatarDialog.visible && this.avatarDialog.id === avatarId) {
         this.avatarDialog.isFavorite =
@@ -8513,9 +8471,13 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
 };
 
 API.$on('AVATAR', function (args) {
-    if ($app.localAvatarFavoritesList.includes(args.ref.id)) {
-        for (let i = 0; i < $app.localAvatarFavoriteGroups.length; ++i) {
-            const groupName = $app.localAvatarFavoriteGroups[i];
+    if ($app.store.favorite.localAvatarFavoritesList.includes(args.ref.id)) {
+        for (
+            let i = 0;
+            i < $app.store.favorite.localAvatarFavoriteGroups.length;
+            ++i
+        ) {
+            const groupName = $app.store.favorite.localAvatarFavoriteGroups[i];
             if (!$app.store.favorite.localAvatarFavorites[groupName]) {
                 continue;
             }
@@ -8539,8 +8501,8 @@ API.$on('AVATAR', function (args) {
 });
 
 API.$on('LOGIN', function () {
-    $app.localAvatarFavoriteGroups = [];
-    $app.localAvatarFavoritesList = [];
+    $app.store.favorite.localAvatarFavoriteGroups = [];
+    $app.store.favorite.localAvatarFavoritesList = [];
     $app.store.favorite.localAvatarFavorites = {};
     workerTimers.setTimeout(() => $app.getLocalAvatarFavorites(), 100);
 });
@@ -8548,8 +8510,8 @@ API.$on('LOGIN', function () {
 $app.methods.getLocalAvatarFavorites = async function () {
     let ref;
     let i;
-    this.localAvatarFavoriteGroups = [];
-    this.localAvatarFavoritesList = [];
+    this.store.favorite.localAvatarFavoriteGroups = [];
+    this.store.favorite.localAvatarFavoritesList = [];
     this.store.favorite.localAvatarFavorites = {};
     const avatarCache = await database.getAvatarCache();
     for (i = 0; i < avatarCache.length; ++i) {
@@ -8561,14 +8523,26 @@ $app.methods.getLocalAvatarFavorites = async function () {
     const favorites = await database.getAvatarFavorites();
     for (i = 0; i < favorites.length; ++i) {
         const favorite = favorites[i];
-        if (!this.localAvatarFavoritesList.includes(favorite.avatarId)) {
-            this.localAvatarFavoritesList.push(favorite.avatarId);
+        if (
+            !this.store.favorite.localAvatarFavoritesList.includes(
+                favorite.avatarId
+            )
+        ) {
+            this.store.favorite.localAvatarFavoritesList.push(
+                favorite.avatarId
+            );
         }
         if (!this.store.favorite.localAvatarFavorites[favorite.groupName]) {
             this.store.favorite.localAvatarFavorites[favorite.groupName] = [];
         }
-        if (!this.localAvatarFavoriteGroups.includes(favorite.groupName)) {
-            this.localAvatarFavoriteGroups.push(favorite.groupName);
+        if (
+            !this.store.favorite.localAvatarFavoriteGroups.includes(
+                favorite.groupName
+            )
+        ) {
+            this.store.favorite.localAvatarFavoriteGroups.push(
+                favorite.groupName
+            );
         }
         ref = API.cachedAvatars.get(favorite.avatarId);
         if (typeof ref === 'undefined') {
@@ -8580,10 +8554,10 @@ $app.methods.getLocalAvatarFavorites = async function () {
             ref
         );
     }
-    if (this.localAvatarFavoriteGroups.length === 0) {
+    if (this.store.favorite.localAvatarFavoriteGroups.length === 0) {
         // default group
         this.store.favorite.localAvatarFavorites.Favorites = [];
-        this.localAvatarFavoriteGroups.push('Favorites');
+        this.store.favorite.localAvatarFavoriteGroups.push('Favorites');
     }
     this.sortLocalAvatarFavorites();
 };
@@ -8610,7 +8584,7 @@ $app.methods.promptNewLocalAvatarFavoriteGroup = function () {
 };
 
 $app.methods.newLocalAvatarFavoriteGroup = function (group) {
-    if (this.localAvatarFavoriteGroups.includes(group)) {
+    if (this.store.favorite.localAvatarFavoriteGroups.includes(group)) {
         $app.$message({
             message: $t('prompt.new_local_favorite_group.message.error', {
                 name: group
@@ -8622,8 +8596,8 @@ $app.methods.newLocalAvatarFavoriteGroup = function (group) {
     if (!this.store.favorite.localAvatarFavorites[group]) {
         this.store.favorite.localAvatarFavorites[group] = [];
     }
-    if (!this.localAvatarFavoriteGroups.includes(group)) {
-        this.localAvatarFavoriteGroups.push(group);
+    if (!this.store.favorite.localAvatarFavoriteGroups.includes(group)) {
+        this.store.favorite.localAvatarFavoriteGroups.push(group);
     }
     this.sortLocalAvatarFavorites();
 };
@@ -8654,7 +8628,7 @@ $app.methods.promptLocalAvatarFavoriteGroupRename = function (group) {
 };
 
 $app.methods.renameLocalAvatarFavoriteGroup = function (newName, group) {
-    if (this.localAvatarFavoriteGroups.includes(newName)) {
+    if (this.store.favorite.localAvatarFavoriteGroups.includes(newName)) {
         $app.$message({
             message: $t('prompt.local_favorite_group_rename.message.error', {
                 name: newName
@@ -8663,11 +8637,11 @@ $app.methods.renameLocalAvatarFavoriteGroup = function (newName, group) {
         });
         return;
     }
-    this.localAvatarFavoriteGroups.push(newName);
+    this.store.favorite.localAvatarFavoriteGroups.push(newName);
     this.store.favorite.localAvatarFavorites[newName] =
         this.store.favorite.localAvatarFavorites[group];
 
-    removeFromArray(this.localAvatarFavoriteGroups, group);
+    removeFromArray(this.store.favorite.localAvatarFavoriteGroups, group);
     delete this.store.favorite.localAvatarFavorites[group];
     database.renameAvatarFavoriteGroup(newName, group);
     this.sortLocalAvatarFavorites();
@@ -8687,10 +8661,14 @@ $app.methods.promptLocalAvatarFavoriteGroupDelete = function (group) {
 };
 
 $app.methods.sortLocalAvatarFavorites = function () {
-    this.localAvatarFavoriteGroups.sort();
+    this.store.favorite.localAvatarFavoriteGroups.sort();
     if (!this.store.appearanceSettings.sortFavorites) {
-        for (let i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-            const group = this.localAvatarFavoriteGroups[i];
+        for (
+            let i = 0;
+            i < this.store.favorite.localAvatarFavoriteGroups.length;
+            ++i
+        ) {
+            const group = this.store.favorite.localAvatarFavoriteGroups[i];
             if (this.store.favorite.localAvatarFavorites[group]) {
                 this.store.favorite.localAvatarFavorites[group].sort(
                     compareByName
@@ -8709,12 +8687,12 @@ $app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
         avatarIdRemoveList.add(favoriteGroup[i].id);
     }
 
-    removeFromArray(this.localAvatarFavoriteGroups, group);
+    removeFromArray(this.store.favorite.localAvatarFavoriteGroups, group);
     delete this.store.favorite.localAvatarFavorites[group];
     database.deleteAvatarFavoriteGroup(group);
 
-    for (i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-        const groupName = this.localAvatarFavoriteGroups[i];
+    for (i = 0; i < this.store.favorite.localAvatarFavoriteGroups.length; ++i) {
+        const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
         if (!this.store.favorite.localAvatarFavorites[groupName]) {
             continue;
         }
@@ -8735,8 +8713,12 @@ $app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
     avatarIdRemoveList.forEach((id) => {
         // remove from cache if no longer in favorites
         let avatarInFavorites = false;
-        loop: for (let i = 0; i < this.localAvatarFavoriteGroups.length; ++i) {
-            const groupName = this.localAvatarFavoriteGroups[i];
+        loop: for (
+            let i = 0;
+            i < this.store.favorite.localAvatarFavoriteGroups.length;
+            ++i
+        ) {
+            const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
             if (
                 !this.store.favorite.localAvatarFavorites[groupName] ||
                 group === groupName
@@ -8757,7 +8739,7 @@ $app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
             }
         }
         if (!avatarInFavorites) {
-            removeFromArray(this.localAvatarFavoritesList, id);
+            removeFromArray(this.store.favorite.localAvatarFavoritesList, id);
             if (!this.avatarHistory.has(id)) {
                 database.removeAvatarFromCache(id);
             }
@@ -9354,8 +9336,6 @@ $app.computed.favoritesTabBind = function () {
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
         localWorldFavoriteGroups: this.localWorldFavoriteGroups,
         avatarHistoryArray: this.avatarHistoryArray,
-        localAvatarFavoriteGroups: this.localAvatarFavoriteGroups,
-        localAvatarFavoritesList: this.localAvatarFavoritesList,
         localWorldFavoritesList: this.localWorldFavoritesList
     };
 };
