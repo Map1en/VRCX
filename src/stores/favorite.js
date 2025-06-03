@@ -65,7 +65,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             objectId: '',
             currentGroup: {}
         },
-        favoriteObjects: new Map()
+        favoriteObjects: new Map(),
+        localWorldFavoriteGroups: []
     });
 
     const favoriteFriends = computed(() => {
@@ -933,8 +934,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (!state.localWorldFavorites[group]) {
             state.localWorldFavorites[group] = [];
         }
-        if (!$app.localWorldFavoriteGroups.includes(group)) {
-            $app.localWorldFavoriteGroups.push(group);
+        if (!state.localWorldFavoriteGroups.includes(group)) {
+            state.localWorldFavoriteGroups.push(group);
         }
         state.localWorldFavorites[group].unshift(ref);
         database.addWorldToCache(ref);
@@ -1052,7 +1053,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     return;
                 }
             }
-            for (group of API.favoriteAvatarGroups) {
+            for (group of state.favoriteAvatarGroups) {
                 if (favorite.groupKey === group.key) {
                     D.currentGroup = group;
                     return;

@@ -75,12 +75,6 @@
     export default {
         name: 'ChooseFavoriteGroupDialog',
         inject: ['adjustDialogZ'],
-        props: {
-            localWorldFavoriteGroups: {
-                type: Array,
-                default: () => []
-            }
-        },
         setup() {
             const favoriteStore = useFavoriteStore();
             const {
@@ -88,7 +82,8 @@
                 favoriteAvatarGroups,
                 favoriteWorldGroups,
                 localAvatarFavoriteGroups,
-                favoriteDialog
+                favoriteDialog,
+                localWorldFavoriteGroups
             } = storeToRefs(favoriteStore);
             const {
                 getLocalWorldFavoriteGroupLength,
@@ -110,7 +105,8 @@
                 addLocalAvatarFavorite,
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavoriteGroups,
-                favoriteDialog
+                favoriteDialog,
+                localWorldFavoriteGroups
             };
         },
         data() {

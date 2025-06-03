@@ -9,15 +9,11 @@ mixin dialogs
 
     //- favorites
     FriendImportDialog
-
-    WorldImportDialog(
-        :localWorldFavoriteGroups='localWorldFavoriteGroups')
-
+    WorldImportDialog
     AvatarImportDialog
 
     //- favorites dialog
     ChooseFavoriteGroupDialog(
-        :localWorldFavoriteGroups='localWorldFavoriteGroups'
         @removeLocalWorldFavorite='removeLocalWorldFavorite'
         @removeLocalAvatarFavorite='removeLocalAvatarFavorite'
         @deleteFavoriteNoConfirm='deleteFavoriteNoConfirm')

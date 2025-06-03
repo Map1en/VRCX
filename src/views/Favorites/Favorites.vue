@@ -26,7 +26,7 @@
             </el-tooltip>
         </div>
         <el-tabs v-model="currentTabName" v-loading="isFavoriteLoading" type="card" style="height: 100%">
-            <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')" lazy>
+            <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')">
                 <FavoritesFriendTab
                     :hide-tooltips="hideTooltips"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
@@ -40,7 +40,6 @@
                     :edit-favorites-mode="editFavoritesMode"
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
-                    :local-world-favorite-groups="localWorldFavoriteGroups"
                     :local-world-favorites-list="localWorldFavoritesList"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -94,7 +93,6 @@
             menuActiveIndex: String,
             shiftHeld: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
-            localWorldFavoriteGroups: Array,
             avatarHistoryArray: Array,
             localWorldFavoritesList: Array
         },

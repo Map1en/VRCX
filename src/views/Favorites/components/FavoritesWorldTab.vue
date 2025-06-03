@@ -217,7 +217,6 @@
         </el-collapse>
         <WorldExportDialog
             :world-export-dialog-visible.sync="worldExportDialogVisible"
-            :local-world-favorite-groups="localWorldFavoriteGroups"
             :local-world-favorites-list="localWorldFavoritesList" />
     </div>
 </template>
@@ -242,14 +241,14 @@
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
             refreshingLocalFavorites: Boolean,
-            localWorldFavoriteGroups: Array,
             localWorldFavoritesList: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites } = storeToRefs(favoriteStore);
+            const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites, localWorldFavoriteGroups } =
+                storeToRefs(favoriteStore);
             const { showWorldImportDialog, getLocalWorldFavoriteGroupLength } = favoriteStore;
             return {
                 hideTooltips,
@@ -260,7 +259,8 @@
                 favoriteWorldGroups,
                 showWorldImportDialog,
                 getLocalWorldFavoriteGroupLength,
-                localWorldFavorites
+                localWorldFavorites,
+                localWorldFavoriteGroups
             };
         },
         data() {

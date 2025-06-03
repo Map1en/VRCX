@@ -187,14 +187,11 @@
     export default {
         name: 'WorldImportDialog',
         inject: ['showFullscreenImageDialog', 'adjustDialogZ', 'showWorldDialog'],
-        props: {
-            localWorldFavoriteGroups: Array
-        },
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible } =
+            const { favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible, localWorldFavoriteGroups } =
                 storeToRefs(favoriteStore);
             const { getLocalWorldFavoriteGroupLength } = favoriteStore;
             return {
@@ -203,7 +200,8 @@
                 favoriteWorldGroups,
                 worldImportDialogInput,
                 worldImportDialogVisible,
-                getLocalWorldFavoriteGroupLength
+                getLocalWorldFavoriteGroupLength,
+                localWorldFavoriteGroups
             };
         },
         data() {

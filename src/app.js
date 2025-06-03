@@ -8208,7 +8208,6 @@ $app.methods.openUGCFolderSelector = async function () {
 // #endregion
 // #region | App: local world favorites
 
-$app.data.localWorldFavoriteGroups = [];
 $app.data.localWorldFavoritesList = [];
 
 $app.methods.removeLocalWorldFavorite = function (worldId, group) {
@@ -8222,8 +8221,8 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
 
     // remove from cache if no longer in favorites
     let worldInFavorites = false;
-    for (i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-        const groupName = this.localWorldFavoriteGroups[i];
+    for (i = 0; i < this.store.favorite.localWorldFavoriteGroups.length; ++i) {
+        const groupName = this.store.favorite.localWorldFavoriteGroups[i];
         if (
             !this.store.favorite.localWorldFavorites[groupName] ||
             group === groupName
@@ -8263,7 +8262,7 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
 };
 
 $app.methods.getLocalWorldFavorites = async function () {
-    this.localWorldFavoriteGroups = [];
+    this.store.favorite.localWorldFavoriteGroups = [];
     this.localWorldFavoritesList = [];
     this.store.favorite.localWorldFavorites = {};
     const worldCache = await database.getWorldCache();
@@ -8282,8 +8281,14 @@ $app.methods.getLocalWorldFavorites = async function () {
         if (!this.store.favorite.localWorldFavorites[favorite.groupName]) {
             this.store.favorite.localWorldFavorites[favorite.groupName] = [];
         }
-        if (!this.localWorldFavoriteGroups.includes(favorite.groupName)) {
-            this.localWorldFavoriteGroups.push(favorite.groupName);
+        if (
+            !this.store.favorite.localWorldFavoriteGroups.includes(
+                favorite.groupName
+            )
+        ) {
+            this.store.favorite.localWorldFavoriteGroups.push(
+                favorite.groupName
+            );
         }
         let ref = API.cachedWorlds.get(favorite.worldId);
         if (typeof ref === 'undefined') {
@@ -8295,10 +8300,10 @@ $app.methods.getLocalWorldFavorites = async function () {
             ref
         );
     }
-    if (this.localWorldFavoriteGroups.length === 0) {
+    if (this.store.favorite.localWorldFavoriteGroups.length === 0) {
         // default group
         this.store.favorite.localWorldFavorites.Favorites = [];
-        this.localWorldFavoriteGroups.push('Favorites');
+        this.store.favorite.localWorldFavoriteGroups.push('Favorites');
     }
     this.sortLocalWorldFavorites();
 };
@@ -8312,7 +8317,7 @@ $app.methods.getLocalWorldFavoriteGroupLength = function (group) {
 };
 
 $app.methods.newLocalWorldFavoriteGroup = function (group) {
-    if (this.localWorldFavoriteGroups.includes(group)) {
+    if (this.store.favorite.localWorldFavoriteGroups.includes(group)) {
         $app.$message({
             message: $t('prompt.new_local_favorite_group.message.error', {
                 name: group
@@ -8324,14 +8329,14 @@ $app.methods.newLocalWorldFavoriteGroup = function (group) {
     if (!this.store.favorite.localWorldFavorites[group]) {
         this.store.favorite.localWorldFavorites[group] = [];
     }
-    if (!this.localWorldFavoriteGroups.includes(group)) {
-        this.localWorldFavoriteGroups.push(group);
+    if (!this.store.favorite.localWorldFavoriteGroups.includes(group)) {
+        this.store.favorite.localWorldFavoriteGroups.push(group);
     }
     this.sortLocalWorldFavorites();
 };
 
 $app.methods.renameLocalWorldFavoriteGroup = function (newName, group) {
-    if (this.localWorldFavoriteGroups.includes(newName)) {
+    if (this.store.favorite.localWorldFavoriteGroups.includes(newName)) {
         $app.$message({
             message: $t('prompt.local_favorite_group_rename.message.error', {
                 name: newName
@@ -8340,21 +8345,25 @@ $app.methods.renameLocalWorldFavoriteGroup = function (newName, group) {
         });
         return;
     }
-    this.localWorldFavoriteGroups.push(newName);
+    this.store.favorite.localWorldFavoriteGroups.push(newName);
     this.store.favorite.localWorldFavorites[newName] =
         this.store.favorite.localWorldFavorites[group];
 
-    removeFromArray(this.localWorldFavoriteGroups, group);
+    removeFromArray(this.store.favorite.localWorldFavoriteGroups, group);
     delete this.store.favorite.localWorldFavorites[group];
     database.renameWorldFavoriteGroup(newName, group);
     this.sortLocalWorldFavorites();
 };
 
 $app.methods.sortLocalWorldFavorites = function () {
-    this.localWorldFavoriteGroups.sort();
+    this.store.favorite.localWorldFavoriteGroups.sort();
     if (!this.store.appearanceSettings.sortFavorites) {
-        for (let i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-            const group = this.localWorldFavoriteGroups[i];
+        for (
+            let i = 0;
+            i < this.store.favorite.localWorldFavoriteGroups.length;
+            ++i
+        ) {
+            const group = this.store.favorite.localWorldFavoriteGroups[i];
             if (this.store.favorite.localWorldFavorites[group]) {
                 this.store.favorite.localWorldFavorites[group].sort(
                     compareByName
@@ -8373,12 +8382,12 @@ $app.methods.deleteLocalWorldFavoriteGroup = function (group) {
         worldIdRemoveList.add(favoriteGroup[i].id);
     }
 
-    removeFromArray(this.localWorldFavoriteGroups, group);
+    removeFromArray(this.store.favorite.localWorldFavoriteGroups, group);
     delete this.store.favorite.localWorldFavorites[group];
     database.deleteWorldFavoriteGroup(group);
 
-    for (i = 0; i < this.localWorldFavoriteGroups.length; ++i) {
-        const groupName = this.localWorldFavoriteGroups[i];
+    for (i = 0; i < this.store.favorite.localWorldFavoriteGroups.length; ++i) {
+        const groupName = this.store.favorite.localWorldFavoriteGroups[i];
         if (!this.store.favorite.localWorldFavorites[groupName]) {
             continue;
         }
@@ -9334,7 +9343,6 @@ $app.computed.favoritesTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
-        localWorldFavoriteGroups: this.localWorldFavoriteGroups,
         avatarHistoryArray: this.avatarHistoryArray,
         localWorldFavoritesList: this.localWorldFavoritesList
     };
