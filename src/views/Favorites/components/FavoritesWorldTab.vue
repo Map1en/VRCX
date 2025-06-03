@@ -215,9 +215,7 @@
                 </div>
             </el-collapse-item>
         </el-collapse>
-        <WorldExportDialog
-            :world-export-dialog-visible.sync="worldExportDialogVisible"
-            :local-world-favorites-list="localWorldFavoritesList" />
+        <WorldExportDialog :world-export-dialog-visible.sync="worldExportDialogVisible" />
     </div>
 </template>
 
@@ -240,8 +238,7 @@
         props: {
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
-            refreshingLocalFavorites: Boolean,
-            localWorldFavoritesList: Array
+            refreshingLocalFavorites: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

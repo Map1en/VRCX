@@ -17,7 +17,7 @@
                     style="margin-left: 5px"
                     @click.stop="selectAvatarWithConfirmation"></el-button>
             </el-tooltip>
-            <template v-if="API.cachedFavoritesByObjectId.has(favorite.id)">
+            <template v-if="cachedFavoritesByObjectId.has(favorite.id)">
                 <el-tooltip placement="right" content="Unfavorite" :disabled="hideTooltips">
                     <el-button
                         type="default"
@@ -47,6 +47,7 @@
     import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesAvatarLocalHistoryItem',
@@ -60,9 +61,12 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const favoriteStore = useFavoriteStore();
+            const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
             return {
                 hideTooltips,
-                API
+                API,
+                cachedFavoritesByObjectId
             };
         },
         computed: {

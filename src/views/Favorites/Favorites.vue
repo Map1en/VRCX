@@ -40,7 +40,6 @@
                     :edit-favorites-mode="editFavoritesMode"
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
-                    :local-world-favorites-list="localWorldFavoritesList"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @new-instance-self-invite="newInstanceSelfInvite"
@@ -93,15 +92,20 @@
             menuActiveIndex: String,
             shiftHeld: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
-            avatarHistoryArray: Array,
-            localWorldFavoritesList: Array
+            avatarHistoryArray: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriends, favoriteWorlds, favoriteAvatars, isFavoriteLoading, localAvatarFavoritesList } =
-                storeToRefs(favoriteStore);
+            const {
+                favoriteFriends,
+                favoriteWorlds,
+                favoriteAvatars,
+                isFavoriteLoading,
+                localAvatarFavoritesList,
+                localWorldFavoritesList
+            } = storeToRefs(favoriteStore);
             const { refreshFavorites, refreshFavoriteGroups, clearBulkFavoriteSelection, bulkCopyFavoriteSelection } =
                 favoriteStore;
             return {
@@ -115,7 +119,8 @@
                 isFavoriteLoading,
                 clearBulkFavoriteSelection,
                 bulkCopyFavoriteSelection,
-                localAvatarFavoritesList
+                localAvatarFavoritesList,
+                localWorldFavoritesList
             };
         },
         data() {

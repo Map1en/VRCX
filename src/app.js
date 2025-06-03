@@ -1491,7 +1491,7 @@ API.applyAvatarModeration = function (json) {
 // #endregion
 // #region | API: Favorite
 
-API.cachedFavoritesByObjectId = new Map();
+// API.cachedFavoritesByObjectId = new Map();
 API.favoriteAvatarGroups = [];
 API.isFavoriteGroupLoading = false;
 
@@ -1499,7 +1499,7 @@ API.$on('LOGIN', function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.currentUserGroupsInit = false;
     $app.store.favorite.cachedFavorites.clear();
-    this.cachedFavoritesByObjectId.clear();
+    $app.store.favorite.cachedFavoritesByObjectId.clear();
     $app.store.favorite.cachedFavoriteGroups.clear();
     $app.store.favorite.cachedFavoriteGroupsByTypeName.clear();
     this.currentUserGroups.clear();
@@ -1568,12 +1568,14 @@ API.$on('FAVORITE:ADD', function (args) {
 });
 
 API.$on('FAVORITE:DELETE', function (args) {
-    const ref = this.cachedFavoritesByObjectId.get(args.params.objectId);
+    const ref = $app.store.favorite.cachedFavoritesByObjectId.get(
+        args.params.objectId
+    );
     if (typeof ref === 'undefined') {
         return;
     }
     // 애초에 $isDeleted인데 여기로 올 수 가 있나..?
-    this.cachedFavoritesByObjectId.delete(args.params.objectId);
+    $app.store.favorite.cachedFavoritesByObjectId.delete(args.params.objectId);
     $app.store.friend.localFavoriteFriends.delete(args.params.objectId);
     $app.store.friend.updateSidebarFriendsList();
     if (ref.$isDeleted) {
@@ -1627,7 +1629,7 @@ API.$on('FAVORITE:GROUP:CLEAR', function (args) {
         if (ref.$isDeleted || ref.$groupKey !== key) {
             continue;
         }
-        this.cachedFavoritesByObjectId.delete(ref.favoriteId);
+        $app.store.favorite.cachedFavoritesByObjectId.delete(ref.favoriteId);
         $app.store.friend.localFavoriteFriends.delete(ref.favoriteId);
         $app.store.friend.updateSidebarFriendsList();
         ref.$isDeleted = true;
@@ -1675,14 +1677,14 @@ API.$on('FAVORITE:AVATAR:LIST', function (args) {
 API.expireFavorites = function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.store.favorite.cachedFavorites.clear();
-    this.cachedFavoritesByObjectId.clear();
+    $app.store.favorite.cachedFavoritesByObjectId.clear();
     $app.store.favorite.favoriteObjects.clear();
-    $app.favoriteFriends_ = [];
-    $app.favoriteFriendsSorted = [];
-    $app.favoriteWorlds_ = [];
-    $app.favoriteWorldsSorted = [];
-    $app.favoriteAvatars_ = [];
-    $app.favoriteAvatarsSorted = [];
+    $app.store.favorite.favoriteFriends_ = [];
+    $app.store.favorite.favoriteFriendsSorted = [];
+    $app.store.favorite.favoriteWorlds_ = [];
+    $app.store.favorite.favoriteWorldsSorted = [];
+    $app.store.favorite.favoriteAvatars_ = [];
+    $app.store.favorite.favoriteAvatarsSorted = [];
 };
 
 // #endregion
@@ -3178,25 +3180,25 @@ $app.methods.moreSearchUser = async function (go, params) {
 // #endregion
 // #region | App: Favorite
 
-$app.data.favoriteFriends_ = [];
-$app.data.favoriteFriendsSorted = [];
-$app.data.favoriteWorlds_ = [];
-$app.data.favoriteWorldsSorted = [];
-$app.data.favoriteAvatars_ = [];
-$app.data.favoriteAvatarsSorted = [];
-$app.data.sortFavoriteFriends = false;
+// $app.data.favoriteFriends_ = [];
+// $app.data.favoriteFriendsSorted = [];
+// $app.data.favoriteWorlds_ = [];
+// $app.data.favoriteWorldsSorted = [];
+// $app.data.favoriteAvatars_ = [];
+// $app.data.favoriteAvatarsSorted = [];
+// $app.data.sortFavoriteFriends = false;
 $app.data.sortFavoriteWorlds = false;
 $app.data.sortFavoriteAvatars = false;
 
 API.$on('LOGIN', function () {
     $app.store.favorite.favoriteObjects.clear();
-    $app.favoriteFriends_ = [];
-    $app.favoriteFriendsSorted = [];
-    $app.favoriteWorlds_ = [];
+    $app.store.favorite.favoriteFriends_ = [];
+    $app.store.favorite.favoriteFriendsSorted = [];
+    $app.store.favorite.favoriteWorlds_ = [];
     $app.favoriteWorldsSorted = [];
-    $app.favoriteAvatars_ = [];
+    $app.store.favorite.favoriteAvatars_ = [];
     $app.favoriteAvatarsSorted = [];
-    $app.sortFavoriteFriends = false;
+    $app.store.favorite.sortFavoriteFriends = false;
     $app.sortFavoriteWorlds = false;
     $app.sortFavoriteAvatars = false;
 });
@@ -5456,7 +5458,7 @@ API.$on('FAVORITE:@DELETE', function (args) {
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
-    D.isFavorite = $app.localWorldFavoritesList.includes(D.id);
+    D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(D.id);
 });
 
 $app.methods.showWorldDialog = function (tag, shortName) {
@@ -5530,9 +5532,13 @@ $app.methods.showWorldDialog = function (tag, shortName) {
             if (D.id === args.ref.id) {
                 D.loading = false;
                 D.ref = args.ref;
-                D.isFavorite = API.cachedFavoritesByObjectId.has(D.id);
+                D.isFavorite =
+                    $app.store.favorite.cachedFavoritesByObjectId.has(D.id);
                 if (!D.isFavorite) {
-                    D.isFavorite = this.localWorldFavoritesList.includes(D.id);
+                    D.isFavorite =
+                        this.store.favorite.localWorldFavoritesList.includes(
+                            D.id
+                        );
                 }
                 let { isPC, isQuest, isIos } = getAvailablePlatforms(
                     args.ref.unityPackages
@@ -6046,7 +6052,7 @@ $app.methods.showAvatarDialog = function (avatarId) {
     D.galleryImages = [];
     D.galleryLoading = true;
     D.isFavorite =
-        API.cachedFavoritesByObjectId.has(avatarId) ||
+        $app.store.favorite.cachedFavoritesByObjectId.has(avatarId) ||
         (API.currentUser.$isVRCPlus &&
             this.store.favorite.localAvatarFavoritesList.includes(avatarId));
     D.isBlocked = API.cachedAvatarModerations.has(avatarId);
@@ -7496,16 +7502,16 @@ $app.methods.clearVRCXCache = function () {
     });
     API.cachedWorlds.forEach((ref, id) => {
         if (
-            !API.cachedFavoritesByObjectId.has(id) &&
+            !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
-            !this.localWorldFavoritesList.includes(id)
+            !$app.store.favorite.localWorldFavoritesList.includes(id)
         ) {
             API.cachedWorlds.delete(id);
         }
     });
     API.cachedAvatars.forEach((ref, id) => {
         if (
-            !API.cachedFavoritesByObjectId.has(id) &&
+            !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
             !this.store.favorite.localAvatarFavoritesList.includes(id) &&
             !$app.avatarHistory.has(id)
@@ -8208,8 +8214,6 @@ $app.methods.openUGCFolderSelector = async function () {
 // #endregion
 // #region | App: local world favorites
 
-$app.data.localWorldFavoritesList = [];
-
 $app.methods.removeLocalWorldFavorite = function (worldId, group) {
     let i;
     const favoriteGroup = this.store.favorite.localWorldFavorites[group];
@@ -8242,7 +8246,7 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
         }
     }
     if (!worldInFavorites) {
-        removeFromArray(this.localWorldFavoritesList, worldId);
+        removeFromArray(this.store.favorite.localWorldFavoritesList, worldId);
         database.removeWorldFromCache(worldId);
     }
     database.removeWorldFromFavorites(worldId, group);
@@ -8254,7 +8258,7 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
     }
     if (this.worldDialog.visible && this.worldDialog.id === worldId) {
         this.worldDialog.isFavorite =
-            API.cachedFavoritesByObjectId.has(worldId);
+            this.store.favorite.cachedFavoritesByObjectId.has(worldId);
     }
 
     // update UI
@@ -8263,7 +8267,7 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
 
 $app.methods.getLocalWorldFavorites = async function () {
     this.store.favorite.localWorldFavoriteGroups = [];
-    this.localWorldFavoritesList = [];
+    this.store.favorite.localWorldFavoritesList = [];
     this.store.favorite.localWorldFavorites = {};
     const worldCache = await database.getWorldCache();
     for (let i = 0; i < worldCache.length; ++i) {
@@ -8275,8 +8279,12 @@ $app.methods.getLocalWorldFavorites = async function () {
     const favorites = await database.getWorldFavorites();
     for (let i = 0; i < favorites.length; ++i) {
         const favorite = favorites[i];
-        if (!this.localWorldFavoritesList.includes(favorite.worldId)) {
-            this.localWorldFavoritesList.push(favorite.worldId);
+        if (
+            !this.store.favorite.localWorldFavoritesList.includes(
+                favorite.worldId
+            )
+        ) {
+            this.store.favorite.localWorldFavoritesList.push(favorite.worldId);
         }
         if (!this.store.favorite.localWorldFavorites[favorite.groupName]) {
             this.store.favorite.localWorldFavorites[favorite.groupName] = [];
@@ -8406,13 +8414,13 @@ $app.methods.deleteLocalWorldFavoriteGroup = function (group) {
     }
 
     worldIdRemoveList.forEach((id) => {
-        removeFromArray(this.localWorldFavoritesList, id);
+        removeFromArray(this.store.favorite.localWorldFavoritesList, id);
         database.removeWorldFromCache(id);
     });
 };
 
 API.$on('WORLD', function (args) {
-    if ($app.localWorldFavoritesList.includes(args.ref.id)) {
+    if ($app.store.favorite.localWorldFavoritesList.includes(args.ref.id)) {
         // update db cache
         database.addWorldToCache(args.ref);
     }
@@ -8472,7 +8480,7 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
     }
     if (this.avatarDialog.visible && this.avatarDialog.id === avatarId) {
         this.avatarDialog.isFavorite =
-            API.cachedFavoritesByObjectId.has(avatarId);
+            this.store.favorite.cachedFavoritesByObjectId.has(avatarId);
     }
 
     // update UI
@@ -9343,8 +9351,7 @@ $app.computed.favoritesTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
         groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
-        avatarHistoryArray: this.avatarHistoryArray,
-        localWorldFavoritesList: this.localWorldFavoritesList
+        avatarHistoryArray: this.avatarHistoryArray
     };
 };
 

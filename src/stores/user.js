@@ -21,16 +21,17 @@ import {
 import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
 import { useAppearanceSettingsStore } from './settings/appearance';
-import { useGeneralSettingsStore } from './settings/general';
+import { useFavoriteStore } from './favorite';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const generalSettingsStore = useGeneralSettingsStore();
     const friendStore = useFriendStore();
+    const favoriteStore = useFavoriteStore();
 
     const { friendLogInitStatus, friends } = storeToRefs(friendStore);
     const { debugUserDiff } = storeToRefs(debugStore);
+    const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
 
     const {
         randomUserColours,
@@ -580,7 +581,9 @@ export const useUserStore = defineStore('User', () => {
                                 }
                             }
                         }
-                        D.isFavorite = API.cachedFavoritesByObjectId.has(D.id);
+                        D.isFavorite = cachedFavoritesByObjectId.value.has(
+                            D.id
+                        );
                         if (D.ref.friendRequestStatus === 'incoming') {
                             D.incomingRequest = true;
                         } else if (D.ref.friendRequestStatus === 'outgoing') {

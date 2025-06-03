@@ -89,13 +89,17 @@
     export default {
         name: 'WorldExportDialog',
         props: {
-            worldExportDialogVisible: Boolean,
-            localWorldFavoritesList: Array
+            worldExportDialogVisible: Boolean
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites, localWorldFavoriteGroups } =
-                storeToRefs(favoriteStore);
+            const {
+                favoriteWorlds,
+                favoriteWorldGroups,
+                localWorldFavorites,
+                localWorldFavoriteGroups,
+                localWorldFavoritesList
+            } = storeToRefs(favoriteStore);
             const { getLocalWorldFavoriteGroupLength } = favoriteStore;
             return {
                 favoriteWorlds,
@@ -103,7 +107,8 @@
                 favoriteWorldGroups,
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavorites,
-                localWorldFavoriteGroups
+                localWorldFavoriteGroups,
+                localWorldFavoritesList
             };
         },
         data() {
