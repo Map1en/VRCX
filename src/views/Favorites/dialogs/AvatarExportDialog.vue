@@ -89,16 +89,18 @@
         props: {
             avatarExportDialogVisible: Boolean,
             localAvatarFavoriteGroups: Array,
-            localAvatarFavorites: Object,
             localAvatarFavoritesList: Array
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars, favoriteAvatarGroups } = storeToRefs(favoriteStore);
+            const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites } = storeToRefs(favoriteStore);
+            const { getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 favoriteAvatars,
                 API,
-                favoriteAvatarGroups
+                favoriteAvatarGroups,
+                getLocalAvatarFavoriteGroupLength,
+                localAvatarFavorites
             };
         },
         data() {
@@ -221,13 +223,6 @@
                 this.avatarExportLocalFavoriteGroup = group;
                 this.avatarExportFavoriteGroup = null;
                 this.updateAvatarExportDialog();
-            },
-            getLocalAvatarFavoriteGroupLength(group) {
-                const favoriteGroup = this.localAvatarFavorites[group];
-                if (!favoriteGroup) {
-                    return 0;
-                }
-                return favoriteGroup.length;
             }
         }
     };

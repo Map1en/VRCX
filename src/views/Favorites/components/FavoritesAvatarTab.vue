@@ -226,7 +226,6 @@
         <AvatarExportDialog
             :avatar-export-dialog-visible.sync="avatarExportDialogVisible"
             :local-avatar-favorite-groups="localAvatarFavoriteGroups"
-            :local-avatar-favorites="localAvatarFavorites"
             :local-avatar-favorites-list="localAvatarFavoritesList" />
     </div>
 </template>
@@ -251,7 +250,6 @@
             avatarHistoryArray: Array,
             refreshingLocalFavorites: Boolean,
             localAvatarFavoriteGroups: Array,
-            localAvatarFavorites: Object,
             localAvatarFavoritesList: Array
         },
         setup() {
@@ -259,8 +257,8 @@
             const { hideTooltips, sortFavorites } = storeToRefs(appearanceSettingsStore);
             const { setSortFavorites } = appearanceSettingsStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteAvatars, favoriteAvatarGroups } = storeToRefs(favoriteStore);
-            const { showAvatarImportDialog } = favoriteStore;
+            const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites } = storeToRefs(favoriteStore);
+            const { showAvatarImportDialog, getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -268,7 +266,9 @@
                 favoriteAvatars,
                 favoriteAvatarGroups,
                 API,
-                showAvatarImportDialog
+                showAvatarImportDialog,
+                getLocalAvatarFavoriteGroupLength,
+                localAvatarFavorites
             };
         },
         data() {
@@ -305,13 +305,6 @@
             }
         },
         methods: {
-            getLocalAvatarFavoriteGroupLength(group) {
-                const favoriteGroup = this.localAvatarFavorites[group];
-                if (!favoriteGroup) {
-                    return 0;
-                }
-                return favoriteGroup.length;
-            },
             searchAvatarFavorites() {
                 let ref = null;
                 const search = this.avatarFavoriteSearch.toLowerCase();

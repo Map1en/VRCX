@@ -217,7 +217,6 @@
         </el-collapse>
         <WorldExportDialog
             :world-export-dialog-visible.sync="worldExportDialogVisible"
-            :local-world-favorites="localWorldFavorites"
             :local-world-favorite-groups="localWorldFavoriteGroups"
             :local-world-favorites-list="localWorldFavoritesList" />
     </div>
@@ -244,15 +243,14 @@
             shiftHeld: Boolean,
             refreshingLocalFavorites: Boolean,
             localWorldFavoriteGroups: Array,
-            localWorldFavorites: Object,
             localWorldFavoritesList: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds, favoriteWorldGroups } = storeToRefs(favoriteStore);
-            const { showWorldImportDialog } = favoriteStore;
+            const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites } = storeToRefs(favoriteStore);
+            const { showWorldImportDialog, getLocalWorldFavoriteGroupLength } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -260,7 +258,9 @@
                 favoriteWorlds,
                 API,
                 favoriteWorldGroups,
-                showWorldImportDialog
+                showWorldImportDialog,
+                getLocalWorldFavoriteGroupLength,
+                localWorldFavorites
             };
         },
         data() {
@@ -373,13 +373,6 @@
                         }
                     }
                 });
-            },
-            getLocalWorldFavoriteGroupLength(group) {
-                const favoriteGroup = this.localWorldFavorites[group];
-                if (!favoriteGroup) {
-                    return 0;
-                }
-                return favoriteGroup.length;
             },
 
             clearFavoriteGroup(ctx) {

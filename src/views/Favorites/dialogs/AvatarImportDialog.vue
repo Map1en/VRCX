@@ -183,7 +183,6 @@
         name: 'AvatarImportDialog',
         inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showAvatarDialog'],
         props: {
-            getLocalAvatarFavoriteGroupLength: Function,
             localAvatarFavoriteGroups: Array
         },
         setup() {
@@ -192,12 +191,15 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatarGroups, avatarImportDialogInput, avatarImportDialogVisible } =
                 storeToRefs(favoriteStore);
+            const { addLocalAvatarFavorite, getLocalAvatarFavoriteGroupLength } = favoriteStore;
             return {
                 API,
                 showUserDialog,
                 favoriteAvatarGroups,
                 avatarImportDialogInput,
-                avatarImportDialogVisible
+                avatarImportDialogVisible,
+                addLocalAvatarFavorite,
+                getLocalAvatarFavoriteGroupLength
             };
         },
         data() {
@@ -353,7 +355,7 @@
                         if (D.avatarImportFavoriteGroup) {
                             await this.addFavoriteAvatar(ref, D.avatarImportFavoriteGroup, false);
                         } else if (D.avatarImportLocalFavoriteGroup) {
-                            this.$emit('add-local-avatar-favorite', ref.id, D.avatarImportLocalFavoriteGroup);
+                            this.addLocalAvatarFavorite(ref.id, D.avatarImportLocalFavoriteGroup);
                         }
                         removeFromArray(this.avatarImportTable.data, ref);
                         D.avatarIdList.delete(ref.id);

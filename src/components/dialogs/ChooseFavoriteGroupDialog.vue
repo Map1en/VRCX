@@ -92,22 +92,6 @@
             localAvatarFavoriteGroups: {
                 type: Array,
                 default: () => []
-            },
-            hasLocalWorldFavorite: {
-                type: Function,
-                default: () => () => false
-            },
-            getLocalWorldFavoriteGroupLength: {
-                type: Function,
-                default: () => () => 0
-            },
-            hasLocalAvatarFavorite: {
-                type: Function,
-                default: () => () => false
-            },
-            getLocalAvatarFavoriteGroupLength: {
-                type: Function,
-                default: () => () => 0
             }
         },
         setup() {
@@ -118,12 +102,26 @@
         data() {
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups, favoriteAvatarGroups, favoriteWorldGroups } = storeToRefs(favoriteStore);
+            const {
+                getLocalWorldFavoriteGroupLength,
+                addLocalWorldFavorite,
+                hasLocalWorldFavorite,
+                hasLocalAvatarFavorite,
+                addLocalAvatarFavorite,
+                getLocalAvatarFavoriteGroupLength
+            } = favoriteStore;
             return {
                 groups: [],
                 loading: false,
                 favoriteFriendGroups,
                 favoriteAvatarGroups,
-                favoriteWorldGroups
+                favoriteWorldGroups,
+                getLocalWorldFavoriteGroupLength,
+                addLocalWorldFavorite,
+                hasLocalWorldFavorite,
+                hasLocalAvatarFavorite,
+                addLocalAvatarFavorite,
+                getLocalAvatarFavoriteGroupLength
             };
         },
         computed: {
@@ -179,14 +177,8 @@
                         this.loading = false;
                     });
             },
-            addLocalWorldFavorite(...args) {
-                this.$emit('addLocalWorldFavorite', ...args);
-            },
             removeLocalWorldFavorite(...args) {
                 this.$emit('removeLocalWorldFavorite', ...args);
-            },
-            addLocalAvatarFavorite(...args) {
-                this.$emit('addLocalAvatarFavorite', ...args);
             },
             removeLocalAvatarFavorite(...args) {
                 this.$emit('removeLocalAvatarFavorite', ...args);

@@ -11,28 +11,17 @@ mixin dialogs
     FriendImportDialog
 
     WorldImportDialog(
-        :getLocalWorldFavoriteGroupLength='getLocalWorldFavoriteGroupLength'
-        :localWorldFavoriteGroups='localWorldFavoriteGroups'
-        @addLocalWorldFavorite='addLocalWorldFavorite')
+        :localWorldFavoriteGroups='localWorldFavoriteGroups')
 
     AvatarImportDialog(
-
-        :getLocalAvatarFavoriteGroupLength='getLocalAvatarFavoriteGroupLength'
-        :localAvatarFavoriteGroups='localAvatarFavoriteGroups'
-        @addLocalAvatarFavorite='addLocalAvatarFavorite')
+        :localAvatarFavoriteGroups='localAvatarFavoriteGroups')
 
     //- favorites dialog
     ChooseFavoriteGroupDialog(
         :favoriteDialog.sync='favoriteDialog'
         :localAvatarFavoriteGroups='localAvatarFavoriteGroups'
         :localWorldFavoriteGroups='localWorldFavoriteGroups'
-        :hasLocalWorldFavorite='hasLocalWorldFavorite'
-        :getLocalWorldFavoriteGroupLength='getLocalWorldFavoriteGroupLength'
-        :hasLocalAvatarFavorite='hasLocalAvatarFavorite'
-        :getLocalAvatarFavoriteGroupLength='getLocalAvatarFavoriteGroupLength'
-        @addLocalWorldFavorite='addLocalWorldFavorite'
         @removeLocalWorldFavorite='removeLocalWorldFavorite'
-        @addLocalAvatarFavorite='addLocalAvatarFavorite'
         @removeLocalAvatarFavorite='removeLocalAvatarFavorite'
         @deleteFavoriteNoConfirm='deleteFavoriteNoConfirm')
 

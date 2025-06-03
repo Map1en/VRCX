@@ -41,7 +41,6 @@
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
                     :local-world-favorite-groups="localWorldFavoriteGroups"
-                    :local-world-favorites="localWorldFavorites"
                     :local-world-favorites-list="localWorldFavoritesList"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -60,7 +59,6 @@
                     :avatar-history-array="avatarHistoryArray"
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     :local-avatar-favorite-groups="localAvatarFavoriteGroups"
-                    :local-avatar-favorites="localAvatarFavorites"
                     :local-avatar-favorites-list="localAvatarFavoritesList"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -99,10 +97,8 @@
             shiftHeld: Boolean,
             groupedByGroupKeyFavoriteFriends: Object,
             localWorldFavoriteGroups: Array,
-            localWorldFavorites: Object,
             avatarHistoryArray: Array,
             localAvatarFavoriteGroups: Array,
-            localAvatarFavorites: Object,
             localAvatarFavoritesList: Array,
             localWorldFavoritesList: Array
         },

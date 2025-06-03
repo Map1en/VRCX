@@ -90,14 +90,14 @@
         name: 'WorldExportDialog',
         props: {
             worldExportDialogVisible: Boolean,
-            localWorldFavorites: Object,
             localWorldFavoriteGroups: Array,
             localWorldFavoritesList: Array
         },
         setup() {
             const favoriteStore = useFavoriteStore();
-            const { favoriteWorlds, favoriteWorldGroups } = storeToRefs(favoriteStore);
-            return { favoriteWorlds, API, favoriteWorldGroups };
+            const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites } = storeToRefs(favoriteStore);
+            const { getLocalWorldFavoriteGroupLength } = favoriteStore;
+            return { favoriteWorlds, API, favoriteWorldGroups, getLocalWorldFavoriteGroupLength, localWorldFavorites };
         },
         data() {
             return {
@@ -225,13 +225,6 @@
                 this.worldExportLocalFavoriteGroup = group;
                 this.worldExportFavoriteGroup = null;
                 this.updateWorldExportDialog();
-            },
-            getLocalWorldFavoriteGroupLength(group) {
-                const favoriteGroup = this.localWorldFavorites[group];
-                if (!favoriteGroup) {
-                    return 0;
-                }
-                return favoriteGroup.length;
             }
         }
     };

@@ -53,7 +53,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         avatarImportDialogInput: '',
         worldImportDialogVisible: false,
         avatarImportDialogVisible: false,
-        friendImportDialogVisible: false
+        friendImportDialogVisible: false,
+        localWorldFavorites: {},
+        localAvatarFavorites: {}
     });
 
     const favoriteFriends = computed(() => {
@@ -196,6 +198,24 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         },
         set(value) {
             state.friendImportDialogVisible = value;
+        }
+    });
+
+    const localWorldFavorites = computed({
+        get() {
+            return state.localWorldFavorites;
+        },
+        set(value) {
+            state.localWorldFavorites = value;
+        }
+    });
+
+    const localAvatarFavorites = computed({
+        get() {
+            return state.localAvatarFavorites;
+        },
+        set(value) {
+            state.localAvatarFavorites = value;
         }
     });
 
@@ -835,6 +855,142 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.friendImportDialogVisible = true;
     }
 
+    /**
+     * aka: `$app.methods.getLocalWorldFavoriteGroupLength`
+     * @param {string} group
+     * @returns {*|number}
+     */
+    function getLocalWorldFavoriteGroupLength(group) {
+        const favoriteGroup = state.localWorldFavorites[group];
+        if (!favoriteGroup) {
+            return 0;
+        }
+        return favoriteGroup.length;
+    }
+
+    /**
+     * aka: `$app.methods.addLocalWorldFavorite`
+     * @param {string} worldId
+     * @param {string} group
+     */
+    function addLocalWorldFavorite(worldId, group) {
+        if (hasLocalWorldFavorite(worldId, group)) {
+            return;
+        }
+        const ref = API.cachedWorlds.get(worldId);
+        if (typeof ref === 'undefined') {
+            return;
+        }
+        if (!$app.localWorldFavoritesList.includes(worldId)) {
+            $app.localWorldFavoritesList.push(worldId);
+        }
+        if (!state.localWorldFavorites[group]) {
+            state.localWorldFavorites[group] = [];
+        }
+        if (!$app.localWorldFavoriteGroups.includes(group)) {
+            $app.localWorldFavoriteGroups.push(group);
+        }
+        state.localWorldFavorites[group].unshift(ref);
+        database.addWorldToCache(ref);
+        database.addWorldToFavorites(worldId, group);
+        if (
+            $app.favoriteDialog.visible &&
+            $app.favoriteDialog.objectId === worldId
+        ) {
+            $app.updateFavoriteDialog(worldId);
+        }
+        if ($app.worldDialog.visible && $app.worldDialog.id === worldId) {
+            $app.worldDialog.isFavorite = true;
+        }
+    }
+
+    /**
+     * aka: `$app.methods.hasLocalWorldFavorite`
+     * @param {string} worldId
+     * @param {string} group
+     * @returns {boolean}
+     */
+    function hasLocalWorldFavorite(worldId, group) {
+        const favoriteGroup = state.localWorldFavorites[group];
+        if (!favoriteGroup) {
+            return false;
+        }
+        for (let i = 0; i < favoriteGroup.length; ++i) {
+            if (favoriteGroup[i].id === worldId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * aka: `$app.methods.addLocalAvatarFavorite`
+     * @param {string} avatarId
+     * @param {string} group
+     */
+    function addLocalAvatarFavorite(avatarId, group) {
+        if (hasLocalAvatarFavorite(avatarId, group)) {
+            return;
+        }
+        const ref = API.cachedAvatars.get(avatarId);
+        if (typeof ref === 'undefined') {
+            return;
+        }
+        if (!$app.localAvatarFavoritesList.includes(avatarId)) {
+            $app.localAvatarFavoritesList.push(avatarId);
+        }
+        if (!state.localAvatarFavorites[group]) {
+            state.localAvatarFavorites[group] = [];
+        }
+        if (!$app.localAvatarFavoriteGroups.includes(group)) {
+            $app.localAvatarFavoriteGroups.push(group);
+        }
+        state.localAvatarFavorites[group].unshift(ref);
+        database.addAvatarToCache(ref);
+        database.addAvatarToFavorites(avatarId, group);
+        if (
+            $app.favoriteDialog.visible &&
+            $app.favoriteDialog.objectId === avatarId
+        ) {
+            $app.updateFavoriteDialog(avatarId);
+        }
+        if ($app.avatarDialog.visible && $app.avatarDialog.id === avatarId) {
+            this.avatarDialog.isFavorite = true;
+        }
+    }
+
+    /**
+     * aka: `$app.methods.hasLocalAvatarFavorite`
+     * @param {string} avatarId
+     * @param {string} group
+     * @returns {boolean}
+     */
+    function hasLocalAvatarFavorite(avatarId, group) {
+        const favoriteGroup = state.localAvatarFavorites[group];
+        if (!favoriteGroup) {
+            return false;
+        }
+        for (let i = 0; i < favoriteGroup.length; ++i) {
+            if (favoriteGroup[i].id === avatarId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * aka: `$app.methods.getLocalAvatarFavoriteGroupLength`
+     * @param {string} group
+     * @returns {*|number}
+     */
+    function getLocalAvatarFavoriteGroupLength(group) {
+        const favoriteGroup = state.localAvatarFavorites[group];
+        if (!favoriteGroup) {
+            return 0;
+        }
+        return favoriteGroup.length;
+    }
+
     return {
         state,
 
@@ -856,6 +1012,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         worldImportDialogVisible,
         avatarImportDialogVisible,
         friendImportDialogVisible,
+        localWorldFavorites,
 
         applyFavorite,
         refreshFavoriteGroups,
@@ -867,6 +1024,12 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         showWorldImportDialog,
         showAvatarImportDialog,
         showFriendImportDialog,
-        bulkCopyFavoriteSelection
+        bulkCopyFavoriteSelection,
+        getLocalWorldFavoriteGroupLength,
+        addLocalWorldFavorite,
+        hasLocalWorldFavorite,
+        hasLocalAvatarFavorite,
+        addLocalAvatarFavorite,
+        getLocalAvatarFavoriteGroupLength
     };
 });
