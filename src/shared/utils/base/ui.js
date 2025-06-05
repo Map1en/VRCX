@@ -215,6 +215,7 @@ function HSVtoRGB(h, s, v) {
 }
 
 export {
+    systemIsDarkMode,
     changeAppThemeStyle,
     changeCJKFontsOrder,
     updateTrustColorClasses,

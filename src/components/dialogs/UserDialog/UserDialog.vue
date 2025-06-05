@@ -1591,7 +1591,7 @@
                                     </i>
                                     <span style="font-weight: bold; font-size: 14px" v-text="list[0]"></span>
                                     <span style="color: #909399; font-size: 10px; margin-left: 5px"
-                                        >{{ list[2].length }}/{{ API.favoriteLimits.maxFavoritesPerGroup.world }}</span
+                                        >{{ list[2].length }}/{{ favoriteLimits.maxFavoritesPerGroup.world }}</span
                                     >
                                 </span>
                                 <div
@@ -1850,6 +1850,7 @@
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1870,10 +1871,13 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
     const userStore = useUserStore();
+    const favoriteStore = useFavoriteStore();
+
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog } = userStore;
+    const { favoriteLimits } = storeToRefs(favoriteStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');

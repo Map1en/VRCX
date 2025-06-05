@@ -119,7 +119,8 @@ export const useUserStore = defineStore('User', () => {
             dateFriended: '',
             unFriended: false,
             dateFriendedInfo: []
-        }
+        },
+        showUserDialogHistory: new Set()
     });
 
     const userDialog = computed({
@@ -688,9 +689,27 @@ export const useUserStore = defineStore('User', () => {
                     });
                 }
             });
-        $app.showUserDialogHistory.delete(userId);
-        $app.showUserDialogHistory.add(userId);
-        $app.quickSearchItems = $app.quickSearchUserHistory();
+        state.showUserDialogHistory.delete(userId);
+        state.showUserDialogHistory.add(userId);
+        $app.quickSearchItems = quickSearchUserHistory();
+    }
+
+    function quickSearchUserHistory() {
+        const userHistory = Array.from(state.showUserDialogHistory.values())
+            .reverse()
+            .slice(0, 5);
+        const results = [];
+        userHistory.forEach((userId) => {
+            const ref = API.cachedUsers.get(userId);
+            if (typeof ref !== 'undefined') {
+                results.push({
+                    value: ref.id,
+                    label: ref.name,
+                    ref
+                });
+            }
+        });
+        return results;
     }
 
     return {
@@ -699,6 +718,7 @@ export const useUserStore = defineStore('User', () => {
         applyUserTrustLevel,
         applyUserLanguage,
         applyUser,
-        showUserDialog
+        showUserDialog,
+        quickSearchUserHistory
     };
 });

@@ -2308,29 +2308,6 @@ $app.methods.quickSearchChange = function (value) {
 };
 
 // #endregion
-// #region | App: Quick Search User History
-
-$app.data.showUserDialogHistory = new Set();
-
-$app.methods.quickSearchUserHistory = function () {
-    const userHistory = Array.from(this.showUserDialogHistory.values())
-        .reverse()
-        .slice(0, 5);
-    const results = [];
-    userHistory.forEach((userId) => {
-        const ref = API.cachedUsers.get(userId);
-        if (typeof ref !== 'undefined') {
-            results.push({
-                value: ref.id,
-                label: ref.name,
-                ref
-            });
-        }
-    });
-    return results;
-};
-
-// #endregion
 // #region | App: Feed
 
 $app.data.dontLogMeOut = false;
@@ -3988,7 +3965,7 @@ $app.methods.saveThemeMode = async function (newThemeMode) {
 };
 
 $app.methods.changeThemeMode = async function () {
-    await changeAppThemeStyle(this.themeMode);
+    await changeAppThemeStyle(this.store.appearanceSettings.themeMode);
     this.updateVRConfigVars();
     await this.updateTrustColor();
 };
