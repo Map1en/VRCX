@@ -58,7 +58,6 @@ import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import languages from './classes/languages.js';
-import memos from './classes/memos.js';
 import prompts from './classes/prompts.js';
 import restoreFriendOrder from './classes/restoreFriendOrder.js';
 
@@ -132,7 +131,10 @@ import {
     refreshCustomScript,
     getNameColour,
     HueToHex,
-    formatSeconds
+    formatSeconds,
+    getAllUserMemos,
+    getWorldMemo,
+    migrateMemos
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -431,7 +433,6 @@ discordRpc($app);
 gameLog($app);
 gameRealtimeLogging($app);
 feed($app);
-memos($app);
 config($app);
 languages($app);
 groups($app);
@@ -2374,7 +2375,7 @@ API.$on('LOGIN', async function (args) {
         }
     }
     await $app.getAvatarHistory();
-    await $app.getAllUserMemos();
+    await getAllUserMemos();
     if ($app.store.appearanceSettings.randomUserColours) {
         getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
@@ -2395,7 +2396,7 @@ API.$on('LOGIN', async function (args) {
     // remove old data from json file and migrate to SQLite
     if (await VRCXStorage.Get(`${args.json.id}_friendLogUpdatedAt`)) {
         VRCXStorage.Remove(`${args.json.id}_feedTable`);
-        $app.migrateMemos();
+        migrateMemos();
         $app.migrateFriendLog(args.json.id);
     }
     await AppApi.IPCAnnounceStart();
@@ -5495,7 +5496,7 @@ $app.methods.showWorldDialog = function (tag, shortName) {
     if (LL.worldId === D.id) {
         currentWorldMatch = true;
     }
-    this.getWorldMemo(D.id).then((memo) => {
+    getWorldMemo(D.id).then((memo) => {
         if (memo.worldId === D.id) {
             D.memo = memo.memo;
         }

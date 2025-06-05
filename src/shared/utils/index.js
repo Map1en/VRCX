@@ -15,3 +15,4 @@ export * from './user';
 export * from './gallery';
 export * from './location';
 export * from './world';
+export * from './memos';

@@ -16,7 +16,8 @@ import {
     parseLocation,
     removeEmojis,
     removeFromArray,
-    replaceBioSymbols
+    replaceBioSymbols,
+    getUserMemo
 } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
@@ -478,7 +479,7 @@ export const useUserStore = defineStore('User', () => {
         D.memo = '';
         D.note = '';
         D.noteSaving = false;
-        $app.getUserMemo(userId).then((memo) => {
+        getUserMemo(userId).then((memo) => {
             if (memo.userId === userId) {
                 D.memo = memo.memo;
                 const ref = friends.value.get(userId);

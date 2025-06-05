@@ -10,7 +10,8 @@ import {
     getGroupName,
     getWorldName,
     isRealInstance,
-    removeFromArray
+    removeFromArray,
+    getUserMemo
 } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
@@ -615,7 +616,7 @@ export const useFriendStore = defineStore('Friend', () => {
             $nickName: ''
         };
         if ($app.friendLogInitStatus) {
-            $app.getUserMemo(id).then((memo) => {
+            getUserMemo(id).then((memo) => {
                 if (memo.userId === id) {
                     ctx.memo = memo.memo;
                     ctx.$nickName = '';

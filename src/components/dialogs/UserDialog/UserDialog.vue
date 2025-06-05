@@ -1844,7 +1844,8 @@
         replaceBioSymbols,
         timeToText,
         userOnlineForTimestamp,
-        userStatusClass
+        userStatusClass,
+        saveUserMemo
     } from '../../../shared/utils';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -2022,7 +2023,6 @@
         'saveCurrentUserGroups',
         'refreshUserDialogAvatars',
         'refreshUserDialogTreeData',
-        'saveUserMemo',
         'setGroupVisibility',
         'leaveGroupPrompt',
         'refreshGalleryTable',
@@ -3225,9 +3225,6 @@
     }
     function saveCurrentUserGroups() {
         emit('saveCurrentUserGroups');
-    }
-    function saveUserMemo(userId, memo) {
-        emit('saveUserMemo', userId, memo);
     }
     function closeInviteDialog() {
         clearInviteImageUpload();
