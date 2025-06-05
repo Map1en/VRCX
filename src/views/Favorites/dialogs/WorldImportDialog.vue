@@ -339,7 +339,7 @@
                         if (D.worldImportFavoriteGroup) {
                             await this.addFavoriteWorld(ref, D.worldImportFavoriteGroup, false);
                         } else if (D.worldImportLocalFavoriteGroup) {
-                            this.$emit('add-local-world-favorite', ref.id, D.worldImportLocalFavoriteGroup);
+                            this.$emit('addLocalWorldFavorite', ref.id, D.worldImportLocalFavoriteGroup);
                         }
                         removeFromArray(this.worldImportTable.data, ref);
                         D.worldIdList.delete(ref.id);
