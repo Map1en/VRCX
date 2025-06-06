@@ -8,6 +8,7 @@ import gameLogService from '../service/gamelog.js';
 import {
     convertYoutubeTime,
     getGroupName,
+    isRpcWorld,
     parseLocation,
     replaceBioSymbols
 } from '../shared/utils';
@@ -521,7 +522,7 @@ export default function init(app) {
             if (typeof gameLog.videoPos !== 'undefined') {
                 videoPos = gameLog.videoPos;
             }
-            if (!this.isRpcWorld(location) || gameLog.videoId === 'YouTube') {
+            if (!isRpcWorld(location) || gameLog.videoId === 'YouTube') {
                 // skip PyPyDance and VRDancing videos
                 try {
                     var url = new URL(videoUrl);

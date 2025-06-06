@@ -165,7 +165,7 @@ export default function init() {
                         ),
                         type: 'error'
                     });
-                    $app.avatarDialog.visible = false;
+                    $app.store.avatar.avatarDialog.visible = false;
                     throw new Error(`404: ${data.error.message} ${endpoint}`);
                 }
                 if (status === 404 && endpoint.endsWith('/persist/exists')) {

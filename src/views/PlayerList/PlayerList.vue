@@ -842,6 +842,7 @@
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
+    import { useAvatarStore } from '../../stores/avatar';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -849,13 +850,14 @@
     const { photonLoggingEnabled } = storeToRefs(photonStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const avatarStore = useAvatarStore();
+    const { showAvatarDialog } = avatarStore;
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showWorldDialog = inject('showWorldDialog');
     const showLaunchDialog = inject('showLaunchDialog');
-    const showAvatarDialog = inject('showAvatarDialog');
     const showGroupDialog = inject('showGroupDialog');
     const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');

@@ -15,7 +15,7 @@ const imageReq = {
         API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        $app.avatarDialog.loading = false;
+        $app.store.avatar.avatarDialog.loading = false;
         // $app.changeAvatarImageDialogLoading = false;
     },
 

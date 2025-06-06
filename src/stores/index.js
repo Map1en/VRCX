@@ -1,4 +1,5 @@
 import { createPinia } from 'pinia';
+import { useAvatarStore } from './avatar';
 import { useFavoriteStore } from './favorite';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
@@ -29,6 +30,7 @@ export function createGlobalStores() {
         friend: useFriendStore(),
         photon: usePhotonStore(),
         user: useUserStore(),
-        vrcxUpdater: useVRCXUpdaterStore()
+        vrcxUpdater: useVRCXUpdaterStore(),
+        avatar: useAvatarStore()
     };
 }

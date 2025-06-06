@@ -14,10 +14,10 @@ async function getBundleLocation(input) {
     if (assetUrl) {
         // continue
     } else if (
-        $app.avatarDialog.visible &&
-        $app.avatarDialog.ref.unityPackages.length > 0
+        $app.store.avatar.avatarDialog.visible &&
+        $app.store.avatar.avatarDialog.ref.unityPackages.length > 0
     ) {
-        unityPackages = $app.avatarDialog.ref.unityPackages;
+        unityPackages = $app.store.avatar.avatarDialog.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
             unityPackage = unityPackages[i];
             if (
@@ -38,8 +38,11 @@ async function getBundleLocation(input) {
                 break;
             }
         }
-    } else if ($app.avatarDialog.visible && $app.avatarDialog.ref.assetUrl) {
-        assetUrl = $app.avatarDialog.ref.assetUrl;
+    } else if (
+        $app.store.avatar.avatarDialog.visible &&
+        $app.store.avatar.avatarDialog.ref.assetUrl
+    ) {
+        assetUrl = $app.store.avatar.avatarDialog.ref.assetUrl;
     } else if (
         $app.worldDialog.visible &&
         $app.worldDialog.ref.unityPackages.length > 0

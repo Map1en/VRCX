@@ -230,17 +230,17 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
+    import { API } from '../../../app';
+    import { useAvatarStore } from '../../../stores/avatar';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
-    import { API } from '../../../app';
-    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FavoritesAvatarTab',
         components: { FavoritesAvatarItem, FavoritesAvatarLocalHistoryItem, AvatarExportDialog },
-        inject: ['showAvatarDialog'],
         props: {
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
@@ -255,6 +255,8 @@
             const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites, localAvatarFavoriteGroups } =
                 storeToRefs(favoriteStore);
             const { showAvatarImportDialog, getLocalAvatarFavoriteGroupLength } = favoriteStore;
+            const avatarStore = useAvatarStore();
+            const { showAvatarDialog } = storeToRefs(avatarStore);
             return {
                 hideTooltips,
                 sortFavorites,
@@ -265,7 +267,8 @@
                 showAvatarImportDialog,
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavorites,
-                localAvatarFavoriteGroups
+                localAvatarFavoriteGroups,
+                showAvatarDialog
             };
         },
         data() {

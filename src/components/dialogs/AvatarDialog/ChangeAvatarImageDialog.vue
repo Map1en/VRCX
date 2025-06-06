@@ -42,16 +42,21 @@
 </template>
 
 <script setup>
-    import { getCurrentInstance, inject, ref } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { extractFileId } from '../../../shared/utils';
     import { API } from '../../../app';
+    import { useAvatarStore } from '../../../stores/avatar';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+
+    const avatarStore = useAvatarStore();
+    const { avatarDialog } = storeToRefs(avatarStore);
 
     const props = defineProps({
         changeAvatarImageDialogVisible: {
@@ -61,10 +66,6 @@
         previousImagesTable: {
             type: Array,
             default: () => []
-        },
-        avatarDialog: {
-            type: Object,
-            default: () => ({})
         },
         previousImagesFileId: {
             type: String,
@@ -119,7 +120,7 @@
             }
         };
         const files = e.target.files || e.dataTransfer.files;
-        if (!files.length || !props.avatarDialog.visible || props.avatarDialog.loading) {
+        if (!files.length || !avatarDialog.value.visible || avatarDialog.value.loading) {
             clearFile();
             return;
         }
@@ -154,8 +155,8 @@
                 const signatureMd5 = await genMd5(base64SignatureFile);
                 const signatureSizeInBytes = parseInt(await genLength(base64SignatureFile), 10);
 
-                const avatarId = props.avatarDialog.id;
-                const { imageUrl } = props.avatarDialog.ref;
+                const avatarId = avatarDialog.value.id;
+                const { imageUrl } = avatarDialog.value.ref;
 
                 const fileId = extractFileId(imageUrl);
                 if (!fileId) {
@@ -350,7 +351,7 @@
     function setAvatarImage(image) {
         changeAvatarImageDialogLoading.value = true;
         const parmas = {
-            id: props.avatarDialog.id,
+            id: avatarDialog.value.id,
             imageUrl: `${API.endpointDomain}/file/${props.previousImagesFileId}/${image.version}/file`
         };
         imageRequest.setAvatarImage(parmas).finally(() => {
@@ -362,7 +363,7 @@
     function compareCurrentImage(image) {
         return (
             `${API.endpointDomain}/file/${props.previousImagesFileId}/${image.version}/file` ===
-            props.avatarDialog.ref.imageUrl
+            avatarDialog.value.ref.imageUrl
         );
     }
 

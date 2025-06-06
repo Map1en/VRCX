@@ -178,10 +178,11 @@
     import { removeFromArray } from '../../../shared/utils';
     import { useUserStore } from '../../../stores/user';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAvatarStore } from '../../../stores/avatar';
 
     export default {
         name: 'AvatarImportDialog',
-        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'showAvatarDialog'],
+        inject: ['adjustDialogZ', 'showFullscreenImageDialog'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -193,6 +194,8 @@
                 localAvatarFavoriteGroups
             } = storeToRefs(favoriteStore);
             const { addLocalAvatarFavorite, getLocalAvatarFavoriteGroupLength } = favoriteStore;
+            const avatarStore = useAvatarStore();
+            const { showAvatarDialog } = avatarStore;
             return {
                 API,
                 showUserDialog,
@@ -201,7 +204,8 @@
                 avatarImportDialogVisible,
                 addLocalAvatarFavorite,
                 getLocalAvatarFavoriteGroupLength,
-                localAvatarFavoriteGroups
+                localAvatarFavoriteGroups,
+                showAvatarDialog
             };
         },
         data() {

@@ -1,6 +1,11 @@
 import { worldRequest } from '../api';
 import { API } from '../app.js';
-import { getGroupName, getLaunchURL, parseLocation } from '../shared/utils';
+import {
+    getGroupName,
+    getLaunchURL,
+    isRpcWorld,
+    parseLocation
+} from '../shared/utils';
 
 export default function init(app) {
     const _data = {
@@ -150,7 +155,7 @@ export default function init(app) {
                 partyMaxSize = 0;
                 buttonText = '';
                 buttonUrl = '';
-            } else if (this.isRpcWorld(L.tag)) {
+            } else if (isRpcWorld(L.tag)) {
                 // custom world rpc
                 if (
                     L.worldId === 'wrld_f20326da-f1ac-45fc-a062-609723b097b1' ||

@@ -1862,6 +1862,7 @@
     import PronounsDialog from './PronounsDialog.vue';
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
+    import { useAvatarStore } from '../../../stores/avatar';
 
     const { t } = useI18n();
 
@@ -1872,12 +1873,14 @@
     const advancedSettingsStore = useAdvancedSettingsStore();
     const userStore = useUserStore();
     const favoriteStore = useFavoriteStore();
+    const avatarStore = useAvatarStore();
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog } = userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
+    const { showAvatarDialog } = avatarStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -1886,7 +1889,6 @@
     const showLaunchDialog = inject('showLaunchDialog');
     const showGroupDialog = inject('showGroupDialog');
     const showWorldDialog = inject('showWorldDialog');
-    const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 

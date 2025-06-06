@@ -1,19 +1,11 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
-import * as workerTimers from 'worker-timers';
-import { favoriteRequest, friendRequest, userRequest } from '../api';
+import { favoriteRequest } from '../api';
 import { $app } from '../app';
 import API from '../classes/apiInit';
 import database from '../service/database';
-import {
-    compareByName,
-    getFriendsSortFunction,
-    getGroupName,
-    getWorldName,
-    isRealInstance,
-    removeFromArray
-} from '../shared/utils';
-import { useDebugStore } from './debug';
+import { compareByName, removeFromArray } from '../shared/utils';
+import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
@@ -27,6 +19,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         friendStore;
     const generalSettingsStore = useGeneralSettingsStore();
     const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
+    const avatarStore = useAvatarStore();
+    const { avatarDialog } = storeToRefs(avatarStore);
     const state = reactive({
         isFavoriteGroupLoading: false,
         favoriteFriendGroups: [],
@@ -86,7 +80,6 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             state.favoriteFriendsSorted.sort(compareByName);
         }
         if (sortFavorites.value) {
-            return state.favoriteFriends_;
             return state.favoriteFriends_;
         }
         return state.favoriteFriendsSorted;
@@ -368,7 +361,14 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     });
 
-    const cachedFavoritesByObjectId = state.cachedFavoritesByObjectId;
+    const cachedFavoritesByObjectId = computed({
+        get() {
+            return state.cachedFavoritesByObjectId;
+        },
+        set(value) {
+            state.cachedFavoritesByObjectId = value;
+        }
+    });
 
     // const localFavoriteFriends = state.localFavoriteFriends;
     /**
@@ -1106,8 +1106,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         ) {
             updateFavoriteDialog(avatarId);
         }
-        if ($app.avatarDialog.visible && $app.avatarDialog.id === avatarId) {
-            $app.avatarDialog.isFavorite = true;
+        if (avatarDialog.value.visible && avatarDialog.value.id === avatarId) {
+            avatarDialog.value.isFavorite = true;
         }
     }
 

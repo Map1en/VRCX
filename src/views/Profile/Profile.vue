@@ -508,6 +508,7 @@
     import { useFriendStore } from '../../stores/friend';
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
+    import { useAvatarStore } from '../../stores/avatar';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -516,13 +517,14 @@
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const avatarStore = useAvatarStore();
+    const { showAvatarDialog } = avatarStore;
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
 
     const userImage = inject('userImage');
-    const showAvatarDialog = inject('showAvatarDialog');
     const showGalleryDialog = inject('showGalleryDialog');
 
     const props = defineProps({

@@ -597,7 +597,6 @@
         <ChangeAvatarImageDialog
             :change-avatar-image-dialog-visible.sync="changeAvatarImageDialogVisible"
             :previous-images-table="previousImagesTable"
-            :avatar-dialog="avatarDialog"
             :previous-images-file-id="previousImagesFileId"
             @refresh="displayPreviousImages" />
         <PreviousImagesDialog
@@ -627,13 +626,13 @@
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useAvatarStore } from '../../../stores/avatar';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showAvatarDialog = inject('showAvatarDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 
@@ -641,6 +640,9 @@
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const avatarStore = useAvatarStore();
+    const { avatarDialog } = storeToRefs(avatarStore);
+    const { showAvatarDialog } = avatarStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -648,11 +650,7 @@
 
     const emit = defineEmits(['openFolderGeneric', 'deleteVRChatCache', 'openPreviousImagesDialog']);
 
-    const props = defineProps({
-        avatarDialog: {
-            type: Object,
-            required: true
-        },
+    defineProps({
         isGameRunning: {
             type: Boolean,
             default: false
@@ -698,7 +696,7 @@
     });
 
     const avatarDialogPlatform = computed(() => {
-        const { ref } = props.avatarDialog;
+        const { ref } = avatarDialog.value;
         const platforms = [];
         if (ref.unityPackages) {
             for (const unityPackage of ref.unityPackages) {
@@ -724,11 +722,11 @@
     });
 
     watch(
-        () => props.avatarDialog.loading,
+        () => avatarDialog.value.loading,
         (newVal) => {
             if (newVal) {
                 nextTick(() => {
-                    const D = props.avatarDialog;
+                    const D = avatarDialog.value;
                     if (D.visible) {
                         adjustDialogZ(avatarDialogRef.value.$el);
                     }
@@ -767,7 +765,7 @@
     }
 
     function getAvatarTimeSpent() {
-        const D = props.avatarDialog;
+        const D = avatarDialog.value;
         database.getAvatarTimeSpent(D.id).then((aviTime) => {
             if (D.id === aviTime.avatarId) {
                 timeSpent.value = aviTime.timeSpent;
@@ -779,7 +777,7 @@
     }
 
     function getAvatarMemo() {
-        const D = props.avatarDialog;
+        const D = avatarDialog.value;
         database.getAvatarMemoDB(D.id).then((res) => {
             if (D.id === res.avatarId) {
                 memo.value = res.memo;
@@ -800,7 +798,7 @@
     }
 
     function avatarDialogCommand(command) {
-        const D = props.avatarDialog;
+        const D = avatarDialog.value;
         switch (command) {
             case 'Refresh':
                 showAvatarDialog(D.id);
@@ -827,7 +825,7 @@
                 showSetAvatarStylesDialog(D.id);
                 break;
             case 'Download Unity Package':
-                openExternalLink(replaceVrcPackageUrl(props.avatarDialog.ref.unityPackageUrl));
+                openExternalLink(replaceVrcPackageUrl(avatarDialog.value.ref.unityPackageUrl));
                 break;
             case 'Add Favorite':
                 showFavoriteDialog('avatar', D.id);
@@ -885,7 +883,7 @@
                                     .then((args) => {
                                         // 'AVATAR-MODERATION:DELETE';
                                         API.cachedAvatarModerations.delete(args.params.targetAvatarId);
-                                        const D = props.avatarDialog;
+                                        const D = avatarDialog.value;
                                         if (
                                             args.params.avatarModerationType === 'block' &&
                                             D.id === args.params.targetAvatarId
@@ -996,7 +994,7 @@
     function displayPreviousImages(command) {
         previousImagesTable.value = [];
         previousImagesFileId.value = '';
-        const { imageUrl } = props.avatarDialog.ref;
+        const { imageUrl } = avatarDialog.value.ref;
         const fileId = extractFileId(imageUrl);
         if (!fileId) {
             return;
@@ -1110,12 +1108,12 @@
     function onAvatarMemoChange() {
         if (memo.value) {
             database.setAvatarMemo({
-                avatarId: props.avatarDialog.id,
+                avatarId: avatarDialog.value.id,
                 editedAt: new Date().toJSON(),
                 memo: memo.value
             });
         } else {
-            database.deleteAvatarMemo(props.avatarDialog.id);
+            database.deleteAvatarMemo(avatarDialog.value.id);
         }
     }
 
@@ -1128,12 +1126,12 @@
     }
 
     function refreshAvatarDialogTreeData() {
-        treeData.value = buildTreeData(props.avatarDialog.ref);
+        treeData.value = buildTreeData(avatarDialog.value.ref);
     }
 
     function getAvatarFileAnalysis() {
         let unityPackage;
-        const D = props.avatarDialog;
+        const D = avatarDialog.value;
         const avatarId = D.ref.id;
         let assetUrl = '';
         let variant = 'security';
@@ -1174,7 +1172,7 @@
         }
         miscRequest.getFileAnalysis({ fileId, version, variant, avatarId }).then((args) => {
             // API.$on('FILE:ANALYSIS', function (args) {
-            if (!props.avatarDialog.visible || props.avatarDialog.id !== args.params.avatarId) {
+            if (!avatarDialog.value.visible || avatarDialog.value.id !== args.params.avatarId) {
                 return;
             }
             const ref = args.json;
@@ -1206,7 +1204,7 @@
         D.contentViolence = false;
         D.contentAdult = false;
         D.contentSex = false;
-        const oldTags = props.avatarDialog.ref.tags;
+        const oldTags = avatarDialog.value.ref.tags;
         oldTags.forEach((tag) => {
             switch (tag) {
                 case 'content_horror':
@@ -1264,12 +1262,12 @@
         const D = setAvatarStylesDialog;
         D.visible = true;
         D.loading = true;
-        D.avatarId = props.avatarDialog.id;
-        D.primaryStyle = props.avatarDialog.ref.styles?.primary || '';
-        D.secondaryStyle = props.avatarDialog.ref.styles?.secondary || '';
+        D.avatarId = avatarDialog.value.id;
+        D.primaryStyle = avatarDialog.value.ref.styles?.primary || '';
+        D.secondaryStyle = avatarDialog.value.ref.styles?.secondary || '';
         D.initialPrimaryStyle = D.primaryStyle;
         D.initialSecondaryStyle = D.secondaryStyle;
-        D.initialTags = props.avatarDialog.ref.tags;
+        D.initialTags = avatarDialog.value.ref.tags;
         D.authorTags = '';
         for (const tag of D.initialTags) {
             if (tag.startsWith('author_tag_')) {
@@ -1317,21 +1315,21 @@
         }
         const r = new FileReader();
         r.onload = function () {
-            props.avatarDialog.galleryLoading = true;
+            avatarDialog.value.galleryLoading = true;
             const base64Body = btoa(r.result);
             avatarRequest
-                .uploadAvatarGalleryImage(base64Body, props.avatarDialog.id)
+                .uploadAvatarGalleryImage(base64Body, avatarDialog.value.id)
                 .then((args) => {
                     $message({
                         message: t('message.avatar_gallery.uploaded'),
                         type: 'success'
                     });
                     console.log(args);
-                    props.avatarDialog.galleryImages = getAvatarGallery(props.avatarDialog.id);
+                    avatarDialog.value.galleryImages = getAvatarGallery(avatarDialog.value.id);
                     return args;
                 })
                 .finally(() => {
-                    props.avatarDialog.galleryLoading = false;
+                    avatarDialog.value.galleryLoading = false;
                 });
         };
         r.readAsBinaryString(files[0]);
@@ -1345,7 +1343,7 @@
                 message: t('message.avatar_gallery.deleted'),
                 type: 'success'
             });
-            getAvatarGallery(props.avatarDialog.id);
+            getAvatarGallery(avatarDialog.value.id);
             return args;
         });
     }

@@ -336,23 +336,25 @@
     import { useAvatarProviderStore } from '../../stores/avatarProvider';
     import { useUserStore } from '../../stores/user';
     import { API } from '../../app';
+    import { useAvatarStore } from '../../stores/avatar';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
     const avatarProviderStore = useAvatarProviderStore();
     const userStore = useUserStore();
+    const avatarStore = useAvatarStore();
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
     const { setAvatarProvider } = avatarProviderStore;
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog } = userStore;
+    const { showAvatarDialog } = avatarStore;
 
     const { t } = useI18n();
 
     const userImage = inject('userImage');
     const showWorldDialog = inject('showWorldDialog');
-    const showAvatarDialog = inject('showAvatarDialog');
     const showGroupDialog = inject('showGroupDialog');
 
     const props = defineProps({

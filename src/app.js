@@ -112,7 +112,6 @@ import {
     extractFileId,
     extractFileVersion,
     getAvailablePlatforms,
-    getPlatformInfo,
     getPrintFileName,
     getPrintLocalDate,
     hasGroupPermission,
@@ -134,7 +133,8 @@ import {
     formatSeconds,
     getAllUserMemos,
     getWorldMemo,
-    migrateMemos
+    migrateMemos,
+    isRpcWorld
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -318,7 +318,6 @@ const app = {
             userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             showWorldDialog: this.showWorldDialog,
-            showAvatarDialog: this.showAvatarDialog,
             showPreviousInstancesInfoDialog:
                 this.showPreviousInstancesInfoDialog,
             showLaunchDialog: this.showLaunchDialog,
@@ -1477,7 +1476,7 @@ API.applyAvatarModeration = function (json) {
     }
 
     // update avatar dialog
-    const D = $app.avatarDialog;
+    const D = $app.store.avatar.avatarDialog;
     if (
         D.visible &&
         ref.avatarModerationType === 'block' &&
@@ -4113,34 +4112,12 @@ $app.methods.updateVRConfigVars = function () {
     AppApi.ExecuteVrOverlayFunction('configUpdate', json);
 };
 
-$app.methods.isRpcWorld = function (location) {
-    const rpcWorlds = [
-        'wrld_f20326da-f1ac-45fc-a062-609723b097b1',
-        'wrld_42377cf1-c54f-45ed-8996-5875b0573a83',
-        'wrld_dd6d2888-dbdc-47c2-bc98-3d631b2acd7c',
-        'wrld_52bdcdab-11cd-4325-9655-0fb120846945',
-        'wrld_2d40da63-8f1f-4011-8a9e-414eb8530acd',
-        'wrld_10e5e467-fc65-42ed-8957-f02cace1398c',
-        'wrld_04899f23-e182-4a8d-b2c7-2c74c7c15534',
-        'wrld_435bbf25-f34f-4b8b-82c6-cd809057eb8e',
-        'wrld_db9d878f-6e76-4776-8bf2-15bcdd7fc445',
-        'wrld_f767d1c8-b249-4ecc-a56f-614e433682c8',
-        'wrld_74970324-58e8-4239-a17b-2c59dfdf00db',
-        'wrld_266523e8-9161-40da-acd0-6bd82e075833'
-    ];
-    const L = parseLocation(location);
-    if (rpcWorlds.includes(L.worldId)) {
-        return true;
-    }
-    return false;
-};
-
 $app.methods.updateVRLastLocation = function () {
     let progressPie = false;
     if (this.progressPie) {
         progressPie = true;
         if (this.store.advancedSettings.progressPieFilter) {
-            if (!this.isRpcWorld(this.lastLocation.location)) {
+            if (!isRpcWorld(this.lastLocation.location)) {
                 progressPie = false;
             }
         }
@@ -4385,7 +4362,7 @@ $app.methods.directAccessParse = function (input) {
             return true;
         } else if (type === 'avatar') {
             const avatarId = urlPathSplit[3];
-            this.showAvatarDialog(avatarId);
+            this.store.avatar.showAvatarDialog(avatarId);
             return true;
         } else if (type === 'group') {
             const groupId = urlPathSplit[3];
@@ -4406,7 +4383,7 @@ $app.methods.directAccessParse = function (input) {
         this.store.user.showUserDialog(input);
         return true;
     } else if (input.substring(0, 5) === 'avtr_') {
-        this.showAvatarDialog(input);
+        this.store.avatar.showAvatarDialog(input);
         return true;
     } else if (input.substring(0, 4) === 'grp_') {
         this.showGroupDialog(input);
@@ -5255,7 +5232,7 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
                 D.loading = false;
                 for (const ref of array) {
                     if (extractFileId(ref.imageUrl) === fileId) {
-                        this.showAvatarDialog(ref.id);
+                        this.store.avatar.showAvatarDialog(ref.id);
                         return;
                     }
                 }
@@ -5386,11 +5363,15 @@ $app.methods.getBundleDateSize = async function (ref) {
                 };
 
                 // update avatar dialog
-                if (this.avatarDialog.id === ref.id) {
-                    this.avatarDialog.bundleSizes[platform] =
+                if (this.store.avatar.avatarDialog.id === ref.id) {
+                    this.store.avatar.avatarDialog.bundleSizes[platform] =
                         bundleSizes[platform];
-                    if (this.avatarDialog.lastUpdated < version.created_at) {
-                        this.avatarDialog.lastUpdated = version.created_at;
+                    if (
+                        this.store.avatar.avatarDialog.lastUpdated <
+                        version.created_at
+                    ) {
+                        this.store.avatar.avatarDialog.lastUpdated =
+                            version.created_at;
                     }
                 }
                 // update world dialog
@@ -5967,34 +5948,9 @@ $app.methods.newInstanceSelfInvite = function (worldId) {
 // #endregion
 // #region | App: Avatar Dialog
 
-$app.data.avatarDialog = {
-    visible: false,
-    loading: false,
-    id: '',
-    memo: '',
-    ref: {},
-    isFavorite: false,
-    isBlocked: false,
-    isQuestFallback: false,
-    hasImposter: false,
-    imposterVersion: '',
-    isPC: false,
-    isQuest: false,
-    isIos: false,
-    bundleSizes: [],
-    platformInfo: {},
-    galleryImages: [],
-    galleryLoading: false,
-    lastUpdated: '',
-    inCache: false,
-    cacheSize: 0,
-    cacheLocked: false,
-    cachePath: ''
-};
-
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
-    const D = $app.avatarDialog;
+    const D = $app.store.avatar.avatarDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -6002,92 +5958,15 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.avatarDialog;
+    const D = $app.store.avatar.avatarDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
     D.isFavorite = false;
 });
 
-$app.methods.showAvatarDialog = function (avatarId) {
-    const D = this.avatarDialog;
-    D.visible = true;
-    D.loading = true;
-    D.id = avatarId;
-    D.inCache = false;
-    D.cacheSize = 0;
-    D.cacheLocked = false;
-    D.cachePath = '';
-    D.isQuestFallback = false;
-    D.isPC = false;
-    D.isQuest = false;
-    D.isIos = false;
-    D.hasImposter = false;
-    D.imposterVersion = '';
-    D.lastUpdated = '';
-    D.bundleSizes = [];
-    D.platformInfo = {};
-    D.galleryImages = [];
-    D.galleryLoading = true;
-    D.isFavorite =
-        $app.store.favorite.cachedFavoritesByObjectId.has(avatarId) ||
-        (API.currentUser.$isVRCPlus &&
-            this.store.favorite.localAvatarFavoritesList.includes(avatarId));
-    D.isBlocked = API.cachedAvatarModerations.has(avatarId);
-    const ref2 = API.cachedAvatars.get(avatarId);
-    if (typeof ref2 !== 'undefined') {
-        D.ref = ref2;
-        this.updateVRChatAvatarCache();
-        if (
-            ref2.releaseStatus !== 'public' &&
-            ref2.authorId !== API.currentUser.id
-        ) {
-            D.loading = false;
-            return;
-        }
-    }
-    avatarRequest
-        .getAvatar({ avatarId })
-        .then((args) => {
-            let { ref } = args;
-            D.ref = ref;
-            this.getAvatarGallery(avatarId);
-            this.updateVRChatAvatarCache();
-            if (/quest/.test(ref.tags)) {
-                D.isQuestFallback = true;
-            }
-            let { isPC, isQuest, isIos } = getAvailablePlatforms(
-                args.ref.unityPackages
-            );
-            D.isPC = isPC;
-            D.isQuest = isQuest;
-            D.isIos = isIos;
-            D.platformInfo = getPlatformInfo(args.ref.unityPackages);
-            for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-                const unityPackage = ref.unityPackages[i];
-                if (unityPackage.variant === 'impostor') {
-                    D.hasImposter = true;
-                    D.imposterVersion = unityPackage.impostorizerVersion;
-                    break;
-                }
-            }
-            if (D.bundleSizes.length === 0) {
-                this.getBundleDateSize(ref).then((bundleSizes) => {
-                    D.bundleSizes = bundleSizes;
-                });
-            }
-        })
-        .catch((err) => {
-            D.visible = false;
-            throw err;
-        })
-        .finally(() => {
-            this.$nextTick(() => (D.loading = false));
-        });
-};
-
 $app.methods.getAvatarGallery = async function (avatarId) {
-    const D = this.avatarDialog;
+    const D = this.store.avatar.avatarDialog;
     const args = await avatarRequest.getAvatarGallery(avatarId).finally(() => {
         D.galleryLoading = false;
     });
@@ -6179,7 +6058,7 @@ $app.methods.showAvatarAuthorDialog = async function (
             type: 'error'
         });
     } else if (refUserId === API.currentUser.id) {
-        this.showAvatarDialog(API.currentUser.currentAvatar);
+        this.store.avatar.showAvatarDialog(API.currentUser.currentAvatar);
     } else {
         let avatarId = this.checkAvatarCache(fileId);
         let avatarInfo;
@@ -6211,7 +6090,7 @@ $app.methods.showAvatarAuthorDialog = async function (
             }
         }
         if (avatarId) {
-            this.showAvatarDialog(avatarId);
+            this.store.avatar.showAvatarDialog(avatarId);
         }
     }
 };
@@ -6890,7 +6769,7 @@ $app.methods.updateVRChatWorldCache = function () {
 };
 
 $app.methods.updateVRChatAvatarCache = function () {
-    const D = this.avatarDialog;
+    const D = this.store.avatar.avatarDialog;
     if (D.visible) {
         D.inCache = false;
         D.cacheSize = 0;
@@ -7776,7 +7655,7 @@ $app.methods.eventLaunchCommand = function (input) {
             this.directAccessWorld(input.replace('world/', ''));
             break;
         case 'avatar':
-            this.showAvatarDialog(commandArg);
+            this.store.avatar.showAvatarDialog(commandArg);
             break;
         case 'user':
             this.store.user.showUserDialog(commandArg);
@@ -8456,8 +8335,11 @@ $app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
     ) {
         this.store.favorite.updateFavoriteDialog(avatarId);
     }
-    if (this.avatarDialog.visible && this.avatarDialog.id === avatarId) {
-        this.avatarDialog.isFavorite =
+    if (
+        this.store.avatar.avatarDialog.visible &&
+        this.store.avatar.avatarDialog.id === avatarId
+    ) {
+        this.store.avatar.avatarDialog.isFavorite =
             this.store.favorite.cachedFavoritesByObjectId.has(avatarId);
     }
 
@@ -9341,7 +9223,6 @@ $app.computed.favoritesTabEvent = function () {
         'new-instance-self-invite': this.newInstanceSelfInvite,
         'delete-local-world-favorite-group': this.deleteLocalWorldFavoriteGroup,
         'remove-local-world-favorite': this.removeLocalWorldFavorite,
-        'show-avatar-dialog': this.showAvatarDialog,
         'remove-local-avatar-favorite': this.removeLocalAvatarFavorite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
         'prompt-clear-avatar-history': this.promptClearAvatarHistory,
