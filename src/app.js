@@ -857,13 +857,14 @@ API.applyInstance = function (json) {
     }
     ref.$disabledContentSettings = [];
     if (json.contentSettings && Object.keys(json.contentSettings).length) {
-        for (let setting in $app.instanceContentSettings) {
-            if (json.contentSettings[setting]) {
+        for (let setting of $app.instanceContentSettings) {
+            if (
+                typeof json.contentSettings[setting] === 'undefined' ||
+                json.contentSettings[setting] === true
+            ) {
                 continue;
             }
-            ref.$disabledContentSettings.push(
-                $app.instanceContentSettings[setting]
-            );
+            ref.$disabledContentSettings.push(setting);
         }
     }
     return ref;
