@@ -351,6 +351,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
      * @param {boolean} videoId
      */
     async function lookupYouTubeVideo(videoId) {
+        if (!state.youTubeApi) {
+            console.warn('no Youtube API key configured');
+            return null;
+        }
         let data = null;
         let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
         if (state.youTubeApiKey) {
