@@ -13,6 +13,7 @@ import { useFriendStore } from './friend';
 import { usePhotonStore } from './photon';
 import { useUserStore } from './user';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
+import { useWorldStore } from './world';
 
 export const pinia = createPinia();
 
@@ -31,6 +32,7 @@ export function createGlobalStores() {
         photon: usePhotonStore(),
         user: useUserStore(),
         vrcxUpdater: useVRCXUpdaterStore(),
-        avatar: useAvatarStore()
+        avatar: useAvatarStore(),
+        world: useWorldStore()
     };
 }

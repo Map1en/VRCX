@@ -9,6 +9,7 @@ import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
+import { useWorldStore } from './world';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -21,6 +22,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
     const avatarStore = useAvatarStore();
     const { avatarDialog } = storeToRefs(avatarStore);
+    const worldStore = useWorldStore();
+    const { worldDialog } = storeToRefs(worldStore);
     const state = reactive({
         isFavoriteGroupLoading: false,
         favoriteFriendGroups: [],
@@ -1051,8 +1054,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         ) {
             updateFavoriteDialog(worldId);
         }
-        if ($app.worldDialog.visible && $app.worldDialog.id === worldId) {
-            $app.worldDialog.isFavorite = true;
+        if (worldDialog.value.visible && worldDialog.value.id === worldId) {
+            worldDialog.value.isFavorite = true;
         }
     }
 

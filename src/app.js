@@ -646,7 +646,7 @@ API.$on('WORLD:LIST', function (args) {
 API.$on('WORLD:DELETE', function (args) {
     let { json } = args;
     this.cachedWorlds.delete(json.id);
-    if ($app.worldDialog.ref.authorId === json.authorId) {
+    if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
         const map = new Map();
         for (let ref of this.cachedWorlds.values()) {
             if (ref.authorId === json.authorId) {
@@ -887,7 +887,10 @@ API.$on('INSTANCE', function (args) {
     ) {
         $app.applyUserDialogLocation();
     }
-    if ($app.worldDialog.visible && $app.worldDialog.id === args.json.worldId) {
+    if (
+        $app.store.world.worldDialog.visible &&
+        $app.store.world.worldDialog.id === args.json.worldId
+    ) {
         $app.applyWorldDialogInstances();
     }
     if ($app.groupDialog.visible && $app.groupDialog.id === args.json.ownerId) {
@@ -2446,7 +2449,10 @@ API.$on('USER:UPDATE', async function (args) {
         // update user dialog instance occupants
         $app.applyUserDialogLocation(true);
     }
-    if (props.location && ref.$location.worldId === $app.worldDialog.id) {
+    if (
+        props.location &&
+        ref.$location.worldId === $app.store.world.worldDialog.id
+    ) {
         $app.applyWorldDialogInstances();
     }
     if (props.location && ref.$location.groupId === $app.groupDialog.id) {
@@ -5224,40 +5230,9 @@ $app.methods.refreshUserDialogTreeData = function () {
 // #endregion
 // #region | App: World Dialog
 
-$app.data.worldDialog = {
-    visible: false,
-    loading: false,
-    id: '',
-    memo: '',
-    $location: {},
-    ref: {},
-    isFavorite: false,
-    avatarScalingDisabled: false,
-    focusViewDisabled: false,
-    rooms: [],
-    treeData: [],
-    bundleSizes: [],
-    lastUpdated: '',
-    inCache: false,
-    cacheSize: 0,
-    cacheLocked: false,
-    cachePath: '',
-    lastVisit: '',
-    visitCount: 0,
-    timeSpent: 0,
-    isPC: false,
-    isQuest: false,
-    isIos: false,
-    hasPersistData: false
-};
-
-API.$on('LOGOUT', function () {
-    $app.worldDialog.visible = false;
-});
-
 API.$on('WORLD', function (args) {
     let { ref } = args;
-    const D = $app.worldDialog;
+    const D = $app.store.world.worldDialog;
     if (D.visible === false || D.id !== ref.id) {
         return;
     }
@@ -5284,7 +5259,7 @@ API.$on('WORLD', function (args) {
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
-    const D = $app.worldDialog;
+    const D = $app.store.world.worldDialog;
     if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
         return;
     }
@@ -5292,7 +5267,7 @@ API.$on('FAVORITE', function (args) {
 });
 
 API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.worldDialog;
+    const D = $app.store.world.worldDialog;
     if (D.visible === false || D.id !== args.ref.favoriteId) {
         return;
     }
@@ -5300,7 +5275,7 @@ API.$on('FAVORITE:@DELETE', function (args) {
 });
 
 $app.methods.showWorldDialog = function (tag, shortName) {
-    const D = this.worldDialog;
+    const D = this.store.world.worldDialog;
     const L = parseLocation(tag);
     if (L.worldId === '') {
         return;
@@ -5414,7 +5389,7 @@ $app.methods.showWorldDialog = function (tag, shortName) {
 $app.methods.applyWorldDialogInstances = function () {
     let ref;
     let instance;
-    const D = this.worldDialog;
+    const D = this.store.world.worldDialog;
     if (!D.visible) {
         return;
     }
@@ -5768,7 +5743,7 @@ $app.methods.applyGroupDialogInstances = function (inputInstances) {
 };
 
 $app.methods.worldDialogCommand = function (command) {
-    const D = this.worldDialog;
+    const D = this.store.world.worldDialog;
     if (D.visible === false) {
         return;
     }
@@ -6605,7 +6580,7 @@ $app.methods.changeYouTubeApi = async function (configKey = '') {
 // Asset Bundle Cacher
 
 $app.methods.updateVRChatWorldCache = function () {
-    const D = this.worldDialog;
+    const D = this.store.world.worldDialog;
     if (D.visible) {
         D.inCache = false;
         D.cacheSize = 0;
@@ -7949,8 +7924,11 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
     ) {
         this.store.favorite.updateFavoriteDialog(worldId);
     }
-    if (this.worldDialog.visible && this.worldDialog.id === worldId) {
-        this.worldDialog.isFavorite =
+    if (
+        this.store.world.worldDialog.visible &&
+        this.store.world.worldDialog.id === worldId
+    ) {
+        this.store.world.worldDialog.isFavorite =
             this.store.favorite.cachedFavoritesByObjectId.has(worldId);
     }
 
@@ -8968,19 +8946,19 @@ $app.methods.addInstanceJoinHistory = function (location, dateTime) {
 
 API.$on('WORLD:PERSIST:HAS', function (args) {
     if (
-        args.params.worldId === $app.worldDialog.id &&
-        $app.worldDialog.visible
+        args.params.worldId === $app.store.world.worldDialog.id &&
+        $app.store.world.worldDialog.visible
     ) {
-        $app.worldDialog.hasPersistData = args.json !== false;
+        $app.store.world.worldDialog.hasPersistData = args.json !== false;
     }
 });
 
 API.$on('WORLD:PERSIST:DELETE', function (args) {
     if (
-        args.params.worldId === $app.worldDialog.id &&
-        $app.worldDialog.visible
+        args.params.worldId === $app.store.world.worldDialog.id &&
+        $app.store.world.worldDialog.visible
     ) {
-        $app.worldDialog.hasPersistData = false;
+        $app.store.world.worldDialog.hasPersistData = false;
     }
 });
 

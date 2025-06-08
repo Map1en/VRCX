@@ -154,7 +154,7 @@ const imageReq = {
         API.call(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        $app.worldDialog.loading = false;
+        $app.store.world.worldDialog.loading = false;
         // $app.changeWorldImageDialogLoading = false;
     },
 

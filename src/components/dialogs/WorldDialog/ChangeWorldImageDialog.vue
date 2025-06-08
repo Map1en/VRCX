@@ -43,16 +43,21 @@
 </template>
 
 <script setup>
-    import { getCurrentInstance, inject, ref } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { extractFileId } from '../../../shared/utils';
     import { API } from '../../../app';
+    import { useWorldStore } from '../../../stores/world';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+
+    const worldStore = useWorldStore();
+    const { worldDialog } = storeToRefs(worldStore);
 
     const props = defineProps({
         changeWorldImageDialogVisible: {
@@ -66,10 +71,6 @@
         previousImagesFileId: {
             type: String,
             default: ''
-        },
-        worldDialog: {
-            type: Object,
-            default: () => ({})
         }
     });
 
@@ -124,7 +125,7 @@
             }
         };
         const files = e.target.files || e.dataTransfer.files;
-        if (!files.length || !props.worldDialog.visible || props.worldDialog.loading) {
+        if (!files.length || !worldDialog.value.visible || worldDialog.value.loading) {
             clearFile();
             return;
         }
@@ -156,8 +157,8 @@
                 const base64SignatureFile = await genSig(base64File);
                 const signatureMd5 = await genMd5(base64SignatureFile);
                 const signatureSizeInBytes = parseInt(await genLength(base64SignatureFile), 10);
-                const worldId = props.worldDialog.id;
-                const { imageUrl } = props.worldDialog.ref;
+                const worldId = worldDialog.value.id;
+                const { imageUrl } = worldDialog.value.ref;
                 const fileId = extractFileId(imageUrl);
                 if (!fileId) {
                     $message({
@@ -344,7 +345,7 @@
     function setWorldImage(image) {
         changeWorldImageDialogLoading.value = true;
         const parmas = {
-            id: props.worldDialog.id,
+            id: worldDialog.value.id,
             imageUrl: `${API.endpointDomain}/file/${props.previousImagesFileId}/${image.version}/file`
         };
         imageRequest
@@ -360,7 +361,7 @@
         if (
             `${API.endpointDomain}/file/${props.previousImagesFileId}/${image.version}/file` ===
             // FIXME: old:avatarDialog -> new:worldDialog, is this correct?
-            props.worldDialog.ref.imageUrl
+            worldDialog.value.ref.imageUrl
         ) {
             return true;
         }

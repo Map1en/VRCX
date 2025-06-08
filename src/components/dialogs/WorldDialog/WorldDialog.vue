@@ -1,6 +1,6 @@
 <template>
     <safe-dialog
-        ref="worldDialog"
+        ref="worldDialogRef"
         class="x-dialog x-world-dialog"
         :visible.sync="isDialogVisible"
         :show-close="false"
@@ -786,6 +786,7 @@
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
+    import { useWorldStore } from '../../../stores/world';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
@@ -813,7 +814,6 @@
             'showFavoriteDialog'
         ],
         props: {
-            worldDialog: Object,
             shiftHeld: Boolean,
             isGameRunning: Boolean,
             lastLocation: Object,
@@ -832,6 +832,8 @@
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const worldStore = useWorldStore();
+            const { worldDialog } = storeToRefs(worldStore);
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -840,7 +842,8 @@
                 refreshInstancePlayerCount,
                 replaceVrcPackageUrl,
                 userStatusClass,
-                showUserDialog
+                showUserDialog,
+                worldDialog
             };
         },
         data() {
@@ -870,7 +873,7 @@
                     return this.worldDialog.visible;
                 },
                 set(value) {
-                    this.$emit('update:world-dialog', { ...this.worldDialog, visible: value });
+                    this.worldDialog.visible = value;
                 }
             },
             memo: {
@@ -878,7 +881,7 @@
                     return this.worldDialog.memo;
                 },
                 set(value) {
-                    this.$emit('update:world-dialog', { ...this.worldDialog, memo: value });
+                    this.worldDialog.memo = value;
                 }
             },
             isTimeInLabVisible() {
@@ -937,7 +940,7 @@
         watch: {
             'worldDialog.loading'(value) {
                 if (value) {
-                    this.$nextTick(() => this.adjustDialogZ(this.$refs.worldDialog.$el));
+                    this.$nextTick(() => this.adjustDialogZ(this.$refs.worldDialogRef.$el));
                 }
             }
         },

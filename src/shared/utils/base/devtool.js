@@ -1,3 +1,5 @@
+import { storeToRefs } from 'pinia';
+import { useWorldStore } from '../../../stores/world';
 import { compareUnityVersion } from '../avatar';
 import {
     extractFileId,
@@ -6,6 +8,8 @@ import {
 } from '../common';
 
 async function getBundleLocation(input) {
+    const worldStore = useWorldStore();
+    const { worldDialog } = storeToRefs(worldStore);
     let unityPackage;
     let unityPackages;
     const $app = window.$app;
@@ -44,10 +48,10 @@ async function getBundleLocation(input) {
     ) {
         assetUrl = $app.store.avatar.avatarDialog.ref.assetUrl;
     } else if (
-        $app.worldDialog.visible &&
-        $app.worldDialog.ref.unityPackages.length > 0
+        worldDialog.value.visible &&
+        worldDialog.value.ref.unityPackages.length > 0
     ) {
-        unityPackages = $app.worldDialog.ref.unityPackages;
+        unityPackages = worldDialog.value.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
             unityPackage = unityPackages[i];
             if (
@@ -58,8 +62,8 @@ async function getBundleLocation(input) {
                 break;
             }
         }
-    } else if ($app.worldDialog.visible && $app.worldDialog.ref.assetUrl) {
-        assetUrl = $app.worldDialog.ref.assetUrl;
+    } else if (worldDialog.value.visible && worldDialog.value.ref.assetUrl) {
+        assetUrl = worldDialog.value.ref.assetUrl;
     }
     if (!assetUrl) {
         return null;

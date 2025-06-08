@@ -2,6 +2,7 @@ import Noty from 'noty';
 import { storeToRefs } from 'pinia';
 import { miscRequest } from '../../api';
 import { useAvatarStore } from '../../stores/avatar';
+import { useWorldStore } from '../../stores/world';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
 import { $app } from '../../app';
@@ -332,6 +333,8 @@ function copyLink(text) {
 async function getBundleDateSize(ref) {
     const avatarStore = useAvatarStore();
     const { avatarDialog } = storeToRefs(avatarStore);
+    const worldStore = useWorldStore();
+    const { worldDialog } = storeToRefs(worldStore);
     const bundleSizes = [];
     for (let i = ref.unityPackages.length - 1; i > -1; i--) {
         const unityPackage = ref.unityPackages[i];
@@ -383,11 +386,11 @@ async function getBundleDateSize(ref) {
                     }
                 }
                 // update world dialog
-                if ($app.worldDialog.id === ref.id) {
-                    $app.worldDialog.bundleSizes[platform] =
+                if (worldDialog.value.id === ref.id) {
+                    worldDialog.value.bundleSizes[platform] =
                         bundleSizes[platform];
-                    if ($app.worldDialog.lastUpdated < version.created_at) {
-                        $app.worldDialog.lastUpdated = version.created_at;
+                    if (worldDialog.value.lastUpdated < version.created_at) {
+                        worldDialog.value.lastUpdated = version.created_at;
                     }
                 }
                 // update player list
