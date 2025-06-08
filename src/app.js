@@ -164,7 +164,7 @@ import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vu
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
 import Sidebar from './views/Sidebar/Sidebar.vue';
-
+import { userNotes } from './classes/userNotes.js';
 import { pinia, createGlobalStores } from './stores';
 
 // #endregion
@@ -2319,6 +2319,7 @@ API.$on('LOGIN', async function (args) {
     }
     await $app.getAvatarHistory();
     await getAllUserMemos();
+    userNotes.init();
     if ($app.store.appearanceSettings.randomUserColours) {
         getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;

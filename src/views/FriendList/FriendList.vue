@@ -76,7 +76,7 @@
                     :placeholder="$t('view.friend_list.filter_placeholder')"
                     @change="friendsListSearchChange">
                     <el-option
-                        v-for="type in ['Display Name', 'User Name', 'Rank', 'Status', 'Bio', 'Memo']"
+                        v-for="type in ['Display Name', 'User Name', 'Rank', 'Status', 'Bio', 'Note', 'Memo']"
                         :key="type"
                         :label="type"
                         :value="type"></el-option>
@@ -362,7 +362,7 @@
                 this.friendsListTable.data = [];
                 let filters = [...this.friendsListSearchFilters];
                 if (filters.length === 0) {
-                    filters = ['Display Name', 'Rank', 'Status', 'Bio', 'Memo'];
+                    filters = ['Display Name', 'Rank', 'Status', 'Bio', 'Note', 'Memo'];
                 }
                 const results = [];
                 if (this.friendsListSearch) {
@@ -393,6 +393,9 @@
                         }
                         if (!match && filters.includes('Memo') && ctx.memo) {
                             match = localeIncludes(ctx.memo, query, this.stringComparer);
+                        }
+                        if (!match && filters.includes('Note') && ctx.ref.note) {
+                            match = utils.localeIncludes(ctx.ref.note, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Bio') && ctx.ref.bio) {
                             match = localeIncludes(ctx.ref.bio, query, this.stringComparer);
