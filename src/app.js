@@ -134,7 +134,8 @@ import {
     getAllUserMemos,
     getWorldMemo,
     migrateMemos,
-    isRpcWorld
+    isRpcWorld,
+    getBundleDateSize
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -327,7 +328,6 @@ const app = {
             showGroupDialog: this.showGroupDialog,
             showGallerySelectDialog: this.showGallerySelectDialog,
             showGalleryDialog: this.showGalleryDialog,
-            getAvatarGallery: this.getAvatarGallery,
             inviteImageUpload: this.inviteImageUpload,
             clearInviteImageUpload: this.clearInviteImageUpload,
             isLinux: this.isLinux
@@ -1441,51 +1441,14 @@ API.refreshPlayerModerations = function () {
         .then((res) => {
             // 'AVATAR-MODERATION:LIST';
             // TODO: compare with cachedAvatarModerations
-            this.cachedAvatarModerations = new Map();
+            $app.store.avatar.cachedAvatarModerations = new Map();
             if (res[1]?.json) {
                 for (const json of res[1].json) {
-                    this.applyAvatarModeration(json);
+                    $app.store.avatar.applyAvatarModeration(json);
                 }
             }
             this.deleteExpiredPlayerModerations();
         });
-};
-
-// #endregion
-// #region | API: AvatarModeration
-
-API.cachedAvatarModerations = new Map();
-
-API.applyAvatarModeration = function (json) {
-    // fix inconsistent Unix time response
-    if (typeof json.created === 'number') {
-        json.created = new Date(json.created).toJSON();
-    }
-
-    let ref = this.cachedAvatarModerations.get(json.targetAvatarId);
-    if (typeof ref === 'undefined') {
-        ref = {
-            avatarModerationType: '',
-            created: '',
-            targetAvatarId: '',
-            ...json
-        };
-        this.cachedAvatarModerations.set(ref.targetAvatarId, ref);
-    } else {
-        Object.assign(ref, json);
-    }
-
-    // update avatar dialog
-    const D = $app.store.avatar.avatarDialog;
-    if (
-        D.visible &&
-        ref.avatarModerationType === 'block' &&
-        D.id === ref.targetAvatarId
-    ) {
-        D.isBlocked = true;
-    }
-
-    return ref;
 };
 
 // #endregion
@@ -4993,7 +4956,7 @@ $app.methods.updateCurrentInstanceWorld = function () {
                         ).toFixed(2)} MB`;
                     }
                 });
-                this.getBundleDateSize(args.ref).then((bundleSizes) => {
+                getBundleDateSize(args.ref).then((bundleSizes) => {
                     this.currentInstanceWorld.bundleSizes = bundleSizes;
                 });
                 return args;
@@ -5313,95 +5276,11 @@ API.$on('WORLD', function (args) {
         }
     }
     if (D.bundleSizes.length === 0) {
-        $app.getBundleDateSize(ref).then((bundleSizes) => {
+        getBundleDateSize(ref).then((bundleSizes) => {
             D.bundleSizes = bundleSizes;
         });
     }
 });
-
-$app.methods.getBundleDateSize = async function (ref) {
-    const bundleSizes = [];
-    for (let i = ref.unityPackages.length - 1; i > -1; i--) {
-        const unityPackage = ref.unityPackages[i];
-        if (
-            unityPackage.variant &&
-            unityPackage.variant !== 'standard' &&
-            unityPackage.variant !== 'security'
-        ) {
-            continue;
-        }
-        if (!compareUnityVersion(unityPackage.unitySortNumber)) {
-            continue;
-        }
-
-        const platform = unityPackage.platform;
-        if (bundleSizes[platform]) {
-            continue;
-        }
-        const assetUrl = unityPackage.assetUrl;
-        const fileId = extractFileId(assetUrl);
-        const fileVersion = parseInt(extractFileVersion(assetUrl), 10);
-        if (!fileId) {
-            continue;
-        }
-        const args = await miscRequest.getBundles(fileId);
-        if (!args?.json?.versions) {
-            continue;
-        }
-
-        let { versions } = args.json;
-        for (let j = versions.length - 1; j > -1; j--) {
-            const version = versions[j];
-            if (version.version === fileVersion) {
-                const createdAt = version.created_at;
-                const fileSize = `${(
-                    version.file.sizeInBytes / 1048576
-                ).toFixed(2)} MB`;
-                bundleSizes[platform] = {
-                    createdAt,
-                    fileSize
-                };
-
-                // update avatar dialog
-                if (this.store.avatar.avatarDialog.id === ref.id) {
-                    this.store.avatar.avatarDialog.bundleSizes[platform] =
-                        bundleSizes[platform];
-                    if (
-                        this.store.avatar.avatarDialog.lastUpdated <
-                        version.created_at
-                    ) {
-                        this.store.avatar.avatarDialog.lastUpdated =
-                            version.created_at;
-                    }
-                }
-                // update world dialog
-                if (this.worldDialog.id === ref.id) {
-                    this.worldDialog.bundleSizes[platform] =
-                        bundleSizes[platform];
-                    if (this.worldDialog.lastUpdated < version.created_at) {
-                        this.worldDialog.lastUpdated = version.created_at;
-                    }
-                }
-                // update player list
-                if (this.currentInstanceLocation.worldId === ref.id) {
-                    this.currentInstanceWorld.bundleSizes[platform] =
-                        bundleSizes[platform];
-
-                    if (
-                        this.currentInstanceWorld.lastUpdated <
-                        version.created_at
-                    ) {
-                        this.currentInstanceWorld.lastUpdated =
-                            version.created_at;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    return bundleSizes;
-};
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
@@ -5965,31 +5844,6 @@ API.$on('FAVORITE:@DELETE', function (args) {
     D.isFavorite = false;
 });
 
-$app.methods.getAvatarGallery = async function (avatarId) {
-    const D = this.store.avatar.avatarDialog;
-    const args = await avatarRequest.getAvatarGallery(avatarId).finally(() => {
-        D.galleryLoading = false;
-    });
-    if (args.params.galleryId !== D.id) {
-        return;
-    }
-    D.galleryImages = [];
-    // wtf is this? why is order sorting only needed if it's your own avatar?
-    const sortedGallery = args.json.sort((a, b) => {
-        if (!a.order && !b.order) {
-            return 0;
-        }
-        return a.order - b.order;
-    });
-    for (const file of sortedGallery) {
-        const url = file.versions[file.versions.length - 1].file.url;
-        D.galleryImages.push(url);
-    }
-
-    // for JSON tab treeData
-    D.ref.gallery = args.json;
-    return D.galleryImages;
-};
 $app.methods.selectAvatarWithConfirmation = function (id) {
     this.$confirm(`Continue? Select Avatar`, 'Confirm', {
         confirmButtonText: 'Confirm',
@@ -6768,24 +6622,6 @@ $app.methods.updateVRChatWorldCache = function () {
     }
 };
 
-$app.methods.updateVRChatAvatarCache = function () {
-    const D = this.store.avatar.avatarDialog;
-    if (D.visible) {
-        D.inCache = false;
-        D.cacheSize = 0;
-        D.cacheLocked = false;
-        D.cachePath = '';
-        checkVRChatCache(D.ref).then((cacheInfo) => {
-            if (cacheInfo.Item1 > 0) {
-                D.inCache = true;
-                D.cacheSize = `${(cacheInfo.Item1 / 1048576).toFixed(2)} MB`;
-                D.cachePath = cacheInfo.Item3;
-            }
-            D.cacheLocked = cacheInfo.Item2;
-        });
-    }
-};
-
 $app.methods.getDisplayName = function (userId) {
     if (userId) {
         const ref = API.cachedUsers.get(userId);
@@ -6800,7 +6636,7 @@ $app.methods.deleteVRChatCache = async function (ref) {
     await deleteVRChatCache(ref);
     this.getVRChatCacheSize();
     this.updateVRChatWorldCache();
-    this.updateVRChatAvatarCache();
+    this.store.avatar.updateVRChatAvatarCache();
 };
 
 $app.methods.autoVRChatCacheManagement = function () {

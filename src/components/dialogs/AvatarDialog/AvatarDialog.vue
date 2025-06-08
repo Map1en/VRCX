@@ -622,7 +622,8 @@
         openExternalLink,
         replaceVrcPackageUrl,
         storeAvatarImage,
-        timeToText
+        timeToText,
+        commaNumber
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -641,8 +642,8 @@
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
     const avatarStore = useAvatarStore();
-    const { avatarDialog } = storeToRefs(avatarStore);
-    const { showAvatarDialog } = avatarStore;
+    const { avatarDialog, cachedAvatarModerations } = storeToRefs(avatarStore);
+    const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -736,22 +737,6 @@
         }
     );
 
-    async function getAvatarGallery(avatarId) {
-        const D = this.avatarDialog;
-        const args = await avatarRequest.getAvatarGallery(avatarId);
-        if (args.params.galleryId !== D.id) {
-            return;
-        }
-        D.galleryImages = [];
-        for (const file of args.json) {
-            const url = file.versions[file.versions.length - 1].file.url;
-            D.galleryImages.push(url);
-        }
-
-        // for JSON tab treeData
-        D.ref.gallery = args.json;
-    }
-
     function getImageUrlFromImageId(imageId) {
         return `https://api.vrchat.cloud/api/1/file/${imageId}/1/`;
     }
@@ -791,10 +776,6 @@
 
     function deleteVRChatCache(ref) {
         emit('deleteVRChatCache', ref);
-    }
-
-    function commaNumber(num) {
-        return utils.commaNumber(num);
     }
 
     function avatarDialogCommand(command) {
@@ -866,7 +847,7 @@
                                     })
                                     .then((args) => {
                                         // 'AVATAR-MODERATION';
-                                        args.ref = API.applyAvatarModeration(args.json);
+                                        args.ref = applyAvatarModeration(args.json);
                                         $message({
                                             message: 'Avatar blocked',
                                             type: 'success'
@@ -882,7 +863,7 @@
                                     })
                                     .then((args) => {
                                         // 'AVATAR-MODERATION:DELETE';
-                                        API.cachedAvatarModerations.delete(args.params.targetAvatarId);
+                                        cachedAvatarModerations.value.delete(args.params.targetAvatarId);
                                         const D = avatarDialog.value;
                                         if (
                                             args.params.avatarModerationType === 'block' &&

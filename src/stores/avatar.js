@@ -3,7 +3,12 @@ import { computed, reactive } from 'vue';
 import { avatarRequest } from '../api';
 import { $app } from '../app';
 import API from '../classes/apiInit';
-import { getAvailablePlatforms, getPlatformInfo } from '../shared/utils';
+import {
+    checkVRChatCache,
+    getAvailablePlatforms,
+    getPlatformInfo,
+    getBundleDateSize
+} from '../shared/utils';
 import { useFavoriteStore } from './favorite';
 
 export const useAvatarStore = defineStore('Avatar', () => {
@@ -31,7 +36,8 @@ export const useAvatarStore = defineStore('Avatar', () => {
             cacheSize: 0,
             cacheLocked: false,
             cachePath: ''
-        }
+        },
+        cachedAvatarModerations: new Map()
     });
 
     const avatarDialog = computed({
@@ -45,7 +51,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         const favoriteStore = useFavoriteStore();
         const { cachedFavoritesByObjectId, localAvatarFavoritesList } =
             storeToRefs(favoriteStore);
-        const D = this.avatarDialog;
+        const D = state.avatarDialog;
         D.visible = true;
         D.loading = true;
         D.id = avatarId;
@@ -68,11 +74,11 @@ export const useAvatarStore = defineStore('Avatar', () => {
             cachedFavoritesByObjectId.value.has(avatarId) ||
             (API.currentUser.$isVRCPlus &&
                 localAvatarFavoritesList.value.includes(avatarId));
-        D.isBlocked = API.cachedAvatarModerations.has(avatarId);
+        D.isBlocked = state.cachedAvatarModerations.has(avatarId);
         const ref2 = API.cachedAvatars.get(avatarId);
         if (typeof ref2 !== 'undefined') {
             D.ref = ref2;
-            $app.updateVRChatAvatarCache();
+            updateVRChatAvatarCache();
             if (
                 ref2.releaseStatus !== 'public' &&
                 ref2.authorId !== API.currentUser.id
@@ -86,8 +92,8 @@ export const useAvatarStore = defineStore('Avatar', () => {
             .then((args) => {
                 let { ref } = args;
                 D.ref = ref;
-                $app.getAvatarGallery(avatarId);
-                $app.updateVRChatAvatarCache();
+                getAvatarGallery(avatarId);
+                updateVRChatAvatarCache();
                 if (/quest/.test(ref.tags)) {
                     D.isQuestFallback = true;
                 }
@@ -107,7 +113,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
                     }
                 }
                 if (D.bundleSizes.length === 0) {
-                    $app.getBundleDateSize(ref).then((bundleSizes) => {
+                    getBundleDateSize(ref).then((bundleSizes) => {
                         D.bundleSizes = bundleSizes;
                     });
                 }
@@ -121,5 +127,100 @@ export const useAvatarStore = defineStore('Avatar', () => {
             });
     }
 
-    return { state, avatarDialog, showAvatarDialog };
+    /**
+     * aka: `$app.methods.getAvatarGallery`
+     * @param {string} avatarId
+     * @returns {Promise<[]>}
+     */
+    async function getAvatarGallery(avatarId) {
+        const D = state.avatarDialog;
+        const args = await avatarRequest
+            .getAvatarGallery(avatarId)
+            .finally(() => {
+                D.galleryLoading = false;
+            });
+        if (args.params.galleryId !== D.id) {
+            return;
+        }
+        D.galleryImages = [];
+        // wtf is this? why is order sorting only needed if it's your own avatar?
+        const sortedGallery = args.json.sort((a, b) => {
+            if (!a.order && !b.order) {
+                return 0;
+            }
+            return a.order - b.order;
+        });
+        for (const file of sortedGallery) {
+            const url = file.versions[file.versions.length - 1].file.url;
+            D.galleryImages.push(url);
+        }
+
+        // for JSON tab treeData
+        D.ref.gallery = args.json;
+        return D.galleryImages;
+    }
+
+    /**
+     * aka: `API.applyAvatarModeration`
+     * @param {object} json
+     * @returns {object} ref
+     */
+    function applyAvatarModeration(json) {
+        // fix inconsistent Unix time response
+        if (typeof json.created === 'number') {
+            json.created = new Date(json.created).toJSON();
+        }
+
+        let ref = state.cachedAvatarModerations.get(json.targetAvatarId);
+        if (typeof ref === 'undefined') {
+            ref = {
+                avatarModerationType: '',
+                created: '',
+                targetAvatarId: '',
+                ...json
+            };
+            state.cachedAvatarModerations.set(ref.targetAvatarId, ref);
+        } else {
+            Object.assign(ref, json);
+        }
+
+        // update avatar dialog
+        const D = state.avatarDialog;
+        if (
+            D.visible &&
+            ref.avatarModerationType === 'block' &&
+            D.id === ref.targetAvatarId
+        ) {
+            D.isBlocked = true;
+        }
+
+        return ref;
+    }
+
+    function updateVRChatAvatarCache() {
+        const D = state.avatarDialog;
+        if (D.visible) {
+            D.inCache = false;
+            D.cacheSize = 0;
+            D.cacheLocked = false;
+            D.cachePath = '';
+            checkVRChatCache(D.ref).then((cacheInfo) => {
+                if (cacheInfo.Item1 > 0) {
+                    D.inCache = true;
+                    D.cacheSize = `${(cacheInfo.Item1 / 1048576).toFixed(2)} MB`;
+                    D.cachePath = cacheInfo.Item3;
+                }
+                D.cacheLocked = cacheInfo.Item2;
+            });
+        }
+    }
+
+    return {
+        state,
+        avatarDialog,
+        showAvatarDialog,
+        applyAvatarModeration,
+        getAvatarGallery,
+        updateVRChatAvatarCache
+    };
 });

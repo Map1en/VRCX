@@ -1,4 +1,7 @@
 import Noty from 'noty';
+import { storeToRefs } from 'pinia';
+import { miscRequest } from '../../api';
+import { useAvatarStore } from '../../stores/avatar';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
 import { $app } from '../../app';
@@ -326,6 +329,88 @@ function copyLink(text) {
     copyToClipboard(text);
 }
 
+async function getBundleDateSize(ref) {
+    const avatarStore = useAvatarStore();
+    const { avatarDialog } = storeToRefs(avatarStore);
+    const bundleSizes = [];
+    for (let i = ref.unityPackages.length - 1; i > -1; i--) {
+        const unityPackage = ref.unityPackages[i];
+        if (
+            unityPackage.variant &&
+            unityPackage.variant !== 'standard' &&
+            unityPackage.variant !== 'security'
+        ) {
+            continue;
+        }
+        if (!compareUnityVersion(unityPackage.unitySortNumber)) {
+            continue;
+        }
+
+        const platform = unityPackage.platform;
+        if (bundleSizes[platform]) {
+            continue;
+        }
+        const assetUrl = unityPackage.assetUrl;
+        const fileId = extractFileId(assetUrl);
+        const fileVersion = parseInt(extractFileVersion(assetUrl), 10);
+        if (!fileId) {
+            continue;
+        }
+        const args = await miscRequest.getBundles(fileId);
+        if (!args?.json?.versions) {
+            continue;
+        }
+
+        let { versions } = args.json;
+        for (let j = versions.length - 1; j > -1; j--) {
+            const version = versions[j];
+            if (version.version === fileVersion) {
+                const createdAt = version.created_at;
+                const fileSize = `${(
+                    version.file.sizeInBytes / 1048576
+                ).toFixed(2)} MB`;
+                bundleSizes[platform] = {
+                    createdAt,
+                    fileSize
+                };
+
+                // update avatar dialog
+                if (avatarDialog.value.id === ref.id) {
+                    avatarDialog.value.bundleSizes[platform] =
+                        bundleSizes[platform];
+                    if (avatarDialog.value.lastUpdated < version.created_at) {
+                        avatarDialog.value.lastUpdated = version.created_at;
+                    }
+                }
+                // update world dialog
+                if ($app.worldDialog.id === ref.id) {
+                    $app.worldDialog.bundleSizes[platform] =
+                        bundleSizes[platform];
+                    if ($app.worldDialog.lastUpdated < version.created_at) {
+                        $app.worldDialog.lastUpdated = version.created_at;
+                    }
+                }
+                // update player list
+                if ($app.currentInstanceLocation.worldId === ref.id) {
+                    $app.currentInstanceWorld.bundleSizes[platform] =
+                        bundleSizes[platform];
+
+                    if (
+                        $app.currentInstanceWorld.lastUpdated <
+                        version.created_at
+                    ) {
+                        $app.currentInstanceWorld.lastUpdated =
+                            version.created_at;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    return bundleSizes;
+}
+
 export {
     getAvailablePlatforms,
     downloadAndSaveJson,
@@ -341,5 +426,6 @@ export {
     buildTreeData,
     replaceBioSymbols,
     openExternalLink,
-    copyLink
+    copyLink,
+    getBundleDateSize
 };
