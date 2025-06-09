@@ -110,7 +110,7 @@ export const useAppearanceSettingsStore = defineStore(
                     true
                 ),
                 configRepository.getBool('VRCX_hideUserNotes', false),
-                configRepository.getBool('VRCX_hideUserMemos', false),
+                configRepository.getBool('VRCX_hideUserMemos', true),
                 configRepository.getBool('VRCX_hideUnfriends', false),
                 configRepository.getBool('VRCX_randomUserColours', false),
                 configRepository.getString(

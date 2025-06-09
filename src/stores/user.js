@@ -4,6 +4,7 @@ import * as workerTimers from 'worker-timers';
 import { friendRequest, groupRequest, userRequest } from '../api';
 import { $app, $t } from '../app';
 import API from '../classes/apiInit';
+import { userNotes } from '../classes/userNotes';
 import database from '../service/database';
 import {
     arraysMatch,
@@ -228,14 +229,14 @@ export const useUserStore = defineStore('User', () => {
      */
     function applyUser(json) {
         let ref = API.cachedUsers.get(json.id);
-        if (typeof json.statusDescription !== 'undefined') {
+        if (json.statusDescription) {
             json.statusDescription = replaceBioSymbols(json.statusDescription);
             json.statusDescription = removeEmojis(json.statusDescription);
         }
-        if (typeof json.bio !== 'undefined') {
+        if (json.bio) {
             json.bio = replaceBioSymbols(json.bio);
         }
-        if (typeof json.note !== 'undefined') {
+        if (json.note) {
             json.note = replaceBioSymbols(json.note);
         }
         if (json.currentAvatarImageUrl === robotUrl) {
@@ -267,7 +268,7 @@ export const useUserStore = defineStore('User', () => {
                 last_platform: '',
                 location: '',
                 platform: '',
-                note: '',
+                note: null,
                 profilePicOverride: '',
                 profilePicOverrideThumbnail: '',
                 pronouns: '',
@@ -411,6 +412,9 @@ export const useUserStore = defineStore('User', () => {
                     has = true;
                     props[prop] = [tobe, asis];
                 }
+            }
+            if ($ref.note !== null && $ref.note !== ref.note) {
+                userNotes.checkNote(ref.id, ref.note);
             }
             // FIXME
             // if the status is offline, just ignore status and statusDescription only.

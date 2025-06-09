@@ -1878,7 +1878,7 @@
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { userDialog } = storeToRefs(userStore);
-    const { showUserDialog } = userStore;
+    const { showUserDialog, applyUser } = userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showAvatarDialog } = avatarStore;
 
@@ -2985,7 +2985,7 @@
         }
         const ref = API.cachedUsers.get(targetUserId);
         if (typeof ref !== 'undefined') {
-            API.applyUser({
+            applyUser({
                 id: targetUserId,
                 note: _note
             });
