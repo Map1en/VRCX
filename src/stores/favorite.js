@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import { favoriteRequest } from '../api';
-import { $app } from '../app';
+import { $app, $t } from '../app';
 import API from '../classes/apiInit';
 import database from '../service/database';
 import { compareByName, removeFromArray } from '../shared/utils';
@@ -1117,7 +1117,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
 
         // update UI
-        $app.sortLocalAvatarFavorites();
+        sortLocalAvatarFavorites();
     }
 
     /**
@@ -1182,6 +1182,326 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     }
 
+    /**
+     * aka: `$app.methods.deleteLocalAvatarFavoriteGroup`
+     * @param {string} group
+     */
+    function deleteLocalAvatarFavoriteGroup(group) {
+        let i;
+        // remove from cache if no longer in favorites
+        const avatarIdRemoveList = new Set();
+        const favoriteGroup = state.localAvatarFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
+            avatarIdRemoveList.add(favoriteGroup[i].id);
+        }
+
+        removeFromArray(state.localAvatarFavoriteGroups, group);
+        delete state.localAvatarFavorites[group];
+        database.deleteAvatarFavoriteGroup(group);
+
+        for (i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
+            const groupName = state.localAvatarFavoriteGroups[i];
+            if (!state.localAvatarFavorites[groupName]) {
+                continue;
+            }
+            for (
+                let j = 0;
+                j < state.localAvatarFavorites[groupName].length;
+                ++j
+            ) {
+                const avatarId = state.localAvatarFavorites[groupName][j].id;
+                if (avatarIdRemoveList.has(avatarId)) {
+                    avatarIdRemoveList.delete(avatarId);
+                    break;
+                }
+            }
+        }
+
+        avatarIdRemoveList.forEach((id) => {
+            // remove from cache if no longer in favorites
+            let avatarInFavorites = false;
+            loop: for (
+                let i = 0;
+                i < state.localAvatarFavoriteGroups.length;
+                ++i
+            ) {
+                const groupName = state.localAvatarFavoriteGroups[i];
+                if (
+                    !state.localAvatarFavorites[groupName] ||
+                    group === groupName
+                ) {
+                    continue loop;
+                }
+                for (
+                    let j = 0;
+                    j < state.localAvatarFavorites[groupName].length;
+                    ++j
+                ) {
+                    const avatarId =
+                        state.localAvatarFavorites[groupName][j].id;
+                    if (id === avatarId) {
+                        avatarInFavorites = true;
+                        break loop;
+                    }
+                }
+            }
+            if (!avatarInFavorites) {
+                removeFromArray(state.localAvatarFavoritesList, id);
+                if (!$app.avatarHistory.has(id)) {
+                    database.removeAvatarFromCache(id);
+                }
+            }
+        });
+    }
+
+    /**
+     * aka: `$app.methods.sortLocalAvatarFavorites`
+     */
+    function sortLocalAvatarFavorites() {
+        state.localAvatarFavoriteGroups.sort();
+        if (!sortFavorites.value) {
+            for (let i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
+                const group = state.localAvatarFavoriteGroups[i];
+                if (state.localAvatarFavorites[group]) {
+                    state.localAvatarFavorites[group].sort(compareByName);
+                }
+            }
+        }
+    }
+
+    /**
+     * aka: `$app.methods.renameLocalAvatarFavoriteGroup`
+     * @param {string} newName
+     * @param {string} group
+     */
+    function renameLocalAvatarFavoriteGroup(newName, group) {
+        if (state.localAvatarFavoriteGroups.includes(newName)) {
+            $app.$message({
+                message: $t(
+                    'prompt.local_favorite_group_rename.message.error',
+                    {
+                        name: newName
+                    }
+                ),
+                type: 'error'
+            });
+            return;
+        }
+        state.localAvatarFavoriteGroups.push(newName);
+        state.localAvatarFavorites[newName] = state.localAvatarFavorites[group];
+
+        removeFromArray(state.localAvatarFavoriteGroups, group);
+        delete state.localAvatarFavorites[group];
+        database.renameAvatarFavoriteGroup(newName, group);
+        sortLocalAvatarFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.newLocalAvatarFavoriteGroup`
+     * @param {string} group
+     */
+    function newLocalAvatarFavoriteGroup(group) {
+        if (state.localAvatarFavoriteGroups.includes(group)) {
+            $app.$message({
+                message: $t('prompt.new_local_favorite_group.message.error', {
+                    name: group
+                }),
+                type: 'error'
+            });
+            return;
+        }
+        if (!state.localAvatarFavorites[group]) {
+            state.localAvatarFavorites[group] = [];
+        }
+        if (!state.localAvatarFavoriteGroups.includes(group)) {
+            state.localAvatarFavoriteGroups.push(group);
+        }
+        sortLocalAvatarFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.getLocalAvatarFavorites`
+     * @returns {Promise<void>}
+     */
+    async function getLocalAvatarFavorites() {
+        let ref;
+        let i;
+        state.localAvatarFavoriteGroups = [];
+        state.localAvatarFavoritesList = [];
+        state.localAvatarFavorites = {};
+        const avatarCache = await database.getAvatarCache();
+        for (i = 0; i < avatarCache.length; ++i) {
+            ref = avatarCache[i];
+            if (!API.cachedAvatars.has(ref.id)) {
+                API.applyAvatar(ref);
+            }
+        }
+        const favorites = await database.getAvatarFavorites();
+        for (i = 0; i < favorites.length; ++i) {
+            const favorite = favorites[i];
+            if (!state.localAvatarFavoritesList.includes(favorite.avatarId)) {
+                state.localAvatarFavoritesList.push(favorite.avatarId);
+            }
+            if (!state.localAvatarFavorites[favorite.groupName]) {
+                state.localAvatarFavorites[favorite.groupName] = [];
+            }
+            if (!state.localAvatarFavoriteGroups.includes(favorite.groupName)) {
+                state.localAvatarFavoriteGroups.push(favorite.groupName);
+            }
+            ref = API.cachedAvatars.get(favorite.avatarId);
+            if (typeof ref === 'undefined') {
+                ref = {
+                    id: favorite.avatarId
+                };
+            }
+            state.localAvatarFavorites[favorite.groupName].unshift(ref);
+        }
+        if (state.localAvatarFavoriteGroups.length === 0) {
+            // default group
+            state.localAvatarFavorites.Favorites = [];
+            state.localAvatarFavoriteGroups.push('Favorites');
+        }
+        sortLocalAvatarFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.removeLocalAvatarFavorite`
+     * @param {string} avatarId
+     * @param {string} group
+     */
+    function removeLocalAvatarFavorite(avatarId, group) {
+        let i;
+        const favoriteGroup = state.localAvatarFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
+            if (favoriteGroup[i].id === avatarId) {
+                favoriteGroup.splice(i, 1);
+            }
+        }
+
+        // remove from cache if no longer in favorites
+        let avatarInFavorites = false;
+        for (i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
+            const groupName = state.localAvatarFavoriteGroups[i];
+            if (!state.localAvatarFavorites[groupName] || group === groupName) {
+                continue;
+            }
+            for (
+                let j = 0;
+                j < state.localAvatarFavorites[groupName].length;
+                ++j
+            ) {
+                const id = state.localAvatarFavorites[groupName][j].id;
+                if (id === avatarId) {
+                    avatarInFavorites = true;
+                    break;
+                }
+            }
+        }
+        if (!avatarInFavorites) {
+            removeFromArray(state.localAvatarFavoritesList, avatarId);
+            if (!this.avatarHistory.has(avatarId)) {
+                database.removeAvatarFromCache(avatarId);
+            }
+        }
+        database.removeAvatarFromFavorites(avatarId, group);
+        if (
+            state.favoriteDialog.visible &&
+            state.favoriteDialog.objectId === avatarId
+        ) {
+            state.updateFavoriteDialog(avatarId);
+        }
+        if (avatarDialog.value.visible && avatarDialog.value.id === avatarId) {
+            avatarDialog.value.isFavorite =
+                state.cachedFavoritesByObjectId.has(avatarId);
+        }
+
+        // update UI
+        sortLocalAvatarFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.deleteLocalWorldFavoriteGroup`
+     * @param {string} group
+     */
+    function deleteLocalWorldFavoriteGroup(group) {
+        let i;
+        // remove from cache if no longer in favorites
+        const worldIdRemoveList = new Set();
+        const favoriteGroup = state.localWorldFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
+            worldIdRemoveList.add(favoriteGroup[i].id);
+        }
+
+        removeFromArray(state.localWorldFavoriteGroups, group);
+        delete state.localWorldFavorites[group];
+        database.deleteWorldFavoriteGroup(group);
+
+        for (i = 0; i < state.localWorldFavoriteGroups.length; ++i) {
+            const groupName = state.localWorldFavoriteGroups[i];
+            if (!state.localWorldFavorites[groupName]) {
+                continue;
+            }
+            for (
+                let j = 0;
+                j < state.localWorldFavorites[groupName].length;
+                ++j
+            ) {
+                const worldId = state.localWorldFavorites[groupName][j].id;
+                if (worldIdRemoveList.has(worldId)) {
+                    worldIdRemoveList.delete(worldId);
+                    break;
+                }
+            }
+        }
+
+        worldIdRemoveList.forEach((id) => {
+            removeFromArray(state.localWorldFavoritesList, id);
+            database.removeWorldFromCache(id);
+        });
+    }
+
+    /**
+     * aka: `$app.methods.sortLocalWorldFavorites`
+     */
+    function sortLocalWorldFavorites() {
+        state.localWorldFavoriteGroups.sort();
+        if (!sortFavorites.value) {
+            for (let i = 0; i < state.localWorldFavoriteGroups.length; ++i) {
+                const group = state.localWorldFavoriteGroups[i];
+                if (state.localWorldFavorites[group]) {
+                    state.localWorldFavorites[group].sort(compareByName);
+                }
+            }
+        }
+    }
+
+    /**
+     * aka: `$app.methods.renameLocalWorldFavoriteGroup`
+     * @param {string} newName
+     * @param {string} group
+     */
+    function renameLocalWorldFavoriteGroup(newName, group) {
+        if (state.localWorldFavoriteGroups.includes(newName)) {
+            $app.$message({
+                message: $t(
+                    'prompt.local_favorite_group_rename.message.error',
+                    {
+                        name: newName
+                    }
+                ),
+                type: 'error'
+            });
+            return;
+        }
+        state.localWorldFavoriteGroups.push(newName);
+        state.localWorldFavorites[newName] = state.localWorldFavorites[group];
+
+        removeFromArray(state.localWorldFavoriteGroups, group);
+        delete state.localWorldFavorites[group];
+        database.renameWorldFavoriteGroup(newName, group);
+        sortLocalWorldFavorites();
+    }
+
     return {
         state,
 
@@ -1239,6 +1559,14 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         hasLocalAvatarFavorite,
         addLocalAvatarFavorite,
         getLocalAvatarFavoriteGroupLength,
-        updateFavoriteDialog
+        updateFavoriteDialog,
+        deleteLocalAvatarFavoriteGroup,
+        renameLocalAvatarFavoriteGroup,
+        newLocalAvatarFavoriteGroup,
+        getLocalAvatarFavorites,
+        removeLocalAvatarFavorite,
+        deleteLocalWorldFavoriteGroup,
+        sortLocalWorldFavorites,
+        renameLocalWorldFavoriteGroup
     };
 });

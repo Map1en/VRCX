@@ -93,7 +93,6 @@
                         :edit-favorites-mode="editFavoritesMode"
                         style="display: inline-block; width: 300px; margin-right: 15px"
                         @handle-select="favorite.$selected = $event"
-                        @remove-local-avatar-favorite="removeLocalAvatarFavorite"
                         @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                         @click="showAvatarDialog(favorite.id)" />
                 </div>
@@ -205,7 +204,6 @@
                         :shift-held="shiftHeld"
                         :edit-favorites-mode="editFavoritesMode"
                         @handle-select="favorite.$selected = $event"
-                        @remove-local-avatar-favorite="removeLocalAvatarFavorite"
                         @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                         @click="showAvatarDialog(favorite.id)" />
                 </div>
@@ -230,7 +228,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { $t, API } from '../../../app';
     import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -254,7 +252,13 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites, localAvatarFavoriteGroups } =
                 storeToRefs(favoriteStore);
-            const { showAvatarImportDialog, getLocalAvatarFavoriteGroupLength } = favoriteStore;
+            const {
+                showAvatarImportDialog,
+                getLocalAvatarFavoriteGroupLength,
+                deleteLocalAvatarFavoriteGroup,
+                renameLocalAvatarFavoriteGroup,
+                newLocalAvatarFavoriteGroup
+            } = favoriteStore;
             const avatarStore = useAvatarStore();
             const { showAvatarDialog } = storeToRefs(avatarStore);
             return {
@@ -268,7 +272,10 @@
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavorites,
                 localAvatarFavoriteGroups,
-                showAvatarDialog
+                showAvatarDialog,
+                deleteLocalAvatarFavoriteGroup,
+                renameLocalAvatarFavoriteGroup,
+                newLocalAvatarFavoriteGroup
             };
         },
         data() {
@@ -381,9 +388,6 @@
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);
             },
-            removeLocalAvatarFavorite(id, group) {
-                this.$emit('remove-local-avatar-favorite', id, group);
-            },
             selectAvatarWithConfirmation(id) {
                 this.$emit('select-avatar-with-confirmation', id);
             },
@@ -391,16 +395,56 @@
                 this.$emit('prompt-clear-avatar-history');
             },
             promptNewLocalAvatarFavoriteGroup() {
-                this.$emit('prompt-new-local-avatar-favorite-group');
+                this.$prompt(
+                    $t('prompt.new_local_favorite_group.description'),
+                    $t('prompt.new_local_favorite_group.header'),
+                    {
+                        distinguishCancelAndClose: true,
+                        confirmButtonText: $t('prompt.new_local_favorite_group.ok'),
+                        cancelButtonText: $t('prompt.new_local_favorite_group.cancel'),
+                        inputPattern: /\S+/,
+                        inputErrorMessage: $t('prompt.new_local_favorite_group.input_error'),
+                        callback: (action, instance) => {
+                            if (action === 'confirm' && instance.inputValue) {
+                                this.newLocalAvatarFavoriteGroup(instance.inputValue);
+                            }
+                        }
+                    }
+                );
             },
             refreshLocalAvatarFavorites() {
                 this.$emit('refresh-local-avatar-favorites');
             },
             promptLocalAvatarFavoriteGroupRename(group) {
-                this.$emit('prompt-local-avatar-favorite-group-rename', group);
+                this.$prompt(
+                    $t('prompt.local_favorite_group_rename.description'),
+                    $t('prompt.local_favorite_group_rename.header'),
+                    {
+                        distinguishCancelAndClose: true,
+                        confirmButtonText: $t('prompt.local_favorite_group_rename.save'),
+                        cancelButtonText: $t('prompt.local_favorite_group_rename.cancel'),
+                        inputPattern: /\S+/,
+                        inputErrorMessage: $t('prompt.local_favorite_group_rename.input_error'),
+                        inputValue: group,
+                        callback: (action, instance) => {
+                            if (action === 'confirm' && instance.inputValue) {
+                                this.renameLocalAvatarFavoriteGroup(instance.inputValue, group);
+                            }
+                        }
+                    }
+                );
             },
             promptLocalAvatarFavoriteGroupDelete(group) {
-                this.$emit('prompt-local-avatar-favorite-group-delete', group);
+                this.$confirm(`Delete Group? ${group}`, 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info',
+                    callback: (action) => {
+                        if (action === 'confirm') {
+                            this.deleteLocalAvatarFavoriteGroup(group);
+                        }
+                    }
+                });
             }
         }
     };

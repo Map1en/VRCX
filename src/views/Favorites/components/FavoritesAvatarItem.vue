@@ -161,10 +161,12 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
+            const { removeLocalAvatarFavorite } = favoriteStore;
             return {
                 hideTooltips,
                 API,
-                favoriteAvatarGroups
+                favoriteAvatarGroups,
+                removeLocalAvatarFavorite
             };
         },
         computed: {
@@ -247,9 +249,6 @@
                 } else {
                     this.moveFavorite(this.favorite.ref, groupAPI, 'avatar');
                 }
-            },
-            removeLocalAvatarFavorite() {
-                this.$emit('remove-local-avatar-favorite', this.favorite.id, this.group);
             }
         }
     };

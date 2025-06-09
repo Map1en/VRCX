@@ -91,7 +91,8 @@
                 hasLocalWorldFavorite,
                 hasLocalAvatarFavorite,
                 addLocalAvatarFavorite,
-                getLocalAvatarFavoriteGroupLength
+                getLocalAvatarFavoriteGroupLength,
+                removeLocalAvatarFavorite
             } = favoriteStore;
             return {
                 API,
@@ -106,7 +107,8 @@
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavoriteGroups,
                 favoriteDialog,
-                localWorldFavoriteGroups
+                localWorldFavoriteGroups,
+                removeLocalAvatarFavorite
             };
         },
         data() {
@@ -170,9 +172,6 @@
             },
             removeLocalWorldFavorite(...args) {
                 this.$emit('removeLocalWorldFavorite', ...args);
-            },
-            removeLocalAvatarFavorite(...args) {
-                this.$emit('removeLocalAvatarFavorite', ...args);
             },
             deleteFavoriteNoConfirm(...args) {
                 this.$emit('deleteFavoriteNoConfirm', ...args);

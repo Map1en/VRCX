@@ -4391,10 +4391,6 @@ $app.methods.adjustDialogZ = function (el) {
 // #endregion
 // #region | App: User Dialog
 
-API.$on('LOGOUT', function () {
-    $app.store.user.userDialog.visible = false;
-});
-
 API.$on('USER', function (args) {
     let { ref } = args;
     const D = $app.store.user.userDialog;
@@ -6061,30 +6057,6 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
         console.error(err);
         return null;
     }
-};
-
-$app.methods.makeHome = function (tag) {
-    this.$confirm('Continue? Make Home', 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action !== 'confirm') {
-                return;
-            }
-            userRequest
-                .saveCurrentUser({
-                    homeLocation: tag
-                })
-                .then((args) => {
-                    this.$message({
-                        message: 'Home world updated',
-                        type: 'success'
-                    });
-                    return args;
-                });
-        }
-    });
 };
 
 // #endregion
@@ -7935,7 +7907,7 @@ $app.methods.removeLocalWorldFavorite = function (worldId, group) {
     }
 
     // update UI
-    this.sortLocalWorldFavorites();
+    this.store.favorite.sortLocalWorldFavorites();
 };
 
 $app.methods.getLocalWorldFavorites = async function () {
@@ -7986,7 +7958,7 @@ $app.methods.getLocalWorldFavorites = async function () {
         this.store.favorite.localWorldFavorites.Favorites = [];
         this.store.favorite.localWorldFavoriteGroups.push('Favorites');
     }
-    this.sortLocalWorldFavorites();
+    this.store.favorite.sortLocalWorldFavorites();
 };
 
 $app.methods.getLocalWorldFavoriteGroupLength = function (group) {
@@ -8013,83 +7985,7 @@ $app.methods.newLocalWorldFavoriteGroup = function (group) {
     if (!this.store.favorite.localWorldFavoriteGroups.includes(group)) {
         this.store.favorite.localWorldFavoriteGroups.push(group);
     }
-    this.sortLocalWorldFavorites();
-};
-
-$app.methods.renameLocalWorldFavoriteGroup = function (newName, group) {
-    if (this.store.favorite.localWorldFavoriteGroups.includes(newName)) {
-        $app.$message({
-            message: $t('prompt.local_favorite_group_rename.message.error', {
-                name: newName
-            }),
-            type: 'error'
-        });
-        return;
-    }
-    this.store.favorite.localWorldFavoriteGroups.push(newName);
-    this.store.favorite.localWorldFavorites[newName] =
-        this.store.favorite.localWorldFavorites[group];
-
-    removeFromArray(this.store.favorite.localWorldFavoriteGroups, group);
-    delete this.store.favorite.localWorldFavorites[group];
-    database.renameWorldFavoriteGroup(newName, group);
-    this.sortLocalWorldFavorites();
-};
-
-$app.methods.sortLocalWorldFavorites = function () {
-    this.store.favorite.localWorldFavoriteGroups.sort();
-    if (!this.store.appearanceSettings.sortFavorites) {
-        for (
-            let i = 0;
-            i < this.store.favorite.localWorldFavoriteGroups.length;
-            ++i
-        ) {
-            const group = this.store.favorite.localWorldFavoriteGroups[i];
-            if (this.store.favorite.localWorldFavorites[group]) {
-                this.store.favorite.localWorldFavorites[group].sort(
-                    compareByName
-                );
-            }
-        }
-    }
-};
-
-$app.methods.deleteLocalWorldFavoriteGroup = function (group) {
-    let i;
-    // remove from cache if no longer in favorites
-    const worldIdRemoveList = new Set();
-    const favoriteGroup = this.store.favorite.localWorldFavorites[group];
-    for (i = 0; i < favoriteGroup.length; ++i) {
-        worldIdRemoveList.add(favoriteGroup[i].id);
-    }
-
-    removeFromArray(this.store.favorite.localWorldFavoriteGroups, group);
-    delete this.store.favorite.localWorldFavorites[group];
-    database.deleteWorldFavoriteGroup(group);
-
-    for (i = 0; i < this.store.favorite.localWorldFavoriteGroups.length; ++i) {
-        const groupName = this.store.favorite.localWorldFavoriteGroups[i];
-        if (!this.store.favorite.localWorldFavorites[groupName]) {
-            continue;
-        }
-        for (
-            let j = 0;
-            j < this.store.favorite.localWorldFavorites[groupName].length;
-            ++j
-        ) {
-            const worldId =
-                this.store.favorite.localWorldFavorites[groupName][j].id;
-            if (worldIdRemoveList.has(worldId)) {
-                worldIdRemoveList.delete(worldId);
-                break;
-            }
-        }
-    }
-
-    worldIdRemoveList.forEach((id) => {
-        removeFromArray(this.store.favorite.localWorldFavoritesList, id);
-        database.removeWorldFromCache(id);
-    });
+    this.store.favorite.sortLocalWorldFavorites();
 };
 
 API.$on('WORLD', function (args) {
@@ -8105,63 +8001,6 @@ API.$on('LOGIN', function () {
 
 // #endregion
 // #region | App: Local Avatar Favorites
-
-$app.methods.removeLocalAvatarFavorite = function (avatarId, group) {
-    let i;
-    const favoriteGroup = this.store.favorite.localAvatarFavorites[group];
-    for (i = 0; i < favoriteGroup.length; ++i) {
-        if (favoriteGroup[i].id === avatarId) {
-            favoriteGroup.splice(i, 1);
-        }
-    }
-
-    // remove from cache if no longer in favorites
-    let avatarInFavorites = false;
-    for (i = 0; i < this.store.favorite.localAvatarFavoriteGroups.length; ++i) {
-        const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
-        if (
-            !this.store.favorite.localAvatarFavorites[groupName] ||
-            group === groupName
-        ) {
-            continue;
-        }
-        for (
-            let j = 0;
-            j < this.store.favorite.localAvatarFavorites[groupName].length;
-            ++j
-        ) {
-            const id =
-                this.store.favorite.localAvatarFavorites[groupName][j].id;
-            if (id === avatarId) {
-                avatarInFavorites = true;
-                break;
-            }
-        }
-    }
-    if (!avatarInFavorites) {
-        removeFromArray(this.store.favorite.localAvatarFavoritesList, avatarId);
-        if (!this.avatarHistory.has(avatarId)) {
-            database.removeAvatarFromCache(avatarId);
-        }
-    }
-    database.removeAvatarFromFavorites(avatarId, group);
-    if (
-        this.store.favorite.favoriteDialog.visible &&
-        this.store.favorite.favoriteDialog.objectId === avatarId
-    ) {
-        this.store.favorite.updateFavoriteDialog(avatarId);
-    }
-    if (
-        this.store.avatar.avatarDialog.visible &&
-        this.store.avatar.avatarDialog.id === avatarId
-    ) {
-        this.store.avatar.avatarDialog.isFavorite =
-            this.store.favorite.cachedFavoritesByObjectId.has(avatarId);
-    }
-
-    // update UI
-    this.sortLocalAvatarFavorites();
-};
 
 API.$on('AVATAR', function (args) {
     if ($app.store.favorite.localAvatarFavoritesList.includes(args.ref.id)) {
@@ -8197,248 +8036,11 @@ API.$on('LOGIN', function () {
     $app.store.favorite.localAvatarFavoriteGroups = [];
     $app.store.favorite.localAvatarFavoritesList = [];
     $app.store.favorite.localAvatarFavorites = {};
-    workerTimers.setTimeout(() => $app.getLocalAvatarFavorites(), 100);
+    workerTimers.setTimeout(
+        () => $app.store.favorite.getLocalAvatarFavorites(),
+        100
+    );
 });
-
-$app.methods.getLocalAvatarFavorites = async function () {
-    let ref;
-    let i;
-    this.store.favorite.localAvatarFavoriteGroups = [];
-    this.store.favorite.localAvatarFavoritesList = [];
-    this.store.favorite.localAvatarFavorites = {};
-    const avatarCache = await database.getAvatarCache();
-    for (i = 0; i < avatarCache.length; ++i) {
-        ref = avatarCache[i];
-        if (!API.cachedAvatars.has(ref.id)) {
-            API.applyAvatar(ref);
-        }
-    }
-    const favorites = await database.getAvatarFavorites();
-    for (i = 0; i < favorites.length; ++i) {
-        const favorite = favorites[i];
-        if (
-            !this.store.favorite.localAvatarFavoritesList.includes(
-                favorite.avatarId
-            )
-        ) {
-            this.store.favorite.localAvatarFavoritesList.push(
-                favorite.avatarId
-            );
-        }
-        if (!this.store.favorite.localAvatarFavorites[favorite.groupName]) {
-            this.store.favorite.localAvatarFavorites[favorite.groupName] = [];
-        }
-        if (
-            !this.store.favorite.localAvatarFavoriteGroups.includes(
-                favorite.groupName
-            )
-        ) {
-            this.store.favorite.localAvatarFavoriteGroups.push(
-                favorite.groupName
-            );
-        }
-        ref = API.cachedAvatars.get(favorite.avatarId);
-        if (typeof ref === 'undefined') {
-            ref = {
-                id: favorite.avatarId
-            };
-        }
-        this.store.favorite.localAvatarFavorites[favorite.groupName].unshift(
-            ref
-        );
-    }
-    if (this.store.favorite.localAvatarFavoriteGroups.length === 0) {
-        // default group
-        this.store.favorite.localAvatarFavorites.Favorites = [];
-        this.store.favorite.localAvatarFavoriteGroups.push('Favorites');
-    }
-    this.sortLocalAvatarFavorites();
-};
-
-$app.methods.promptNewLocalAvatarFavoriteGroup = function () {
-    this.$prompt(
-        $t('prompt.new_local_favorite_group.description'),
-        $t('prompt.new_local_favorite_group.header'),
-        {
-            distinguishCancelAndClose: true,
-            confirmButtonText: $t('prompt.new_local_favorite_group.ok'),
-            cancelButtonText: $t('prompt.new_local_favorite_group.cancel'),
-            inputPattern: /\S+/,
-            inputErrorMessage: $t(
-                'prompt.new_local_favorite_group.input_error'
-            ),
-            callback: (action, instance) => {
-                if (action === 'confirm' && instance.inputValue) {
-                    this.newLocalAvatarFavoriteGroup(instance.inputValue);
-                }
-            }
-        }
-    );
-};
-
-$app.methods.newLocalAvatarFavoriteGroup = function (group) {
-    if (this.store.favorite.localAvatarFavoriteGroups.includes(group)) {
-        $app.$message({
-            message: $t('prompt.new_local_favorite_group.message.error', {
-                name: group
-            }),
-            type: 'error'
-        });
-        return;
-    }
-    if (!this.store.favorite.localAvatarFavorites[group]) {
-        this.store.favorite.localAvatarFavorites[group] = [];
-    }
-    if (!this.store.favorite.localAvatarFavoriteGroups.includes(group)) {
-        this.store.favorite.localAvatarFavoriteGroups.push(group);
-    }
-    this.sortLocalAvatarFavorites();
-};
-
-$app.methods.promptLocalAvatarFavoriteGroupRename = function (group) {
-    this.$prompt(
-        $t('prompt.local_favorite_group_rename.description'),
-        $t('prompt.local_favorite_group_rename.header'),
-        {
-            distinguishCancelAndClose: true,
-            confirmButtonText: $t('prompt.local_favorite_group_rename.save'),
-            cancelButtonText: $t('prompt.local_favorite_group_rename.cancel'),
-            inputPattern: /\S+/,
-            inputErrorMessage: $t(
-                'prompt.local_favorite_group_rename.input_error'
-            ),
-            inputValue: group,
-            callback: (action, instance) => {
-                if (action === 'confirm' && instance.inputValue) {
-                    this.renameLocalAvatarFavoriteGroup(
-                        instance.inputValue,
-                        group
-                    );
-                }
-            }
-        }
-    );
-};
-
-$app.methods.renameLocalAvatarFavoriteGroup = function (newName, group) {
-    if (this.store.favorite.localAvatarFavoriteGroups.includes(newName)) {
-        $app.$message({
-            message: $t('prompt.local_favorite_group_rename.message.error', {
-                name: newName
-            }),
-            type: 'error'
-        });
-        return;
-    }
-    this.store.favorite.localAvatarFavoriteGroups.push(newName);
-    this.store.favorite.localAvatarFavorites[newName] =
-        this.store.favorite.localAvatarFavorites[group];
-
-    removeFromArray(this.store.favorite.localAvatarFavoriteGroups, group);
-    delete this.store.favorite.localAvatarFavorites[group];
-    database.renameAvatarFavoriteGroup(newName, group);
-    this.sortLocalAvatarFavorites();
-};
-
-$app.methods.promptLocalAvatarFavoriteGroupDelete = function (group) {
-    this.$confirm(`Delete Group? ${group}`, 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action === 'confirm') {
-                this.deleteLocalAvatarFavoriteGroup(group);
-            }
-        }
-    });
-};
-
-$app.methods.sortLocalAvatarFavorites = function () {
-    this.store.favorite.localAvatarFavoriteGroups.sort();
-    if (!this.store.appearanceSettings.sortFavorites) {
-        for (
-            let i = 0;
-            i < this.store.favorite.localAvatarFavoriteGroups.length;
-            ++i
-        ) {
-            const group = this.store.favorite.localAvatarFavoriteGroups[i];
-            if (this.store.favorite.localAvatarFavorites[group]) {
-                this.store.favorite.localAvatarFavorites[group].sort(
-                    compareByName
-                );
-            }
-        }
-    }
-};
-
-$app.methods.deleteLocalAvatarFavoriteGroup = function (group) {
-    let i;
-    // remove from cache if no longer in favorites
-    const avatarIdRemoveList = new Set();
-    const favoriteGroup = this.store.favorite.localAvatarFavorites[group];
-    for (i = 0; i < favoriteGroup.length; ++i) {
-        avatarIdRemoveList.add(favoriteGroup[i].id);
-    }
-
-    removeFromArray(this.store.favorite.localAvatarFavoriteGroups, group);
-    delete this.store.favorite.localAvatarFavorites[group];
-    database.deleteAvatarFavoriteGroup(group);
-
-    for (i = 0; i < this.store.favorite.localAvatarFavoriteGroups.length; ++i) {
-        const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
-        if (!this.store.favorite.localAvatarFavorites[groupName]) {
-            continue;
-        }
-        for (
-            let j = 0;
-            j < this.store.favorite.localAvatarFavorites[groupName].length;
-            ++j
-        ) {
-            const avatarId =
-                this.store.favorite.localAvatarFavorites[groupName][j].id;
-            if (avatarIdRemoveList.has(avatarId)) {
-                avatarIdRemoveList.delete(avatarId);
-                break;
-            }
-        }
-    }
-
-    avatarIdRemoveList.forEach((id) => {
-        // remove from cache if no longer in favorites
-        let avatarInFavorites = false;
-        loop: for (
-            let i = 0;
-            i < this.store.favorite.localAvatarFavoriteGroups.length;
-            ++i
-        ) {
-            const groupName = this.store.favorite.localAvatarFavoriteGroups[i];
-            if (
-                !this.store.favorite.localAvatarFavorites[groupName] ||
-                group === groupName
-            ) {
-                continue loop;
-            }
-            for (
-                let j = 0;
-                j < this.store.favorite.localAvatarFavorites[groupName].length;
-                ++j
-            ) {
-                const avatarId =
-                    this.store.favorite.localAvatarFavorites[groupName][j].id;
-                if (id === avatarId) {
-                    avatarInFavorites = true;
-                    break loop;
-                }
-            }
-        }
-        if (!avatarInFavorites) {
-            removeFromArray(this.store.favorite.localAvatarFavoritesList, id);
-            if (!this.avatarHistory.has(id)) {
-                database.removeAvatarFromCache(id);
-            }
-        }
-    });
-};
 
 // #endregion
 // #region | App: ChatBox Blacklist
@@ -9037,19 +8639,10 @@ $app.computed.favoritesTabEvent = function () {
         'save-sort-favorites-option': this.saveSortFavoritesOption,
         'show-world-dialog': this.showWorldDialog,
         'new-instance-self-invite': this.newInstanceSelfInvite,
-        'delete-local-world-favorite-group': this.deleteLocalWorldFavoriteGroup,
         'remove-local-world-favorite': this.removeLocalWorldFavorite,
-        'remove-local-avatar-favorite': this.removeLocalAvatarFavorite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
         'prompt-clear-avatar-history': this.promptClearAvatarHistory,
-        'prompt-new-local-avatar-favorite-group':
-            this.promptNewLocalAvatarFavoriteGroup,
-        'prompt-local-avatar-favorite-group-rename':
-            this.promptLocalAvatarFavoriteGroupRename,
-        'prompt-local-avatar-favorite-group-delete':
-            this.promptLocalAvatarFavoriteGroupDelete,
-        'new-local-world-favorite-group': this.newLocalWorldFavoriteGroup,
-        'rename-local-world-favorite-group': this.renameLocalWorldFavoriteGroup
+        'new-local-world-favorite-group': this.newLocalWorldFavoriteGroup
     };
 };
 

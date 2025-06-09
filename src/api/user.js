@@ -160,25 +160,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUserNotes(params) {
-        return window.API.call(`userNotes`, {
-            method: 'GET',
-            params
-        }).then((json) => {
-            const args = {
-                json,
-                params
-            };
-            // window.API.$emit('USER:NOTES', args);
-            return args;
-        });
-    },
-
-    /**
-     * @param params {{ offset: number, n: number }}
-     * @returns {Promise<{json: any, params}>}
-     */
-    getUserNotes(params) {
-        return window.API.call(`userNotes`, {
+        return API.call(`userNotes`, {
             method: 'GET',
             params
         }).then((json) => {

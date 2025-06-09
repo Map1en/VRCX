@@ -246,7 +246,12 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites, localWorldFavoriteGroups } =
                 storeToRefs(favoriteStore);
-            const { showWorldImportDialog, getLocalWorldFavoriteGroupLength } = favoriteStore;
+            const {
+                showWorldImportDialog,
+                getLocalWorldFavoriteGroupLength,
+                deleteLocalWorldFavoriteGroup,
+                renameLocalWorldFavoriteGroup
+            } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -257,7 +262,9 @@
                 showWorldImportDialog,
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavorites,
-                localWorldFavoriteGroups
+                localWorldFavoriteGroups,
+                deleteLocalWorldFavoriteGroup,
+                renameLocalWorldFavoriteGroup
             };
         },
         data() {
@@ -353,7 +360,7 @@
                         inputValue: group,
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {
-                                this.$emit('rename-local-world-favorite-group', instance.inputValue, group);
+                                this.renameLocalWorldFavoriteGroup(instance.inputValue, group);
                             }
                         }
                     }
@@ -366,7 +373,7 @@
                     type: 'info',
                     callback: (action) => {
                         if (action === 'confirm') {
-                            this.$emit('delete-local-world-favorite-group', group);
+                            this.deleteLocalWorldFavoriteGroup(group);
                         }
                     }
                 });
