@@ -1057,6 +1057,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (worldDialog.value.visible && worldDialog.value.id === worldId) {
             worldDialog.value.isFavorite = true;
         }
+
+        // update UI
+        $app.sortLocalWorldFavorites();
     }
 
     /**
@@ -1112,6 +1115,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (avatarDialog.value.visible && avatarDialog.value.id === avatarId) {
             avatarDialog.value.isFavorite = true;
         }
+
+        // update UI
+        $app.sortLocalAvatarFavorites();
     }
 
     /**
