@@ -193,7 +193,7 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible, localWorldFavoriteGroups } =
                 storeToRefs(favoriteStore);
-            const { getLocalWorldFavoriteGroupLength } = favoriteStore;
+            const { getLocalWorldFavoriteGroupLength, addLocalWorldFavorite } = favoriteStore;
             return {
                 API,
                 showUserDialog,
@@ -201,7 +201,8 @@
                 worldImportDialogInput,
                 worldImportDialogVisible,
                 getLocalWorldFavoriteGroupLength,
-                localWorldFavoriteGroups
+                localWorldFavoriteGroups,
+                addLocalWorldFavorite
             };
         },
         data() {
@@ -339,7 +340,7 @@
                         if (D.worldImportFavoriteGroup) {
                             await this.addFavoriteWorld(ref, D.worldImportFavoriteGroup, false);
                         } else if (D.worldImportLocalFavoriteGroup) {
-                            this.$emit('addLocalWorldFavorite', ref.id, D.worldImportLocalFavoriteGroup);
+                            this.addLocalWorldFavorite(ref, D.worldImportLocalFavoriteGroup);
                         }
                         removeFromArray(this.worldImportTable.data, ref);
                         D.worldIdList.delete(ref.id);

@@ -1,6 +1,6 @@
 import { userRequest } from '../api';
 import database from '../service/database.js';
-import utils from '../classes/utils';
+import { replaceBioSymbols } from '../shared/utils';
 import * as workerTimers from 'worker-timers';
 
 const userNotes = {
@@ -59,7 +59,7 @@ const userNotes = {
                     ) {
                         this.lastDbNoteDate = note.createdAt;
                     }
-                    note.note = utils.replaceBioSymbols(note.note);
+                    note.note = replaceBioSymbols(note.note);
                     newNotes.set(note.targetUserId, note);
                 }
                 if (done || args.json.length === 0) {
