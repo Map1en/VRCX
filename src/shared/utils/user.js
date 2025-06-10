@@ -1,7 +1,9 @@
-import { $app } from '../../app';
 import API from '../../classes/apiInit';
 import { languageMappings } from '../constants';
 import { HueToHex } from './base/ui';
+import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+import { storeToRefs } from 'pinia';
+import { convertFileUrlToImageUrl } from './common';
 
 function userOnlineForTimestamp(ctx) {
     if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
@@ -134,11 +136,90 @@ function statusClass(status) {
     return style;
 }
 
+/**
+ * @param {object} user - User Ref Object
+ * @param {boolean} isIcon - is use for icon (about 40x40)
+ * @param {string} resolution - requested icon resolution (default 128),
+ * @param {boolean} isUserDialogIcon - is use for user dialog icon
+ * @returns {string} - img url
+ */
+function userImage(user, isIcon, resolution = '128', isUserDialogIcon = false) {
+    const appAppearanceSettingsStore = useAppearanceSettingsStore();
+    const { displayVRCPlusIconsAsAvatar } = storeToRefs(
+        appAppearanceSettingsStore
+    );
+    if (!user) {
+        return '';
+    }
+    if (
+        (isUserDialogIcon && user.userIcon) ||
+        (displayVRCPlusIconsAsAvatar.value && user.userIcon)
+    ) {
+        if (isIcon) {
+            return convertFileUrlToImageUrl(user.userIcon);
+        }
+        return user.userIcon;
+    }
+
+    if (user.profilePicOverrideThumbnail) {
+        if (isIcon) {
+            return user.profilePicOverrideThumbnail.replace(
+                '/256',
+                `/${resolution}`
+            );
+        }
+        return user.profilePicOverrideThumbnail;
+    }
+    if (user.profilePicOverride) {
+        return user.profilePicOverride;
+    }
+    if (user.thumbnailUrl) {
+        return user.thumbnailUrl;
+    }
+    if (user.currentAvatarThumbnailImageUrl) {
+        if (isIcon) {
+            return user.currentAvatarThumbnailImageUrl.replace(
+                '/256',
+                `/${resolution}`
+            );
+        }
+        return user.currentAvatarThumbnailImageUrl;
+    }
+    if (user.currentAvatarImageUrl) {
+        if (isIcon) {
+            return convertFileUrlToImageUrl(user.currentAvatarImageUrl);
+        }
+        return user.currentAvatarImageUrl;
+    }
+    return '';
+}
+
+/**
+ *
+ * @param {object} user
+ * @returns {string|*}
+ */
+function userImageFull(user) {
+    const appAppearanceSettingsStore = useAppearanceSettingsStore();
+    const { displayVRCPlusIconsAsAvatar } = storeToRefs(
+        appAppearanceSettingsStore
+    );
+    if (displayVRCPlusIconsAsAvatar.value && user.userIcon) {
+        return user.userIcon;
+    }
+    if (user.profilePicOverride) {
+        return user.profilePicOverride;
+    }
+    return user.currentAvatarImageUrl;
+}
+
 export {
     userOnlineForTimestamp,
     languageClass,
     getNameColour,
     removeEmojis,
     userStatusClass,
-    statusClass
+    statusClass,
+    userImage,
+    userImageFull
 };

@@ -157,11 +157,11 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, onBeforeUnmount, ref } from 'vue';
+    import { onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
-    import { openExternalLink } from '../../shared/utils';
+    import { openExternalLink, userImage } from '../../shared/utils';
     import { API } from '../../app';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -171,8 +171,6 @@
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
 
     const { t } = useI18n();
-
-    const userImage = inject('userImage');
 
     defineProps({
         loginForm: {

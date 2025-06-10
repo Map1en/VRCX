@@ -87,14 +87,14 @@
     import { favoriteRequest } from '../../../api';
     import { API } from '../../../app';
     import Location from '../../../components/Location.vue';
-    import { userStatusClass } from '../../../shared/utils';
+    import { userStatusClass, userImage } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         components: { Location },
-        inject: ['userImage', 'showFavoriteDialog'],
+        inject: ['showFavoriteDialog'],
         props: {
             favorite: {
                 type: Object,
@@ -122,7 +122,8 @@
                 API,
                 userStatusClass,
                 showUserDialog,
-                favoriteFriendGroups
+                favoriteFriendGroups,
+                userImage
             };
         },
         methods: {

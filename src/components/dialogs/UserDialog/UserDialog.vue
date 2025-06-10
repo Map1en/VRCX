@@ -1845,7 +1845,8 @@
         timeToText,
         userOnlineForTimestamp,
         userStatusClass,
-        saveUserMemo
+        saveUserMemo,
+        userImage
     } from '../../../shared/utils';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -1885,7 +1886,6 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
-    const userImage = inject('userImage');
     const showLaunchDialog = inject('showLaunchDialog');
     const showGroupDialog = inject('showGroupDialog');
     const showWorldDialog = inject('showWorldDialog');

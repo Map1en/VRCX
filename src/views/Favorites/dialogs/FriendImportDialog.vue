@@ -126,20 +126,27 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
-    import { removeFromArray } from '../../../shared/utils';
+    import { removeFromArray, userImage } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'FriendImportDialog',
-        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog', 'adjustDialogZ'],
+        inject: ['userImageFull', 'showFullscreenImageDialog', 'adjustDialogZ'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups, friendImportDialogInput, friendImportDialogVisible } =
                 storeToRefs(favoriteStore);
-            return { API, showUserDialog, favoriteFriendGroups, friendImportDialogInput, friendImportDialogVisible };
+            return {
+                API,
+                showUserDialog,
+                favoriteFriendGroups,
+                friendImportDialogInput,
+                friendImportDialogVisible,
+                userImage
+            };
         },
         data() {
             return {

@@ -329,7 +329,8 @@
         replaceBioSymbols,
         compareByCreatedAt,
         compareByName,
-        compareByUpdatedAt
+        compareByUpdatedAt,
+        userImage
     } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
@@ -353,7 +354,6 @@
 
     const { t } = useI18n();
 
-    const userImage = inject('userImage');
     const showWorldDialog = inject('showWorldDialog');
     const showGroupDialog = inject('showGroupDialog');
 

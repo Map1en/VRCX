@@ -315,7 +315,6 @@ const app = {
     provide() {
         return {
             adjustDialogZ: this.adjustDialogZ,
-            userImage: this.userImage,
             userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             showWorldDialog: this.showWorldDialog,
@@ -7033,83 +7032,19 @@ $app.methods.checkCanInviteSelf = function (location) {
     return true;
 };
 
-/**
- * @param {object} user - User Ref Object
- * @param {boolean} isIcon - is use for icon (about 40x40)
- * @param {string} resolution - requested icon resolution (default 128),
- * @param {boolean} isUserDialogIcon - is use for user dialog icon
- * @returns {string} - img url
- *
- * VRC's 64 scaling doesn't look good, 128 is better, but some images might be overly sharp.
- * 128 is smaller than 256 or the original image size, making it a good choice.
- *
- * TODO: code is messy cause I haven't figured out the img field, maybe refactor it later
- */
-$app.methods.userImage = function (
-    user,
-    isIcon,
-    resolution = '128',
-    isUserDialogIcon = false
-) {
-    if (!user) {
-        return '';
-    }
-    if (
-        (isUserDialogIcon && user.userIcon) ||
-        (this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
-            user.userIcon)
-    ) {
-        if (isIcon) {
-            return convertFileUrlToImageUrl(user.userIcon);
-        }
-        return user.userIcon;
-    }
-
-    if (user.profilePicOverrideThumbnail) {
-        if (isIcon) {
-            return user.profilePicOverrideThumbnail.replace(
-                '/256',
-                `/${resolution}`
-            );
-        }
-        return user.profilePicOverrideThumbnail;
-    }
-    if (user.profilePicOverride) {
-        return user.profilePicOverride;
-    }
-    if (user.thumbnailUrl) {
-        return user.thumbnailUrl;
-    }
-    if (user.currentAvatarThumbnailImageUrl) {
-        if (isIcon) {
-            return user.currentAvatarThumbnailImageUrl.replace(
-                '/256',
-                `/${resolution}`
-            );
-        }
-        return user.currentAvatarThumbnailImageUrl;
-    }
-    if (user.currentAvatarImageUrl) {
-        if (isIcon) {
-            return convertFileUrlToImageUrl(user.currentAvatarImageUrl);
-        }
-        return user.currentAvatarImageUrl;
-    }
-    return '';
-};
-
-$app.methods.userImageFull = function (user) {
-    if (
-        this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
-        user.userIcon
-    ) {
-        return user.userIcon;
-    }
-    if (user.profilePicOverride) {
-        return user.profilePicOverride;
-    }
-    return user.currentAvatarImageUrl;
-};
+//
+// $app.methods.userImageFull = function (user) {
+//     if (
+//         this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
+//         user.userIcon
+//     ) {
+//         return user.userIcon;
+//     }
+//     if (user.profilePicOverride) {
+//         return user.profilePicOverride;
+//     }
+//     return user.currentAvatarImageUrl;
+// };
 
 $app.methods.showConsole = function () {
     AppApi.ShowDevTools();

@@ -280,7 +280,8 @@
         openExternalLink,
         sortStatus,
         statusClass,
-        timeToText
+        timeToText,
+        userImage
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
@@ -288,7 +289,7 @@
 
     export default {
         name: 'FriendListTab',
-        inject: ['userImage', 'userImageFull', 'showFullscreenImageDialog'],
+        inject: ['userImageFull', 'showFullscreenImageDialog'],
         props: {
             confirmDeleteFriend: Function,
             friendsListSearch: String,
@@ -313,7 +314,8 @@
                 timeToText,
                 openExternalLink,
                 statusClass,
-                showUserDialog
+                showUserDialog,
+                userImage
             };
         },
         data() {

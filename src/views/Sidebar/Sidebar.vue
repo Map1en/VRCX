@@ -100,6 +100,7 @@
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
     import { API } from '../../app';
+    import { userImage } from '../../shared/utils';
 
     export default {
         name: 'Sidebar',
@@ -108,7 +109,6 @@
             GroupsSidebar,
             Location
         },
-        inject: ['userImage'],
         props: {
             isGameRunning: Boolean,
 
@@ -137,7 +137,8 @@
                 isRefreshFriendsLoading,
                 refreshFriendsList,
                 onlineFriendCount,
-                API
+                API,
+                userImage
             };
         }
     };

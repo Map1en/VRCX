@@ -782,7 +782,8 @@
         refreshInstancePlayerCount,
         replaceVrcPackageUrl,
         timeToText,
-        userStatusClass
+        userStatusClass,
+        userImage
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -805,7 +806,6 @@
             ChangeWorldImageDialog
         },
         inject: [
-            'userImage',
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
@@ -843,7 +843,8 @@
                 replaceVrcPackageUrl,
                 userStatusClass,
                 showUserDialog,
-                worldDialog
+                worldDialog,
+                userImage
             };
         },
         data() {

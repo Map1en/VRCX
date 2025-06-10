@@ -170,7 +170,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
     import { API } from '../../../app';
-    import { parseLocation, userStatusClass } from '../../../shared/utils';
+    import { parseLocation, userStatusClass, userImage } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
     import Location from '../../Location.vue';
     import SendInviteDialog from './SendInviteDialog.vue';
@@ -183,7 +183,6 @@
     const $message = instance.proxy.$message;
     const $confirm = instance.proxy.$confirm;
 
-    const userImage = inject('userImage');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const props = defineProps({

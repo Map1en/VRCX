@@ -1181,7 +1181,8 @@
         openExternalLink,
         refreshInstancePlayerCount,
         removeFromArray,
-        userStatusClass
+        userStatusClass,
+        userImage
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -1191,7 +1192,6 @@
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const userImage = inject('userImage');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();

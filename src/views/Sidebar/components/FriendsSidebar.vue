@@ -177,7 +177,7 @@
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
-    import { isRealInstance, userStatusClass } from '../../../shared/utils';
+    import { isRealInstance, userStatusClass, userImage } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -190,7 +190,6 @@
             FriendItem,
             Location
         },
-        inject: ['userImage'],
         props: {
             isGameRunning: Boolean,
             lastLocation: Object,

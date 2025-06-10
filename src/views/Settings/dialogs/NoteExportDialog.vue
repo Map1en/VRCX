@@ -93,13 +93,12 @@
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { miscRequest } from '../../../api';
-    import { removeFromArray } from '../../../shared/utils';
+    import { removeFromArray, userImage } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
     import { useUserStore } from '../../../stores/user';
 
     const { t } = useI18n();
 
-    const userImage = inject('userImage');
     const userImageFull = inject('userImageFull');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 

@@ -500,7 +500,8 @@
         hasGroupPermission,
         isRealInstance,
         parseLocation,
-        userStatusClass
+        userStatusClass,
+        userImage
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
@@ -509,7 +510,7 @@
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['userImage', 'showLaunchDialog', 'adjustDialogZ'],
+        inject: ['showLaunchDialog', 'adjustDialogZ'],
         props: {
             instanceContentSettings: {
                 type: Array,
@@ -547,7 +548,8 @@
                 offlineFriends,
                 API,
                 userStatusClass,
-                hasGroupPermission
+                hasGroupPermission,
+                userImage
             };
         },
         data() {
