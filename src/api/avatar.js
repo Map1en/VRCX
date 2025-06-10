@@ -116,7 +116,6 @@ const avatarReq = {
                 json,
                 params
             };
-            API.$emit('AVATAR:DELETE', args);
             return args;
         });
     },

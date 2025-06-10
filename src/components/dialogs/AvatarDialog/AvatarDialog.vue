@@ -610,7 +610,7 @@
     import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
-    import { API } from '../../../app.js';
+    import { $app, API } from '../../../app.js';
     import database from '../../../service/database';
     import {
         buildTreeData,
@@ -907,13 +907,28 @@
                                         avatarId: D.id
                                     })
                                     .then((args) => {
-                                        $message({
-                                            message: 'Avatar deleted',
-                                            type: 'success'
+                                        // API.$on('AVATAR:DELETE')
+                                            let { json } = args;
+                                            API.cachedAvatars.delete(json._id);
+                                            if ($app.store.user.userDialog.id === json.authorId) {
+                                                const map = new Map();
+                                                for (let ref of API.cachedAvatars.values()) {
+                                                    if (ref.authorId === json.authorId) {
+                                                        map.set(ref.id, ref);
+                                                    }
+                                                }
+                                                const array = Array.from(map.values());
+                                                $app.sortUserDialogAvatars(array);
+                                            }
+
+                                            $message({
+                                                message: 'Avatar deleted',
+                                                type: 'success'
+                                            });
+                                            D.visible = false;
+                                            return args;
                                         });
-                                        D.visible = false;
-                                        return args;
-                                    });
+                                    }
                                 break;
                             case 'Delete Imposter':
                                 avatarRequest

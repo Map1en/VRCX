@@ -87,7 +87,7 @@ const worldReq = {
                 json,
                 params
             };
-            API.$emit('WORLD:DELETE', args);
+            // API.$emit('WORLD:DELETE', args);
             return args;
         });
     },

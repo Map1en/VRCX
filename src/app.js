@@ -641,21 +641,6 @@ API.$on('WORLD:LIST', function (args) {
     }
 });
 
-API.$on('WORLD:DELETE', function (args) {
-    let { json } = args;
-    this.cachedWorlds.delete(json.id);
-    if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
-        const map = new Map();
-        for (let ref of this.cachedWorlds.values()) {
-            if (ref.authorId === json.authorId) {
-                map.set(ref.id, ref);
-            }
-        }
-        const array = Array.from(map.values());
-        $app.store.user.userDialog.worlds = array;
-    }
-});
-
 API.$on('WORLD:SAVE', function (args) {
     let { json } = args;
     this.$emit('WORLD', {

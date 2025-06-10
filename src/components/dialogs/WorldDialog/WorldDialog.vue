@@ -772,7 +772,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { $app, API } from '../../../app';
     import database from '../../../service/database.js';
     import {
         buildTreeData,
@@ -1101,6 +1101,19 @@
                                                 worldId: D.id
                                             })
                                             .then((args) => {
+                                                // API.$on('WORLD:DELETE')
+                                                let { json } = args;
+                                                API.cachedWorlds.delete(json.id);
+                                                if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
+                                                    const map = new Map();
+                                                    for (let ref of API.cachedWorlds.values()) {
+                                                        if (ref.authorId === json.authorId) {
+                                                            map.set(ref.id, ref);
+                                                        }
+                                                    }
+                                                    const array = Array.from(map.values());
+                                                    $app.store.user.userDialog.worlds = array;
+                                                }
                                                 this.$message({
                                                     message: 'World has been deleted',
                                                     type: 'success'
