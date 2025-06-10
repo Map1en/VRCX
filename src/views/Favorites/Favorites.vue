@@ -43,9 +43,7 @@
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @new-instance-self-invite="newInstanceSelfInvite"
-                    @refresh-local-world-favorite="refreshLocalWorldFavorites"
-                    @remove-local-world-favorite="removeLocalWorldFavorite"
-                    @new-local-world-favorite-group="newLocalWorldFavoriteGroup" />
+                    @refresh-local-world-favorite="refreshLocalWorldFavorites" />
             </el-tab-pane>
             <el-tab-pane name="avatar" :label="$t('view.favorite.avatars.header')" lazy>
                 <FavoritesAvatarTab
@@ -100,8 +98,13 @@
                 localAvatarFavoritesList,
                 localWorldFavoritesList
             } = storeToRefs(favoriteStore);
-            const { refreshFavorites, refreshFavoriteGroups, clearBulkFavoriteSelection, bulkCopyFavoriteSelection } =
-                favoriteStore;
+            const {
+                refreshFavorites,
+                refreshFavoriteGroups,
+                clearBulkFavoriteSelection,
+                bulkCopyFavoriteSelection,
+                getLocalWorldFavorites
+            } = favoriteStore;
             return {
                 hideTooltips,
                 favoriteFriends,
@@ -114,7 +117,8 @@
                 clearBulkFavoriteSelection,
                 bulkCopyFavoriteSelection,
                 localAvatarFavoritesList,
-                localWorldFavoritesList
+                localWorldFavoritesList,
+                getLocalWorldFavorites
             };
         },
         data() {
@@ -249,26 +253,17 @@
                 }
                 this.refreshingLocalFavorites = false;
             },
-            getLocalWorldFavorites() {
-                this.$emit('get-local-world-favorites');
-            },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
             },
             newInstanceSelfInvite(worldId) {
                 this.$emit('new-instance-self-invite', worldId);
             },
-            removeLocalWorldFavorite(worldId, group) {
-                this.$emit('remove-local-world-favorite', worldId, group);
-            },
             selectAvatarWithConfirmation(id) {
                 this.$emit('select-avatar-with-confirmation', id);
             },
             promptClearAvatarHistory() {
                 this.$emit('prompt-clear-avatar-history');
-            },
-            newLocalWorldFavoriteGroup(inputValue) {
-                this.$emit('new-local-world-favorite-group', inputValue);
             }
         }
     };

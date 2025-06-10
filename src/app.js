@@ -3884,7 +3884,7 @@ $app.methods.saveOpenVROption = async function () {
 };
 
 $app.methods.saveSortFavoritesOption = async function () {
-    this.getLocalWorldFavorites();
+    this.store.favorite.getLocalWorldFavorites();
     this.setSortFavorites();
 };
 
@@ -7856,138 +7856,6 @@ $app.methods.openUGCFolderSelector = async function () {
 // #endregion
 // #region | App: local world favorites
 
-$app.methods.removeLocalWorldFavorite = function (worldId, group) {
-    let i;
-    const favoriteGroup = this.store.favorite.localWorldFavorites[group];
-    for (i = 0; i < favoriteGroup.length; ++i) {
-        if (favoriteGroup[i].id === worldId) {
-            favoriteGroup.splice(i, 1);
-        }
-    }
-
-    // remove from cache if no longer in favorites
-    let worldInFavorites = false;
-    for (i = 0; i < this.store.favorite.localWorldFavoriteGroups.length; ++i) {
-        const groupName = this.store.favorite.localWorldFavoriteGroups[i];
-        if (
-            !this.store.favorite.localWorldFavorites[groupName] ||
-            group === groupName
-        ) {
-            continue;
-        }
-        for (
-            let j = 0;
-            j < this.store.favorite.localWorldFavorites[groupName].length;
-            ++j
-        ) {
-            const id = this.store.favorite.localWorldFavorites[groupName][j].id;
-            if (id === worldId) {
-                worldInFavorites = true;
-                break;
-            }
-        }
-    }
-    if (!worldInFavorites) {
-        removeFromArray(this.store.favorite.localWorldFavoritesList, worldId);
-        database.removeWorldFromCache(worldId);
-    }
-    database.removeWorldFromFavorites(worldId, group);
-    if (
-        this.store.favorite.favoriteDialog.visible &&
-        this.store.favorite.favoriteDialog.objectId === worldId
-    ) {
-        this.store.favorite.updateFavoriteDialog(worldId);
-    }
-    if (
-        this.store.world.worldDialog.visible &&
-        this.store.world.worldDialog.id === worldId
-    ) {
-        this.store.world.worldDialog.isFavorite =
-            this.store.favorite.cachedFavoritesByObjectId.has(worldId);
-    }
-
-    // update UI
-    this.store.favorite.sortLocalWorldFavorites();
-};
-
-$app.methods.getLocalWorldFavorites = async function () {
-    this.store.favorite.localWorldFavoriteGroups = [];
-    this.store.favorite.localWorldFavoritesList = [];
-    this.store.favorite.localWorldFavorites = {};
-    const worldCache = await database.getWorldCache();
-    for (let i = 0; i < worldCache.length; ++i) {
-        const ref = worldCache[i];
-        if (!API.cachedWorlds.has(ref.id)) {
-            API.applyWorld(ref);
-        }
-    }
-    const favorites = await database.getWorldFavorites();
-    for (let i = 0; i < favorites.length; ++i) {
-        const favorite = favorites[i];
-        if (
-            !this.store.favorite.localWorldFavoritesList.includes(
-                favorite.worldId
-            )
-        ) {
-            this.store.favorite.localWorldFavoritesList.push(favorite.worldId);
-        }
-        if (!this.store.favorite.localWorldFavorites[favorite.groupName]) {
-            this.store.favorite.localWorldFavorites[favorite.groupName] = [];
-        }
-        if (
-            !this.store.favorite.localWorldFavoriteGroups.includes(
-                favorite.groupName
-            )
-        ) {
-            this.store.favorite.localWorldFavoriteGroups.push(
-                favorite.groupName
-            );
-        }
-        let ref = API.cachedWorlds.get(favorite.worldId);
-        if (typeof ref === 'undefined') {
-            ref = {
-                id: favorite.worldId
-            };
-        }
-        this.store.favorite.localWorldFavorites[favorite.groupName].unshift(
-            ref
-        );
-    }
-    if (this.store.favorite.localWorldFavoriteGroups.length === 0) {
-        // default group
-        this.store.favorite.localWorldFavorites.Favorites = [];
-        this.store.favorite.localWorldFavoriteGroups.push('Favorites');
-    }
-    this.store.favorite.sortLocalWorldFavorites();
-};
-
-$app.methods.getLocalWorldFavoriteGroupLength = function (group) {
-    const favoriteGroup = this.store.favorite.localWorldFavorites[group];
-    if (!favoriteGroup) {
-        return 0;
-    }
-    return favoriteGroup.length;
-};
-
-$app.methods.newLocalWorldFavoriteGroup = function (group) {
-    if (this.store.favorite.localWorldFavoriteGroups.includes(group)) {
-        $app.$message({
-            message: $t('prompt.new_local_favorite_group.message.error', {
-                name: group
-            }),
-            type: 'error'
-        });
-        return;
-    }
-    if (!this.store.favorite.localWorldFavorites[group]) {
-        this.store.favorite.localWorldFavorites[group] = [];
-    }
-    if (!this.store.favorite.localWorldFavoriteGroups.includes(group)) {
-        this.store.favorite.localWorldFavoriteGroups.push(group);
-    }
-    this.store.favorite.sortLocalWorldFavorites();
-};
-
 API.$on('WORLD', function (args) {
     if ($app.store.favorite.localWorldFavoritesList.includes(args.ref.id)) {
         // update db cache
@@ -7996,7 +7864,7 @@ API.$on('WORLD', function (args) {
 });
 
 API.$on('LOGIN', function () {
-    $app.getLocalWorldFavorites();
+    $app.store.favorite.getLocalWorldFavorites();
 });
 
 // #endregion
@@ -8635,14 +8503,11 @@ $app.computed.favoritesTabBind = function () {
 
 $app.computed.favoritesTabEvent = function () {
     return {
-        'get-local-world-favorites': this.getLocalWorldFavorites,
         'save-sort-favorites-option': this.saveSortFavoritesOption,
         'show-world-dialog': this.showWorldDialog,
         'new-instance-self-invite': this.newInstanceSelfInvite,
-        'remove-local-world-favorite': this.removeLocalWorldFavorite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
-        'prompt-clear-avatar-history': this.promptClearAvatarHistory,
-        'new-local-world-favorite-group': this.newLocalWorldFavoriteGroup
+        'prompt-clear-avatar-history': this.promptClearAvatarHistory
     };
 };
 

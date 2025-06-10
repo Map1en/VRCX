@@ -1059,7 +1059,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
 
         // update UI
-        $app.sortLocalWorldFavorites();
+        sortLocalWorldFavorites();
     }
 
     /**
@@ -1408,7 +1408,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             state.favoriteDialog.visible &&
             state.favoriteDialog.objectId === avatarId
         ) {
-            state.updateFavoriteDialog(avatarId);
+            updateFavoriteDialog(avatarId);
         }
         if (avatarDialog.value.visible && avatarDialog.value.id === avatarId) {
             avatarDialog.value.isFavorite =
@@ -1502,6 +1502,125 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         sortLocalWorldFavorites();
     }
 
+    /**
+     * aka: `$app.methods.removeLocalWorldFavorite`
+     * @param {string} worldId
+     * @param {string} group
+     */
+    function removeLocalWorldFavorite(worldId, group) {
+        let i;
+        const favoriteGroup = state.localWorldFavorites[group];
+        for (i = 0; i < favoriteGroup.length; ++i) {
+            if (favoriteGroup[i].id === worldId) {
+                favoriteGroup.splice(i, 1);
+            }
+        }
+
+        // remove from cache if no longer in favorites
+        let worldInFavorites = false;
+        for (i = 0; i < state.localWorldFavoriteGroups.length; ++i) {
+            const groupName = state.localWorldFavoriteGroups[i];
+            if (!state.localWorldFavorites[groupName] || group === groupName) {
+                continue;
+            }
+            for (
+                let j = 0;
+                j < state.localWorldFavorites[groupName].length;
+                ++j
+            ) {
+                const id = state.localWorldFavorites[groupName][j].id;
+                if (id === worldId) {
+                    worldInFavorites = true;
+                    break;
+                }
+            }
+        }
+        if (!worldInFavorites) {
+            removeFromArray(state.localWorldFavoritesList, worldId);
+            database.removeWorldFromCache(worldId);
+        }
+        database.removeWorldFromFavorites(worldId, group);
+        if (
+            state.favoriteDialog.visible &&
+            state.favoriteDialog.objectId === worldId
+        ) {
+            updateFavoriteDialog(worldId);
+        }
+        if (worldDialog.value.visible && worldDialog.value.id === worldId) {
+            worldDialog.value.isFavorite =
+                state.cachedFavoritesByObjectId.has(worldId);
+        }
+
+        // update UI
+        sortLocalWorldFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.getLocalWorldFavorites`
+     * @returns {Promise<void>}
+     */
+    async function getLocalWorldFavorites() {
+        state.localWorldFavoriteGroups = [];
+        state.localWorldFavoritesList = [];
+        state.localWorldFavorites = {};
+        const worldCache = await database.getWorldCache();
+        for (let i = 0; i < worldCache.length; ++i) {
+            const ref = worldCache[i];
+            if (!API.cachedWorlds.has(ref.id)) {
+                API.applyWorld(ref);
+            }
+        }
+        const favorites = await database.getWorldFavorites();
+        for (let i = 0; i < favorites.length; ++i) {
+            const favorite = favorites[i];
+            if (!state.localWorldFavoritesList.includes(favorite.worldId)) {
+                state.localWorldFavoritesList.push(favorite.worldId);
+            }
+            if (!state.localWorldFavorites[favorite.groupName]) {
+                state.localWorldFavorites[favorite.groupName] = [];
+            }
+            if (!state.localWorldFavoriteGroups.includes(favorite.groupName)) {
+                state.localWorldFavoriteGroups.push(favorite.groupName);
+            }
+            let ref = API.cachedWorlds.get(favorite.worldId);
+            if (typeof ref === 'undefined') {
+                ref = {
+                    id: favorite.worldId
+                };
+            }
+            state.localWorldFavorites[favorite.groupName].unshift(ref);
+        }
+        if (state.localWorldFavoriteGroups.length === 0) {
+            // default group
+            state.localWorldFavorites.Favorites = [];
+            state.localWorldFavoriteGroups.push('Favorites');
+        }
+        sortLocalWorldFavorites();
+    }
+
+    /**
+     * aka: `$app.methods.newLocalWorldFavoriteGroup`
+     * @param {string} group
+     */
+    function newLocalWorldFavoriteGroup(group) {
+        if (state.localWorldFavoriteGroups.includes(group)) {
+            $app.$message({
+                message: $t('prompt.new_local_favorite_group.message.error', {
+                    name: group
+                }),
+                type: 'error'
+            });
+            return;
+        }
+        if (!state.localWorldFavorites[group]) {
+            state.localWorldFavorites[group] = [];
+        }
+        if (!state.localWorldFavoriteGroups.includes(group)) {
+            state.localWorldFavoriteGroups.push(group);
+        }
+        sortLocalWorldFavorites();
+    }
+
     return {
         state,
 
@@ -1567,6 +1686,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         removeLocalAvatarFavorite,
         deleteLocalWorldFavoriteGroup,
         sortLocalWorldFavorites,
-        renameLocalWorldFavoriteGroup
+        renameLocalWorldFavoriteGroup,
+        removeLocalWorldFavorite,
+        getLocalWorldFavorites,
+        newLocalWorldFavoriteGroup
     };
 });

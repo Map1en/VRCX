@@ -250,7 +250,9 @@
                 showWorldImportDialog,
                 getLocalWorldFavoriteGroupLength,
                 deleteLocalWorldFavoriteGroup,
-                renameLocalWorldFavoriteGroup
+                renameLocalWorldFavoriteGroup,
+                removeLocalWorldFavorite,
+                newLocalWorldFavoriteGroup
             } = favoriteStore;
             return {
                 hideTooltips,
@@ -264,7 +266,9 @@
                 localWorldFavorites,
                 localWorldFavoriteGroups,
                 deleteLocalWorldFavoriteGroup,
-                renameLocalWorldFavoriteGroup
+                renameLocalWorldFavoriteGroup,
+                removeLocalWorldFavorite,
+                newLocalWorldFavoriteGroup
             };
         },
         data() {
@@ -341,7 +345,7 @@
                         inputErrorMessage: $t('prompt.new_local_favorite_group.input_error'),
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {
-                                this.$emit('new-local-world-favorite-group', instance.inputValue);
+                                this.newLocalWorldFavoriteGroup(instance.inputValue);
                             }
                         }
                     }
@@ -451,10 +455,6 @@
             },
             newInstanceSelfInvite(event) {
                 this.$emit('new-instance-self-invite', event);
-            },
-
-            removeLocalWorldFavorite(param1, param2) {
-                this.$emit('remove-local-world-favorite', param1, param2);
             }
         }
     };
