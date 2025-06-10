@@ -373,6 +373,15 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     });
 
+    const localWorldFavoriteGroups = computed({
+        get() {
+            return state.localWorldFavoriteGroups;
+        },
+        set(value) {
+            state.localWorldFavoriteGroups = value;
+        }
+    });
+
     // const localFavoriteFriends = state.localFavoriteFriends;
     /**
      * aka: `$app.methods.applyFavorite`
@@ -1659,6 +1668,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         sortFavoriteWorlds,
         sortFavoriteAvatars,
         cachedFavoritesByObjectId,
+        localWorldFavoriteGroups,
         // localFavoriteFriends,
 
         applyFavorite,
