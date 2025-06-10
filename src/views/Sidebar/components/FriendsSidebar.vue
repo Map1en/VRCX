@@ -221,7 +221,8 @@
                 userStatusClass,
                 isRealInstance,
                 showUserDialog,
-                favoriteFriendGroups
+                favoriteFriendGroups,
+                userImage
             };
         },
 

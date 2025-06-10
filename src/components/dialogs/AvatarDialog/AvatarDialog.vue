@@ -908,27 +908,26 @@
                                     })
                                     .then((args) => {
                                         // API.$on('AVATAR:DELETE')
-                                            let { json } = args;
-                                            API.cachedAvatars.delete(json._id);
-                                            if ($app.store.user.userDialog.id === json.authorId) {
-                                                const map = new Map();
-                                                for (let ref of API.cachedAvatars.values()) {
-                                                    if (ref.authorId === json.authorId) {
-                                                        map.set(ref.id, ref);
-                                                    }
+                                        let { json } = args;
+                                        API.cachedAvatars.delete(json._id);
+                                        if ($app.store.user.userDialog.id === json.authorId) {
+                                            const map = new Map();
+                                            for (let ref of API.cachedAvatars.values()) {
+                                                if (ref.authorId === json.authorId) {
+                                                    map.set(ref.id, ref);
                                                 }
-                                                const array = Array.from(map.values());
-                                                $app.sortUserDialogAvatars(array);
                                             }
+                                            const array = Array.from(map.values());
+                                            $app.sortUserDialogAvatars(array);
+                                        }
 
-                                            $message({
-                                                message: 'Avatar deleted',
-                                                type: 'success'
-                                            });
-                                            D.visible = false;
-                                            return args;
+                                        $message({
+                                            message: 'Avatar deleted',
+                                            type: 'success'
                                         });
-                                    }
+                                        D.visible = false;
+                                        return args;
+                                    });
                                 break;
                             case 'Delete Imposter':
                                 avatarRequest
