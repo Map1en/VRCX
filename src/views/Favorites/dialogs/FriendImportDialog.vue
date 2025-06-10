@@ -126,13 +126,13 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
-    import { removeFromArray, userImage } from '../../../shared/utils';
+    import { removeFromArray, userImage, userImageFull } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'FriendImportDialog',
-        inject: ['userImageFull', 'showFullscreenImageDialog', 'adjustDialogZ'],
+        inject: ['showFullscreenImageDialog', 'adjustDialogZ'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -145,7 +145,8 @@
                 favoriteFriendGroups,
                 friendImportDialogInput,
                 friendImportDialogVisible,
-                userImage
+                userImage,
+                userImageFull
             };
         },
         data() {

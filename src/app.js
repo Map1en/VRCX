@@ -315,7 +315,6 @@ const app = {
     provide() {
         return {
             adjustDialogZ: this.adjustDialogZ,
-            userImageFull: this.userImageFull,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             showWorldDialog: this.showWorldDialog,
             showPreviousInstancesInfoDialog:

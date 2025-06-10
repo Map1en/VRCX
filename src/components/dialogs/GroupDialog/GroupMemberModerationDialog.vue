@@ -813,7 +813,7 @@
     import { groupRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
-    import { hasGroupPermission, userImage } from '../../../shared/utils';
+    import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
@@ -823,7 +823,6 @@
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
 
-    const userImageFull = inject('userImageFull');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const { t } = useI18n();
