@@ -1631,6 +1631,27 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         sortLocalWorldFavorites();
     }
 
+    /**
+     * aka: `$app.methods.deleteFavoriteNoConfirm`
+     * @param {string} objectId
+     */
+    function deleteFavoriteNoConfirm(objectId) {
+        if (!objectId) {
+            return;
+        }
+        state.favoriteDialog.visible = true;
+        favoriteRequest
+            .deleteFavorite({
+                objectId
+            })
+            .then(() => {
+                state.favoriteDialog.visible = false;
+            })
+            .finally(() => {
+                state.favoriteDialog.loading = false;
+            });
+    }
+
     return {
         state,
 
@@ -1700,6 +1721,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         renameLocalWorldFavoriteGroup,
         removeLocalWorldFavorite,
         getLocalWorldFavorites,
-        newLocalWorldFavoriteGroup
+        newLocalWorldFavoriteGroup,
+        deleteFavoriteNoConfirm
     };
 });

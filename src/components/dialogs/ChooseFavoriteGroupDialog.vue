@@ -93,7 +93,8 @@
                 addLocalAvatarFavorite,
                 getLocalAvatarFavoriteGroupLength,
                 removeLocalAvatarFavorite,
-                removeLocalWorldFavorite
+                removeLocalWorldFavorite,
+                deleteFavoriteNoConfirm
             } = favoriteStore;
             return {
                 API,
@@ -110,7 +111,8 @@
                 favoriteDialog,
                 localWorldFavoriteGroups,
                 removeLocalAvatarFavorite,
-                removeLocalWorldFavorite
+                removeLocalWorldFavorite,
+                deleteFavoriteNoConfirm
             };
         },
         data() {
@@ -171,9 +173,6 @@
                     .finally(() => {
                         this.loading = false;
                     });
-            },
-            deleteFavoriteNoConfirm(...args) {
-                this.$emit('deleteFavoriteNoConfirm', ...args);
             }
         }
     };

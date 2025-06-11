@@ -3105,23 +3105,6 @@ API.$on('AVATAR', function (args) {
     $app.store.favorite.applyFavorite('avatar', args.ref.id);
 });
 
-$app.methods.deleteFavoriteNoConfirm = function (objectId) {
-    if (!objectId) {
-        return;
-    }
-    this.store.favorite.favoriteDialog.visible = true;
-    favoriteRequest
-        .deleteFavorite({
-            objectId
-        })
-        .then(() => {
-            this.store.favorite.favoriteDialog.visible = false;
-        })
-        .finally(() => {
-            this.store.favorite.favoriteDialog.loading = false;
-        });
-};
-
 $app.computed.groupedByGroupKeyFavoriteFriends = function () {
     const groupedByGroupKeyFavoriteFriends = {};
 
