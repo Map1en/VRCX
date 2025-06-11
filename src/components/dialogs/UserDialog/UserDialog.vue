@@ -1842,16 +1842,18 @@
         parseLocation,
         refreshInstancePlayerCount,
         replaceBioSymbols,
-        timeToText,
-        userOnlineForTimestamp,
-        userStatusClass,
         saveUserMemo,
-        userImage
+        timeToText,
+        userImage,
+        userOnlineForTimestamp,
+        userStatusClass
     } from '../../../shared/utils';
+    import { useAvatarStore } from '../../../stores/avatar';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
-    import { useFavoriteStore } from '../../../stores/favorite';
+    import { useWorldStore } from '../../../stores/world';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
@@ -1863,7 +1865,6 @@
     import PronounsDialog from './PronounsDialog.vue';
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
-    import { useAvatarStore } from '../../../stores/avatar';
 
     const { t } = useI18n();
 
@@ -1875,6 +1876,7 @@
     const userStore = useUserStore();
     const favoriteStore = useFavoriteStore();
     const avatarStore = useAvatarStore();
+    const worldStore = useWorldStore();
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
@@ -1882,13 +1884,13 @@
     const { showUserDialog, applyUser } = userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showAvatarDialog } = avatarStore;
+    const { showWorldDialog } = worldStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const showLaunchDialog = inject('showLaunchDialog');
     const showGroupDialog = inject('showGroupDialog');
-    const showWorldDialog = inject('showWorldDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 

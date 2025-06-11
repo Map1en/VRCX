@@ -338,6 +338,7 @@
     import { useUserStore } from '../../stores/user';
     import { API } from '../../app';
     import { useAvatarStore } from '../../stores/avatar';
+    import { useWorldStore } from '../../stores/world';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -351,10 +352,11 @@
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog } = userStore;
     const { showAvatarDialog } = avatarStore;
+    const worldStore = useWorldStore();
+    const { showWorldDialog } = worldStore;
 
     const { t } = useI18n();
 
-    const showWorldDialog = inject('showWorldDialog');
     const showGroupDialog = inject('showGroupDialog');
 
     const props = defineProps({

@@ -82,10 +82,10 @@
 
 <script>
     import { worldRequest } from '../../../api';
+    import { useWorldStore } from '../../../stores/world';
 
     export default {
         name: 'SetWorldTagsDialog',
-        inject: ['showWorldDialog'],
         props: {
             oldTags: {
                 type: Array,
@@ -103,6 +103,12 @@
                 type: Boolean,
                 required: true
             }
+        },
+        setup() {
+            const worldStore = useWorldStore();
+            const { showWorldDialog } = worldStore;
+
+            return { showWorldDialog };
         },
         data() {
             return {

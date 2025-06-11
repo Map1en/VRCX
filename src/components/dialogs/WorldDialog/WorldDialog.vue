@@ -782,8 +782,8 @@
         refreshInstancePlayerCount,
         replaceVrcPackageUrl,
         timeToText,
-        userStatusClass,
-        userImage
+        userImage,
+        userStatusClass
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -810,7 +810,6 @@
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
             'showFullscreenImageDialog',
-            'showWorldDialog',
             'showFavoriteDialog'
         ],
         props: {
@@ -834,6 +833,7 @@
             const { showUserDialog } = userStore;
             const worldStore = useWorldStore();
             const { worldDialog } = storeToRefs(worldStore);
+            const { showWorldDialog } = worldStore;
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -844,7 +844,8 @@
                 userStatusClass,
                 showUserDialog,
                 worldDialog,
-                userImage
+                userImage,
+                showWorldDialog
             };
         },
         data() {

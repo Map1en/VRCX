@@ -227,6 +227,7 @@
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
     import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useWorldStore } from '../../../stores/world';
 
     export default {
         name: 'FavoritesWorldTab',
@@ -234,7 +235,6 @@
             FavoritesWorldItem,
             WorldExportDialog
         },
-        inject: ['showWorldDialog'],
         props: {
             editFavoritesMode: Boolean,
             shiftHeld: Boolean,
@@ -254,6 +254,8 @@
                 removeLocalWorldFavorite,
                 newLocalWorldFavoriteGroup
             } = favoriteStore;
+            const worldStore = useWorldStore();
+            const { showWorldDialog } = worldStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -268,7 +270,8 @@
                 deleteLocalWorldFavoriteGroup,
                 renameLocalWorldFavoriteGroup,
                 removeLocalWorldFavorite,
-                newLocalWorldFavoriteGroup
+                newLocalWorldFavoriteGroup,
+                showWorldDialog
             };
         },
         data() {

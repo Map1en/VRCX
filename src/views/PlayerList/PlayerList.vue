@@ -855,6 +855,7 @@
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
     import { useAvatarStore } from '../../stores/avatar';
+    import { useWorldStore } from '../../stores/world';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -864,11 +865,12 @@
     const { showUserDialog } = userStore;
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
+    const worldStore = useWorldStore();
+    const { showWorldDialog } = worldStore;
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showWorldDialog = inject('showWorldDialog');
     const showLaunchDialog = inject('showLaunchDialog');
     const showGroupDialog = inject('showGroupDialog');
 

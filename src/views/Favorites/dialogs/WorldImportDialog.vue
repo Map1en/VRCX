@@ -181,12 +181,13 @@
     import { favoriteRequest, worldRequest } from '../../../api';
     import { API } from '../../../app';
     import { removeFromArray } from '../../../shared/utils';
-    import { useUserStore } from '../../../stores/user';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useUserStore } from '../../../stores/user';
+    import { useWorldStore } from '../../../stores/world';
 
     export default {
         name: 'WorldImportDialog',
-        inject: ['showFullscreenImageDialog', 'adjustDialogZ', 'showWorldDialog'],
+        inject: ['showFullscreenImageDialog', 'adjustDialogZ'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -194,6 +195,8 @@
             const { favoriteWorldGroups, worldImportDialogInput, worldImportDialogVisible, localWorldFavoriteGroups } =
                 storeToRefs(favoriteStore);
             const { getLocalWorldFavoriteGroupLength, addLocalWorldFavorite } = favoriteStore;
+            const worldStore = useWorldStore();
+            const { showWorldDialog } = worldStore;
             return {
                 API,
                 showUserDialog,
@@ -202,7 +205,8 @@
                 worldImportDialogVisible,
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavoriteGroups,
-                addLocalWorldFavorite
+                addLocalWorldFavorite,
+                showWorldDialog
             };
         },
         data() {

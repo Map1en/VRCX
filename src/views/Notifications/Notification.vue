@@ -431,17 +431,19 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
+    import { useWorldStore } from '../../stores/world';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const worldStore = useWorldStore();
+    const { showWorldDialog } = worldStore;
 
     const { t } = useI18n();
 
     const { $confirm, $message } = getCurrentInstance().proxy;
 
-    const showWorldDialog = inject('showWorldDialog');
     const showGroupDialog = inject('showGroupDialog');
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');

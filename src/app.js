@@ -316,7 +316,6 @@ const app = {
         return {
             adjustDialogZ: this.adjustDialogZ,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
-            showWorldDialog: this.showWorldDialog,
             showPreviousInstancesInfoDialog:
                 this.showPreviousInstancesInfoDialog,
             showLaunchDialog: this.showLaunchDialog,
@@ -4174,7 +4173,7 @@ $app.methods.directAccessWorld = function (textBoxInput) {
         const urlPathSplit = urlPath.split('/');
         if (urlPathSplit.length >= 4 && urlPathSplit[2] === 'world') {
             worldId = urlPathSplit[3];
-            this.showWorldDialog(worldId);
+            this.store.world.showWorldDialog(worldId);
             return true;
         } else if (urlPath.substring(5, 12) === '/launch') {
             const urlParams = new URLSearchParams(url.search);
@@ -4186,10 +4185,10 @@ $app.methods.directAccessWorld = function (textBoxInput) {
                 if (shortName) {
                     return this.verifyShortName(location, shortName);
                 }
-                this.showWorldDialog(location);
+                this.store.world.showWorldDialog(location);
                 return true;
             } else if (worldId) {
-                this.showWorldDialog(worldId);
+                this.store.world.showWorldDialog(worldId);
                 return true;
             }
         }
@@ -4199,7 +4198,7 @@ $app.methods.directAccessWorld = function (textBoxInput) {
             input = `https://vrchat.com/home/launch?worldId=${input}`;
             return this.directAccessWorld(input);
         }
-        this.showWorldDialog(input.trim());
+        this.store.world.showWorldDialog(input.trim());
         return true;
     }
     return false;
@@ -4212,11 +4211,11 @@ $app.methods.verifyShortName = function (location, shortName) {
             const newLocation = args.json.location;
             const newShortName = args.json.shortName;
             if (newShortName) {
-                this.showWorldDialog(newLocation, newShortName);
+                this.store.world.showWorldDialog(newLocation, newShortName);
             } else if (newLocation) {
-                this.showWorldDialog(newLocation);
+                this.store.world.showWorldDialog(newLocation);
             } else {
-                this.showWorldDialog(location);
+                this.store.world.showWorldDialog(location);
             }
             return args;
         });
@@ -5202,118 +5201,6 @@ API.$on('FAVORITE:@DELETE', function (args) {
     }
     D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(D.id);
 });
-
-$app.methods.showWorldDialog = function (tag, shortName) {
-    const D = this.store.world.worldDialog;
-    const L = parseLocation(tag);
-    if (L.worldId === '') {
-        return;
-    }
-    L.shortName = shortName;
-    D.id = L.worldId;
-    D.$location = L;
-    D.treeData = [];
-    D.bundleSizes = [];
-    D.lastUpdated = '';
-    D.visible = true;
-    D.loading = true;
-    D.inCache = false;
-    D.cacheSize = 0;
-    D.cacheLocked = false;
-    D.rooms = [];
-    D.lastVisit = '';
-    D.visitCount = '';
-    D.timeSpent = 0;
-    D.isFavorite = false;
-    D.avatarScalingDisabled = false;
-    D.focusViewDisabled = false;
-    D.isPC = false;
-    D.isQuest = false;
-    D.isIos = false;
-    D.hasPersistData = false;
-    D.memo = '';
-    const LL = parseLocation(this.lastLocation.location);
-    let currentWorldMatch = false;
-    if (LL.worldId === D.id) {
-        currentWorldMatch = true;
-    }
-    getWorldMemo(D.id).then((memo) => {
-        if (memo.worldId === D.id) {
-            D.memo = memo.memo;
-        }
-    });
-    database.getLastVisit(D.id, currentWorldMatch).then((ref) => {
-        if (ref.worldId === D.id) {
-            D.lastVisit = ref.created_at;
-        }
-    });
-    database.getVisitCount(D.id).then((ref) => {
-        if (ref.worldId === D.id) {
-            D.visitCount = ref.visitCount;
-        }
-    });
-    database.getTimeSpentInWorld(D.id).then((ref) => {
-        if (ref.worldId === D.id) {
-            D.timeSpent = ref.timeSpent;
-        }
-    });
-    worldRequest
-        .getCachedWorld({
-            worldId: L.worldId
-        })
-        .catch((err) => {
-            D.loading = false;
-            D.visible = false;
-            this.$message({
-                message: 'Failed to load world',
-                type: 'error'
-            });
-            throw err;
-        })
-        .then((args) => {
-            if (D.id === args.ref.id) {
-                D.loading = false;
-                D.ref = args.ref;
-                D.isFavorite =
-                    $app.store.favorite.cachedFavoritesByObjectId.has(D.id);
-                if (!D.isFavorite) {
-                    D.isFavorite =
-                        this.store.favorite.localWorldFavoritesList.includes(
-                            D.id
-                        );
-                }
-                let { isPC, isQuest, isIos } = getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                D.avatarScalingDisabled = args.ref?.tags.includes(
-                    'feature_avatar_scaling_disabled'
-                );
-                D.focusViewDisabled = args.ref?.tags.includes(
-                    'feature_focus_view_disabled'
-                );
-                D.isPC = isPC;
-                D.isQuest = isQuest;
-                D.isIos = isIos;
-                this.updateVRChatWorldCache();
-                miscRequest.hasWorldPersistData({ worldId: D.id });
-                if (args.cache) {
-                    worldRequest
-                        .getWorld(args.params)
-                        .catch((err) => {
-                            throw err;
-                        })
-                        .then((args1) => {
-                            if (D.id === args1.ref.id) {
-                                D.ref = args1.ref;
-                                this.updateVRChatWorldCache();
-                            }
-                            return args1;
-                        });
-                }
-            }
-            return args;
-        });
-};
 
 $app.methods.applyWorldDialogInstances = function () {
     let ref;
@@ -6483,24 +6370,6 @@ $app.methods.changeYouTubeApi = async function (configKey = '') {
 };
 
 // Asset Bundle Cacher
-
-$app.methods.updateVRChatWorldCache = function () {
-    const D = this.store.world.worldDialog;
-    if (D.visible) {
-        D.inCache = false;
-        D.cacheSize = 0;
-        D.cacheLocked = false;
-        D.cachePath = '';
-        checkVRChatCache(D.ref).then((cacheInfo) => {
-            if (cacheInfo.Item1 > 0) {
-                D.inCache = true;
-                D.cacheSize = `${(cacheInfo.Item1 / 1048576).toFixed(2)} MB`;
-                D.cachePath = cacheInfo.Item3;
-            }
-            D.cacheLocked = cacheInfo.Item2;
-        });
-    }
-};
 
 $app.methods.getDisplayName = function (userId) {
     if (userId) {
@@ -8329,7 +8198,6 @@ $app.computed.favoritesTabBind = function () {
 $app.computed.favoritesTabEvent = function () {
     return {
         'save-sort-favorites-option': this.saveSortFavoritesOption,
-        'show-world-dialog': this.showWorldDialog,
         'new-instance-self-invite': this.newInstanceSelfInvite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
         'prompt-clear-avatar-history': this.promptClearAvatarHistory

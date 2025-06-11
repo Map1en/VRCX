@@ -16,13 +16,13 @@
 </template>
 
 <script>
-    import { parseLocation } from '../shared/utils';
-    import { getWorldName, getGroupName } from '../shared/utils';
     import { API } from '../app';
+    import { getGroupName, getWorldName, parseLocation } from '../shared/utils';
+    import { useWorldStore } from '../stores/world';
 
     export default {
         name: 'Location',
-        inject: ['showWorldDialog', 'showGroupDialog'],
+        inject: ['showGroupDialog'],
         props: {
             location: String,
             traveling: String,
@@ -41,7 +41,9 @@
             isOpenPreviousInstanceInfoDialog: Boolean
         },
         setup() {
-            return { API };
+            const worldStore = useWorldStore();
+            const { showWorldDialog } = worldStore;
+            return { API, showWorldDialog };
         },
         data() {
             return {

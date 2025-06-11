@@ -203,14 +203,16 @@
     import Location from '../../components/Location.vue';
     import { removeFromArray, openExternalLink } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useWorldStore } from '../../stores/world';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const worldStore = useWorldStore();
+    const { showWorldDialog } = worldStore;
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;
 
-    const showWorldDialog = inject('showWorldDialog');
     const showPreviousInstancesInfoDialog = inject('showPreviousInstancesInfoDialog');
 
     const props = defineProps({
