@@ -21,7 +21,8 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const generalSettingsStore = useGeneralSettingsStore();
     const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
     const avatarStore = useAvatarStore();
-    const { avatarDialog } = storeToRefs(avatarStore);
+    const { avatarDialog, avatarHistory } = storeToRefs(avatarStore);
+    const { applyAvatar } = avatarStore;
     const worldStore = useWorldStore();
     const { worldDialog } = storeToRefs(worldStore);
     const state = reactive({
@@ -1256,7 +1257,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             }
             if (!avatarInFavorites) {
                 removeFromArray(state.localAvatarFavoritesList, id);
-                if (!$app.avatarHistory.has(id)) {
+                if (!avatarHistory.value.has(id)) {
                     database.removeAvatarFromCache(id);
                 }
             }
@@ -1342,7 +1343,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         for (i = 0; i < avatarCache.length; ++i) {
             ref = avatarCache[i];
             if (!API.cachedAvatars.has(ref.id)) {
-                API.applyAvatar(ref);
+                applyAvatar(ref);
             }
         }
         const favorites = await database.getAvatarFavorites();
@@ -1408,7 +1409,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
         if (!avatarInFavorites) {
             removeFromArray(state.localAvatarFavoritesList, avatarId);
-            if (!this.avatarHistory.has(avatarId)) {
+            if (!avatarHistory.value.has(avatarId)) {
                 database.removeAvatarFromCache(avatarId);
             }
         }

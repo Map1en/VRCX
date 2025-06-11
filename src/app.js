@@ -894,7 +894,7 @@ API.$on('INSTANCE', function (args) {
 API.cachedAvatars = new Map();
 
 API.$on('AVATAR', function (args) {
-    args.ref = this.applyAvatar(args.json);
+    args.ref = $app.store.avatar.applyAvatar(args.json);
 });
 
 API.$on('AVATAR:LIST', function (args) {
@@ -936,58 +936,6 @@ API.$on('AVATAR:DELETE', function (args) {
         $app.sortUserDialogAvatars(array);
     }
 });
-
-API.applyAvatar = function (json) {
-    let ref = this.cachedAvatars.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            acknowledgements: '',
-            authorId: '',
-            authorName: '',
-            created_at: '',
-            description: '',
-            featured: false,
-            highestPrice: null,
-            id: '',
-            imageUrl: '',
-            lock: false,
-            lowestPrice: null,
-            name: '',
-            productId: null,
-            publishedListings: [],
-            releaseStatus: '',
-            searchable: false,
-            styles: [],
-            tags: [],
-            thumbnailImageUrl: '',
-            unityPackageUrl: '',
-            unityPackageUrlObject: {},
-            unityPackages: [],
-            updated_at: '',
-            version: 0,
-            ...json
-        };
-        this.cachedAvatars.set(ref.id, ref);
-    } else {
-        let { unityPackages } = ref;
-        Object.assign(ref, json);
-        if (
-            json.unityPackages?.length > 0 &&
-            unityPackages.length > 0 &&
-            !json.unityPackages[0].assetUrl
-        ) {
-            ref.unityPackages = unityPackages;
-        }
-    }
-    // eslint-disable-next-line no-unsafe-optional-chaining
-    for (const listing of ref?.publishedListings) {
-        listing.displayName = replaceBioSymbols(listing.displayName);
-        listing.description = replaceBioSymbols(listing.description);
-    }
-    ref.name = replaceBioSymbols(ref.name);
-    ref.description = replaceBioSymbols(ref.description);
-    return ref;
-};
 
 // API.$on('AVATAR:IMPOSTER:DELETE', function (args) {
 //     if (
@@ -2300,7 +2248,7 @@ API.$on('LOGIN', async function (args) {
             throw err;
         }
     }
-    await $app.getAvatarHistory();
+    await $app.store.avatar.getAvatarHistory();
     await getAllUserMemos();
     userNotes.init();
     if ($app.store.appearanceSettings.randomUserColours) {
@@ -7075,7 +7023,7 @@ $app.methods.clearVRCXCache = function () {
             !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
             !this.store.favorite.localAvatarFavoritesList.includes(id) &&
-            !$app.avatarHistory.has(id)
+            !$app.store.avatar.avatarHistory.has(id)
         ) {
             API.cachedAvatars.delete(id);
         }
@@ -7595,47 +7543,6 @@ $app.methods.setCurrentUserLocation = async function (
     }
 };
 
-$app.data.avatarHistory = new Set();
-$app.data.avatarHistoryArray = [];
-
-$app.methods.getAvatarHistory = async function () {
-    this.avatarHistory = new Set();
-    const historyArray = await database.getAvatarHistory(API.currentUser.id);
-    this.avatarHistoryArray = historyArray;
-    for (let i = 0; i < historyArray.length; i++) {
-        const avatar = historyArray[i];
-        if (avatar.authorId === API.currentUser.id) {
-            continue;
-        }
-        this.avatarHistory.add(avatar.id);
-        API.applyAvatar(avatar);
-    }
-};
-
-$app.methods.addAvatarToHistory = function (avatarId) {
-    avatarRequest.getAvatar({ avatarId }).then((args) => {
-        let { ref } = args;
-
-        database.addAvatarToCache(ref);
-        database.addAvatarToHistory(ref.id);
-
-        if (ref.authorId === API.currentUser.id) {
-            return;
-        }
-
-        const historyArray = this.avatarHistoryArray;
-        for (let i = 0; i < historyArray.length; ++i) {
-            if (historyArray[i].id === ref.id) {
-                historyArray.splice(i, 1);
-            }
-        }
-
-        this.avatarHistoryArray.unshift(ref);
-        this.avatarHistory.delete(ref.id);
-        this.avatarHistory.add(ref.id);
-    });
-};
-
 $app.methods.addAvatarWearTime = function (avatarId) {
     if (!API.currentUser.$previousAvatarSwapTime || !avatarId) {
         return;
@@ -7658,8 +7565,8 @@ $app.methods.promptClearAvatarHistory = function () {
 };
 
 $app.methods.clearAvatarHistory = function () {
-    this.avatarHistory = new Set();
-    this.avatarHistoryArray = [];
+    this.store.avatar.avatarHistory = new Set();
+    this.store.avatar.avatarHistoryArray = [];
     database.clearAvatarHistory();
 };
 
@@ -8415,8 +8322,7 @@ $app.computed.favoritesTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
-        groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends,
-        avatarHistoryArray: this.avatarHistoryArray
+        groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends
     };
 };
 

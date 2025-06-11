@@ -1,6 +1,6 @@
 import * as workerTimers from 'worker-timers';
 import { instanceRequest, userRequest } from '../api';
-import { API } from '../app.js';
+import { API, $app } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { photonEmojis, photonEventType } from '../shared/constants';
@@ -1396,7 +1396,7 @@ export default function init(app) {
                     }
                 }
             }
-            API.applyAvatar({
+            $app.store.avatar.applyAvatar({
                 id: avatar.id,
                 authorId: avatar.authorId,
                 authorName: avatar.authorName,

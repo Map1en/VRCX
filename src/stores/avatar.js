@@ -3,11 +3,13 @@ import { computed, reactive } from 'vue';
 import { avatarRequest } from '../api';
 import { $app } from '../app';
 import API from '../classes/apiInit';
+import database from '../service/database';
 import {
     checkVRChatCache,
     getAvailablePlatforms,
     getPlatformInfo,
-    getBundleDateSize
+    getBundleDateSize,
+    replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
 
@@ -37,13 +39,22 @@ export const useAvatarStore = defineStore('Avatar', () => {
             cacheLocked: false,
             cachePath: ''
         },
-        cachedAvatarModerations: new Map()
+        cachedAvatarModerations: new Map(),
+        avatarHistory: new Set(),
+        avatarHistoryArray: []
     });
 
     const avatarDialog = computed({
         get: () => state.avatarDialog,
         set: (value) => {
             state.avatarDialog = value;
+        }
+    });
+    const avatarHistory = state.avatarHistory;
+    const avatarHistoryArray = computed({
+        get: () => state.avatarHistory,
+        set: (value) => {
+            state.avatarHistoryArray = value;
         }
     });
 
@@ -215,12 +226,123 @@ export const useAvatarStore = defineStore('Avatar', () => {
         }
     }
 
+    /**
+     * aka: `$app.methods.getAvatarHistory`
+     * @returns {Promise<void>}
+     */
+    async function getAvatarHistory() {
+        state.avatarHistory = new Set();
+        const historyArray = await database.getAvatarHistory(
+            API.currentUser.id
+        );
+        state.avatarHistoryArray = historyArray;
+        for (let i = 0; i < historyArray.length; i++) {
+            const avatar = historyArray[i];
+            if (avatar.authorId === API.currentUser.id) {
+                continue;
+            }
+            state.avatarHistory.add(avatar.id);
+            applyAvatar(avatar);
+        }
+    }
+
+    /**
+     * aka: `$app.methods.addAvatarToHistory`
+     * @param {string} avatarId
+     */
+    function addAvatarToHistory(avatarId) {
+        avatarRequest.getAvatar({ avatarId }).then((args) => {
+            let { ref } = args;
+
+            database.addAvatarToCache(ref);
+            database.addAvatarToHistory(ref.id);
+
+            if (ref.authorId === API.currentUser.id) {
+                return;
+            }
+
+            const historyArray = state.avatarHistoryArray;
+            for (let i = 0; i < historyArray.length; ++i) {
+                if (historyArray[i].id === ref.id) {
+                    historyArray.splice(i, 1);
+                }
+            }
+
+            state.avatarHistoryArray.unshift(ref);
+            state.avatarHistory.delete(ref.id);
+            state.avatarHistory.add(ref.id);
+        });
+    }
+
+    /**
+     * aka: `API.applyAvatar`
+     * @param {object} json
+     * @returns {object} ref
+     */
+    function applyAvatar(json) {
+        let ref = API.cachedAvatars.get(json.id);
+        if (typeof ref === 'undefined') {
+            ref = {
+                acknowledgements: '',
+                authorId: '',
+                authorName: '',
+                created_at: '',
+                description: '',
+                featured: false,
+                highestPrice: null,
+                id: '',
+                imageUrl: '',
+                lock: false,
+                lowestPrice: null,
+                name: '',
+                productId: null,
+                publishedListings: [],
+                releaseStatus: '',
+                searchable: false,
+                styles: [],
+                tags: [],
+                thumbnailImageUrl: '',
+                unityPackageUrl: '',
+                unityPackageUrlObject: {},
+                unityPackages: [],
+                updated_at: '',
+                version: 0,
+                ...json
+            };
+            API.cachedAvatars.set(ref.id, ref);
+        } else {
+            let { unityPackages } = ref;
+            Object.assign(ref, json);
+            if (
+                json.unityPackages?.length > 0 &&
+                unityPackages.length > 0 &&
+                !json.unityPackages[0].assetUrl
+            ) {
+                ref.unityPackages = unityPackages;
+            }
+        }
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        for (const listing of ref?.publishedListings) {
+            listing.displayName = replaceBioSymbols(listing.displayName);
+            listing.description = replaceBioSymbols(listing.description);
+        }
+        ref.name = replaceBioSymbols(ref.name);
+        ref.description = replaceBioSymbols(ref.description);
+        return ref;
+    }
+
     return {
         state,
         avatarDialog,
+        avatarHistory,
+        avatarHistoryArray,
+
         showAvatarDialog,
         applyAvatarModeration,
         getAvatarGallery,
-        updateVRChatAvatarCache
+        updateVRChatAvatarCache,
+        getAvatarHistory,
+        addAvatarToHistory,
+        applyAvatar
     };
 });

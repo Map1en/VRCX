@@ -165,7 +165,7 @@ export default function init() {
         var ref = this.currentUser;
         if (this.isLoggedIn) {
             if (json.currentAvatar !== ref.currentAvatar) {
-                $app.addAvatarToHistory(json.currentAvatar);
+                $app.store.avatar.addAvatarToHistory(json.currentAvatar);
                 if ($app.isGameRunning) {
                     $app.addAvatarWearTime(ref.currentAvatar);
                     ref.$previousAvatarSwapTime = Date.now();

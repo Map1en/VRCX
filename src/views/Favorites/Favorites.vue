@@ -50,7 +50,6 @@
                     :hide-tooltips="hideTooltips"
                     :shift-held="shiftHeld"
                     :edit-favorites-mode="editFavoritesMode"
-                    :avatar-history-array="avatarHistoryArray"
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -83,8 +82,7 @@
         props: {
             menuActiveIndex: String,
             shiftHeld: Boolean,
-            groupedByGroupKeyFavoriteFriends: Object,
-            avatarHistoryArray: Array
+            groupedByGroupKeyFavoriteFriends: Object
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

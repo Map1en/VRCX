@@ -242,7 +242,6 @@
         props: {
             shiftHeld: Boolean,
             editFavoritesMode: Boolean,
-            avatarHistoryArray: Array,
             refreshingLocalFavorites: Boolean
         },
         setup() {
@@ -260,7 +259,7 @@
                 newLocalAvatarFavoriteGroup
             } = favoriteStore;
             const avatarStore = useAvatarStore();
-            const { showAvatarDialog } = storeToRefs(avatarStore);
+            const { showAvatarDialog, avatarHistoryArray } = storeToRefs(avatarStore);
             return {
                 hideTooltips,
                 sortFavorites,
@@ -275,7 +274,8 @@
                 showAvatarDialog,
                 deleteLocalAvatarFavoriteGroup,
                 renameLocalAvatarFavoriteGroup,
-                newLocalAvatarFavoriteGroup
+                newLocalAvatarFavoriteGroup,
+                avatarHistoryArray
             };
         },
         data() {
