@@ -139,7 +139,7 @@
                                 effect="plain"
                                 size="mini"
                                 style="margin-right: 5px; margin-top: 5px"
-                                @click="openFolderGeneric(worldDialog.cachePath)">
+                                @click="openFolder(worldDialog.cachePath)">
                                 <span v-text="worldDialog.cacheSize" />
                                 | {{ $t('dialog.world.tags.cache') }}
                             </el-tag>
@@ -191,7 +191,7 @@
                                 icon="el-icon-delete"
                                 circle
                                 :disabled="isGameRunning && worldDialog.cacheLocked"
-                                @click="deleteVRChatCache(worldDialog.ref)" />
+                                @click="deleteWorldFromCache(worldDialog.ref)" />
                         </el-tooltip>
                         <el-tooltip
                             placement="top"
@@ -811,7 +811,9 @@
             'showPreviousInstancesInfoDialog',
             'showLaunchDialog',
             'showFullscreenImageDialog',
-            'showFavoriteDialog'
+            'showFavoriteDialog',
+            'openFolderGeneric',
+            'deleteVRChatCache'
         ],
         props: {
             shiftHeld: Boolean,
@@ -1002,11 +1004,11 @@
                 this.newInstanceDialogLocationTag = '';
                 this.$nextTick(() => (this.newInstanceDialogLocationTag = tag));
             },
-            openFolderGeneric(path) {
-                this.$emit('open-folder-generic', path);
+            openFolder(path) {
+                this.openFolderGeneric(path);
             },
-            deleteVRChatCache(world) {
-                this.$emit('delete-vrchat-cache', world);
+            deleteWorldFromCache(world) {
+                this.deleteVRChatCache(world);
             },
             worldDialogCommand(command) {
                 const D = this.worldDialog;

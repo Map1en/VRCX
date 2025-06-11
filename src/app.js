@@ -333,7 +333,9 @@ let $app = {
             showGalleryDialog: this.showGalleryDialog,
             inviteImageUpload: this.inviteImageUpload,
             clearInviteImageUpload: this.clearInviteImageUpload,
-            isLinux: this.isLinux
+            isLinux: this.isLinux,
+            openFolderGeneric: this.openFolderGeneric,
+            deleteVRChatCache: this.deleteVRChatCache
         };
     },
     el: '#root',
