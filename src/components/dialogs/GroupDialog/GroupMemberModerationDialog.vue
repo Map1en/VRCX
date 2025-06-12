@@ -656,6 +656,9 @@
                                 :label="t('dialog.group_member_moderation.description')"
                                 prop="description">
                                 <template slot-scope="scope">
+                                    <location
+                                        v-if="scope.row?.targetId.startsWith('wrld_')"
+                                        :location="scope.row.targetId" />
                                     <span v-text="scope.row.description"></span>
                                 </template>
                             </el-table-column>
@@ -808,6 +811,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
+    import Location from '../../Location.vue';
     import { getCurrentInstance, inject, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
