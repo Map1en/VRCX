@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
-import * as workerTimers from 'worker-timers';
-import { friendRequest, groupRequest, userRequest } from '../api';
+
+import { groupRequest, userRequest } from '../api';
 import { $app, $t } from '../app';
 import API from '../classes/apiInit';
 import { userNotes } from '../classes/userNotes';
@@ -9,14 +9,10 @@ import database from '../service/database';
 import {
     arraysMatch,
     convertFileUrlToImageUrl,
-    getFriendsSortFunction,
-    getGroupName,
     getNameColour,
     getWorldName,
-    isRealInstance,
     parseLocation,
     removeEmojis,
-    removeFromArray,
     replaceBioSymbols,
     getUserMemo
 } from '../shared/utils';

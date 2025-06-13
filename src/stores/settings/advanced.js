@@ -356,10 +356,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             return null;
         }
         let data = null;
-        // let apiKey = 'AIzaSyA-iUQCpWf5afEL3NanEOSxbzziPMU3bxY';
-        // if (state.youTubeApiKey) {
-        //     apiKey = state.youTubeApiKey;
-        // }
+        let apiKey = '';
+        if (state.youTubeApiKey) {
+            apiKey = state.youTubeApiKey;
+        }
         try {
             const response = await webApiService.execute({
                 url: `https://www.googleapis.com/youtube/v3/videos?id=${encodeURIComponent(
