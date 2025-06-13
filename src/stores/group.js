@@ -1,7 +1,9 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
+import * as workerTimers from 'worker-timers';
 import { instanceRequest, userRequest } from '../api';
 import { $t, API, $app } from '../app';
+import configRepository from '../service/config';
 import {
     compareByDisplayName,
     compareByLocationAt,
@@ -188,11 +190,11 @@ export const useGroupStore = defineStore('Group', () => {
                     ref.ownerId !== json.ownerId
                 ) {
                     // owner changed
-                    $app.groupOwnerChange(json, ref.ownerId, json.ownerId);
+                    groupOwnerChange(json, ref.ownerId, json.ownerId);
                 }
                 if (ref.name && json.name && ref.name !== json.name) {
                     // name changed
-                    $app.groupChange(
+                    groupChange(
                         json,
                         `Name changed from ${ref.name} to ${json.name}`
                     );
@@ -253,6 +255,10 @@ export const useGroupStore = defineStore('Group', () => {
         return ref;
     }
 
+    /**
+     *
+     * @param {object} inputInstances
+     */
     function applyGroupDialogInstances(inputInstances) {
         let ref;
         let instance;
@@ -414,11 +420,84 @@ export const useGroupStore = defineStore('Group', () => {
         $app.updateTimers();
     }
 
+    /**
+     *
+     * @param {object }ref
+     * @param {string} oldUserId
+     * @param {string} newUserId
+     * @returns {Promise<void>}
+     */
+    async function groupOwnerChange(ref, oldUserId, newUserId) {
+        const oldUser = await userRequest.getCachedUser({
+            userId: oldUserId
+        });
+        const newUser = await userRequest.getCachedUser({
+            userId: newUserId
+        });
+        const oldDisplayName = oldUser?.ref?.displayName;
+        const newDisplayName = newUser?.ref?.displayName;
+
+        groupChange(
+            ref,
+            `Owner changed from ${oldDisplayName} to ${newDisplayName}`
+        );
+    }
+
+    function groupChange(ref, message) {
+        if (!$app.currentUserGroupsInit) {
+            return;
+        }
+        // oh the level of cursed for compibility
+        const json = {
+            id: Math.random().toString(36),
+            type: 'groupChange',
+            senderUserId: ref.id,
+            senderUsername: ref.name,
+            imageUrl: ref.iconUrl,
+            details: {
+                imageUrl: ref.iconUrl
+            },
+            message,
+            created_at: new Date().toJSON()
+        };
+        API.$emit('NOTIFICATION', {
+            json,
+            params: {
+                notificationId: json.id
+            }
+        });
+
+        // delay to wait for json to be assigned to ref
+        workerTimers.setTimeout(saveCurrentUserGroups, 100);
+    }
+
+    function saveCurrentUserGroups() {
+        if (!$app.currentUserGroupsInit) {
+            return;
+        }
+        const groups = [];
+        for (const ref of API.currentUserGroups.values()) {
+            groups.push({
+                id: ref.id,
+                name: ref.name,
+                ownerId: ref.ownerId,
+                iconUrl: ref.iconUrl,
+                roles: ref.roles,
+                roleIds: ref.myMember?.roleIds
+            });
+        }
+        configRepository.setString(
+            `VRCX_currentUserGroups_${API.currentUser.id}`,
+            JSON.stringify(groups)
+        );
+    }
+
     return {
         state,
         groupDialog,
         showGroupDialog,
         applyGroup,
-        applyGroupDialogInstances
+        applyGroupDialogInstances,
+        saveCurrentUserGroups
     };
 });

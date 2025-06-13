@@ -1887,7 +1887,7 @@
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showAvatarDialog } = avatarStore;
     const { showWorldDialog } = worldStore;
-    const { showGroupDialog, applyGroup } = groupStore;
+    const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -2030,7 +2030,6 @@
         'logout',
         'showAvatarAuthorDialog',
         'showGalleryDialog',
-        'saveCurrentUserGroups',
         'refreshUserDialogAvatars',
         'refreshUserDialogTreeData',
         'setGroupVisibility',
@@ -3235,9 +3234,6 @@
     }
     function showGalleryDialog() {
         emit('showGalleryDialog');
-    }
-    function saveCurrentUserGroups() {
-        emit('saveCurrentUserGroups');
     }
     function closeInviteDialog() {
         clearInviteImageUpload();
