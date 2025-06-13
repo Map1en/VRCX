@@ -21,7 +21,7 @@
                     v-for="ref in group"
                     :key="ref.instance.id"
                     class="x-friend-item"
-                    @click="$emit('show-group-dialog', ref.instance.ownerId)">
+                    @click="showGroupDialog(ref.instance.ownerId)">
                     <template v-if="isAgeGatedInstancesVisible || !(ref.ageGate || ref.location?.includes('~ageGate'))">
                         <div class="avatar">
                             <img v-lazy="getSmallGroupIconUrl(ref.group.iconUrl)" />
@@ -47,6 +47,7 @@
     import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../shared/utils';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useGroupStore } from '../../../stores/group';
 
     export default {
         name: 'GroupsSidebar',
@@ -66,8 +67,11 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
+            const groupStore = useGroupStore();
+            const { showGroupDialog } = groupStore;
             return {
-                isAgeGatedInstancesVisible
+                isAgeGatedInstancesVisible,
+                showGroupDialog
             };
         },
         data() {
@@ -104,9 +108,6 @@
             },
             toggleGroupSidebarCollapse(groupId) {
                 this.groupInstancesCfg[groupId].isCollapsed = !this.groupInstancesCfg[groupId].isCollapsed;
-            },
-            showGroupDialog(ownerId) {
-                this.$emit('show-group-dialog', ownerId);
             },
             getGroupId(group) {
                 return group[0]?.group?.groupId || '';

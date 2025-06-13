@@ -339,6 +339,7 @@
     import { API } from '../../app';
     import { useAvatarStore } from '../../stores/avatar';
     import { useWorldStore } from '../../stores/world';
+    import { useGroupStore } from '../../stores/group';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -354,10 +355,10 @@
     const { showAvatarDialog } = avatarStore;
     const worldStore = useWorldStore();
     const { showWorldDialog } = worldStore;
+    const groupStore = useGroupStore();
+    const { showGroupDialog } = groupStore;
 
     const { t } = useI18n();
-
-    const showGroupDialog = inject('showGroupDialog');
 
     const props = defineProps({
         menuActiveIndex: {

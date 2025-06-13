@@ -83,10 +83,7 @@
                         ({{ groupInstances.length }})
                     </span>
                 </template>
-                <GroupsSidebar
-                    :group-instances="groupInstances"
-                    :group-order="inGameGroupOrder"
-                    @show-group-dialog="$emit('show-group-dialog', $event)" />
+                <GroupsSidebar :group-instances="groupInstances" :group-order="inGameGroupOrder" />
             </el-tab-pane>
         </el-tabs>
     </div>

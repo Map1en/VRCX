@@ -856,6 +856,7 @@
     import { useUserStore } from '../../stores/user';
     import { useAvatarStore } from '../../stores/avatar';
     import { useWorldStore } from '../../stores/world';
+    import { useGroupStore } from '../../stores/group';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -867,12 +868,13 @@
     const { showAvatarDialog } = avatarStore;
     const worldStore = useWorldStore();
     const { showWorldDialog } = worldStore;
+    const groupStore = useGroupStore;
+    const { showGroupDialog } = groupStore;
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const showLaunchDialog = inject('showLaunchDialog');
-    const showGroupDialog = inject('showGroupDialog');
 
     const props = defineProps({
         menuActiveIndex: {

@@ -316,7 +316,6 @@ let $app = {
             showFavoriteDialog: this.showFavoriteDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
-            showGroupDialog: this.showGroupDialog,
             showGallerySelectDialog: this.showGallerySelectDialog,
             showGalleryDialog: this.showGalleryDialog,
             inviteImageUpload: this.inviteImageUpload,
@@ -4216,7 +4215,7 @@ $app.methods.showGroupDialogShortCode = function (shortCode) {
             // }
             // });
             if (`${group.shortCode}.${group.discriminator}` === shortCode) {
-                this.showGroupDialog(group.id);
+                this.store.group.showGroupDialog(group.id);
             }
         }
         return args;
@@ -4248,7 +4247,7 @@ $app.methods.directAccessParse = function (input) {
             return true;
         } else if (type === 'group') {
             const groupId = urlPathSplit[3];
-            this.showGroupDialog(groupId);
+            this.store.group.showGroupDialog(groupId);
             return true;
         }
     } else if (input.startsWith('https://vrc.group/')) {
@@ -4268,7 +4267,7 @@ $app.methods.directAccessParse = function (input) {
         this.store.avatar.showAvatarDialog(input);
         return true;
     } else if (input.substring(0, 4) === 'grp_') {
-        this.showGroupDialog(input);
+        this.store.group.showGroupDialog(input);
         return true;
     }
     return false;
@@ -7163,7 +7162,7 @@ $app.methods.eventLaunchCommand = function (input) {
             this.store.user.showUserDialog(commandArg);
             break;
         case 'group':
-            this.showGroupDialog(commandArg);
+            this.store.group.showGroupDialog(commandArg);
             break;
         case 'local-favorite-world':
             console.log('local-favorite-world', commandArg);
@@ -8155,7 +8154,6 @@ $app.computed.sidebarTabBind = function () {
 
 $app.computed.sidebarTabEvent = function () {
     return {
-        'show-group-dialog': this.showGroupDialog,
         'quick-search-change': this.quickSearchChange,
         'direct-access-paste': this.directAccessPaste,
         'confirm-delete-friend': this.confirmDeleteFriend

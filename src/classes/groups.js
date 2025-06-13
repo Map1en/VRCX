@@ -509,7 +509,7 @@ export default function init(app) {
                                         this.store.group.groupDialog.id ===
                                             args.params.groupId
                                     ) {
-                                        this.showGroupDialog(
+                                        this.store.group.showGroupDialog(
                                             args.params.groupId
                                         );
                                     }
@@ -543,7 +543,7 @@ export default function init(app) {
                                         this.store.group.groupDialog.id ===
                                             args.params.groupId
                                     ) {
-                                        this.showGroupDialog(
+                                        this.store.group.showGroupDialog(
                                             args.params.groupId
                                         );
                                     }
@@ -722,59 +722,6 @@ export default function init(app) {
             this.saveCurrentUserGroups();
         },
 
-        showGroupDialog(groupId) {
-            if (!groupId) {
-                return;
-            }
-            const D = this.store.group.groupDialog;
-            D.visible = true;
-            D.loading = true;
-            D.id = groupId;
-            D.inGroup = false;
-            D.ownerDisplayName = '';
-            D.treeData = [];
-            D.announcement = {};
-            D.posts = [];
-            D.postsFiltered = [];
-            D.instances = [];
-            D.memberRoles = [];
-            D.memberSearch = '';
-            D.memberSearchResults = [];
-            D.galleries = {};
-            D.members = [];
-            D.memberFilter = this.groupDialogFilterOptions.everyone;
-            API.getCachedGroup({
-                groupId
-            })
-                .catch((err) => {
-                    D.loading = false;
-                    D.visible = false;
-                    this.$message({
-                        message: 'Failed to load group',
-                        type: 'error'
-                    });
-                    throw err;
-                })
-                .then((args) => {
-                    if (groupId === args.ref.id) {
-                        D.loading = false;
-                        D.ref = args.ref;
-                        D.inGroup = args.ref.membershipStatus === 'member';
-                        D.ownerDisplayName = args.ref.ownerId;
-                        userRequest
-                            .getCachedUser({
-                                userId: args.ref.ownerId
-                            })
-                            .then((args1) => {
-                                D.ownerDisplayName = args1.ref.displayName;
-                                return args1;
-                            });
-                        this.applyGroupDialogInstances();
-                        this.getGroupDialogGroup(groupId);
-                    }
-                });
-        },
-
         getGroupDialogGroup(groupId) {
             const D = this.store.group.groupDialog;
             D.isGetGroupDialogGroupLoading = false;
@@ -858,7 +805,7 @@ export default function init(app) {
             }
             switch (command) {
                 case 'Refresh':
-                    this.showGroupDialog(D.id);
+                    this.store.group.showGroupDialog(D.id);
                     break;
                 case 'Leave Group':
                     this.leaveGroupPrompt(D.id);
@@ -988,7 +935,7 @@ export default function init(app) {
                 this.store.group.groupDialog.visible &&
                 this.store.group.groupDialog.id === groupId
             ) {
-                this.showGroupDialog(groupId);
+                this.store.group.showGroupDialog(groupId);
             }
             if (API.currentUserGroups.has(groupId)) {
                 API.currentUserGroups.delete(groupId);

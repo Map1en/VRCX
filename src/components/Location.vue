@@ -19,10 +19,10 @@
     import { API } from '../app';
     import { getGroupName, getWorldName, parseLocation } from '../shared/utils';
     import { useWorldStore } from '../stores/world';
+    import { useGroupStore } from '../stores/group';
 
     export default {
         name: 'Location',
-        inject: ['showGroupDialog'],
         props: {
             location: String,
             traveling: String,
@@ -43,7 +43,9 @@
         setup() {
             const worldStore = useWorldStore();
             const { showWorldDialog } = worldStore;
-            return { API, showWorldDialog };
+            const groupStore = useGroupStore();
+            const { showGroupDialog } = groupStore;
+            return { API, showWorldDialog, showGroupDialog };
         },
         data() {
             return {

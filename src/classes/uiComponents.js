@@ -158,7 +158,7 @@ export default function init() {
                 if (!L.groupId) {
                     return;
                 }
-                $app.showGroupDialog(L.groupId);
+                $app.store.group.showGroupDialog(L.groupId);
             }
         },
         template:
