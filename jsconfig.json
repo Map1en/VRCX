@@ -3,7 +3,7 @@
         "module": "ESNext",
         "target": "ESNext",
         "allowJs": true,
-        "checkJs": true,
+        "checkJs": false,
         "jsx": "preserve",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
@@ -12,6 +12,6 @@
         "forceConsistentCasingInFileNames": true,
         "lib": ["esnext", "dom", "dom.iterable"]
     },
-    "include": ["src/store/**/*", "src-electron/**/*"],
+    "include": ["src/**/*", "src-electron/**/*"],
     "exclude": ["node_modules", "build"]
 }

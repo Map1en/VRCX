@@ -58,6 +58,11 @@ export const useAvatarStore = defineStore('Avatar', () => {
         }
     });
 
+    /**
+     *
+     * @param {string} avatarId
+     * @returns
+     */
     function showAvatarDialog(avatarId) {
         const favoriteStore = useFavoriteStore();
         const { cachedFavoritesByObjectId, localAvatarFavoritesList } =
