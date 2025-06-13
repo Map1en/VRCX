@@ -14,7 +14,7 @@ export default function init(app) {
     API.currentUserGroups = new Map();
 
     API.$on('GROUP', function (args) {
-        args.ref = this.applyGroup(args.json);
+        args.ref = $app.store.group.applyGroup(args.json);
     });
 
     API.$on('GROUP', function (args) {
@@ -270,144 +270,6 @@ export default function init(app) {
                 });
             }
         });
-    };
-
-    API.applyGroup = function (json) {
-        var ref = this.cachedGroups.get(json.id);
-        json.rules = replaceBioSymbols(json.rules);
-        json.name = replaceBioSymbols(json.name);
-        json.description = replaceBioSymbols(json.description);
-        if (typeof ref === 'undefined') {
-            ref = {
-                id: '',
-                name: '',
-                shortCode: '',
-                description: '',
-                bannerId: '',
-                bannerUrl: '',
-                createdAt: '',
-                discriminator: '',
-                galleries: [],
-                iconId: '',
-                iconUrl: '',
-                isVerified: false,
-                joinState: '',
-                languages: [],
-                links: [],
-                memberCount: 0,
-                memberCountSyncedAt: '',
-                membershipStatus: '',
-                onlineMemberCount: 0,
-                ownerId: '',
-                privacy: '',
-                rules: null,
-                tags: [],
-                // in group
-                initialRoleIds: [],
-                myMember: {
-                    bannedAt: null,
-                    groupId: '',
-                    has2FA: false,
-                    id: '',
-                    isRepresenting: false,
-                    isSubscribedToAnnouncements: false,
-                    joinedAt: '',
-                    managerNotes: '',
-                    membershipStatus: '',
-                    permissions: [],
-                    roleIds: [],
-                    userId: '',
-                    visibility: '',
-                    _created_at: '',
-                    _id: '',
-                    _updated_at: ''
-                },
-                updatedAt: '',
-                // includeRoles: true
-                roles: [],
-                // group list
-                $memberId: '',
-                groupId: '',
-                isRepresenting: false,
-                memberVisibility: false,
-                mutualGroup: false,
-                // VRCX
-                $languages: [],
-                ...json
-            };
-            this.cachedGroups.set(ref.id, ref);
-        } else {
-            if (this.currentUserGroups.has(ref.id)) {
-                // compare group props
-                if (
-                    ref.ownerId &&
-                    json.ownerId &&
-                    ref.ownerId !== json.ownerId
-                ) {
-                    // owner changed
-                    $app.groupOwnerChange(json, ref.ownerId, json.ownerId);
-                }
-                if (ref.name && json.name && ref.name !== json.name) {
-                    // name changed
-                    $app.groupChange(
-                        json,
-                        `Name changed from ${ref.name} to ${json.name}`
-                    );
-                }
-                if (ref.myMember?.roleIds && json.myMember?.roleIds) {
-                    var oldRoleIds = ref.myMember.roleIds;
-                    var newRoleIds = json.myMember.roleIds;
-                    if (
-                        oldRoleIds.length !== newRoleIds.length ||
-                        !oldRoleIds.every(
-                            (value, index) => value === newRoleIds[index]
-                        )
-                    ) {
-                        // roleIds changed
-                        $app.groupRoleChange(
-                            json,
-                            ref.roles,
-                            json.roles,
-                            oldRoleIds,
-                            newRoleIds
-                        );
-                    }
-                }
-            }
-            if (json.myMember) {
-                if (typeof json.myMember.roleIds === 'undefined') {
-                    // keep roleIds
-                    json.myMember.roleIds = ref.myMember.roleIds;
-                }
-                if (typeof json.myMember.isRepresenting !== 'undefined') {
-                    json.myMember.isRepresenting = ref.myMember.isRepresenting;
-                }
-                Object.assign(ref.myMember, json.myMember);
-            }
-            Object.assign(ref, json);
-        }
-        // update myMember without fetching member
-        if (typeof json.memberVisibility !== 'undefined') {
-            ref.myMember.visibility = json.memberVisibility;
-        }
-        if (typeof json.isRepresenting !== 'undefined') {
-            ref.myMember.isRepresenting = json.isRepresenting;
-        }
-        if (typeof json.membershipStatus !== 'undefined') {
-            ref.myMember.membershipStatus = json.membershipStatus;
-        }
-        if (typeof json.roleIds !== 'undefined') {
-            ref.myMember.roleIds = json.roleIds;
-        }
-        ref.$url = `https://vrc.group/${ref.shortCode}.${ref.discriminator}`;
-        this.applyGroupLanguage(ref);
-
-        var currentUserGroupRef = this.currentUserGroups.get(ref.id);
-        if (currentUserGroupRef && currentUserGroupRef !== ref) {
-            this.currentUserGroups.set(ref.id, ref);
-        }
-
-        return ref;
     };
 
     API.applyGroupMember = function (json) {
@@ -668,7 +530,7 @@ export default function init(app) {
                         roleIds: group.roleIds
                     }
                 };
-                var ref = API.applyGroup(json);
+                var ref = $app.store.group.applyGroup(json);
                 API.currentUserGroups.set(group.id, ref);
             }
 
@@ -691,7 +553,7 @@ export default function init(app) {
                             groupId,
                             includeRoles: true
                         });
-                        const ref = API.applyGroup(args.json);
+                        const ref = $app.store.group.applyGroup(args.json);
                         API.currentUserGroups.set(groupId, ref);
                     } catch (err) {
                         console.error(err);
@@ -711,7 +573,7 @@ export default function init(app) {
             });
             API.currentUserGroups.clear();
             for (var group of args.json) {
-                var ref = API.applyGroup(group);
+                var ref = $app.store.group.applyGroup(group);
                 if (!API.currentUserGroups.has(group.id)) {
                     API.currentUserGroups.set(group.id, ref);
                 }
@@ -923,7 +785,7 @@ export default function init(app) {
                 groupRequest
                     .getGroup({ groupId, includeRoles: true })
                     .then((args) => {
-                        API.applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
+                        $app.store.group.applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
                         this.saveCurrentUserGroups();
                         return args;
                     });

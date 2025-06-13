@@ -1887,7 +1887,7 @@
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showAvatarDialog } = avatarStore;
     const { showWorldDialog } = worldStore;
-    const { showGroupDialog } = groupStore;
+    const { showGroupDialog, applyGroup } = groupStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -2730,7 +2730,7 @@
             // update current user groups
             API.currentUserGroups.clear();
             args.json.forEach((group) => {
-                const ref = API.applyGroup(group);
+                const ref = applyGroup(group);
                 if (!API.currentUserGroups.has(group.id)) {
                     API.currentUserGroups.set(group.id, ref);
                 }
