@@ -95,12 +95,14 @@ module.exports = {
         timings: true
     },
     plugins: [
-        new webpack.DefinePlugin({
-            LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
-            WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
-            __VUE_I18N_LEGACY_API__: JSON.stringify(false),
-            __VUE_I18N_FULL_INSTALL__: JSON.stringify(false),
-            __INTLIFY_DROP_MESSAGE_COMPILER__: JSON.stringify(true)
+        new EsbuildPlugin({
+            define: {
+                LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
+                WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
+                __VUE_I18N_LEGACY_API__: JSON.stringify(false),
+                __VUE_I18N_FULL_INSTALL__: JSON.stringify(false),
+                __INTLIFY_DROP_MESSAGE_COMPILER__: JSON.stringify(true)
+            }
         }),
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({
