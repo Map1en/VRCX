@@ -1304,7 +1304,7 @@ class Database {
 
     async lookupFeedDatabase(search, filters, vipList) {
         var search = search.replaceAll("'", "''");
-        if (search.startsWith('wrld_')) {
+        if (search.startsWith('wrld_') || search.startsWith('grp_')) {
             return Database.getFeedByInstanceId(search, filters, vipList);
         }
         var vipQuery = '';
@@ -1372,7 +1372,7 @@ class Database {
                     groupName: dbRow[8]
                 };
                 feedDatabase.unshift(row);
-            }, `SELECT * FROM ${Database.userPrefix}_feed_gps WHERE (display_name LIKE '%${search}%' OR world_name LIKE '%${search}%') ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM ${Database.userPrefix}_feed_gps WHERE (display_name LIKE '%${search}%' OR world_name LIKE '%${search}%' OR group_name LIKE '%${search}%') ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         if (status) {
             await sqliteService.execute((dbRow) => {
@@ -1450,7 +1450,7 @@ class Database {
                     groupName: dbRow[8]
                 };
                 feedDatabase.unshift(row);
-            }, `SELECT * FROM ${Database.userPrefix}_feed_online_offline WHERE ((display_name LIKE '%${search}%' OR world_name LIKE '%${search}%') ${query}) ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM ${Database.userPrefix}_feed_online_offline WHERE ((display_name LIKE '%${search}%' OR world_name LIKE '%${search}%' OR group_name LIKE '%${search}%') ${query}) ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         feedDatabase.sort(compareByCreatedAtAscending);
         feedDatabase.splice(0, feedDatabase.length - Database.maxTableSize);
@@ -1606,7 +1606,7 @@ class Database {
 
     async lookupGameLogDatabase(search, filters, vipList = []) {
         var search = search.replaceAll("'", "''");
-        if (search.startsWith('wrld_')) {
+        if (search.startsWith('wrld_') || search.startsWith('grp_')) {
             return Database.getGameLogByLocation(search, filters);
         }
         let vipQuery = '';
@@ -1685,7 +1685,7 @@ class Database {
                     groupName: dbRow[6]
                 };
                 gamelogDatabase.unshift(row);
-            }, `SELECT * FROM gamelog_location WHERE world_name LIKE '%${search}%' ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM gamelog_location WHERE world_name LIKE '%${search}%' OR group_name LIKE '%${search}%' ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         if (onplayerjoined || onplayerleft) {
             var query = '';
