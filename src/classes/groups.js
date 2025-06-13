@@ -621,7 +621,7 @@ export default function init(app) {
                                         this.store.group.groupDialog.id ===
                                         args.params.groupId
                                     ) {
-                                        this.applyGroupDialogInstances(
+                                        this.store.group.applyGroupDialogInstances(
                                             args.json.instances
                                         );
                                     }

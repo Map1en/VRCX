@@ -189,7 +189,7 @@ export default function init(app) {
             );
             this.applyUserDialogLocation();
             this.applyWorldDialogInstances();
-            this.applyGroupDialogInstances();
+            this.store.group.applyGroupDialogInstances();
             feeds.pendingUpdate = false;
         },
 

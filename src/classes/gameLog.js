@@ -75,7 +75,7 @@ export default function init(app) {
                         this.updateCurrentInstanceWorld();
                         this.applyUserDialogLocation();
                         this.applyWorldDialogInstances();
-                        this.applyGroupDialogInstances();
+                        this.store.group.applyGroupDialogInstances();
                     }
                     break;
                 case 'location':
@@ -100,7 +100,7 @@ export default function init(app) {
                         this.updateCurrentInstanceWorld();
                         this.applyUserDialogLocation();
                         this.applyWorldDialogInstances();
-                        this.applyGroupDialogInstances();
+                        this.store.group.applyGroupDialogInstances();
                     }
                     this.addInstanceJoinHistory(gameLog.location, gameLog.dt);
                     var L = parseLocation(gameLog.location);

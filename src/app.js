@@ -871,7 +871,7 @@ API.$on('INSTANCE', function (args) {
         $app.store.group.groupDialog.visible &&
         $app.store.group.groupDialog.id === args.json.ownerId
     ) {
-        $app.applyGroupDialogInstances();
+        $app.store.group.applyGroupDialogInstances();
     }
 
     // FIXME:
@@ -2336,7 +2336,7 @@ $app.methods.loadPlayerList = function () {
         this.getCurrentInstanceUserList();
         this.applyUserDialogLocation();
         this.applyWorldDialogInstances();
-        this.applyGroupDialogInstances();
+        this.store.group.applyGroupDialogInstances();
     }
 };
 
@@ -2385,7 +2385,7 @@ API.$on('USER:UPDATE', async function (args) {
         props.location &&
         ref.$location.groupId === $app.store.group.groupDialog.id
     ) {
-        $app.applyGroupDialogInstances();
+        $app.store.group.applyGroupDialogInstances();
     }
     if (
         !props.state &&
@@ -2771,7 +2771,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
     this.lastResourceloadUrl = '';
     this.applyUserDialogLocation();
     this.applyWorldDialogInstances();
-    this.applyGroupDialogInstances();
+    this.store.group.applyGroupDialogInstances();
 };
 
 $app.data.lastLocation$ = {
@@ -5377,167 +5377,6 @@ $app.methods.applyWorldDialogInstances = function () {
     this.updateTimers();
 };
 
-$app.methods.applyGroupDialogInstances = function (inputInstances) {
-    let ref;
-    let instance;
-    const D = this.store.group.groupDialog;
-    if (!D.visible) {
-        return;
-    }
-    const instances = {};
-    for (instance of D.instances) {
-        instances[instance.tag] = {
-            ...instance,
-            friendCount: 0,
-            users: []
-        };
-    }
-    if (typeof inputInstances !== 'undefined') {
-        for (instance of inputInstances) {
-            instances[instance.location] = {
-                id: instance.instanceId,
-                tag: instance.location,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: instance.shortName,
-                ref: instance
-            };
-        }
-    }
-    const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-    const lastLocation$ = cachedCurrentUser.$location;
-    const currentLocation = lastLocation$.tag;
-    const playersInInstance = this.lastLocation.playerList;
-    if (lastLocation$.groupId === D.id && playersInInstance.size > 0) {
-        const friendsInInstance = this.lastLocation.friendList;
-        instance = {
-            id: lastLocation$.instanceId,
-            tag: currentLocation,
-            $location: {},
-            friendCount: friendsInInstance.size,
-            users: [],
-            shortName: '',
-            ref: {}
-        };
-        instances[currentLocation] = instance;
-        for (const friend of friendsInInstance.values()) {
-            // if friend isn't in instance add them
-            const addUser = !instance.users.some(function (user) {
-                return friend.userId === user.id;
-            });
-            if (addUser) {
-                ref = API.cachedUsers.get(friend.userId);
-                if (typeof ref !== 'undefined') {
-                    instance.users.push(ref);
-                }
-            }
-        }
-    }
-    for (const friend of this.store.friend.friends.values()) {
-        const { ref } = friend;
-        if (
-            typeof ref === 'undefined' ||
-            typeof ref.$location === 'undefined' ||
-            ref.$location.groupId !== D.id ||
-            (ref.$location.instanceId === lastLocation$.instanceId &&
-                playersInInstance.size > 0 &&
-                ref.location !== 'traveling')
-        ) {
-            continue;
-        }
-        if (ref.location === this.lastLocation.location) {
-            // don't add friends to currentUser gameLog instance (except when traveling)
-            continue;
-        }
-        const { instanceId, tag } = ref.$location;
-        instance = instances[tag];
-        if (typeof instance === 'undefined') {
-            instance = {
-                id: instanceId,
-                tag,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: '',
-                ref: {}
-            };
-            instances[tag] = instance;
-        }
-        instance.users.push(ref);
-    }
-    ref = API.cachedUsers.get(API.currentUser.id);
-    if (typeof ref !== 'undefined' && ref.$location.groupId === D.id) {
-        const { instanceId, tag } = ref.$location;
-        instance = instances[tag];
-        if (typeof instance === 'undefined') {
-            instance = {
-                id: instanceId,
-                tag,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: '',
-                ref: {}
-            };
-            instances[tag] = instance;
-        }
-        instance.users.push(ref); // add self
-    }
-    const rooms = [];
-    for (instance of Object.values(instances)) {
-        // due to references on callback of API.getUser()
-        // this should be block scope variable
-        const L = parseLocation(instance.tag);
-        instance.location = instance.tag;
-        instance.$location = L;
-        if (instance.friendCount === 0) {
-            instance.friendCount = instance.users.length;
-        }
-        if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
-            instance.users.sort(compareByDisplayName);
-        } else {
-            instance.users.sort(compareByLocationAt);
-        }
-        rooms.push(instance);
-    }
-    // get instance
-    for (const room of rooms) {
-        ref = API.cachedInstances.get(room.tag);
-        if (typeof ref !== 'undefined') {
-            room.ref = ref;
-        } else if (isRealInstance(room.tag)) {
-            instanceRequest.getInstance({
-                worldId: room.$location.worldId,
-                instanceId: room.$location.instanceId
-            });
-        }
-    }
-    rooms.sort(function (a, b) {
-        // sort current instance to top
-        if (b.location === currentLocation) {
-            return 1;
-        }
-        if (a.location === currentLocation) {
-            return -1;
-        }
-        // sort by number of users when no friends in instance
-        if (a.users.length === 0 && b.users.length === 0) {
-            if (a.ref?.userCount < b.ref?.userCount) {
-                return 1;
-            }
-            return -1;
-        }
-        // sort by number of friends in instance
-        if (a.users.length < b.users.length) {
-            return 1;
-        }
-        return -1;
-    });
-    D.instances = rooms;
-    this.updateTimers();
-};
-
 $app.methods.worldDialogCommand = function (command) {
     const D = this.store.world.worldDialog;
     if (D.visible === false) {
@@ -7325,7 +7164,7 @@ $app.methods.updateCurrentUserLocation = function () {
         ref.$travelingToTime = API.currentUser.$travelingToTime;
         this.applyUserDialogLocation();
         this.applyWorldDialogInstances();
-        this.applyGroupDialogInstances();
+        this.store.group.applyGroupDialogInstances();
     } else {
         ref.$location_at = this.lastLocation.date;
         ref.$travelingToTime = this.lastLocationDestinationTime;
@@ -7385,7 +7224,7 @@ $app.methods.setCurrentUserLocation = async function (
 
         this.applyUserDialogLocation();
         this.applyWorldDialogInstances();
-        this.applyGroupDialogInstances();
+        this.store.group.applyGroupDialogInstances();
     } else {
         this.lastLocation.location = '';
         this.lastLocation.date = '';
