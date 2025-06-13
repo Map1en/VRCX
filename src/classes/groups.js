@@ -19,7 +19,7 @@ export default function init(app) {
 
     API.$on('GROUP', function (args) {
         var { ref } = args;
-        var D = $app.groupDialog;
+        var D = $app.store.group.groupDialog;
         if (D.visible === false || D.id !== ref.id) {
             return;
         }
@@ -65,9 +65,13 @@ export default function init(app) {
         var json = args.json;
         json.$memberId = json.id;
         json.id = json.groupId;
-        if ($app.groupDialog.visible && $app.groupDialog.id === json.groupId) {
-            $app.groupDialog.ref.myMember.visibility = json.visibility;
-            $app.groupDialog.ref.myMember.isSubscribedToAnnouncements =
+        if (
+            $app.store.group.groupDialog.visible &&
+            $app.store.group.groupDialog.id === json.groupId
+        ) {
+            $app.store.group.groupDialog.ref.myMember.visibility =
+                json.visibility;
+            $app.store.group.groupDialog.ref.myMember.isSubscribedToAnnouncements =
                 json.isSubscribedToAnnouncements;
         }
         if (
@@ -85,20 +89,22 @@ export default function init(app) {
     });
 
     API.$on('GROUP:MEMBER:PROPS', function (args) {
-        if ($app.groupDialog.id === args.json.groupId) {
-            for (var i = 0; i < $app.groupDialog.members.length; ++i) {
-                var member = $app.groupDialog.members[i];
+        let member;
+        if ($app.store.group.groupDialog.id === args.json.groupId) {
+            let i;
+            for (i = 0; i < $app.store.group.groupDialog.members.length; ++i) {
+                member = $app.store.group.groupDialog.members[i];
                 if (member.userId === args.json.userId) {
                     Object.assign(member, this.applyGroupMember(args.json));
                     break;
                 }
             }
             for (
-                var i = 0;
-                i < $app.groupDialog.memberSearchResults.length;
+                i = 0;
+                i < $app.store.group.groupDialog.memberSearchResults.length;
                 ++i
             ) {
-                var member = $app.groupDialog.memberSearchResults[i];
+                member = $app.store.group.groupDialog.memberSearchResults[i];
                 if (member.userId === args.json.userId) {
                     Object.assign(member, this.applyGroupMember(args.json));
                     break;
@@ -161,7 +167,7 @@ export default function init(app) {
     };
 
     API.$on('GROUP:POSTS:ALL', function (args) {
-        var D = $app.groupDialog;
+        var D = $app.store.group.groupDialog;
         if (D.id === args.params.groupId) {
             for (var post of args.posts) {
                 post.title = replaceBioSymbols(post.title);
@@ -176,7 +182,7 @@ export default function init(app) {
     });
 
     API.$on('GROUP:POST', function (args) {
-        var D = $app.groupDialog;
+        var D = $app.store.group.groupDialog;
         if (D.id !== args.params.groupId) {
             return;
         }
@@ -470,35 +476,6 @@ export default function init(app) {
         groupMembersSearchTimer: null,
         groupMembersSearchPending: false,
         isGroupGalleryLoading: false,
-
-        groupDialog: {
-            visible: false,
-            loading: false,
-            isGetGroupDialogGroupLoading: false,
-            treeData: [],
-            id: '',
-            inGroup: false,
-            ownerDisplayName: '',
-            ref: {},
-            announcement: {},
-            posts: [],
-            postsFiltered: [],
-            members: [],
-            memberSearch: '',
-            memberSearchResults: [],
-            instances: [],
-            memberRoles: [],
-            memberFilter: {
-                name: $t('dialog.group.members.filters.everyone'),
-                id: null
-            },
-            memberSortOrder: {
-                name: $t('dialog.group.members.sorting.joined_at_desc'),
-                value: 'joinedAt:desc'
-            },
-            postsSearch: '',
-            galleries: {}
-        },
         inviteGroupDialog: {
             visible: false,
             loading: false,
@@ -528,8 +505,8 @@ export default function init(app) {
                                 .then((args) => {
                                     // API.$on('GROUP:BLOCK', function (args) {
                                     if (
-                                        this.groupDialog.visible &&
-                                        this.groupDialog.id ===
+                                        this.store.group.groupDialog.visible &&
+                                        this.store.group.groupDialog.id ===
                                             args.params.groupId
                                     ) {
                                         this.showGroupDialog(
@@ -562,8 +539,8 @@ export default function init(app) {
                                 .then((args) => {
                                     // API.$on('GROUP:UNBLOCK', function (args) {
                                     if (
-                                        this.groupDialog.visible &&
-                                        this.groupDialog.id ===
+                                        this.store.group.groupDialog.visible &&
+                                        this.store.group.groupDialog.id ===
                                             args.params.groupId
                                     ) {
                                         this.showGroupDialog(
@@ -749,7 +726,7 @@ export default function init(app) {
             if (!groupId) {
                 return;
             }
-            var D = this.groupDialog;
+            const D = this.store.group.groupDialog;
             D.visible = true;
             D.loading = true;
             D.id = groupId;
@@ -799,7 +776,7 @@ export default function init(app) {
         },
 
         getGroupDialogGroup(groupId) {
-            var D = this.groupDialog;
+            const D = this.store.group.groupDialog;
             D.isGetGroupDialogGroupLoading = false;
             return groupRequest
                 .getGroup({ groupId, includeRoles: true })
@@ -832,7 +809,7 @@ export default function init(app) {
                                 .then((args) => {
                                     // API.$on('GROUP:INSTANCES', function (args) {
                                     if (
-                                        this.groupDialog.id ===
+                                        this.store.group.groupDialog.id ===
                                         args.params.groupId
                                     ) {
                                         this.applyGroupDialogInstances(
@@ -875,7 +852,7 @@ export default function init(app) {
         },
 
         groupDialogCommand(command) {
-            var D = this.groupDialog;
+            const D = this.store.group.groupDialog;
             if (D.visible === false) {
                 return;
             }
@@ -928,10 +905,12 @@ export default function init(app) {
                                     // API.$on('GROUP:LEAVE', function (args) {
                                     const groupId = args.params.groupId;
                                     if (
-                                        this.groupDialog.visible &&
-                                        this.groupDialog.id === groupId
+                                        this.store.group.groupDialog.visible &&
+                                        this.store.group.groupDialog.id ===
+                                            groupId
                                     ) {
-                                        this.groupDialog.inGroup = false;
+                                        this.store.group.groupDialog.inGroup =
+                                            false;
                                         this.getGroupDialogGroup(groupId);
                                     }
                                     if (
@@ -1005,7 +984,10 @@ export default function init(app) {
         },
 
         onGroupLeft(groupId) {
-            if (this.groupDialog.visible && this.groupDialog.id === groupId) {
+            if (
+                this.store.group.groupDialog.visible &&
+                this.store.group.groupDialog.id === groupId
+            ) {
                 this.showGroupDialog(groupId);
             }
             if (API.currentUserGroups.has(groupId)) {
@@ -1017,7 +999,7 @@ export default function init(app) {
         },
 
         updateGroupPostSearch() {
-            var D = this.groupDialog;
+            var D = this.store.group.groupDialog;
             var search = D.postsSearch.toLowerCase();
             D.postsFiltered = D.posts.filter((post) => {
                 if (search === '') {

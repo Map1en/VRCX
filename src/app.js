@@ -220,13 +220,7 @@ Vue.use(ElementUI, {
     i18n: (key, value) => i18n.global.t(key, value)
 });
 
-// init pinia
 Vue.use(PiniaVuePlugin);
-
-// #endregion
-
-// everything in this program is global stored in $app, I hate it, it is what it is
-let $app = {};
 
 new _vrcxJsonStorage(VRCXStorage);
 
@@ -245,7 +239,7 @@ const [initThemeMode, appLanguage] = await Promise.all([
 
 i18n.locale = appLanguage;
 
-const app = {
+let $app = {
     template: pugTemplate,
     pinia,
     i18n,
@@ -412,8 +406,6 @@ const app = {
         }
     }
 };
-
-Object.assign($app, app);
 
 apiRequestHandler();
 uiComponents();
@@ -876,7 +868,10 @@ API.$on('INSTANCE', function (args) {
     ) {
         $app.applyWorldDialogInstances();
     }
-    if ($app.groupDialog.visible && $app.groupDialog.id === args.json.ownerId) {
+    if (
+        $app.store.group.groupDialog.visible &&
+        $app.store.group.groupDialog.id === args.json.ownerId
+    ) {
         $app.applyGroupDialogInstances();
     }
 
@@ -2387,7 +2382,10 @@ API.$on('USER:UPDATE', async function (args) {
     ) {
         $app.applyWorldDialogInstances();
     }
-    if (props.location && ref.$location.groupId === $app.groupDialog.id) {
+    if (
+        props.location &&
+        ref.$location.groupId === $app.store.group.groupDialog.id
+    ) {
         $app.applyGroupDialogInstances();
     }
     if (
@@ -5383,7 +5381,7 @@ $app.methods.applyWorldDialogInstances = function () {
 $app.methods.applyGroupDialogInstances = function (inputInstances) {
     let ref;
     let instance;
-    const D = this.groupDialog;
+    const D = this.store.group.groupDialog;
     if (!D.visible) {
         return;
     }
@@ -7895,8 +7893,9 @@ $app.methods.applyLanguageStrings = function () {
     this.store.user.userDialog.groupSorting =
         userDialogGroupSortingOptions.alphabetical;
 
-    this.groupDialog.memberFilter = this.groupDialogFilterOptions.everyone;
-    this.groupDialog.memberSortOrder =
+    this.store.group.groupDialog.memberFilter =
+        this.groupDialogFilterOptions.everyone;
+    this.store.group.groupDialog.memberSortOrder =
         this.groupDialogSortingOptions.joinedAtDesc;
 };
 

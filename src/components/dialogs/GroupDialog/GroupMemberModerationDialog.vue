@@ -817,11 +817,14 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
+    import { useGroupStore } from '../../../stores/group';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { randomUserColours } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const groupStore = useGroupStore();
+    const { groupDialog } = storeToRefs(groupStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
@@ -833,10 +836,6 @@
         isGroupMembersLoading: {
             type: Boolean,
             default: false
-        },
-        groupDialog: {
-            type: Object,
-            required: true
         },
         groupDialogSortingOptions: {
             type: Object,
@@ -892,7 +891,7 @@
         () => props.groupMemberModeration.visible,
         (newVal) => {
             if (newVal) {
-                if (props.groupMemberModeration.id !== props.groupDialog.id) {
+                if (props.groupMemberModeration.id !== groupDialog.value.id) {
                     return;
                 }
                 groupMemberModerationTable.data = [];
@@ -910,7 +909,7 @@
     );
 
     watch(
-        () => props.groupDialog.members,
+        () => groupDialog.value.members,
         (newVal) => {
             if (newVal) {
                 setGroupMemberModerationTable(newVal);
@@ -920,7 +919,7 @@
     );
 
     watch(
-        () => props.groupDialog.memberSearchResults,
+        () => groupDialog.value.memberSearchResults,
         (newVal) => {
             if (newVal) {
                 setGroupMemberModerationTable(newVal);
@@ -963,8 +962,8 @@
 
     function handleGroupMemberRoleChange(args) {
         // 'GROUP:MEMBER:ROLE:CHANGE'
-        if (props.groupDialog.id === args.params.groupId) {
-            props.groupDialog.members.forEach((member) => {
+        if (groupDialog.value.id === args.params.groupId) {
+            groupDialog.value.members.forEach((member) => {
                 if (member.userId === args.params.userId) {
                     member.roleIds = args.json;
                     return true;

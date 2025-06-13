@@ -1150,7 +1150,6 @@
         <!--Nested-->
         <GroupPostEditDialog :dialog-data.sync="groupPostEditDialog" :selected-gallery-file="selectedGalleryFile" />
         <GroupMemberModerationDialog
-            :group-dialog="groupDialog"
             :is-group-members-loading.sync="isGroupMembersLoading"
             :group-dialog-filter-options="groupDialogFilterOptions"
             :group-dialog-sorting-options="groupDialogSortingOptions"
@@ -1184,6 +1183,7 @@
         userStatusClass,
         userImage
     } from '../../../shared/utils';
+    import { useGroupStore } from '../../../stores/group';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
@@ -1198,17 +1198,15 @@
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const groupStore = useGroupStore();
+    const { groupDialog } = storeToRefs(groupStore);
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
     const $message = instance.proxy.$message;
 
-    const props = defineProps({
-        groupDialog: {
-            type: Object,
-            required: true
-        },
+    defineProps({
         lastLocation: {
             type: Object,
             required: true
@@ -1278,7 +1276,7 @@
     let loadMoreGroupMembersParams = {};
 
     watch(
-        () => props.groupDialog.loading,
+        () => groupDialog.value.loading,
         (val) => {
             if (val) {
                 nextTick(() => adjustDialogZ(groupDialogRef.value.$el));
@@ -1287,7 +1285,7 @@
     );
 
     watch(
-        () => props.groupDialog.isGetGroupDialogGroupLoading,
+        () => groupDialog.value.isGetGroupDialogGroupLoading,
         (val) => {
             if (val) {
                 getCurrentTabData();
@@ -1342,7 +1340,7 @@
     }
 
     function groupMembersSearchDebounce() {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         const search = D.memberSearch;
         D.memberSearchResults = [];
         if (!search || search.length < 3) {
@@ -1383,10 +1381,10 @@
             })
             .then((args) => {
                 // API.$on('GROUP:SETREPRESENTATION', function (args) {
-                if (props.groupDialog.visible && props.groupDialog.id === args.groupId) {
+                if (groupDialog.value.visible && groupDialog.value.id === args.groupId) {
                     updateGroupDialogData({
-                        ...props.groupDialog,
-                        ref: { ...props.groupDialog.ref, isRepresenting: args.params.isRepresenting }
+                        ...groupDialog.value,
+                        ref: { ...groupDialog.value.ref, isRepresenting: args.params.isRepresenting }
                     });
                 }
             });
@@ -1400,7 +1398,7 @@
             .then((args) => {
                 // API.$on('GROUP:CANCELJOINREQUEST', function (args) {
                 const groupId = args.params.groupId;
-                if (props.groupDialog.visible && props.groupDialog.id === groupId) {
+                if (groupDialog.value.visible && groupDialog.value.id === groupId) {
                     getGroupDialogGroup(groupId);
                 }
                 // });
@@ -1420,7 +1418,7 @@
                         })
                         .then((args) => {
                             // API.$on('GROUP:POST:DELETE', function (args) {
-                            const D = props.groupDialog;
+                            const D = groupDialog.value;
                             if (D.id !== args.params.groupId) {
                                 return;
                             }
@@ -1462,19 +1460,19 @@
     }
 
     function groupDialogCommand(command) {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         if (D.visible === false) {
             return;
         }
         switch (command) {
             case 'Share':
-                copyToClipboard(props.groupDialog.ref.$url);
+                copyToClipboard(groupDialog.value.ref.$url);
                 break;
             case 'Create Post':
-                showGroupPostEditDialog(props.groupDialog.id, null);
+                showGroupPostEditDialog(groupDialog.value.id, null);
                 break;
             case 'Moderation Tools':
-                showGroupMemberModerationDialog(props.groupDialog.id);
+                showGroupMemberModerationDialog(groupDialog.value.id);
                 break;
             case 'Invite To Group':
                 showInviteGroupDialog(D.id, '');
@@ -1485,7 +1483,7 @@
     }
 
     function showGroupMemberModerationDialog(groupId) {
-        if (groupId !== props.groupDialog.id) {
+        if (groupId !== groupDialog.value.id) {
             return;
         }
         const D = groupMemberModeration;
@@ -1540,12 +1538,12 @@
                         userId: args.params.userId
                     }
                 });
-                if (props.groupDialog.visible && props.groupDialog.id === groupId) {
+                if (groupDialog.value.visible && groupDialog.value.id === groupId) {
                     updateGroupDialogData({
-                        ...props.groupDialog,
+                        ...groupDialog.value,
                         inGroup: json.membershipStatus === 'member'
                     });
-                    // props.groupDialog.inGroup = json.membershipStatus === 'member';
+                    // groupDialog.value.inGroup = json.membershipStatus === 'member';
                     getGroupDialogGroup(groupId);
                 }
                 // });
@@ -1606,7 +1604,7 @@
     }
 
     async function getGroupDialogGroupMembers() {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         D.members = [];
         isGroupMembersDone.value = false;
         loadMoreGroupMembersParams = {
@@ -1645,7 +1643,7 @@
         if (isGroupMembersDone.value || isGroupMembersLoading.value) {
             return;
         }
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         const params = loadMoreGroupMembersParams;
         D.memberSearch = '';
         isGroupMembersLoading.value = true;
@@ -1689,12 +1687,12 @@
     }
 
     async function getGroupGalleries() {
-        updateGroupDialogData({ ...props.groupDialog, galleries: {} });
+        updateGroupDialogData({ ...groupDialog.value, galleries: {} });
         groupDialogGalleryCurrentName.value = '0';
         isGroupGalleryLoading.value = true;
-        for (let i = 0; i < props.groupDialog.ref.galleries.length; i++) {
-            const gallery = props.groupDialog.ref.galleries[i];
-            await getGroupGallery(props.groupDialog.id, gallery.id);
+        for (let i = 0; i < groupDialog.value.ref.galleries.length; i++) {
+            const gallery = groupDialog.value.ref.galleries[i];
+            await getGroupGallery(groupDialog.value.id, gallery.id);
         }
         isGroupGalleryLoading.value = false;
     }
@@ -1713,11 +1711,11 @@
                 if (args) {
                     // API.$on('GROUP:GALLERY', function (args) {
                     for (const json of args.json) {
-                        if (props.groupDialog.id === json.groupId) {
-                            if (!props.groupDialog.galleries[json.galleryId]) {
-                                props.groupDialog.galleries[json.galleryId] = [];
+                        if (groupDialog.value.id === json.groupId) {
+                            if (!groupDialog.value.galleries[json.galleryId]) {
+                                groupDialog.value.galleries[json.galleryId] = [];
                             }
-                            props.groupDialog.galleries[json.galleryId].push(json);
+                            groupDialog.value.galleries[json.galleryId].push(json);
                         }
                     }
                     // });
@@ -1733,7 +1731,7 @@
     }
 
     function refreshGroupDialogTreeData() {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         const treeData = buildTreeData({
             group: D.ref,
             posts: D.posts,
@@ -1742,7 +1740,7 @@
             galleries: D.galleries
         });
         updateGroupDialogData({
-            ...props.groupDialog,
+            ...groupDialog.value,
             treeData
         });
     }
@@ -1752,7 +1750,7 @@
             return;
         }
         await getGroupDialogGroupMembers();
-        while (props.groupDialog.visible && !isGroupMembersDone.value) {
+        while (groupDialog.value.visible && !isGroupMembersDone.value) {
             isGroupMembersLoading.value = true;
             await new Promise((resolve) => {
                 workerTimers.setTimeout(resolve, 1000);
@@ -1763,7 +1761,7 @@
     }
 
     async function setGroupMemberSortOrder(sortOrder) {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         if (D.memberSortOrder === sortOrder) {
             return;
         }
@@ -1772,7 +1770,7 @@
     }
 
     async function setGroupMemberFilter(filter) {
-        const D = props.groupDialog;
+        const D = groupDialog.value;
         if (D.memberFilter === filter) {
             return;
         }

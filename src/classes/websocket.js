@@ -473,8 +473,8 @@ export default function init() {
                 }
                 var groupId = member.groupId;
                 if (
-                    $app.groupDialog.visible &&
-                    $app.groupDialog.id === groupId
+                    $app.store.group.groupDialog.visible &&
+                    $app.store.group.groupDialog.id === groupId
                 ) {
                     $app.getGroupDialogGroup(groupId);
                 }
