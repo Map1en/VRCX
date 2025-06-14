@@ -1289,6 +1289,14 @@ API.isFavoriteGroupLoading = false;
 API.$on('LOGIN', function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.currentUserGroupsInit = false;
+    this.cachedGroups.clear();
+    this.cachedAvatars.clear();
+    this.cachedWorlds.clear();
+    this.cachedUsers.clear();
+    this.cachedInstances.clear();
+    this.cachedAvatarNames.clear();
+    this.cachedAvatarModerations.clear();
+    this.cachedPlayerModerations.clear();
     $app.store.favorite.cachedFavorites.clear();
     $app.store.favorite.cachedFavoritesByObjectId.clear();
     $app.store.favorite.cachedFavoriteGroups.clear();
@@ -3212,6 +3220,9 @@ $app.methods.updateFriendship = function (ref) {
     }
     if (ctx.friendNumber) {
         ref.$friendNumber = ctx.friendNumber;
+    }
+    if (!ref.$friendNumber) {
+        ref.$friendNumber = 0; // no null
     }
     if (ctx.displayName !== ref.displayName) {
         if (ctx.displayName) {
