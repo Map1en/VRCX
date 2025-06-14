@@ -12,15 +12,7 @@ const themeBasePath = `${scssBasePath}themes/`;
 
 module.exports = {
     entry: {
-        vendor: [
-            'element-ui',
-            'noty',
-            'vue',
-            'vue-data-tables',
-            'vue-lazyload',
-            'dayjs',
-            'pinia'
-        ],
+        vendor: ['vue'],
         app: {
             import: ['./src/app.js', './src/app.scss'],
             dependOn: 'vendor'
@@ -49,7 +41,10 @@ module.exports = {
         rules: [
             {
                 test: /\.vue$/,
-                loader: 'vue-loader'
+                loader: 'vue-loader',
+                options: {
+                    hotReload: false
+                }
             },
             {
                 test: /\.[jt]sx?$/,
@@ -90,8 +85,7 @@ module.exports = {
     devtool: 'inline-source-map',
     target: ['web', 'es2020'],
     stats: {
-        preset: 'errors-only',
-        builtAt: true,
+        preset: 'errors-warnings',
         timings: true
     },
     plugins: [
@@ -111,14 +105,16 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: './src/static/index.html',
-            inject: false,
-            minify: false
+            inject: true,
+            scriptLoading: 'module',
+            chunks: ['vendor', 'app', 'flags', 'animated-emoji']
         }),
         new HtmlWebpackPlugin({
             filename: 'vr.html',
             template: './src/static/vr.html',
-            inject: false,
-            minify: false
+            inject: true,
+            scriptLoading: 'module',
+            chunks: ['vendor', 'vr', 'flags']
         }),
         new CopyPlugin({
             patterns: [
@@ -137,7 +133,10 @@ module.exports = {
             new EsbuildPlugin({
                 target: 'es2020'
             })
-        ]
+        ],
+        splitChunks: {
+            chunks: 'initial'
+        }
     },
     watchOptions: {
         ignored: /node_modules/
