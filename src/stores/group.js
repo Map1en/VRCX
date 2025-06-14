@@ -50,7 +50,16 @@ export const useGroupStore = defineStore('Group', () => {
             postsSearch: '',
             galleries: {}
         },
-        currentUserGroups: new Map()
+        currentUserGroups: new Map(),
+        inviteGroupDialog: {
+            visible: false,
+            loading: false,
+            groupId: '',
+            groupName: '',
+            userId: '',
+            userIds: [],
+            userObject: {}
+        }
     });
 
     const groupDialog = computed({
@@ -64,6 +73,13 @@ export const useGroupStore = defineStore('Group', () => {
         get: () => state.currentUserGroups,
         set: (value) => {
             state.currentUserGroups = value;
+        }
+    });
+
+    const inviteGroupDialog = computed({
+        get: () => state.inviteGroupDialog,
+        set: (value) => {
+            state.inviteGroupDialog = value;
         }
     });
 
@@ -609,6 +625,7 @@ export const useGroupStore = defineStore('Group', () => {
         state,
         groupDialog,
         currentUserGroups,
+        inviteGroupDialog,
         showGroupDialog,
         applyGroup,
         applyGroupDialogInstances,

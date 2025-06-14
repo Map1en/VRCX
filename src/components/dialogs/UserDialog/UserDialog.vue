@@ -1779,7 +1779,7 @@
         <PreviousImagesDialog
             :previous-images-dialog-visible.sync="previousImagesDialogVisible"
             :previous-images-table="previousImagesTable" />
-        <InviteGroupDialog :dialog-data.sync="inviteGroupDialog" />
+        <InviteGroupDialog />
         <SocialStatusDialog
             :social-status-dialog="socialStatusDialog"
             :social-status-history-table="socialStatusHistoryTable" />
@@ -1888,7 +1888,7 @@
     const { showAvatarDialog } = avatarStore;
     const { showWorldDialog } = worldStore;
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
-    const { currentUserGroups } = storeToRefs(groupStore);
+    const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -2092,16 +2092,6 @@
 
     const previousImagesDialogVisible = ref(false);
     const previousImagesTable = ref([]);
-
-    const inviteGroupDialog = ref({
-        visible: false,
-        loading: false,
-        groupId: '',
-        groupName: '',
-        userId: '',
-        userIds: [],
-        userObject: {}
-    });
 
     const socialStatusDialog = ref({
         visible: false,
@@ -2374,14 +2364,9 @@
     }
 
     function showInviteGroupDialog(groupId, userId) {
-        const D = inviteGroupDialog.value;
-        D.userIds = '';
-        D.groups = [];
-        D.groupId = groupId;
-        D.groupName = groupId;
-        D.userId = userId;
-        D.userObject = {};
-        D.visible = true;
+        inviteGroupDialog.value.groupId = groupId;
+        inviteGroupDialog.value.userId = userId;
+        inviteGroupDialog.value.visible = true;
     }
 
     function userDialogCommand(command) {

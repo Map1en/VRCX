@@ -1,6 +1,6 @@
 <template>
     <safe-dialog
-        ref="inviteGroupDialog"
+        ref="inviteGroupDialogRef"
         :visible.sync="inviteGroupDialog.visible"
         :title="$t('dialog.invite_to_group.header')"
         width="450px"
@@ -177,44 +177,25 @@
     export default {
         name: 'InviteGroupDialog',
         inject: ['adjustDialogZ'],
-        props: {
-            dialogData: {
-                type: Object,
-                required: true
-            }
-        },
-        data() {
-            return {
-                API
-            };
-        },
         setup() {
             const friendStore = useFriendStore();
             const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
             const groupStore = useGroupStore();
-            const { currentUserGroups } = storeToRefs(groupStore);
+            const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
             return {
                 vipFriends,
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
                 currentUserGroups,
+                inviteGroupDialog,
                 userStatusClass,
-                userImage
+                userImage,
+                API
             };
         },
-        computed: {
-            inviteGroupDialog: {
-                get() {
-                    return this.dialogData;
-                },
-                set(value) {
-                    this.$emit('update:dialog-data', value);
-                }
-            }
-        },
         watch: {
-            'dialogData.visible'(value) {
+            'inviteGroupDialog.visible'(value) {
                 if (value) {
                     this.initDialog();
                 }
@@ -222,7 +203,7 @@
         },
         methods: {
             initDialog() {
-                this.$nextTick(() => this.adjustDialogZ(this.$refs.inviteGroupDialog.$el));
+                this.$nextTick(() => this.adjustDialogZ(this.$refs.inviteGroupDialogRef.$el));
                 const D = this.inviteGroupDialog;
                 if (D.groupId) {
                     this.API.getCachedGroup({

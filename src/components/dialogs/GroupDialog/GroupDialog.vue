@@ -1159,7 +1159,7 @@
             @load-all-group-members="loadAllGroupMembers"
             @set-group-member-filter="setGroupMemberFilter"
             @set-group-member-sort-order="setGroupMemberSortOrder" />
-        <InviteGroupDialog :dialog-data.sync="inviteGroupDialog" />
+        <InviteGroupDialog />
     </safe-dialog>
 </template>
 
@@ -1199,7 +1199,7 @@
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
     const groupStore = useGroupStore();
-    const { groupDialog } = storeToRefs(groupStore);
+    const { groupDialog, inviteGroupDialog } = storeToRefs(groupStore);
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -1263,16 +1263,6 @@
         auditLogTypes: []
     });
 
-    const inviteGroupDialog = ref({
-        visible: false,
-        loading: false,
-        groupId: '',
-        groupName: '',
-        userId: '',
-        userIds: [],
-        userObject: {}
-    });
-
     let loadMoreGroupMembersParams = {};
 
     watch(
@@ -1294,14 +1284,9 @@
     );
 
     function showInviteGroupDialog(groupId, userId) {
-        const D = inviteGroupDialog.value;
-        D.userIds = '';
-        D.groups = [];
-        D.groupId = groupId;
-        D.groupName = groupId;
-        D.userId = userId;
-        D.userObject = {};
-        D.visible = true;
+        inviteGroupDialog.value.groupId = groupId;
+        inviteGroupDialog.value.userId = userId;
+        inviteGroupDialog.value.visible = true;
     }
 
     function setGroupRepresentation(groupId) {

@@ -330,16 +330,7 @@ export default function init(app) {
         // groupDialogLastGallery: '',
         groupMembersSearchTimer: null,
         groupMembersSearchPending: false,
-        isGroupGalleryLoading: false,
-        inviteGroupDialog: {
-            visible: false,
-            loading: false,
-            groupId: '',
-            groupName: '',
-            userId: '',
-            userIds: [],
-            userObject: {}
-        }
+        isGroupGalleryLoading: false
     };
 
     const _methods = {
