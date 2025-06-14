@@ -1,17 +1,10 @@
-import * as workerTimers from 'worker-timers';
-import {
-    groupRequest,
-    instanceRequest,
-    userRequest,
-    worldRequest
-} from '../api';
+import { groupRequest, instanceRequest, worldRequest } from '../api';
 import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import { replaceBioSymbols } from '../shared/utils';
 
 export default function init(app) {
     API.cachedGroups = new Map();
-    API.currentUserGroups = new Map();
 
     API.$on('GROUP', function (args) {
         args.ref = $app.store.group.applyGroup(args.json);
@@ -417,37 +410,6 @@ export default function init(app) {
             );
         },
 
-        groupRoleChange(ref, oldRoles, newRoles, oldRoleIds, newRoleIds) {
-            // check for removed/added roleIds
-            for (var roleId of oldRoleIds) {
-                if (!newRoleIds.includes(roleId)) {
-                    var roleName = '';
-                    var role = oldRoles.find(
-                        (fineRole) => fineRole.id === roleId
-                    );
-                    if (role) {
-                        roleName = role.name;
-                    }
-                    this.store.group.groupChange(
-                        ref,
-                        `Role ${roleName} removed`
-                    );
-                }
-            }
-            for (var roleId of newRoleIds) {
-                if (!oldRoleIds.includes(roleId)) {
-                    var roleName = '';
-                    var role = newRoles.find(
-                        (fineRole) => fineRole.id === roleId
-                    );
-                    if (role) {
-                        roleName = role.name;
-                    }
-                    this.store.group.groupChange(ref, `Role ${roleName} added`);
-                }
-            }
-        },
-
         async loadCurrentUserGroups(userId, groups) {
             var savedGroups = JSON.parse(
                 await configRepository.getString(
@@ -456,7 +418,7 @@ export default function init(app) {
                 )
             );
             API.cachedGroups.clear();
-            API.currentUserGroups.clear();
+            $app.store.group.currentUserGroups.clear();
             for (var group of savedGroups) {
                 var json = {
                     id: group.id,
@@ -469,7 +431,7 @@ export default function init(app) {
                     }
                 };
                 var ref = $app.store.group.applyGroup(json);
-                API.currentUserGroups.set(group.id, ref);
+                $app.store.group.currentUserGroups.set(group.id, ref);
             }
 
             if (groups) {
@@ -492,7 +454,7 @@ export default function init(app) {
                             includeRoles: true
                         });
                         const ref = $app.store.group.applyGroup(args.json);
-                        API.currentUserGroups.set(groupId, ref);
+                        $app.store.group.currentUserGroups.set(groupId, ref);
                     } catch (err) {
                         console.error(err);
                     }
@@ -509,11 +471,11 @@ export default function init(app) {
             var args = await groupRequest.getGroups({
                 userId: API.currentUser.id
             });
-            API.currentUserGroups.clear();
+            $app.store.group.currentUserGroups.clear();
             for (var group of args.json) {
                 var ref = $app.store.group.applyGroup(group);
-                if (!API.currentUserGroups.has(group.id)) {
-                    API.currentUserGroups.set(group.id, ref);
+                if (!$app.store.group.currentUserGroups.has(group.id)) {
+                    $app.store.group.currentUserGroups.set(group.id, ref);
                 }
             }
             await groupRequest.getGroupPermissions({
@@ -703,46 +665,6 @@ export default function init(app) {
                     });
                     return args;
                 });
-        },
-
-        onGroupJoined(groupId) {
-            // NOTE: don't know why need this
-            // if (
-            //     this.groupMemberModeration.visible &&
-            //     this.groupMemberModeration.id === groupId
-            // ) {
-            //     // ignore this event if we were the one to trigger it
-            //     return;
-            // }
-            if (!API.currentUserGroups.has(groupId)) {
-                API.currentUserGroups.set(groupId, {
-                    id: groupId,
-                    name: '',
-                    iconUrl: ''
-                });
-                groupRequest
-                    .getGroup({ groupId, includeRoles: true })
-                    .then((args) => {
-                        $app.store.group.applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
-                        this.store.group.saveCurrentUserGroups();
-                        return args;
-                    });
-            }
-        },
-
-        onGroupLeft(groupId) {
-            if (
-                this.store.group.groupDialog.visible &&
-                this.store.group.groupDialog.id === groupId
-            ) {
-                this.store.group.showGroupDialog(groupId);
-            }
-            if (API.currentUserGroups.has(groupId)) {
-                API.currentUserGroups.delete(groupId);
-                API.getCachedGroup({ groupId }).then((args) => {
-                    this.store.group.groupChange(args.ref, 'Left group');
-                });
-            }
         },
 
         updateGroupPostSearch() {

@@ -17,11 +17,11 @@
                 style="margin-top: 15px"
                 @change="isAllowedToInviteToGroup">
                 <el-option-group
-                    v-if="API.currentUserGroups.size"
+                    v-if="currentUserGroups.size"
                     :label="$t('dialog.invite_to_group.groups')"
                     style="width: 410px">
                     <el-option
-                        v-for="group in API.currentUserGroups.values()"
+                        v-for="group in currentUserGroups.values()"
                         :key="group.id"
                         :label="group.name"
                         :value="group.id"
@@ -172,6 +172,7 @@
     import { hasGroupPermission, userStatusClass, userImage } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { API } from '../../app';
+    import { useGroupStore } from '../../stores/group';
 
     export default {
         name: 'InviteGroupDialog',
@@ -190,11 +191,14 @@
         setup() {
             const friendStore = useFriendStore();
             const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            const groupStore = useGroupStore();
+            const { currentUserGroups } = storeToRefs(groupStore);
             return {
                 vipFriends,
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
+                currentUserGroups,
                 userStatusClass,
                 userImage
             };

@@ -135,7 +135,7 @@
                             @change="buildInstance">
                             <el-option-group :label="$t('dialog.new_instance.group_placeholder')">
                                 <el-option
-                                    v-for="group in API.currentUserGroups.values()"
+                                    v-for="group in currentUserGroups.values()"
                                     v-if="
                                         group &&
                                         (hasGroupPermission(group, 'group-instance-public-create') ||
@@ -400,7 +400,7 @@
                             @change="buildLegacyInstance">
                             <el-option-group :label="$t('dialog.new_instance.group_placeholder')">
                                 <el-option
-                                    v-for="group in API.currentUserGroups.values()"
+                                    v-for="group in currentUserGroups.values()"
                                     v-if="group"
                                     :key="group.id"
                                     class="x-friend-item"
@@ -506,6 +506,7 @@
     import { useFriendStore } from '../../stores/friend';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
     import { API } from '../../app';
+    import { useGroupStore } from '../../stores/group';
 
     export default {
         name: 'NewInstanceDialog',
@@ -540,12 +541,15 @@
         setup() {
             const friendStore = useFriendStore();
             const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            const groupStore = useGroupStore();
+            const { currentUserGroups } = storeToRefs(groupStore);
             return {
                 friends,
                 vipFriends,
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
+                currentUserGroups,
                 API,
                 userStatusClass,
                 hasGroupPermission,

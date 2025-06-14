@@ -192,7 +192,7 @@ export default function init() {
             $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
             this.applyQueuedInstance(ref.queuedInstance);
-            this.applyPresenceGroups(ref);
+            $app.store.group.applyPresenceGroups(ref);
         } else {
             ref = {
                 acceptedPrivacyVersion: 0,
@@ -305,7 +305,7 @@ export default function init() {
             $app.store.user.applyUserTrustLevel(ref);
             $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
-            this.applyPresenceGroups(ref);
+            $app.store.group.applyPresenceGroups(ref);
             this.currentUser = ref;
             this.isLoggedIn = true;
             this.$emit('LOGIN', {

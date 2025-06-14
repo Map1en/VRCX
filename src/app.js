@@ -583,34 +583,6 @@ API.applyPresenceLocation = function (ref) {
     $app.updateCurrentUserLocation();
 };
 
-API.applyPresenceGroups = function (ref) {
-    if (!this.currentUserGroupsInit) {
-        // wait for init before diffing
-        return;
-    }
-    const groups = ref.presence?.groups;
-    if (!groups) {
-        console.error('API.applyPresenceGroups: invalid groups', ref);
-        return;
-    }
-    if (groups.length === 0) {
-        // as it turns out, this is not the most trust worthly source of info
-        return;
-    }
-
-    // update group list
-    for (const groupId of groups) {
-        if (!this.currentUserGroups.has(groupId)) {
-            $app.onGroupJoined(groupId);
-        }
-    }
-    for (const groupId of this.currentUserGroups.keys()) {
-        if (!groups.includes(groupId)) {
-            $app.onGroupLeft(groupId);
-        }
-    }
-};
-
 // #endregion
 // #region | API: World
 
@@ -1393,7 +1365,7 @@ API.$on('LOGIN', function () {
     $app.store.favorite.cachedFavoritesByObjectId.clear();
     $app.store.favorite.cachedFavoriteGroups.clear();
     $app.store.favorite.cachedFavoriteGroupsByTypeName.clear();
-    this.currentUserGroups.clear();
+    $app.store.group.currentUserGroups.clear();
     this.queuedInstances.clear();
     $app.store.favorite.favoriteFriendGroups = [];
     this.favoriteWorldGroups = [];
@@ -6717,7 +6689,7 @@ $app.methods.clearVRCXCache = function () {
         }
     });
     API.cachedGroups.forEach((ref, id) => {
-        if (!API.currentUserGroups.has(id)) {
+        if (!$app.store.group.currentUserGroups.has(id)) {
             API.cachedGroups.delete(id);
         }
     });

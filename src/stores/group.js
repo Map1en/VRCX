@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { instanceRequest, userRequest } from '../api';
+import { groupRequest, instanceRequest, userRequest } from '../api';
 import { $t, API, $app } from '../app';
 import configRepository from '../service/config';
 import {
@@ -49,13 +49,21 @@ export const useGroupStore = defineStore('Group', () => {
             },
             postsSearch: '',
             galleries: {}
-        }
+        },
+        currentUserGroups: new Map()
     });
 
     const groupDialog = computed({
         get: () => state.groupDialog,
         set: (value) => {
             state.groupDialog = value;
+        }
+    });
+
+    const currentUserGroups = computed({
+        get: () => state.currentUserGroups,
+        set: (value) => {
+            state.currentUserGroups = value;
         }
     });
 
@@ -182,7 +190,7 @@ export const useGroupStore = defineStore('Group', () => {
             };
             API.cachedGroups.set(ref.id, ref);
         } else {
-            if (API.currentUserGroups.has(ref.id)) {
+            if (state.currentUserGroups.has(ref.id)) {
                 // compare group props
                 if (
                     ref.ownerId &&
@@ -209,7 +217,7 @@ export const useGroupStore = defineStore('Group', () => {
                         )
                     ) {
                         // roleIds changed
-                        $app.groupRoleChange(
+                        groupRoleChange(
                             json,
                             ref.roles,
                             json.roles,
@@ -247,9 +255,9 @@ export const useGroupStore = defineStore('Group', () => {
         ref.$url = `https://vrc.group/${ref.shortCode}.${ref.discriminator}`;
         API.applyGroupLanguage(ref);
 
-        const currentUserGroupRef = API.currentUserGroups.get(ref.id);
+        const currentUserGroupRef = state.currentUserGroups.get(ref.id);
         if (currentUserGroupRef && currentUserGroupRef !== ref) {
-            API.currentUserGroups.set(ref.id, ref);
+            state.currentUserGroups.set(ref.id, ref);
         }
 
         return ref;
@@ -328,7 +336,7 @@ export const useGroupStore = defineStore('Group', () => {
             ) {
                 continue;
             }
-            if (ref.location === this.lastLocation.location) {
+            if (ref.location === $app.lastLocation.location) {
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
@@ -476,7 +484,7 @@ export const useGroupStore = defineStore('Group', () => {
             return;
         }
         const groups = [];
-        for (const ref of API.currentUserGroups.values()) {
+        for (const ref of state.currentUserGroups.values()) {
             groups.push({
                 id: ref.id,
                 name: ref.name,
@@ -492,12 +500,119 @@ export const useGroupStore = defineStore('Group', () => {
         );
     }
 
+    /**
+     *
+     * @param {object} ref
+     * @param {array} oldRoles
+     * @param {array} newRoles
+     * @param {array} oldRoleIds
+     * @param {array} newRoleIds
+     */
+    function groupRoleChange(ref, oldRoles, newRoles, oldRoleIds, newRoleIds) {
+        // check for removed/added roleIds
+        for (const roleId of oldRoleIds) {
+            if (!newRoleIds.includes(roleId)) {
+                let roleName = '';
+                const role = oldRoles.find(
+                    (fineRole) => fineRole.id === roleId
+                );
+                if (role) {
+                    roleName = role.name;
+                }
+                groupChange(ref, `Role ${roleName} removed`);
+            }
+        }
+        for (const roleId of newRoleIds) {
+            if (!oldRoleIds.includes(roleId)) {
+                let roleName = '';
+                const role = newRoles.find(
+                    (fineRole) => fineRole.id === roleId
+                );
+                if (role) {
+                    roleName = role.name;
+                }
+                groupChange(ref, `Role ${roleName} added`);
+            }
+        }
+    }
+
+    /**
+     * aka `API.applyPresenceGroups`
+     * @param {object} ref
+     */
+    function applyPresenceGroups(ref) {
+        if (!API.currentUserGroupsInit) {
+            // wait for init before diffing
+            return;
+        }
+        const groups = ref.presence?.groups;
+        if (!groups) {
+            console.error('API.applyPresenceGroups: invalid groups', ref);
+            return;
+        }
+        if (groups.length === 0) {
+            // as it turns out, this is not the most trust worthly source of info
+            return;
+        }
+
+        // update group list
+        for (const groupId of groups) {
+            if (!state.currentUserGroups.has(groupId)) {
+                onGroupJoined(groupId);
+            }
+        }
+        for (const groupId of state.currentUserGroups.keys()) {
+            if (!groups.includes(groupId)) {
+                onGroupLeft(groupId);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param {string} groupId
+     */
+    function onGroupJoined(groupId) {
+        if (!state.currentUserGroups.has(groupId)) {
+            state.currentUserGroups.set(groupId, {
+                id: groupId,
+                name: '',
+                iconUrl: ''
+            });
+            groupRequest
+                .getGroup({ groupId, includeRoles: true })
+                .then((args) => {
+                    applyGroup(args.json); // make sure this runs before saveCurrentUserGroups
+                    saveCurrentUserGroups();
+                    return args;
+                });
+        }
+    }
+
+    /**
+     *
+     * @param {string} groupId
+     */
+    function onGroupLeft(groupId) {
+        if (state.groupDialog.visible && state.groupDialog.id === groupId) {
+            showGroupDialog(groupId);
+        }
+        if (state.currentUserGroups.has(groupId)) {
+            state.currentUserGroups.delete(groupId);
+            API.getCachedGroup({ groupId }).then((args) => {
+                groupChange(args.ref, 'Left group');
+            });
+        }
+    }
+
     return {
         state,
         groupDialog,
+        currentUserGroups,
         showGroupDialog,
         applyGroup,
         applyGroupDialogInstances,
-        saveCurrentUserGroups
+        saveCurrentUserGroups,
+        applyPresenceGroups
     };
 });

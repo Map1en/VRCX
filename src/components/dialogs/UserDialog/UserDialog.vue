@@ -1888,6 +1888,7 @@
     const { showAvatarDialog } = avatarStore;
     const { showWorldDialog } = worldStore;
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
+    const { currentUserGroups } = storeToRefs(groupStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -2727,11 +2728,11 @@
         }
         if (userId === API.currentUser.id) {
             // update current user groups
-            API.currentUserGroups.clear();
+            currentUserGroups.value.clear();
             args.json.forEach((group) => {
                 const ref = applyGroup(group);
-                if (!API.currentUserGroups.has(group.id)) {
-                    API.currentUserGroups.set(group.id, ref);
+                if (!currentUserGroups.value.has(group.id)) {
+                    currentUserGroups.value.set(group.id, ref);
                 }
             });
 
@@ -3090,7 +3091,7 @@
 
     async function editModeCurrentUserGroups() {
         await props.updateInGameGroupOrder();
-        userDialogGroupEditGroups.value = Array.from(API.currentUserGroups.values());
+        userDialogGroupEditGroups.value = Array.from(currentUserGroups.value.values());
         userDialogGroupEditGroups.value.sort(sortGroupsByInGame);
         userDialogGroupEditMode.value = true;
     }
