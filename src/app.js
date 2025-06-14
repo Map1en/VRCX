@@ -199,6 +199,17 @@ if (WINDOWS) {
     window.AssetBundleManager = InteropApi.AssetBundleManager;
 }
 
+Vue.config.errorHandler = function (err, vm, info) {
+    console.error('Vue Error：', err);
+    console.error('Component：', vm);
+    console.error('Error Info：', info);
+};
+Vue.config.warnHandler = function (msg, vm, trace) {
+    console.warn('Vue Warning：', msg);
+    console.warn('Component：', vm);
+    console.warn('Trace：', trace);
+};
+
 // #region | localization
 Vue.use(VueI18n, { bridge: true });
 const i18n = createI18n(
