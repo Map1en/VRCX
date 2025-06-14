@@ -81,6 +81,10 @@ import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 // dialogs
 import Location from './components/Location.vue';
 import NavMenu from './components/NavMenu.vue';
+import SettingsTab from './views/Settings/Settings.vue';
+import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
+import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
+import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 
 // components
 import SimpleSwitch from './components/SimpleSwitch.vue';
@@ -289,7 +293,7 @@ let $app = {
         FriendListTab,
         ChartsTab,
         ProfileTab,
-        SettingsTab: () => import('./views/Settings/Settings.vue'),
+        SettingsTab,
         Sidebar,
 
         // components
@@ -299,12 +303,9 @@ let $app = {
         // - dialogs
         PreviousInstancesInfoDialog,
         UserDialog,
-        WorldDialog: () =>
-            import('./components/dialogs/WorldDialog/WorldDialog.vue'),
-        GroupDialog: () =>
-            import('./components/dialogs/GroupDialog/GroupDialog.vue'),
-        AvatarDialog: () =>
-            import('./components/dialogs/AvatarDialog/AvatarDialog.vue'),
+        WorldDialog,
+        GroupDialog,
+        AvatarDialog,
         FriendImportDialog,
         WorldImportDialog,
         AvatarImportDialog,
