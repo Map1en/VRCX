@@ -1,7 +1,12 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { groupRequest, instanceRequest, userRequest } from '../api';
+import {
+    groupRequest,
+    instanceRequest,
+    userRequest,
+    worldRequest
+} from '../api';
 import { $t, API, $app } from '../app';
 import configRepository from '../service/config';
 import {
@@ -629,6 +634,120 @@ export const useGroupStore = defineStore('Group', () => {
         }
     }
 
+    /**
+     * aka: `API.getAllGroupPosts`
+     * @param {{ groupId: string }} params
+     * @return { Promise<{json: any, params}> }
+     */
+    async function getAllGroupPosts(params) {
+        let posts = [];
+        let offset = 0;
+        const n = 100;
+        let total = 0;
+        do {
+            var args = await groupRequest.getGroupPosts({
+                groupId: params.groupId,
+                n,
+                offset
+            });
+            posts = posts.concat(args.json.posts);
+            total = args.json.total;
+            offset += n;
+        } while (offset < total);
+        const returnArgs = {
+            posts,
+            params
+        };
+        // API.$on('GROUP:POSTS:ALL')
+        const D = state.groupDialog;
+        if (D.id === args.params.groupId) {
+            for (const post of args.posts) {
+                post.title = replaceBioSymbols(post.title);
+                post.text = replaceBioSymbols(post.text);
+            }
+            if (args.posts.length > 0) {
+                D.announcement = args.posts[0];
+            }
+            D.posts = args.posts;
+            $app.updateGroupPostSearch();
+        }
+
+        return returnArgs;
+    }
+
+    function getGroupDialogGroup(groupId) {
+        const D = state.groupDialog;
+        D.isGetGroupDialogGroupLoading = false;
+        return groupRequest
+            .getGroup({ groupId, includeRoles: true })
+            .catch((err) => {
+                throw err;
+            })
+            .then((args1) => {
+                if (D.id === args1.ref.id) {
+                    D.ref = args1.ref;
+                    D.inGroup = args1.ref.membershipStatus === 'member';
+                    for (const role of args1.ref.roles) {
+                        if (
+                            D.ref &&
+                            D.ref.myMember &&
+                            Array.isArray(D.ref.myMember.roleIds) &&
+                            D.ref.myMember.roleIds.includes(role.id)
+                        ) {
+                            D.memberRoles.push(role);
+                        }
+                    }
+                    getAllGroupPosts({
+                        groupId
+                    });
+                    D.isGetGroupDialogGroupLoading = true;
+                    if (D.inGroup) {
+                        groupRequest
+                            .getGroupInstances({
+                                groupId
+                            })
+                            .then((args) => {
+                                // API.$on('GROUP:INSTANCES', function (args) {
+                                if (
+                                    state.groupDialog.id === args.params.groupId
+                                ) {
+                                    applyGroupDialogInstances(
+                                        args.json.instances
+                                    );
+                                }
+                                // });
+
+                                // API.$on('GROUP:INSTANCES', function (args) {
+                                for (const json of args.json.instances) {
+                                    this.$emit('INSTANCE', {
+                                        json,
+                                        params: {
+                                            fetchedAt: args.json.fetchedAt
+                                        }
+                                    });
+                                    worldRequest
+                                        .getCachedWorld({
+                                            worldId: json.world.id
+                                        })
+                                        .then((args1) => {
+                                            json.world = args1.ref;
+                                            return args1;
+                                        });
+                                    // get queue size etc
+                                    instanceRequest.getInstance({
+                                        worldId: json.worldId,
+                                        instanceId: json.instanceId
+                                    });
+                                }
+                                // });
+                            });
+                    }
+                }
+                $app.$nextTick(() => (D.isGetGroupDialogGroupLoading = false));
+                return args1;
+            });
+    }
+
     return {
         state,
         groupDialog,
@@ -639,6 +758,7 @@ export const useGroupStore = defineStore('Group', () => {
         applyGroup,
         applyGroupDialogInstances,
         saveCurrentUserGroups,
-        applyPresenceGroups
+        applyPresenceGroups,
+        getGroupDialogGroup
     };
 });

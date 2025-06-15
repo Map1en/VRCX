@@ -1200,6 +1200,7 @@
     const { showUserDialog } = userStore;
     const groupStore = useGroupStore();
     const { groupDialog, inviteGroupDialog } = storeToRefs(groupStore);
+    const { getGroupDialogGroup } = groupStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -1766,9 +1767,6 @@
     function updateGroupDialogData(obj) {
         // Be careful with the deep merge
         emit('update:group-dialog', obj);
-    }
-    function getGroupDialogGroup(groupId) {
-        emit('get-group-dialog-group', groupId);
     }
     function updateGroupPostSearch() {
         emit('updateGroupPostSearch');

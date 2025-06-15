@@ -476,7 +476,7 @@ export default function init() {
                     $app.store.group.groupDialog.visible &&
                     $app.store.group.groupDialog.id === groupId
                 ) {
-                    $app.getGroupDialogGroup(groupId);
+                    $app.store.group.getGroupDialogGroup(groupId);
                 }
                 this.$emit('GROUP:MEMBER', {
                     json: member,

@@ -130,48 +130,6 @@ export default function init(app) {
         }
     });
 
-    /**
-     * @param {{ groupId: string }} params
-     * @return { Promise<{json: any, params}> }
-     */
-    API.getAllGroupPosts = async function (params) {
-        var posts = [];
-        var offset = 0;
-        var n = 100;
-        var total = 0;
-        do {
-            var args = await groupRequest.getGroupPosts({
-                groupId: params.groupId,
-                n,
-                offset
-            });
-            posts = posts.concat(args.json.posts);
-            total = args.json.total;
-            offset += n;
-        } while (offset < total);
-        var returnArgs = {
-            posts,
-            params
-        };
-        this.$emit('GROUP:POSTS:ALL', returnArgs);
-        return returnArgs;
-    };
-
-    API.$on('GROUP:POSTS:ALL', function (args) {
-        var D = $app.store.group.groupDialog;
-        if (D.id === args.params.groupId) {
-            for (var post of args.posts) {
-                post.title = replaceBioSymbols(post.title);
-                post.text = replaceBioSymbols(post.text);
-            }
-            if (args.posts.length > 0) {
-                D.announcement = args.posts[0];
-            }
-            D.posts = args.posts;
-            $app.updateGroupPostSearch();
-        }
-    });
-
     API.$on('GROUP:POST', function (args) {
         var D = $app.store.group.groupDialog;
         if (D.id !== args.params.groupId) {
@@ -473,82 +431,6 @@ export default function init(app) {
             this.store.group.saveCurrentUserGroups();
         },
 
-        getGroupDialogGroup(groupId) {
-            const D = this.store.group.groupDialog;
-            D.isGetGroupDialogGroupLoading = false;
-            return groupRequest
-                .getGroup({ groupId, includeRoles: true })
-                .catch((err) => {
-                    throw err;
-                })
-                .then((args1) => {
-                    if (D.id === args1.ref.id) {
-                        D.ref = args1.ref;
-                        D.inGroup = args1.ref.membershipStatus === 'member';
-                        for (var role of args1.ref.roles) {
-                            if (
-                                D.ref &&
-                                D.ref.myMember &&
-                                Array.isArray(D.ref.myMember.roleIds) &&
-                                D.ref.myMember.roleIds.includes(role.id)
-                            ) {
-                                D.memberRoles.push(role);
-                            }
-                        }
-                        API.getAllGroupPosts({
-                            groupId
-                        });
-                        D.isGetGroupDialogGroupLoading = true;
-                        if (D.inGroup) {
-                            groupRequest
-                                .getGroupInstances({
-                                    groupId
-                                })
-                                .then((args) => {
-                                    // API.$on('GROUP:INSTANCES', function (args) {
-                                    if (
-                                        this.store.group.groupDialog.id ===
-                                        args.params.groupId
-                                    ) {
-                                        this.store.group.applyGroupDialogInstances(
-                                            args.json.instances
-                                        );
-                                    }
-                                    // });
-
-                                    // API.$on('GROUP:INSTANCES', function (args) {
-                                    for (const json of args.json.instances) {
-                                        this.$emit('INSTANCE', {
-                                            json,
-                                            params: {
-                                                fetchedAt: args.json.fetchedAt
-                                            }
-                                        });
-                                        worldRequest
-                                            .getCachedWorld({
-                                                worldId: json.world.id
-                                            })
-                                            .then((args1) => {
-                                                json.world = args1.ref;
-                                                return args1;
-                                            });
-                                        // get queue size etc
-                                        instanceRequest.getInstance({
-                                            worldId: json.worldId,
-                                            instanceId: json.instanceId
-                                        });
-                                    }
-                                    // });
-                                });
-                        }
-                    }
-                    this.$nextTick(
-                        () => (D.isGetGroupDialogGroupLoading = false)
-                    );
-                    return args1;
-                });
-        },
-
         groupDialogCommand(command) {
             const D = this.store.group.groupDialog;
             if (D.visible === false) {
@@ -609,7 +491,9 @@ export default function init(app) {
                                     ) {
                                         this.store.group.groupDialog.inGroup =
                                             false;
-                                        this.getGroupDialogGroup(groupId);
+                                        this.store.group.getGroupDialogGroup(
+                                            groupId
+                                        );
                                     }
                                     if (
                                         this.store.user.userDialog.visible &&
