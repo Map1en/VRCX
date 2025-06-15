@@ -5,14 +5,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const { EsbuildPlugin } = require('esbuild-loader');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const scssBasePath = './src/assets/scss/';
 const themeBasePath = `${scssBasePath}themes/`;
 
 module.exports = {
     entry: {
-        vendor: ['vue'],
+        vendor: ['element-ui', 'noty', 'vue', 'vue-i18n', 'worker-timers'],
         app: {
             import: ['./src/app.js', './src/app.scss'],
             dependOn: 'vendor'
@@ -33,8 +32,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'build/html'),
         filename: '[name].js',
-        library: {
-            type: 'window'
+        clean: {
+            dry: true
         }
     },
     module: {
@@ -52,7 +51,7 @@ module.exports = {
                 loader: 'esbuild-loader',
                 options: {
                     loader: 'js',
-                    target: 'esnext',
+                    target: 'es2022',
                     legalComments: 'inline'
                 }
             },
@@ -83,7 +82,7 @@ module.exports = {
         hints: false
     },
     devtool: 'inline-source-map',
-    target: ['web', 'es2020'],
+    target: ['web', 'es2022'],
     stats: {
         preset: 'errors-warnings',
         timings: true
@@ -106,14 +105,12 @@ module.exports = {
             filename: 'index.html',
             template: './src/static/index.html',
             inject: true,
-            scriptLoading: 'module',
             chunks: ['vendor', 'app', 'flags', 'animated-emoji']
         }),
         new HtmlWebpackPlugin({
             filename: 'vr.html',
             template: './src/static/vr.html',
             inject: true,
-            scriptLoading: 'module',
             chunks: ['vendor', 'vr', 'flags']
         }),
         new CopyPlugin({
@@ -125,13 +122,13 @@ module.exports = {
                 }
             ]
         }),
-        new webpack.ProgressPlugin({}),
-        new CleanWebpackPlugin()
+        new webpack.ProgressPlugin({})
     ],
     optimization: {
         minimizer: [
             new EsbuildPlugin({
-                target: 'es2020'
+                target: 'es2022',
+                css: true
             })
         ],
         splitChunks: {

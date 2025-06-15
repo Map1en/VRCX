@@ -26,7 +26,6 @@ import VueI18n from 'vue-i18n';
 import { createI18n } from 'vue-i18n-bridge';
 import VueLazyload from 'vue-lazyload';
 import * as workerTimers from 'worker-timers';
-import 'default-passive-events';
 import {
     avatarModerationRequest,
     avatarRequest,
