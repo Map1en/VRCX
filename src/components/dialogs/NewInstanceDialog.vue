@@ -542,7 +542,7 @@
             const friendStore = useFriendStore();
             const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
             const groupStore = useGroupStore();
-            const { currentUserGroups } = storeToRefs(groupStore);
+            const { currentUserGroups, cachedGroups } = storeToRefs(groupStore);
             return {
                 friends,
                 vipFriends,
@@ -550,6 +550,7 @@
                 activeFriends,
                 offlineFriends,
                 currentUserGroups,
+                cachedGroups,
                 API,
                 userStatusClass,
                 hasGroupPermission,
@@ -786,7 +787,7 @@
                 }
                 if (D.groupId && D.groupId !== D.lastSelectedGroupId) {
                     D.roleIds = [];
-                    const ref = this.API.cachedGroups.get(D.groupId);
+                    const ref = cachedGroups.value.get(D.groupId);
                     if (typeof ref !== 'undefined') {
                         D.groupRef = ref;
                         D.selectedGroupRoles = ref.roles;
@@ -861,7 +862,7 @@
                 }
                 if (D.groupId && D.groupId !== D.lastSelectedGroupId) {
                     D.roleIds = [];
-                    const ref = this.API.cachedGroups.get(D.groupId);
+                    const ref = cachedGroups.value.get(D.groupId);
                     if (typeof ref !== 'undefined') {
                         D.groupRef = ref;
                         D.selectedGroupRoles = ref.roles;

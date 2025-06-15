@@ -4,8 +4,6 @@ import configRepository from '../service/config.js';
 import { replaceBioSymbols } from '../shared/utils';
 
 export default function init(app) {
-    API.cachedGroups = new Map();
-
     API.$on('GROUP', function (args) {
         args.ref = $app.store.group.applyGroup(args.json);
     });
@@ -125,7 +123,7 @@ export default function init(app) {
         var json = args.json;
         for (var groupId in json) {
             var permissions = json[groupId];
-            var group = this.cachedGroups.get(groupId);
+            var group = $app.store.group.cachedGroups.get(groupId);
             if (group) {
                 group.myMember.permissions = permissions;
             }
@@ -231,7 +229,7 @@ export default function init(app) {
                     fetchedAt: args.json.fetchedAt
                 }
             });
-            const ref = this.cachedGroups.get(json.ownerId);
+            const ref = $app.store.group.cachedGroups.get(json.ownerId);
             if (typeof ref === 'undefined') {
                 if ($app.store.friend.friendLogInitStatus) {
                     groupRequest.getGroup({ groupId: json.ownerId });
@@ -251,7 +249,7 @@ export default function init(app) {
      */
     API.getCachedGroup = function (params) {
         return new Promise((resolve, reject) => {
-            var ref = this.cachedGroups.get(params.groupId);
+            var ref = $app.store.group.cachedGroups.get(params.groupId);
             if (typeof ref === 'undefined') {
                 groupRequest.getGroup(params).catch(reject).then(resolve);
             } else {
@@ -282,7 +280,7 @@ export default function init(app) {
         }
         // update myMember without fetching member
         if (json?.userId === this.currentUser.id) {
-            var ref = this.cachedGroups.get(json.groupId);
+            var ref = $app.store.group.cachedGroups.get(json.groupId);
             if (typeof ref !== 'undefined') {
                 this.$emit('GROUP', {
                     json: {
@@ -408,7 +406,7 @@ export default function init(app) {
                     '[]'
                 )
             );
-            API.cachedGroups.clear();
+            $app.store.group.cachedGroups.clear();
             $app.store.group.currentUserGroups.clear();
             for (var group of savedGroups) {
                 var json = {
@@ -427,7 +425,7 @@ export default function init(app) {
 
             if (groups) {
                 const promises = groups.map(async (groupId) => {
-                    const groupRef = API.cachedGroups.get(groupId);
+                    const groupRef = $app.store.group.cachedGroups.get(groupId);
 
                     if (
                         typeof groupRef !== 'undefined' &&

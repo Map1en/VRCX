@@ -1678,7 +1678,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.group_cache') }}
-                            <span v-text="API.cachedGroups.size"></span
+                            <span v-text="cachedGroups.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1845,6 +1845,7 @@
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
     import { API } from '../../app';
+    import { useGroupStore } from '../../stores/group';
 
     const { messages, t } = useI18n();
 
@@ -1868,6 +1869,9 @@
 
     const favoriteStore = useFavoriteStore();
     const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+
+    const groupStore = useGroupStore();
+    const { cachedGroups } = storeToRefs(groupStore);
 
     const {
         isStartAtWindowsStartup,

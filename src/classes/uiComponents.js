@@ -297,7 +297,7 @@ export default function init() {
                 } else if (this.instance?.ownerId?.startsWith('grp_')) {
                     // check group perms
                     const groupId = this.instance.ownerId;
-                    const group = API.cachedGroups.get(groupId);
+                    const group = $app.store.group.cachedGroups.get(groupId);
                     this.canCloseInstance = hasGroupPermission(
                         group,
                         'group-instance-moderate'

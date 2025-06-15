@@ -111,7 +111,7 @@ export default function init(app) {
                         );
                         let groupName = '';
                         if (ref.$location.groupId) {
-                            const groupRef = API.cachedGroups.get(
+                            const groupRef = $app.store.group.cachedGroups.get(
                                 ref.$location.groupId
                             );
                             if (typeof groupRef !== 'undefined') {

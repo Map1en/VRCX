@@ -6700,9 +6700,9 @@ $app.methods.clearVRCXCache = function () {
             API.cachedAvatars.delete(id);
         }
     });
-    API.cachedGroups.forEach((ref, id) => {
+    $app.store.group.cachedGroups.forEach((ref, id) => {
         if (!$app.store.group.currentUserGroups.has(id)) {
-            API.cachedGroups.delete(id);
+            $app.store.group.cachedGroups.delete(id);
         }
     });
     API.cachedInstances.forEach((ref, id) => {
@@ -7509,7 +7509,7 @@ $app.methods.instanceQueueReady = function (instanceId) {
         API.queuedInstances.delete(instanceId);
     }
     const L = parseLocation(instanceId);
-    const group = API.cachedGroups.get(L.groupId);
+    const group = $app.store.group.cachedGroups.get(L.groupId);
     const groupName = group?.name ?? '';
     const worldName = ref?.$worldName ?? '';
     const location = displayLocation(instanceId, worldName, groupName);

@@ -357,6 +357,7 @@
     const { showWorldDialog } = worldStore;
     const groupStore = useGroupStore();
     const { showGroupDialog } = groupStore;
+    const { cachedGroups } = storeToRefs(groupStore);
 
     const { t } = useI18n();
 
@@ -709,7 +710,7 @@
                 // });
                 const map = new Map();
                 for (const json of args.json) {
-                    const ref = API.cachedGroups.get(json.id);
+                    const ref = cachedGroups.value.get(json.id);
                     if (typeof ref !== 'undefined') {
                         map.set(ref.id, ref);
                     }

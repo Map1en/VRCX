@@ -59,7 +59,8 @@ export const useGroupStore = defineStore('Group', () => {
             userId: '',
             userIds: [],
             userObject: {}
-        }
+        },
+        cachedGroups: new Map()
     });
 
     const groupDialog = computed({
@@ -80,6 +81,13 @@ export const useGroupStore = defineStore('Group', () => {
         get: () => state.inviteGroupDialog,
         set: (value) => {
             state.inviteGroupDialog = value;
+        }
+    });
+
+    const cachedGroups = computed({
+        get: () => state.cachedGroups,
+        set: (value) => {
+            state.cachedGroups = value;
         }
     });
 
@@ -142,7 +150,7 @@ export const useGroupStore = defineStore('Group', () => {
      * @returns {object} ref
      */
     function applyGroup(json) {
-        let ref = API.cachedGroups.get(json.id);
+        let ref = state.cachedGroups.get(json.id);
         json.rules = replaceBioSymbols(json.rules);
         json.name = replaceBioSymbols(json.name);
         json.description = replaceBioSymbols(json.description);
@@ -204,7 +212,7 @@ export const useGroupStore = defineStore('Group', () => {
                 $languages: [],
                 ...json
             };
-            API.cachedGroups.set(ref.id, ref);
+            state.cachedGroups.set(ref.id, ref);
         } else {
             if (state.currentUserGroups.has(ref.id)) {
                 // compare group props
@@ -626,6 +634,7 @@ export const useGroupStore = defineStore('Group', () => {
         groupDialog,
         currentUserGroups,
         inviteGroupDialog,
+        cachedGroups,
         showGroupDialog,
         applyGroup,
         applyGroupDialogInstances,
