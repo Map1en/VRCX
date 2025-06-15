@@ -139,7 +139,8 @@ import {
     getWorldMemo,
     migrateMemos,
     isRpcWorld,
-    getBundleDateSize
+    getBundleDateSize,
+    checkCanInvite
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { updateTrustColorClasses } from './shared/utils';
@@ -3551,7 +3552,7 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
     ) {
         return;
     }
-    if (!$app.checkCanInvite(currentLocation)) {
+    if (!checkCanInvite(currentLocation)) {
         return;
     }
 
@@ -6262,18 +6263,6 @@ $app.methods.getVRChatCacheSize = async function () {
     this.VRChatCacheSizeLoading = false;
 };
 
-// Parse User URL
-
-$app.methods.parseUserUrl = function (user) {
-    const url = new URL(user);
-    const urlPath = url.pathname;
-    if (urlPath.substring(5, 11) === '/user/') {
-        const userId = urlPath.substring(11);
-        return userId;
-    }
-    return void 0;
-};
-
 // userDialog Groups
 
 $app.data.inGameGroupOrder = [];
@@ -6595,60 +6584,6 @@ API.$on('EMOJI:ADD', function (args) {
 
 // #endregion
 // #region Misc
-
-$app.methods.checkCanInvite = function (location) {
-    const L = parseLocation(location);
-    const instance = API.cachedInstances.get(location);
-    if (instance?.closedAt) {
-        return false;
-    }
-    if (
-        L.accessType === 'public' ||
-        L.accessType === 'group' ||
-        L.userId === API.currentUser.id
-    ) {
-        return true;
-    }
-    if (L.accessType === 'invite' || L.accessType === 'friends') {
-        return false;
-    }
-    if (this.lastLocation.location === location) {
-        return true;
-    }
-    return false;
-};
-
-$app.methods.checkCanInviteSelf = function (location) {
-    const L = parseLocation(location);
-    const instance = API.cachedInstances.get(location);
-    if (instance?.closedAt) {
-        return false;
-    }
-    if (L.userId === API.currentUser.id) {
-        return true;
-    }
-    if (
-        L.accessType === 'friends' &&
-        !this.store.friend.friends.has(L.userId)
-    ) {
-        return false;
-    }
-    return true;
-};
-
-//
-// $app.methods.userImageFull = function (user) {
-//     if (
-//         this.store.appearanceSettings.displayVRCPlusIconsAsAvatar &&
-//         user.userIcon
-//     ) {
-//         return user.userIcon;
-//     }
-//     if (user.profilePicOverride) {
-//         return user.profilePicOverride;
-//     }
-//     return user.currentAvatarImageUrl;
-// };
 
 $app.methods.showConsole = function () {
     AppApi.ShowDevTools();
@@ -8056,7 +7991,6 @@ $app.computed.notificationTabBind = function () {
         isGameRunning: this.isGameRunning,
         inviteResponseMessageTable: this.inviteResponseMessageTable,
         uploadImage: this.uploadImage,
-        checkCanInvite: this.checkCanInvite,
         inviteRequestResponseMessageTable:
             this.inviteRequestResponseMessageTable
     };

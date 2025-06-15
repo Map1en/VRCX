@@ -213,6 +213,21 @@ function userImageFull(user) {
     return user.currentAvatarImageUrl;
 }
 
+/**
+ *
+ * @param {string} user
+ * @returns {*|string}
+ */
+function parseUserUrl(user) {
+    const url = new URL(user);
+    const urlPath = url.pathname;
+    if (urlPath.substring(5, 11) === '/user/') {
+        const userId = urlPath.substring(11);
+        return userId;
+    }
+    return void 0;
+}
+
 export {
     userOnlineForTimestamp,
     languageClass,
@@ -221,5 +236,6 @@ export {
     userStatusClass,
     statusClass,
     userImage,
-    userImageFull
+    userImageFull,
+    parseUserUrl
 };

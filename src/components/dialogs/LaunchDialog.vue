@@ -89,7 +89,7 @@
     import { storeToRefs } from 'pinia';
     import { instanceRequest, worldRequest } from '../../api';
     import configRepository from '../../service/config';
-    import { getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
+    import { getLaunchURL, isRealInstance, parseLocation, checkCanInvite } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
@@ -100,10 +100,6 @@
         inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             launchDialogData: { type: Object, required: true },
-            checkCanInvite: {
-                type: Function,
-                required: true
-            },
             inviteMessageTable: {
                 type: Object,
                 default: () => ({})
@@ -126,7 +122,8 @@
                 hideTooltips,
                 vipFriends,
                 onlineFriends,
-                activeFriends
+                activeFriends,
+                checkCanInvite
             };
         },
         data() {

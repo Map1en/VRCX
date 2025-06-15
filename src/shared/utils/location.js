@@ -1,3 +1,5 @@
+import API from '../../classes/apiInit';
+
 function displayLocation(location, worldName, groupName) {
     let text = worldName;
     const L = parseLocation(location);
@@ -129,4 +131,44 @@ function parseLocation(tag) {
     return ctx;
 }
 
-export { parseLocation, displayLocation };
+function checkCanInvite(location) {
+    const L = parseLocation(location);
+    const instance = API.cachedInstances.get(location);
+    if (instance?.closedAt) {
+        return false;
+    }
+    if (
+        L.accessType === 'public' ||
+        L.accessType === 'group' ||
+        L.userId === API.currentUser.id
+    ) {
+        return true;
+    }
+    if (L.accessType === 'invite' || L.accessType === 'friends') {
+        return false;
+    }
+    if (this.lastLocation.location === location) {
+        return true;
+    }
+    return false;
+}
+
+function checkCanInviteSelf(location) {
+    const L = parseLocation(location);
+    const instance = API.cachedInstances.get(location);
+    if (instance?.closedAt) {
+        return false;
+    }
+    if (L.userId === API.currentUser.id) {
+        return true;
+    }
+    if (
+        L.accessType === 'friends' &&
+        !this.store.friend.friends.has(L.userId)
+    ) {
+        return false;
+    }
+    return true;
+}
+
+export { parseLocation, displayLocation, checkCanInvite, checkCanInviteSelf };

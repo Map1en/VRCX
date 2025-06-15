@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { instanceRequest, userRequest } from '../api';
 import { $app, API } from '../app.js';
 import {
+    checkCanInviteSelf,
     getGroupName,
     hasGroupPermission,
     parseLocation
@@ -23,7 +24,7 @@ export default function init() {
         },
         methods: {
             parse() {
-                this.$el.style.display = $app.checkCanInviteSelf(this.location)
+                this.$el.style.display = checkCanInviteSelf(this.location)
                     ? ''
                     : 'none';
             },
@@ -50,7 +51,7 @@ export default function init() {
         },
         methods: {
             parse() {
-                this.$el.style.display = $app.checkCanInviteSelf(this.location)
+                this.$el.style.display = checkCanInviteSelf(this.location)
                     ? ''
                     : 'none';
             },

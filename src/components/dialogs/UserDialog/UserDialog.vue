@@ -1846,7 +1846,8 @@
         timeToText,
         userImage,
         userOnlineForTimestamp,
-        userStatusClass
+        userStatusClass,
+        checkCanInvite
     } from '../../../shared/utils';
     import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
@@ -1913,10 +1914,6 @@
         isGameRunning: {
             type: Boolean,
             default: false
-        },
-        checkCanInvite: {
-            type: Function,
-            default: () => {}
         },
         updateInstanceInfo: {
             type: Number,

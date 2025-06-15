@@ -422,7 +422,7 @@
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { friendRequest, inviteMessagesRequest, notificationRequest, worldRequest } from '../../api';
-    import { parseLocation, convertFileUrlToImageUrl, removeFromArray } from '../../shared/utils';
+    import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
@@ -476,10 +476,6 @@
         isGameRunning: {
             type: Boolean,
             default: false
-        },
-        checkCanInvite: {
-            type: Function,
-            default: () => true
         },
         inviteRequestResponseMessageTable: {
             type: Object,

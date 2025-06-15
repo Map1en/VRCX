@@ -500,7 +500,7 @@
     import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, miscRequest, userRequest } from '../../api';
-    import { parseAvatarUrl, buildTreeData, openExternalLink, userImage } from '../../shared/utils';
+    import { parseAvatarUrl, buildTreeData, openExternalLink, userImage, parseUserUrl } from '../../shared/utils';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
@@ -637,7 +637,7 @@
                 if (action === 'confirm' && instance.inputValue) {
                     const testUrl = instance.inputValue.substring(0, 15);
                     if (testUrl === 'https://vrchat.') {
-                        const userId = this.parseUserUrl(instance.inputValue);
+                        const userId = parseUserUrl(instance.inputValue);
                         if (userId) {
                             showUserDialog(userId);
                         } else {
