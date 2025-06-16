@@ -18,6 +18,7 @@ import {
 } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
+import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useFavoriteStore } from './favorite';
 
@@ -36,6 +37,9 @@ export const useUserStore = defineStore('User', () => {
         trustColor: appearanceSettingsTrustColor,
         hideUnfriends
     } = storeToRefs(appearanceSettingsStore);
+
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
 
     const state = reactive({
         userDialog: {
@@ -306,9 +310,9 @@ export const useUserStore = defineStore('User', () => {
                 //
                 ...json
             };
-            if ($app.lastLocation.playerList.has(json.id)) {
+            if (lastLocation.value.playerList.has(json.id)) {
                 // update $location_at from instance join time
-                const player = $app.lastLocation.playerList.get(json.id);
+                const player = lastLocation.value.playerList.get(json.id);
                 ref.$location_at = player.joinTime;
                 ref.$online_for = player.joinTime;
             }
@@ -597,7 +601,7 @@ export const useUserStore = defineStore('User', () => {
                             userRequest.getUser(args.params);
                         }
                         let inCurrentWorld = false;
-                        if ($app.lastLocation.playerList.has(D.ref.id)) {
+                        if (lastLocation.value.playerList.has(D.ref.id)) {
                             inCurrentWorld = true;
                         }
                         if (userId !== API.currentUser.id) {

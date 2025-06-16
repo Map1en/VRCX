@@ -280,9 +280,12 @@ export default function init() {
                 }
                 this.isHardClosed = this.instance.hardClose === true;
                 this.occupants = this.instance.userCount;
-                if (this.location === $app.lastLocation.location) {
+                if (
+                    this.location === $app.store.location.lastLocation.location
+                ) {
                     // use gameLog for occupants when in same location
-                    this.occupants = $app.lastLocation.playerList.size;
+                    this.occupants =
+                        $app.store.location.lastLocation.playerList.size;
                 }
                 this.capacity = this.instance.capacity;
                 this.gameServerVersion = this.instance.gameServerVersion;

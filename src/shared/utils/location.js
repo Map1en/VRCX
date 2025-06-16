@@ -1,4 +1,6 @@
+import { storeToRefs } from 'pinia';
 import { $app, API } from '../../app';
+import { useLocationStore } from '../../stores/location';
 
 function displayLocation(location, worldName, groupName) {
     let text = worldName;
@@ -132,6 +134,8 @@ function parseLocation(tag) {
 }
 
 function checkCanInvite(location) {
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
     const L = parseLocation(location);
     const instance = API.cachedInstances.get(location);
     if (instance?.closedAt) {
@@ -147,7 +151,7 @@ function checkCanInvite(location) {
     if (L.accessType === 'invite' || L.accessType === 'friends') {
         return false;
     }
-    if ($app.lastLocation.location === location) {
+    if (lastLocation.value.location === location) {
         return true;
     }
     return false;

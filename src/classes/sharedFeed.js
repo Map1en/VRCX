@@ -95,9 +95,12 @@ export default function init(app) {
                         (this.store.notificationsSettings.sharedFeedFilters
                             .wrist.OnPlayerJoining === 'VIP' &&
                             isFavorite)) &&
-                    !$app.lastLocation.playerList.has(ref.id)
+                    !$app.store.location.lastLocation.playerList.has(ref.id)
                 ) {
-                    if (ref.$location.tag === $app.lastLocation.location) {
+                    if (
+                        ref.$location.tag ===
+                        $app.store.location.lastLocation.location
+                    ) {
                         var feedEntry = {
                             ...ref,
                             isFavorite,

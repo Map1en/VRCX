@@ -64,7 +64,7 @@ export default function init(app) {
                             location: gameLog.location
                         });
                         this.lastLocationReset(gameLog.dt);
-                        this.lastLocation.location = 'traveling';
+                        this.store.location.lastLocation.location = 'traveling';
                         this.lastLocationDestination = gameLog.location;
                         this.lastLocationDestinationTime = Date.parse(
                             gameLog.dt
@@ -80,14 +80,14 @@ export default function init(app) {
                     break;
                 case 'location':
                     this.addInstanceJoinHistory(
-                        this.lastLocation.location,
+                        this.store.location.lastLocation.location,
                         gameLog.dt
                     );
                     var worldName = replaceBioSymbols(gameLog.worldName);
                     if (this.isGameRunning) {
                         this.lastLocationReset(gameLog.dt);
                         this.clearNowPlaying();
-                        this.lastLocation = {
+                        this.store.location.lastLocation = {
                             date: Date.parse(gameLog.dt),
                             location: gameLog.location,
                             name: worldName,
@@ -126,18 +126,25 @@ export default function init(app) {
                         joinTime,
                         lastAvatar: ''
                     };
-                    this.lastLocation.playerList.set(userId, userMap);
+                    this.store.location.lastLocation.playerList.set(
+                        userId,
+                        userMap
+                    );
                     var ref = API.cachedUsers.get(userId);
                     if (!userId) {
                         console.error('Missing userId:', gameLog.displayName);
                     } else if (userId === API.currentUser.id) {
                         // skip
                     } else if (this.store.friend.friends.has(userId)) {
-                        this.lastLocation.friendList.set(userId, userMap);
+                        this.store.location.lastLocation.friendList.set(
+                            userId,
+                            userMap
+                        );
                         if (
-                            ref.location !== this.lastLocation.location &&
+                            ref.location !==
+                                this.store.location.lastLocation.location &&
                             ref.travelingToLocation !==
-                                this.lastLocation.location
+                                this.store.location.lastLocation.location
                         ) {
                             // fix $location_at with private
                             ref.$location_at = joinTime;
@@ -167,7 +174,8 @@ export default function init(app) {
                     database.addGamelogJoinLeaveToDatabase(entry);
                     break;
                 case 'player-left':
-                    var ref = this.lastLocation.playerList.get(userId);
+                    var ref =
+                        this.store.location.lastLocation.playerList.get(userId);
                     if (typeof ref === 'undefined') {
                         break;
                     }
@@ -187,8 +195,8 @@ export default function init(app) {
                         }
                     }
                     var time = dayjs(gameLog.dt) - ref.joinTime;
-                    this.lastLocation.playerList.delete(userId);
-                    this.lastLocation.friendList.delete(userId);
+                    this.store.location.lastLocation.playerList.delete(userId);
+                    this.store.location.lastLocation.friendList.delete(userId);
                     this.photonLobbyAvatars.delete(userId);
                     this.updateVRLastLocation();
                     this.getCurrentInstanceUserList();
@@ -302,7 +310,8 @@ export default function init(app) {
                     }
                     break;
                 case 'avatar-change':
-                    var ref = this.lastLocation.playerList.get(userId);
+                    var ref =
+                        this.store.location.lastLocation.playerList.get(userId);
                     if (
                         this.store.photon.photonLoggingEnabled ||
                         typeof ref === 'undefined' ||
@@ -312,11 +321,17 @@ export default function init(app) {
                     }
                     if (!ref.lastAvatar) {
                         ref.lastAvatar = gameLog.avatarName;
-                        this.lastLocation.playerList.set(userId, ref);
+                        this.store.location.lastLocation.playerList.set(
+                            userId,
+                            ref
+                        );
                         break;
                     }
                     ref.lastAvatar = gameLog.avatarName;
-                    this.lastLocation.playerList.set(userId, ref);
+                    this.store.location.lastLocation.playerList.set(
+                        userId,
+                        ref
+                    );
                     var entry = {
                         created_at: gameLog.dt,
                         type: 'AvatarChange',
@@ -994,7 +1009,10 @@ export default function init(app) {
             ) {
                 console.log('gameLog:', gameLog);
             }
-            this.addGameLogEntry(gameLog, this.lastLocation.location);
+            this.addGameLogEntry(
+                gameLog,
+                this.store.location.lastLocation.location
+            );
         },
 
         gameLogSearch(row) {

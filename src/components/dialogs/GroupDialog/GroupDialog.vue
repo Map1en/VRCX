@@ -1184,6 +1184,7 @@
         userImage
     } from '../../../shared/utils';
     import { useGroupStore } from '../../../stores/group';
+    import { useLocationStore } from '../../../stores/location';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
@@ -1201,6 +1202,8 @@
     const groupStore = useGroupStore();
     const { groupDialog, inviteGroupDialog } = storeToRefs(groupStore);
     const { getGroupDialogGroup } = groupStore;
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -1208,10 +1211,6 @@
     const $message = instance.proxy.$message;
 
     defineProps({
-        lastLocation: {
-            type: Object,
-            required: true
-        },
         updateInstanceInfo: {
             type: Number,
             required: true

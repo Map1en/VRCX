@@ -11,8 +11,11 @@ import {
     replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
+import { useLocationStore } from './location';
 
 export const useWorldStore = defineStore('World', () => {
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
     const state = reactive({
         worldDialog: {
             visible: false,
@@ -94,7 +97,7 @@ export const useWorldStore = defineStore('World', () => {
         D.isIos = false;
         D.hasPersistData = false;
         D.memo = '';
-        const LL = parseLocation($app.lastLocation.location);
+        const LL = parseLocation(lastLocation.value.location);
         let currentWorldMatch = false;
         if (LL.worldId === D.id) {
             currentWorldMatch = true;

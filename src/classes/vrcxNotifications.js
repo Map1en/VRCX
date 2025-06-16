@@ -19,7 +19,7 @@ export default function init(app) {
                 noty.type === 'BlockedOnPlayerJoined' ||
                 noty.type === 'MutedOnPlayerJoined'
             ) {
-                var bias = this.lastLocation.date + 30 * 1000; // 30 secs
+                var bias = this.store.location.lastLocation.date + 30 * 1000; // 30 secs
                 if (Date.parse(noty.created_at) <= bias) {
                     return;
                 }

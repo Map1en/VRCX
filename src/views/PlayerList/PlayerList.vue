@@ -848,6 +848,7 @@
         userImageFull
     } from '../../shared/utils';
     import configRepository from '../../service/config';
+    import { useLocationStore } from '../../stores/location';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { usePhotonStore } from '../../stores/photon';
@@ -870,6 +871,8 @@
     const { showWorldDialog } = worldStore;
     const groupStore = useGroupStore;
     const { showGroupDialog } = groupStore;
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
 
     const { t } = useI18n();
 
@@ -923,10 +926,6 @@
         },
         chatboxUserBlacklist: {
             type: Map
-        },
-        lastLocation: {
-            type: Object,
-            default: () => ({})
         }
     });
 

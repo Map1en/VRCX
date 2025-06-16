@@ -84,9 +84,11 @@ export default function init() {
         args.ref = this.applyCurrentUser(json);
 
         // when isGameRunning use gameLog instead of API
-        var $location = parseLocation($app.lastLocation.location);
+        var $location = parseLocation(
+            $app.store.location.lastLocation.location
+        );
         var $travelingLocation = parseLocation($app.lastLocationDestination);
-        var location = $app.lastLocation.location;
+        var location = $app.store.location.lastLocation.location;
         var instanceId = $location.instanceId;
         var worldId = $location.worldId;
         var travelingToLocation = $app.lastLocationDestination;

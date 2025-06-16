@@ -785,6 +785,7 @@
         userImage,
         userStatusClass
     } from '../../../shared/utils';
+    import { useLocationStore } from '../../../stores/location';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import { useWorldStore } from '../../../stores/world';
@@ -815,7 +816,6 @@
         props: {
             shiftHeld: Boolean,
             isGameRunning: Boolean,
-            lastLocation: Object,
             instanceJoinHistory: Map,
 
             createNewInstance: Function,
@@ -834,6 +834,8 @@
             const worldStore = useWorldStore();
             const { worldDialog, cachedWorlds } = storeToRefs(worldStore);
             const { showWorldDialog } = worldStore;
+            const locationStore = useLocationStore();
+            const { lastLocation } = storeToRefs(locationStore);
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -846,7 +848,8 @@
                 worldDialog,
                 userImage,
                 showWorldDialog,
-                cachedWorlds
+                cachedWorlds,
+                lastLocation
             };
         },
         data() {

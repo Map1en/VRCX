@@ -20,12 +20,10 @@ mixin dialogs
         :launchDialogData.sync='launchDialogData'
         :inviteMessageTable='inviteMessageTable'
         :uploadImage='uploadImage'
-        :lastLocation='lastLocation'
         @launchGame='launchGame')
 
     UserDialog(
         :languageDialog='languageDialog'
-        :lastLocation='lastLocation'
         :lastLocationDestination='lastLocationDestination'
         :isGameRunning='isGameRunning'
         :updateInstanceInfo='updateInstanceInfo'
@@ -71,7 +69,6 @@ mixin dialogs
     WorldDialog(
         :shiftHeld='shiftHeld'
         :isGameRunning='isGameRunning'
-        :lastLocation='lastLocation'
         :instanceJoinHistory='instanceJoinHistory'
         :updateInstanceInfo='updateInstanceInfo'
         :createNewInstance='createNewInstance'
@@ -83,7 +80,6 @@ mixin dialogs
         @worldDialogCommand='worldDialogCommand')
 
     GroupDialog(
-        :lastLocation='lastLocation'
         :updateInstanceInfo='updateInstanceInfo'
         :groupDialogSortingOptions='groupDialogSortingOptions'
         :groupDialogFilterOptions='groupDialogFilterOptions'

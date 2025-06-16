@@ -93,6 +93,7 @@
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
+    import { useLocationStore } from '../../stores/location';
 
     export default {
         name: 'LaunchDialog',
@@ -107,10 +108,6 @@
             uploadImage: {
                 type: String,
                 default: ''
-            },
-            lastLocation: {
-                type: Object,
-                default: () => ({})
             }
         },
         setup() {
@@ -118,12 +115,15 @@
             const friendStore = useFriendStore();
             const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+            const locationStore = useLocationStore();
+            const { lastLocation } = storeToRefs(locationStore);
             return {
                 hideTooltips,
                 vipFriends,
                 onlineFriends,
                 activeFriends,
-                checkCanInvite
+                checkCanInvite,
+                lastLocation
             };
         },
         data() {

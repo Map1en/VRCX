@@ -2,6 +2,7 @@ import { createPinia } from 'pinia';
 import { useAvatarStore } from './avatar';
 import { useFavoriteStore } from './favorite';
 import { useGroupStore } from './group';
+import { useLocationStore } from './location';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useDiscordPresenceSettingsStore } from './settings/discordPresence';
@@ -35,6 +36,7 @@ export function createGlobalStores() {
         vrcxUpdater: useVRCXUpdaterStore(),
         avatar: useAvatarStore(),
         world: useWorldStore(),
-        group: useGroupStore()
+        group: useGroupStore(),
+        location: useLocationStore()
     };
 }

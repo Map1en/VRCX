@@ -114,7 +114,10 @@ export default function init(app) {
             }
             var dtNow = Date.now();
             var bias2 = this.photonLastEvent7List + 1.5 * 1000;
-            if (dtNow > bias2 || this.lastLocation.playerList.size <= 1) {
+            if (
+                dtNow > bias2 ||
+                this.store.location.lastLocation.playerList.size <= 1
+            ) {
                 if (this.photonLobbyTimeout.length > 0) {
                     AppApi.ExecuteVrOverlayFunction('updateHudTimeout', '[]');
                 }
@@ -904,7 +907,7 @@ export default function init(app) {
                 created_at,
                 type: 'PortalSpawn',
                 displayName: ref.displayName,
-                location: this.lastLocation.location,
+                location: this.store.location.lastLocation.location,
                 userId: ref.id,
                 instanceId,
                 worldName
@@ -948,7 +951,7 @@ export default function init(app) {
                 created_at: gameLogDate,
                 type: 'PortalSpawn',
                 displayName: this.getDisplayName(userId),
-                location: this.lastLocation.location,
+                location: this.store.location.lastLocation.location,
                 userId,
                 instanceId: location,
                 worldName,
@@ -1044,11 +1047,12 @@ export default function init(app) {
                     }
                 } else if (
                     !ref.isFriend &&
-                    this.lastLocation.playerList.has(user.id)
+                    this.store.location.lastLocation.playerList.has(user.id)
                 ) {
-                    var { joinTime } = this.lastLocation.playerList.get(
-                        user.id
-                    );
+                    var { joinTime } =
+                        this.store.location.lastLocation.playerList.get(
+                            user.id
+                        );
                     if (!joinTime) {
                         joinTime = Date.parse(gameLogDate);
                     }

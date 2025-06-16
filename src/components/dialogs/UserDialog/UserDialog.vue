@@ -1851,6 +1851,7 @@
     } from '../../../shared/utils';
     import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useLocationStore } from '../../../stores/location';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -1891,6 +1892,8 @@
     const { showWorldDialog } = worldStore;
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
     const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -1903,10 +1906,6 @@
         languageDialog: {
             type: Object,
             required: true
-        },
-        lastLocation: {
-            type: Object,
-            default: () => ({})
         },
         lastLocationDestination: {
             type: String,
@@ -2402,7 +2401,7 @@
                     return args;
                 });
         } else if (command === 'Invite Message') {
-            L = parseLocation(props.lastLocation.location);
+            L = parseLocation(lastLocation.value.location);
             worldRequest
                 .getCachedWorld({
                     worldId: L.worldId
@@ -2410,8 +2409,8 @@
                 .then((args) => {
                     showSendInviteDialog(
                         {
-                            instanceId: props.lastLocation.location,
-                            worldId: props.lastLocation.location,
+                            instanceId: lastLocation.value.location,
+                            worldId: lastLocation.value.location,
                             worldName: args.ref.name
                         },
                         D.id
@@ -2425,8 +2424,8 @@
                 D.id
             );
         } else if (command === 'Invite') {
-            let currentLocation = props.lastLocation.location;
-            if (props.lastLocation.location === 'traveling') {
+            let currentLocation = lastLocation.value.location;
+            if (lastLocation.value.location === 'traveling') {
                 currentLocation = props.lastLocationDestination;
             }
             L = parseLocation(currentLocation);

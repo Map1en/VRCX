@@ -604,7 +604,7 @@ API.$on('WORLD', function (args) {
 });
 
 API.actuallyGetCurrentLocation = async function () {
-    let gameLogLocation = $app.lastLocation.location;
+    let gameLogLocation = $app.store.location.lastLocation.location;
     if (gameLogLocation.startsWith('local')) {
         console.warn('PWI: local test mode', 'test_world');
         return 'test_world';
@@ -2185,7 +2185,7 @@ $app.methods.loadPlayerList = function () {
     for (i = data.length - 1; i > -1; i--) {
         ctx = data[i];
         if (ctx.type === 'Location') {
-            this.lastLocation = {
+            this.store.location.lastLocation = {
                 date: Date.parse(ctx.created_at),
                 location: ctx.location,
                 name: ctx.worldName,
@@ -2214,17 +2214,23 @@ $app.methods.loadPlayerList = function () {
                     joinTime: Date.parse(ctx.created_at),
                     lastAvatar: ''
                 };
-                this.lastLocation.playerList.set(ctx.userId, userMap);
+                this.store.location.lastLocation.playerList.set(
+                    ctx.userId,
+                    userMap
+                );
                 if (this.store.friend.friends.has(ctx.userId)) {
-                    this.lastLocation.friendList.set(ctx.userId, userMap);
+                    this.store.location.lastLocation.friendList.set(
+                        ctx.userId,
+                        userMap
+                    );
                 }
             }
             if (ctx.type === 'OnPlayerLeft') {
-                this.lastLocation.playerList.delete(ctx.userId);
-                this.lastLocation.friendList.delete(ctx.userId);
+                this.store.location.lastLocation.playerList.delete(ctx.userId);
+                this.store.location.lastLocation.friendList.delete(ctx.userId);
             }
         }
-        this.lastLocation.playerList.forEach((ref1) => {
+        this.store.location.lastLocation.playerList.forEach((ref1) => {
             if (
                 ref1.userId &&
                 typeof ref1.userId === 'string' &&
@@ -2528,14 +2534,6 @@ API.$on('USER:UPDATE', async function (args) {
 // #endregion
 // #region | App: gameLog
 
-$app.data.lastLocation = {
-    date: 0,
-    location: '',
-    name: '',
-    playerList: new Map(),
-    friendList: new Map()
-};
-
 $app.methods.lastLocationReset = function (gameLogDate) {
     let dateTime = gameLogDate;
     if (!gameLogDate) {
@@ -2560,14 +2558,16 @@ $app.methods.lastLocationReset = function (gameLogDate) {
         this.photonEventTablePrevious.data = this.photonEventTable.data;
         this.photonEventTable.data = [];
     }
-    const playerList = Array.from(this.lastLocation.playerList.values());
+    const playerList = Array.from(
+        this.store.location.lastLocation.playerList.values()
+    );
     const dataBaseEntries = [];
     for (let ref of playerList) {
         const entry = {
             created_at: dateTime,
             type: 'OnPlayerLeft',
             displayName: ref.displayName,
-            location: this.lastLocation.location,
+            location: this.store.location.lastLocation.location,
             userId: ref.userId,
             time: dateTimeStamp - ref.joinTime
         };
@@ -2575,16 +2575,16 @@ $app.methods.lastLocationReset = function (gameLogDate) {
         this.addGameLog(entry);
     }
     database.addGamelogJoinLeaveBulk(dataBaseEntries);
-    if (this.lastLocation.date !== 0) {
+    if (this.store.location.lastLocation.date !== 0) {
         const update = {
-            time: dateTimeStamp - this.lastLocation.date,
-            created_at: new Date(this.lastLocation.date).toJSON()
+            time: dateTimeStamp - this.store.location.lastLocation.date,
+            created_at: new Date(this.store.location.lastLocation.date).toJSON()
         };
         database.updateGamelogLocationTimeToDatabase(update);
     }
     this.lastLocationDestination = '';
     this.lastLocationDestinationTime = 0;
-    this.lastLocation = {
+    this.store.location.lastLocation = {
         date: 0,
         location: '',
         name: '',
@@ -2745,14 +2745,14 @@ $app.methods.updateAutoStateChange = function () {
     if (
         !this.store.generalSettings.autoStateChangeEnabled ||
         !this.isGameRunning ||
-        !this.lastLocation.playerList.size ||
-        this.lastLocation.location === '' ||
-        this.lastLocation.location === 'traveling'
+        !this.store.location.lastLocation.playerList.size ||
+        this.store.location.lastLocation.location === '' ||
+        this.store.location.lastLocation.location === 'traveling'
     ) {
         return;
     }
 
-    const $location = parseLocation(this.lastLocation.location);
+    const $location = parseLocation(this.store.location.lastLocation.location);
     let instanceType = $location.accessType;
     if (instanceType === 'group') {
         if ($location.groupAccessType === 'members') {
@@ -2772,9 +2772,9 @@ $app.methods.updateAutoStateChange = function () {
         return;
     }
 
-    let withCompany = this.lastLocation.playerList.size > 1;
+    let withCompany = this.store.location.lastLocation.playerList.size > 1;
     if (this.store.generalSettings.autoStateChangeNoFriends) {
-        withCompany = this.lastLocation.friendList.size >= 1;
+        withCompany = this.store.location.lastLocation.friendList.size >= 1;
     }
 
     const currentStatus = API.currentUser.status;
@@ -3372,8 +3372,8 @@ API.$on('PIPELINE:NOTIFICATION', function (args) {
         return;
     }
 
-    let currentLocation = $app.lastLocation.location;
-    if ($app.lastLocation.location === 'traveling') {
+    let currentLocation = $app.store.location.lastLocation.location;
+    if ($app.store.location.lastLocation.location === 'traveling') {
         currentLocation = $app.lastLocationDestination;
     }
     if (!currentLocation) {
@@ -3826,7 +3826,7 @@ $app.methods.updateVRLastLocation = function () {
     if (this.progressPie) {
         progressPie = true;
         if (this.store.advancedSettings.progressPieFilter) {
-            if (!isRpcWorld(this.lastLocation.location)) {
+            if (!isRpcWorld(this.store.location.lastLocation.location)) {
                 progressPie = false;
             }
         }
@@ -3836,11 +3836,15 @@ $app.methods.updateVRLastLocation = function () {
         onlineFor = API.currentUser.$online_for;
     }
     const lastLocation = {
-        date: this.lastLocation.date,
-        location: this.lastLocation.location,
-        name: this.lastLocation.name,
-        playerList: Array.from(this.lastLocation.playerList.values()),
-        friendList: Array.from(this.lastLocation.friendList.values()),
+        date: this.store.location.lastLocation.date,
+        location: this.store.location.lastLocation.location,
+        name: this.store.location.lastLocation.name,
+        playerList: Array.from(
+            this.store.location.lastLocation.playerList.values()
+        ),
+        friendList: Array.from(
+            this.store.location.lastLocation.friendList.values()
+        ),
         progressPie,
         onlineFor
     };
@@ -4336,7 +4340,7 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
     }
     const users = [];
     let friendCount = 0;
-    const playersInInstance = this.lastLocation.playerList;
+    const playersInInstance = this.store.location.lastLocation.playerList;
     const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
     const currentLocation = cachedCurrentUser.$location.tag;
     if (!L.isOffline && currentLocation === L.tag) {
@@ -4346,8 +4350,11 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
         }
     }
     // dont use gamelog when using api location
-    if (this.lastLocation.location === L.tag && playersInInstance.size > 0) {
-        const friendsInInstance = this.lastLocation.friendList;
+    if (
+        this.store.location.lastLocation.location === L.tag &&
+        playersInInstance.size > 0
+    ) {
+        const friendsInInstance = this.store.location.lastLocation.friendList;
         for (friend of friendsInInstance.values()) {
             // if friend isn't in instance add them
             addUser = !users.some(function (user) {
@@ -4367,7 +4374,10 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
             if (typeof friend.ref === 'undefined') {
                 continue;
             }
-            if (friend.ref.location === this.lastLocation.location) {
+            if (
+                friend.ref.location ===
+                this.store.location.lastLocation.location
+            ) {
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
@@ -4435,11 +4445,13 @@ API.$on('LOGIN', function () {
 
 API.$on('USER:APPLY', function (ref) {
     // add user ref to playerList, friendList, photonLobby, photonLobbyCurrent
-    const playerListRef = $app.lastLocation.playerList.get(ref.id);
+    const playerListRef = $app.store.location.lastLocation.playerList.get(
+        ref.id
+    );
     if (playerListRef) {
         // add/remove friends from lastLocation.friendList
         if (
-            !$app.lastLocation.friendList.has(ref.id) &&
+            !$app.store.location.lastLocation.friendList.has(ref.id) &&
             $app.store.friend.friends.has(ref.id)
         ) {
             const userMap = {
@@ -4447,13 +4459,13 @@ API.$on('USER:APPLY', function (ref) {
                 userId: ref.id,
                 joinTime: playerListRef.joinTime
             };
-            $app.lastLocation.friendList.set(ref.id, userMap);
+            $app.store.location.lastLocation.friendList.set(ref.id, userMap);
         }
         if (
-            $app.lastLocation.friendList.has(ref.id) &&
+            $app.store.location.lastLocation.friendList.has(ref.id) &&
             !$app.store.friend.friends.has(ref.id)
         ) {
-            $app.lastLocation.friendList.delete(ref.id);
+            $app.store.location.lastLocation.friendList.delete(ref.id);
         }
         $app.photonLobby.forEach((ref1, id) => {
             if (
@@ -4578,7 +4590,7 @@ $app.methods.updatePlayerListDebounce = function () {
         // get block, mute
     };
 
-    const playersInInstance = this.lastLocation.playerList;
+    const playersInInstance = this.store.location.lastLocation.playerList;
     if (playersInInstance.size > 0) {
         let ref = API.cachedUsers.get(API.currentUser.id);
         if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
@@ -4597,9 +4609,10 @@ $app.methods.updatePlayerListDebounce = function () {
                 if (typeof ref !== 'undefined') {
                     pushUser(ref);
                 } else {
-                    let { joinTime } = this.lastLocation.playerList.get(
-                        player.userId
-                    );
+                    let { joinTime } =
+                        this.store.location.lastLocation.playerList.get(
+                            player.userId
+                        );
                     if (!joinTime) {
                         joinTime = Date.now();
                     }
@@ -4639,8 +4652,8 @@ $app.data.currentInstanceLocation = {};
 
 $app.methods.updateCurrentInstanceWorld = function () {
     let L;
-    let instanceId = this.lastLocation.location;
-    if (this.lastLocation.location === 'traveling') {
+    let instanceId = this.store.location.lastLocation.location;
+    if (this.store.location.lastLocation.location === 'traveling') {
         instanceId = this.lastLocationDestination;
     }
     if (!instanceId) {
@@ -5047,10 +5060,10 @@ $app.methods.applyWorldDialogInstances = function () {
     }
     const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
     const lastLocation$ = cachedCurrentUser.$location;
-    const playersInInstance = this.lastLocation.playerList;
+    const playersInInstance = this.store.location.lastLocation.playerList;
     if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
         // pull instance json from cache
-        const friendsInInstance = this.lastLocation.friendList;
+        const friendsInInstance = this.store.location.lastLocation.friendList;
         instance = {
             id: lastLocation$.instanceId,
             tag: lastLocation$.tag,
@@ -5086,7 +5099,7 @@ $app.methods.applyWorldDialogInstances = function () {
         ) {
             continue;
         }
-        if (ref.location === this.lastLocation.location) {
+        if (ref.location === this.store.location.lastLocation.location) {
             // don't add friends to currentUser gameLog instance (except when traveling)
             continue;
         }
@@ -5921,7 +5934,9 @@ $app.methods.showVRChatConfig = async function () {
 $app.methods.processScreenshot = async function (path) {
     let newPath = path;
     if (this.store.advancedSettings.screenshotHelper) {
-        const location = parseLocation(this.lastLocation.location);
+        const location = parseLocation(
+            this.store.location.lastLocation.location
+        );
         const metadata = {
             application: 'VRCX',
             version: 1,
@@ -5930,13 +5945,13 @@ $app.methods.processScreenshot = async function (path) {
                 displayName: API.currentUser.displayName
             },
             world: {
-                name: this.lastLocation.name,
+                name: this.store.location.lastLocation.name,
                 id: location.worldId,
-                instanceId: this.lastLocation.location
+                instanceId: this.store.location.lastLocation.location
             },
             players: []
         };
-        for (let user of this.lastLocation.playerList.values()) {
+        for (let user of this.store.location.lastLocation.playerList.values()) {
             metadata.players.push({
                 id: user.userId,
                 displayName: user.displayName
@@ -6019,7 +6034,7 @@ $app.methods.checkIfGameCrashed = function () {
     if (!this.store.advancedSettings.relaunchVRChatAfterCrash) {
         return;
     }
-    let { location } = this.lastLocation;
+    let { location } = this.store.location.lastLocation;
     AppApi.VrcClosedGracefully().then((result) => {
         if (result || !isRealInstance(location)) {
             return;
@@ -6419,7 +6434,7 @@ $app.methods.clearVRCXCache = function () {
     API.cachedUsers.forEach((ref, id) => {
         if (
             !this.store.friend.friends.has(id) &&
-            !this.lastLocation.playerList.has(ref.id) &&
+            !this.store.location.lastLocation.playerList.has(ref.id) &&
             id !== API.currentUser.id
         ) {
             API.cachedUsers.delete(id);
@@ -6828,10 +6843,10 @@ $app.methods.userColourInit = async function () {
 $app.methods.onPlayerTraveling = function (ref) {
     if (
         !this.isGameRunning ||
-        !this.lastLocation.location ||
-        this.lastLocation.location !== ref.travelingToLocation ||
+        !this.store.location.lastLocation.location ||
+        this.store.location.lastLocation.location !== ref.travelingToLocation ||
         ref.id === API.currentUser.id ||
-        this.lastLocation.playerList.has(ref.id)
+        this.store.location.lastLocation.playerList.has(ref.id)
     ) {
         return;
     }
@@ -6863,14 +6878,14 @@ $app.methods.updateCurrentUserLocation = function () {
     if (
         this.isGameRunning &&
         !this.store.advancedSettings.gameLogDisabled &&
-        this.lastLocation.location !== ''
+        this.store.location.lastLocation.location !== ''
     ) {
         // use gameLog instead of API when game is running
-        currentLocation = this.lastLocation.location;
-        if (this.lastLocation.location === 'traveling') {
+        currentLocation = this.store.location.lastLocation.location;
+        if (this.store.location.lastLocation.location === 'traveling') {
             currentLocation = this.lastLocationDestination;
         }
-        ref.location = this.lastLocation.location;
+        ref.location = this.store.location.lastLocation.location;
         ref.travelingToLocation = this.lastLocationDestination;
     }
 
@@ -6884,7 +6899,7 @@ $app.methods.updateCurrentUserLocation = function () {
         this.applyWorldDialogInstances();
         this.store.group.applyGroupDialogInstances();
     } else {
-        ref.$location_at = this.lastLocation.date;
+        ref.$location_at = this.store.location.lastLocation.date;
         ref.$travelingToTime = this.lastLocationDestinationTime;
         API.currentUser.$travelingToTime = this.lastLocationDestinationTime;
     }
@@ -6923,8 +6938,8 @@ $app.methods.setCurrentUserLocation = async function (
         const dt = new Date().toJSON();
         const L = parseLocation(location);
 
-        this.lastLocation.location = location;
-        this.lastLocation.date = dt;
+        this.store.location.lastLocation.location = location;
+        this.store.location.lastLocation.date = dt;
 
         const entry = {
             created_at: dt,
@@ -6944,8 +6959,8 @@ $app.methods.setCurrentUserLocation = async function (
         this.applyWorldDialogInstances();
         this.store.group.applyGroupDialogInstances();
     } else {
-        this.lastLocation.location = '';
-        this.lastLocation.date = '';
+        this.store.location.lastLocation.location = '';
+        this.store.location.lastLocation.date = '';
     }
 };
 
@@ -7701,7 +7716,6 @@ $app.computed.sidebarTabBind = function () {
         quickSearchRemoteMethod: this.quickSearchRemoteMethod,
         quickSearchItems: this.quickSearchItems,
         isGameRunning: this.isGameRunning,
-        lastLocation: this.lastLocation,
         lastLocationDestination: this.lastLocationDestination,
         groupInstances: this.groupInstances,
         inGameGroupOrder: this.inGameGroupOrder,
@@ -7785,7 +7799,6 @@ $app.computed.notificationTabBind = function () {
         menuActiveIndex: this.menuActiveIndex,
         notificationTable: this.notificationTable,
         shiftHeld: this.shiftHeld,
-        lastLocation: this.lastLocation,
         lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning,
         inviteResponseMessageTable: this.inviteResponseMessageTable,
@@ -7869,8 +7882,7 @@ $app.computed.playerListTabBind = function () {
         photonEventTable: this.photonEventTable,
         photonEventTablePrevious: this.photonEventTablePrevious,
         currentInstanceUserList: this.currentInstanceUserList,
-        chatboxUserBlacklist: this.chatboxUserBlacklist,
-        lastLocation: this.lastLocation
+        chatboxUserBlacklist: this.chatboxUserBlacklist
     };
 };
 

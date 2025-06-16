@@ -504,6 +504,7 @@
         userImage
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { useLocationStore } from '../../stores/location';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
     import { API } from '../../app';
     import { useGroupStore } from '../../stores/group';
@@ -532,10 +533,6 @@
             uploadImage: {
                 type: String,
                 default: ''
-            },
-            lastLocation: {
-                type: Object,
-                default: () => ({})
             }
         },
         setup() {
@@ -543,6 +540,8 @@
             const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
             const groupStore = useGroupStore();
             const { currentUserGroups, cachedGroups } = storeToRefs(groupStore);
+            const locationStore = useLocationStore();
+            const { lastLocation } = storeToRefs(locationStore);
             return {
                 friends,
                 vipFriends,
@@ -551,6 +550,7 @@
                 offlineFriends,
                 currentUserGroups,
                 cachedGroups,
+                lastLocation,
                 API,
                 userStatusClass,
                 hasGroupPermission,

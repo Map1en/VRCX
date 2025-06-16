@@ -17,6 +17,7 @@ import {
     replaceBioSymbols
 } from '../shared/utils';
 import { useFriendStore } from './friend';
+import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 
 export const useGroupStore = defineStore('Group', () => {
@@ -26,6 +27,9 @@ export const useGroupStore = defineStore('Group', () => {
     const { instanceUsersSortAlphabetical } = storeToRefs(
         appearanceSettingsStore
     );
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
+
     const state = reactive({
         groupDialog: {
             visible: false,
@@ -327,9 +331,9 @@ export const useGroupStore = defineStore('Group', () => {
         const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
         const lastLocation$ = cachedCurrentUser.$location;
         const currentLocation = lastLocation$.tag;
-        const playersInInstance = $app.lastLocation.playerList;
+        const playersInInstance = lastLocation.value.playerList;
         if (lastLocation$.groupId === D.id && playersInInstance.size > 0) {
-            const friendsInInstance = $app.lastLocation.friendList;
+            const friendsInInstance = lastLocation.value.friendList;
             instance = {
                 id: lastLocation$.instanceId,
                 tag: currentLocation,
@@ -365,7 +369,7 @@ export const useGroupStore = defineStore('Group', () => {
             ) {
                 continue;
             }
-            if (ref.location === $app.lastLocation.location) {
+            if (ref.location === lastLocation.value.location) {
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
@@ -661,14 +665,14 @@ export const useGroupStore = defineStore('Group', () => {
         // API.$on('GROUP:POSTS:ALL')
         const D = state.groupDialog;
         if (D.id === args.params.groupId) {
-            for (const post of args.posts) {
+            for (const post of args.json.posts) {
                 post.title = replaceBioSymbols(post.title);
                 post.text = replaceBioSymbols(post.text);
             }
-            if (args.posts.length > 0) {
-                D.announcement = args.posts[0];
+            if (args.json.posts.length > 0) {
+                D.announcement = args.json.posts[0];
             }
-            D.posts = args.posts;
+            D.posts = args.json.posts;
             $app.updateGroupPostSearch();
         }
 
@@ -719,7 +723,7 @@ export const useGroupStore = defineStore('Group', () => {
 
                                 // API.$on('GROUP:INSTANCES', function (args) {
                                 for (const json of args.json.instances) {
-                                    this.$emit('INSTANCE', {
+                                    API.$emit('INSTANCE', {
                                         json,
                                         params: {
                                             fetchedAt: args.json.fetchedAt

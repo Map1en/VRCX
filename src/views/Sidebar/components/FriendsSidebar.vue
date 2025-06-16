@@ -179,6 +179,7 @@
     import configRepository from '../../../service/config';
     import { isRealInstance, userStatusClass, userImage } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
+    import { useLocationStore } from '../../../stores/location';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -192,7 +193,6 @@
         },
         props: {
             isGameRunning: Boolean,
-            lastLocation: Object,
             lastLocationDestination: String,
             groupedByGroupKeyFavoriteFriends: Object
         },
@@ -208,6 +208,8 @@
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            const locationStore = useLocationStore();
+            const { lastLocation } = storeToRefs(locationStore);
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
@@ -222,7 +224,8 @@
                 isRealInstance,
                 showUserDialog,
                 favoriteFriendGroups,
-                userImage
+                userImage,
+                lastLocation
             };
         },
 

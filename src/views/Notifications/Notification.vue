@@ -425,6 +425,7 @@
     import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
+    import { useLocationStore } from '../../stores/location';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
     import Location from '../../components/Location.vue';
@@ -442,6 +443,8 @@
     const { showWorldDialog } = worldStore;
     const groupStore = useGroupStore();
     const { showGroupDialog } = groupStore;
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
 
     const { t } = useI18n();
 
@@ -460,7 +463,6 @@
             default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false },
-        lastLocation: { type: Object, default: () => ({}) },
         inviteResponseMessageTable: {
             type: Object,
             default: () => ({})
@@ -552,9 +554,9 @@
             type: 'info',
             callback: (action) => {
                 if (action === 'confirm') {
-                    let currentLocation = props.lastLocation.location;
+                    let currentLocation = lastLocation.value.location;
                     // todo
-                    if (props.lastLocation.location === 'traveling') {
+                    if (lastLocation.value.location === 'traveling') {
                         currentLocation = props.lastLocationDestination;
                     }
                     const L = parseLocation(currentLocation);

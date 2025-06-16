@@ -14,9 +14,9 @@ export default function init(app) {
 
     const _methods = {
         updateDiscord() {
-            var currentLocation = this.lastLocation.location;
-            var timeStamp = this.lastLocation.date;
-            if (this.lastLocation.location === 'traveling') {
+            var currentLocation = this.store.location.lastLocation.location;
+            var timeStamp = this.store.location.lastLocation.date;
+            if (this.store.location.lastLocation.location === 'traveling') {
                 currentLocation = this.lastLocationDestination;
                 timeStamp = this.lastLocationDestinationTime;
             }
@@ -134,7 +134,7 @@ export default function init(app) {
             var appId = '883308884863901717';
             var bigIcon = 'vrchat';
             var partyId = `${L.worldId}:${L.instanceName}`;
-            var partySize = this.lastLocation.playerList.size;
+            var partySize = this.store.location.lastLocation.playerList.size;
             var partyMaxSize = L.worldCapacity;
             if (partySize > partyMaxSize) {
                 partyMaxSize = partySize;

@@ -71,7 +71,6 @@
                 <el-backtop target=".zero-margin-tabs .el-tabs__content" :bottom="20" :right="20"></el-backtop>
                 <FriendsSidebar
                     :is-game-running="isGameRunning"
-                    :last-location="lastLocation"
                     :last-location-destination="lastLocationDestination"
                     :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
@@ -114,7 +113,6 @@
             quickSearchRemoteMethod: Function,
             quickSearchItems: Array,
 
-            lastLocation: Object,
             lastLocationDestination: String,
 
             groupInstances: Array,
