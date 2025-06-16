@@ -532,4 +532,31 @@
             }
         }
     };
+
+    // $app.methods.showBulkUnfriendAllConfirm = function () {
+    //     this.$confirm(
+    //         `Are you sure you want to delete all your friends?
+    //         This can negatively affect your trust rank,
+    //         This action cannot be undone.`,
+    //         'Delete all friends?',
+    //         {
+    //             confirmButtonText: 'Confirm',
+    //             cancelButtonText: 'Cancel',
+    //             type: 'info',
+    //             callback: (action) => {
+    //                 if (action === 'confirm') {
+    //                     this.bulkUnfriendAll();
+    //                 }
+    //             }
+    //         }
+    //     );
+    // };
+
+    // $app.methods.bulkUnfriendAll = function () {
+    //     for (var ctx of this.friendsListTable.data) {
+    //         API.deleteFriend({
+    //             userId: ctx.id
+    //         });
+    //     }
+    // };
 </script>

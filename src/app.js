@@ -2525,82 +2525,6 @@ API.$on('USER:UPDATE', async function (args) {
     }
 });
 
-/**
- * Function that prepare the Longest Common Subsequence (LCS) scores matrix
- * @param {*} s1 String 1
- * @param {*} s2 String 2
- * @returns
- */
-$app.methods.lcsMatrix = function (s1, s2) {
-    const m = s1.length;
-    const n = s2.length;
-    const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-
-    // Fill the matrix for LCS
-    for (let i = 1; i <= m; i++) {
-        for (let j = 1; j <= n; j++) {
-            if (s1[i - 1] === s2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1] + 1;
-            } else {
-                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-            }
-        }
-    }
-
-    return dp;
-};
-
-/**
- * Function to find the longest common subsequence between two strings
- * @param {string} str1
- * @param {string} str2
- * @returns {number[][]} A matrix that contains the longest common subsequence between both strings
- */
-$app.methods.longestCommonSubsequence = function longestCommonSubsequence(
-    str1,
-    str2
-) {
-    const lcs = [];
-    for (let i = 0; i <= str1.length; i++) {
-        lcs.push(new Array(str2.length + 1).fill(0));
-    }
-    for (let i = str1.length - 1; i >= 0; i--) {
-        for (let j = str2.length - 1; j >= 0; j--) {
-            if (str1[i] === str2[j]) {
-                lcs[i][j] = lcs[i + 1][j + 1] + 1;
-            } else {
-                lcs[i][j] = Math.max(lcs[i + 1][j], lcs[i][j + 1]);
-            }
-        }
-    }
-    return lcs;
-};
-
-/**
- * Merge differences in both strings to get the longest common subsequence
- * @param {{text: string, type: "add" | "remove" | "same"}[]} res
- * @returns {{text: string, type: "add" | "remove" | "same"}[]} An array that contains the differences between both strings
- */
-$app.methods.regoupDifferences = function regoupDifferences(res) {
-    const regrouped = [];
-    let text = '';
-    let type = '';
-    for (let i = 0; i < res.length; i++) {
-        if (i === 0) {
-            text = res[i].text;
-            type = res[i].type;
-        } else if (res[i].type === type) {
-            text += res[i].text;
-        } else {
-            regrouped.push({ text: text, type: type });
-            text = res[i].text;
-            type = res[i].type;
-        }
-    }
-    regrouped.push({ text: text, type: type });
-    return regrouped;
-};
-
 // #endregion
 // #region | App: gameLog
 
@@ -5865,34 +5789,6 @@ $app.methods.showEditInviteMessageDialog = function (
 // #region | App: Friends List
 
 $app.data.friendsListSearch = '';
-// $app.data.friendsListSelectAllCheckbox = false;
-
-// $app.methods.showBulkUnfriendAllConfirm = function () {
-//     this.$confirm(
-//         `Are you sure you want to delete all your friends?
-//         This can negatively affect your trust rank,
-//         This action cannot be undone.`,
-//         'Delete all friends?',
-//         {
-//             confirmButtonText: 'Confirm',
-//             cancelButtonText: 'Cancel',
-//             type: 'info',
-//             callback: (action) => {
-//                 if (action === 'confirm') {
-//                     this.bulkUnfriendAll();
-//                 }
-//             }
-//         }
-//     );
-// };
-
-// $app.methods.bulkUnfriendAll = function () {
-//     for (var ctx of this.friendsListTable.data) {
-//         API.deleteFriend({
-//             userId: ctx.id
-//         });
-//     }
-// };
 
 $app.methods.getAllUserStats = async function () {
     let ref;
@@ -6019,12 +5915,6 @@ $app.methods.showVRChatConfig = async function () {
         this.getVRChatCacheSize();
     }
 };
-
-// Auto Launch Shortcuts
-
-// $app.methods.openShortcutFolder = function () {
-//     AppApi.OpenShortcutFolder();
-// };
 
 // Screenshot Helper
 
@@ -6894,16 +6784,6 @@ $app.methods.eventLaunchCommand = function (input) {
     if (shouldFocusWindow) {
         AppApi.FocusWindow();
     }
-};
-
-$app.methods.toggleAllowBooping = function () {
-    userRequest
-        .saveCurrentUser({
-            isBoopingEnabled: !API.currentUser.isBoopingEnabled
-        })
-        .then((args) => {
-            return args;
-        });
 };
 
 // #endregion

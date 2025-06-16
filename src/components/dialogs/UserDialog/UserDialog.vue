@@ -3237,4 +3237,14 @@
     function refreshPrintTable() {
         emit('refreshPrintTable');
     }
+
+    // $app.methods.toggleAllowBooping = function () {
+    //     userRequest
+    //         .saveCurrentUser({
+    //             isBoopingEnabled: !API.currentUser.isBoopingEnabled
+    //         })
+    //         .then((args) => {
+    //             return args;
+    //         });
+    // };
 </script>
