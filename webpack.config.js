@@ -32,9 +32,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'build/html'),
         filename: '[name].js',
-        clean: {
-            dry: true
-        }
+        clean: true
     },
     module: {
         rules: [

@@ -25,6 +25,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const { applyAvatar } = avatarStore;
     const worldStore = useWorldStore();
     const { worldDialog } = storeToRefs(worldStore);
+    const { applyWorld } = worldStore;
     const state = reactive({
         isFavoriteGroupLoading: false,
         favoriteFriendGroups: [],
@@ -1577,7 +1578,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         for (let i = 0; i < worldCache.length; ++i) {
             const ref = worldCache[i];
             if (!API.cachedWorlds.has(ref.id)) {
-                API.applyWorld(ref);
+                applyWorld(ref);
             }
         }
         const favorites = await database.getWorldFavorites();

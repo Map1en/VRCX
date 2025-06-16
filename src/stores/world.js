@@ -1,13 +1,14 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import { miscRequest, worldRequest } from '../api';
-import { $app } from '../app';
+import { $app, API } from '../app';
 import database from '../service/database';
 import {
     checkVRChatCache,
     getAvailablePlatforms,
     getWorldMemo,
-    parseLocation
+    parseLocation,
+    replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
 
@@ -184,5 +185,70 @@ export const useWorldStore = defineStore('World', () => {
         }
     }
 
-    return { state, worldDialog, showWorldDialog, updateVRChatWorldCache };
+    /**
+     * aka : `API.applyWorld`
+     * @param {object} json
+     * @returns {object} ref
+     */
+    function applyWorld(json) {
+        let ref = API.cachedWorlds.get(json.id);
+        if (typeof ref === 'undefined') {
+            ref = {
+                id: '',
+                name: '',
+                description: '',
+                defaultContentSettings: {},
+                authorId: '',
+                authorName: '',
+                capacity: 0,
+                recommendedCapacity: 0,
+                tags: [],
+                releaseStatus: '',
+                imageUrl: '',
+                thumbnailImageUrl: '',
+                assetUrl: '',
+                assetUrlObject: {},
+                pluginUrl: '',
+                pluginUrlObject: {},
+                unityPackageUrl: '',
+                unityPackageUrlObject: {},
+                unityPackages: [],
+                version: 0,
+                favorites: 0,
+                created_at: '',
+                updated_at: '',
+                publicationDate: '',
+                labsPublicationDate: '',
+                visits: 0,
+                popularity: 0,
+                heat: 0,
+                publicOccupants: 0,
+                privateOccupants: 0,
+                occupants: 0,
+                instances: [],
+                featured: false,
+                organization: '',
+                previewYoutubeId: '',
+                // VRCX
+                $isLabs: false,
+                //
+                ...json
+            };
+            API.cachedWorlds.set(ref.id, ref);
+        } else {
+            Object.assign(ref, json);
+        }
+        ref.$isLabs = ref.tags.includes('system_labs');
+        ref.name = replaceBioSymbols(ref.name);
+        ref.description = replaceBioSymbols(ref.description);
+        return ref;
+    }
+
+    return {
+        state,
+        worldDialog,
+        showWorldDialog,
+        updateVRChatWorldCache,
+        applyWorld
+    };
 });

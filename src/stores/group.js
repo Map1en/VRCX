@@ -144,7 +144,7 @@ export const useGroupStore = defineStore('Group', () => {
                             return args1;
                         });
                     applyGroupDialogInstances();
-                    $app.getGroupDialogGroup(groupId);
+                    getGroupDialogGroup(groupId);
                 }
             });
     }

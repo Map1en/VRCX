@@ -601,7 +601,7 @@ API.applyPresenceLocation = function (ref) {
 API.cachedWorlds = new Map();
 
 API.$on('WORLD', function (args) {
-    args.ref = this.applyWorld(args.json);
+    args.ref = $app.store.world.applyWorld(args.json);
 });
 
 API.$on('WORLD:LIST', function (args) {
@@ -683,60 +683,6 @@ API.actuallyGetCurrentLocation = async function () {
         userLocation
     );
     return 'test_world';
-};
-
-API.applyWorld = function (json) {
-    let ref = this.cachedWorlds.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            name: '',
-            description: '',
-            defaultContentSettings: {},
-            authorId: '',
-            authorName: '',
-            capacity: 0,
-            recommendedCapacity: 0,
-            tags: [],
-            releaseStatus: '',
-            imageUrl: '',
-            thumbnailImageUrl: '',
-            assetUrl: '',
-            assetUrlObject: {},
-            pluginUrl: '',
-            pluginUrlObject: {},
-            unityPackageUrl: '',
-            unityPackageUrlObject: {},
-            unityPackages: [],
-            version: 0,
-            favorites: 0,
-            created_at: '',
-            updated_at: '',
-            publicationDate: '',
-            labsPublicationDate: '',
-            visits: 0,
-            popularity: 0,
-            heat: 0,
-            publicOccupants: 0,
-            privateOccupants: 0,
-            occupants: 0,
-            instances: [],
-            featured: false,
-            organization: '',
-            previewYoutubeId: '',
-            // VRCX
-            $isLabs: false,
-            //
-            ...json
-        };
-        this.cachedWorlds.set(ref.id, ref);
-    } else {
-        Object.assign(ref, json);
-    }
-    ref.$isLabs = ref.tags.includes('system_labs');
-    ref.name = replaceBioSymbols(ref.name);
-    ref.description = replaceBioSymbols(ref.description);
-    return ref;
 };
 
 // #endregion

@@ -1,4 +1,4 @@
-import API from '../../classes/apiInit';
+import { $app, API } from '../../app';
 
 function displayLocation(location, worldName, groupName) {
     let text = worldName;
@@ -147,7 +147,7 @@ function checkCanInvite(location) {
     if (L.accessType === 'invite' || L.accessType === 'friends') {
         return false;
     }
-    if (this.lastLocation.location === location) {
+    if ($app.lastLocation.location === location) {
         return true;
     }
     return false;
@@ -164,7 +164,7 @@ function checkCanInviteSelf(location) {
     }
     if (
         L.accessType === 'friends' &&
-        !this.store.friend.friends.has(L.userId)
+        !$app.store.friend.friends.has(L.userId)
     ) {
         return false;
     }
