@@ -85,6 +85,7 @@
     import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useWorldStore } from '../../../stores/world';
 
     export default {
         name: 'WorldExportDialog',
@@ -101,6 +102,8 @@
                 localWorldFavoritesList
             } = storeToRefs(favoriteStore);
             const { getLocalWorldFavoriteGroupLength } = favoriteStore;
+            const worldStore = useWorldStore();
+            const { cachedWorlds } = storeToRefs(worldStore);
             return {
                 favoriteWorlds,
                 API,
@@ -108,7 +111,8 @@
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavorites,
                 localWorldFavoriteGroups,
-                localWorldFavoritesList
+                localWorldFavoritesList,
+                cachedWorlds
             };
         },
         data() {
@@ -218,7 +222,7 @@
                     });
                     for (let i = 0; i < this.localWorldFavoritesList.length; ++i) {
                         const worldId = this.localWorldFavoritesList[i];
-                        const ref = this.API.cachedWorlds.get(worldId);
+                        const ref = this.cachedWorlds.get(worldId);
                         if (typeof ref !== 'undefined') {
                             lines.push(resText(ref));
                         }

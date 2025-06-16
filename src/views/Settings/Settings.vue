@@ -1666,7 +1666,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.world_cache') }}
-                            <span v-text="API.cachedWorlds.size"></span
+                            <span v-text="cachedWorlds.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1832,6 +1832,7 @@
     import { usePhotonStore } from '../../stores/photon';
     import { useFriendStore } from '../../stores/friend';
     import { useAvatarProviderStore } from '../../stores/avatarProvider';
+    import { useWorldStore } from '../../stores/world';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
@@ -2079,6 +2080,9 @@
 
     const friendStore = useFriendStore();
     const { updateLocalFavoriteFriends } = friendStore;
+
+    const worldStore = useWorldStore();
+    const { cachedWorlds } = storeToRefs(worldStore);
 
     const props = defineProps({
         menuActiveIndex: {

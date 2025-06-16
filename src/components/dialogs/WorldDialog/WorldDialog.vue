@@ -832,7 +832,7 @@
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const worldStore = useWorldStore();
-            const { worldDialog } = storeToRefs(worldStore);
+            const { worldDialog, cachedWorlds } = storeToRefs(worldStore);
             const { showWorldDialog } = worldStore;
             return {
                 hideTooltips,
@@ -845,7 +845,8 @@
                 showUserDialog,
                 worldDialog,
                 userImage,
-                showWorldDialog
+                showWorldDialog,
+                cachedWorlds
             };
         },
         data() {
@@ -1104,10 +1105,10 @@
                                             .then((args) => {
                                                 // API.$on('WORLD:DELETE')
                                                 let { json } = args;
-                                                API.cachedWorlds.delete(json.id);
+                                                this.cachedWorlds.delete(json.id);
                                                 if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
                                                     const map = new Map();
-                                                    for (let ref of API.cachedWorlds.values()) {
+                                                    for (let ref of this.cachedWorlds.values()) {
                                                         if (ref.authorId === json.authorId) {
                                                             map.set(ref.id, ref);
                                                         }

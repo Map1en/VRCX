@@ -106,7 +106,7 @@ export default function init(app) {
                         };
                         wristFeed.unshift(feedEntry);
                     } else {
-                        const worldRef = API.cachedWorlds.get(
+                        const worldRef = this.store.world.cachedWorlds.get(
                             ref.$location.worldId
                         );
                         let groupName = '';

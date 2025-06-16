@@ -39,13 +39,21 @@ export const useWorldStore = defineStore('World', () => {
             isQuest: false,
             isIos: false,
             hasPersistData: false
-        }
+        },
+        cachedWorlds: new Map()
     });
 
     const worldDialog = computed({
         get: () => state.worldDialog,
         set: (value) => {
             state.worldDialog = value;
+        }
+    });
+
+    const cachedWorlds = computed({
+        get: () => state.cachedWorlds,
+        set: (value) => {
+            state.cachedWorlds = value;
         }
     });
 
@@ -191,7 +199,7 @@ export const useWorldStore = defineStore('World', () => {
      * @returns {object} ref
      */
     function applyWorld(json) {
-        let ref = API.cachedWorlds.get(json.id);
+        let ref = state.cachedWorlds.get(json.id);
         if (typeof ref === 'undefined') {
             ref = {
                 id: '',
@@ -234,7 +242,7 @@ export const useWorldStore = defineStore('World', () => {
                 //
                 ...json
             };
-            API.cachedWorlds.set(ref.id, ref);
+            state.cachedWorlds.set(ref.id, ref);
         } else {
             Object.assign(ref, json);
         }
@@ -247,6 +255,7 @@ export const useWorldStore = defineStore('World', () => {
     return {
         state,
         worldDialog,
+        cachedWorlds,
         showWorldDialog,
         updateVRChatWorldCache,
         applyWorld

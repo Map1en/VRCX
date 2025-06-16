@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API, $app } from '../app';
 
 // #region | API: World
 const worldReq = {
@@ -25,7 +25,7 @@ const worldReq = {
      */
     getCachedWorld(params) {
         return new Promise((resolve, reject) => {
-            const ref = API.cachedWorlds.get(params.worldId);
+            const ref = $app.store.world.cachedWorlds.get(params.worldId);
             if (typeof ref === 'undefined') {
                 worldReq.getWorld(params).catch(reject).then(resolve);
             } else {
@@ -71,7 +71,15 @@ const worldReq = {
                 params,
                 option
             };
-            API.$emit('WORLD:LIST', args);
+            // API.$emit('WORLD:LIST', args);
+            for (let json of args.json) {
+                API.$emit('WORLD', {
+                    json,
+                    params: {
+                        worldId: json.id
+                    }
+                });
+            }
             return args;
         });
     },
@@ -105,7 +113,14 @@ const worldReq = {
                 json,
                 params
             };
-            API.$emit('WORLD:SAVE', args);
+            // API.$emit('WORLD:SAVE', args);
+            // let { json } = args;
+            API.$emit('WORLD', {
+                json,
+                params: {
+                    worldId: json.id
+                }
+            });
             return args;
         });
     },
@@ -123,7 +138,14 @@ const worldReq = {
                 json,
                 params
             };
-            API.$emit('WORLD:SAVE', args);
+            // API.$emit('WORLD:SAVE', args);
+            // let { json } = args;
+            API.$emit('WORLD', {
+                json,
+                params: {
+                    worldId: json.id
+                }
+            });
             return args;
         });
     },
@@ -141,7 +163,14 @@ const worldReq = {
                 json,
                 params
             };
-            API.$emit('WORLD:SAVE', args);
+            // API.$emit('WORLD:SAVE', args);
+            // let { json } = args;
+            API.$emit('WORLD', {
+                json,
+                params: {
+                    worldId: json.id
+                }
+            });
             return args;
         });
     }

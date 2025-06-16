@@ -599,36 +599,9 @@ API.applyPresenceLocation = function (ref) {
 // #endregion
 // #region | API: World
 
-API.cachedWorlds = new Map();
-
 API.$on('WORLD', function (args) {
     args.ref = $app.store.world.applyWorld(args.json);
 });
-
-API.$on('WORLD:LIST', function (args) {
-    for (let json of args.json) {
-        this.$emit('WORLD', {
-            json,
-            params: {
-                worldId: json.id
-            }
-        });
-    }
-});
-
-API.$on('WORLD:SAVE', function (args) {
-    let { json } = args;
-    this.$emit('WORLD', {
-        json,
-        params: {
-            worldId: json.id
-        }
-    });
-});
-
-API.getUserApiCurrentLocation = function () {
-    return this.currentUser?.presence?.world;
-};
 
 API.actuallyGetCurrentLocation = async function () {
     let gameLogLocation = $app.lastLocation.location;
@@ -6562,13 +6535,13 @@ $app.methods.clearVRCXCache = function () {
             API.cachedUsers.delete(id);
         }
     });
-    API.cachedWorlds.forEach((ref, id) => {
+    this.store.world.cachedWorlds.forEach((ref, id) => {
         if (
             !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
             !$app.store.favorite.localWorldFavoritesList.includes(id)
         ) {
-            API.cachedWorlds.delete(id);
+            this.store.world.cachedWorlds.delete(id);
         }
     });
     API.cachedAvatars.forEach((ref, id) => {

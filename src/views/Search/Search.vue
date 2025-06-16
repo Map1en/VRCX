@@ -354,6 +354,7 @@
     const { showUserDialog } = userStore;
     const { showAvatarDialog } = avatarStore;
     const worldStore = useWorldStore();
+    const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
     const groupStore = useGroupStore();
     const { showGroupDialog } = groupStore;
@@ -551,7 +552,7 @@
             .then((args) => {
                 const map = new Map();
                 for (const json of args.json) {
-                    const ref = API.cachedWorlds.get(json.id);
+                    const ref = cachedWorlds.value.get(json.id);
                     if (typeof ref !== 'undefined') {
                         map.set(ref.id, ref);
                     }

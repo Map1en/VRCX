@@ -1887,6 +1887,7 @@
     const { showUserDialog, applyUser } = userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showAvatarDialog } = avatarStore;
+    const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
     const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
@@ -2805,7 +2806,7 @@
 
     function setUserDialogWorlds(userId) {
         const worlds = [];
-        for (const ref of API.cachedWorlds.values()) {
+        for (const ref of cachedWorlds.value.values()) {
             if (ref.authorId === userId) {
                 worlds.push(ref);
             }
@@ -2833,9 +2834,9 @@
             params.releaseStatus = 'all';
         }
         const map = new Map();
-        for (const ref of API.cachedWorlds.values()) {
+        for (const ref of cachedWorlds.value.values()) {
             if (ref.authorId === D.id && (ref.authorId === API.currentUser.id || ref.releaseStatus === 'public')) {
-                API.cachedWorlds.delete(ref.id);
+                cachedWorlds.value.delete(ref.id);
             }
         }
         API.bulk({
@@ -2844,7 +2845,7 @@
             params,
             handle: (args) => {
                 for (const json of args.json) {
-                    const $ref = API.cachedWorlds.get(json.id);
+                    const $ref = cachedWorlds.value.get(json.id);
                     if (typeof $ref !== 'undefined') {
                         map.set($ref.id, $ref);
                     }

@@ -16,10 +16,11 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { API } from '../app';
     import { getGroupName, getWorldName, parseLocation } from '../shared/utils';
-    import { useWorldStore } from '../stores/world';
     import { useGroupStore } from '../stores/group';
+    import { useWorldStore } from '../stores/world';
 
     export default {
         name: 'Location',
@@ -42,10 +43,11 @@
         },
         setup() {
             const worldStore = useWorldStore();
+            const { cachedWorlds } = storeToRefs(worldStore);
             const { showWorldDialog } = worldStore;
             const groupStore = useGroupStore();
             const { showGroupDialog } = groupStore;
-            return { API, showWorldDialog, showGroupDialog };
+            return { API, showWorldDialog, showGroupDialog, cachedWorlds };
         },
         data() {
             return {
@@ -88,7 +90,7 @@
                         this.text = this.hint;
                     }
                 } else if (L.worldId) {
-                    var ref = this.API.cachedWorlds.get(L.worldId);
+                    const ref = this.cachedWorlds.get(L.worldId);
                     if (typeof ref === 'undefined') {
                         getWorldName(L.worldId).then((worldName) => {
                             if (L.tag === instanceId) {

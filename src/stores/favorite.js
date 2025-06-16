@@ -24,7 +24,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const { avatarDialog, avatarHistory } = storeToRefs(avatarStore);
     const { applyAvatar } = avatarStore;
     const worldStore = useWorldStore();
-    const { worldDialog } = storeToRefs(worldStore);
+    const { worldDialog, cachedWorlds } = storeToRefs(worldStore);
     const { applyWorld } = worldStore;
     const state = reactive({
         isFavoriteGroupLoading: false,
@@ -420,7 +420,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                         ctx.name = ref.displayName;
                     }
                 } else if (type === 'world') {
-                    ref = API.cachedWorlds.get(objectId);
+                    ref = cachedWorlds.value.get(objectId);
                     if (typeof ref !== 'undefined') {
                         ctx.ref = ref;
                         ctx.name = ref.name;
@@ -461,7 +461,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     }
                     // else too bad
                 } else if (type === 'world') {
-                    ref = API.cachedWorlds.get(objectId);
+                    ref = cachedWorlds.value.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;
@@ -1043,7 +1043,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (hasLocalWorldFavorite(worldId, group)) {
             return;
         }
-        const ref = API.cachedWorlds.get(worldId);
+        const ref = cachedWorlds.value.get(worldId);
         if (typeof ref === 'undefined') {
             return;
         }
@@ -1577,7 +1577,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         const worldCache = await database.getWorldCache();
         for (let i = 0; i < worldCache.length; ++i) {
             const ref = worldCache[i];
-            if (!API.cachedWorlds.has(ref.id)) {
+            if (!cachedWorlds.value.has(ref.id)) {
                 applyWorld(ref);
             }
         }
@@ -1593,7 +1593,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             if (!state.localWorldFavoriteGroups.includes(favorite.groupName)) {
                 state.localWorldFavoriteGroups.push(favorite.groupName);
             }
-            let ref = API.cachedWorlds.get(favorite.worldId);
+            let ref = cachedWorlds.value.get(favorite.worldId);
             if (typeof ref === 'undefined') {
                 ref = {
                     id: favorite.worldId

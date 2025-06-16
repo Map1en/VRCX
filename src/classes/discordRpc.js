@@ -40,7 +40,7 @@ export default function init(app) {
                 L.joinUrl = '';
                 L.accessName = '';
                 if (L.worldId) {
-                    var ref = API.cachedWorlds.get(L.worldId);
+                    var ref = this.store.world.cachedWorlds.get(L.worldId);
                     if (ref) {
                         L.worldName = ref.name;
                         L.thumbnailImageUrl = ref.thumbnailImageUrl;
