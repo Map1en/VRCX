@@ -4,12 +4,12 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+import './vr.scss';
 import '@fontsource/noto-sans-kr';
 import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';
 import '@fontsource/noto-sans-tc';
 import '@infolektuell/noto-color-emoji';
-import './vr.scss';
 import ElementUI from 'element-ui';
 import Noty from 'noty';
 import Vue from 'vue';
