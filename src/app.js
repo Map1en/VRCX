@@ -1302,6 +1302,7 @@ API.$on('LOGIN', function () {
     $app.store.favorite.cachedFavoriteGroups.clear();
     $app.store.favorite.cachedFavoriteGroupsByTypeName.clear();
     $app.store.group.currentUserGroups.clear();
+    this.currentUserInventory.clear();
     this.queuedInstances.clear();
     $app.store.favorite.favoriteFriendGroups = [];
     this.favoriteWorldGroups = [];
@@ -5434,7 +5435,8 @@ $app.data.instanceContentSettings = [
     'stickers',
     'pedestals',
     'prints',
-    'drones'
+    'drones',
+    'items'
 ];
 
 $app.methods.createNewInstance = async function (worldId = '', options) {
@@ -6145,6 +6147,7 @@ $app.data.galleryDialogIconsLoading = false;
 $app.data.galleryDialogEmojisLoading = false;
 $app.data.galleryDialogStickersLoading = false;
 $app.data.galleryDialogPrintsLoading = false;
+$app.data.galleryDialogInventoryLoading = false;
 
 API.$on('LOGIN', function () {
     $app.galleryTable = [];
@@ -6157,6 +6160,7 @@ $app.methods.showGalleryDialog = function (pageNum) {
     this.refreshEmojiTable();
     this.refreshStickerTable();
     this.refreshPrintTable();
+    this.getInventory();
     workerTimers.setTimeout(() => this.setGalleryTab(pageNum), 100);
 };
 

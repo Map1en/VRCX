@@ -1793,6 +1793,7 @@
             :gallery-dialog-emojis-loading="galleryDialogEmojisLoading"
             :gallery-dialog-stickers-loading="galleryDialogStickersLoading"
             :gallery-dialog-prints-loading="galleryDialogPrintsLoading"
+            :gallery-dialog-inventory-loading="galleryDialogInventoryLoading"
             :gallery-table="galleryTable"
             :VRCPlusIconsTable="VRCPlusIconsTable"
             :emoji-table="emojiTable"
@@ -1800,6 +1801,7 @@
             :print-upload-note="printUploadNote"
             :print-crop-border="printCropBorder"
             :print-table="printTable"
+            :inventory-table="inventoryTable"
             @refreshGalleryTable="refreshGalleryTable"
             @refreshVRCPlusIconsTable="refreshVRCPlusIconsTable"
             @refreshStickerTable="refreshStickerTable"
@@ -1992,6 +1994,10 @@
             type: Boolean,
             required: true
         },
+        galleryDialogInventoryLoading: {
+            type: Boolean,
+            required: true
+        },
         galleryTable: {
             type: Array,
             required: true
@@ -2018,6 +2024,10 @@
             required: true
         },
         printTable: {
+            type: Array,
+            required: true
+        },
+        inventoryTable: {
             type: Array,
             required: true
         }
