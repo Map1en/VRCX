@@ -469,12 +469,6 @@ document.addEventListener('keyup', function (e) {
     }
 });
 
-addEventListener('wheel', (event) => {
-    if (event.ctrlKey) {
-        $app.getZoomLevel();
-    }
-});
-
 // #endregion
 
 // #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet, dayjs
@@ -7620,20 +7614,6 @@ API.$on('INSTANCE:CLOSE', function (args) {
 });
 
 // #endregion
-// #region | Settings: Zoom
-
-$app.data.zoomLevel = ((await AppApi.GetZoom()) + 10) * 10;
-
-$app.methods.getZoomLevel = async function () {
-    this.zoomLevel = ((await AppApi.GetZoom()) + 10) * 10;
-};
-
-$app.methods.setZoomLevel = function () {
-    AppApi.SetZoom(this.zoomLevel / 10 - 10);
-};
-
-// #endregion
-
 // #region instance join history
 
 $app.data.instanceJoinHistory = new Map();
@@ -7915,7 +7895,6 @@ $app.computed.loginPageEvent = function () {
 $app.computed.settingsTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        zoomLevel: this.zoomLevel,
         getTTSVoiceName: this.getTTSVoiceName,
         TTSvoices: this.TTSvoices,
         notificationTTSTest: this.notificationTTSTest,
@@ -7938,7 +7917,6 @@ $app.computed.settingsTabEvent = function () {
         saveOpenVROption: this.saveOpenVROption,
         changeAppLanguage: this.changeAppLanguage,
         saveThemeMode: this.saveThemeMode,
-        setZoomLevel: this.setZoomLevel,
         saveSortFavoritesOption: this.saveSortFavoritesOption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         saveSidebarSortOrder: this.saveSidebarSortOrder,

@@ -2089,10 +2089,6 @@
             type: String,
             default: ''
         },
-        zoomLevel: {
-            type: Number,
-            default: 0
-        },
         getTTSVoiceName: {
             type: Function,
             default: () => ''
@@ -2144,7 +2140,6 @@
         'saveOpenVROption',
         'changeAppLanguage',
         'saveThemeMode',
-        'setZoomLevel',
         'saveSortFavoritesOption',
         'promptMaxTableSizeDialog',
         'saveSidebarSortOrder',
@@ -2200,6 +2195,27 @@
         isUploading: false
     });
 
+    const zoomLevel = ref(100);
+
+    initGetZoomLevel();
+
+    async function initGetZoomLevel() {
+        addEventListener('wheel', (event) => {
+            if (event.ctrlKey) {
+                getZoomLevel();
+            }
+        });
+        zoomLevel.value = await getZoomLevel();
+    }
+
+    async function getZoomLevel() {
+        zoomLevel.value = ((await AppApi.GetZoom()) + 10) * 10;
+    }
+
+    function setZoomLevel() {
+        AppApi.SetZoom(zoomLevel.value / 10 - 10);
+    }
+
     function updateSharedFeed($event) {
         emit('updateSharedFeed', $event);
     }
@@ -2241,10 +2257,6 @@
 
     function saveThemeMode(newThemeMode) {
         emit('saveThemeMode', newThemeMode);
-    }
-
-    function setZoomLevel() {
-        emit('setZoomLevel');
     }
 
     function saveSortFavoritesOption() {
