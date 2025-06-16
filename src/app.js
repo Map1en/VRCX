@@ -10,6 +10,7 @@ import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';
 import '@fontsource/noto-sans-tc';
 import '@infolektuell/noto-color-emoji';
+import './app.scss';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';

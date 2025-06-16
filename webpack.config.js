@@ -13,7 +13,11 @@ module.exports = {
     entry: {
         vendor: ['element-ui', 'noty', 'vue', 'vue-i18n', 'worker-timers'],
         app: {
-            import: ['./src/app.js', './src/app.scss'],
+            import: ['./src/app.js'],
+            dependOn: 'vendor'
+        },
+        vr: {
+            import: ['./src/vr.js'],
             dependOn: 'vendor'
         },
         'theme.dark': `${themeBasePath}theme.dark.scss`,
@@ -21,13 +25,7 @@ module.exports = {
         'theme.darkvanilla': `${themeBasePath}theme.darkvanilla.scss`,
         'theme.pink': `${themeBasePath}theme.pink.scss`,
         'theme.material3': `${themeBasePath}theme.material3.scss`,
-        flags: `${scssBasePath}flags.scss`,
-        'animated-emoji': `${scssBasePath}animated-emoji.scss`,
-        'emoji.font': `${scssBasePath}emoji.font.scss`,
-        vr: {
-            import: ['./src/vr.js', './src/vr.scss'],
-            dependOn: 'vendor'
-        }
+        'emoji.font': `${scssBasePath}emoji.font.scss`
     },
     output: {
         path: path.resolve(__dirname, 'build/html'),
@@ -103,13 +101,13 @@ module.exports = {
             filename: 'index.html',
             template: './src/static/index.html',
             inject: true,
-            chunks: ['vendor', 'app', 'flags', 'animated-emoji']
+            chunks: ['vendor', 'app', 'emoji.font']
         }),
         new HtmlWebpackPlugin({
             filename: 'vr.html',
             template: './src/static/vr.html',
             inject: true,
-            chunks: ['vendor', 'vr', 'flags']
+            chunks: ['vendor', 'vr', 'emoji.font']
         }),
         new CopyPlugin({
             patterns: [
@@ -130,7 +128,7 @@ module.exports = {
             })
         ],
         splitChunks: {
-            chunks: 'initial'
+            chunks: 'all'
         }
     },
     watchOptions: {
