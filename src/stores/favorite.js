@@ -1171,7 +1171,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         const favorite = state.favoriteObjects.get(objectId);
         if (favorite) {
             let group;
-            for (group of API.favoriteWorldGroups) {
+            for (group of state.favoriteWorldGroups) {
                 if (favorite.groupKey === group.key) {
                     D.currentGroup = group;
                     return;

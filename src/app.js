@@ -1201,8 +1201,6 @@ API.refreshPlayerModerations = function () {
 // #region | API: Favorite
 
 // API.cachedFavoritesByObjectId = new Map();
-API.favoriteAvatarGroups = [];
-API.isFavoriteGroupLoading = false;
 
 API.$on('LOGIN', function () {
     $app.store.friend.localFavoriteFriends.clear();
@@ -1223,10 +1221,10 @@ API.$on('LOGIN', function () {
     this.currentUserInventory.clear();
     this.queuedInstances.clear();
     $app.store.favorite.favoriteFriendGroups = [];
-    this.favoriteWorldGroups = [];
-    this.favoriteAvatarGroups = [];
+    $app.store.favorite.favoriteWorldGroups = [];
+    $app.store.favorite.favoriteAvatarGroups = [];
     $app.store.favorite.isFavoriteLoading = false;
-    this.isFavoriteGroupLoading = false;
+    $app.store.favorite.isFavoriteGroupLoading = false;
     $app.store.favorite.refreshFavorites();
 });
 
@@ -1515,6 +1513,7 @@ workerTimers.setInterval(function () {
 // #endregion
 // #region | initialise
 
+// todo: use in cef
 $app.methods.updateIsGameRunning = async function (
     isGameRunning,
     isSteamVRRunning,
@@ -1839,11 +1838,6 @@ $app.methods.migrateStoredUsers = async function () {
 // #region | App: Friends
 
 $app.data.friendNumber = 0;
-$app.data.isFriendsGroupMe = true;
-$app.data.isVIPFriends = true;
-$app.data.isOnlineFriends = true;
-$app.data.isActiveFriends = true;
-$app.data.isOfflineFriends = false;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
 
