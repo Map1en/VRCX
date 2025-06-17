@@ -1,9 +1,9 @@
-import { API } from '../app.js';
+import { API, $app } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { compareByCreatedAtAscending } from '../shared/utils';
 
-export default function init(app) {
+export default function init() {
     const _methods = {
         async tryRestoreFriendNumber() {
             var lastUpdate = await configRepository.getString(
@@ -263,5 +263,5 @@ export default function init(app) {
         }
     };
 
-    app.methods = { ...app.methods, ..._methods };
+    $app.methods = { ...$app.methods, ..._methods };
 }

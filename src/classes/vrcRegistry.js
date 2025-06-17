@@ -1,8 +1,8 @@
-import { $t } from '../app.js';
+import { $t, $app } from '../app.js';
 import configRepository from '../service/config.js';
 import { removeFromArray } from '../shared/utils';
 
-export default function init(app) {
+export default function init() {
     const _methods = {
         async backupVrcRegistry(name) {
             var regJson;
@@ -112,5 +112,5 @@ export default function init(app) {
         }
     };
 
-    app.methods = { ...app.methods, ..._methods };
+    $app.methods = { ...$app.methods, ..._methods };
 }

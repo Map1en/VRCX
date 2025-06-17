@@ -1,5 +1,5 @@
 import { worldRequest } from '../api';
-import { API } from '../app.js';
+import { API, $app } from '../app.js';
 import {
     getGroupName,
     getLaunchURL,
@@ -7,7 +7,7 @@ import {
     parseLocation
 } from '../shared/utils';
 
-export default function init(app) {
+export default function init() {
     const _data = {
         isDiscordActive: false
     };
@@ -248,6 +248,6 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

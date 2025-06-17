@@ -1,7 +1,7 @@
-import { API } from '../app.js';
+import { API, $app } from '../app.js';
 import { inventoryRequest } from '../api';
 
-export default function init(app) {
+export default function init() {
     API.currentUserInventory = new Map();
     API.$on('LOGIN', function () {
         API.currentUserInventory.clear();
@@ -44,6 +44,6 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

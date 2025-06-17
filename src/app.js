@@ -432,16 +432,16 @@ vrcxNotifications();
 apiLogin();
 currentUser();
 updateLoop();
-discordRpc($app);
 gameLog();
 gameRealtimeLogging();
-feed($app);
 config();
 languages();
 groups();
-vrcRegistry($app);
-restoreFriendOrder($app);
-inventory($app);
+discordRpc();
+feed();
+vrcRegistry();
+restoreFriendOrder();
+inventory();
 
 // #endregion
 // #region | Init: drop/keyup event listeners
