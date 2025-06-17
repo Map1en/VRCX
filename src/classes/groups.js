@@ -196,7 +196,7 @@ export default function init(app) {
             }
             $app.groupInstances.push({
                 group: ref,
-                instance: this.applyInstance(json)
+                instance: $app.store.instance.applyInstance(json)
             });
         }
     });

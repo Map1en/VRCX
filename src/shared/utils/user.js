@@ -1,4 +1,4 @@
-import API from '../../classes/apiInit';
+import { API } from '../../app';
 import { languageMappings } from '../constants';
 import { HueToHex } from './base/ui';
 import { useAppearanceSettingsStore } from '../../stores/settings/appearance';

@@ -1,8 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import { favoriteRequest } from '../api';
-import { $app, $t } from '../app';
-import API from '../classes/apiInit';
+import { $app, $t, API } from '../app';
 import database from '../service/database';
 import { compareByName, removeFromArray } from '../shared/utils';
 import { useAvatarStore } from './avatar';

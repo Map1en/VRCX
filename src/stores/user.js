@@ -2,8 +2,7 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 
 import { groupRequest, userRequest } from '../api';
-import { $app, $t } from '../app';
-import API from '../classes/apiInit';
+import { $app, $t, API } from '../app';
 import { userNotes } from '../classes/userNotes';
 import database from '../service/database';
 import {

@@ -1690,7 +1690,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.instance_cache') }}
-                            <span v-text="API.cachedInstances.size"></span
+                            <span v-text="cachedInstances.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1847,6 +1847,7 @@
     import { openExternalLink } from '../../shared/utils';
     import { API } from '../../app';
     import { useGroupStore } from '../../stores/group';
+    import { useInstanceStore } from '../../stores/instance';
 
     const { messages, t } = useI18n();
 
@@ -2083,6 +2084,9 @@
 
     const worldStore = useWorldStore();
     const { cachedWorlds } = storeToRefs(worldStore);
+
+    const instanceStore = useInstanceStore();
+    const { cachedInstances } = storeToRefs(instanceStore);
 
     const props = defineProps({
         menuActiveIndex: {

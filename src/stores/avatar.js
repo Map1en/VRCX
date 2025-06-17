@@ -1,8 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import { avatarRequest } from '../api';
-import { $app } from '../app';
-import API from '../classes/apiInit';
+import { $app, API } from '../app';
 import database from '../service/database';
 import {
     checkVRChatCache,

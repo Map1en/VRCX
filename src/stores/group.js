@@ -19,6 +19,7 @@ import {
 import { useFriendStore } from './friend';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
+import { useInstanceStore } from './instance';
 
 export const useGroupStore = defineStore('Group', () => {
     const friendStore = useFriendStore();
@@ -29,6 +30,9 @@ export const useGroupStore = defineStore('Group', () => {
     );
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
+
+    const instanceStore = useInstanceStore();
+    const { cachedInstances } = storeToRefs(instanceStore);
 
     const state = reactive({
         groupDialog: {
@@ -426,7 +430,7 @@ export const useGroupStore = defineStore('Group', () => {
         }
         // get instance
         for (const room of rooms) {
-            ref = API.cachedInstances.get(room.tag);
+            ref = cachedInstances.value.get(room.tag);
             if (typeof ref !== 'undefined') {
                 room.ref = ref;
             } else if (isRealInstance(room.tag)) {

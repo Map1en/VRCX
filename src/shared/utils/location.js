@@ -137,7 +137,7 @@ function checkCanInvite(location) {
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
     const L = parseLocation(location);
-    const instance = API.cachedInstances.get(location);
+    const instance = $app.store.instance.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }
@@ -159,7 +159,7 @@ function checkCanInvite(location) {
 
 function checkCanInviteSelf(location) {
     const L = parseLocation(location);
-    const instance = API.cachedInstances.get(location);
+    const instance = $app.store.instance.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }

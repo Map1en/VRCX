@@ -601,6 +601,7 @@ API.$on('WORLD', function (args) {
     args.ref = $app.store.world.applyWorld(args.json);
 });
 
+// todo: use in cef
 API.actuallyGetCurrentLocation = async function () {
     let gameLogLocation = $app.store.location.lastLocation.location;
     if (gameLogLocation.startsWith('local')) {
@@ -660,97 +661,12 @@ API.actuallyGetCurrentLocation = async function () {
 // #endregion
 // #region | API: Instance
 
-API.cachedInstances = new Map();
-
-API.applyInstance = function (json) {
-    let ref = this.cachedInstances.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            location: '',
-            instanceId: '',
-            name: '',
-            worldId: '',
-            type: '',
-            ownerId: '',
-            tags: [],
-            active: false,
-            full: false,
-            n_users: 0,
-            hasCapacityForYou: true, // not present depending on endpoint
-            capacity: 0,
-            recommendedCapacity: 0,
-            userCount: 0,
-            queueEnabled: false, // only present with group instance type
-            queueSize: 0, // only present when queuing is enabled
-            platforms: {},
-            gameServerVersion: 0,
-            hardClose: null, // boolean or null
-            closedAt: null, // string or null
-            secureName: '',
-            shortName: '',
-            world: {},
-            users: [], // only present when you're the owner
-            clientNumber: '',
-            contentSettings: {},
-            photonRegion: '',
-            region: '',
-            canRequestInvite: false,
-            permanent: false,
-            private: '', // part of instance tag
-            hidden: '', // part of instance tag
-            nonce: '', // only present when you're the owner
-            strict: false, // deprecated
-            displayName: null,
-            groupAccessType: null, // only present with group instance type
-            roleRestricted: false, // only present with group instance type
-            instancePersistenceEnabled: null,
-            playerPersistenceEnabled: null,
-            ageGate: null,
-            // VRCX
-            $fetchedAt: '',
-            $disabledContentSettings: [],
-            ...json
-        };
-        this.cachedInstances.set(ref.id, ref);
-    } else {
-        Object.assign(ref, json);
-    }
-    ref.$location = parseLocation(ref.location);
-    if (json.world?.id) {
-        worldRequest
-            .getCachedWorld({
-                worldId: json.world.id
-            })
-            .then((args) => {
-                ref.world = args.ref;
-                return args;
-            });
-    }
-    if (!json.$fetchedAt) {
-        ref.$fetchedAt = new Date().toJSON();
-    }
-    ref.$disabledContentSettings = [];
-    if (json.contentSettings && Object.keys(json.contentSettings).length) {
-        for (let setting of $app.instanceContentSettings) {
-            if (
-                typeof json.contentSettings[setting] === 'undefined' ||
-                json.contentSettings[setting] === true
-            ) {
-                continue;
-            }
-            ref.$disabledContentSettings.push(setting);
-        }
-    }
-    return ref;
-};
-
 API.$on('INSTANCE', function (args) {
     let { json } = args;
     if (!json) {
         return;
     }
-    args.ref = this.applyInstance(args.json);
+    args.ref = $app.store.instance.applyInstance(args.json);
 });
 
 API.$on('INSTANCE', function (args) {
@@ -1295,7 +1211,7 @@ API.$on('LOGIN', function () {
     this.cachedAvatars.clear();
     $app.store.world.cachedWorlds.clear();
     this.cachedUsers.clear();
-    this.cachedInstances.clear();
+    $app.store.instance.cachedInstances.clear();
     this.cachedAvatarNames.clear();
     $app.store.avatar.cachedAvatarModerations.clear();
     this.cachedPlayerModerations.clear();
@@ -4438,7 +4354,7 @@ $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
             ref: {}
         };
     }
-    const instanceRef = API.cachedInstances.get(L.tag);
+    const instanceRef = $app.store.instance.cachedInstances.get(L.tag);
     if (typeof instanceRef !== 'undefined') {
         D.instance.ref = instanceRef;
     }
@@ -4750,7 +4666,7 @@ $app.methods.updateCurrentInstanceWorld = function () {
             });
     }
     if (isRealInstance(instanceId)) {
-        const ref = API.cachedInstances.get(instanceId);
+        const ref = $app.store.instance.cachedInstances.get(instanceId);
         if (typeof ref !== 'undefined') {
             this.currentInstanceWorld.instance = ref;
         } else {
@@ -5184,7 +5100,7 @@ $app.methods.applyWorldDialogInstances = function () {
     }
     // get instance from cache
     for (const room of rooms) {
-        ref = API.cachedInstances.get(room.tag);
+        ref = $app.store.instance.cachedInstances.get(room.tag);
         if (typeof ref !== 'undefined') {
             room.ref = ref;
         }
@@ -6477,10 +6393,10 @@ $app.methods.clearVRCXCache = function () {
             $app.store.group.cachedGroups.delete(id);
         }
     });
-    API.cachedInstances.forEach((ref, id) => {
+    $app.store.instance.cachedInstances.forEach((ref, id) => {
         // delete instances over an hour old
         if (Date.parse(ref.$fetchedAt) < Date.now() - 3600000) {
-            API.cachedInstances.delete(id);
+            $app.store.instance.cachedInstances.delete(id);
         }
     });
     API.cachedAvatarNames = new Map();

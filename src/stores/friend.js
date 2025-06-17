@@ -2,8 +2,7 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { friendRequest, userRequest } from '../api';
-import { $app } from '../app';
-import API from '../classes/apiInit';
+import { $app, API } from '../app';
 import database from '../service/database';
 import {
     getFriendsSortFunction,
