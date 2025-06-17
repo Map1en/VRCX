@@ -5438,7 +5438,7 @@ $app.data.instanceContentSettings = [
     'pedestals',
     'prints',
     'drones',
-    'items'
+    'props'
 ];
 
 $app.methods.createNewInstance = async function (worldId = '', options) {
