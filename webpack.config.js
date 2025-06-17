@@ -44,7 +44,7 @@ module.exports = (env, argv) => {
                     }
                 },
                 {
-                    test: /\.[jt]sx?$/,
+                    test: /\.jsx?$/,
                     exclude: /node_modules/,
                     loader: 'esbuild-loader',
                     options: {
@@ -54,10 +54,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.pug$/,
-                    use: [
-                        { loader: 'raw-loader' },
-                        { loader: 'pug-plain-loader' }
-                    ]
+                    use: ['raw-loader', 'pug-plain-loader']
                 },
                 {
                     test: /\.s?css$/,
@@ -119,7 +116,6 @@ module.exports = (env, argv) => {
             }),
             new CopyPlugin({
                 patterns: [
-                    // assets
                     {
                         from: './images/',
                         to: './images/'

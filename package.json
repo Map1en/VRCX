@@ -59,6 +59,7 @@
         "raw-loader": "^4.0.2",
         "sass": "^1.88.0",
         "sass-loader": "^16.0.5",
+        "thread-loader": "^4.0.4",
         "vue": "^2.7.16",
         "vue-data-tables": "^3.4.5",
         "vue-demi": "^0.14.10",
