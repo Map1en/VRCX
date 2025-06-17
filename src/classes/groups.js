@@ -3,7 +3,7 @@ import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import { replaceBioSymbols } from '../shared/utils';
 
-export default function init(app) {
+export default function init() {
     API.$on('GROUP', function (args) {
         args.ref = $app.store.group.applyGroup(args.json);
     });
@@ -569,6 +569,6 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

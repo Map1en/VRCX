@@ -2,7 +2,7 @@ import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api/index.js';
 import { $app, API } from '../app.js';
 
-export default function init(app) {
+export default function init() {
     API.$on('LOGIN', function () {
         $app.nextCurrentUserRefresh = 300;
         $app.nextFriendsRefresh = 3600;
@@ -116,6 +116,6 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

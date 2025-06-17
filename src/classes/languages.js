@@ -1,6 +1,6 @@
 import { $app, API } from '../app.js';
 
-export default function init(app) {
+export default function init() {
     API.$on('CONFIG', function (args) {
         const languages =
             args.ref?.constants?.LANGUAGE?.SPOKEN_LANGUAGE_OPTIONS;
@@ -30,5 +30,5 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
+    $app.data = { ...$app.data, ..._data };
 }
