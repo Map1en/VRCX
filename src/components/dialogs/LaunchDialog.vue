@@ -98,7 +98,7 @@
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
-        inject: ['friends', 'showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             launchDialogData: { type: Object, required: true },
             inviteMessageTable: {
