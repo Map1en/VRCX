@@ -3,7 +3,7 @@ import { $app, $t, API } from '../app.js';
 import configRepository from '../service/config.js';
 import security from '../service/security.js';
 
-export default async function init(app) {
+export default async function init() {
     API.isLoggedIn = false;
     API.attemptingAutoLogin = false;
     API.autoLoginAttempts = new Set();
@@ -355,6 +355,6 @@ export default async function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

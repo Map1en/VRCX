@@ -5,7 +5,7 @@ import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
 
-export default function init(app) {
+export default function init() {
     const _methods = {
         promptTOTP() {
             if (this.twoFactorAuthDialogVisible) {
@@ -573,5 +573,5 @@ export default function init(app) {
             );
         }
     };
-    app.methods = { ...app.methods, ..._methods };
+    $app.methods = { ...$app.methods, ..._methods };
 }

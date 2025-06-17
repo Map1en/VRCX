@@ -6,7 +6,7 @@ import {
     extractFileVersion
 } from '../shared/utils';
 
-export default function init(app) {
+export default function init() {
     const _data = {
         notyMap: []
     };
@@ -1646,6 +1646,6 @@ export default function init(app) {
         }
     };
 
-    app.data = { ...app.data, ..._data };
-    app.methods = { ...app.methods, ..._methods };
+    $app.data = { ...$app.data, ..._data };
+    $app.methods = { ...$app.methods, ..._methods };
 }

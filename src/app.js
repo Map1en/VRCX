@@ -426,10 +426,10 @@ apiRequestHandler();
 uiComponents();
 websocket();
 
-sharedFeed($app);
-prompts($app);
-vrcxNotifications($app);
-apiLogin($app);
+sharedFeed();
+prompts();
+vrcxNotifications();
+apiLogin();
 currentUser();
 updateLoop($app);
 discordRpc($app);
