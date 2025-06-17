@@ -1,26 +1,17 @@
-import * as workerTimers from 'worker-timers';
-import configRepository from '../service/config.js';
-import database from '../service/database.js';
-import { baseClass, $app, API, $t, $utils } from './baseClass.js';
+import { API } from '../app.js';
 import { inventoryRequest } from '../api';
 
-export default class extends baseClass {
-    constructor(_app, _API, _t) {
-        super(_app, _API, _t);
-    }
+export default function init(app) {
+    API.currentUserInventory = new Map();
+    API.$on('LOGIN', function () {
+        API.currentUserInventory.clear();
+    });
 
-    init() {
-        API.currentUserInventory = new Map();
-        API.$on('LOGIN', function () {
-            API.currentUserInventory.clear();
-        });
-    }
-
-    _data = {
+    const _data = {
         inventoryTable: []
     };
 
-    _methods = {
+    const _methods = {
         async getInventory() {
             this.inventoryTable = [];
             API.currentUserInventory.clear();
@@ -52,4 +43,7 @@ export default class extends baseClass {
             }
         }
     };
+
+    app.data = { ...app.data, ..._data };
+    app.methods = { ...app.methods, ..._methods };
 }

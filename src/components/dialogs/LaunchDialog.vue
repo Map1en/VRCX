@@ -98,7 +98,7 @@
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
-        inject: ['friends', 'showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             launchDialogData: { type: Object, required: true },
             inviteMessageTable: {
@@ -113,7 +113,7 @@
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();
-            const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
+            const { vipFriends, onlineFriends, activeFriends, friends } = storeToRefs(friendStore);
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const locationStore = useLocationStore();
             const { lastLocation } = storeToRefs(locationStore);
@@ -122,6 +122,7 @@
                 vipFriends,
                 onlineFriends,
                 activeFriends,
+                friends,
                 checkCanInvite,
                 lastLocation
             };

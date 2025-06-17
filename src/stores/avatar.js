@@ -58,6 +58,13 @@ export const useAvatarStore = defineStore('Avatar', () => {
         }
     });
 
+    const cachedAvatarModerations = computed({
+        get: () => state.cachedAvatarModerations,
+        set: (value) => {
+            state.cachedAvatarModerations = value;
+        }
+    });
+
     /**
      *
      * @param {string} avatarId
@@ -341,6 +348,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         avatarDialog,
         avatarHistory,
         avatarHistoryArray,
+        cachedAvatarModerations,
 
         showAvatarDialog,
         applyAvatarModeration,

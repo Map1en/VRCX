@@ -60,6 +60,7 @@ import groups from './classes/groups.js';
 import languages from './classes/languages.js';
 import prompts from './classes/prompts.js';
 import restoreFriendOrder from './classes/restoreFriendOrder.js';
+import inventory from './classes/inventory';
 
 // main app classes
 import API from './classes/apiInit';
@@ -440,6 +441,7 @@ languages($app);
 groups($app);
 vrcRegistry($app);
 restoreFriendOrder($app);
+inventory($app);
 
 // #endregion
 // #region | Init: drop/keyup event listeners
@@ -1289,13 +1291,13 @@ API.isFavoriteGroupLoading = false;
 API.$on('LOGIN', function () {
     $app.store.friend.localFavoriteFriends.clear();
     $app.currentUserGroupsInit = false;
-    this.cachedGroups.clear();
+    $app.store.group.cachedGroups.clear();
     this.cachedAvatars.clear();
-    this.cachedWorlds.clear();
+    $app.store.world.cachedWorlds.clear();
     this.cachedUsers.clear();
     this.cachedInstances.clear();
     this.cachedAvatarNames.clear();
-    this.cachedAvatarModerations.clear();
+    $app.store.avatar.cachedAvatarModerations.clear();
     this.cachedPlayerModerations.clear();
     $app.store.favorite.cachedFavorites.clear();
     $app.store.favorite.cachedFavoritesByObjectId.clear();
