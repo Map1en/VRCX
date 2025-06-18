@@ -33,7 +33,7 @@
                         <el-button
                             type="default"
                             :loading="isPlayerModerationsLoading"
-                            @click="API.refreshPlayerModerations()"
+                            @click="refreshPlayerModerations()"
                             icon="el-icon-refresh"
                             circle />
                     </el-tooltip>
@@ -115,12 +115,14 @@
             const { showUserDialog } = userStore;
             const moderationStore = useModerationStore();
             const { isPlayerModerationsLoading, playerModerationTable } = storeToRefs(moderationStore);
+            const { refreshPlayerModerations } = moderationStore;
             return {
                 hideTooltips,
                 API,
                 showUserDialog,
                 isPlayerModerationsLoading,
-                playerModerationTable
+                playerModerationTable,
+                refreshPlayerModerations
             };
         },
         data() {

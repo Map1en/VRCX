@@ -36,7 +36,7 @@ export default function init() {
                         this.store.friend.refreshFriendsList();
                         this.updateStoredUser(API.currentUser);
                         if (this.isGameRunning) {
-                            $app.store.modercations.refreshPlayerModerations();
+                            $app.store.moderation.refreshPlayerModerations();
                         }
                     }
                     if (--this.nextGroupInstanceRefresh <= 0) {
