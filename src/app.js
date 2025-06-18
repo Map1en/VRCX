@@ -6591,26 +6591,6 @@ $app.methods.userColourInit = async function () {
     }
 };
 
-$app.methods.onPlayerTraveling = function (ref) {
-    if (
-        !this.isGameRunning ||
-        !this.store.location.lastLocation.location ||
-        this.store.location.lastLocation.location !== ref.travelingToLocation ||
-        ref.id === API.currentUser.id ||
-        this.store.location.lastLocation.playerList.has(ref.id)
-    ) {
-        return;
-    }
-
-    const onPlayerJoining = {
-        created_at: new Date(ref.created_at).toJSON(),
-        userId: ref.id,
-        displayName: ref.displayName,
-        type: 'OnPlayerJoining'
-    };
-    this.queueFeedNoty(onPlayerJoining);
-};
-
 $app.methods.updateCurrentUserLocation = function () {
     const ref = API.cachedUsers.get(API.currentUser.id);
     if (typeof ref === 'undefined') {
@@ -6721,25 +6701,6 @@ $app.methods.addAvatarWearTime = function (avatarId) {
     }
     const timeSpent = Date.now() - API.currentUser.$previousAvatarSwapTime;
     database.addAvatarTimeSpent(avatarId, timeSpent);
-};
-
-$app.methods.promptClearAvatarHistory = function () {
-    this.$confirm('Continue? Clear Avatar History', 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action === 'confirm') {
-                this.clearAvatarHistory();
-            }
-        }
-    });
-};
-
-$app.methods.clearAvatarHistory = function () {
-    this.store.avatar.avatarHistory = new Set();
-    this.store.avatar.avatarHistoryArray = [];
-    database.clearAvatarHistory();
 };
 
 $app.data.databaseVersion = await configRepository.getInt(
@@ -7486,8 +7447,7 @@ $app.computed.favoritesTabEvent = function () {
     return {
         'save-sort-favorites-option': this.saveSortFavoritesOption,
         'new-instance-self-invite': this.newInstanceSelfInvite,
-        'select-avatar-with-confirmation': this.selectAvatarWithConfirmation,
-        'prompt-clear-avatar-history': this.promptClearAvatarHistory
+        'select-avatar-with-confirmation': this.selectAvatarWithConfirmation
     };
 };
 

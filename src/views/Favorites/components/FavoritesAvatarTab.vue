@@ -260,6 +260,7 @@
             } = favoriteStore;
             const avatarStore = useAvatarStore();
             const { showAvatarDialog, avatarHistoryArray } = storeToRefs(avatarStore);
+            const { promptClearAvatarHistory } = avatarStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -275,7 +276,8 @@
                 deleteLocalAvatarFavoriteGroup,
                 renameLocalAvatarFavoriteGroup,
                 newLocalAvatarFavoriteGroup,
-                avatarHistoryArray
+                avatarHistoryArray,
+                promptClearAvatarHistory
             };
         },
         data() {
@@ -390,9 +392,6 @@
             },
             selectAvatarWithConfirmation(id) {
                 this.$emit('select-avatar-with-confirmation', id);
-            },
-            promptClearAvatarHistory() {
-                this.$emit('prompt-clear-avatar-history');
             },
             promptNewLocalAvatarFavoriteGroup() {
                 this.$prompt(

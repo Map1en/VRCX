@@ -342,6 +342,25 @@ export const useAvatarStore = defineStore('Avatar', () => {
         return ref;
     }
 
+    function clearAvatarHistory() {
+        state.avatarHistory = new Set();
+        state.avatarHistoryArray = [];
+        database.clearAvatarHistory();
+    }
+
+    function promptClearAvatarHistory() {
+        this.$confirm('Continue? Clear Avatar History', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    clearAvatarHistory();
+                }
+            }
+        });
+    }
+
     return {
         state,
         avatarDialog,
@@ -355,6 +374,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         updateVRChatAvatarCache,
         getAvatarHistory,
         addAvatarToHistory,
-        applyAvatar
+        applyAvatar,
+        promptClearAvatarHistory
     };
 });

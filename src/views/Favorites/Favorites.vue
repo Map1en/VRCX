@@ -54,7 +54,6 @@
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @select-avatar-with-confirmation="selectAvatarWithConfirmation"
-                    @prompt-clear-avatar-history="promptClearAvatarHistory"
                     @refresh-local-avatar-favorites="refreshLocalAvatarFavorites" />
             </el-tab-pane>
         </el-tabs>
@@ -259,9 +258,6 @@
             },
             selectAvatarWithConfirmation(id) {
                 this.$emit('select-avatar-with-confirmation', id);
-            },
-            promptClearAvatarHistory() {
-                this.$emit('prompt-clear-avatar-history');
             }
         }
     };

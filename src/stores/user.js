@@ -328,7 +328,7 @@ export const useUserStore = defineStore('User', () => {
                     API.currentTravelers.set(ref.id, travelRef);
                     $app.sharedFeed.pendingUpdate = true;
                     $app.updateSharedFeed(false);
-                    $app.onPlayerTraveling(travelRef);
+                    onPlayerTraveling(travelRef);
                 }
             } else {
                 ref.$location = parseLocation(ref.location);
@@ -382,7 +382,7 @@ export const useUserStore = defineStore('User', () => {
                     API.currentTravelers.set(ref.id, travelRef);
                     $app.sharedFeed.pendingUpdate = true;
                     $app.updateSharedFeed(false);
-                    $app.onPlayerTraveling(travelRef);
+                    onPlayerTraveling(travelRef);
                 }
             } else {
                 ref.$location = parseLocation(ref.location);
@@ -713,6 +713,30 @@ export const useUserStore = defineStore('User', () => {
             }
         });
         return results;
+    }
+
+    /**
+     *
+     * @param {object} ref
+     */
+    function onPlayerTraveling(ref) {
+        if (
+            !$app.isGameRunning ||
+            !lastLocation.value.location ||
+            lastLocation.value.location !== ref.travelingToLocation ||
+            ref.id === API.currentUser.id ||
+            lastLocation.value.playerList.has(ref.id)
+        ) {
+            return;
+        }
+
+        const onPlayerJoining = {
+            created_at: new Date(ref.created_at).toJSON(),
+            userId: ref.id,
+            displayName: ref.displayName,
+            type: 'OnPlayerJoining'
+        };
+        $app.queueFeedNoty(onPlayerJoining);
     }
 
     return {
