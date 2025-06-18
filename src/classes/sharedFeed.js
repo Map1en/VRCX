@@ -310,7 +310,7 @@ export default function init() {
                     ctx.type === 'OnPlayerJoined' ||
                     ctx.type === 'OnPlayerLeft'
                 ) {
-                    for (var ref of API.cachedPlayerModerations.values()) {
+                    for (var ref of $app.store.moderation.cachedPlayerModerations.values()) {
                         if (
                             ref.targetDisplayName !== ctx.displayName &&
                             ref.sourceUserId !== ctx.userId

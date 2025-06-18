@@ -568,7 +568,7 @@ export const useUserStore = defineStore('User', () => {
                         D.isMute = false;
                         D.isInteractOff = false;
                         D.isMuteChat = false;
-                        for (const ref of API.cachedPlayerModerations.values()) {
+                        for (const ref of $app.store.moderation.cachedPlayerModerations.values()) {
                             if (
                                 ref.targetUserId === D.id &&
                                 ref.sourceUserId === API.currentUser.id

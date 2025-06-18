@@ -1063,141 +1063,6 @@ API.getFriendRequest = function (userId) {
 };
 
 // #endregion
-// #region | API: PlayerModeration
-
-API.cachedPlayerModerations = new Map();
-API.cachedPlayerModerationsUserIds = new Set();
-API.isPlayerModerationsLoading = false;
-
-API.$on('LOGIN', function () {
-    this.cachedPlayerModerations.clear();
-    this.cachedPlayerModerationsUserIds.clear();
-    this.isPlayerModerationsLoading = false;
-    this.refreshPlayerModerations();
-});
-
-API.$on('PLAYER-MODERATION', function (args) {
-    args.ref = this.applyPlayerModeration(args.json);
-});
-
-API.$on('PLAYER-MODERATION:LIST', function (args) {
-    for (let json of args.json) {
-        this.$emit('PLAYER-MODERATION', {
-            json,
-            params: {
-                playerModerationId: json.id
-            }
-        });
-    }
-});
-
-API.$on('PLAYER-MODERATION:SEND', function (args) {
-    const ref = {
-        json: args.json,
-        params: {
-            playerModerationId: args.json.id
-        }
-    };
-    this.$emit('PLAYER-MODERATION', ref);
-    this.$emit('PLAYER-MODERATION:@SEND', ref);
-});
-
-API.$on('PLAYER-MODERATION:DELETE', function (args) {
-    let { type, moderated } = args.params;
-    const userId = this.currentUser.id;
-    for (let ref of this.cachedPlayerModerations.values()) {
-        if (
-            ref.type === type &&
-            ref.targetUserId === moderated &&
-            ref.sourceUserId === userId
-        ) {
-            this.cachedPlayerModerations.delete(ref.id);
-            this.$emit('PLAYER-MODERATION:@DELETE', {
-                ref,
-                params: {
-                    playerModerationId: ref.id
-                }
-            });
-        }
-    }
-    this.cachedPlayerModerationsUserIds.delete(moderated);
-});
-
-API.applyPlayerModeration = function (json) {
-    let ref = this.cachedPlayerModerations.get(json.id);
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            type: '',
-            sourceUserId: '',
-            sourceDisplayName: '',
-            targetUserId: '',
-            targetDisplayName: '',
-            created: '',
-            // VRCX
-            $isExpired: false,
-            //
-            ...json
-        };
-        this.cachedPlayerModerations.set(ref.id, ref);
-    } else {
-        Object.assign(ref, json);
-        ref.$isExpired = false;
-    }
-    if (json.targetUserId) {
-        this.cachedPlayerModerationsUserIds.add(json.targetUserId);
-    }
-    return ref;
-};
-
-API.expirePlayerModerations = function () {
-    this.cachedPlayerModerationsUserIds.clear();
-    for (let ref of this.cachedPlayerModerations.values()) {
-        ref.$isExpired = true;
-    }
-};
-
-API.deleteExpiredPlayerModerations = function () {
-    for (let ref of this.cachedPlayerModerations.values()) {
-        if (!ref.$isExpired) {
-            continue;
-        }
-        this.$emit('PLAYER-MODERATION:@DELETE', {
-            ref,
-            params: {
-                playerModerationId: ref.id
-            }
-        });
-    }
-};
-
-API.refreshPlayerModerations = function () {
-    if (this.isPlayerModerationsLoading) {
-        return;
-    }
-    this.isPlayerModerationsLoading = true;
-    this.expirePlayerModerations();
-    Promise.all([
-        playerModerationRequest.getPlayerModerations(),
-        avatarModerationRequest.getAvatarModerations()
-    ])
-        .finally(() => {
-            this.isPlayerModerationsLoading = false;
-        })
-        .then((res) => {
-            // 'AVATAR-MODERATION:LIST';
-            // TODO: compare with cachedAvatarModerations
-            $app.store.avatar.cachedAvatarModerations = new Map();
-            if (res[1]?.json) {
-                for (const json of res[1].json) {
-                    $app.store.avatar.applyAvatarModeration(json);
-                }
-            }
-            this.deleteExpiredPlayerModerations();
-        });
-};
-
-// #endregion
 // #region | API: Favorite
 
 // API.cachedFavoritesByObjectId = new Map();
@@ -1212,7 +1077,7 @@ API.$on('LOGIN', function () {
     $app.store.instance.cachedInstances.clear();
     this.cachedAvatarNames.clear();
     $app.store.avatar.cachedAvatarModerations.clear();
-    this.cachedPlayerModerations.clear();
+    $app.store.moderation.cachedPlayerModerations.clear();
     $app.store.favorite.cachedFavorites.clear();
     $app.store.favorite.cachedFavoritesByObjectId.clear();
     $app.store.favorite.cachedFavoriteGroups.clear();
@@ -3211,43 +3076,6 @@ $app.methods.updateFriendship = function (ref) {
 };
 
 // #endregion
-// #region | App: Moderation
-
-$app.data.playerModerationTable = {
-    data: [],
-    pageSize: 15
-};
-
-API.$on('LOGIN', function () {
-    $app.playerModerationTable.data = [];
-});
-
-API.$on('PLAYER-MODERATION', function (args) {
-    const { ref } = args;
-    const array = $app.playerModerationTable.data;
-    const { length } = array;
-    for (let i = 0; i < length; ++i) {
-        if (array[i].id === ref.id) {
-            Vue.set(array, i, ref);
-            return;
-        }
-    }
-    $app.playerModerationTable.data.push(ref);
-});
-
-API.$on('PLAYER-MODERATION:@DELETE', function (args) {
-    const { ref } = args;
-    const array = $app.playerModerationTable.data;
-    const { length } = array;
-    for (let i = 0; i < length; ++i) {
-        if (array[i].id === ref.id) {
-            array.splice(i, 1);
-            return;
-        }
-    }
-});
-
-// #endregion
 // #region | App: Notification
 
 $app.data.notificationTable = {
@@ -4029,7 +3857,7 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.feedTable.pageSize = pageSize;
     this.gameLogTable.pageSize = pageSize;
     this.friendLogTable.pageSize = pageSize;
-    this.playerModerationTable.pageSize = pageSize;
+    this.store.moderation.playerModerationTable.pageSize = pageSize;
     this.notificationTable.pageSize = pageSize;
     this.store.appearanceSettings.setTablePageSize(pageSize);
 };
@@ -7597,7 +7425,6 @@ API.$on('WORLD:PERSIST:DELETE', function (args) {
 $app.computed.moderationTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        tableData: this.playerModerationTable,
         shiftHeld: this.shiftHeld
     };
 };

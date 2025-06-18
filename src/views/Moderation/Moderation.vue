@@ -1,12 +1,12 @@
 <template>
     <div v-show="menuActiveIndex === 'moderation'" class="x-container">
         <data-tables
-            :data="tableData.data"
-            :pageSize="tableData.pageSize"
+            :data="playerModerationTable.data"
+            :pageSize="playerModerationTable.pageSize"
             :filters="filters"
             :tableProps="tableProps"
             :paginationProps="paginationProps"
-            v-loading="API.isPlayerModerationsLoading">
+            v-loading="isPlayerModerationsLoading">
             <template slot="tool">
                 <div class="tool-slot">
                     <el-select
@@ -32,7 +32,7 @@
                         :disabled="hideTooltips">
                         <el-button
                             type="default"
-                            :loading="API.isPlayerModerationsLoading"
+                            :loading="isPlayerModerationsLoading"
                             @click="API.refreshPlayerModerations()"
                             icon="el-icon-refresh"
                             circle />
@@ -100,12 +100,12 @@
     import configRepository from '../../service/config.js';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
+    import { useModerationStore } from '../../stores/moderation';
 
     export default {
         name: 'ModerationTab',
         props: {
             menuActiveIndex: String,
-            tableData: Object,
             shiftHeld: Boolean
         },
         setup() {
@@ -113,10 +113,14 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const moderationStore = useModerationStore();
+            const { isPlayerModerationsLoading, playerModerationTable } = storeToRefs(moderationStore);
             return {
                 hideTooltips,
                 API,
-                showUserDialog
+                showUserDialog,
+                isPlayerModerationsLoading,
+                playerModerationTable
             };
         },
         data() {
