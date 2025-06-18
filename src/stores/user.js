@@ -71,11 +71,11 @@ export const useUserStore = defineStore('User', () => {
             isGroupsLoading: false,
 
             worldSorting: {
-                name: $t('dialog.user.worlds.sorting.updated'),
+                name: 'dialog.user.worlds.sorting.updated',
                 value: 'updated'
             },
             worldOrder: {
-                name: $t('dialog.user.worlds.order.descending'),
+                name: 'dialog.user.worlds.order.descending',
                 value: 'descending'
             },
             // because userDialogGroupSortingOptions, just i18n key

@@ -40,7 +40,7 @@
                                 @click.native.stop>
                                 <el-button size="mini">
                                     <span
-                                        >{{ groupDialog.memberSortOrder.name }}
+                                        >{{ t(groupDialog.memberSortOrder.name) }}
                                         <i class="el-icon-arrow-down el-icon--right"></i
                                     ></span>
                                 </el-button>
@@ -49,7 +49,7 @@
                                         v-for="item in groupDialogSortingOptions"
                                         :key="item.name"
                                         @click.native="setGroupMemberSortOrder(item)">
-                                        {{ item.name }}
+                                        {{ t(item.name) }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -68,7 +68,7 @@
                                 @click.native.stop>
                                 <el-button size="mini">
                                     <span
-                                        >{{ groupDialog.memberFilter.name }}
+                                        >{{ t(groupDialog.memberFilter.name) }}
                                         <i class="el-icon-arrow-down el-icon--right"></i
                                     ></span>
                                 </el-button>
@@ -77,7 +77,7 @@
                                         v-for="item in groupDialogFilterOptions"
                                         :key="item.name"
                                         @click.native="setGroupMemberFilter(item)"
-                                        v-text="item.name"></el-dropdown-item>
+                                        v-text="t(item.name)"></el-dropdown-item>
                                     <el-dropdown-item
                                         v-for="item in groupDialog.ref.roles"
                                         v-if="!item.defaultRole"
@@ -822,6 +822,7 @@
     import { useUserStore } from '../../../stores/user';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
     import { useGroupStore } from '../../../stores/group';
+    import { groupDialogSortingOptions, groupDialogFilterOptions } from '../../../shared/constants';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { randomUserColours } = storeToRefs(appearanceSettingsStore);
@@ -840,14 +841,6 @@
         isGroupMembersLoading: {
             type: Boolean,
             default: false
-        },
-        groupDialogSortingOptions: {
-            type: Object,
-            required: true
-        },
-        groupDialogFilterOptions: {
-            type: Object,
-            required: true
         },
         groupMemberModeration: {
             type: Object,

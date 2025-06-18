@@ -1954,7 +1954,8 @@
         setHideUserMemos,
         setHideUnfriends,
         updateTrustColor,
-        saveThemeMode
+        saveThemeMode,
+        changeAppLanguage
     } = appearanceSettingsStore;
 
     const {
@@ -2145,7 +2146,6 @@
         'saveVRCXWindowOption',
         'promptProxySettings',
         'saveOpenVROption',
-        'changeAppLanguage',
         'saveSortFavoritesOption',
         'promptMaxTableSizeDialog',
         'saveSidebarSortOrder',
@@ -2253,10 +2253,6 @@
 
     function saveOpenVROption() {
         emit('saveOpenVROption');
-    }
-
-    function changeAppLanguage(language) {
-        emit('changeAppLanguage', language);
     }
 
     function saveSortFavoritesOption() {

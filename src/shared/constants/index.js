@@ -8,3 +8,11 @@ export {
     VRChatScreenshotResolutions,
     VRChatCameraResolutions
 } from './vrchatResolutions';
+export {
+    groupDialogSortingOptions,
+    groupDialogFilterOptions
+} from './groupDialogOptions';
+export {
+    userDialogWorldSortingOptions,
+    userDialogWorldOrderOptions
+} from './userDialogWorldOptions';

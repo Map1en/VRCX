@@ -1,6 +1,6 @@
 import { defineStore, storeToRefs } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { $app, i18n, API } from '../../app';
+import { $app, API, i18n } from '../../app';
 import configRepository from '../../service/config';
 import {
     changeAppThemeStyle,
@@ -8,9 +8,9 @@ import {
     formatDateFilter,
     getNameColour,
     HueToHex,
-    systemIsDarkMode
+    systemIsDarkMode,
+    updateTrustColorClasses
 } from '../../shared/utils';
-import { updateTrustColorClasses } from '../../shared/utils';
 import { useFriendStore } from '../friend';
 
 export const useAppearanceSettingsStore = defineStore(
@@ -143,7 +143,7 @@ export const useAppearanceSettingsStore = defineStore(
                 i18n.availableLocales.forEach((ref) => {
                     const refLang = ref.split('_')[0];
                     if (refLang === lang) {
-                        $app.changeAppLanguage(ref);
+                        changeAppLanguage(ref);
                     }
                 });
             } else {
@@ -151,7 +151,6 @@ export const useAppearanceSettingsStore = defineStore(
                 state.appLanguage = appLanguage;
             }
             changeCJKFontsOrder(state.appLanguage);
-            $app.applyLanguageStrings();
 
             state.displayVRCPlusIconsAsAvatar = displayVRCPlusIconsAsAvatar;
             state.hideNicknames = hideNicknames;
@@ -198,6 +197,8 @@ export const useAppearanceSettingsStore = defineStore(
             // setThemeMode(themeMode);
         }
 
+        initAppearanceSettings();
+
         const appLanguage = computed(() => state.appLanguage);
         const themeMode = computed(() => state.themeMode);
         const isDarkMode = computed(() => state.isDarkMode);
@@ -235,6 +236,15 @@ export const useAppearanceSettingsStore = defineStore(
         const hideUnfriends = computed(() => state.hideUnfriends);
         const randomUserColours = computed(() => state.randomUserColours);
         const trustColor = computed(() => state.trustColor);
+
+        /**
+         *
+         * @param {string} language
+         */
+        function changeAppLanguage(language) {
+            setAppLanguage(language);
+            $app.updateVRConfigVars();
+        }
 
         /**
          * @param {string} language
@@ -639,8 +649,6 @@ export const useAppearanceSettingsStore = defineStore(
             }
         }
 
-        initAppearanceSettings();
-
         return {
             state,
 
@@ -699,7 +707,8 @@ export const useAppearanceSettingsStore = defineStore(
             updateTrustColor,
             changeThemeMode,
             userColourInit,
-            applyUserTrustLevel
+            applyUserTrustLevel,
+            changeAppLanguage
         };
     }
 );

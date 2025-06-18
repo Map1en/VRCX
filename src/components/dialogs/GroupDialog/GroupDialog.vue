@@ -885,7 +885,7 @@
                                     @click.native.stop>
                                     <el-button size="mini">
                                         <span
-                                            >{{ groupDialog.memberSortOrder.name }}
+                                            >{{ t(groupDialog.memberSortOrder.name) }}
                                             <i class="el-icon-arrow-down el-icon--right"
                                         /></span>
                                     </el-button>
@@ -894,7 +894,7 @@
                                             v-for="item in groupDialogSortingOptions"
                                             :key="item.name"
                                             @click.native="setGroupMemberSortOrder(item)"
-                                            v-text="item.name" />
+                                            v-text="t(item.name)" />
                                     </el-dropdown-menu>
                                 </el-dropdown>
                                 <span style="margin-right: 5px">{{ t('dialog.group.members.filter') }}</span>
@@ -906,7 +906,7 @@
                                     @click.native.stop>
                                     <el-button size="mini">
                                         <span
-                                            >{{ groupDialog.memberFilter.name }}
+                                            >{{ t(groupDialog.memberFilter.name) }}
                                             <i class="el-icon-arrow-down el-icon--right"
                                         /></span>
                                     </el-button>
@@ -915,7 +915,7 @@
                                             v-for="item in groupDialogFilterOptions"
                                             :key="item.name"
                                             @click.native="setGroupMemberFilter(item)"
-                                            v-text="item.name" />
+                                            v-text="t(item.name)" />
                                         <el-dropdown-item
                                             v-for="item in groupDialog.ref.roles"
                                             v-if="!item.defaultRole"
@@ -1151,8 +1151,6 @@
         <GroupPostEditDialog :dialog-data.sync="groupPostEditDialog" :selected-gallery-file="selectedGalleryFile" />
         <GroupMemberModerationDialog
             :is-group-members-loading.sync="isGroupMembersLoading"
-            :group-dialog-filter-options="groupDialogFilterOptions"
-            :group-dialog-sorting-options="groupDialogSortingOptions"
             :group-member-moderation="groupMemberModeration"
             @close-dialog="closeMemberModerationDialog"
             @group-members-search="groupMembersSearch"
@@ -1191,6 +1189,7 @@
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
+    import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const adjustDialogZ = inject('adjustDialogZ');
@@ -1213,14 +1212,6 @@
     defineProps({
         updateInstanceInfo: {
             type: Number,
-            required: true
-        },
-        groupDialogSortingOptions: {
-            type: Object,
-            required: true
-        },
-        groupDialogFilterOptions: {
-            type: Object,
             required: true
         }
     });
@@ -1747,7 +1738,7 @@
 
     async function setGroupMemberSortOrder(sortOrder) {
         const D = groupDialog.value;
-        if (D.memberSortOrder === sortOrder) {
+        if (D.memberSortOrder.value === sortOrder) {
             return;
         }
         D.memberSortOrder = sortOrder;
@@ -1756,7 +1747,7 @@
 
     async function setGroupMemberFilter(filter) {
         const D = groupDialog.value;
-        if (D.memberFilter === filter) {
+        if (D.memberFilter.value === filter) {
             return;
         }
         D.memberFilter = filter;

@@ -12,7 +12,6 @@ import { useWorldStore } from './world';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { sortFavorites } = storeToRefs(appearanceSettingsStore);
     const friendStore = useFriendStore();
     const { localFavoriteFriends } = storeToRefs(friendStore);
     const { updateLocalFavoriteFriends, updateSidebarFriendsList } =
@@ -79,6 +78,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     });
 
     const favoriteFriends = computed(() => {
+        const { sortFavorites } = storeToRefs(appearanceSettingsStore);
         if (state.sortFavoriteFriends) {
             state.sortFavoriteFriends = false;
             state.favoriteFriendsSorted.sort(compareByName);
@@ -90,6 +90,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     });
 
     const favoriteWorlds = computed(() => {
+        const { sortFavorites } = storeToRefs(appearanceSettingsStore);
         if (state.sortFavoriteWorlds) {
             state.sortFavoriteWorlds = false;
             state.favoriteWorldsSorted.sort(compareByName);
@@ -101,6 +102,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     });
 
     const favoriteAvatars = computed(() => {
+        const { sortFavorites } = storeToRefs(appearanceSettingsStore);
         if (state.sortFavoriteAvatars) {
             state.sortFavoriteAvatars = false;
             state.favoriteAvatarsSorted.sort(compareByName);
@@ -1268,6 +1270,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
      * aka: `$app.methods.sortLocalAvatarFavorites`
      */
     function sortLocalAvatarFavorites() {
+        const { sortFavorites } = storeToRefs(appearanceSettingsStore);
         state.localAvatarFavoriteGroups.sort();
         if (!sortFavorites.value) {
             for (let i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
@@ -1474,6 +1477,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
      * aka: `$app.methods.sortLocalWorldFavorites`
      */
     function sortLocalWorldFavorites() {
+        const { sortFavorites } = storeToRefs(appearanceSettingsStore);
         state.localWorldFavoriteGroups.sort();
         if (!sortFavorites.value) {
             for (let i = 0; i < state.localWorldFavoriteGroups.length; ++i) {

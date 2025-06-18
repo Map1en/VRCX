@@ -20,6 +20,7 @@ import { useFriendStore } from './friend';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useInstanceStore } from './instance';
+import { groupDialogFilterOptions } from '../shared/constants/';
 
 export const useGroupStore = defineStore('Group', () => {
     const friendStore = useFriendStore();
@@ -53,11 +54,11 @@ export const useGroupStore = defineStore('Group', () => {
             instances: [],
             memberRoles: [],
             memberFilter: {
-                name: $t('dialog.group.members.filters.everyone'),
+                name: 'dialog.group.members.filters.everyone',
                 id: null
             },
             memberSortOrder: {
-                name: $t('dialog.group.members.sorting.joined_at_desc'),
+                name: 'dialog.group.members.sorting.joined_at_desc',
                 value: 'joinedAt:desc'
             },
             postsSearch: '',
@@ -124,7 +125,7 @@ export const useGroupStore = defineStore('Group', () => {
         D.memberSearchResults = [];
         D.galleries = {};
         D.members = [];
-        D.memberFilter = $app.groupDialogFilterOptions.everyone;
+        D.memberFilter = groupDialogFilterOptions.everyone;
         API.getCachedGroup({
             groupId
         })

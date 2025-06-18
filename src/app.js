@@ -6915,102 +6915,6 @@ $app.methods.checkVRChatDebugLogging = async function () {
 };
 
 // #endregion
-// #region | App: Language
-
-$app.data.userDialogWorldSortingOptions = {};
-$app.data.userDialogWorldOrderOptions = {};
-
-$app.methods.applyUserDialogSortingStrings = function () {
-    this.userDialogWorldSortingOptions = {
-        name: {
-            name: $t('dialog.user.worlds.sorting.name'),
-            value: 'name'
-        },
-        updated: {
-            name: $t('dialog.user.worlds.sorting.updated'),
-            value: 'updated'
-        },
-        created: {
-            name: $t('dialog.user.worlds.sorting.created'),
-            value: 'created'
-        },
-        favorites: {
-            name: $t('dialog.user.worlds.sorting.favorites'),
-            value: 'favorites'
-        },
-        popularity: {
-            name: $t('dialog.user.worlds.sorting.popularity'),
-            value: 'popularity'
-        }
-    };
-
-    this.userDialogWorldOrderOptions = {
-        descending: {
-            name: $t('dialog.user.worlds.order.descending'),
-            value: 'descending'
-        },
-        ascending: {
-            name: $t('dialog.user.worlds.order.ascending'),
-            value: 'ascending'
-        }
-    };
-};
-
-$app.data.groupDialogSortingOptions = {};
-$app.data.groupDialogFilterOptions = {};
-
-$app.methods.applyGroupDialogSortingStrings = function () {
-    this.groupDialogSortingOptions = {
-        joinedAtDesc: {
-            name: $t('dialog.group.members.sorting.joined_at_desc'),
-            value: 'joinedAt:desc'
-        },
-        joinedAtAsc: {
-            name: $t('dialog.group.members.sorting.joined_at_asc'),
-            value: 'joinedAt:asc'
-        },
-        userId: {
-            name: $t('dialog.group.members.sorting.user_id'),
-            value: ''
-        }
-    };
-
-    this.groupDialogFilterOptions = {
-        everyone: {
-            name: $t('dialog.group.members.filters.everyone'),
-            id: null
-        },
-        usersWithNoRole: {
-            name: $t('dialog.group.members.filters.users_with_no_role'),
-            id: ''
-        }
-    };
-};
-
-$app.methods.applyLanguageStrings = function () {
-    // repply sorting strings
-    this.applyUserDialogSortingStrings();
-    this.applyGroupDialogSortingStrings();
-    this.store.user.userDialog.worldSorting =
-        this.userDialogWorldSortingOptions.updated;
-    this.store.user.userDialog.worldOrder =
-        this.userDialogWorldOrderOptions.descending;
-    this.store.user.userDialog.groupSorting =
-        userDialogGroupSortingOptions.alphabetical;
-
-    this.store.group.groupDialog.memberFilter =
-        this.groupDialogFilterOptions.everyone;
-    this.store.group.groupDialog.memberSortOrder =
-        this.groupDialogSortingOptions.joinedAtDesc;
-};
-
-$app.methods.changeAppLanguage = function (language) {
-    this.store.appearanceSettings.setAppLanguage(language);
-    this.applyLanguageStrings();
-    this.updateVRConfigVars();
-};
-
-// #endregion
 // #region | App: Random unsorted app methods, data structs, API functions, and an API feedback/file analysis event
 
 $app.methods.openFolderGeneric = function (path) {
@@ -7419,7 +7323,6 @@ $app.computed.settingsTabEvent = function () {
         saveVRCXWindowOption: this.saveVRCXWindowOption,
         promptProxySettings: this.promptProxySettings,
         saveOpenVROption: this.saveOpenVROption,
-        changeAppLanguage: this.changeAppLanguage,
         saveSortFavoritesOption: this.saveSortFavoritesOption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         saveSidebarSortOrder: this.saveSidebarSortOrder,

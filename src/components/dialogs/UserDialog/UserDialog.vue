@@ -1504,7 +1504,7 @@
                                 @click.native.stop>
                                 <el-button size="mini">
                                     <span
-                                        >{{ userDialog.worldSorting.name }}
+                                        >{{ t(userDialog.worldSorting.name) }}
                                         <i class="el-icon-arrow-down el-icon--right"></i
                                     ></span>
                                 </el-button>
@@ -1513,7 +1513,7 @@
                                         v-for="(item, key) in userDialogWorldSortingOptions"
                                         :key="key"
                                         @click.native="setUserDialogWorldSorting(item)"
-                                        v-text="item.name">
+                                        v-text="t(item.name)">
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -1526,7 +1526,7 @@
                                 @click.native.stop>
                                 <el-button size="mini">
                                     <span
-                                        >{{ userDialog.worldOrder.name }}
+                                        >{{ t(userDialog.worldOrder.name) }}
                                         <i class="el-icon-arrow-down el-icon--right"></i
                                     ></span>
                                 </el-button>
@@ -1535,7 +1535,7 @@
                                         v-for="(item, key) in userDialogWorldOrderOptions"
                                         :key="key"
                                         @click.native="setUserDialogWorldOrder(item)"
-                                        v-text="item.name">
+                                        v-text="t(item.name)">
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -1868,6 +1868,7 @@
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
     import { useGroupStore } from '../../../stores/group';
+    import { userDialogWorldSortingOptions, userDialogWorldOrderOptions } from '../../../shared/constants/';
 
     const { t } = useI18n();
 
@@ -1922,18 +1923,6 @@
             type: Function,
             default: () => {}
         },
-        userDialogWorldSortingOptions: {
-            type: Object,
-            default: () => ({})
-        },
-        userDialogWorldOrderOptions: {
-            type: Object,
-            default: () => ({})
-        },
-        // avatarRemoteDatabase: {
-        //     type: Boolean,
-        //     default: false
-        // },
         friendLogTable: {
             type: Object,
             default: () => ({})
@@ -3063,7 +3052,7 @@
 
     async function setUserDialogGroupSorting(sortOrder) {
         const D = userDialog.value;
-        if (D.groupSorting === sortOrder) {
+        if (D.groupSorting.value === sortOrder.value) {
             return;
         }
         D.groupSorting = sortOrder;
@@ -3179,7 +3168,7 @@
 
     async function setUserDialogWorldSorting(sortOrder) {
         const D = userDialog.value;
-        if (D.worldSorting === sortOrder) {
+        if (D.worldSorting.value === sortOrder.value) {
             return;
         }
         D.worldSorting = sortOrder;
@@ -3188,7 +3177,7 @@
 
     async function setUserDialogWorldOrder(order) {
         const D = userDialog.value;
-        if (D.worldOrder === order) {
+        if (D.worldOrder.value === order.value) {
             return;
         }
         D.worldOrder = order;
