@@ -549,9 +549,7 @@
                             ">
                             <div style="flex: none">
                                 <template v-if="isRealInstance(userDialog.$location.tag)">
-                                    <launch
-                                        :location="userDialog.$location.tag"
-                                        @show-launch-dialog="showLaunchDialog" />
+                                    <launch :location="userDialog.$location.tag" />
                                     <el-tooltip
                                         placement="top"
                                         :content="t('dialog.user.info.self_invite_tooltip')"
@@ -1900,7 +1898,6 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
 
-    const showLaunchDialog = inject('showLaunchDialog');
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 

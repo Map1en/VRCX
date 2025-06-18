@@ -326,7 +326,6 @@ let $app = {
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             showPreviousInstancesInfoDialog:
                 this.showPreviousInstancesInfoDialog,
-            showLaunchDialog: this.showLaunchDialog,
             showFavoriteDialog: this.showFavoriteDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
@@ -5237,118 +5236,6 @@ $app.methods.createNewInstance = async function (worldId = '', options) {
 };
 
 // #endregion
-// #region | App: Launch Options Dialog
-
-$app.data.isLaunchOptionsDialogVisible = false;
-
-$app.methods.showLaunchOptions = function () {
-    this.isLaunchOptionsDialogVisible = true;
-};
-
-// #endregion
-// #region | App: Launch Dialog
-
-$app.data.launchDialogData = {
-    visible: false,
-    loading: false,
-    tag: '',
-    shortName: ''
-};
-
-$app.methods.showLaunchDialog = async function (tag, shortName) {
-    this.launchDialogData = {
-        visible: true,
-        // flag, use for trigger adjustDialogZ
-        loading: true,
-        tag,
-        shortName
-    };
-    this.$nextTick(() => (this.launchDialogData.loading = false));
-};
-
-$app.methods.launchGame = async function (location, shortName, desktopMode) {
-    const L = parseLocation(location);
-    const args = [];
-    if (
-        shortName &&
-        L.instanceType !== 'public' &&
-        L.groupAccessType !== 'public'
-    ) {
-        args.push(
-            `vrchat://launch?ref=vrcx.app&id=${location}&shortName=${shortName}`
-        );
-    } else {
-        // fetch shortName
-        let newShortName = '';
-        const response = await instanceRequest.getInstanceShortName({
-            worldId: L.worldId,
-            instanceId: L.instanceId
-        });
-        if (response.json) {
-            if (response.json.shortName) {
-                newShortName = response.json.shortName;
-            } else {
-                newShortName = response.json.secureName;
-            }
-        }
-        if (newShortName) {
-            args.push(
-                `vrchat://launch?ref=vrcx.app&id=${location}&shortName=${newShortName}`
-            );
-        } else {
-            args.push(`vrchat://launch?ref=vrcx.app&id=${location}`);
-        }
-    }
-
-    const launchArguments = await configRepository.getString('launchArguments');
-
-    const vrcLaunchPathOverride = await configRepository.getString(
-        'vrcLaunchPathOverride'
-    );
-
-    if (launchArguments) {
-        args.push(launchArguments);
-    }
-    if (desktopMode) {
-        args.push('--no-vr');
-    }
-    if (vrcLaunchPathOverride && !LINUX) {
-        AppApi.StartGameFromPath(vrcLaunchPathOverride, args.join(' ')).then(
-            (result) => {
-                if (!result) {
-                    this.$message({
-                        message:
-                            'Failed to launch VRChat, invalid custom path set',
-                        type: 'error'
-                    });
-                } else {
-                    this.$message({
-                        message: 'VRChat launched',
-                        type: 'success'
-                    });
-                }
-            }
-        );
-    } else {
-        AppApi.StartGame(args.join(' ')).then((result) => {
-            if (!result) {
-                this.$message({
-                    message:
-                        'Failed to find VRChat, set a custom path in launch options',
-                    type: 'error'
-                });
-            } else {
-                this.$message({
-                    message: 'VRChat launched',
-                    type: 'success'
-                });
-            }
-        });
-    }
-    console.log('Launch Game', args.join(' '), desktopMode);
-};
-
-// #endregion
 // #region | App: Copy To Clipboard
 
 $app.methods.copyToClipboard = function (text) {
@@ -5770,7 +5657,7 @@ $app.methods.restartCrashedGame = function (location) {
     database.addGamelogEventToDatabase(entry);
     this.queueGameLogNoty(entry);
     this.addGameLog(entry);
-    this.launchGame(location, '', this.isGameNoVR);
+    this.store.launch.launchGame(location, '', this.isGameNoVR);
 };
 
 $app.data.VRChatUsedCacheSize = '';
@@ -7592,7 +7479,6 @@ $app.computed.settingsTabEvent = function () {
         promptAutoClearVRCXCacheFrequency:
             this.promptAutoClearVRCXCacheFrequency,
         showConsole: this.showConsole,
-        showLaunchOptions: this.showLaunchOptions,
         handleSetTablePageSize: this.handleSetTablePageSize,
         updateSharedFeed: this.updateSharedFeed
     };

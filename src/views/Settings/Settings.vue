@@ -1848,6 +1848,7 @@
     import { API } from '../../app';
     import { useGroupStore } from '../../stores/group';
     import { useInstanceStore } from '../../stores/instance';
+    import { useLaunchStore } from '../../stores/launch';
 
     const { messages, t } = useI18n();
 
@@ -2087,6 +2088,9 @@
     const instanceStore = useInstanceStore();
     const { cachedInstances } = storeToRefs(instanceStore);
 
+    const launchStore = useLaunchStore();
+    const { showLaunchOptions } = launchStore;
+
     const props = defineProps({
         menuActiveIndex: {
             type: String,
@@ -2164,7 +2168,6 @@
         'clearVRCXCache',
         'promptAutoClearVRCXCacheFrequency',
         'showConsole',
-        'showLaunchOptions',
         'handleSetTablePageSize'
     ]);
 
@@ -2445,10 +2448,6 @@
 
     function showConsole() {
         emit('showConsole');
-    }
-
-    function showLaunchOptions() {
-        emit('showLaunchOptions');
     }
 
     function handleSetTablePageSize(pageSize) {

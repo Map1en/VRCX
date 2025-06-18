@@ -17,10 +17,8 @@ mixin dialogs
 
     //- launch
     LaunchDialog(
-        :launchDialogData.sync='launchDialogData'
         :inviteMessageTable='inviteMessageTable'
-        :uploadImage='uploadImage'
-        @launchGame='launchGame')
+        :uploadImage='uploadImage')
 
     UserDialog(
         :languageDialog='languageDialog'
@@ -96,7 +94,7 @@ mixin dialogs
 
     FullscreenImageDialog(:fullscreenImageDialog='fullscreenImageDialog')
 
-    LaunchOptionsDialog(:isLaunchOptionsDialogVisible.sync='isLaunchOptionsDialogVisible')
+    LaunchOptionsDialog
 
     EditInviteMessageDialog(:editInviteMessageDialog.sync='editInviteMessageDialog')
 

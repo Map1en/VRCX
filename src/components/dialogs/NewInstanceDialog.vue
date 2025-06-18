@@ -512,11 +512,12 @@
     import InviteDialog from './InviteDialog/InviteDialog.vue';
     import { API } from '../../app';
     import { useGroupStore } from '../../stores/group';
+    import { useLaunchStore } from '../../stores/launch';
 
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['showLaunchDialog', 'adjustDialogZ'],
+        inject: ['adjustDialogZ'],
         props: {
             instanceContentSettings: {
                 type: Array,
@@ -546,6 +547,8 @@
             const { currentUserGroups, cachedGroups } = storeToRefs(groupStore);
             const locationStore = useLocationStore();
             const { lastLocation } = storeToRefs(locationStore);
+            const launchStore = useLaunchStore();
+            const { showLaunchDialog } = launchStore;
             return {
                 friends,
                 vipFriends,
@@ -558,7 +561,8 @@
                 API,
                 userStatusClass,
                 hasGroupPermission,
-                userImage
+                userImage,
+                showLaunchDialog
             };
         },
         data() {
@@ -791,7 +795,7 @@
                 }
                 if (D.groupId && D.groupId !== D.lastSelectedGroupId) {
                     D.roleIds = [];
-                    const ref = cachedGroups.value.get(D.groupId);
+                    const ref = this.cachedGroups.get(D.groupId);
                     if (typeof ref !== 'undefined') {
                         D.groupRef = ref;
                         D.selectedGroupRoles = ref.roles;
@@ -866,7 +870,7 @@
                 }
                 if (D.groupId && D.groupId !== D.lastSelectedGroupId) {
                     D.roleIds = [];
-                    const ref = cachedGroups.value.get(D.groupId);
+                    const ref = this.cachedGroups.get(D.groupId);
                     if (typeof ref !== 'undefined') {
                         D.groupRef = ref;
                         D.selectedGroupRoles = ref.roles;

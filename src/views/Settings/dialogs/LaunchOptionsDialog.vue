@@ -56,10 +56,12 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { ref, inject, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
     import { openExternalLink } from '../../../shared/utils';
+    import { useLaunchStore } from '../../../stores/launch';
 
     const isLinux = inject('isLinux');
 
@@ -68,15 +70,8 @@
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    defineProps({
-        isLaunchOptionsDialogVisible: {
-            type: Boolean,
-            default: false,
-            required: true
-        }
-    });
-
-    const emit = defineEmits(['update:isLaunchOptionsDialogVisible']);
+    const launchStore = useLaunchStore();
+    const { isLaunchOptionsDialogVisible } = storeToRefs(launchStore);
 
     const launchOptionsDialog = ref({
         launchArguments: '',
@@ -125,6 +120,6 @@
     }
 
     function closeDialog() {
-        emit('update:isLaunchOptionsDialogVisible');
+        isLaunchOptionsDialogVisible.value = false;
     }
 </script>

@@ -23,8 +23,7 @@
                     <location-world
                         :locationobject="scope.row.$location"
                         :grouphint="scope.row.groupName"
-                        :currentuserid="API.currentUser.id"
-                        @show-launch-dialog="showLaunchDialog"></location-world>
+                        :currentuserid="API.currentUser.id" />
                 </template>
             </el-table-column>
             <el-table-column :label="$t('table.previous_instances.instance_creator')" prop="location">
@@ -73,7 +72,7 @@
 
     export default {
         name: 'PreviousInstancesWorldDialog',
-        inject: ['showLaunchDialog', 'showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
             previousInstancesWorldDialog: {
                 type: Object,

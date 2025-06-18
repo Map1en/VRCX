@@ -335,12 +335,8 @@
                                 <location-world
                                     :locationobject="room.$location"
                                     :currentuserid="API.currentUser.id"
-                                    :worlddialogshortname="worldDialog.$location.shortName"
-                                    @show-launch-dialog="showLaunchDialog" />
-                                <launch
-                                    :location="room.tag"
-                                    style="margin-left: 5px"
-                                    @show-launch-dialog="showLaunchDialog" />
+                                    :worlddialogshortname="worldDialog.$location.shortName" />
+                                <launch :location="room.tag" style="margin-left: 5px" />
                                 <el-tooltip
                                     placement="top"
                                     :content="$t('dialog.world.instances.self_invite_tooltip')"
@@ -809,7 +805,6 @@
         inject: [
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
-            'showLaunchDialog',
             'showFullscreenImageDialog',
             'showFavoriteDialog',
             'openFolderGeneric',

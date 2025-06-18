@@ -73,7 +73,7 @@
                 type="primary"
                 size="small"
                 :disabled="!launchDialog.secureOrShortName"
-                @click="launchGame(launchDialog.location, launchDialog.shortName, launchDialog.desktop)">
+                @click="handleLaunchGame(launchDialog.location, launchDialog.shortName, launchDialog.desktop)">
                 {{ $t('dialog.launch.launch') }}
             </el-button>
         </template>
@@ -94,13 +94,13 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
     import { useLocationStore } from '../../stores/location';
+    import { useLaunchStore } from '../../stores/launch';
 
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
         inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
-            launchDialogData: { type: Object, required: true },
             inviteMessageTable: {
                 type: Object,
                 default: () => ({})
@@ -117,6 +117,9 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const locationStore = useLocationStore();
             const { lastLocation } = storeToRefs(locationStore);
+            const launchStore = useLaunchStore();
+            const { launchGame } = launchStore;
+            const { launchDialogData } = storeToRefs(launchStore);
             return {
                 hideTooltips,
                 vipFriends,
@@ -124,7 +127,9 @@
                 activeFriends,
                 friends,
                 checkCanInvite,
-                lastLocation
+                lastLocation,
+                launchGame,
+                launchDialogData
             };
         },
         data() {
@@ -155,7 +160,7 @@
                     return this.launchDialogData.visible;
                 },
                 set(value) {
-                    this.$emit('update:launch-dialog-data', { ...this.launchDialogData, visible: value });
+                    this.launchDialogData.visible = value;
                 }
             }
         },
@@ -200,8 +205,8 @@
                         D.visible = true;
                     });
             },
-            launchGame(location, shortName, desktop) {
-                this.$emit('launchGame', location, shortName, desktop);
+            handleLaunchGame(location, shortName, desktop) {
+                this.launchGame(location, shortName, desktop);
                 this.isVisible = false;
             },
             getConfig() {

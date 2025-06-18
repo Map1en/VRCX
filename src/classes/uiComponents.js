@@ -29,7 +29,7 @@ export default function init() {
                     : 'none';
             },
             confirm() {
-                this.$emit('show-launch-dialog', this.location);
+                this.store.launch.showLaunchDialog(this.location);
             }
         },
         template:
@@ -149,7 +149,10 @@ export default function init() {
                 }
             },
             showLaunchDialog() {
-                this.$emit('show-launch-dialog', this.location, this.shortName);
+                this.store.launch.showLaunchDialog(
+                    this.location,
+                    this.shortName
+                );
             },
             showGroupDialog() {
                 if (!this.location) {
