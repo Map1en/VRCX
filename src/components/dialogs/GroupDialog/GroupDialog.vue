@@ -1219,7 +1219,7 @@
     const emit = defineEmits([
         'update:group-dialog',
         'groupDialogCommand',
-        'get-group-dialog-group',
+        'getGroupDialogGroup',
         'updateGroupPostSearch'
     ]);
 
@@ -1362,6 +1362,7 @@
                         ...groupDialog.value,
                         ref: { ...groupDialog.value.ref, isRepresenting: args.params.isRepresenting }
                     });
+                    getGroupDialogGroup(groupId);
                 }
             });
     }
@@ -1373,9 +1374,8 @@
             })
             .then((args) => {
                 // API.$on('GROUP:CANCELJOINREQUEST', function (args) {
-                const groupId = args.params.groupId;
-                if (groupDialog.value.visible && groupDialog.value.id === groupId) {
-                    getGroupDialogGroup(groupId);
+                if (groupDialog.value.visible && groupDialog.value.id === id) {
+                    getGroupDialogGroup(id);
                 }
                 // });
             });
@@ -1492,35 +1492,13 @@
             })
             .then((args) => {
                 // API.$on('GROUP:JOIN', function (args) {
-                const json = {
-                    $memberId: args.json.id,
-                    id: args.json.groupId,
-                    membershipStatus: args.json.membershipStatus,
-                    myMember: {
-                        isRepresenting: args.json.isRepresenting,
-                        id: args.json.id,
-                        roleIds: args.json.roleIds,
-                        joinedAt: args.json.joinedAt,
-                        membershipStatus: args.json.membershipStatus,
-                        visibility: args.json.visibility,
-                        isSubscribedToAnnouncements: args.json.isSubscribedToAnnouncements
-                    }
-                };
-                const groupId = json.id;
-                API.$emit('GROUP', {
-                    json,
-                    params: {
-                        groupId,
-                        userId: args.params.userId
-                    }
-                });
-                if (groupDialog.value.visible && groupDialog.value.id === groupId) {
+                if (groupDialog.value.visible && groupDialog.value.id === id) {
                     updateGroupDialogData({
                         ...groupDialog.value,
-                        inGroup: json.membershipStatus === 'member'
+                        inGroup: args.json.membershipStatus === 'member'
                     });
                     // groupDialog.value.inGroup = json.membershipStatus === 'member';
-                    getGroupDialogGroup(groupId);
+                    getGroupDialogGroup(id);
                 }
                 // });
                 if (args.json.membershipStatus === 'member') {

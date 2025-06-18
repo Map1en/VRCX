@@ -3269,18 +3269,9 @@ $app.methods.verifyShortName = function (location, shortName) {
 $app.methods.showGroupDialogShortCode = function (shortCode) {
     groupRequest.groupStrictsearch({ query: shortCode }).then((args) => {
         for (const group of args.json) {
-            // API.$on('GROUP:STRICTSEARCH', function (args) {
-            // for (var json of args.json) {
-            API.$emit('GROUP', {
-                group,
-                params: {
-                    groupId: group.id
-                }
-            });
-            // }
-            // });
             if (`${group.shortCode}.${group.discriminator}` === shortCode) {
                 this.store.group.showGroupDialog(group.id);
+                break;
             }
         }
         return args;
