@@ -341,7 +341,7 @@ let $app = {
     },
     el: '#root',
     async created() {
-        this.changeThemeMode();
+        this.store.appearanceSettings.changeThemeMode();
         const [savedCredentials, lastUserLoggedIn] = await Promise.all([
             configRepository.getString('savedCredentials'),
             configRepository.getString('lastUserLoggedIn')
@@ -1934,7 +1934,7 @@ API.$on('LOGIN', async function (args) {
         getNameColour(this.currentUser.id).then((colour) => {
             this.currentUser.$userColour = colour;
         });
-        await $app.userColourInit();
+        await $app.store.appearanceSettings.userColourInit();
     }
     await $app.getAllUserStats();
     $app.store.friend.sortVIPFriends = true;
@@ -3407,25 +3407,6 @@ $app.methods.testNotificationTTS = function () {
     this.speak(this.notificationTTSTest);
 };
 
-window
-    .matchMedia('(prefers-color-scheme: dark)')
-    .addEventListener('change', async () => {
-        if ($app.themeMode === 'system') {
-            await $app.changeThemeMode();
-        }
-    });
-
-$app.methods.saveThemeMode = async function (newThemeMode) {
-    this.store.appearanceSettings.setThemeMode(newThemeMode);
-    await this.changeThemeMode();
-};
-
-$app.methods.changeThemeMode = async function () {
-    await changeAppThemeStyle(this.store.appearanceSettings.themeMode);
-    this.updateVRConfigVars();
-    await this.updateTrustColor();
-};
-
 $app.methods.applyWineEmojis = async function () {
     if (document.contains(document.getElementById('app-emoji-font'))) {
         document.getElementById('app-emoji-font').remove();
@@ -3497,37 +3478,6 @@ $app.methods.saveSidebarSortOrder = async function () {
     this.store.friend.sortOnlineFriends = true;
     this.store.friend.sortActiveFriends = true;
     this.store.friend.sortOfflineFriends = true;
-};
-
-$app.methods.updateTrustColor = async function (
-    setRandomColor = false,
-    field,
-    color
-) {
-    if (setRandomColor) {
-        this.store.appearanceSettings.setRandomUserColours();
-    }
-    if (typeof API.currentUser?.id === 'undefined') {
-        return;
-    }
-    if (field && color) {
-        this.store.appearanceSettings.setTrustColor({
-            ...this.store.appearanceSettings.trustColor,
-            [field]: color
-        });
-    }
-    if (this.store.appearanceSettings.randomUserColours) {
-        getNameColour(API.currentUser.id).then((colour) => {
-            API.currentUser.$userColour = colour;
-        });
-        this.userColourInit();
-    } else {
-        this.store.user.applyUserTrustLevel(API.currentUser);
-        API.cachedUsers.forEach((ref) => {
-            this.store.user.applyUserTrustLevel(ref);
-        });
-    }
-    updateTrustColorClasses(this.store.appearanceSettings.trustColor);
 };
 
 $app.data.notificationPosition = await configRepository.getString(
@@ -6576,21 +6526,6 @@ $app.methods.toggleCustomEndpoint = async function () {
     this.loginForm.websocket = '';
 };
 
-$app.methods.userColourInit = async function () {
-    let dictObject = await AppApi.GetColourBulk(
-        Array.from(API.cachedUsers.keys())
-    );
-    if (LINUX) {
-        dictObject = Object.fromEntries(dictObject);
-    }
-    for (let [userId, hue] of Object.entries(dictObject)) {
-        const ref = API.cachedUsers.get(userId);
-        if (typeof ref !== 'undefined') {
-            ref.$userColour = HueToHex(hue);
-        }
-    }
-};
-
 $app.methods.updateCurrentUserLocation = function () {
     const ref = API.cachedUsers.get(API.currentUser.id);
     if (typeof ref === 'undefined') {
@@ -7632,11 +7567,9 @@ $app.computed.settingsTabEvent = function () {
         promptProxySettings: this.promptProxySettings,
         saveOpenVROption: this.saveOpenVROption,
         changeAppLanguage: this.changeAppLanguage,
-        saveThemeMode: this.saveThemeMode,
         saveSortFavoritesOption: this.saveSortFavoritesOption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         saveSidebarSortOrder: this.saveSidebarSortOrder,
-        updateTrustColor: this.updateTrustColor,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveNotificationTTS: this.saveNotificationTTS,
         changeTTSVoice: this.changeTTSVoice,

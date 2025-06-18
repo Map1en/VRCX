@@ -190,7 +190,7 @@ export default function init() {
                 }
             }
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            $app.store.user.applyUserTrustLevel(ref);
+            $app.store.appearanceSettings.applyUserTrustLevel(ref);
             $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
             this.applyQueuedInstance(ref.queuedInstance);
@@ -304,7 +304,7 @@ export default function init() {
             }
             ref.$homeLocation = parseLocation(ref.homeLocation);
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            $app.store.user.applyUserTrustLevel(ref);
+            $app.store.appearanceSettings.applyUserTrustLevel(ref);
             $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
             $app.store.group.applyPresenceGroups(ref);

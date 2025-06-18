@@ -1,17 +1,24 @@
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { $app, i18n } from '../../app';
+import { $app, i18n, API } from '../../app';
 import configRepository from '../../service/config';
 import {
+    changeAppThemeStyle,
     changeCJKFontsOrder,
     formatDateFilter,
+    getNameColour,
+    HueToHex,
     systemIsDarkMode
 } from '../../shared/utils';
 import { updateTrustColorClasses } from '../../shared/utils';
+import { useFriendStore } from '../friend';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
+
     () => {
+        const friendStore = useFriendStore();
+        const { friendLogInitStatus } = storeToRefs(friendStore);
         const state = reactive({
             appLanguage: 'en',
             themeMode: '',
@@ -239,6 +246,144 @@ export const useAppearanceSettingsStore = defineStore(
             changeCJKFontsOrder(state.appLanguage);
             i18n.locale = state.appLanguage;
         }
+
+        /**
+         * @param {string} newThemeMode
+         * @returns {Promise<void>}
+         */
+        async function saveThemeMode(newThemeMode) {
+            setThemeMode(newThemeMode);
+            await changeThemeMode();
+        }
+
+        async function changeThemeMode() {
+            await changeAppThemeStyle(state.themeMode);
+            $app.updateVRConfigVars();
+            await updateTrustColor();
+        }
+
+        /**
+         *
+         * @param {string} field
+         * @param {string} color
+         * @param {boolean} setRandomColor
+         * @returns {Promise<void>}
+         */
+        async function updateTrustColor(field, color, setRandomColor = false) {
+            if (setRandomColor) {
+                setRandomUserColours();
+            }
+            if (typeof API.currentUser?.id === 'undefined') {
+                return;
+            }
+            if (field && color) {
+                setTrustColor({
+                    ...state.trustColor,
+                    [field]: color
+                });
+            }
+            if (state.randomUserColours) {
+                getNameColour(API.currentUser.id).then((colour) => {
+                    API.currentUser.$userColour = colour;
+                });
+                userColourInit();
+            } else {
+                applyUserTrustLevel(API.currentUser);
+                API.cachedUsers.forEach((ref) => {
+                    applyUserTrustLevel(ref);
+                });
+            }
+            updateTrustColorClasses(state.trustColor);
+        }
+
+        async function userColourInit() {
+            let dictObject = await AppApi.GetColourBulk(
+                Array.from(API.cachedUsers.keys())
+            );
+            if (LINUX) {
+                dictObject = Object.fromEntries(dictObject);
+            }
+            for (let [userId, hue] of Object.entries(dictObject)) {
+                const ref = API.cachedUsers.get(userId);
+                if (typeof ref !== 'undefined') {
+                    ref.$userColour = HueToHex(hue);
+                }
+            }
+        }
+
+        /**
+         * aka: `API.applyUserTrustLevel`
+         * @param {object} ref
+         */
+        function applyUserTrustLevel(ref) {
+            ref.$isModerator =
+                ref.developerType && ref.developerType !== 'none';
+            ref.$isTroll = false;
+            ref.$isProbableTroll = false;
+            let trustColor = '';
+            let { tags } = ref;
+            if (tags.includes('admin_moderator')) {
+                ref.$isModerator = true;
+            }
+            if (tags.includes('system_troll')) {
+                ref.$isTroll = true;
+            }
+            if (tags.includes('system_probable_troll') && !ref.$isTroll) {
+                ref.$isProbableTroll = true;
+            }
+            if (tags.includes('system_trust_veteran')) {
+                ref.$trustLevel = 'Trusted User';
+                ref.$trustClass = 'x-tag-veteran';
+                trustColor = 'veteran';
+                ref.$trustSortNum = 5;
+            } else if (tags.includes('system_trust_trusted')) {
+                ref.$trustLevel = 'Known User';
+                ref.$trustClass = 'x-tag-trusted';
+                trustColor = 'trusted';
+                ref.$trustSortNum = 4;
+            } else if (tags.includes('system_trust_known')) {
+                ref.$trustLevel = 'User';
+                ref.$trustClass = 'x-tag-known';
+                trustColor = 'known';
+                ref.$trustSortNum = 3;
+            } else if (tags.includes('system_trust_basic')) {
+                ref.$trustLevel = 'New User';
+                ref.$trustClass = 'x-tag-basic';
+                trustColor = 'basic';
+                ref.$trustSortNum = 2;
+            } else {
+                ref.$trustLevel = 'Visitor';
+                ref.$trustClass = 'x-tag-untrusted';
+                trustColor = 'untrusted';
+                ref.$trustSortNum = 1;
+            }
+            if (ref.$isTroll || ref.$isProbableTroll) {
+                trustColor = 'troll';
+                ref.$trustSortNum += 0.1;
+            }
+            if (ref.$isModerator) {
+                trustColor = 'vip';
+                ref.$trustSortNum += 0.3;
+            }
+            if (randomUserColours.value && friendLogInitStatus.value) {
+                if (!ref.$userColour) {
+                    getNameColour(ref.id).then((colour) => {
+                        ref.$userColour = colour;
+                    });
+                }
+            } else {
+                ref.$userColour = state.trustColor[trustColor];
+            }
+        }
+
+        window
+            .matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', async () => {
+                if (state.themeMode === 'system') {
+                    await changeThemeMode();
+                }
+            });
+
         /**
          * @param {string} mode
          */
@@ -549,7 +694,12 @@ export const useAppearanceSettingsStore = defineStore(
             setHideUserMemos,
             setHideUnfriends,
             setRandomUserColours,
-            setTrustColor
+            setTrustColor,
+            saveThemeMode,
+            updateTrustColor,
+            changeThemeMode,
+            userColourInit,
+            applyUserTrustLevel
         };
     }
 );

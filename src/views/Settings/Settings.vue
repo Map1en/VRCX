@@ -678,68 +678,68 @@
                     <simple-switch
                         :label="t('view.settings.appearance.user_colors.random_colors_from_user_id')"
                         :value="randomUserColours"
-                        @change="updateTrustColor(true)"></simple-switch>
+                        @change="updateTrustColor('', '', true)"></simple-switch>
                     <div class="options-container-item">
                         <div>
                             <el-color-picker
-                                v-model="trustColor.untrusted"
+                                :value="trustColor.untrusted"
                                 size="mini"
                                 :predefine="['#CCCCCC']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('untrusted', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-untrusted">Visitor</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.basic"
+                                :value="trustColor.basic"
                                 size="mini"
                                 :predefine="['#1778ff']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('basic', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-basic">New User</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.known"
+                                :value="trustColor.known"
                                 size="mini"
                                 :predefine="['#2bcf5c']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('known', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-known">User</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.trusted"
+                                :value="trustColor.trusted"
                                 size="mini"
                                 :predefine="['#ff7b42']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('trusted', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-trusted">Known User</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.veteran"
+                                :value="trustColor.veteran"
                                 size="mini"
                                 :predefine="['#b18fff', '#8143e6', '#ff69b4', '#b52626', '#ffd000', '#abcdef']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('veteran', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-veteran">Trusted User</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.vip"
+                                :value="trustColor.vip"
                                 size="mini"
                                 :predefine="['#ff2626']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('vip', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-vip">VRChat Team</span>
                         </div>
                         <div>
                             <el-color-picker
-                                v-model="trustColor.troll"
+                                :value="trustColor.troll"
                                 size="mini"
                                 :predefine="['#782f2f']"
-                                @change="updateTrustColor(false)">
+                                @change="updateTrustColor('troll', $event)">
                             </el-color-picker>
                             <span slot="trigger" class="color-picker x-tag-troll">Nuisance</span>
                         </div>
@@ -1952,9 +1952,8 @@
         setHideUserNotes,
         setHideUserMemos,
         setHideUnfriends,
-        // todo: updateTrustColor func
-        setRandomUserColours,
-        setTrustColor
+        updateTrustColor,
+        saveThemeMode
     } = appearanceSettingsStore;
 
     const {
@@ -2143,11 +2142,9 @@
         'promptProxySettings',
         'saveOpenVROption',
         'changeAppLanguage',
-        'saveThemeMode',
         'saveSortFavoritesOption',
         'promptMaxTableSizeDialog',
         'saveSidebarSortOrder',
-        'updateTrustColor',
         'promptNotificationTimeout',
         'saveNotificationTTS',
         'changeTTSVoice',
@@ -2209,7 +2206,7 @@
                 getZoomLevel();
             }
         });
-        zoomLevel.value = await getZoomLevel();
+        getZoomLevel();
     }
 
     async function getZoomLevel() {
@@ -2259,10 +2256,6 @@
         emit('changeAppLanguage', language);
     }
 
-    function saveThemeMode(newThemeMode) {
-        emit('saveThemeMode', newThemeMode);
-    }
-
     function saveSortFavoritesOption() {
         emit('saveSortFavoritesOption');
     }
@@ -2277,10 +2270,6 @@
 
     function showNoteExportDialog() {
         isNoteExportDialogVisible.value = true;
-    }
-
-    function updateTrustColor(value) {
-        emit('updateTrustColor', value);
     }
 
     function showNotificationPositionDialog() {

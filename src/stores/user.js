@@ -27,15 +27,13 @@ export const useUserStore = defineStore('User', () => {
     const friendStore = useFriendStore();
     const favoriteStore = useFavoriteStore();
 
-    const { friendLogInitStatus, friends } = storeToRefs(friendStore);
+    const { friends } = storeToRefs(friendStore);
     const { debugUserDiff } = storeToRefs(debugStore);
     const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
 
-    const {
-        randomUserColours,
-        trustColor: appearanceSettingsTrustColor,
-        hideUnfriends
-    } = storeToRefs(appearanceSettingsStore);
+    const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
+
+    const { applyUserTrustLevel } = appearanceSettingsStore;
 
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
@@ -129,70 +127,6 @@ export const useUserStore = defineStore('User', () => {
             state.userDialog = value;
         }
     });
-
-    /**
-     * aka: `API.applyUserTrustLevel`
-     * @param {object} ref
-     */
-    function applyUserTrustLevel(ref) {
-        ref.$isModerator = ref.developerType && ref.developerType !== 'none';
-        ref.$isTroll = false;
-        ref.$isProbableTroll = false;
-        let trustColor = '';
-        let { tags } = ref;
-        if (tags.includes('admin_moderator')) {
-            ref.$isModerator = true;
-        }
-        if (tags.includes('system_troll')) {
-            ref.$isTroll = true;
-        }
-        if (tags.includes('system_probable_troll') && !ref.$isTroll) {
-            ref.$isProbableTroll = true;
-        }
-        if (tags.includes('system_trust_veteran')) {
-            ref.$trustLevel = 'Trusted User';
-            ref.$trustClass = 'x-tag-veteran';
-            trustColor = 'veteran';
-            ref.$trustSortNum = 5;
-        } else if (tags.includes('system_trust_trusted')) {
-            ref.$trustLevel = 'Known User';
-            ref.$trustClass = 'x-tag-trusted';
-            trustColor = 'trusted';
-            ref.$trustSortNum = 4;
-        } else if (tags.includes('system_trust_known')) {
-            ref.$trustLevel = 'User';
-            ref.$trustClass = 'x-tag-known';
-            trustColor = 'known';
-            ref.$trustSortNum = 3;
-        } else if (tags.includes('system_trust_basic')) {
-            ref.$trustLevel = 'New User';
-            ref.$trustClass = 'x-tag-basic';
-            trustColor = 'basic';
-            ref.$trustSortNum = 2;
-        } else {
-            ref.$trustLevel = 'Visitor';
-            ref.$trustClass = 'x-tag-untrusted';
-            trustColor = 'untrusted';
-            ref.$trustSortNum = 1;
-        }
-        if (ref.$isTroll || ref.$isProbableTroll) {
-            trustColor = 'troll';
-            ref.$trustSortNum += 0.1;
-        }
-        if (ref.$isModerator) {
-            trustColor = 'vip';
-            ref.$trustSortNum += 0.3;
-        }
-        if (randomUserColours.value && friendLogInitStatus.value) {
-            if (!ref.$userColour) {
-                getNameColour(ref.id).then((colour) => {
-                    ref.$userColour = colour;
-                });
-            }
-        } else {
-            ref.$userColour = appearanceSettingsTrustColor.value[trustColor];
-        }
-    }
 
     /**
      * aka: `API.applyUserLanguage`
@@ -742,7 +676,6 @@ export const useUserStore = defineStore('User', () => {
     return {
         state,
         userDialog,
-        applyUserTrustLevel,
         applyUserLanguage,
         applyUser,
         showUserDialog,

@@ -19,7 +19,6 @@ import { useGeneralSettingsStore } from './settings/general';
 
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
     const generalSettingsStore = useGeneralSettingsStore();
     const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
     const { setLocalFavoriteFriendsGroups } = generalSettingsStore;
@@ -122,6 +121,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // VIP friends
     const vipFriends = computed(() => {
+        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortVIPFriends) {
             return state.vipFriends_;
         }
@@ -135,6 +135,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // Online friends
     const onlineFriends = computed(() => {
+        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortOnlineFriends) {
             return state.onlineFriends_;
         }
@@ -149,6 +150,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // Active friends
     const activeFriends = computed(() => {
+        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortActiveFriends) {
             return state.activeFriends_;
         }
@@ -163,6 +165,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // Offline friends
     const offlineFriends = computed(() => {
+        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortOfflineFriends) {
             return state.offlineFriends_;
         }
