@@ -849,12 +849,13 @@
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { usePhotonStore } from '../../stores/photon';
-    import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
+    import { photonEventTableTypeFilterList } from '../../shared/constants';
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
     import { useAvatarStore } from '../../stores/avatar';
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
+    import { useInstanceStore } from '../../stores/instance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -870,6 +871,8 @@
     const { showGroupDialog } = groupStore;
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
+    const instanceStore = useInstanceStore();
+    const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(instanceStore);
 
     const { t } = useI18n();
 
@@ -879,18 +882,6 @@
         menuActiveIndex: {
             type: String,
             default: 'playerList'
-        },
-        currentInstanceWorld: {
-            type: Object,
-            default: () => ({})
-        },
-        currentInstanceLocation: {
-            type: Object,
-            default: () => ({})
-        },
-        currentInstanceWorldDescriptionExpanded: {
-            type: Boolean,
-            default: false
         },
         photonEventTableTypeFilter: {
             type: Array,
@@ -936,6 +927,8 @@
         visible: false,
         loading: false
     });
+
+    const currentInstanceWorldDescriptionExpanded = ref(false);
 
     function photonEventTableFilterChange(value) {
         emit('photonEventTableFilterChange', value);

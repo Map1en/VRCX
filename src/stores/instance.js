@@ -1,12 +1,33 @@
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
-import { worldRequest } from '../api';
+import { instanceRequest, worldRequest } from '../api';
 import { $app } from '../app';
-import { parseLocation } from '../shared/utils';
+import {
+    checkVRChatCache,
+    getAvailablePlatforms,
+    getBundleDateSize,
+    isRealInstance,
+    parseLocation
+} from '../shared/utils';
+import { useLocationStore } from './location';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const state = reactive({
-        cachedInstances: new Map()
+        cachedInstances: new Map(),
+        currentInstanceWorld: {
+            ref: {},
+            instance: {},
+            isPC: false,
+            isQuest: false,
+            isIos: false,
+            avatarScalingDisabled: false,
+            focusViewDisabled: false,
+            inCache: false,
+            cacheSize: '',
+            bundleSizes: [],
+            lastUpdated: ''
+        },
+        currentInstanceLocation: {}
     });
 
     const cachedInstances = computed({
@@ -17,6 +38,133 @@ export const useInstanceStore = defineStore('Instance', () => {
             state.cachedInstances = value;
         }
     });
+
+    const currentInstanceWorld = computed({
+        get: () => state.currentInstanceWorld,
+        set: (value) => {
+            state.currentInstanceWorld = value;
+        }
+    });
+
+    const currentInstanceLocation = computed({
+        get: () => state.currentInstanceLocation,
+        set: (value) => {
+            state.currentInstanceLocation = value;
+        }
+    });
+
+    function updateCurrentInstanceWorld() {
+        const locationStore = useLocationStore();
+        const { lastLocation } = storeToRefs(locationStore);
+        let L;
+        let instanceId = lastLocation.value.location;
+        if (lastLocation.value.location === 'traveling') {
+            instanceId = $app.lastLocationDestination;
+        }
+        if (!instanceId) {
+            state.currentInstanceWorld = {
+                ref: {},
+                instance: {},
+                isPC: false,
+                isQuest: false,
+                isIos: false,
+                avatarScalingDisabled: false,
+                focusViewDisabled: false,
+                inCache: false,
+                cacheSize: '',
+                bundleSizes: [],
+                lastUpdated: ''
+            };
+            state.currentInstanceLocation = {};
+        } else if (instanceId !== state.currentInstanceLocation.tag) {
+            state.currentInstanceWorld = {
+                ref: {},
+                instance: {},
+                isPC: false,
+                isQuest: false,
+                isIos: false,
+                avatarScalingDisabled: false,
+                focusViewDisabled: false,
+                inCache: false,
+                cacheSize: '',
+                bundleSizes: [],
+                lastUpdated: ''
+            };
+            L = parseLocation(instanceId);
+            state.currentInstanceLocation = L;
+            worldRequest
+                .getWorld({
+                    worldId: L.worldId
+                })
+                .then((args) => {
+                    state.currentInstanceWorld.ref = args.ref;
+                    let { isPC, isQuest, isIos } = getAvailablePlatforms(
+                        args.ref.unityPackages
+                    );
+                    state.currentInstanceWorld.isPC = isPC;
+                    state.currentInstanceWorld.isQuest = isQuest;
+                    state.currentInstanceWorld.isIos = isIos;
+                    state.currentInstanceWorld.avatarScalingDisabled =
+                        args.ref?.tags.includes(
+                            'feature_avatar_scaling_disabled'
+                        );
+                    state.currentInstanceWorld.focusViewDisabled =
+                        args.ref?.tags.includes('feature_focus_view_disabled');
+                    checkVRChatCache(args.ref).then((cacheInfo) => {
+                        if (cacheInfo.Item1 > 0) {
+                            state.currentInstanceWorld.inCache = true;
+                            state.currentInstanceWorld.cacheSize = `${(
+                                cacheInfo.Item1 / 1048576
+                            ).toFixed(2)} MB`;
+                        }
+                    });
+                    getBundleDateSize(args.ref).then((bundleSizes) => {
+                        state.currentInstanceWorld.bundleSizes = bundleSizes;
+                    });
+                    return args;
+                });
+        } else {
+            worldRequest
+                .getCachedWorld({
+                    worldId: state.currentInstanceLocation.worldId
+                })
+                .then((args) => {
+                    state.currentInstanceWorld.ref = args.ref;
+                    const { isPC, isQuest, isIos } = getAvailablePlatforms(
+                        args.ref.unityPackages
+                    );
+                    state.currentInstanceWorld.isPC = isPC;
+                    state.currentInstanceWorld.isQuest = isQuest;
+                    state.currentInstanceWorld.isIos = isIos;
+                    checkVRChatCache(args.ref).then((cacheInfo) => {
+                        if (cacheInfo.Item1 > 0) {
+                            state.currentInstanceWorld.inCache = true;
+                            state.currentInstanceWorld.cacheSize = `${(
+                                cacheInfo.Item1 / 1048576
+                            ).toFixed(2)} MB`;
+                        }
+                    });
+                });
+        }
+        if (isRealInstance(instanceId)) {
+            const ref = $app.store.instance.cachedInstances.get(instanceId);
+            if (typeof ref !== 'undefined') {
+                state.currentInstanceWorld.instance = ref;
+            } else {
+                L = parseLocation(instanceId);
+                if (L.isRealInstance) {
+                    instanceRequest
+                        .getInstance({
+                            worldId: L.worldId,
+                            instanceId: L.instanceId
+                        })
+                        .then((args) => {
+                            state.currentInstanceWorld.instance = args.ref;
+                        });
+                }
+            }
+        }
+    }
 
     /**
      * aka: `API.applyInstance`
@@ -106,5 +254,12 @@ export const useInstanceStore = defineStore('Instance', () => {
         return ref;
     }
 
-    return { state, cachedInstances, applyInstance };
+    return {
+        state,
+        cachedInstances,
+        currentInstanceWorld,
+        currentInstanceLocation,
+        applyInstance,
+        updateCurrentInstanceWorld
+    };
 });

@@ -6,6 +6,7 @@ import { useWorldStore } from '../../stores/world';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
 import { $app } from '../../app';
+import { useInstanceStore } from '../../stores/instance';
 
 function getAvailablePlatforms(unityPackages) {
     let isPC = false;
@@ -335,6 +336,9 @@ async function getBundleDateSize(ref) {
     const { avatarDialog } = storeToRefs(avatarStore);
     const worldStore = useWorldStore();
     const { worldDialog } = storeToRefs(worldStore);
+    const instanceStore = useInstanceStore();
+    const { currentInstanceWorld, currentInstanceLocation } =
+        storeToRefs(instanceStore);
     const bundleSizes = [];
     for (let i = ref.unityPackages.length - 1; i > -1; i--) {
         const unityPackage = ref.unityPackages[i];
@@ -394,15 +398,15 @@ async function getBundleDateSize(ref) {
                     }
                 }
                 // update player list
-                if ($app.currentInstanceLocation.worldId === ref.id) {
-                    $app.currentInstanceWorld.bundleSizes[platform] =
+                if (currentInstanceLocation.value.worldId === ref.id) {
+                    currentInstanceWorld.value.bundleSizes[platform] =
                         bundleSizes[platform];
 
                     if (
-                        $app.currentInstanceWorld.lastUpdated <
+                        currentInstanceWorld.value.lastUpdated <
                         version.created_at
                     ) {
-                        $app.currentInstanceWorld.lastUpdated =
+                        currentInstanceWorld.value.lastUpdated =
                             version.created_at;
                     }
                 }

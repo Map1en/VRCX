@@ -2022,7 +2022,7 @@ $app.methods.loadPlayerList = function () {
         });
 
         this.updateCurrentUserLocation();
-        this.updateCurrentInstanceWorld();
+        this.store.instance.updateCurrentInstanceWorld();
         this.updateVRLastLocation();
         this.getCurrentInstanceUserList();
         this.applyUserDialogLocation();
@@ -2373,7 +2373,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
         friendList: new Map()
     };
     this.updateCurrentUserLocation();
-    this.updateCurrentInstanceWorld();
+    this.store.instance.updateCurrentInstanceWorld();
     this.updateVRLastLocation();
     this.getCurrentInstanceUserList();
     this.lastVideoUrl = '';
@@ -4329,132 +4329,6 @@ $app.methods.updatePlayerListDebounce = function () {
 };
 
 $app.data.updateInstanceInfo = 0;
-
-$app.data.currentInstanceWorld = {
-    ref: {},
-    instance: {},
-    isPC: false,
-    isQuest: false,
-    isIos: false,
-    avatarScalingDisabled: false,
-    focusViewDisabled: false,
-    inCache: false,
-    cacheSize: '',
-    bundleSizes: [],
-    lastUpdated: ''
-};
-
-$app.data.currentInstanceWorldDescriptionExpanded = false;
-$app.data.currentInstanceLocation = {};
-
-$app.methods.updateCurrentInstanceWorld = function () {
-    let L;
-    let instanceId = this.store.location.lastLocation.location;
-    if (this.store.location.lastLocation.location === 'traveling') {
-        instanceId = this.lastLocationDestination;
-    }
-    if (!instanceId) {
-        this.currentInstanceWorld = {
-            ref: {},
-            instance: {},
-            isPC: false,
-            isQuest: false,
-            isIos: false,
-            avatarScalingDisabled: false,
-            focusViewDisabled: false,
-            inCache: false,
-            cacheSize: '',
-            bundleSizes: [],
-            lastUpdated: ''
-        };
-        this.currentInstanceLocation = {};
-    } else if (instanceId !== this.currentInstanceLocation.tag) {
-        this.currentInstanceWorld = {
-            ref: {},
-            instance: {},
-            isPC: false,
-            isQuest: false,
-            isIos: false,
-            avatarScalingDisabled: false,
-            focusViewDisabled: false,
-            inCache: false,
-            cacheSize: '',
-            bundleSizes: [],
-            lastUpdated: ''
-        };
-        L = parseLocation(instanceId);
-        this.currentInstanceLocation = L;
-        worldRequest
-            .getWorld({
-                worldId: L.worldId
-            })
-            .then((args) => {
-                this.currentInstanceWorld.ref = args.ref;
-                let { isPC, isQuest, isIos } = getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                this.currentInstanceWorld.isPC = isPC;
-                this.currentInstanceWorld.isQuest = isQuest;
-                this.currentInstanceWorld.isIos = isIos;
-                this.currentInstanceWorld.avatarScalingDisabled =
-                    args.ref?.tags.includes('feature_avatar_scaling_disabled');
-                this.currentInstanceWorld.focusViewDisabled =
-                    args.ref?.tags.includes('feature_focus_view_disabled');
-                checkVRChatCache(args.ref).then((cacheInfo) => {
-                    if (cacheInfo.Item1 > 0) {
-                        this.currentInstanceWorld.inCache = true;
-                        this.currentInstanceWorld.cacheSize = `${(
-                            cacheInfo.Item1 / 1048576
-                        ).toFixed(2)} MB`;
-                    }
-                });
-                getBundleDateSize(args.ref).then((bundleSizes) => {
-                    this.currentInstanceWorld.bundleSizes = bundleSizes;
-                });
-                return args;
-            });
-    } else {
-        worldRequest
-            .getCachedWorld({
-                worldId: this.currentInstanceLocation.worldId
-            })
-            .then((args) => {
-                this.currentInstanceWorld.ref = args.ref;
-                const { isPC, isQuest, isIos } = getAvailablePlatforms(
-                    args.ref.unityPackages
-                );
-                this.currentInstanceWorld.isPC = isPC;
-                this.currentInstanceWorld.isQuest = isQuest;
-                this.currentInstanceWorld.isIos = isIos;
-                checkVRChatCache(args.ref).then((cacheInfo) => {
-                    if (cacheInfo.Item1 > 0) {
-                        this.currentInstanceWorld.inCache = true;
-                        this.currentInstanceWorld.cacheSize = `${(
-                            cacheInfo.Item1 / 1048576
-                        ).toFixed(2)} MB`;
-                    }
-                });
-            });
-    }
-    if (isRealInstance(instanceId)) {
-        const ref = $app.store.instance.cachedInstances.get(instanceId);
-        if (typeof ref !== 'undefined') {
-            this.currentInstanceWorld.instance = ref;
-        } else {
-            L = parseLocation(instanceId);
-            if (L.isRealInstance) {
-                instanceRequest
-                    .getInstance({
-                        worldId: L.worldId,
-                        instanceId: L.instanceId
-                    })
-                    .then((args) => {
-                        this.currentInstanceWorld.instance = args.ref;
-                    });
-            }
-        }
-    }
-};
 
 $app.methods.updateTimers = function () {
     for (let $timer of $timers) {
@@ -7258,10 +7132,6 @@ $app.computed.profileTabEvent = function () {
 $app.computed.playerListTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        currentInstanceWorld: this.currentInstanceWorld,
-        currentInstanceLocation: this.currentInstanceLocation,
-        currentInstanceWorldDescriptionExpanded:
-            this.currentInstanceWorldDescriptionExpanded,
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
         photonEventTableTypeFilter: this.photonEventTableTypeFilter,
         photonEventTableFilter: this.photonEventTableFilter,
