@@ -7120,40 +7120,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 // };
 
 // #endregion
-// #region | Close instance
-
-$app.methods.closeInstance = function (location) {
-    this.$confirm(
-        'Continue? Close Instance, nobody will be able to join',
-        'Confirm',
-        {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel',
-            type: 'warning',
-            callback: (action) => {
-                if (action !== 'confirm') {
-                    return;
-                }
-                miscRequest.closeInstance({ location, hardClose: false });
-            }
-        }
-    );
-};
-
-API.$on('INSTANCE:CLOSE', function (args) {
-    if (args.json) {
-        $app.$message({
-            message: $t('message.instance.closed'),
-            type: 'success'
-        });
-
-        this.$emit('INSTANCE', {
-            json: args.json
-        });
-    }
-});
-
-// #endregion
 // #region instance join history
 
 $app.data.instanceJoinHistory = new Map();

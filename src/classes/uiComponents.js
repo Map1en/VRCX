@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import { instanceRequest, userRequest } from '../api';
-import { $app, API } from '../app.js';
+import { instanceRequest, miscRequest, userRequest } from '../api';
+import { $app, $t, API } from '../app.js';
 import {
     checkCanInviteSelf,
     getGroupName,
@@ -325,6 +325,37 @@ export default function init() {
             },
             showUserDialog(userId) {
                 this.store.user.showUserDialog(userId);
+            },
+            closeInstance(location) {
+                this.$confirm(
+                    'Continue? Close Instance, nobody will be able to join',
+                    'Confirm',
+                    {
+                        confirmButtonText: 'Confirm',
+                        cancelButtonText: 'Cancel',
+                        type: 'warning',
+                        callback: async (action) => {
+                            if (action !== 'confirm') {
+                                return;
+                            }
+                            const args = await miscRequest.closeInstance({
+                                location,
+                                hardClose: false
+                            });
+                            // API.$on('INSTANCE:CLOSE')
+                            if (args.json) {
+                                $app.$message({
+                                    message: $t('message.instance.closed'),
+                                    type: 'success'
+                                });
+
+                                API.$emit('INSTANCE', {
+                                    json: args.json
+                                });
+                            }
+                        }
+                    }
+                );
             }
         },
         template:
@@ -332,7 +363,7 @@ export default function init() {
             '<el-tooltip v-if="isValidInstance" placement="bottom">' +
             '<div slot="content">' +
             '<template v-if="isClosed"><span>Closed At: {{ closedAt | formatDate(\'long\') }}</span></br></template>' +
-            '<template v-if="canCloseInstance"><el-button :disabled="isClosed" size="mini" type="primary" @click="$root.closeInstance(location)">{{ $t("dialog.user.info.close_instance") }}</el-button></br></br></template>' +
+            '<template v-if="canCloseInstance"><el-button :disabled="isClosed" size="mini" type="primary" @click="closeInstance(location)">{{ $t("dialog.user.info.close_instance") }}</el-button></br></br></template>' +
             '<span><span style="color:#409eff">PC: </span>{{ platforms.standalonewindows }}</span></br>' +
             '<span><span style="color:#67c23a">Android: </span>{{ platforms.android }}</span></br>' +
             '<span>{{ $t("dialog.user.info.instance_game_version") }} {{ gameServerVersion }}</span></br>' +

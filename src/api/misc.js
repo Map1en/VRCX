@@ -106,7 +106,7 @@ const miscReq = {
                 json,
                 params
             };
-            API.$emit('INSTANCE:CLOSE', args);
+            // API.$emit('INSTANCE:CLOSE', args);
             return args;
         });
     },
