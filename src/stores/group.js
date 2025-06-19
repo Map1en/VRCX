@@ -15,7 +15,6 @@ import { useInstanceStore } from './instance';
 
 export const useGroupStore = defineStore('Group', () => {
     const instanceStore = useInstanceStore();
-    const { applyGroupDialogInstances } = instanceStore;
 
     const state = reactive({
         groupDialog: {
@@ -134,7 +133,7 @@ export const useGroupStore = defineStore('Group', () => {
                             D.ownerDisplayName = args1.ref.displayName;
                             return args1;
                         });
-                    applyGroupDialogInstances();
+                    instanceStore.applyGroupDialogInstances();
                     getGroupDialogGroup(groupId);
                 }
             });
@@ -466,15 +465,15 @@ export const useGroupStore = defineStore('Group', () => {
      * @return { Promise<{json: any, params}> }
      */
     async function getAllGroupPosts(params) {
+        const n = 100;
+        let posts = [];
+        let offset = 0;
+        let total = 0;
         const args = await groupRequest.getGroupPosts({
             groupId: params.groupId,
             n,
             offset
         });
-        let posts = [];
-        let offset = 0;
-        const n = 100;
-        let total = 0;
         do {
             posts = posts.concat(args.json.posts);
             total = args.json.total;
@@ -537,7 +536,7 @@ export const useGroupStore = defineStore('Group', () => {
                                 if (
                                     state.groupDialog.id === args.params.groupId
                                 ) {
-                                    applyGroupDialogInstances(
+                                    instanceStore.applyGroupDialogInstances(
                                         args.json.instances
                                     );
                                 }
@@ -582,7 +581,6 @@ export const useGroupStore = defineStore('Group', () => {
         cachedGroups,
         showGroupDialog,
         applyGroup,
-        applyGroupDialogInstances,
         saveCurrentUserGroups,
         applyPresenceGroups,
         getGroupDialogGroup

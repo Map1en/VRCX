@@ -26,7 +26,6 @@ export const useUserStore = defineStore('User', () => {
     const friendStore = useFriendStore();
     const favoriteStore = useFavoriteStore();
     const locationStore = useLocationStore();
-    const { applyUserTrustLevel } = appearanceSettingsStore;
 
     const state = reactive({
         userDialog: {
@@ -281,7 +280,7 @@ export const useUserStore = defineStore('User', () => {
                 ref.$customTagColour = '';
             }
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            applyUserTrustLevel(ref);
+            appearanceSettingsStore.applyUserTrustLevel(ref);
             applyUserLanguage(ref);
             API.cachedUsers.set(ref.id, ref);
         } else {
@@ -294,7 +293,7 @@ export const useUserStore = defineStore('User', () => {
             const $ref = { ...ref };
             Object.assign(ref, json);
             ref.$isVRCPlus = ref.tags.includes('system_supporter');
-            applyUserTrustLevel(ref);
+            appearanceSettingsStore.applyUserTrustLevel(ref);
             applyUserLanguage(ref);
             // traveling
             if (ref.location === 'traveling') {

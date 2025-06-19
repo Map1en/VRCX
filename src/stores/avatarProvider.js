@@ -5,7 +5,6 @@ import { useAdvancedSettingsStore } from './settings/advanced';
 
 export const useAvatarProviderStore = defineStore('AvatarProvider', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
-    const { setAvatarRemoteDatabase } = advancedSettingsStore;
     const state = reactive({
         isAvatarProviderDialogVisible: false,
 
@@ -136,10 +135,10 @@ export const useAvatarProviderStore = defineStore('AvatarProvider', () => {
         if (state.avatarRemoteDatabaseProviderList.length > 0) {
             state.avatarRemoteDatabaseProvider =
                 state.avatarRemoteDatabaseProviderList[0];
-            setAvatarRemoteDatabase(true);
+            advancedSettingsStore.setAvatarRemoteDatabase(true);
         } else {
             state.avatarRemoteDatabaseProvider = '';
-            setAvatarRemoteDatabase(false);
+            advancedSettingsStore.setAvatarRemoteDatabase(false);
         }
     }
 

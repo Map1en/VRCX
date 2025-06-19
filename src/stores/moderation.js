@@ -6,7 +6,6 @@ import { useAvatarStore } from './avatar';
 
 export const useModerationStore = defineStore('Moderation', () => {
     const avatarStore = useAvatarStore();
-    const { applyAvatarModeration } = avatarStore;
     const state = reactive({
         cachedPlayerModerations: new Map(),
         cachedPlayerModerationsUserIds: new Set(),
@@ -209,7 +208,7 @@ export const useModerationStore = defineStore('Moderation', () => {
                 avatarStore.cachedAvatarModerations = new Map();
                 if (res[1]?.json) {
                     for (const json of res[1].json) {
-                        applyAvatarModeration(json);
+                        avatarStore.applyAvatarModeration(json);
                     }
                 }
                 deleteExpiredPlayerModerations();

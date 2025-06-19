@@ -13,13 +13,9 @@ import { useWorldStore } from './world';
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendStore = useFriendStore();
-    const { updateLocalFavoriteFriends, updateSidebarFriendsList } =
-        friendStore;
     const generalSettingsStore = useGeneralSettingsStore();
     const avatarStore = useAvatarStore();
-    const { applyAvatar } = avatarStore;
     const worldStore = useWorldStore();
-    const { applyWorld } = worldStore;
     const state = reactive({
         isFavoriteGroupLoading: false,
         favoriteFriendGroups: [],
@@ -770,7 +766,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 }
                 refreshFavoriteItems();
                 refreshFavoriteGroups();
-                updateLocalFavoriteFriends();
+                friendStore.updateLocalFavoriteFriends();
                 state.isFavoriteLoading = false;
             }
         });
@@ -840,7 +836,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     ))
             ) {
                 friendStore.localFavoriteFriends.add(ref.favoriteId);
-                updateSidebarFriendsList();
+                friendStore.updateSidebarFriendsList();
             }
         } else {
             Object.assign(ref, json);
@@ -1345,7 +1341,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         for (i = 0; i < avatarCache.length; ++i) {
             ref = avatarCache[i];
             if (!API.cachedAvatars.has(ref.id)) {
-                applyAvatar(ref);
+                avatarStore.applyAvatar(ref);
             }
         }
         const favorites = await database.getAvatarFavorites();
@@ -1585,7 +1581,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         for (let i = 0; i < worldCache.length; ++i) {
             const ref = worldCache[i];
             if (!worldStore.cachedWorlds.has(ref.id)) {
-                applyWorld(ref);
+                worldStore.applyWorld(ref);
             }
         }
         const favorites = await database.getWorldFavorites();
