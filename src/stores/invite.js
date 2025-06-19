@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { inviteMessagesRequest } from '../api';
-import { API } from '../app';
+import { instanceRequest, inviteMessagesRequest } from '../api';
+import { $app, API } from '../app';
+import { parseLocation } from '../shared/utils';
+import { useInstanceStore } from './instance';
 
 export const useInviteStore = defineStore('Invite', () => {
+    const instanceStore = useInstanceStore();
     const state = reactive({
         editInviteMessageDialog: {
             visible: false,
@@ -136,6 +139,37 @@ export const useInviteStore = defineStore('Invite', () => {
             });
     }
 
+    function newInstanceSelfInvite(worldId) {
+        const { createNewInstance } = instanceStore;
+        createNewInstance(worldId).then((args) => {
+            const location = args?.json?.location;
+            if (!location) {
+                $app.$message({
+                    message: 'Failed to create instance',
+                    type: 'error'
+                });
+                return;
+            }
+            // self invite
+            const L = parseLocation(location);
+            if (!L.isRealInstance) {
+                return;
+            }
+            instanceRequest
+                .selfInvite({
+                    instanceId: L.instanceId,
+                    worldId: L.worldId
+                })
+                .then((args) => {
+                    $app.$message({
+                        message: 'Self invite sent',
+                        type: 'success'
+                    });
+                    return args;
+                });
+        });
+    }
+
     return {
         state,
         editInviteMessageDialog,
@@ -144,6 +178,7 @@ export const useInviteStore = defineStore('Invite', () => {
         inviteRequestMessageTable,
         inviteRequestResponseMessageTable,
         showEditInviteMessageDialog,
-        refreshInviteMessageTableData
+        refreshInviteMessageTableData,
+        newInstanceSelfInvite
     };
 });

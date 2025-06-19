@@ -6,3 +6,4 @@ export * from './photon';
 export * from './vrchatResolutions';
 export * from './groupDialog';
 export * from './userDialog';
+export * from './instance';

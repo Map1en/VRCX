@@ -42,7 +42,6 @@
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
-                    @new-instance-self-invite="newInstanceSelfInvite"
                     @refresh-local-world-favorite="refreshLocalWorldFavorites" />
             </el-tab-pane>
             <el-tab-pane name="avatar" :label="$t('view.favorite.avatars.header')" lazy>
@@ -252,9 +251,6 @@
             },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
-            },
-            newInstanceSelfInvite(worldId) {
-                this.$emit('new-instance-self-invite', worldId);
             },
             selectAvatarWithConfirmation(id) {
                 this.$emit('select-avatar-with-confirmation', id);

@@ -2,10 +2,14 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, reactive } from 'vue';
 import { instanceRequest, worldRequest } from '../api';
 import { $app } from '../app';
+import API from '../classes/apiInit';
+import configRepository from '../service/config';
+import { instanceContentSettings } from '../shared/constants';
 import {
     checkVRChatCache,
     getAvailablePlatforms,
     getBundleDateSize,
+    hasGroupPermission,
     isRealInstance,
     parseLocation
 } from '../shared/utils';
@@ -241,7 +245,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
         ref.$disabledContentSettings = [];
         if (json.contentSettings && Object.keys(json.contentSettings).length) {
-            for (let setting of $app.instanceContentSettings) {
+            for (const setting of instanceContentSettings) {
                 if (
                     typeof json.contentSettings[setting] === 'undefined' ||
                     json.contentSettings[setting] === true
@@ -254,12 +258,127 @@ export const useInstanceStore = defineStore('Instance', () => {
         return ref;
     }
 
+    /**
+     *
+     * @param {string} worldId
+     * @param {string} options
+     * @returns {Promise<{json: *, params}|null>}
+     */
+    async function createNewInstance(worldId = '', options) {
+        let D = options;
+
+        if (!D) {
+            D = {
+                loading: false,
+                accessType: await configRepository.getString(
+                    'instanceDialogAccessType',
+                    'public'
+                ),
+                region: await configRepository.getString(
+                    'instanceRegion',
+                    'US West'
+                ),
+                worldId: worldId,
+                groupId: await configRepository.getString(
+                    'instanceDialogGroupId',
+                    ''
+                ),
+                groupAccessType: await configRepository.getString(
+                    'instanceDialogGroupAccessType',
+                    'plus'
+                ),
+                ageGate: await configRepository.getBool(
+                    'instanceDialogAgeGate',
+                    false
+                ),
+                queueEnabled: await configRepository.getBool(
+                    'instanceDialogQueueEnabled',
+                    true
+                ),
+                contentSettings: instanceContentSettings || [],
+                selectedContentSettings: JSON.parse(
+                    await configRepository.getString(
+                        'instanceDialogSelectedContentSettings',
+                        JSON.stringify(instanceContentSettings || [])
+                    )
+                ),
+                roleIds: [],
+                groupRef: {}
+            };
+        }
+
+        let type = 'public';
+        let canRequestInvite = false;
+        switch (D.accessType) {
+            case 'friends':
+                type = 'friends';
+                break;
+            case 'friends+':
+                type = 'hidden';
+                break;
+            case 'invite':
+                type = 'private';
+                break;
+            case 'invite+':
+                type = 'private';
+                canRequestInvite = true;
+                break;
+            case 'group':
+                type = 'group';
+                break;
+        }
+        let region = 'us';
+        if (D.region === 'US East') {
+            region = 'use';
+        } else if (D.region === 'Europe') {
+            region = 'eu';
+        } else if (D.region === 'Japan') {
+            region = 'jp';
+        }
+        const contentSettings = {};
+        for (const setting of D.contentSettings) {
+            contentSettings[setting] =
+                D.selectedContentSettings.includes(setting);
+        }
+        const params = {
+            type,
+            canRequestInvite,
+            worldId: D.worldId,
+            ownerId: API.currentUser.id,
+            region,
+            contentSettings
+        };
+        if (type === 'group') {
+            params.groupAccessType = D.groupAccessType;
+            params.ownerId = D.groupId;
+            params.queueEnabled = D.queueEnabled;
+            if (D.groupAccessType === 'members') {
+                params.roleIds = D.roleIds;
+            }
+        }
+        if (
+            D.ageGate &&
+            type === 'group' &&
+            hasGroupPermission(D.groupRef, 'group-instance-age-gated-create')
+        ) {
+            params.ageGate = true;
+        }
+        try {
+            const args = await instanceRequest.createInstance(params);
+            return args;
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
     return {
         state,
         cachedInstances,
         currentInstanceWorld,
         currentInstanceLocation,
         applyInstance,
-        updateCurrentInstanceWorld
+        updateCurrentInstanceWorld,
+        createNewInstance
     };
 });

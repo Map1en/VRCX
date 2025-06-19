@@ -127,8 +127,7 @@
                         :hide-tooltips="hideTooltips"
                         :shift-held="shiftHeld"
                         @click="showWorldDialog(favorite.id)"
-                        @handle-select="favorite.$selected = $event"
-                        @new-instance-self-invite="newInstanceSelfInvite" />
+                        @handle-select="favorite.$selected = $event" />
                 </div>
                 <div
                     v-else
@@ -198,7 +197,6 @@
                         :hide-tooltips="hideTooltips"
                         :shift-held="shiftHeld"
                         @click="showWorldDialog(favorite.id)"
-                        @new-instance-self-invite="newInstanceSelfInvite"
                         @remove-local-world-favorite="removeLocalWorldFavorite" />
                 </div>
                 <div
@@ -455,9 +453,6 @@
             },
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);
-            },
-            newInstanceSelfInvite(event) {
-                this.$emit('new-instance-self-invite', event);
             }
         }
     };

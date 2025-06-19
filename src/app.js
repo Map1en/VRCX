@@ -4760,7 +4760,7 @@ $app.methods.worldDialogCommand = function (command) {
     }
     switch (command) {
         case 'New Instance and Self Invite':
-            this.newInstanceSelfInvite(D.id);
+            this.store.invite.newInstanceSelfInvite(D.id);
             break;
         case 'Rename':
             this.promptRenameWorld(D);
@@ -4778,36 +4778,6 @@ $app.methods.worldDialogCommand = function (command) {
             this.promptChangeWorldYouTubePreview(D);
             break;
     }
-};
-
-$app.methods.newInstanceSelfInvite = function (worldId) {
-    this.createNewInstance(worldId).then((args) => {
-        const location = args?.json?.location;
-        if (!location) {
-            this.$message({
-                message: 'Failed to create instance',
-                type: 'error'
-            });
-            return;
-        }
-        // self invite
-        const L = parseLocation(location);
-        if (!L.isRealInstance) {
-            return;
-        }
-        instanceRequest
-            .selfInvite({
-                instanceId: L.instanceId,
-                worldId: L.worldId
-            })
-            .then((args) => {
-                this.$message({
-                    message: 'Self invite sent',
-                    type: 'success'
-                });
-                return args;
-            });
-    });
 };
 
 // #endregion
@@ -4953,125 +4923,6 @@ API.$on('FAVORITE:ADD', function (args) {
 API.$on('FAVORITE:DELETE', function (args) {
     $app.store.favorite.updateFavoriteDialog(args.params.objectId);
 });
-
-// #endregion
-// #region | App: New Instance Dialog
-
-$app.data.instanceContentSettings = [
-    'emoji',
-    'stickers',
-    'pedestals',
-    'prints',
-    'drones',
-    'props'
-];
-
-$app.methods.createNewInstance = async function (worldId = '', options) {
-    let D = options;
-
-    if (!D) {
-        D = {
-            loading: false,
-            accessType: await configRepository.getString(
-                'instanceDialogAccessType',
-                'public'
-            ),
-            region: await configRepository.getString(
-                'instanceRegion',
-                'US West'
-            ),
-            worldId: worldId,
-            groupId: await configRepository.getString(
-                'instanceDialogGroupId',
-                ''
-            ),
-            groupAccessType: await configRepository.getString(
-                'instanceDialogGroupAccessType',
-                'plus'
-            ),
-            ageGate: await configRepository.getBool(
-                'instanceDialogAgeGate',
-                false
-            ),
-            queueEnabled: await configRepository.getBool(
-                'instanceDialogQueueEnabled',
-                true
-            ),
-            contentSettings: this.instanceContentSettings || [],
-            selectedContentSettings: JSON.parse(
-                await configRepository.getString(
-                    'instanceDialogSelectedContentSettings',
-                    JSON.stringify(this.instanceContentSettings || [])
-                )
-            ),
-            roleIds: [],
-            groupRef: {}
-        };
-    }
-
-    let type = 'public';
-    let canRequestInvite = false;
-    switch (D.accessType) {
-        case 'friends':
-            type = 'friends';
-            break;
-        case 'friends+':
-            type = 'hidden';
-            break;
-        case 'invite':
-            type = 'private';
-            break;
-        case 'invite+':
-            type = 'private';
-            canRequestInvite = true;
-            break;
-        case 'group':
-            type = 'group';
-            break;
-    }
-    let region = 'us';
-    if (D.region === 'US East') {
-        region = 'use';
-    } else if (D.region === 'Europe') {
-        region = 'eu';
-    } else if (D.region === 'Japan') {
-        region = 'jp';
-    }
-    const contentSettings = {};
-    for (let setting of D.contentSettings) {
-        contentSettings[setting] = D.selectedContentSettings.includes(setting);
-    }
-    const params = {
-        type,
-        canRequestInvite,
-        worldId: D.worldId,
-        ownerId: API.currentUser.id,
-        region,
-        contentSettings
-    };
-    if (type === 'group') {
-        params.groupAccessType = D.groupAccessType;
-        params.ownerId = D.groupId;
-        params.queueEnabled = D.queueEnabled;
-        if (D.groupAccessType === 'members') {
-            params.roleIds = D.roleIds;
-        }
-    }
-    if (
-        D.ageGate &&
-        type === 'group' &&
-        hasGroupPermission(D.groupRef, 'group-instance-age-gated-create')
-    ) {
-        params.ageGate = true;
-    }
-    try {
-        const args = await instanceRequest.createInstance(params);
-        return args;
-    } catch (err) {
-        console.error(err);
-        return null;
-    }
-};
 
 // #endregion
 // #region | App: Copy To Clipboard
@@ -6768,7 +6619,6 @@ $app.computed.favoritesTabBind = function () {
 $app.computed.favoritesTabEvent = function () {
     return {
         'save-sort-favorites-option': this.saveSortFavoritesOption,
-        'new-instance-self-invite': this.newInstanceSelfInvite,
         'select-avatar-with-confirmation': this.selectAvatarWithConfirmation
     };
 };

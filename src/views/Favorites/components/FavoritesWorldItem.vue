@@ -59,7 +59,7 @@
                             size="mini"
                             icon="el-icon-message"
                             style="margin-left: 5px"
-                            @click.stop="$emit('new-instance-self-invite', favorite.id)"
+                            @click.stop="newInstanceSelfInvite(favorite.id)"
                             circle></el-button>
                     </el-tooltip>
                     <el-tooltip
@@ -134,6 +134,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useInviteStore } from '../../../stores/invite';
 
     export default {
         name: 'FavoritesWorldItem',
@@ -150,10 +151,13 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteWorldGroups } = storeToRefs(favoriteStore);
+            const inviteStore = useInviteStore();
+            const { newInstanceSelfInvite } = storeToRefs(inviteStore);
             return {
                 hideTooltips,
                 API,
-                favoriteWorldGroups
+                favoriteWorldGroups,
+                newInstanceSelfInvite
             };
         },
         computed: {

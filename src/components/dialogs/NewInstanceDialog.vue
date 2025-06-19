@@ -498,6 +498,7 @@
     import { storeToRefs } from 'pinia';
     import { groupRequest, instanceRequest, worldRequest } from '../../api';
     import configRepository from '../../service/config';
+    import { instanceContentSettings } from '../../shared/constants';
     import {
         getLaunchURL,
         hasGroupPermission,
@@ -512,20 +513,13 @@
     import { API } from '../../app';
     import { useGroupStore } from '../../stores/group';
     import { useLaunchStore } from '../../stores/launch';
+    import { useInstanceStore } from '../../stores/instance';
 
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
         inject: ['adjustDialogZ'],
         props: {
-            instanceContentSettings: {
-                type: Array,
-                required: true
-            },
-            createNewInstance: {
-                type: Function,
-                required: true
-            },
             newInstanceDialogLocationTag: {
                 type: String,
                 required: true
@@ -544,6 +538,8 @@
             const { lastLocation } = storeToRefs(locationStore);
             const launchStore = useLaunchStore();
             const { showLaunchDialog } = launchStore;
+            const instanceStore = useInstanceStore();
+            const { createNewInstance } = instanceStore;
             return {
                 friends,
                 vipFriends,
@@ -557,7 +553,8 @@
                 userStatusClass,
                 hasGroupPermission,
                 userImage,
-                showLaunchDialog
+                showLaunchDialog,
+                createNewInstance
             };
         },
         data() {
@@ -587,7 +584,7 @@
                     selectedGroupRoles: [],
                     roleIds: [],
                     groupRef: {},
-                    contentSettings: this.instanceContentSettings,
+                    contentSettings: instanceContentSettings,
                     selectedContentSettings: []
                 },
                 inviteDialog: {
@@ -699,7 +696,7 @@
                     .then((value) => (this.newInstanceDialog.ageGate = value));
 
                 configRepository
-                    .getString('instanceDialogSelectedContentSettings', JSON.stringify(this.instanceContentSettings))
+                    .getString('instanceDialogSelectedContentSettings', JSON.stringify(instanceContentSettings))
                     .then((value) => (this.newInstanceDialog.selectedContentSettings = JSON.parse(value)));
             },
             saveNewInstanceDialog() {

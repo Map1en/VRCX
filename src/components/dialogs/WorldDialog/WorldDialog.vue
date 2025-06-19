@@ -748,8 +748,6 @@
             :shift-held="shiftHeld" />
         <NewInstanceDialog
             :new-instance-dialog-location-tag="newInstanceDialogLocationTag"
-            :create-new-instance="createNewInstance"
-            :instance-content-settings="instanceContentSettings"
             :upload-image="uploadImage"
             :last-location="lastLocation" />
         <ChangeWorldImageDialog
@@ -813,9 +811,6 @@
             shiftHeld: Boolean,
             isGameRunning: Boolean,
             instanceJoinHistory: Map,
-
-            createNewInstance: Function,
-            instanceContentSettings: Array,
             uploadImage: String,
 
             // TODO: Remove
