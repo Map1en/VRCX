@@ -18,6 +18,7 @@ import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useWorldStore } from './world';
 import { useInstanceStore } from './instance';
 import { useModerationStore } from './moderation';
+import { useInviteStore } from './invite';
 
 export const pinia = createPinia();
 
@@ -41,6 +42,7 @@ export function createGlobalStores() {
         group: useGroupStore(),
         location: useLocationStore(),
         instance: useInstanceStore(),
-        moderation: useModerationStore()
+        moderation: useModerationStore(),
+        invite: useInviteStore()
     };
 }

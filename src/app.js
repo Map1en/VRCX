@@ -1935,7 +1935,7 @@ API.$on('LOGIN', async function (args) {
         });
         await $app.store.appearanceSettings.userColourInit();
     }
-    await $app.getAllUserStats();
+    await $app.store.friend.getAllUserStats();
     $app.store.friend.sortVIPFriends = true;
     $app.store.friend.sortOnlineFriends = true;
     $app.store.friend.sortActiveFriends = true;
@@ -5238,99 +5238,9 @@ API.$on('INVITE:REQUESTRESPONSE', function (args) {
 });
 
 // #endregion
-// #region | App: Edit Invite Message Dialog
-
-$app.data.editInviteMessageDialog = {
-    visible: false,
-    inviteMessage: {},
-    messageType: '',
-    newMessage: ''
-};
-
-$app.methods.showEditInviteMessageDialog = function (
-    messageType,
-    inviteMessage
-) {
-    const D = this.editInviteMessageDialog;
-    D.newMessage = inviteMessage.message;
-    D.visible = true;
-    D.inviteMessage = inviteMessage;
-    D.messageType = messageType;
-};
-
-// #endregion
 // #region | App: Friends List
 
 $app.data.friendsListSearch = '';
-
-$app.methods.getAllUserStats = async function () {
-    let ref;
-    let item;
-    const userIds = [];
-    const displayNames = [];
-    for (const ctx of this.store.friend.friends.values()) {
-        userIds.push(ctx.id);
-        if (ctx.ref?.displayName) {
-            displayNames.push(ctx.ref.displayName);
-        }
-    }
-
-    const data = await database.getAllUserStats(userIds, displayNames);
-    const friendListMap = new Map();
-    for (item of data) {
-        if (!item.userId) {
-            // find userId from previous data with matching displayName
-            for (ref of data) {
-                if (ref.displayName === item.displayName && ref.userId) {
-                    item.userId = ref.userId;
-                }
-            }
-            // if still no userId, find userId from friends list
-            if (!item.userId) {
-                for (ref of this.store.friend.friends.values()) {
-                    if (
-                        ref?.ref?.id &&
-                        ref.ref.displayName === item.displayName
-                    ) {
-                        item.userId = ref.id;
-                    }
-                }
-            }
-            // if still no userId, skip
-            if (!item.userId) {
-                continue;
-            }
-        }
-
-        const friend = friendListMap.get(item.userId);
-        if (!friend) {
-            friendListMap.set(item.userId, item);
-            continue;
-        }
-        if (Date.parse(item.lastSeen) > Date.parse(friend.lastSeen)) {
-            friend.lastSeen = item.lastSeen;
-        }
-        friend.timeSpent += item.timeSpent;
-        friend.joinCount += item.joinCount;
-        friend.displayName = item.displayName;
-        friendListMap.set(item.userId, friend);
-    }
-    for (item of friendListMap.values()) {
-        ref = this.store.friend.friends.get(item.userId);
-        if (ref?.ref) {
-            ref.ref.$joinCount = item.joinCount;
-            ref.ref.$lastSeen = item.lastSeen;
-            ref.ref.$timeSpent = item.timeSpent;
-        }
-    }
-};
-
-$app.methods.getUserStats = async function (ctx) {
-    const ref = await database.getUserStats(ctx);
-    ctx.$joinCount = ref.joinCount;
-    ctx.$lastSeen = ref.lastSeen;
-    ctx.$timeSpent = ref.timeSpent;
-};
 
 // Set avatar/world image
 
@@ -5351,7 +5261,7 @@ $app.methods.checkPreviousImageAvailable = async function (images) {
     }
 };
 
-// todo: userdialog
+// todo: ここで置いて大丈夫かな？複雑なステータスじゃないね
 $app.data.previousImagesDialogVisible = false;
 $app.data.previousImagesTable = [];
 
@@ -6966,7 +6876,6 @@ $app.computed.friendsListTabBind = function () {
 };
 $app.computed.friendsListTabEvent = function () {
     return {
-        'get-all-user-stats': this.getAllUserStats,
         'lookup-user': this.lookupUser,
         'update:friends-list-search': (value) =>
             (this.friendsListSearch = value)
@@ -7124,8 +7033,7 @@ $app.computed.profileTabBind = function () {
 $app.computed.profileTabEvent = function () {
     return {
         logout: this.logout,
-        lookupUser: this.lookupUser,
-        showEditInviteMessageDialog: this.showEditInviteMessageDialog
+        lookupUser: this.lookupUser
     };
 };
 

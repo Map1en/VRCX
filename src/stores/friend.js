@@ -880,6 +880,68 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     }
 
+    async function getAllUserStats() {
+        let ref;
+        let item;
+        const userIds = [];
+        const displayNames = [];
+        for (const ctx of state.friends.values()) {
+            userIds.push(ctx.id);
+            if (ctx.ref?.displayName) {
+                displayNames.push(ctx.ref.displayName);
+            }
+        }
+
+        const data = await database.getAllUserStats(userIds, displayNames);
+        const friendListMap = new Map();
+        for (item of data) {
+            if (!item.userId) {
+                // find userId from previous data with matching displayName
+                for (ref of data) {
+                    if (ref.displayName === item.displayName && ref.userId) {
+                        item.userId = ref.userId;
+                    }
+                }
+                // if still no userId, find userId from friends list
+                if (!item.userId) {
+                    for (ref of state.friends.values()) {
+                        if (
+                            ref?.ref?.id &&
+                            ref.ref.displayName === item.displayName
+                        ) {
+                            item.userId = ref.id;
+                        }
+                    }
+                }
+                // if still no userId, skip
+                if (!item.userId) {
+                    continue;
+                }
+            }
+
+            const friend = friendListMap.get(item.userId);
+            if (!friend) {
+                friendListMap.set(item.userId, item);
+                continue;
+            }
+            if (Date.parse(item.lastSeen) > Date.parse(friend.lastSeen)) {
+                friend.lastSeen = item.lastSeen;
+            }
+            friend.timeSpent += item.timeSpent;
+            friend.joinCount += item.joinCount;
+            friend.displayName = item.displayName;
+            friendListMap.set(item.userId, friend);
+        }
+        for (item of friendListMap.values()) {
+            ref = state.friends.get(item.userId);
+            if (ref?.ref) {
+                ref.ref.$joinCount = item.joinCount;
+                ref.ref.$lastSeen = item.lastSeen;
+                ref.ref.$timeSpent = item.timeSpent;
+            }
+        }
+    }
+
     return {
         state,
 
@@ -915,6 +977,7 @@ export const useFriendStore = defineStore('Friend', () => {
         checkActiveFriends,
         refreshFriendsList,
         updateOnlineFriendCoutner,
-        updateFriendGPS
+        updateFriendGPS,
+        getAllUserStats
     };
 });

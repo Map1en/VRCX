@@ -301,6 +301,7 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendsStore = useFriendStore();
             const { friends } = storeToRefs(friendsStore);
+            const { getAllUserStats } = friendsStore;
             const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -317,7 +318,8 @@
                 statusClass,
                 showUserDialog,
                 userImage,
-                userImageFull
+                userImageFull,
+                getAllUserStats
             };
         },
         data() {
@@ -419,7 +421,7 @@
                     }
                     results.push(ctx.ref);
                 }
-                this.$emit('get-all-user-stats');
+                this.getAllUserStats();
                 requestAnimationFrame(() => {
                     this.friendsListTable.data = results;
                     this.friendsListLoading = false;

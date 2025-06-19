@@ -27,29 +27,24 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useInviteStore } from '../../../stores/invite';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const props = defineProps({
-        editInviteMessageDialog: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                newMessage: ''
-            })
-        }
-    });
+    const inviteStore = useInviteStore();
+    const { editInviteMessageDialog } = storeToRefs(inviteStore);
 
     const message = ref('');
 
     watch(
-        () => props.editInviteMessageDialog,
+        () => editInviteMessageDialog.value,
         (newVal) => {
             if (newVal && newVal.visible) {
                 message.value = newVal.newMessage;
@@ -58,10 +53,8 @@
         { deep: true }
     );
 
-    const emit = defineEmits(['update:editInviteMessageDialog']);
-
     function saveEditInviteMessage() {
-        const D = props.editInviteMessageDialog;
+        const D = editInviteMessageDialog.value;
         D.visible = false;
         if (D.inviteMessage.message !== message.value) {
             const slot = D.inviteMessage.slot;
@@ -91,6 +84,6 @@
     }
 
     function closeDialog() {
-        emit('update:editInviteMessageDialog', { ...props.editInviteMessageDialog, visible: false });
+        editInviteMessageDialog.value.visible = false;
     }
 </script>

@@ -509,6 +509,7 @@
     import { API } from '../../app';
     import { useUserStore } from '../../stores/user';
     import { useAvatarStore } from '../../stores/avatar';
+    import { useInviteStore } from '../../stores/invite';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -519,6 +520,8 @@
     const { showUserDialog } = userStore;
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
+    const inviteStore = useInviteStore();
+    const { showEditInviteMessageDialog } = inviteStore;
 
     const { t } = useI18n();
 
@@ -571,7 +574,7 @@
             default: () => {}
         }
     });
-    const emit = defineEmits(['logout', 'lookupUser', 'showEditInviteMessageDialog']);
+    const emit = defineEmits(['logout', 'lookupUser']);
 
     const vrchatCredit = ref(null);
     const configTreeData = ref([]);
@@ -698,9 +701,6 @@
                 }
             }
         });
-    }
-    function showEditInviteMessageDialog(messageType, inviteMessage) {
-        emit('showEditInviteMessageDialog', messageType, inviteMessage);
     }
     function refreshInviteMessageTable(messageType) {
         inviteMessagesRequest.refreshInviteMessageTableData(messageType);
