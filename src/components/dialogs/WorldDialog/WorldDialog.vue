@@ -750,7 +750,6 @@
             :new-instance-dialog-location-tag="newInstanceDialogLocationTag"
             :create-new-instance="createNewInstance"
             :instance-content-settings="instanceContentSettings"
-            :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             :last-location="lastLocation" />
         <ChangeWorldImageDialog
@@ -817,7 +816,6 @@
 
             createNewInstance: Function,
             instanceContentSettings: Array,
-            inviteMessageTable: Object,
             uploadImage: String,
 
             // TODO: Remove

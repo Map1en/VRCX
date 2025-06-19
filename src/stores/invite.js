@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { inviteMessagesRequest } from '../api';
+import { API } from '../app';
 
 export const useInviteStore = defineStore('Invite', () => {
     const state = reactive({
@@ -8,13 +10,88 @@ export const useInviteStore = defineStore('Invite', () => {
             inviteMessage: {},
             messageType: '',
             newMessage: ''
+        },
+        inviteMessageTable: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            layout: 'table',
+            visible: false
+        },
+        inviteResponseMessageTable: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            layout: 'table',
+            visible: false
+        },
+        inviteRequestMessageTable: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            layout: 'table',
+            visible: false
+        },
+        inviteRequestResponseMessageTable: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            layout: 'table',
+            visible: false
         }
+    });
+
+    API.$on('LOGIN', function () {
+        state.inviteMessageTable.data = [];
+        state.inviteResponseMessageTable.data = [];
+        state.inviteRequestMessageTable.data = [];
+        state.inviteRequestResponseMessageTable.data = [];
+        state.inviteMessageTable.visible = false;
+        state.inviteResponseMessageTable.visible = false;
+        state.inviteRequestMessageTable.visible = false;
+        state.inviteRequestResponseMessageTable.visible = false;
     });
 
     const editInviteMessageDialog = computed({
         get: () => state.editInviteMessageDialog,
         set: (value) => {
             state.editInviteMessageDialog = value;
+        }
+    });
+
+    const inviteMessageTable = computed({
+        get: () => state.inviteMessageTable,
+        set: (value) => {
+            state.inviteMessageTable = value;
+        }
+    });
+
+    const inviteResponseMessageTable = computed({
+        get: () => state.inviteResponseMessageTable,
+        set: (value) => {
+            state.inviteResponseMessageTable = value;
+        }
+    });
+
+    const inviteRequestMessageTable = computed({
+        get: () => state.inviteRequestMessageTable,
+        set: (value) => {
+            state.inviteRequestMessageTable = value;
+        }
+    });
+
+    const inviteRequestResponseMessageTable = computed({
+        get: () => state.inviteRequestResponseMessageTable,
+        set: (value) => {
+            state.inviteRequestResponseMessageTable = value;
         }
     });
 
@@ -31,5 +108,42 @@ export const useInviteStore = defineStore('Invite', () => {
         D.messageType = messageType;
     }
 
-    return { state, editInviteMessageDialog, showEditInviteMessageDialog };
+    /**
+     *
+     * @param {'message' | 'request' | 'response' | 'requestResponse'} mode
+     */
+    function refreshInviteMessageTableData(mode) {
+        inviteMessagesRequest
+            .refreshInviteMessageTableData(mode)
+            .then(({ json }) => {
+                switch (mode) {
+                    case 'message':
+                        state.inviteMessageTable.data = json;
+                        break;
+                    case 'response':
+                        state.inviteResponseMessageTable.data = json;
+                        break;
+                    case 'request':
+                        state.inviteRequestMessageTable.data = json;
+                        break;
+                    case 'requestResponse':
+                        state.inviteRequestResponseMessageTable.data = json;
+                        break;
+                }
+            })
+            .catch((err) => {
+                console.error('refreshInviteMessageTableData Failed：', err);
+            });
+    }
+
+    return {
+        state,
+        editInviteMessageDialog,
+        inviteMessageTable,
+        inviteResponseMessageTable,
+        inviteRequestMessageTable,
+        inviteRequestResponseMessageTable,
+        showEditInviteMessageDialog,
+        refreshInviteMessageTableData
+    };
 });

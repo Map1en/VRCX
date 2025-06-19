@@ -43,7 +43,7 @@
             <el-button type="small" @click="cancelSendInviteRequestResponse">
                 {{ t('dialog.invite_request_response_message.cancel') }}
             </el-button>
-            <el-button type="small" @click="API.refreshInviteMessageTableData('requestResponse')">
+            <el-button type="small" @click="refreshInviteMessageTableData('requestResponse')">
                 {{ t('dialog.invite_request_response_message.refresh') }}
             </el-button>
         </template>
@@ -62,14 +62,19 @@
 
 <script setup>
     import { inject, ref } from 'vue';
+    import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
     import { API } from '../../../app';
+    import { useInviteStore } from '../../../stores/invite';
     import EditAndSendInviteResponseDialog from './EditAndSendInviteResponseDialog.vue';
     import SendInviteResponseConfirmDialog from './SendInviteResponseConfirmDialog.vue';
 
     const { t } = useI18n();
 
     const inviteImageUpload = inject('inviteImageUpload');
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
+    const { inviteRequestResponseMessageTable } = storeToRefs(inviteStore);
 
     const props = defineProps({
         sendInviteResponseDialog: {
@@ -79,10 +84,6 @@
         sendInviteRequestResponseDialogVisible: {
             type: Boolean,
             default: false
-        },
-        inviteRequestResponseMessageTable: {
-            type: Object,
-            default: () => ({})
         },
         uploadImage: {
             type: String
@@ -116,6 +117,10 @@
     function closeInviteDialog() {
         cancelSendInviteRequestResponse();
     }
+
+    // function refreshInviteMessageTableData(...arg) {
+    //     inviteMessagesRequest.refreshInviteMessageTableData(arg);
+    // }
 
     function cancelSendInviteRequestResponse() {
         emit('update:sendInviteRequestResponseDialogVisible', false);

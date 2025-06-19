@@ -70,7 +70,7 @@
             <el-button type="small" @click="cancelSendInvite">
                 {{ t('dialog.invite_message.cancel') }}
             </el-button>
-            <el-button type="small" @click="API.refreshInviteMessageTableData('message')">
+            <el-button type="small" @click="refreshInviteMessageTableData('message')">
                 {{ t('dialog.invite_message.refresh') }}
             </el-button>
         </template>
@@ -90,24 +90,25 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { API } from '../../../app';
+    import { useInviteStore } from '../../../stores/invite';
     import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
     import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
 
     const { t } = useI18n();
 
     const inviteImageUpload = inject('inviteImageUpload');
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
+    const { inviteMessageTable } = storeToRefs(inviteStore);
 
     const props = defineProps({
         sendInviteDialogVisible: {
             type: Boolean,
             default: false
-        },
-        inviteMessageTable: {
-            type: Object,
-            default: () => ({})
         },
         sendInviteDialog: {
             type: Object,

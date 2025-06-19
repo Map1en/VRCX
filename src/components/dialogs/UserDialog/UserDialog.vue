@@ -1761,13 +1761,11 @@
         </div>
         <SendInviteDialog
             :send-invite-dialog-visible.sync="sendInviteDialogVisible"
-            :invite-message-table="inviteMessageTable"
             :send-invite-dialog="sendInviteDialog"
             :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
         <SendInviteRequestDialog
             :send-invite-request-dialog-visible.sync="sendInviteRequestDialogVisible"
-            :invite-request-message-table="inviteRequestMessageTable"
             :send-invite-dialog="sendInviteDialog"
             :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
@@ -1851,6 +1849,7 @@
     } from '../../../shared/utils';
     import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useInviteStore } from '../../../stores/invite';
     import { useLocationStore } from '../../../stores/location';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
@@ -1895,6 +1894,8 @@
     const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -1935,17 +1936,8 @@
             type: Function,
             default: () => {}
         },
-        // SendInviteDialog
-        inviteMessageTable: {
-            type: Object,
-            default: () => ({})
-        },
         uploadImage: {
             type: String
-        },
-        inviteRequestMessageTable: {
-            type: Object,
-            default: () => ({})
         },
         inGameGroupOrder: {
             type: Array,
@@ -2299,7 +2291,7 @@
             userId,
             messageSlot: {}
         };
-        inviteMessagesRequest.refreshInviteMessageTableData('message');
+        refreshInviteMessageTableData('message');
         clearInviteImageUpload();
         sendInviteDialogVisible.value = true;
     }
@@ -2310,7 +2302,7 @@
             userId,
             messageSlot: {}
         };
-        inviteMessagesRequest.refreshInviteMessageTableData('request');
+        refreshInviteMessageTableData('request');
         clearInviteImageUpload();
         sendInviteRequestDialogVisible.value = true;
     }

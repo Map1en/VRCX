@@ -10,7 +10,6 @@ const inviteMessagesReq = {
                 json,
                 messageType
             };
-            API.$emit(`INVITE:${messageType.toUpperCase()}`, args);
             return args;
         });
     },

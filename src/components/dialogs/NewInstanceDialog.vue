@@ -489,7 +489,6 @@
         </template>
         <InviteDialog
             :invite-dialog="inviteDialog"
-            :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
@@ -530,10 +529,6 @@
             newInstanceDialogLocationTag: {
                 type: String,
                 required: true
-            },
-            inviteMessageTable: {
-                type: Object,
-                default: () => ({})
             },
             uploadImage: {
                 type: String,

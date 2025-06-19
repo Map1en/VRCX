@@ -150,7 +150,7 @@
                         style="margin-left: 5px"
                         @click="
                             inviteMessageTable.visible = true;
-                            refreshInviteMessageTable('message');
+                            refreshInviteMessageTableData('message');
                         "></el-button>
                 </el-tooltip>
                 <el-tooltip placement="top" :content="t('view.profile.clear_results_tooltip')" :disabled="hideTooltips">
@@ -204,7 +204,7 @@
                         style="margin-left: 5px"
                         @click="
                             inviteResponseMessageTable.visible = true;
-                            refreshInviteMessageTable('response');
+                            refreshInviteMessageTableData('response');
                         "></el-button>
                 </el-tooltip>
                 <el-tooltip placement="top" :content="t('view.profile.clear_results_tooltip')" :disabled="hideTooltips">
@@ -261,7 +261,7 @@
                         style="margin-left: 5px"
                         @click="
                             inviteRequestMessageTable.visible = true;
-                            refreshInviteMessageTable('request');
+                            refreshInviteMessageTableData('request');
                         "></el-button>
                 </el-tooltip>
                 <el-tooltip placement="top" :content="t('view.profile.clear_results_tooltip')" :disabled="hideTooltips">
@@ -318,7 +318,7 @@
                         style="margin-left: 5px"
                         @click="
                             inviteRequestResponseMessageTable.visible = true;
-                            refreshInviteMessageTable('requestResponse');
+                            refreshInviteMessageTableData('requestResponse');
                         "></el-button>
                 </el-tooltip>
                 <el-tooltip placement="top" :content="t('view.profile.clear_results_tooltip')" :disabled="hideTooltips">
@@ -499,7 +499,7 @@
     import { storeToRefs } from 'pinia';
     import { inject, ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { inviteMessagesRequest, miscRequest, userRequest } from '../../api';
+    import { miscRequest, userRequest } from '../../api';
     import { parseAvatarUrl, buildTreeData, openExternalLink, userImage, parseUserUrl } from '../../shared/utils';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
@@ -521,7 +521,13 @@
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
     const inviteStore = useInviteStore();
-    const { showEditInviteMessageDialog } = inviteStore;
+    const { showEditInviteMessageDialog, refreshInviteMessageTableData } = inviteStore;
+    const {
+        inviteMessageTable,
+        inviteResponseMessageTable,
+        inviteRequestMessageTable,
+        inviteRequestResponseMessageTable
+    } = storeToRefs(inviteStore);
 
     const { t } = useI18n();
 
@@ -533,34 +539,6 @@
         menuActiveIndex: {
             type: String,
             default: 'profile'
-        },
-        inviteMessageTable: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                data: []
-            })
-        },
-        inviteResponseMessageTable: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                data: []
-            })
-        },
-        inviteRequestMessageTable: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                data: []
-            })
-        },
-        inviteRequestResponseMessageTable: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                data: []
-            })
         },
         pastDisplayNameTable: {
             type: Object,
@@ -701,9 +679,6 @@
                 }
             }
         });
-    }
-    function refreshInviteMessageTable(messageType) {
-        inviteMessagesRequest.refreshInviteMessageTableData(messageType);
     }
     async function refreshConfigTreeData() {
         await API.getConfig();

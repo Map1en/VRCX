@@ -401,12 +401,10 @@
         <SendInviteResponseDialog
             :send-invite-response-dialog="sendInviteResponseDialog"
             :send-invite-response-dialog-visible.sync="sendInviteResponseDialogVisible"
-            :invite-response-message-table="inviteResponseMessageTable"
             :upload-image="uploadImage" />
         <SendInviteRequestResponseDialog
             :send-invite-response-dialog="sendInviteResponseDialog"
             :send-invite-request-response-dialog-visible.sync="sendInviteRequestResponseDialogVisible"
-            :invite-request-response-message-table="inviteRequestResponseMessageTable"
             :upload-image="uploadImage" />
     </div>
 </template>
@@ -421,10 +419,11 @@
     import { storeToRefs } from 'pinia';
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { friendRequest, inviteMessagesRequest, notificationRequest, worldRequest } from '../../api';
+    import { friendRequest, notificationRequest, worldRequest } from '../../api';
     import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
+    import { useInviteStore } from '../../stores/invite';
     import { useLocationStore } from '../../stores/location';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
@@ -445,6 +444,8 @@
     const { showGroupDialog } = groupStore;
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
 
     const { t } = useI18n();
 
@@ -463,10 +464,6 @@
             default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false },
-        inviteResponseMessageTable: {
-            type: Object,
-            default: () => ({})
-        },
         uploadImage: {
             type: String,
             default: ''
@@ -478,10 +475,6 @@
         isGameRunning: {
             type: Boolean,
             default: false
-        },
-        inviteRequestResponseMessageTable: {
-            type: Object,
-            default: () => ({})
         }
     });
 
@@ -542,7 +535,7 @@
     function showSendInviteResponseDialog(invite) {
         sendInviteResponseDialog.value.invite = invite;
         sendInviteResponseDialog.value.messageSlot = {};
-        inviteMessagesRequest.refreshInviteMessageTableData('response');
+        refreshInviteMessageTableData('response');
         clearInviteImageUpload();
         sendInviteResponseDialogVisible.value = true;
     }
@@ -591,7 +584,7 @@
     function showSendInviteRequestResponseDialog(invite) {
         sendInviteResponseDialog.value.invite = invite;
         sendInviteResponseDialog.value.messageSlot = {};
-        inviteMessagesRequest.refreshInviteMessageTableData('requestResponse');
+        refreshInviteMessageTableData('requestResponse');
         clearInviteImageUpload();
         sendInviteRequestResponseDialogVisible.value = true;
     }

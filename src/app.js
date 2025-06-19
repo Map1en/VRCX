@@ -3283,42 +3283,6 @@ $app.data.stickerTable = [];
 $app.data.emojiTable = [];
 $app.data.VRCPlusIconsTable = [];
 $app.data.galleryTable = [];
-$app.data.inviteMessageTable = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini'
-    },
-    layout: 'table',
-    visible: false
-};
-$app.data.inviteResponseMessageTable = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini'
-    },
-    layout: 'table',
-    visible: false
-};
-$app.data.inviteRequestMessageTable = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini'
-    },
-    layout: 'table',
-    visible: false
-};
-$app.data.inviteRequestResponseMessageTable = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini'
-    },
-    layout: 'table',
-    visible: false
-};
 $app.data.currentInstanceUserList = {
     data: [],
     tableProps: {
@@ -5204,40 +5168,6 @@ $app.methods.userOnlineFor = function (ctx) {
 };
 
 // #endregion
-// #region | App: Invite Messages
-
-API.$on('LOGIN', function () {
-    $app.inviteMessageTable.data = [];
-    $app.inviteResponseMessageTable.data = [];
-    $app.inviteRequestMessageTable.data = [];
-    $app.inviteRequestResponseMessageTable.data = [];
-    $app.inviteMessageTable.visible = false;
-    $app.inviteResponseMessageTable.visible = false;
-    $app.inviteRequestMessageTable.visible = false;
-    $app.inviteRequestResponseMessageTable.visible = false;
-});
-
-// temp, invites.pug
-API.refreshInviteMessageTableData =
-    inviteMessagesRequest.refreshInviteMessageTableData;
-
-API.$on('INVITE:MESSAGE', function (args) {
-    $app.inviteMessageTable.data = args.json;
-});
-
-API.$on('INVITE:RESPONSE', function (args) {
-    $app.inviteResponseMessageTable.data = args.json;
-});
-
-API.$on('INVITE:REQUEST', function (args) {
-    $app.inviteRequestMessageTable.data = args.json;
-});
-
-API.$on('INVITE:REQUESTRESPONSE', function (args) {
-    $app.inviteRequestResponseMessageTable.data = args.json;
-});
-
-// #endregion
 // #region | App: Friends List
 
 $app.data.friendsListSearch = '';
@@ -6725,89 +6655,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 };
 
 // #endregion
-// #region | Open common folders
-
-// $app.methods.openVrcxAppDataFolder = function () {
-//     AppApi.OpenVrcxAppDataFolder().then((result) => {
-//         if (result) {
-//             this.$message({
-//                 message: 'Folder opened',
-//                 type: 'success'
-//             });
-//         } else {
-//             this.$message({
-//                 message: "Folder dosn't exist",
-//                 type: 'error'
-//             });
-//         }
-//     });
-// };
-//
-// $app.methods.openVrcAppDataFolder = function () {
-//     AppApi.OpenVrcAppDataFolder().then((result) => {
-//         if (result) {
-//             this.$message({
-//                 message: 'Folder opened',
-//                 type: 'success'
-//             });
-//         } else {
-//             this.$message({
-//                 message: "Folder dosn't exist",
-//                 type: 'error'
-//             });
-//         }
-//     });
-// };
-
-// $app.methods.openVrcPhotosFolder = function () {
-//     AppApi.OpenVrcPhotosFolder().then((result) => {
-//         if (result) {
-//             this.$message({
-//                 message: 'Folder opened',
-//                 type: 'success'
-//             });
-//         } else {
-//             this.$message({
-//                 message: "Folder dosn't exist",
-//                 type: 'error'
-//             });
-//         }
-//     });
-// };
-//
-// $app.methods.openVrcScreenshotsFolder = function () {
-//     AppApi.OpenVrcScreenshotsFolder().then((result) => {
-//         if (result) {
-//             this.$message({
-//                 message: 'Folder opened',
-//                 type: 'success'
-//             });
-//         } else {
-//             this.$message({
-//                 message: "Folder dosn't exist",
-//                 type: 'error'
-//             });
-//         }
-//     });
-// };
-//
-// $app.methods.openCrashVrcCrashDumps = function () {
-//     AppApi.OpenCrashVrcCrashDumps().then((result) => {
-//         if (result) {
-//             this.$message({
-//                 message: 'Folder opened',
-//                 type: 'success'
-//             });
-//         } else {
-//             this.$message({
-//                 message: "Folder dosn't exist",
-//                 type: 'error'
-//             });
-//         }
-//     });
-// };
-
-// #endregion
 // #region instance join history
 
 $app.data.instanceJoinHistory = new Map();
@@ -6972,10 +6819,7 @@ $app.computed.notificationTabBind = function () {
         shiftHeld: this.shiftHeld,
         lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning,
-        inviteResponseMessageTable: this.inviteResponseMessageTable,
-        uploadImage: this.uploadImage,
-        inviteRequestResponseMessageTable:
-            this.inviteRequestResponseMessageTable
+        uploadImage: this.uploadImage
     };
 };
 
@@ -7020,11 +6864,6 @@ $app.computed.searchTabEvent = function () {
 $app.computed.profileTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        inviteMessageTable: this.inviteMessageTable,
-        inviteResponseMessageTable: this.inviteResponseMessageTable,
-        inviteRequestMessageTable: this.inviteRequestMessageTable,
-        inviteRequestResponseMessageTable:
-            this.inviteRequestResponseMessageTable,
         pastDisplayNameTable: this.pastDisplayNameTable,
         directAccessWorld: this.directAccessWorld
     };

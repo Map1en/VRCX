@@ -45,7 +45,7 @@
             <el-button type="small" @click="cancelSendInviteResponse">{{
                 t('dialog.invite_response_message.cancel')
             }}</el-button>
-            <el-button type="small" @click="API.refreshInviteMessageTableData('response')">{{
+            <el-button type="small" @click="refreshInviteMessageTableData('response')">{{
                 t('dialog.invite_response_message.refresh')
             }}</el-button>
         </template>
@@ -63,15 +63,20 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
+    import { API } from '../../../app';
+    import { useInviteStore } from '../../../stores/invite';
     import EditAndSendInviteResponseDialog from './EditAndSendInviteResponseDialog.vue';
     import SendInviteResponseConfirmDialog from './SendInviteResponseConfirmDialog.vue';
-    import { API } from '../../../app';
 
     const { t } = useI18n();
 
     const inviteImageUpload = inject('inviteImageUpload');
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
+    const { inviteResponseMessageTable } = storeToRefs(inviteStore);
     const props = defineProps({
         sendInviteResponseDialog: {
             type: Object,
@@ -80,10 +85,6 @@
         sendInviteResponseDialogVisible: {
             type: Boolean,
             default: false
-        },
-        inviteResponseMessageTable: {
-            type: Object,
-            default: () => ({})
         },
         uploadImage: {
             type: String
@@ -116,7 +117,6 @@
             visible: true
         };
     }
-
     function showSendInviteResponseConfirmDialog(row) {
         props.sendInviteResponseDialog.messageSlot = row;
         sendInviteResponseConfirmDialog.value.visible = true;

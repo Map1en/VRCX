@@ -156,7 +156,6 @@
         </template>
         <SendInviteDialog
             :send-invite-dialog-visible.sync="sendInviteDialogVisible"
-            :invite-message-table="inviteMessageTable"
             :send-invite-dialog="sendInviteDialog"
             :invite-dialog="inviteDialog"
             :upload-image="uploadImage"
@@ -174,9 +173,12 @@
     import { useFriendStore } from '../../../stores/friend';
     import Location from '../../Location.vue';
     import SendInviteDialog from './SendInviteDialog.vue';
+    import { useInviteStore } from '../../../stores/invite';
 
     const friendStore = useFriendStore();
     const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
+    const inviteStore = useInviteStore();
+    const { refreshInviteMessageTableData } = inviteStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -189,11 +191,6 @@
         inviteDialog: {
             type: Object,
             required: true
-        },
-        // SendInviteDialog
-        inviteMessageTable: {
-            type: Object,
-            default: () => ({})
         },
         uploadImage: {
             type: String,
@@ -220,7 +217,7 @@
             userId,
             messageSlot: {}
         };
-        inviteMessagesRequest.refreshInviteMessageTableData('message');
+        refreshInviteMessageTableData('message');
         clearInviteImageUpload();
         sendInviteDialogVisible.value = true;
     }

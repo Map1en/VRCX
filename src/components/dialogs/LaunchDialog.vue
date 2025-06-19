@@ -79,7 +79,6 @@
         </template>
         <InviteDialog
             :invite-dialog="inviteDialog"
-            :invite-message-table="inviteMessageTable"
             :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
@@ -101,10 +100,6 @@
         components: { InviteDialog },
         inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
         props: {
-            inviteMessageTable: {
-                type: Object,
-                default: () => ({})
-            },
             uploadImage: {
                 type: String,
                 default: ''
