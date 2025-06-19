@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
-import { sharedFeedFiltersDefaults } from '../../shared/constants/feedFiltersOptions';
+import { sharedFeedFiltersDefaults } from '../../shared/constants';
 
 export const useNotificationsSettingsStore = defineStore(
     'NotificationsSettings',

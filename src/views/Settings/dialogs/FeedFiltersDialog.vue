@@ -66,7 +66,7 @@
     import { feedFiltersOptions } from '../../../shared/constants';
     import { usePhotonStore } from '../../../stores/photon';
     import { useNotificationsSettingsStore } from '../../../stores/settings/notifications';
-    import { sharedFeedFiltersDefaults } from '../../../shared/constants/feedFiltersOptions';
+    import { sharedFeedFiltersDefaults } from '../../../shared/constants';
 
     const photonStore = usePhotonStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
