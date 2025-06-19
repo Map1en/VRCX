@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import {
@@ -11,23 +11,10 @@ import { $app, API } from '../app';
 import configRepository from '../service/config';
 import { groupDialogFilterOptions } from '../shared/constants/';
 import { replaceBioSymbols } from '../shared/utils';
-import { useFriendStore } from './friend';
 import { useInstanceStore } from './instance';
-import { useLocationStore } from './location';
-import { useAppearanceSettingsStore } from './settings/appearance';
 
 export const useGroupStore = defineStore('Group', () => {
-    const friendStore = useFriendStore();
-    const { friends } = storeToRefs(friendStore);
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { instanceUsersSortAlphabetical } = storeToRefs(
-        appearanceSettingsStore
-    );
-    const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
-
     const instanceStore = useInstanceStore();
-    const { cachedInstances } = storeToRefs(instanceStore);
     const { applyGroupDialogInstances } = instanceStore;
 
     const state = reactive({
@@ -241,8 +228,8 @@ export const useGroupStore = defineStore('Group', () => {
                     );
                 }
                 if (ref.myMember?.roleIds && json.myMember?.roleIds) {
-                    var oldRoleIds = ref.myMember.roleIds;
-                    var newRoleIds = json.myMember.roleIds;
+                    const oldRoleIds = ref.myMember.roleIds;
+                    const newRoleIds = json.myMember.roleIds;
                     if (
                         oldRoleIds.length !== newRoleIds.length ||
                         !oldRoleIds.every(
@@ -479,16 +466,16 @@ export const useGroupStore = defineStore('Group', () => {
      * @return { Promise<{json: any, params}> }
      */
     async function getAllGroupPosts(params) {
+        const args = await groupRequest.getGroupPosts({
+            groupId: params.groupId,
+            n,
+            offset
+        });
         let posts = [];
         let offset = 0;
         const n = 100;
         let total = 0;
         do {
-            var args = await groupRequest.getGroupPosts({
-                groupId: params.groupId,
-                n,
-                offset
-            });
             posts = posts.concat(args.json.posts);
             total = args.json.total;
             offset += n;

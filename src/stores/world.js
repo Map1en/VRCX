@@ -1,7 +1,7 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { miscRequest, worldRequest } from '../api';
-import { $app, API } from '../app';
+import { $app } from '../app';
 import database from '../service/database';
 import {
     checkVRChatCache,
@@ -15,7 +15,7 @@ import { useLocationStore } from './location';
 
 export const useWorldStore = defineStore('World', () => {
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
+    const favoriteStore = useFavoriteStore();
     const state = reactive({
         worldDialog: {
             visible: false,
@@ -66,9 +66,6 @@ export const useWorldStore = defineStore('World', () => {
      * @param {string} shortName
      */
     function showWorldDialog(tag, shortName) {
-        const favoriteStore = useFavoriteStore();
-        const { cachedFavoritesByObjectId, localWorldFavoritesList } =
-            storeToRefs(favoriteStore);
         const D = state.worldDialog;
         const L = parseLocation(tag);
         if (L.worldId === '') {
@@ -97,7 +94,7 @@ export const useWorldStore = defineStore('World', () => {
         D.isIos = false;
         D.hasPersistData = false;
         D.memo = '';
-        const LL = parseLocation(lastLocation.value.location);
+        const LL = parseLocation(locationStore.lastLocation.location);
         let currentWorldMatch = false;
         if (LL.worldId === D.id) {
             currentWorldMatch = true;
@@ -139,11 +136,14 @@ export const useWorldStore = defineStore('World', () => {
                 if (D.id === args.ref.id) {
                     D.loading = false;
                     D.ref = args.ref;
-                    D.isFavorite = cachedFavoritesByObjectId.value.has(D.id);
+                    D.isFavorite = favoriteStore.cachedFavoritesByObjectId.has(
+                        D.id
+                    );
                     if (!D.isFavorite) {
-                        D.isFavorite = localWorldFavoritesList.value.includes(
-                            D.id
-                        );
+                        D.isFavorite =
+                            favoriteStore.localWorldFavoritesList.includes(
+                                D.id
+                            );
                     }
                     let { isPC, isQuest, isIos } = getAvailablePlatforms(
                         args.ref.unityPackages

@@ -1,42 +1,32 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 
 import { groupRequest, userRequest } from '../api';
-import { $app, $t, API } from '../app';
+import { $app, API } from '../app';
 import { userNotes } from '../classes/userNotes';
 import database from '../service/database';
 import {
     arraysMatch,
     convertFileUrlToImageUrl,
-    getNameColour,
+    getUserMemo,
     getWorldName,
     parseLocation,
     removeEmojis,
-    replaceBioSymbols,
-    getUserMemo
+    replaceBioSymbols
 } from '../shared/utils';
 import { useDebugStore } from './debug';
+import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
-import { useFavoriteStore } from './favorite';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendStore = useFriendStore();
     const favoriteStore = useFavoriteStore();
-
-    const { friends } = storeToRefs(friendStore);
-    const { debugUserDiff } = storeToRefs(debugStore);
-    const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
-
-    const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
-
-    const { applyUserTrustLevel } = appearanceSettingsStore;
-
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
+    const { applyUserTrustLevel } = appearanceSettingsStore;
 
     const state = reactive({
         userDialog: {
@@ -242,9 +232,11 @@ export const useUserStore = defineStore('User', () => {
                 //
                 ...json
             };
-            if (lastLocation.value.playerList.has(json.id)) {
+            if (locationStore.lastLocation.playerList.has(json.id)) {
                 // update $location_at from instance join time
-                const player = lastLocation.value.playerList.get(json.id);
+                const player = locationStore.lastLocation.playerList.get(
+                    json.id
+                );
                 ref.$location_at = player.joinTime;
                 ref.$online_for = player.joinTime;
             }
@@ -360,7 +352,7 @@ export const useUserStore = defineStore('User', () => {
                     ref,
                     props
                 });
-                if (debugUserDiff.value) {
+                if (debugStore.debugUserDiff) {
                     delete props.last_login;
                     delete props.last_activity;
                     if (Object.keys(props).length !== 0) {
@@ -387,7 +379,7 @@ export const useUserStore = defineStore('User', () => {
                 showcased: false
             });
         }
-        const friendCtx = friends.value.get(ref.id);
+        const friendCtx = friendStore.friends.get(ref.id);
         if (friendCtx) {
             friendCtx.ref = ref;
             friendCtx.name = ref.displayName;
@@ -419,7 +411,7 @@ export const useUserStore = defineStore('User', () => {
         getUserMemo(userId).then((memo) => {
             if (memo.userId === userId) {
                 D.memo = memo.memo;
-                const ref = friends.value.get(userId);
+                const ref = friendStore.friends.get(userId);
                 if (ref) {
                     ref.memo = String(memo.memo || '');
                     if (memo.memo) {
@@ -492,7 +484,7 @@ export const useUserStore = defineStore('User', () => {
                 if (args.ref.id === D.id) {
                     requestAnimationFrame(() => {
                         D.ref = args.ref;
-                        D.friend = friends.value.get(D.id);
+                        D.friend = friendStore.friends.get(D.id);
                         D.isFriend = Boolean(D.friend);
                         D.note = String(D.ref.note || '');
                         D.incomingRequest = false;
@@ -519,9 +511,8 @@ export const useUserStore = defineStore('User', () => {
                                 }
                             }
                         }
-                        D.isFavorite = cachedFavoritesByObjectId.value.has(
-                            D.id
-                        );
+                        D.isFavorite =
+                            favoriteStore.cachedFavoritesByObjectId.has(D.id);
                         if (D.ref.friendRequestStatus === 'incoming') {
                             D.incomingRequest = true;
                         } else if (D.ref.friendRequestStatus === 'outgoing') {
@@ -533,7 +524,9 @@ export const useUserStore = defineStore('User', () => {
                             userRequest.getUser(args.params);
                         }
                         let inCurrentWorld = false;
-                        if (lastLocation.value.playerList.has(D.ref.id)) {
+                        if (
+                            locationStore.lastLocation.playerList.has(D.ref.id)
+                        ) {
                             inCurrentWorld = true;
                         }
                         if (userId !== API.currentUser.id) {
@@ -558,7 +551,9 @@ export const useUserStore = defineStore('User', () => {
                                             if (!D.dateFriended) {
                                                 if (ref2.type === 'Unfriend') {
                                                     D.unFriended = true;
-                                                    if (!hideUnfriends.value) {
+                                                    if (
+                                                        !appearanceSettingsStore.hideUnfriends
+                                                    ) {
                                                         D.dateFriended =
                                                             ref2.created_at;
                                                     }
@@ -572,7 +567,7 @@ export const useUserStore = defineStore('User', () => {
                                             if (
                                                 ref2.type === 'Friend' ||
                                                 (ref2.type === 'Unfriend' &&
-                                                    !hideUnfriends.value)
+                                                    !appearanceSettingsStore.hideUnfriends)
                                             ) {
                                                 D.dateFriendedInfo.push(ref2);
                                             }
@@ -655,10 +650,10 @@ export const useUserStore = defineStore('User', () => {
     function onPlayerTraveling(ref) {
         if (
             !$app.isGameRunning ||
-            !lastLocation.value.location ||
-            lastLocation.value.location !== ref.travelingToLocation ||
+            !locationStore.lastLocation.location ||
+            locationStore.lastLocation.location !== ref.travelingToLocation ||
             ref.id === API.currentUser.id ||
-            lastLocation.value.playerList.has(ref.id)
+            locationStore.lastLocation.playerList.has(ref.id)
         ) {
             return;
         }

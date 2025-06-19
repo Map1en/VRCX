@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $t, $app, API } from '../app';
+import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
 import { branches } from '../shared/constants/vrcxUpdater';
 import { changeLogRemoveLinks } from '../shared/utils';
@@ -9,7 +9,6 @@ import { useDebugStore } from './debug';
 
 export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     const debugStore = useDebugStore();
-    const { debugWebRequests } = debugStore;
     const state = reactive({
         appVersion: '',
         autoUpdateVRCX: 'Auto Download',
@@ -200,7 +199,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         }
         state.pendingVRCXUpdate = false;
         const json = JSON.parse(response.data);
-        if (debugWebRequests) {
+        if (debugStore.debugWebRequests) {
             console.log(json, response);
         }
         if (json === Object(json) && json.name && json.published_at) {
@@ -298,7 +297,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
             state.checkingForVRCXUpdate = false;
         }
         const json = JSON.parse(response.data);
-        if (debugWebRequests) {
+        if (debugStore.debugWebRequests) {
             console.log(json, response);
         }
         const releases = [];

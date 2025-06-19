@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
 import { API } from '../app';
@@ -6,7 +6,6 @@ import { useAvatarStore } from './avatar';
 
 export const useModerationStore = defineStore('Moderation', () => {
     const avatarStore = useAvatarStore();
-    const { cachedAvatarModerations } = storeToRefs(avatarStore);
     const { applyAvatarModeration } = avatarStore;
     const state = reactive({
         cachedPlayerModerations: new Map(),
@@ -207,7 +206,7 @@ export const useModerationStore = defineStore('Moderation', () => {
             .then((res) => {
                 // 'AVATAR-MODERATION:LIST';
                 // TODO: compare with cachedAvatarModerations
-                cachedAvatarModerations.value = new Map();
+                avatarStore.cachedAvatarModerations = new Map();
                 if (res[1]?.json) {
                     for (const json of res[1].json) {
                         applyAvatarModeration(json);

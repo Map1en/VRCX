@@ -110,14 +110,14 @@ export const useAvatarStore = defineStore('Avatar', () => {
         avatarRequest
             .getAvatar({ avatarId })
             .then((args) => {
-                let { ref } = args;
+                const { ref } = args;
                 D.ref = ref;
                 getAvatarGallery(avatarId);
                 updateVRChatAvatarCache();
                 if (/quest/.test(ref.tags)) {
                     D.isQuestFallback = true;
                 }
-                let { isPC, isQuest, isIos } = getAvailablePlatforms(
+                const { isPC, isQuest, isIos } = getAvailablePlatforms(
                     args.ref.unityPackages
                 );
                 D.isPC = isPC;
@@ -261,7 +261,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
      */
     function addAvatarToHistory(avatarId) {
         avatarRequest.getAvatar({ avatarId }).then((args) => {
-            let { ref } = args;
+            const { ref } = args;
 
             database.addAvatarToCache(ref);
             database.addAvatarToHistory(ref.id);
@@ -320,7 +320,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
             };
             API.cachedAvatars.set(ref.id, ref);
         } else {
-            let { unityPackages } = ref;
+            const { unityPackages } = ref;
             Object.assign(ref, json);
             if (
                 json.unityPackages?.length > 0 &&

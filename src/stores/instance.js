@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
 import { $app, API } from '../app';
@@ -22,17 +22,9 @@ import { useWorldStore } from './world';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
     const worldStore = useWorldStore();
-    const { worldDialog } = storeToRefs(worldStore);
     const friendStore = useFriendStore();
-    const { friends } = storeToRefs(friendStore);
-
     const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { instanceUsersSortAlphabetical } = storeToRefs(
-        appearanceSettingsStore
-    );
-
     const groupStore = useGroupStore();
 
     const state = reactive({
@@ -78,8 +70,8 @@ export const useInstanceStore = defineStore('Instance', () => {
 
     function updateCurrentInstanceWorld() {
         let L;
-        let instanceId = lastLocation.value.location;
-        if (lastLocation.value.location === 'traveling') {
+        let instanceId = locationStore.lastLocation.location;
+        if (locationStore.lastLocation.location === 'traveling') {
             instanceId = $app.lastLocationDestination;
         }
         if (!instanceId) {
@@ -119,7 +111,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 })
                 .then((args) => {
                     state.currentInstanceWorld.ref = args.ref;
-                    let { isPC, isQuest, isIos } = getAvailablePlatforms(
+                    const { isPC, isQuest, isIos } = getAvailablePlatforms(
                         args.ref.unityPackages
                     );
                     state.currentInstanceWorld.isPC = isPC;
@@ -392,7 +384,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     function applyWorldDialogInstances() {
         let ref;
         let instance;
-        const D = worldDialog.value;
+        const D = worldStore.worldDialog;
         if (!D.visible) {
             return;
         }
@@ -426,10 +418,10 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
         const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
         const lastLocation$ = cachedCurrentUser.$location;
-        const playersInInstance = lastLocation.value.playerList;
+        const playersInInstance = locationStore.lastLocation.playerList;
         if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
             // pull instance json from cache
-            const friendsInInstance = lastLocation.value.friendList;
+            const friendsInInstance = locationStore.lastLocation.friendList;
             instance = {
                 id: lastLocation$.instanceId,
                 tag: lastLocation$.tag,
@@ -453,7 +445,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 }
             }
         }
-        for (const friend of friends.value.values()) {
+        for (const friend of friendStore.friends.values()) {
             const { ref } = friend;
             if (
                 typeof ref === 'undefined' ||
@@ -465,7 +457,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             ) {
                 continue;
             }
-            if (ref.location === lastLocation.value.location) {
+            if (ref.location === locationStore.lastLocation.location) {
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
@@ -531,7 +523,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             if (instance.friendCount === 0) {
                 instance.friendCount = instance.users.length;
             }
-            if (instanceUsersSortAlphabetical.value) {
+            if (appearanceSettingsStore.instanceUsersSortAlphabetical) {
                 instance.users.sort(compareByDisplayName);
             } else {
                 instance.users.sort(compareByLocationAt);
@@ -589,10 +581,9 @@ export const useInstanceStore = defineStore('Instance', () => {
      * @param {object} inputInstances
      */
     function applyGroupDialogInstances(inputInstances) {
-        const { groupDialog } = storeToRefs(groupStore);
         let ref;
         let instance;
-        const D = groupDialog.value;
+        const D = groupStore.groupDialog;
         if (!D.visible) {
             return;
         }
@@ -620,9 +611,9 @@ export const useInstanceStore = defineStore('Instance', () => {
         const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
         const lastLocation$ = cachedCurrentUser.$location;
         const currentLocation = lastLocation$.tag;
-        const playersInInstance = lastLocation.value.playerList;
+        const playersInInstance = locationStore.lastLocation.playerList;
         if (lastLocation$.groupId === D.id && playersInInstance.size > 0) {
-            const friendsInInstance = lastLocation.value.friendList;
+            const friendsInInstance = locationStore.lastLocation.friendList;
             instance = {
                 id: lastLocation$.instanceId,
                 tag: currentLocation,
@@ -646,7 +637,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 }
             }
         }
-        for (const friend of friends.value.values()) {
+        for (const friend of friendStore.friends.values()) {
             const { ref } = friend;
             if (
                 typeof ref === 'undefined' ||
@@ -658,7 +649,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             ) {
                 continue;
             }
-            if (ref.location === lastLocation.value.location) {
+            if (ref.location === locationStore.lastLocation.location) {
                 // don't add friends to currentUser gameLog instance (except when traveling)
                 continue;
             }
@@ -706,7 +697,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             if (instance.friendCount === 0) {
                 instance.friendCount = instance.users.length;
             }
-            if (instanceUsersSortAlphabetical.value) {
+            if (appearanceSettingsStore.instanceUsersSortAlphabetical) {
                 instance.users.sort(compareByDisplayName);
             } else {
                 instance.users.sort(compareByLocationAt);

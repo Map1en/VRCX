@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { friendRequest, userRequest } from '../api';
@@ -20,10 +20,8 @@ import { useGeneralSettingsStore } from './settings/general';
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const generalSettingsStore = useGeneralSettingsStore();
-    const { localFavoriteFriendsGroups } = storeToRefs(generalSettingsStore);
     const { setLocalFavoriteFriendsGroups } = generalSettingsStore;
     const debugStore = useDebugStore();
-    const { debugFriendState } = storeToRefs(debugStore);
 
     const state = reactive({
         friends: new Map(),
@@ -121,28 +119,26 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // VIP friends
     const vipFriends = computed(() => {
-        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortVIPFriends) {
             return state.vipFriends_;
         }
         state.sortVIPFriends = false;
 
         state.vipFriends_.sort(
-            getFriendsSortFunction(sidebarSortMethods.value)
+            getFriendsSortFunction(appearanceSettingsStore.sidebarSortMethods)
         );
         return state.vipFriends_;
     });
 
     // Online friends
     const onlineFriends = computed(() => {
-        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortOnlineFriends) {
             return state.onlineFriends_;
         }
         state.sortOnlineFriends = false;
 
         state.onlineFriends_.sort(
-            getFriendsSortFunction(sidebarSortMethods.value)
+            getFriendsSortFunction(appearanceSettingsStore.sidebarSortMethods)
         );
 
         return state.onlineFriends_;
@@ -150,14 +146,13 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // Active friends
     const activeFriends = computed(() => {
-        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortActiveFriends) {
             return state.activeFriends_;
         }
         state.sortActiveFriends = false;
 
         state.activeFriends_.sort(
-            getFriendsSortFunction(sidebarSortMethods.value)
+            getFriendsSortFunction(appearanceSettingsStore.sidebarSortMethods)
         );
 
         return state.activeFriends_;
@@ -165,14 +160,13 @@ export const useFriendStore = defineStore('Friend', () => {
 
     // Offline friends
     const offlineFriends = computed(() => {
-        const { sidebarSortMethods } = storeToRefs(appearanceSettingsStore);
         if (!state.sortOfflineFriends) {
             return state.offlineFriends_;
         }
         state.sortOfflineFriends = false;
 
         state.offlineFriends_.sort(
-            getFriendsSortFunction(sidebarSortMethods.value)
+            getFriendsSortFunction(appearanceSettingsStore.sidebarSortMethods)
         );
 
         return state.offlineFriends_;
@@ -203,15 +197,18 @@ export const useFriendStore = defineStore('Friend', () => {
         const favoriteStore = useFavoriteStore();
         const { cachedFavorites } = favoriteStore;
         setLocalFavoriteFriendsGroups(
-            value || localFavoriteFriendsGroups.value
+            value || generalSettingsStore.localFavoriteFriendsGroups
         );
         state.localFavoriteFriends.clear();
         for (const ref of cachedFavorites.values()) {
             if (
                 !ref.$isDeleted &&
                 ref.type === 'friend' &&
-                (localFavoriteFriendsGroups.value.includes(ref.$groupKey) ||
-                    localFavoriteFriendsGroups.value.length === 0)
+                (generalSettingsStore.localFavoriteFriendsGroups.includes(
+                    ref.$groupKey
+                ) ||
+                    generalSettingsStore.localFavoriteFriendsGroups.length ===
+                        0)
             ) {
                 state.localFavoriteFriends.add(ref.favoriteId);
             }
@@ -261,7 +258,7 @@ export const useFriendStore = defineStore('Friend', () => {
             }
         }
         if (stateInput === 'online') {
-            if (debugFriendState.value && ctx.pendingOffline) {
+            if (debugStore.debugFriendState && ctx.pendingOffline) {
                 const time = (Date.now() - ctx.pendingOfflineTime) / 1000;
                 console.log(`${ctx.name} pendingOfflineCancelTime ${time}`);
             }
@@ -330,7 +327,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 typeof ref !== 'undefined' &&
                 isRealInstance(ref.location)
             ) {
-                if (debugFriendState.value) {
+                if (debugStore.debugFriendState) {
                     console.log(
                         `Fetching offline friend in an instance from getCurrentUser ${ctx.name}`
                     );
@@ -354,12 +351,12 @@ export const useFriendStore = defineStore('Friend', () => {
             }
             // prevent status flapping
             if (ctx.pendingOffline) {
-                if (debugFriendState.value) {
+                if (debugStore.debugFriendState) {
                     console.log(ctx.name, 'pendingOfflineAlreadyWaiting');
                 }
                 return;
             }
-            if (debugFriendState.value) {
+            if (debugStore.debugFriendState) {
                 console.log(ctx.name, 'pendingOfflineBegin');
             }
             ctx.pendingOffline = true;
@@ -367,7 +364,7 @@ export const useFriendStore = defineStore('Friend', () => {
             // wait 2minutes then check if user came back online
             workerTimers.setTimeout(() => {
                 if (!ctx.pendingOffline) {
-                    if (debugFriendState.value) {
+                    if (debugStore.debugFriendState) {
                         console.log(ctx.name, 'pendingOfflineAlreadyCancelled');
                     }
                     return;
@@ -375,7 +372,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 ctx.pendingOffline = false;
                 ctx.pendingOfflineTime = '';
                 if (ctx.pendingState === ctx.state) {
-                    if (debugFriendState.value) {
+                    if (debugStore.debugFriendState) {
                         console.log(
                             ctx.name,
                             'pendingOfflineCancelledStateMatched'
@@ -383,7 +380,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     }
                     return;
                 }
-                if (debugFriendState.value) {
+                if (debugStore.debugFriendState) {
                     console.log(ctx.name, 'pendingOfflineEnd');
                 }
                 updateFriendDelayedCheck(ctx, location, $location_at);
@@ -396,7 +393,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
                 // wtf, from getCurrentUser only, fetch user if online in offline location
                 if (fromGetCurrentUser && stateInput === 'online') {
-                    if (debugFriendState.value) {
+                    if (debugStore.debugFriendState) {
                         console.log(
                             `Fetching friend coming online from getCurrentUser ${ctx.name}`
                         );
@@ -422,7 +419,7 @@ export const useFriendStore = defineStore('Friend', () => {
         let worldName;
         const id = ctx.id;
         const newState = ctx.pendingState;
-        if (debugFriendState.value) {
+        if (debugStore.debugFriendState) {
             console.log(
                 `${ctx.name} updateFriendState ${ctx.state} -> ${newState}`
             );
@@ -745,7 +742,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 }
                 const ref = state.friends.get(friend.id);
                 if (ref?.state !== state_input) {
-                    if (debugFriendState.value) {
+                    if (debugStore.debugFriendState) {
                         console.log(
                             `Refetching friend state it does not match ${friend.displayName} from ${ref?.state} to ${state_input}`,
                             friend
@@ -756,7 +753,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     });
                     friends[i] = args.json;
                 } else if (friend.location === 'traveling') {
-                    if (debugFriendState.value) {
+                    if (debugStore.debugFriendState) {
                         console.log(
                             'Refetching traveling friend',
                             friend.displayName
@@ -780,7 +777,7 @@ export const useFriendStore = defineStore('Friend', () => {
      */
     async function refreshRemainingFriends(friends) {
         // API.refreshRemainingFriends
-        for (let userId of API.currentUser.friends) {
+        for (const userId of API.currentUser.friends) {
             if (!friends.some((x) => x.id === userId)) {
                 try {
                     if (!API.isLoggedIn) {
@@ -825,7 +822,7 @@ export const useFriendStore = defineStore('Friend', () => {
         ) {
             return;
         }
-        for (let userId of ref.activeFriends) {
+        for (const userId of ref.activeFriends) {
             if (state.pendingActiveFriends.has(userId)) {
                 continue;
             }

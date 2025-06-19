@@ -7,6 +7,7 @@ import { useInstanceStore } from './instance';
 
 export const useInviteStore = defineStore('Invite', () => {
     const instanceStore = useInstanceStore();
+    const { createNewInstance } = instanceStore;
     const state = reactive({
         editInviteMessageDialog: {
             visible: false,
@@ -140,7 +141,6 @@ export const useInviteStore = defineStore('Invite', () => {
     }
 
     function newInstanceSelfInvite(worldId) {
-        const { createNewInstance } = instanceStore;
         createNewInstance(worldId).then((args) => {
             const location = args?.json?.location;
             if (!location) {

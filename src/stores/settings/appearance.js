@@ -312,7 +312,7 @@ export const useAppearanceSettingsStore = defineStore(
             if (LINUX) {
                 dictObject = Object.fromEntries(dictObject);
             }
-            for (let [userId, hue] of Object.entries(dictObject)) {
+            for (const [userId, hue] of Object.entries(dictObject)) {
                 const ref = API.cachedUsers.get(userId);
                 if (typeof ref !== 'undefined') {
                     ref.$userColour = HueToHex(hue);
@@ -330,7 +330,7 @@ export const useAppearanceSettingsStore = defineStore(
             ref.$isTroll = false;
             ref.$isProbableTroll = false;
             let trustColor = '';
-            let { tags } = ref;
+            const { tags } = ref;
             if (tags.includes('admin_moderator')) {
                 ref.$isModerator = true;
             }
@@ -374,7 +374,7 @@ export const useAppearanceSettingsStore = defineStore(
                 trustColor = 'vip';
                 ref.$trustSortNum += 0.3;
             }
-            if (randomUserColours.value && friendStore.friendLogInitStatus) {
+            if (state.randomUserColours && friendStore.friendLogInitStatus) {
                 if (!ref.$userColour) {
                     getNameColour(ref.id).then((colour) => {
                         ref.$userColour = colour;
