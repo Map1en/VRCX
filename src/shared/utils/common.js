@@ -381,7 +381,7 @@ function openExternalLink(link) {
             if (action === 'confirm') {
                 AppApi.OpenLink(link);
             } else if (action === 'cancel') {
-                this.copyLink(link);
+                copyLink(link);
             }
         }
     });

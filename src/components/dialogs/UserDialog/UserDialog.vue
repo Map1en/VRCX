@@ -1868,6 +1868,7 @@
     import SocialStatusDialog from './SocialStatusDialog.vue';
     import { useGroupStore } from '../../../stores/group';
     import { userDialogWorldSortingOptions, userDialogWorldOrderOptions } from '../../../shared/constants/';
+    import { useFriendStore } from '../../../stores/friend';
 
     const { t } = useI18n();
 
@@ -1881,6 +1882,7 @@
     const avatarStore = useAvatarStore();
     const worldStore = useWorldStore();
     const groupStore = useGroupStore();
+    const friendStore = useFriendStore();
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
@@ -1896,6 +1898,7 @@
     const { lastLocation } = storeToRefs(locationStore);
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
+    const { friendLogTable } = storeToRefs(friendStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const clearInviteImageUpload = inject('clearInviteImageUpload');
@@ -1923,10 +1926,6 @@
         userOnlineFor: {
             type: Function,
             default: () => {}
-        },
-        friendLogTable: {
-            type: Object,
-            default: () => ({})
         },
         lookupAvatars: {
             type: Function,
@@ -2509,7 +2508,7 @@
             userId: ref.id,
             displayName: ref.displayName
         };
-        props.friendLogTable.data.push(friendLogHistory);
+        friendLogTable.value.data.push(friendLogHistory);
         database.addFriendLogHistory(friendLogHistory);
 
         // API.$on('FRIEND:REQUEST')
@@ -2536,7 +2535,7 @@
             userId: ref.id,
             displayName: ref.displayName
         };
-        props.friendLogTable.data.push(friendLogHistory);
+        friendLogTable.value.data.push(friendLogHistory);
         database.addFriendLogHistory(friendLogHistory);
 
         // API.$on('FRIEND:REQUEST:CANCEL')

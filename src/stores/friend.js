@@ -11,7 +11,8 @@ import {
     getWorldName,
     isRealInstance,
     removeFromArray,
-    getUserMemo
+    getUserMemo,
+    compareByCreatedAtAscending
 } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
@@ -39,8 +40,53 @@ export const useFriendStore = defineStore('Friend', () => {
         friendLogInitStatus: false,
         isRefreshFriendsLoading: false,
         pendingActiveFriends: new Set(),
-        onlineFriendCount: 0
+        onlineFriendCount: 0,
+        friendLog: new Map(),
+        friendLogTable: {
+            data: [],
+            filters: [
+                {
+                    prop: 'type',
+                    value: [],
+                    filterFn: (row, filter) =>
+                        filter.value.some((v) => v === row.type)
+                },
+                {
+                    prop: 'displayName',
+                    value: ''
+                },
+                {
+                    prop: 'type',
+                    value: false,
+                    filterFn: (row, filter) =>
+                        !(filter.value && row.type === 'Unfriend')
+                }
+            ],
+            tableProps: {
+                stripe: true,
+                size: 'mini',
+                defaultSort: {
+                    prop: 'created_at',
+                    order: 'descending'
+                }
+            },
+            pageSize: 15,
+            paginationProps: {
+                small: true,
+                layout: 'sizes,prev,pager,next,total',
+                pageSizes: [10, 15, 20, 25, 50, 100]
+            }
+        }
     });
+
+    async function init() {
+        const friendLogTableFiltersValue = JSON.parse(
+            await configRepository.getString('VRCX_friendLogTableFilters', '[]')
+        );
+        state.friendLogTable.filters[0].value = friendLogTableFiltersValue;
+    }
+
+    init();
 
     const friends = state.friends;
 
@@ -192,6 +238,24 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     });
 
+    const friendLog = computed({
+        get() {
+            return state.friendLog;
+        },
+        set(value) {
+            state.friendLog = value;
+        }
+    });
+
+    const friendLogTable = computed({
+        get() {
+            return state.friendLogTable;
+        },
+        set(value) {
+            state.friendLogTable = value;
+        }
+    });
+
     API.$on('USER:CURRENT', function (args) {
         updateFriendships(args.ref);
     });
@@ -201,7 +265,7 @@ export const useFriendStore = defineStore('Friend', () => {
         if (
             state.friendLogInitStatus &&
             args.json.isFriend &&
-            !$app.friendLog.has(args.ref.id) &&
+            !state.friendLog.has(args.ref.id) &&
             args.json.id !== API.currentUser.id
         ) {
             addFriendship(args.ref.id);
@@ -624,7 +688,7 @@ export const useFriendStore = defineStore('Friend', () => {
         const ref = API.cachedUsers.get(id);
         const isVIP = state.localFavoriteFriends.has(id);
         let name = '';
-        const friend = $app.friendLog.get(id);
+        const friend = state.friendLog.get(id);
         if (friend) {
             name = friend.displayName;
         }
@@ -640,7 +704,7 @@ export const useFriendStore = defineStore('Friend', () => {
             pendingState: '',
             $nickName: ''
         };
-        if ($app.friendLogInitStatus) {
+        if (state.friendLogInitStatus) {
             getUserMemo(id).then((memo) => {
                 if (memo.userId === id) {
                     ctx.memo = memo.memo;
@@ -653,7 +717,7 @@ export const useFriendStore = defineStore('Friend', () => {
             });
         }
         if (typeof ref === 'undefined') {
-            const friendLogRef = $app.friendLog.get(id);
+            const friendLogRef = state.friendLog.get(id);
             if (friendLogRef?.displayName) {
                 ctx.name = friendLogRef.displayName;
             }
@@ -691,7 +755,7 @@ export const useFriendStore = defineStore('Friend', () => {
             const offlineFriends = await bulkRefreshFriends({
                 offline: true
             });
-            let friends = onlineFriends.concat(offlineFriends);
+            var friends = onlineFriends.concat(offlineFriends);
             friends = await refetchBrokenFriends(friends);
             if (!state.friendLogInitStatus) {
                 friends = await refreshRemainingFriends(friends);
@@ -972,7 +1036,7 @@ export const useFriendStore = defineStore('Friend', () => {
     function addFriendship(id) {
         if (
             !state.friendLogInitStatus ||
-            $app.friendLog.has(id) ||
+            state.friendLog.has(id) ||
             id === API.currentUser.id
         ) {
             return;
@@ -993,7 +1057,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 userId: id
             })
             .then((args) => {
-                if (args.json.isFriend && !$app.friendLog.has(id)) {
+                if (args.json.isFriend && !state.friendLog.has(id)) {
                     if ($app.friendNumber === 0) {
                         $app.friendNumber = state.friends.size;
                     }
@@ -1010,7 +1074,7 @@ export const useFriendStore = defineStore('Friend', () => {
                         displayName: ref.displayName,
                         friendNumber: ref.$friendNumber
                     };
-                    $app.friendLogTable.data.push(friendLogHistory);
+                    state.friendLogTable.data.push(friendLogHistory);
                     database.addFriendLogHistory(friendLogHistory);
                     $app.queueFriendLogNoty(friendLogHistory);
                     const friendLogCurrent = {
@@ -1019,7 +1083,7 @@ export const useFriendStore = defineStore('Friend', () => {
                         trustLevel: ref.$trustLevel,
                         friendNumber: ref.$friendNumber
                     };
-                    $app.friendLog.set(id, friendLogCurrent);
+                    state.friendLog.set(id, friendLogCurrent);
                     database.setFriendLogCurrent(friendLogCurrent);
                     $app.notifyMenu('friendLog');
                     deleteFriendRequest(id);
@@ -1062,7 +1126,7 @@ export const useFriendStore = defineStore('Friend', () => {
      * @param {string} id
      */
     function deleteFriendship(id) {
-        const ctx = $app.friendLog.get(id);
+        const ctx = state.friendLog.get(id);
         if (typeof ctx === 'undefined') {
             return;
         }
@@ -1078,10 +1142,10 @@ export const useFriendStore = defineStore('Friend', () => {
                         userId: id,
                         displayName: ctx.displayName || id
                     };
-                    $app.friendLogTable.data.push(friendLogHistory);
+                    state.friendLogTable.data.push(friendLogHistory);
                     database.addFriendLogHistory(friendLogHistory);
                     $app.queueFriendLogNoty(friendLogHistory);
-                    $app.friendLog.delete(id);
+                    state.friendLog.delete(id);
                     database.deleteFriendLogCurrent(id);
                     if (!appearanceSettingsStore.hideUnfriends) {
                         $app.notifyMenu('friendLog');
@@ -1103,12 +1167,12 @@ export const useFriendStore = defineStore('Friend', () => {
             set.add(id);
             addFriendship(id);
         }
-        for (id of $app.friendLog.keys()) {
+        for (id of state.friendLog.keys()) {
             if (id === API.currentUser.id) {
-                $app.friendLog.delete(id);
+                state.friendLog.delete(id);
                 database.deleteFriendLogCurrent(id);
             } else if (!set.has(id)) {
-                $app.deleteFriendship(id);
+                deleteFriendship(id);
             }
         }
     }
@@ -1118,7 +1182,7 @@ export const useFriendStore = defineStore('Friend', () => {
      * @param {object} ref
      */
     function updateFriendship(ref) {
-        const ctx = $app.friendLog.get(ref.id);
+        const ctx = state.friendLog.get(ref.id);
         if (!state.friendLogInitStatus || typeof ctx === 'undefined') {
             return;
         }
@@ -1138,7 +1202,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     previousDisplayName: ctx.displayName,
                     friendNumber: ref.$friendNumber
                 };
-                $app.friendLogTable.data.push(friendLogHistoryDisplayName);
+                state.friendLogTable.data.push(friendLogHistoryDisplayName);
                 database.addFriendLogHistory(friendLogHistoryDisplayName);
                 $app.queueFriendLogNoty(friendLogHistoryDisplayName);
                 const friendLogCurrent = {
@@ -1147,7 +1211,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     trustLevel: ref.$trustLevel,
                     friendNumber: ref.$friendNumber
                 };
-                $app.friendLog.set(ref.id, friendLogCurrent);
+                state.friendLog.set(ref.id, friendLogCurrent);
                 database.setFriendLogCurrent(friendLogCurrent);
                 ctx.displayName = ref.displayName;
                 $app.notifyMenu('friendLog');
@@ -1171,7 +1235,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     trustLevel: ref.$trustLevel,
                     friendNumber: ref.$friendNumber
                 };
-                $app.friendLog.set(ref.id, friendLogCurrent3);
+                state.friendLog.set(ref.id, friendLogCurrent3);
                 database.setFriendLogCurrent(friendLogCurrent3);
                 return;
             }
@@ -1184,7 +1248,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 previousTrustLevel: ctx.trustLevel,
                 friendNumber: ref.$friendNumber
             };
-            $app.friendLogTable.data.push(friendLogHistoryTrustLevel);
+            state.friendLogTable.data.push(friendLogHistoryTrustLevel);
             database.addFriendLogHistory(friendLogHistoryTrustLevel);
             $app.queueFriendLogNoty(friendLogHistoryTrustLevel);
             const friendLogCurrent2 = {
@@ -1193,12 +1257,341 @@ export const useFriendStore = defineStore('Friend', () => {
                 trustLevel: ref.$trustLevel,
                 friendNumber: ref.$friendNumber
             };
-            $app.friendLog.set(ref.id, friendLogCurrent2);
+            state.friendLog.set(ref.id, friendLogCurrent2);
             database.setFriendLogCurrent(friendLogCurrent2);
             $app.notifyMenu('friendLog');
             $app.updateSharedFeed(true);
         }
         ctx.trustLevel = ref.$trustLevel;
+    }
+
+    /**
+     *
+     * @param {object} currentUser
+     * @returns {Promise<void>}
+     */
+    async function initFriendLog(currentUser) {
+        refreshFriendsStatus(currentUser, true);
+        const sqlValues = [];
+        const friends = await refreshFriends();
+        for (const friend of friends) {
+            const ref = userStore.applyUser(friend);
+            const row = {
+                userId: ref.id,
+                displayName: ref.displayName,
+                trustLevel: ref.$trustLevel,
+                friendNumber: 0
+            };
+            state.friendLog.set(friend.id, row);
+            sqlValues.unshift(row);
+        }
+        database.setFriendLogCurrentArray(sqlValues);
+        await configRepository.setBool(`friendLogInit_${currentUser.id}`, true);
+        state.friendLogInitStatus = true;
+    }
+
+    /**
+     *
+     * @param {string} userId
+     * @returns {Promise<void>}
+     */
+    async function migrateFriendLog(userId) {
+        VRCXStorage.Remove(`${userId}_friendLogUpdatedAt`);
+        VRCXStorage.Remove(`${userId}_friendLog`);
+        state.friendLogTable.data = await VRCXStorage.GetArray(
+            `${userId}_friendLogTable`
+        );
+        database.addFriendLogHistoryArray(state.friendLogTable.data);
+        VRCXStorage.Remove(`${userId}_friendLogTable`);
+        await configRepository.setBool(`friendLogInit_${userId}`, true);
+    }
+
+    /**
+     *
+     * @param {object} currentUser
+     * @returns {Promise<void>}
+     */
+    async function getFriendLog(currentUser) {
+        let friend;
+        $app.friendNumber = await configRepository.getInt(
+            `VRCX_friendNumber_${currentUser.id}`,
+            0
+        );
+        const maxFriendLogNumber = await database.getMaxFriendLogNumber();
+        if ($app.friendNumber < maxFriendLogNumber) {
+            $app.friendNumber = maxFriendLogNumber;
+        }
+
+        const friendLogCurrentArray = await database.getFriendLogCurrent();
+        for (friend of friendLogCurrentArray) {
+            state.friendLog.set(friend.userId, friend);
+        }
+        state.friendLogTable.data = [];
+        state.friendLogTable.data = await database.getFriendLogHistory();
+        refreshFriendsStatus(currentUser, true);
+        await refreshFriends();
+        await tryRestoreFriendNumber();
+        state.friendLogInitStatus = true;
+
+        // check for friend/name/rank change AFTER friendLogInitStatus is set
+        for (friend of friendLogCurrentArray) {
+            const ref = API.cachedUsers.get(friend.userId);
+            if (typeof ref !== 'undefined') {
+                updateFriendship(ref);
+            }
+        }
+        if (typeof currentUser.friends !== 'undefined') {
+            updateFriendships(currentUser);
+        }
+    }
+
+    async function tryRestoreFriendNumber() {
+        const lastUpdate = await configRepository.getString(
+            `VRCX_lastStoreTime_${API.currentUser.id}`
+        );
+        if (lastUpdate == -4) {
+            // this means the backup was already applied
+            return;
+        }
+        var status = false;
+        $app.friendNumber = 0;
+        for (const ref of state.friendLog.values()) {
+            ref.friendNumber = 0;
+        }
+        try {
+            if (lastUpdate) {
+                // backup ready to try apply
+                status = await restoreFriendNumber();
+            }
+            // needs to be in reverse because we don't know the starting number
+            applyFriendLogFriendOrderInReverse();
+        } catch (err) {
+            console.error(err);
+        }
+        // if (status) {
+        //     this.$message({
+        //         message: 'Friend order restored from backup',
+        //         type: 'success',
+        //         duration: 0,
+        //         showClose: true
+        //     });
+        // } else if (this.friendLogTable.data.length > 0) {
+        //     this.$message({
+        //         message:
+        //             'No backup found, friend order partially restored from friendLog',
+        //         type: 'success',
+        //         duration: 0,
+        //         showClose: true
+        //     });
+        // }
+        await configRepository.setString(
+            `VRCX_lastStoreTime_${API.currentUser.id}`,
+            -4
+        );
+    }
+
+    async function restoreFriendNumber() {
+        let message;
+        let storedData = null;
+        try {
+            const data = await configRepository.getString(
+                `VRCX_friendOrder_${API.currentUser.id}`
+            );
+            if (data) {
+                storedData = JSON.parse(data);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        if (!storedData || storedData.length === 0) {
+            message = 'whomp whomp, no friend order backup found';
+            console.error(message);
+            return false;
+        }
+
+        const friendLogTable = getFriendLogFriendOrder();
+
+        // for storedData
+        const machList = [];
+        for (let i = 0; i < Object.keys(storedData).length; i++) {
+            const key = Object.keys(storedData)[i];
+            const value = storedData[key];
+            const item = parseFriendOrderBackup(friendLogTable, key, value);
+            machList.push(item);
+        }
+        machList.sort((a, b) => b.matches - a.matches);
+        console.log(
+            `friendLog: ${friendLogTable.length} friendOrderBackups:`,
+            machList
+        );
+
+        const bestBackup = machList[0];
+        if (!bestBackup?.isValid) {
+            message = 'whomp whomp, no valid backup found';
+            console.error(message);
+            return false;
+        }
+
+        applyFriendOrderBackup(bestBackup.table);
+        applyFriendLogFriendOrder();
+        await configRepository.setInt(
+            `VRCX_friendNumber_${API.currentUser.id}`,
+            $app.friendNumber
+        );
+        return true;
+    }
+
+    function applyFriendLogFriendOrderInReverse() {
+        $app.friendNumber = state.friends.size + 1;
+        const friendLogTable = getFriendLogFriendOrder();
+        for (let i = friendLogTable.length - 1; i > -1; i--) {
+            const friendLog = friendLogTable[i];
+            const ref = state.friendLog.get(friendLog.id);
+            if (!ref) {
+                continue;
+            }
+            if (ref.friendNumber) {
+                break;
+            }
+            ref.friendNumber = --$app.friendNumber;
+            state.friendLog.set(ref.userId, ref);
+            database.setFriendLogCurrent(ref);
+            const friendRef = state.friends.get(friendLog.id);
+            if (friendRef?.ref) {
+                friendRef.ref.$friendNumber = ref.friendNumber;
+            }
+        }
+        $app.friendNumber = state.friends.size;
+        console.log('Applied friend order from friendLog');
+    }
+
+    function getFriendLogFriendOrder() {
+        const friendLogTable = [];
+        for (let i = 0; i < state.friendLogTable.data.length; i++) {
+            const ref = state.friendLogTable.data[i];
+            if (ref.type !== 'Friend') {
+                continue;
+            }
+            if (friendLogTable.findIndex((x) => x.id === ref.userId) !== -1) {
+                // console.log(
+                //     'ignoring duplicate friend',
+                //     ref.displayName,
+                //     ref.created_at
+                // );
+                continue;
+            }
+            friendLogTable.push({
+                id: ref.userId,
+                displayName: ref.displayName,
+                created_at: ref.created_at
+            });
+        }
+        friendLogTable.sort(compareByCreatedAtAscending);
+        return friendLogTable;
+    }
+
+    function parseFriendOrderBackup(friendLogTable, created_at, backupUserIds) {
+        let i;
+        const backupTable = [];
+        for (i = 0; i < backupUserIds.length; i++) {
+            const userId = backupUserIds[i];
+            const ctx = state.friends.get(userId);
+            if (ctx) {
+                backupTable.push({
+                    id: ctx.id,
+                    displayName: ctx.name
+                });
+            }
+        }
+
+        // var compareTable = [];
+        // compare 2 tables, find max amount of id's in same order
+        let maxMatches = 0;
+        let currentMatches = 0;
+        let backupIndex = 0;
+        for (i = 0; i < friendLogTable.length; i++) {
+            var isMatch = false;
+            const ref = friendLogTable[i];
+            if (backupIndex <= 0) {
+                backupIndex = backupTable.findIndex((x) => x.id === ref.id);
+                if (backupIndex !== -1) {
+                    currentMatches = 1;
+                }
+            } else if (backupTable[backupIndex].id === ref.id) {
+                currentMatches++;
+                isMatch = true;
+            } else {
+                backupIndex = backupTable.findIndex((x) => x.id === ref.id);
+                if (backupIndex !== -1) {
+                    currentMatches = 1;
+                }
+            }
+            if (backupIndex === backupTable.length - 1) {
+                backupIndex = 0;
+            } else {
+                backupIndex++;
+            }
+            if (currentMatches > maxMatches) {
+                maxMatches = currentMatches;
+            }
+            // compareTable.push({
+            //     id: ref.id,
+            //     displayName: ref.displayName,
+            //     match: isMatch
+            // });
+        }
+
+        const lerp = (a, b, alpha) => {
+            return a + alpha * (b - a);
+        };
+        return {
+            matches: parseFloat(`${maxMatches}.${created_at}`),
+            table: backupUserIds,
+            isValid: maxMatches > lerp(4, 10, backupTable.length / 1000) // pls no collisions
+        };
+    }
+
+    function applyFriendOrderBackup(userIdOrder) {
+        for (let i = 0; i < userIdOrder.length; i++) {
+            const userId = userIdOrder[i];
+            const ctx = state.friends.get(userId);
+            const ref = ctx?.ref;
+            if (!ref || ref.$friendNumber) {
+                continue;
+            }
+            const friendLogCurrent = {
+                userId,
+                displayName: ref.displayName,
+                trustLevel: ref.$trustLevel,
+                friendNumber: i + 1
+            };
+            state.friendLog.set(userId, friendLogCurrent);
+            database.setFriendLogCurrent(friendLogCurrent);
+            $app.friendNumber = i + 1;
+        }
+    }
+
+    function applyFriendLogFriendOrder() {
+        const friendLogTable = getFriendLogFriendOrder();
+        if ($app.friendNumber === 0) {
+            console.log('No backup applied, applying friend log in reverse');
+            // this means no FriendOrderBackup was applied
+            // will need to apply in reverse order instead
+            return;
+        }
+        for (const friendLog of friendLogTable) {
+            const ref = state.friendLog.get(friendLog.id);
+            if (!ref || ref.friendNumber) {
+                continue;
+            }
+            ref.friendNumber = ++$app.friendNumber;
+            state.friendLog.set(ref.userId, ref);
+            database.setFriendLogCurrent(ref);
+            const friendRef = state.friends.get(friendLog.id);
+            if (friendRef?.ref) {
+                friendRef.ref.$friendNumber = ref.friendNumber;
+            }
+        }
     }
 
     return {
@@ -1225,6 +1618,8 @@ export const useFriendStore = defineStore('Friend', () => {
         isRefreshFriendsLoading,
         pendingActiveFriends,
         onlineFriendCount,
+        friendLog,
+        friendLogTable,
 
         updateLocalFavoriteFriends,
         updateSidebarFriendsList,
@@ -1238,8 +1633,8 @@ export const useFriendStore = defineStore('Friend', () => {
         updateOnlineFriendCoutner,
         updateFriendGPS,
         getAllUserStats,
-        // temporary
-        updateFriendships,
-        updateFriendship
+        initFriendLog,
+        migrateFriendLog,
+        getFriendLog
     };
 });

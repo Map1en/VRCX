@@ -446,7 +446,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 if (type === 'friend') {
                     ref = API.cachedUsers.get(objectId);
                     if (typeof ref === 'undefined') {
-                        ref = $app.friendLog.get(objectId);
+                        ref = friendStore.friendLog.get(objectId);
                         if (typeof ref !== 'undefined' && ref.displayName) {
                             ctx.name = ref.displayName;
                         }

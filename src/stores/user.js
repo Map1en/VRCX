@@ -539,39 +539,49 @@ export const useUserStore = defineStore('User', () => {
                                     }
                                     const displayNameMap =
                                         ref1.previousDisplayNames;
-                                    $app.friendLogTable.data.forEach((ref2) => {
-                                        if (ref2.userId === D.id) {
-                                            if (ref2.type === 'DisplayName') {
-                                                displayNameMap.set(
-                                                    ref2.previousDisplayName,
-                                                    ref2.created_at
-                                                );
-                                            }
-                                            if (!D.dateFriended) {
-                                                if (ref2.type === 'Unfriend') {
-                                                    D.unFriended = true;
+                                    friendStore.friendLogTable.data.forEach(
+                                        (ref2) => {
+                                            if (ref2.userId === D.id) {
+                                                if (
+                                                    ref2.type === 'DisplayName'
+                                                ) {
+                                                    displayNameMap.set(
+                                                        ref2.previousDisplayName,
+                                                        ref2.created_at
+                                                    );
+                                                }
+                                                if (!D.dateFriended) {
                                                     if (
-                                                        !appearanceSettingsStore.hideUnfriends
+                                                        ref2.type === 'Unfriend'
                                                     ) {
+                                                        D.unFriended = true;
+                                                        if (
+                                                            !appearanceSettingsStore.hideUnfriends
+                                                        ) {
+                                                            D.dateFriended =
+                                                                ref2.created_at;
+                                                        }
+                                                    }
+                                                    if (
+                                                        ref2.type === 'Friend'
+                                                    ) {
+                                                        D.unFriended = false;
                                                         D.dateFriended =
                                                             ref2.created_at;
                                                     }
                                                 }
-                                                if (ref2.type === 'Friend') {
-                                                    D.unFriended = false;
-                                                    D.dateFriended =
-                                                        ref2.created_at;
+                                                if (
+                                                    ref2.type === 'Friend' ||
+                                                    (ref2.type === 'Unfriend' &&
+                                                        !appearanceSettingsStore.hideUnfriends)
+                                                ) {
+                                                    D.dateFriendedInfo.push(
+                                                        ref2
+                                                    );
                                                 }
                                             }
-                                            if (
-                                                ref2.type === 'Friend' ||
-                                                (ref2.type === 'Unfriend' &&
-                                                    !appearanceSettingsStore.hideUnfriends)
-                                            ) {
-                                                D.dateFriendedInfo.push(ref2);
-                                            }
                                         }
-                                    });
+                                    );
                                     const displayNameMapSorted = new Map(
                                         [...displayNameMap.entries()].sort(
                                             (a, b) => b[1] - a[1]

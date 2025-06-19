@@ -487,7 +487,7 @@ export default function init() {
 
         updateSharedFeedFriendLogTable(forceUpdate) {
             // TrustLevel, Friend, FriendRequest, Unfriend, DisplayName
-            const friendLog = this.friendLogTable.data;
+            const friendLog = this.store.friend.friendLogTable.data;
             var i = friendLog.length;
             if (i > 0) {
                 if (

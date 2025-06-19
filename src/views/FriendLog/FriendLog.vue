@@ -95,24 +95,27 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, watch } from 'vue';
+    import { getCurrentInstance, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import { removeFromArray } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
+    import { useFriendStore } from '../../stores/friend';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const friendStore = useFriendStore();
+    const { friendLogTable } = storeToRefs(friendStore);
 
     watch(
         () => hideUnfriends.value,
         (newValue) => {
             if (newValue) {
-                props.friendLogTable.filters[2].value = newValue;
+                friendLogTable.value.filters[2].value = newValue;
             }
         },
         { immediate: true }
@@ -122,20 +125,16 @@
     const { proxy } = getCurrentInstance();
     const { $confirm } = proxy;
 
-    const props = defineProps({
+    defineProps({
         menuActiveIndex: {
             type: String,
             default: ''
-        },
-        friendLogTable: {
-            type: Object,
-            default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false }
     });
 
     function saveTableFilters() {
-        configRepository.setString('VRCX_friendLogTableFilters', JSON.stringify(props.friendLogTable.filters[0].value));
+        configRepository.setString('VRCX_friendLogTableFilters', JSON.stringify(friendLogTable.value.filters[0].value));
     }
     function deleteFriendLogPrompt(row) {
         $confirm('Continue? Delete Log', 'Confirm', {
@@ -150,7 +149,7 @@
         });
     }
     function deleteFriendLog(row) {
-        removeFromArray(props.friendLogTable.data, row);
+        removeFromArray(friendLogTable.value.data, row);
         database.deleteFriendLogHistory(row.rowId);
     }
 </script>

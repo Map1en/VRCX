@@ -59,7 +59,6 @@ import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import languages from './classes/languages.js';
 import prompts from './classes/prompts.js';
-import restoreFriendOrder from './classes/restoreFriendOrder.js';
 import inventory from './classes/inventory';
 
 // main app classes
@@ -439,7 +438,6 @@ groups();
 discordRpc();
 feed();
 vrcRegistry();
-restoreFriendOrder();
 inventory();
 
 // #endregion
@@ -1892,7 +1890,7 @@ API.$on('LOGIN', async function (args) {
     $app.store.friend.isRefreshFriendsLoading = true;
     $app.feedTable.loading = true;
 
-    $app.friendLog = new Map();
+    $app.store.friend.friendLog = new Map();
     $app.feedTable.data = [];
     $app.feedSessionTable = [];
     $app.store.friend.friendLogInitStatus = false;
@@ -1912,9 +1910,9 @@ API.$on('LOGIN', async function (args) {
     $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
     try {
         if (await configRepository.getBool(`friendLogInit_${args.json.id}`)) {
-            await $app.getFriendLog(args.ref);
+            await $app.store.friend.getFriendLog(args.ref);
         } else {
-            await $app.initFriendLog(args.ref);
+            await $app.store.friend.initFriendLog(args.ref);
         }
     } catch (err) {
         if (!$app.dontLogMeOut) {
@@ -1950,7 +1948,7 @@ API.$on('LOGIN', async function (args) {
     if (await VRCXStorage.Get(`${args.json.id}_friendLogUpdatedAt`)) {
         VRCXStorage.Remove(`${args.json.id}_feedTable`);
         migrateMemos();
-        $app.migrateFriendLog(args.json.id);
+        $app.store.friend.migrateFriendLog(args.json.id);
     }
     await AppApi.IPCAnnounceStart();
 });
@@ -2662,116 +2660,8 @@ $app.methods.moreSearchUser = async function (go, params) {
 };
 
 // #endregion
-// #region | App: friendLog
-
-$app.data.friendLog = new Map();
-$app.data.friendLogTable = {
-    data: [],
-    filters: [
-        {
-            prop: 'type',
-            value: [],
-            filterFn: (row, filter) => filter.value.some((v) => v === row.type)
-        },
-        {
-            prop: 'displayName',
-            value: ''
-        },
-        {
-            prop: 'type',
-            value: false,
-            filterFn: (row, filter) =>
-                !(filter.value && row.type === 'Unfriend')
-        }
-    ],
-    tableProps: {
-        stripe: true,
-        size: 'mini',
-        defaultSort: {
-            prop: 'created_at',
-            order: 'descending'
-        }
-    },
-    pageSize: 15,
-    paginationProps: {
-        small: true,
-        layout: 'sizes,prev,pager,next,total',
-        pageSizes: [10, 15, 20, 25, 50, 100]
-    }
-};
-
-// todo: maybe put in friendlog store
-// $app.data.friendLogInitStatus = false;
-$app.data.notificationInitStatus = false;
-
-$app.methods.initFriendLog = async function (currentUser) {
-    this.store.friend.refreshFriendsStatus(currentUser, true);
-    const sqlValues = [];
-    const friends = await this.store.friend.refreshFriends();
-    for (let friend of friends) {
-        const ref = $app.store.user.applyUser(friend);
-        const row = {
-            userId: ref.id,
-            displayName: ref.displayName,
-            trustLevel: ref.$trustLevel,
-            friendNumber: 0
-        };
-        this.friendLog.set(friend.id, row);
-        sqlValues.unshift(row);
-    }
-    database.setFriendLogCurrentArray(sqlValues);
-    await configRepository.setBool(`friendLogInit_${currentUser.id}`, true);
-    this.store.friend.friendLogInitStatus = true;
-};
-
-$app.methods.migrateFriendLog = async function (userId) {
-    VRCXStorage.Remove(`${userId}_friendLogUpdatedAt`);
-    VRCXStorage.Remove(`${userId}_friendLog`);
-    this.friendLogTable.data = await VRCXStorage.GetArray(
-        `${userId}_friendLogTable`
-    );
-    database.addFriendLogHistoryArray(this.friendLogTable.data);
-    VRCXStorage.Remove(`${userId}_friendLogTable`);
-    await configRepository.setBool(`friendLogInit_${userId}`, true);
-};
-
-$app.methods.getFriendLog = async function (currentUser) {
-    let friend;
-    this.friendNumber = await configRepository.getInt(
-        `VRCX_friendNumber_${currentUser.id}`,
-        0
-    );
-    const maxFriendLogNumber = await database.getMaxFriendLogNumber();
-    if (this.friendNumber < maxFriendLogNumber) {
-        this.friendNumber = maxFriendLogNumber;
-    }
-
-    const friendLogCurrentArray = await database.getFriendLogCurrent();
-    for (friend of friendLogCurrentArray) {
-        this.friendLog.set(friend.userId, friend);
-    }
-    this.friendLogTable.data = [];
-    this.friendLogTable.data = await database.getFriendLogHistory();
-    this.store.friend.refreshFriendsStatus(currentUser, true);
-    await this.store.friend.refreshFriends();
-    await this.tryRestoreFriendNumber();
-    this.store.friend.friendLogInitStatus = true;
-
-    // check for friend/name/rank change AFTER friendLogInitStatus is set
-    for (friend of friendLogCurrentArray) {
-        const ref = API.cachedUsers.get(friend.userId);
-        if (typeof ref !== 'undefined') {
-            this.store.friend.updateFriendship(ref);
-        }
-    }
-    if (typeof currentUser.friends !== 'undefined') {
-        this.store.friend.updateFriendships(currentUser);
-    }
-};
-
-// #endregion
 // #region | App: Notification
-
+$app.data.notificationInitStatus = false;
 $app.data.notificationTable = {
     data: [],
     filters: [
@@ -2943,9 +2833,6 @@ $app.data.gameLogTable.vip = false;
 // );
 $app.data.gameLogTable.filter = JSON.parse(
     await configRepository.getString('VRCX_gameLogTableFilters', '[]')
-);
-$app.data.friendLogTable.filters[0].value = JSON.parse(
-    await configRepository.getString('VRCX_friendLogTableFilters', '[]')
 );
 $app.data.notificationTable.filters[0].value = JSON.parse(
     await configRepository.getString('VRCX_notificationTableFilters', '[]')
@@ -3464,7 +3351,7 @@ $app.methods.directAccessParse = function (input) {
 $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.feedTable.pageSize = pageSize;
     this.gameLogTable.pageSize = pageSize;
-    this.friendLogTable.pageSize = pageSize;
+    this.store.friend.friendLogTable.pageSize = pageSize;
     this.store.moderation.playerModerationTable.pageSize = pageSize;
     this.notificationTable.pageSize = pageSize;
     this.store.appearanceSettings.setTablePageSize(pageSize);
@@ -6136,7 +6023,6 @@ $app.computed.chartsTabEvent = function () {
 $app.computed.friendLogTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        friendLogTable: this.friendLogTable,
         shiftHeld: this.shiftHeld
     };
 };
