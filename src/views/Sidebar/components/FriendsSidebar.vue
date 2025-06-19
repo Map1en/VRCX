@@ -193,8 +193,7 @@
         },
         props: {
             isGameRunning: Boolean,
-            lastLocationDestination: String,
-            groupedByGroupKeyFavoriteFriends: Object
+            lastLocationDestination: String
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -207,7 +206,7 @@
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
             const locationStore = useLocationStore();
             const { lastLocation } = storeToRefs(locationStore);
             return {
@@ -225,7 +224,8 @@
                 showUserDialog,
                 favoriteFriendGroups,
                 userImage,
-                lastLocation
+                lastLocation,
+                groupedByGroupKeyFavoriteFriends
             };
         },
 

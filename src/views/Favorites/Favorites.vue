@@ -29,7 +29,6 @@
             <el-tab-pane name="friend" :label="$t('view.favorite.friends.header')">
                 <FavoritesFriendTab
                     :hide-tooltips="hideTooltips"
-                    :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     :edit-favorites-mode="editFavoritesMode"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName" />
@@ -79,8 +78,7 @@
         },
         props: {
             menuActiveIndex: String,
-            shiftHeld: Boolean,
-            groupedByGroupKeyFavoriteFriends: Object
+            shiftHeld: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

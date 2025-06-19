@@ -2662,71 +2662,6 @@ $app.methods.moreSearchUser = async function (go, params) {
 };
 
 // #endregion
-// #region | App: Favorite
-
-// $app.data.favoriteFriends_ = [];
-// $app.data.favoriteFriendsSorted = [];
-// $app.data.favoriteWorlds_ = [];
-// $app.data.favoriteWorldsSorted = [];
-// $app.data.favoriteAvatars_ = [];
-// $app.data.favoriteAvatarsSorted = [];
-// $app.data.sortFavoriteFriends = false;
-$app.data.sortFavoriteWorlds = false;
-$app.data.sortFavoriteAvatars = false;
-
-API.$on('LOGIN', function () {
-    $app.store.favorite.favoriteObjects.clear();
-    $app.store.favorite.favoriteFriends_ = [];
-    $app.store.favorite.favoriteFriendsSorted = [];
-    $app.store.favorite.favoriteWorlds_ = [];
-    $app.favoriteWorldsSorted = [];
-    $app.store.favorite.favoriteAvatars_ = [];
-    $app.favoriteAvatarsSorted = [];
-    $app.store.favorite.sortFavoriteFriends = false;
-    $app.sortFavoriteWorlds = false;
-    $app.sortFavoriteAvatars = false;
-});
-
-API.$on('FAVORITE', function (args) {
-    $app.store.favorite.applyFavorite(
-        args.ref.type,
-        args.ref.favoriteId,
-        args.sortTop
-    );
-});
-
-API.$on('FAVORITE:@DELETE', function (args) {
-    $app.store.favorite.applyFavorite(args.ref.type, args.ref.favoriteId);
-});
-
-API.$on('USER', function (args) {
-    $app.store.favorite.applyFavorite('friend', args.ref.id);
-});
-
-API.$on('WORLD', function (args) {
-    $app.store.favorite.applyFavorite('world', args.ref.id);
-});
-
-API.$on('AVATAR', function (args) {
-    $app.store.favorite.applyFavorite('avatar', args.ref.id);
-});
-
-$app.computed.groupedByGroupKeyFavoriteFriends = function () {
-    const groupedByGroupKeyFavoriteFriends = {};
-
-    this.store.favorite.favoriteFriends.forEach((friend) => {
-        if (friend.groupKey) {
-            if (!groupedByGroupKeyFavoriteFriends[friend.groupKey]) {
-                groupedByGroupKeyFavoriteFriends[friend.groupKey] = [];
-            }
-            groupedByGroupKeyFavoriteFriends[friend.groupKey].push(friend);
-        }
-    });
-
-    return groupedByGroupKeyFavoriteFriends;
-};
-
-// #endregion
 // #region | App: friendLog
 
 $app.data.friendLog = new Map();
@@ -6153,8 +6088,7 @@ $app.computed.sidebarTabBind = function () {
         isGameRunning: this.isGameRunning,
         lastLocationDestination: this.lastLocationDestination,
         groupInstances: this.groupInstances,
-        inGameGroupOrder: this.inGameGroupOrder,
-        groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends
+        inGameGroupOrder: this.inGameGroupOrder
     };
 };
 
@@ -6176,8 +6110,7 @@ $app.computed.isSideBarTabShow = function () {
 $app.computed.favoritesTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        shiftHeld: this.shiftHeld,
-        groupedByGroupKeyFavoriteFriends: this.groupedByGroupKeyFavoriteFriends
+        shiftHeld: this.shiftHeld
     };
 };
 

@@ -72,7 +72,6 @@
                 <FriendsSidebar
                     :is-game-running="isGameRunning"
                     :last-location-destination="lastLocationDestination"
-                    :grouped-by-group-key-favorite-friends="groupedByGroupKeyFavoriteFriends"
                     @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
             </el-tab-pane>
             <el-tab-pane lazy>
@@ -116,8 +115,7 @@
             lastLocationDestination: String,
 
             groupInstances: Array,
-            inGameGroupOrder: Array,
-            groupedByGroupKeyFavoriteFriends: Object
+            inGameGroupOrder: Array
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

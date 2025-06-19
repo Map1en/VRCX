@@ -374,6 +374,52 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     });
 
+    const groupedByGroupKeyFavoriteFriends = computed(() => {
+        const groupedByGroupKeyFavoriteFriends = {};
+        favoriteFriends.value.forEach((friend) => {
+            if (friend.groupKey) {
+                if (!groupedByGroupKeyFavoriteFriends[friend.groupKey]) {
+                    groupedByGroupKeyFavoriteFriends[friend.groupKey] = [];
+                }
+                groupedByGroupKeyFavoriteFriends[friend.groupKey].push(friend);
+            }
+        });
+        return groupedByGroupKeyFavoriteFriends;
+    });
+
+    API.$on('LOGIN', function () {
+        state.favoriteObjects.clear();
+        state.favoriteFriends_ = [];
+        state.favoriteFriendsSorted = [];
+        state.favoriteWorlds_ = [];
+        state.favoriteWorldsSorted = [];
+        state.favoriteAvatars_ = [];
+        state.favoriteAvatarsSorted = [];
+        state.sortFavoriteFriends = false;
+        state.sortFavoriteWorlds = false;
+        state.sortFavoriteAvatars = false;
+    });
+
+    API.$on('FAVORITE', function (args) {
+        applyFavorite(args.ref.type, args.ref.favoriteId, args.sortTop);
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        applyFavorite(args.ref.type, args.ref.favoriteId);
+    });
+
+    API.$on('USER', function (args) {
+        applyFavorite('friend', args.ref.id);
+    });
+
+    API.$on('WORLD', function (args) {
+        applyFavorite('world', args.ref.id);
+    });
+
+    API.$on('AVATAR', function (args) {
+        applyFavorite('avatar', args.ref.id);
+    });
+
     /**
      * aka: `$app.methods.applyFavorite`
      * @param {'friend' | 'world' | 'avatar'} type
@@ -1695,6 +1741,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         sortFavoriteAvatars,
         cachedFavoritesByObjectId,
         localWorldFavoriteGroups,
+        groupedByGroupKeyFavoriteFriends,
 
         applyFavorite,
         refreshFavoriteGroups,

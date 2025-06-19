@@ -88,7 +88,6 @@
         name: 'FavoritesFriendTab',
         components: { FriendExportDialog, FavoritesFriendItem },
         props: {
-            groupedByGroupKeyFavoriteFriends: Object,
             editFavoritesMode: Boolean
         },
         setup() {
@@ -98,7 +97,7 @@
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
             const { showFriendImportDialog } = favoriteStore;
             return {
                 hideTooltips,
@@ -107,7 +106,8 @@
                 API,
                 showUserDialog,
                 favoriteFriendGroups,
-                showFriendImportDialog
+                showFriendImportDialog,
+                groupedByGroupKeyFavoriteFriends
             };
         },
         data() {
