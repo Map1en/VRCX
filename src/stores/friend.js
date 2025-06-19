@@ -1066,7 +1066,7 @@ export const useFriendStore = defineStore('Friend', () => {
                         `VRCX_friendNumber_${API.currentUser.id}`,
                         $app.friendNumber
                     );
-                    state.addFriend(id, ref.state);
+                    addFriend(id, ref.state);
                     const friendLogHistory = {
                         created_at: new Date().toJSON(),
                         type: 'Friend',
