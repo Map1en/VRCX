@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
 import database from '../../service/database';
@@ -7,7 +7,6 @@ import { useDebugStore } from '../debug';
 
 export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const debugStore = useDebugStore();
-    const { debugWebRequests } = storeToRefs(debugStore);
 
     const state = reactive({
         enablePrimaryPassword: false,
@@ -371,7 +370,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
                 }
             });
             const json = JSON.parse(response.data);
-            if (debugWebRequests.value) {
+            if (debugStore.debugWebRequests) {
                 console.log(json, response);
             }
             if (response.status === 200) {

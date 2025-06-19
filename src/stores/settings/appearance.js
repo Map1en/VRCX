@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { $app, API, i18n } from '../../app';
 import configRepository from '../../service/config';
@@ -18,7 +18,6 @@ export const useAppearanceSettingsStore = defineStore(
 
     () => {
         const friendStore = useFriendStore();
-        const { friendLogInitStatus } = storeToRefs(friendStore);
         const state = reactive({
             appLanguage: 'en',
             themeMode: '',
@@ -375,7 +374,7 @@ export const useAppearanceSettingsStore = defineStore(
                 trustColor = 'vip';
                 ref.$trustSortNum += 0.3;
             }
-            if (randomUserColours.value && friendLogInitStatus.value) {
+            if (randomUserColours.value && friendStore.friendLogInitStatus) {
                 if (!ref.$userColour) {
                     getNameColour(ref.id).then((colour) => {
                         ref.$userColour = colour;

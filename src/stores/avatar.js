@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { avatarRequest } from '../api';
 import { $app, API } from '../app';
@@ -13,6 +13,7 @@ import {
 import { useFavoriteStore } from './favorite';
 
 export const useAvatarStore = defineStore('Avatar', () => {
+    const favoriteStore = useFavoriteStore();
     const state = reactive({
         avatarDialog: {
             visible: false,
@@ -70,9 +71,6 @@ export const useAvatarStore = defineStore('Avatar', () => {
      * @returns
      */
     function showAvatarDialog(avatarId) {
-        const favoriteStore = useFavoriteStore();
-        const { cachedFavoritesByObjectId, localAvatarFavoritesList } =
-            storeToRefs(favoriteStore);
         const D = state.avatarDialog;
         D.visible = true;
         D.loading = true;
@@ -93,9 +91,9 @@ export const useAvatarStore = defineStore('Avatar', () => {
         D.galleryImages = [];
         D.galleryLoading = true;
         D.isFavorite =
-            cachedFavoritesByObjectId.value.has(avatarId) ||
+            favoriteStore.cachedFavoritesByObjectId.has(avatarId) ||
             (API.currentUser.$isVRCPlus &&
-                localAvatarFavoritesList.value.includes(avatarId));
+                favoriteStore.localAvatarFavoritesList.includes(avatarId));
         D.isBlocked = state.cachedAvatarModerations.has(avatarId);
         const ref2 = API.cachedAvatars.get(avatarId);
         if (typeof ref2 !== 'undefined') {
