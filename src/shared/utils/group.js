@@ -1,6 +1,12 @@
 import { API } from '../../app';
 import { parseLocation } from './location';
 
+/**
+ *
+ * @param {object} ref
+ * @param {string} permission
+ * @returns {boolean}
+ */
 function hasGroupPermission(ref, permission) {
     if (
         ref &&
@@ -14,6 +20,11 @@ function hasGroupPermission(ref, permission) {
     return false;
 }
 
+/**
+ *
+ * @param {string} data
+ * @returns {Promise<string>}
+ */
 async function getGroupName(data) {
     if (!data) {
         return '';

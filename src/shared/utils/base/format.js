@@ -1,5 +1,11 @@
 import { escapeTag } from './string';
 
+/**
+ *
+ * @param {number} sec
+ * @param {boolean} isNeedSeconds
+ * @returns {string}
+ */
 function timeToText(sec, isNeedSeconds = false) {
     let n = Number(sec);
     if (isNaN(n)) {
@@ -28,6 +34,12 @@ function timeToText(sec, isNeedSeconds = false) {
     return arr.join(' ');
 }
 
+/**
+ *
+ * @param {boolean} isoFormat
+ * @param {boolean} hour12
+ * @returns {function}
+ */
 async function formatDateFilter(isoFormat, hour12) {
     const currentCulture = await AppApi.CurrentCulture();
     let formatDate1;
@@ -101,6 +113,11 @@ async function formatDateFilter(isoFormat, hour12) {
     return formatDate1;
 }
 
+/**
+ *
+ * @param {number} duration
+ * @returns {string}
+ */
 function formatSeconds(duration) {
     const pad = function (num, size) {
             return `000${num}`.slice(size * -1);
@@ -116,6 +133,11 @@ function formatSeconds(duration) {
     return `${hoursOut + pad(minutes, 2)}:${pad(seconds, 2)}`;
 }
 
+/**
+ *
+ * @param {string} duration
+ * @returns {number}
+ */
 function convertYoutubeTime(duration) {
     let a = duration.match(/\d+/g);
     if (

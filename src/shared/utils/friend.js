@@ -8,6 +8,11 @@ import {
     compareByStatus
 } from './compare';
 
+/**
+ *
+ * @param {string[]} sortMethods
+ * @returns
+ */
 function getFriendsSortFunction(sortMethods) {
     const sorts = [];
     for (const sortMethod of sortMethods) {
@@ -51,6 +56,11 @@ function getFriendsSortFunction(sortMethods) {
         }
     }
 
+    /**
+     * @param {object} a
+     * @param {object} b
+     * @returns {number}
+     */
     return (a, b) => {
         let res;
         for (const sort of sorts) {
@@ -63,6 +73,12 @@ function getFriendsSortFunction(sortMethods) {
     };
 }
 
+/**
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
 function sortStatus(a, b) {
     switch (b) {
         case 'join me':
@@ -109,6 +125,11 @@ function sortStatus(a, b) {
     return 0;
 }
 
+/**
+ *
+ * @param {object} friend
+ * @returns {boolean}
+ */
 function isFriendOnline(friend) {
     if (typeof friend === 'undefined' || typeof friend.ref === 'undefined') {
         return false;

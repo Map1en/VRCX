@@ -1,5 +1,11 @@
 import { sortStatus } from './friend';
 
+/**
+ *
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByName(a, b) {
     if (typeof a.name !== 'string' || typeof b.name !== 'string') {
         return 0;
@@ -7,7 +13,12 @@ function compareByName(a, b) {
     return a.name.localeCompare(b.name);
 }
 
-// descending
+/**
+ * descending
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByCreatedAt(a, b) {
     if (typeof a.created_at !== 'string' || typeof b.created_at !== 'string') {
         return 0;
@@ -23,7 +34,12 @@ function compareByCreatedAt(a, b) {
     return 0;
 }
 
-// ascending
+/**
+ * ascending
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByCreatedAtAscending(a, b) {
     const A = a.created_at;
     const B = b.created_at;
@@ -36,7 +52,12 @@ function compareByCreatedAtAscending(a, b) {
     return 0;
 }
 
-// descending
+/**
+ * descending
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByUpdatedAt(a, b) {
     if (typeof a.updated_at !== 'string' || typeof b.updated_at !== 'string') {
         return 0;
@@ -52,7 +73,12 @@ function compareByUpdatedAt(a, b) {
     return 0;
 }
 
-// ascending
+/**
+ * ascending
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByDisplayName(a, b) {
     if (
         typeof a.displayName !== 'string' ||
@@ -63,6 +89,12 @@ function compareByDisplayName(a, b) {
     return a.displayName.localeCompare(b.displayName);
 }
 
+/**
+ *
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByMemberCount(a, b) {
     if (
         typeof a.memberCount !== 'number' ||
@@ -73,7 +105,12 @@ function compareByMemberCount(a, b) {
     return a.memberCount - b.memberCount;
 }
 
-// private
+/**
+ * private
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByPrivate(a, b) {
     if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
         return 0;
@@ -88,6 +125,12 @@ function compareByPrivate(a, b) {
     return 0;
 }
 
+/**
+ *
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByStatus(a, b) {
     if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
         return 0;
@@ -101,7 +144,12 @@ function compareByStatus(a, b) {
     return sortStatus(a.ref.status, b.ref.status);
 }
 
-// last active
+/**
+ * last active
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByLastActive(a, b) {
     if (a.state === 'online' && b.state === 'online') {
         if (
@@ -117,11 +165,23 @@ function compareByLastActive(a, b) {
     return compareByActivityField(a, b, 'last_activity');
 }
 
-// last seen
+/**
+ * last seen
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByLastSeen(a, b) {
     return compareByActivityField(a, b, '$lastSeen');
 }
 
+/**
+ *
+ * @param {object} a
+ * @param {object} b
+ * @param {string} field
+ * @returns
+ */
 function compareByActivityField(a, b, field) {
     if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
         return 0;
@@ -144,7 +204,12 @@ function compareByActivityField(a, b, field) {
     return 0;
 }
 
-// location at
+/**
+ * location at
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByLocationAt(a, b) {
     if (a.location === 'traveling' && b.location === 'traveling') {
         return 0;
@@ -164,7 +229,12 @@ function compareByLocationAt(a, b) {
     return 0;
 }
 
-// location at but for the sidebar
+/**
+ * location at but for the sidebar
+ * @param {object} a
+ * @param {object} b
+ * @returns
+ */
 function compareByLocation(a, b) {
     if (typeof a.ref === 'undefined' || typeof b.ref === 'undefined') {
         return 0;

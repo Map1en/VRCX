@@ -1,3 +1,8 @@
+/**
+ *
+ * @param {string} res
+ * @returns
+ */
 function getVRChatResolution(res) {
     switch (res) {
         case '1280x720':

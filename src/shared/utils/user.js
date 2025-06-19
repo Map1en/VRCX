@@ -5,6 +5,11 @@ import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 import { storeToRefs } from 'pinia';
 import { convertFileUrlToImageUrl } from './common';
 
+/**
+ *
+ * @param {object} ctx
+ * @returns {number}
+ */
 function userOnlineForTimestamp(ctx) {
     if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
         return ctx.ref.$online_for;
@@ -16,6 +21,11 @@ function userOnlineForTimestamp(ctx) {
     return 0;
 }
 
+/**
+ *
+ * @param {string} language
+ * @returns
+ */
 function languageClass(language) {
     const style = {};
     const mapping = languageMappings[language];
@@ -27,11 +37,21 @@ function languageClass(language) {
     return style;
 }
 
+/**
+ *
+ * @param {string} userId
+ * @returns
+ */
 async function getNameColour(userId) {
     const hue = await AppApi.GetColourFromUserID(userId);
     return HueToHex(hue);
 }
 
+/**
+ *
+ * @param {string} text
+ * @returns
+ */
 function removeEmojis(text) {
     if (!text) {
         return '';
@@ -45,6 +65,12 @@ function removeEmojis(text) {
         .trim();
 }
 
+/**
+ *
+ * @param {object} user
+ * @param {boolean} pendingOffline
+ * @returns
+ */
 function userStatusClass(user, pendingOffline) {
     const style = {};
     if (typeof user === 'undefined') {
@@ -116,6 +142,11 @@ function userStatusClass(user, pendingOffline) {
     return style;
 }
 
+/**
+ *
+ * @param {string} status
+ * @returns {object}
+ */
 function statusClass(status) {
     const style = {};
     if (typeof status !== 'undefined') {

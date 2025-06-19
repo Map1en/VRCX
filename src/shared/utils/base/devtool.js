@@ -7,6 +7,11 @@ import {
     extractVariantVersion
 } from '../common';
 
+/**
+ *
+ * @param {string} input
+ * @returns {Promise<string|null>}
+ */
 async function getBundleLocation(input) {
     const worldStore = useWorldStore();
     const { worldDialog } = storeToRefs(worldStore);

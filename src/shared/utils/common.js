@@ -8,6 +8,11 @@ import { escapeTag } from './base/string';
 import { $app } from '../../app';
 import { useInstanceStore } from '../../stores/instance';
 
+/**
+ *
+ * @param {object} unityPackages
+ * @returns
+ */
 function getAvailablePlatforms(unityPackages) {
     let isPC = false;
     let isQuest = false;
@@ -33,6 +38,10 @@ function getAvailablePlatforms(unityPackages) {
     return { isPC, isQuest, isIos };
 }
 
+/**
+ * @param {string} fileName
+ * @param {*} data
+ */
 function downloadAndSaveJson(fileName, data) {
     if (!fileName || !data) {
         return;
@@ -86,6 +95,11 @@ async function deleteVRChatCache(ref) {
     await AssetBundleManager.DeleteCache(id, version, variant, variantVersion);
 }
 
+/**
+ *
+ * @param {object} ref
+ * @returns
+ */
 async function checkVRChatCache(ref) {
     if (!ref.unityPackages) {
         return { Item1: -1, Item2: false, Item3: '' };
@@ -126,6 +140,11 @@ async function checkVRChatCache(ref) {
     );
 }
 
+/**
+ *
+ * @param {string} text
+ * @param {string} message
+ */
 function copyToClipboard(text, message = 'Copied successfully!') {
     navigator.clipboard
         .writeText(text)
@@ -141,6 +160,11 @@ function copyToClipboard(text, message = 'Copied successfully!') {
         });
 }
 
+/**
+ *
+ * @param {string} resource
+ * @returns {string}
+ */
 function getFaviconUrl(resource) {
     try {
         const url = new URL(resource);
@@ -151,6 +175,12 @@ function getFaviconUrl(resource) {
     }
 }
 
+/**
+ *
+ * @param {string} url
+ * @param {number} resolution
+ * @returns {string}
+ */
 function convertFileUrlToImageUrl(url, resolution = 128) {
     if (!url) {
         return '';
@@ -174,6 +204,11 @@ function convertFileUrlToImageUrl(url, resolution = 128) {
     return url;
 }
 
+/**
+ *
+ * @param {string} url
+ * @returns {string}
+ */
 function replaceVrcPackageUrl(url) {
     if (!url) {
         return '';
@@ -181,16 +216,31 @@ function replaceVrcPackageUrl(url) {
     return url.replace('https://api.vrchat.cloud/', 'https://vrchat.com/');
 }
 
+/**
+ *
+ * @param {string} s
+ * @returns {string}
+ */
 function extractFileId(s) {
     const match = String(s).match(/file_[0-9A-Za-z-]+/);
     return match ? match[0] : '';
 }
 
+/**
+ *
+ * @param {string} s
+ * @returns {string}
+ */
 function extractFileVersion(s) {
     const match = /(?:\/file_[0-9A-Za-z-]+\/)([0-9]+)/gi.exec(s);
     return match ? match[1] : '';
 }
 
+/**
+ *
+ * @param {string} url
+ * @returns {string}
+ */
 function extractVariantVersion(url) {
     if (!url) {
         return '0';
@@ -207,6 +257,11 @@ function extractVariantVersion(url) {
     }
 }
 
+/**
+ *
+ * @param {object} json
+ * @returns {Array}
+ */
 function buildTreeData(json) {
     const node = [];
     for (const key in json) {
@@ -266,6 +321,11 @@ function buildTreeData(json) {
     return node;
 }
 
+/**
+ *
+ * @param {string} text
+ * @returns {string}
+ */
 function replaceBioSymbols(text) {
     if (!text) {
         return '';
@@ -307,6 +367,10 @@ function replaceBioSymbols(text) {
     return newText.replace(/ {1,}/g, ' ').trimRight();
 }
 
+/**
+ *
+ * @param {string} link
+ */
 function openExternalLink(link) {
     $app.$confirm(`${link}`, 'Open External Link', {
         distinguishCancelAndClose: true,
@@ -323,6 +387,10 @@ function openExternalLink(link) {
     });
 }
 
+/**
+ *
+ * @param {string} text
+ */
 function copyLink(text) {
     $app.$message({
         message: 'Link copied to clipboard',
@@ -331,6 +399,11 @@ function copyLink(text) {
     copyToClipboard(text);
 }
 
+/**
+ *
+ * @param {object} ref
+ * @returns {Promise<object>}
+ */
 async function getBundleDateSize(ref) {
     const avatarStore = useAvatarStore();
     const { avatarDialog } = storeToRefs(avatarStore);

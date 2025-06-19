@@ -1,6 +1,11 @@
 import { API } from '../../app';
 import { replaceBioSymbols } from './common';
 
+/**
+ *
+ * @param {object} args
+ * @returns
+ */
 function storeAvatarImage(args) {
     const refCreatedAt = args.json.versions[0];
     const fileCreatedAt = refCreatedAt.created_at;
@@ -21,6 +26,11 @@ function storeAvatarImage(args) {
     return avatarInfo;
 }
 
+/**
+ *
+ * @param {string} avatar
+ * @returns {string|null}
+ */
 function parseAvatarUrl(avatar) {
     const url = new URL(avatar);
     const urlPath = url.pathname;
@@ -28,9 +38,13 @@ function parseAvatarUrl(avatar) {
         const avatarId = urlPath.substring(13);
         return avatarId;
     }
-    // return void 0;
 }
 
+/**
+ *
+ * @param {object} unityPackages
+ * @returns
+ */
 function getPlatformInfo(unityPackages) {
     let pc = {};
     let android = {};
@@ -74,6 +88,11 @@ function getPlatformInfo(unityPackages) {
     return { pc, android, ios };
 }
 
+/**
+ *
+ * @param {string} unitySortNumber
+ * @returns {boolean}
+ */
 function compareUnityVersion(unitySortNumber) {
     if (!API.cachedConfig.sdkUnityVersion) {
         console.error('No cachedConfig.sdkUnityVersion');

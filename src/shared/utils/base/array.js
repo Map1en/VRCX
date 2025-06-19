@@ -1,3 +1,9 @@
+/**
+ *
+ * @param {array} array
+ * @param {*} item
+ * @returns {boolean}
+ */
 function removeFromArray(array, item) {
     const { length } = array;
     for (let i = 0; i < length; ++i) {
@@ -9,6 +15,12 @@ function removeFromArray(array, item) {
     return false;
 }
 
+/**
+ *
+ * @param {array} a
+ * @param {array} b
+ * @returns {boolean}
+ */
 function arraysMatch(a, b) {
     if (!Array.isArray(a) || !Array.isArray(b)) {
         return false;
@@ -22,6 +34,13 @@ function arraysMatch(a, b) {
     );
 }
 
+/**
+ *
+ * @param {array} array
+ * @param {number} fromIndex
+ * @param {number} toIndex
+ * @returns {void}
+ */
 function moveArrayItem(array, fromIndex, toIndex) {
     if (!Array.isArray(array) || fromIndex === toIndex) {
         return;

@@ -1,8 +1,18 @@
+/**
+ *
+ * @param {string} tag
+ * @returns {string}
+ */
 function escapeTag(tag) {
     const s = String(tag);
     return s.replace(/["&'<>]/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
+/**
+ *
+ * @param {object} obj
+ * @returns {object}
+ */
 function escapeTagRecursive(obj) {
     if (typeof obj === 'string') {
         return escapeTag(obj);
@@ -15,6 +25,11 @@ function escapeTagRecursive(obj) {
     return obj;
 }
 
+/**
+ *
+ * @param {string} text
+ * @returns {string}
+ */
 function textToHex(text) {
     const s = String(text);
     return s
@@ -23,6 +38,11 @@ function textToHex(text) {
         .join(' ');
 }
 
+/**
+ *
+ * @param {number} num
+ * @returns {string}
+ */
 function commaNumber(num) {
     if (!num) {
         return '0';
@@ -31,6 +51,13 @@ function commaNumber(num) {
     return s.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
 
+/**
+ *
+ * @param {string} str
+ * @param {string} search
+ * @param {object} comparer
+ * @returns {boolean}
+ */
 function localeIncludes(str, search, comparer) {
     // These checks are stolen from https://stackoverflow.com/a/69623589/11030436
     if (search === '') {
@@ -58,6 +85,12 @@ function localeIncludes(str, search, comparer) {
     }
     return false;
 }
+
+/**
+ *
+ * @param {string} text
+ * @returns {string}
+ */
 function changeLogRemoveLinks(text) {
     return text.replace(/([^!])\[[^\]]+\]\([^)]+\)/g, '$1');
 }

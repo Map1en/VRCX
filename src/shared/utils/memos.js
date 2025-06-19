@@ -2,6 +2,9 @@ import { storeToRefs } from 'pinia';
 import database from '../../service/database.js';
 import { useFriendStore } from '../../stores/friend';
 
+/**
+ * @returns {Promise<void>}
+ */
 async function migrateMemos() {
     var json = JSON.parse(await VRCXStorage.GetAll());
     for (var line in json) {
@@ -16,6 +19,11 @@ async function migrateMemos() {
     }
 }
 
+/**
+ *
+ * @param {string} userId
+ * @returns
+ */
 async function getUserMemo(userId) {
     try {
         return await database.getUserMemo(userId);
@@ -29,6 +37,11 @@ async function getUserMemo(userId) {
     }
 }
 
+/**
+ *
+ * @param {string} id
+ * @param {string} memo
+ */
 async function saveUserMemo(id, memo) {
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -53,6 +66,9 @@ async function saveUserMemo(id, memo) {
     }
 }
 
+/**
+ * @returns {Promise<void>}
+ */
 async function getAllUserMemos() {
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -70,6 +86,11 @@ async function getAllUserMemos() {
     });
 }
 
+/**
+ *
+ * @param {string} worldId
+ * @returns
+ */
 async function getWorldMemo(worldId) {
     try {
         return await database.getWorldMemo(worldId);

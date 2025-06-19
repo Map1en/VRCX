@@ -7,3 +7,4 @@ export * from './vrchatResolutions';
 export * from './groupDialog';
 export * from './userDialog';
 export * from './instance';
+export * from './world';

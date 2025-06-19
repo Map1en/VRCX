@@ -1,3 +1,8 @@
+/**
+ *
+ * @param {object} print
+ * @returns
+ */
 function getPrintFileName(print) {
     const authorName = print.authorName;
     // fileDate format: 2024-11-03_16-14-25.757
@@ -11,6 +16,11 @@ function getPrintFileName(print) {
     return fileName;
 }
 
+/**
+ *
+ * @param {object} print
+ * @returns
+ */
 function getPrintLocalDate(print) {
     if (print.createdAt) {
         const createdAt = new Date(print.createdAt);

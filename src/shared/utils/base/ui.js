@@ -1,10 +1,19 @@
 import { storeToRefs } from 'pinia';
 import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
+/**
+ *
+ * @returns {boolean}
+ */
 function systemIsDarkMode() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
+/**
+ *
+ * @param {string} themeMode
+ * @returns
+ */
 function changeAppThemeStyle(themeMode) {
     const themeStyle = {};
     switch (themeMode) {
@@ -80,8 +89,11 @@ function changeAppThemeStyle(themeMode) {
     }
 }
 
-// CJK character in Japanese, Korean, Chinese are different
-// so change font-family order when users change language to display CJK character correctly
+/**
+ * CJK character in Japanese, Korean, Chinese are different
+ * so change font-family order when users change language to display CJK character correctly
+ * @param {string} lang
+ */
 function changeCJKFontsOrder(lang) {
     const otherFonts = window
         .getComputedStyle(document.body)
@@ -105,6 +117,10 @@ function changeCJKFontsOrder(lang) {
     }
 }
 
+/**
+ *
+ * @param {object} trustColor
+ */
 function updateTrustColorClasses(trustColor) {
     if (document.getElementById('trustColor') !== null) {
         document.getElementById('trustColor').outerHTML = '';
@@ -151,6 +167,11 @@ function refreshCustomScript() {
     });
 }
 
+/**
+ *
+ * @param {number} hue
+ * @returns {string}
+ */
 function HueToHex(hue) {
     const appSettingsStore = useAppearanceSettingsStore();
     const { isDarkMode } = storeToRefs(appSettingsStore);
@@ -161,6 +182,13 @@ function HueToHex(hue) {
     return HSVtoRGB(hue / 65535, 1, 0.7);
 }
 
+/**
+ *
+ * @param {number} h
+ * @param {number} s
+ * @param {number} v
+ * @returns {string}
+ */
 function HSVtoRGB(h, s, v) {
     let r = 0;
     let g = 0;

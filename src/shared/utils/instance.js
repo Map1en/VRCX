@@ -2,6 +2,10 @@ import { instanceRequest } from '../../api';
 import { parseLocation } from './location';
 
 // TODO: launch, invite, refresh, etc. buttons, better to split into one component
+/**
+ *
+ * @param {object} instance
+ */
 function refreshInstancePlayerCount(instance) {
     const L = parseLocation(instance);
     if (L.isRealInstance) {
@@ -12,6 +16,11 @@ function refreshInstancePlayerCount(instance) {
     }
 }
 
+/**
+ *
+ * @param {string} instanceId
+ * @returns
+ */
 function isRealInstance(instanceId) {
     if (!instanceId) {
         return false;
@@ -30,6 +39,11 @@ function isRealInstance(instanceId) {
     return true;
 }
 
+/**
+ *
+ * @param {object} instance
+ * @returns {string}
+ */
 function getLaunchURL(instance) {
     const L = instance;
     if (L.instanceId) {

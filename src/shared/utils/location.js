@@ -2,6 +2,13 @@ import { storeToRefs } from 'pinia';
 import { $app, API } from '../../app';
 import { useLocationStore } from '../../stores/location';
 
+/**
+ *
+ * @param {string} location
+ * @param {string} worldName
+ * @param {string} groupName
+ * @returns {string}
+ */
 function displayLocation(location, worldName, groupName) {
     let text = worldName;
     const L = parseLocation(location);
@@ -21,6 +28,11 @@ function displayLocation(location, worldName, groupName) {
     return text;
 }
 
+/**
+ *
+ * @param {string} tag
+ * @returns {object}
+ */
 function parseLocation(tag) {
     let _tag = String(tag || '');
     const ctx = {
@@ -133,6 +145,11 @@ function parseLocation(tag) {
     return ctx;
 }
 
+/**
+ *
+ * @param {string} location
+ * @returns
+ */
 function checkCanInvite(location) {
     const locationStore = useLocationStore();
     const { lastLocation } = storeToRefs(locationStore);
@@ -157,6 +174,11 @@ function checkCanInvite(location) {
     return false;
 }
 
+/**
+ *
+ * @param {string} location
+ * @returns
+ */
 function checkCanInviteSelf(location) {
     const L = parseLocation(location);
     const instance = $app.store.instance.cachedInstances.get(location);
