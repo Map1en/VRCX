@@ -1,12 +1,13 @@
 import { defineStore, storeToRefs } from 'pinia';
-import { computed, reactive } from 'vue';
-import { instanceRequest, worldRequest } from '../api';
-import { $app } from '../app';
-import API from '../classes/apiInit';
+import Vue, { computed, reactive } from 'vue';
+import { instanceRequest, userRequest, worldRequest } from '../api';
+import { $app, API } from '../app';
 import configRepository from '../service/config';
 import { instanceContentSettings } from '../shared/constants';
 import {
     checkVRChatCache,
+    compareByDisplayName,
+    compareByLocationAt,
     getAvailablePlatforms,
     getBundleDateSize,
     hasGroupPermission,
@@ -14,8 +15,22 @@ import {
     parseLocation
 } from '../shared/utils';
 import { useLocationStore } from './location';
+import { useWorldStore } from './world';
+import { useFriendStore } from './friend';
+import { useAppearanceSettingsStore } from './settings/appearance';
 
 export const useInstanceStore = defineStore('Instance', () => {
+    const locationStore = useLocationStore();
+    const { lastLocation } = storeToRefs(locationStore);
+    const worldStore = useWorldStore();
+    const { worldDialog } = storeToRefs(worldStore);
+    const friendStore = useFriendStore();
+    const { friends } = storeToRefs(friendStore);
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { instanceUsersSortAlphabetical } = storeToRefs(
+        appearanceSettingsStore
+    );
     const state = reactive({
         cachedInstances: new Map(),
         currentInstanceWorld: {
@@ -58,8 +73,6 @@ export const useInstanceStore = defineStore('Instance', () => {
     });
 
     function updateCurrentInstanceWorld() {
-        const locationStore = useLocationStore();
-        const { lastLocation } = storeToRefs(locationStore);
         let L;
         let instanceId = lastLocation.value.location;
         if (lastLocation.value.location === 'traveling') {
@@ -372,6 +385,201 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
     }
 
+    function applyWorldDialogInstances() {
+        let ref;
+        let instance;
+        const D = worldDialog.value;
+        if (!D.visible) {
+            return;
+        }
+        const instances = {};
+        if (D.ref.instances) {
+            for (instance of D.ref.instances) {
+                // instance = [ instanceId, occupants ]
+                const instanceId = instance[0];
+                instances[instanceId] = {
+                    id: instanceId,
+                    tag: `${D.id}:${instanceId}`,
+                    $location: {},
+                    friendCount: 0,
+                    users: [],
+                    shortName: '',
+                    ref: {}
+                };
+            }
+        }
+        const { instanceId, shortName } = D.$location;
+        if (instanceId && typeof instances[instanceId] === 'undefined') {
+            instances[instanceId] = {
+                id: instanceId,
+                tag: `${D.id}:${instanceId}`,
+                $location: {},
+                friendCount: 0,
+                users: [],
+                shortName,
+                ref: {}
+            };
+        }
+        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const lastLocation$ = cachedCurrentUser.$location;
+        const playersInInstance = lastLocation.value.playerList;
+        if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
+            // pull instance json from cache
+            const friendsInInstance = lastLocation.value.friendList;
+            instance = {
+                id: lastLocation$.instanceId,
+                tag: lastLocation$.tag,
+                $location: {},
+                friendCount: friendsInInstance.size,
+                users: [],
+                shortName: '',
+                ref: {}
+            };
+            instances[instance.id] = instance;
+            for (const friend of friendsInInstance.values()) {
+                // if friend isn't in instance add them
+                const addUser = !instance.users.some(function (user) {
+                    return friend.userId === user.id;
+                });
+                if (addUser) {
+                    ref = API.cachedUsers.get(friend.userId);
+                    if (typeof ref !== 'undefined') {
+                        instance.users.push(ref);
+                    }
+                }
+            }
+        }
+        for (const friend of friends.value.values()) {
+            const { ref } = friend;
+            if (
+                typeof ref === 'undefined' ||
+                typeof ref.$location === 'undefined' ||
+                ref.$location.worldId !== D.id ||
+                (ref.$location.instanceId === lastLocation$.instanceId &&
+                    playersInInstance.size > 0 &&
+                    ref.location !== 'traveling')
+            ) {
+                continue;
+            }
+            if (ref.location === lastLocation.value.location) {
+                // don't add friends to currentUser gameLog instance (except when traveling)
+                continue;
+            }
+            const { instanceId } = ref.$location;
+            instance = instances[instanceId];
+            if (typeof instance === 'undefined') {
+                instance = {
+                    id: instanceId,
+                    tag: `${D.id}:${instanceId}`,
+                    $location: {},
+                    friendCount: 0,
+                    users: [],
+                    shortName: '',
+                    ref: {}
+                };
+                instances[instanceId] = instance;
+            }
+            instance.users.push(ref);
+        }
+        ref = API.cachedUsers.get(API.currentUser.id);
+        if (typeof ref !== 'undefined' && ref.$location.worldId === D.id) {
+            const { instanceId } = ref.$location;
+            instance = instances[instanceId];
+            if (typeof instance === 'undefined') {
+                instance = {
+                    id: instanceId,
+                    tag: `${D.id}:${instanceId}`,
+                    $location: {},
+                    friendCount: 0,
+                    users: [],
+                    shortName: '',
+                    ref: {}
+                };
+                instances[instanceId] = instance;
+            }
+            instance.users.push(ref); // add self
+        }
+        const rooms = [];
+        for (instance of Object.values(instances)) {
+            // due to references on callback of API.getUser()
+            // this should be block scope variable
+            const L = parseLocation(`${D.id}:${instance.id}`);
+            instance.location = L.tag;
+            if (!L.shortName) {
+                L.shortName = instance.shortName;
+            }
+            instance.$location = L;
+            if (L.userId) {
+                ref = API.cachedUsers.get(L.userId);
+                if (typeof ref === 'undefined') {
+                    userRequest
+                        .getUser({
+                            userId: L.userId
+                        })
+                        .then((args) => {
+                            Vue.set(L, 'user', args.ref);
+                            return args;
+                        });
+                } else {
+                    L.user = ref;
+                }
+            }
+            if (instance.friendCount === 0) {
+                instance.friendCount = instance.users.length;
+            }
+            if (instanceUsersSortAlphabetical.value) {
+                instance.users.sort(compareByDisplayName);
+            } else {
+                instance.users.sort(compareByLocationAt);
+            }
+            rooms.push(instance);
+        }
+        // get instance from cache
+        for (const room of rooms) {
+            ref = state.cachedInstances.get(room.tag);
+            if (typeof ref !== 'undefined') {
+                room.ref = ref;
+            }
+        }
+        rooms.sort(function (a, b) {
+            // sort selected and current instance to top
+            if (
+                b.location === D.$location.tag ||
+                b.location === lastLocation$.tag
+            ) {
+                // sort selected instance above current instance
+                if (a.location === D.$location.tag) {
+                    return -1;
+                }
+                return 1;
+            }
+            if (
+                a.location === D.$location.tag ||
+                a.location === lastLocation$.tag
+            ) {
+                // sort selected instance above current instance
+                if (b.location === D.$location.tag) {
+                    return 1;
+                }
+                return -1;
+            }
+            // sort by number of users when no friends in instance
+            if (a.users.length === 0 && b.users.length === 0) {
+                if (a.ref?.userCount < b.ref?.userCount) {
+                    return 1;
+                }
+                return -1;
+            }
+            // sort by number of friends in instance
+            if (a.users.length < b.users.length) {
+                return 1;
+            }
+            return -1;
+        });
+        D.rooms = rooms;
+        $app.updateTimers();
+    }
+
     return {
         state,
         cachedInstances,
@@ -379,6 +587,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         currentInstanceLocation,
         applyInstance,
         updateCurrentInstanceWorld,
-        createNewInstance
+        createNewInstance,
+        applyWorldDialogInstances
     };
 });

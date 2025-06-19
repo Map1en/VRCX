@@ -682,7 +682,7 @@ API.$on('INSTANCE', function (args) {
         $app.store.world.worldDialog.visible &&
         $app.store.world.worldDialog.id === args.json.worldId
     ) {
-        $app.applyWorldDialogInstances();
+        $app.store.instance.applyWorldDialogInstances();
     }
     if (
         $app.store.group.groupDialog.visible &&
@@ -2026,7 +2026,7 @@ $app.methods.loadPlayerList = function () {
         this.updateVRLastLocation();
         this.getCurrentInstanceUserList();
         this.applyUserDialogLocation();
-        this.applyWorldDialogInstances();
+        this.store.instance.applyWorldDialogInstances();
         this.store.group.applyGroupDialogInstances();
     }
 };
@@ -2070,7 +2070,7 @@ API.$on('USER:UPDATE', async function (args) {
         props.location &&
         ref.$location.worldId === $app.store.world.worldDialog.id
     ) {
-        $app.applyWorldDialogInstances();
+        $app.store.instance.applyWorldDialogInstances();
     }
     if (
         props.location &&
@@ -2379,7 +2379,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
     this.lastVideoUrl = '';
     this.lastResourceloadUrl = '';
     this.applyUserDialogLocation();
-    this.applyWorldDialogInstances();
+    this.store.instance.applyWorldDialogInstances();
     this.store.group.applyGroupDialogInstances();
 };
 
@@ -4525,7 +4525,7 @@ API.$on('WORLD', function (args) {
         'feature_avatar_scaling_disabled'
     );
     D.focusViewDisabled = ref.tags?.includes('feature_focus_view_disabled');
-    $app.applyWorldDialogInstances();
+    $app.store.instance.applyWorldDialogInstances();
     for (let room of D.rooms) {
         if (isRealInstance(room.tag)) {
             instanceRequest.getInstance({
@@ -4557,201 +4557,6 @@ API.$on('FAVORITE:@DELETE', function (args) {
     }
     D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(D.id);
 });
-
-$app.methods.applyWorldDialogInstances = function () {
-    let ref;
-    let instance;
-    const D = this.store.world.worldDialog;
-    if (!D.visible) {
-        return;
-    }
-    const instances = {};
-    if (D.ref.instances) {
-        for (instance of D.ref.instances) {
-            // instance = [ instanceId, occupants ]
-            const instanceId = instance[0];
-            instances[instanceId] = {
-                id: instanceId,
-                tag: `${D.id}:${instanceId}`,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: '',
-                ref: {}
-            };
-        }
-    }
-    const { instanceId, shortName } = D.$location;
-    if (instanceId && typeof instances[instanceId] === 'undefined') {
-        instances[instanceId] = {
-            id: instanceId,
-            tag: `${D.id}:${instanceId}`,
-            $location: {},
-            friendCount: 0,
-            users: [],
-            shortName,
-            ref: {}
-        };
-    }
-    const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-    const lastLocation$ = cachedCurrentUser.$location;
-    const playersInInstance = this.store.location.lastLocation.playerList;
-    if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
-        // pull instance json from cache
-        const friendsInInstance = this.store.location.lastLocation.friendList;
-        instance = {
-            id: lastLocation$.instanceId,
-            tag: lastLocation$.tag,
-            $location: {},
-            friendCount: friendsInInstance.size,
-            users: [],
-            shortName: '',
-            ref: {}
-        };
-        instances[instance.id] = instance;
-        for (const friend of friendsInInstance.values()) {
-            // if friend isn't in instance add them
-            const addUser = !instance.users.some(function (user) {
-                return friend.userId === user.id;
-            });
-            if (addUser) {
-                ref = API.cachedUsers.get(friend.userId);
-                if (typeof ref !== 'undefined') {
-                    instance.users.push(ref);
-                }
-            }
-        }
-    }
-    for (const friend of this.store.friend.friends.values()) {
-        const { ref } = friend;
-        if (
-            typeof ref === 'undefined' ||
-            typeof ref.$location === 'undefined' ||
-            ref.$location.worldId !== D.id ||
-            (ref.$location.instanceId === lastLocation$.instanceId &&
-                playersInInstance.size > 0 &&
-                ref.location !== 'traveling')
-        ) {
-            continue;
-        }
-        if (ref.location === this.store.location.lastLocation.location) {
-            // don't add friends to currentUser gameLog instance (except when traveling)
-            continue;
-        }
-        const { instanceId } = ref.$location;
-        instance = instances[instanceId];
-        if (typeof instance === 'undefined') {
-            instance = {
-                id: instanceId,
-                tag: `${D.id}:${instanceId}`,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: '',
-                ref: {}
-            };
-            instances[instanceId] = instance;
-        }
-        instance.users.push(ref);
-    }
-    ref = API.cachedUsers.get(API.currentUser.id);
-    if (typeof ref !== 'undefined' && ref.$location.worldId === D.id) {
-        const { instanceId } = ref.$location;
-        instance = instances[instanceId];
-        if (typeof instance === 'undefined') {
-            instance = {
-                id: instanceId,
-                tag: `${D.id}:${instanceId}`,
-                $location: {},
-                friendCount: 0,
-                users: [],
-                shortName: '',
-                ref: {}
-            };
-            instances[instanceId] = instance;
-        }
-        instance.users.push(ref); // add self
-    }
-    const rooms = [];
-    for (instance of Object.values(instances)) {
-        // due to references on callback of API.getUser()
-        // this should be block scope variable
-        const L = parseLocation(`${D.id}:${instance.id}`);
-        instance.location = L.tag;
-        if (!L.shortName) {
-            L.shortName = instance.shortName;
-        }
-        instance.$location = L;
-        if (L.userId) {
-            ref = API.cachedUsers.get(L.userId);
-            if (typeof ref === 'undefined') {
-                userRequest
-                    .getUser({
-                        userId: L.userId
-                    })
-                    .then((args) => {
-                        Vue.set(L, 'user', args.ref);
-                        return args;
-                    });
-            } else {
-                L.user = ref;
-            }
-        }
-        if (instance.friendCount === 0) {
-            instance.friendCount = instance.users.length;
-        }
-        if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
-            instance.users.sort(compareByDisplayName);
-        } else {
-            instance.users.sort(compareByLocationAt);
-        }
-        rooms.push(instance);
-    }
-    // get instance from cache
-    for (const room of rooms) {
-        ref = $app.store.instance.cachedInstances.get(room.tag);
-        if (typeof ref !== 'undefined') {
-            room.ref = ref;
-        }
-    }
-    rooms.sort(function (a, b) {
-        // sort selected and current instance to top
-        if (
-            b.location === D.$location.tag ||
-            b.location === lastLocation$.tag
-        ) {
-            // sort selected instance above current instance
-            if (a.location === D.$location.tag) {
-                return -1;
-            }
-            return 1;
-        }
-        if (
-            a.location === D.$location.tag ||
-            a.location === lastLocation$.tag
-        ) {
-            // sort selected instance above current instance
-            if (b.location === D.$location.tag) {
-                return 1;
-            }
-            return -1;
-        }
-        // sort by number of users when no friends in instance
-        if (a.users.length === 0 && b.users.length === 0) {
-            if (a.ref?.userCount < b.ref?.userCount) {
-                return 1;
-            }
-            return -1;
-        }
-        // sort by number of friends in instance
-        if (a.users.length < b.users.length) {
-            return 1;
-        }
-        return -1;
-    });
-    D.rooms = rooms;
-    this.updateTimers();
-};
 
 $app.methods.worldDialogCommand = function (command) {
     const D = this.store.world.worldDialog;
@@ -6014,7 +5819,7 @@ $app.methods.updateCurrentUserLocation = function () {
         ref.$location_at = API.currentUser.$location_at;
         ref.$travelingToTime = API.currentUser.$travelingToTime;
         this.applyUserDialogLocation();
-        this.applyWorldDialogInstances();
+        this.store.instance.applyWorldDialogInstances();
         this.store.group.applyGroupDialogInstances();
     } else {
         ref.$location_at = this.store.location.lastLocation.date;
@@ -6074,7 +5879,7 @@ $app.methods.setCurrentUserLocation = async function (
         this.addInstanceJoinHistory(location, dt);
 
         this.applyUserDialogLocation();
-        this.applyWorldDialogInstances();
+        this.store.instance.applyWorldDialogInstances();
         this.store.group.applyGroupDialogInstances();
     } else {
         this.store.location.lastLocation.location = '';

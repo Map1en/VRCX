@@ -191,7 +191,7 @@ export default function init() {
                 JSON.stringify(wristFeed)
             );
             this.applyUserDialogLocation();
-            this.applyWorldDialogInstances();
+            this.store.instance.applyWorldDialogInstances();
             this.store.group.applyGroupDialogInstances();
             feeds.pendingUpdate = false;
         },

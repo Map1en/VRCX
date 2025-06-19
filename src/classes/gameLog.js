@@ -74,7 +74,7 @@ export default function init() {
                         this.clearNowPlaying();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.applyUserDialogLocation();
-                        this.applyWorldDialogInstances();
+                        this.store.instance.applyWorldDialogInstances();
                         this.store.group.applyGroupDialogInstances();
                     }
                     break;
@@ -99,7 +99,7 @@ export default function init() {
                         this.updateVRLastLocation();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.applyUserDialogLocation();
-                        this.applyWorldDialogInstances();
+                        this.store.instance.applyWorldDialogInstances();
                         this.store.group.applyGroupDialogInstances();
                     }
                     this.addInstanceJoinHistory(gameLog.location, gameLog.dt);
