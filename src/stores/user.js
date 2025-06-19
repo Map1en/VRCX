@@ -78,7 +78,6 @@ export const useUserStore = defineStore('User', () => {
                 name: 'dialog.user.worlds.order.descending',
                 value: 'descending'
             },
-            // because userDialogGroupSortingOptions, just i18n key
             groupSorting: {
                 name: 'dialog.user.groups.sorting.alphabetical',
                 value: 'alphabetical'

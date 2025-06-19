@@ -3,7 +3,6 @@ export * from './feedFiltersOptions';
 export * from './language';
 export * from './openSourceSoftwareLicenses';
 export * from './photon';
-export * from './userDialogGroupSortingOptions';
 export * from './vrchatResolutions';
 export * from './groupDialogOptions';
-export * from './userDialogWorldOptions';
+export * from './userDialog';
