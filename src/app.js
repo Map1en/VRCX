@@ -688,7 +688,7 @@ API.$on('INSTANCE', function (args) {
         $app.store.group.groupDialog.visible &&
         $app.store.group.groupDialog.id === args.json.ownerId
     ) {
-        $app.store.group.applyGroupDialogInstances();
+        $app.store.instance.applyGroupDialogInstances();
     }
 
     // FIXME:
@@ -2027,7 +2027,7 @@ $app.methods.loadPlayerList = function () {
         this.getCurrentInstanceUserList();
         this.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
-        this.store.group.applyGroupDialogInstances();
+        this.store.instance.applyGroupDialogInstances();
     }
 };
 
@@ -2076,7 +2076,7 @@ API.$on('USER:UPDATE', async function (args) {
         props.location &&
         ref.$location.groupId === $app.store.group.groupDialog.id
     ) {
-        $app.store.group.applyGroupDialogInstances();
+        $app.store.instance.applyGroupDialogInstances();
     }
     if (
         !props.state &&
@@ -2380,7 +2380,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
     this.lastResourceloadUrl = '';
     this.applyUserDialogLocation();
     this.store.instance.applyWorldDialogInstances();
-    this.store.group.applyGroupDialogInstances();
+    this.store.instance.applyGroupDialogInstances();
 };
 
 $app.data.lastLocation$ = {
@@ -5820,7 +5820,7 @@ $app.methods.updateCurrentUserLocation = function () {
         ref.$travelingToTime = API.currentUser.$travelingToTime;
         this.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
-        this.store.group.applyGroupDialogInstances();
+        this.store.instance.applyGroupDialogInstances();
     } else {
         ref.$location_at = this.store.location.lastLocation.date;
         ref.$travelingToTime = this.lastLocationDestinationTime;
@@ -5880,7 +5880,7 @@ $app.methods.setCurrentUserLocation = async function (
 
         this.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
-        this.store.group.applyGroupDialogInstances();
+        this.store.instance.applyGroupDialogInstances();
     } else {
         this.store.location.lastLocation.location = '';
         this.store.location.lastLocation.date = '';

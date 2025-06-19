@@ -192,7 +192,7 @@ export default function init() {
             );
             this.applyUserDialogLocation();
             this.store.instance.applyWorldDialogInstances();
-            this.store.group.applyGroupDialogInstances();
+            this.store.instance.applyGroupDialogInstances();
             feeds.pendingUpdate = false;
         },
 
