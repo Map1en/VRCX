@@ -533,7 +533,7 @@ export default function init() {
                     }
                 } else if (contentType === 'print') {
                     if (
-                        $app.autoDeleteOldPrints &&
+                        $app.store.advancedSettings.autoDeleteOldPrints &&
                         content.actionType === 'created'
                     ) {
                         $app.store.gallery.tryDeleteOldPrints();

@@ -1296,19 +1296,19 @@
                     <simple-switch
                         :label="$t('view.settings.advanced.advanced.screenshot_helper.enable')"
                         :value="screenshotHelper"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelper')"
+                        @change="setScreenshotHelper()"
                         :long-label="true"></simple-switch>
                     <simple-switch
                         :label="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
                         :value="screenshotHelperModifyFilename"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelperModifyFilename')"
+                        @change="setScreenshotHelperModifyFilename()"
                         :disabled="!screenshotHelper"
                         :tooltip="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
                         :long-label="true"></simple-switch>
                     <simple-switch
                         :label="$t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
                         :value="screenshotHelperCopyToClipboard"
-                        @change="saveScreenshotHelper('VRCX_screenshotHelperCopyToClipboard')"
+                        @change="setScreenshotHelperCopyToClipboard()"
                         :long-label="true"></simple-switch>
                 </div>
 
@@ -1361,13 +1361,13 @@
                         <simple-switch
                             :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
                             :value="saveInstancePrints"
-                            @change="saveVRCXWindowOption('VRCX_saveInstancePrints')"
-                            :long-label="true"></simple-switch>
+                            @change="setSaveInstancePrints()"
+                            :long-label="true" />
                         <simple-switch
                             :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
                             :value="cropInstancePrints"
-                            @change="saveVRCXWindowOption('VRCX_cropInstancePrints')"
-                            :long-label="true"></simple-switch>
+                            @change="setCropInstancePrints()"
+                            :long-label="true" />
                         <br />
                         <span class="sub-header">{{
                             $t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
@@ -1375,8 +1375,8 @@
                         <simple-switch
                             :label="$t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
                             :value="saveInstanceStickers"
-                            @change="saveVRCXWindowOption('VRCX_saveInstanceStickers')"
-                            :long-label="true"></simple-switch>
+                            @change="setSaveInstanceStickers()"
+                            :long-label="true" />
                     </div>
                 </div>
             </el-tab-pane>
@@ -2090,7 +2090,8 @@
         sqliteTableSizes,
         youTubeApiKey,
         ugcFolderPath,
-        notificationOpacity
+        notificationOpacity,
+        autoDeleteOldPrints
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2115,7 +2116,9 @@
         setGameLogDisabled,
 
         getSqliteTableSizes,
-        setNotificationOpacity
+        setNotificationOpacity,
+        setAutoDeleteOldPrints,
+        setScreenshotHelperModifyFilename
     } = advancedSettingsStore;
 
     const {
