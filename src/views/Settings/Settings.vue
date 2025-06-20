@@ -894,7 +894,7 @@
                             t('view.settings.notifications.notifications.steamvr_notifications.notification_opacity')
                         }}</span>
                         <el-slider
-                            v-model="notificationOpacity"
+                            :value="notificationOpacity"
                             @input="setNotificationOpacity"
                             :show-tooltip="false"
                             :min="0"
@@ -1318,7 +1318,7 @@
                         <simple-switch
                             :label="$t('view.settings.pictures.pictures.auto_delete_prints_from_vrc')"
                             :value="autoDeleteOldPrints"
-                            @change="saveOpenVROption('VRCX_autoDeleteOldPrints')"
+                            @change="setAutoDeleteOldPrints()"
                             :long-label="true" />
                     </div>
                 </div>
