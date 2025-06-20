@@ -531,14 +531,12 @@ export default function init() {
                     ) {
                         $app.store.gallery.refreshEmojiTable();
                     }
-                } else if (
-                    contentType === 'print'
-                ) {
+                } else if (contentType === 'print') {
                     if (
                         $app.autoDeleteOldPrints &&
                         content.actionType === 'created'
                     ) {
-                        $app.tryDeleteOldPrints();
+                        $app.store.gallery.tryDeleteOldPrints();
                     } else if (
                         $app.store.gallery.galleryDialogVisible &&
                         !$app.store.gallery.galleryDialogPrintsLoading

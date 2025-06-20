@@ -1,3 +1,4 @@
+import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
@@ -9,8 +10,8 @@ import {
 } from '../api';
 import { $app, $t } from '../app';
 import API from '../classes/apiInit';
+import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
 import { useAdvancedSettingsStore } from './settings/advanced';
-import { getPrintLocalDate, getPrintFileName } from '../shared/utils';
 
 export const useGalleryStore = defineStore('Gallery', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -164,7 +165,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
     API.$on('FILES:LIST', function (args) {
         if (args.params.tag === 'gallery') {
             state.galleryTable = args.json.reverse();
-            state.galleryDialogGalleryLoading = false;
         }
     });
 
@@ -190,7 +190,9 @@ export const useGalleryStore = defineStore('Gallery', () => {
             n: 100,
             tag: 'gallery'
         };
-        vrcPlusIconRequest.getFileList(params);
+        vrcPlusIconRequest.getFileList(params).finally(() => {
+            this.galleryDialogGalleryLoading = false;
+        });
     }
 
     API.$on('LOGIN', function () {
@@ -203,13 +205,14 @@ export const useGalleryStore = defineStore('Gallery', () => {
             n: 100,
             tag: 'icon'
         };
-        vrcPlusIconRequest.getFileList(params);
+        vrcPlusIconRequest.getFileList(params).finally(() => {
+            state.galleryDialogIconsLoading = false;
+        });
     }
 
     API.$on('FILES:LIST', function (args) {
         if (args.params.tag === 'icon') {
             state.VRCPlusIconsTable = args.json.reverse();
-            state.galleryDialogIconsLoading = false;
         }
     });
 
@@ -266,7 +269,9 @@ export const useGalleryStore = defineStore('Gallery', () => {
             n: 100,
             tag: 'sticker'
         };
-        vrcPlusIconRequest.getFileList(params);
+        vrcPlusIconRequest.getFileList(params).finally(() => {
+            this.galleryDialogStickersLoading = false;
+        });
     }
 
     API.$on('FILES:LIST', function (args) {
@@ -310,14 +315,27 @@ export const useGalleryStore = defineStore('Gallery', () => {
 
     API.$on('LOGIN', function () {
         state.printTable = [];
+        if (advancedSettingsStore.autoDeleteOldPrints) {
+            tryDeleteOldPrints();
+        }
     });
 
-    function refreshPrintTable() {
+    async function refreshPrintTable() {
         state.galleryDialogPrintsLoading = true;
         const params = {
             n: 100
         };
-        vrcPlusImageRequest.getPrints(params);
+        try {
+            const args = await vrcPlusImageRequest.getPrints(params);
+            args.json.sort((a, b) => {
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+            state.printTable = args.json;
+        } catch (error) {
+            console.error('Error fetching prints:', error);
+        } finally {
+            state.galleryDialogPrintsLoading = false;
+        }
     }
 
     API.$on('PRINT:LIST', function (args) {
@@ -401,7 +419,9 @@ export const useGalleryStore = defineStore('Gallery', () => {
             n: 100,
             tag: 'emoji'
         };
-        vrcPlusIconRequest.getFileList(params);
+        vrcPlusIconRequest.getFileList(params).finally(() => {
+            state.galleryDialogEmojisLoading = false;
+        });
     }
 
     API.$on('FILES:LIST', function (args) {
@@ -450,6 +470,41 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     }
 
+    async function tryDeleteOldPrints() {
+        await refreshPrintTable();
+        const printLimit = 64 - 2; // 2 reserved for new prints
+        const printCount = state.printTable.length;
+        if (printCount <= printLimit) {
+            return;
+        }
+        const deleteCount = printCount - printLimit;
+        if (deleteCount <= 0) {
+            return;
+        }
+        const idList = [];
+        for (let i = 0; i < deleteCount; i++) {
+            const print = state.printTable[printCount - 1 - i];
+            idList.push(print.id);
+        }
+        console.log(`Deleting ${deleteCount} old prints`, idList);
+        try {
+            for (const printId of idList) {
+                await vrcPlusImageRequest.deletePrint(printId);
+                const text = `Old print automatically deleted: ${printId}`;
+                if ($app.errorNoty) {
+                    $app.errorNoty.close();
+                }
+                $app.errorNoty = new Noty({
+                    type: 'info',
+                    text
+                }).show();
+            }
+        } catch (err) {
+            console.error('Failed to delete old print:', err);
+        }
+        await refreshPrintTable();
+    }
+
     return {
         state,
         galleryTable,
@@ -480,6 +535,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         refreshPrintTable,
         queueSavePrintToFile,
         refreshEmojiTable,
-        getInventory
+        getInventory,
+        tryDeleteOldPrints
     };
 });
