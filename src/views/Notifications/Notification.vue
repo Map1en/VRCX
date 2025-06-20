@@ -400,12 +400,10 @@
         </data-tables>
         <SendInviteResponseDialog
             :send-invite-response-dialog="sendInviteResponseDialog"
-            :send-invite-response-dialog-visible.sync="sendInviteResponseDialogVisible"
-            :upload-image="uploadImage" />
+            :send-invite-response-dialog-visible.sync="sendInviteResponseDialogVisible" />
         <SendInviteRequestResponseDialog
             :send-invite-response-dialog="sendInviteResponseDialog"
-            :send-invite-request-response-dialog-visible.sync="sendInviteRequestResponseDialogVisible"
-            :upload-image="uploadImage" />
+            :send-invite-request-response-dialog-visible.sync="sendInviteRequestResponseDialogVisible" />
     </div>
 </template>
 
@@ -423,6 +421,7 @@
     import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
+    import { useGalleryStore } from '../../stores/gallery';
     import { useInviteStore } from '../../stores/invite';
     import { useLocationStore } from '../../stores/location';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
@@ -446,13 +445,14 @@
     const { lastLocation } = storeToRefs(locationStore);
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
+    const galleryStore = useGalleryStore();
+    const { clearInviteImageUpload } = galleryStore;
 
     const { t } = useI18n();
 
     const { $confirm, $message } = getCurrentInstance().proxy;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const props = defineProps({
         menuActiveIndex: {
@@ -464,10 +464,6 @@
             default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false },
-        uploadImage: {
-            type: String,
-            default: ''
-        },
         lastLocationDestination: {
             type: String,
             default: ''

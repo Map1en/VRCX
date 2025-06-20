@@ -748,7 +748,6 @@
             :shift-held="shiftHeld" />
         <NewInstanceDialog
             :new-instance-dialog-location-tag="newInstanceDialogLocationTag"
-            :upload-image="uploadImage"
             :last-location="lastLocation" />
         <ChangeWorldImageDialog
             :change-world-image-dialog-visible.sync="changeWorldImageDialogVisible"
@@ -811,7 +810,6 @@
             shiftHeld: Boolean,
             isGameRunning: Boolean,
             instanceJoinHistory: Map,
-            uploadImage: String,
 
             // TODO: Remove
             updateInstanceInfo: Number

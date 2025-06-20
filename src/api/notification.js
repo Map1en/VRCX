@@ -98,7 +98,7 @@ const notificationReq = {
         return API.call(`invite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.uploadImage
+            imageData: $app.store.gallery.uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -129,7 +129,7 @@ const notificationReq = {
         return API.call(`requestInvite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.uploadImage
+            imageData: $app.store.gallery.uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -161,7 +161,7 @@ const notificationReq = {
         return API.call(`invite/${inviteId}/response/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.uploadImage,
+            imageData: $app.store.gallery.uploadImage,
             inviteId
         }).then((json) => {
             const args = {

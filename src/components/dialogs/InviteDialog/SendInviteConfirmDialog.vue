@@ -22,18 +22,22 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, notificationRequest } from '../../../api';
     import { parseLocation } from '../../../shared/utils';
     import { API } from '../../../app';
+    import { useGalleryStore } from '../../../stores/gallery';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+    const galleryStore = useGalleryStore();
+    const { uploadImage } = storeToRefs(galleryStore);
 
-    const clearInviteImageUpload = inject('clearInviteImageUpload');
+    const { clearInviteImageUpload } = galleryStore;
 
     const props = defineProps({
         visible: {
@@ -48,9 +52,6 @@
             type: Object,
             required: false,
             default: () => ({})
-        },
-        uploadImage: {
-            type: String
         }
     });
 
@@ -78,7 +79,7 @@
                                 worldId: L.worldId
                             })
                             .finally(inviteLoop);
-                    } else if (props.uploadImage) {
+                    } else if (uploadImage.value) {
                         notificationRequest
                             .sendInvitePhoto(
                                 {
@@ -115,7 +116,7 @@
             inviteLoop();
         } else if (messageType === 'invite') {
             D.params.messageSlot = slot;
-            if (props.uploadImage) {
+            if (uploadImage.value) {
                 notificationRequest
                     .sendInvitePhoto(D.params, D.userId)
                     .catch((err) => {
@@ -144,7 +145,7 @@
             }
         } else if (messageType === 'request') {
             D.params.requestSlot = slot;
-            if (props.uploadImage) {
+            if (uploadImage.value) {
                 notificationRequest
                     .sendRequestInvitePhoto(D.params, D.userId)
                     .catch((err) => {

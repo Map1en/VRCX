@@ -30,22 +30,23 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, notificationRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useGalleryStore } from '../../../stores/gallery';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+    const galleryStore = useGalleryStore();
+    const { uploadImage } = storeToRefs(galleryStore);
 
     const props = defineProps({
         editAndSendInviteResponseDialog: {
             type: Object,
             required: true
-        },
-        uploadImage: {
-            type: String
         },
         sendInviteResponseDialog: {
             type: Object,
@@ -92,7 +93,7 @@
             responseSlot: slot,
             rsvp: true
         };
-        if (props.uploadImage) {
+        if (uploadImage.value) {
             notificationRequest
                 .sendInviteResponsePhoto(params, I.invite.id)
                 .catch((err) => {

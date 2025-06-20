@@ -32,17 +32,21 @@
 </template>
 
 <script setup>
-    import { getCurrentInstance, inject } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
     import { API } from '../../../app';
     import { parseLocation } from '../../../shared/utils';
+    import { useGalleryStore } from '../../../stores/gallery';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const clearInviteImageUpload = inject('clearInviteImageUpload');
+    const galleryStore = useGalleryStore();
+    const { uploadImage } = storeToRefs(galleryStore);
+    const { clearInviteImageUpload } = galleryStore;
 
     const props = defineProps({
         editAndSendInviteDialog: {
@@ -57,9 +61,6 @@
             type: Object,
             required: false,
             default: () => ({})
-        },
-        uploadImage: {
-            type: String
         }
     });
 
@@ -112,7 +113,7 @@
                                 worldId: L.worldId
                             })
                             .finally(inviteLoop);
-                    } else if (props.uploadImage) {
+                    } else if (uploadImage.value) {
                         notificationRequest
                             .sendInvitePhoto(
                                 {
@@ -149,7 +150,7 @@
             inviteLoop();
         } else if (messageType === 'invite') {
             I.params.messageSlot = slot;
-            if (props.uploadImage) {
+            if (uploadImage.value) {
                 notificationRequest
                     .sendInvitePhoto(I.params, I.userId)
                     .catch((err) => {
@@ -178,7 +179,7 @@
             }
         } else if (messageType === 'request') {
             I.params.requestSlot = slot;
-            if (props.uploadImage) {
+            if (uploadImage.value) {
                 notificationRequest
                     .sendRequestInvitePhoto(I.params, I.userId)
                     .catch((err) => {

@@ -1135,7 +1135,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 userId: id
             })
             .then((args) => {
-                if (!args.json.isFriend && $app.friendLog.has(id)) {
+                if (!args.json.isFriend && state.friendLog.has(id)) {
                     const friendLogHistory = {
                         created_at: new Date().toJSON(),
                         type: 'Unfriend',
@@ -1151,7 +1151,7 @@ export const useFriendStore = defineStore('Friend', () => {
                         $app.notifyMenu('friendLog');
                     }
                     $app.updateSharedFeed(true);
-                    state.deleteFriend(id);
+                    deleteFriend(id);
                 }
             });
     }

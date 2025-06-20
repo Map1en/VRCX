@@ -487,10 +487,7 @@
                 >{{ $t('dialog.new_instance.launch') }}</el-button
             >
         </template>
-        <InviteDialog
-            :invite-dialog="inviteDialog"
-            :upload-image="uploadImage"
-            @closeInviteDialog="closeInviteDialog" />
+        <InviteDialog :invite-dialog="inviteDialog" @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
@@ -514,6 +511,7 @@
     import { useGroupStore } from '../../stores/group';
     import { useLaunchStore } from '../../stores/launch';
     import { useInstanceStore } from '../../stores/instance';
+    import { useGalleryStore } from '../../stores/gallery';
 
     export default {
         name: 'NewInstanceDialog',
@@ -523,10 +521,6 @@
             newInstanceDialogLocationTag: {
                 type: String,
                 required: true
-            },
-            uploadImage: {
-                type: String,
-                default: ''
             }
         },
         setup() {
@@ -540,6 +534,8 @@
             const { showLaunchDialog } = launchStore;
             const instanceStore = useInstanceStore();
             const { createNewInstance } = instanceStore;
+            const galleryStore = useGalleryStore();
+            const { uploadImage } = storeToRefs(galleryStore);
             return {
                 friends,
                 vipFriends,
@@ -554,7 +550,8 @@
                 hasGroupPermission,
                 userImage,
                 showLaunchDialog,
-                createNewInstance
+                createNewInstance,
+                uploadImage
             };
         },
         data() {

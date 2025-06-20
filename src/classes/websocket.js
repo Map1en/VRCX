@@ -512,34 +512,34 @@ export default function init() {
                 console.log('content-refresh', content);
                 if (contentType === 'icon') {
                     if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogIconsLoading
+                        $app.store.gallery.galleryDialogVisible &&
+                        !$app.store.gallery.galleryDialogIconsLoading
                     ) {
-                        $app.refreshVRCPlusIconsTable();
+                        $app.store.gallery.refreshVRCPlusIconsTable();
                     }
                 } else if (contentType === 'gallery') {
                     if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogGalleryLoading
+                        $app.store.gallery.galleryDialogVisible &&
+                        !$app.store.gallery.galleryDialogGalleryLoading
                     ) {
-                        $app.refreshGalleryTable();
+                        $app.store.gallery.refreshGalleryTable();
                     }
                 } else if (contentType === 'emoji') {
                     if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogEmojisLoading
+                        $app.store.gallery.galleryDialogVisible &&
+                        !$app.store.gallery.galleryDialogEmojisLoading
                     ) {
-                        $app.refreshEmojiTable();
+                        $app.store.gallery.refreshEmojiTable();
                     }
                 } else if (
                     contentType === 'print' ||
                     contentType === 'prints'
                 ) {
                     if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogPrintsLoading
+                        $app.store.gallery.galleryDialogVisible &&
+                        !$app.store.gallery.galleryDialogPrintsLoading
                     ) {
-                        $app.refreshPrintTable();
+                        $app.store.gallery.refreshPrintTable();
                     }
                 } else if (contentType === 'avatar') {
                     // hmm, utilizing this might be too spamy and cause UI to move around
@@ -553,10 +553,10 @@ export default function init() {
                     // on uploading invite photo
                 } else if (contentType === 'inventory') {
                     if (
-                        $app.galleryDialogVisible &&
-                        !$app.galleryDialogInventoryLoading
+                        $app.store.gallery.galleryDialogVisible &&
+                        !$app.store.gallery.galleryDialogInventoryLoading
                     ) {
-                        $app.getInventory();
+                        $app.store.gallery.getInventory();
                     }
                     // on consuming a bundle
                     // {contentType: 'inventory', itemId: 'inv_', itemType: 'prop', actionType: 'add'}

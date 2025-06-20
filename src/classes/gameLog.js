@@ -303,7 +303,7 @@ export default function init() {
                             printId = pathArray[4];
                         }
                         if (printId && printId.length === 41) {
-                            $app.queueSavePrintToFile(printId);
+                            $app.store.gallery.queueSavePrintToFile(printId);
                         }
                     } catch (err) {
                         console.error(err);
@@ -451,7 +451,7 @@ export default function init() {
                         break;
                     }
 
-                    $app.trySaveStickerToFile(
+                    $app.store.gallery.trySaveStickerToFile(
                         gameLog.displayName,
                         gameLog.fileId
                     );

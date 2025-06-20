@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { $app, $t, API } from '../../app';
 import configRepository from '../../service/config';
 import database from '../../service/database';
 import webApiService from '../../service/webapi';
@@ -29,7 +30,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         progressPieFilter: true,
         showConfirmationOnSwitchAvatar: false,
         gameLogDisabled: false,
-        sqliteTableSizes: {}
+        sqliteTableSizes: {},
+        ugcFolderPath: '',
+        currentUserInventory: new Map()
     });
 
     async function initAdvancedSettings() {
@@ -53,7 +56,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             progressPie,
             progressPieFilter,
             showConfirmationOnSwitchAvatar,
-            gameLogDisabled
+            gameLogDisabled,
+            ugcFolderPath
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -83,7 +87,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
                 'VRCX_showConfirmationOnSwitchAvatar',
                 false
             ),
-            configRepository.getBool('VRCX_gameLogDisabled', false)
+            configRepository.getBool('VRCX_gameLogDisabled', false),
+            configRepository.getString('VRCX_userGeneratedContentPath', '')
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -106,9 +111,12 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.progressPieFilter = progressPieFilter;
         state.showConfirmationOnSwitchAvatar = showConfirmationOnSwitchAvatar;
         state.gameLogDisabled = gameLogDisabled === 'true';
+        state.ugcFolderPath = ugcFolderPath;
 
         handleSetAppLauncherSettings();
     }
+
+    initAdvancedSettings();
 
     const enablePrimaryPassword = computed({
         get: () => state.enablePrimaryPassword,
@@ -148,6 +156,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     );
     const gameLogDisabled = computed(() => state.gameLogDisabled);
     const sqliteTableSizes = computed(() => state.sqliteTableSizes);
+    const ugcFolderPath = computed(() => state.ugcFolderPath);
+
+    const currentUserInventory = computed({
+        get: () => state.currentUserInventory,
+        set: (value) => {
+            state.currentUserInventory = value;
+        }
+    });
 
     /**
      * @param {boolean} value
@@ -291,6 +307,11 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    async function setUGCFolderPath(path) {
+        state.ugcFolderPath = path;
+        await configRepository.setString('VRCX_userGeneratedContentPath', path);
+    }
+
     async function getSqliteTableSizes() {
         const [
             gps,
@@ -384,7 +405,52 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         return data;
     }
 
-    initAdvancedSettings();
+    API.$on('LOGIN', function () {
+        state.currentUserInventory.clear();
+    });
+
+    function cropPrintsChanged() {
+        if (!state.cropInstancePrints) return;
+        $app.$confirm(
+            $t(
+                'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old'
+            ),
+            {
+                confirmButtonText: $t(
+                    'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_confirm'
+                ),
+                cancelButtonText: $t(
+                    'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_cancel'
+                ),
+                type: 'info',
+                showInput: false,
+                callback: async (action) => {
+                    if (action === 'confirm') {
+                        const msgBox = $app.$message({
+                            message: 'Batch print cropping in progress...',
+                            type: 'warning',
+                            duration: 0
+                        });
+                        try {
+                            await AppApi.CropAllPrints(this.ugcFolderPath);
+                            $app.$message({
+                                message: 'Batch print cropping complete',
+                                type: 'success'
+                            });
+                        } catch (err) {
+                            console.error(err);
+                            $app.$message({
+                                message: `Batch print cropping failed: ${err}`,
+                                type: 'error'
+                            });
+                        } finally {
+                            msgBox.close();
+                        }
+                    }
+                }
+            }
+        );
+    }
 
     return {
         state,
@@ -410,6 +476,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         showConfirmationOnSwitchAvatar,
         gameLogDisabled,
         sqliteTableSizes,
+        ugcFolderPath,
+        currentUserInventory,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -431,6 +499,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setProgressPieFilter,
         setShowConfirmationOnSwitchAvatar,
         setGameLogDisabled,
+        setUGCFolderPath,
+        cropPrintsChanged,
 
         getSqliteTableSizes,
         handleSetAppLauncherSettings,

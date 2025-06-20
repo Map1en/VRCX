@@ -50,28 +50,27 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useGalleryStore } from '../../../stores/gallery';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
+    const galleryStore = useGalleryStore();
+    const { galleryTable } = storeToRefs(galleryStore);
+    const { refreshGalleryTable } = galleryStore;
 
     const props = defineProps({
         gallerySelectDialog: {
             type: Object,
             required: true
-        },
-        galleryTable: {
-            type: Array,
-            required: true
         }
     });
-
-    const emit = defineEmits(['refreshGalleryTable']);
 
     function selectImageGallerySelect(imageUrl, fileId) {
         const D = props.gallerySelectDialog;
@@ -120,16 +119,13 @@
                     type: 'success'
                 });
                 // API.$on('GALLERYIMAGE:ADD')
-                if (Object.keys(props.galleryTable).length !== 0) {
-                    props.galleryTable.unshift(args.json);
+                if (Object.keys(galleryTable.value).length !== 0) {
+                    galleryTable.value.unshift(args.json);
                 }
                 return args;
             });
         };
         r.readAsBinaryString(files[0]);
         clearFile();
-    }
-    function refreshGalleryTable() {
-        emit('refreshGalleryTable');
     }
 </script>

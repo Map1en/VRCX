@@ -491,93 +491,52 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, inject, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest, miscRequest,inventoryRequest } from '../../../api';
+    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest, miscRequest, inventoryRequest } from '../../../api';
     import { extractFileId, getPrintFileName } from '../../../shared/utils';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
     import Location from '../../Location.vue';
     import { API } from '../../../app';
+    import { useGalleryStore } from '../../../stores/gallery';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
+    const galleryStore = useGalleryStore();
+    const {
+        galleryTable,
+        galleryDialogVisible,
+        galleryDialogGalleryLoading,
+        galleryDialogIconsLoading,
+        galleryDialogEmojisLoading,
+        galleryDialogStickersLoading,
+        galleryDialogPrintsLoading,
+        galleryDialogInventoryLoading,
+        VRCPlusIconsTable,
+        printUploadNote,
+        printCropBorder,
+        stickerTable,
+        printTable,
+        emojiTable,
+        inventoryTable
+    } = storeToRefs(galleryStore);
+    const {
+        refreshGalleryTable,
+        refreshVRCPlusIconsTable,
+        refreshStickerTable,
+        refreshPrintTable,
+        refreshEmojiTable,
+        getInventory
+    } = galleryStore;
+
+    const advancedSettingsStore = useAdvancedSettingsStore();
+    const { currentUserInventory } = storeToRefs(advancedSettingsStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const props = defineProps({
-        galleryDialogVisible: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogGalleryLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogIconsLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogEmojisLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogStickersLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogPrintsLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogInventoryLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryTable: {
-            type: Array,
-            required: true
-        },
-        // eslint-disable-next-line vue/prop-name-casing
-        VRCPlusIconsTable: {
-            type: Array,
-            required: true
-        },
-        emojiTable: {
-            type: Array,
-            required: true
-        },
-        stickerTable: {
-            type: Array,
-            required: true
-        },
-        printUploadNote: {
-            type: String,
-            required: true
-        },
-        printCropBorder: {
-            type: Boolean,
-            required: true
-        },
-        printTable: {
-            type: Array,
-            required: true
-        },
-        inventoryTable: {
-            type: Array,
-            required: true
-        }
-    });
-
-    const emit = defineEmits([
-        'refreshGalleryTable',
-        'refreshVRCPlusIconsTable',
-        'refreshStickerTable',
-        'refreshEmojiTable',
-        'refreshPrintTable',
-        'closeGalleryDialog'
-    ]);
 
     const emojiAnimFps = ref(15);
     const emojiAnimFrameCount = ref(4);
@@ -585,12 +544,8 @@
     const emojiAnimationStyle = ref('Stop');
     const emojiAnimLoopPingPong = ref(false);
 
-    function refreshGalleryTable() {
-        emit('refreshGalleryTable');
-    }
-
     function closeGalleryDialog() {
-        emit('closeGalleryDialog');
+        galleryDialogVisible.value = false;
     }
 
     function onFileChangeGallery(e) {
@@ -679,7 +634,7 @@
         miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('GALLERYIMAGE:DELETE', args);
             // API.$on('GALLERYIMAGE:DELETE')
-            const array = props.galleryTable;
+            const array = galleryTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (args.fileId === array[i].id) {
@@ -734,10 +689,6 @@
         clearFile();
     }
 
-    function refreshVRCPlusIconsTable() {
-        emit('refreshVRCPlusIconsTable');
-    }
-
     function displayVRCPlusIconUpload() {
         document.getElementById('VRCPlusIconUploadButton').click();
     }
@@ -782,7 +733,7 @@
         miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('VRCPLUSICON:DELETE', args);
             // API.$on('VRCPLUSICON:DELETE')
-            const array = props.VRCPlusIconsTable;
+            const array = VRCPlusIconsTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (args.fileId === array[i].id) {
@@ -873,10 +824,6 @@
         clearFile();
     }
 
-    function refreshEmojiTable() {
-        emit('refreshEmojiTable');
-    }
-
     function displayEmojiUpload() {
         document.getElementById('EmojiUploadButton').click();
     }
@@ -913,7 +860,7 @@
         miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('EMOJI:DELETE', args);
             // API.$on('EMOJI:DELETE')
-            const array = props.emojiTable;
+            const array = emojiTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (args.fileId === array[i].id) {
@@ -971,10 +918,6 @@
         clearFile();
     }
 
-    function refreshStickerTable() {
-        emit('refreshStickerTable');
-    }
-
     function displayStickerUpload() {
         document.getElementById('StickerUploadButton').click();
     }
@@ -983,7 +926,7 @@
         miscRequest.deleteFile(fileId).then((args) => {
             // API.$emit('STICKER:DELETE', args);
             // API.$on('STICKER:DELETE')
-            const array = props.stickerTable;
+            const array = stickerTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (args.fileId === array[i].id) {
@@ -1030,20 +973,20 @@
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
             const timestamp = date.toISOString().slice(0, 19);
             const params = {
-                note: props.printUploadNote,
+                note: printUploadNote.value,
                 // worldId: '',
                 timestamp
             };
             const base64Body = btoa(r.result);
-            const cropWhiteBorder = props.printCropBorder;
+            const cropWhiteBorder = printCropBorder.value;
             vrcPlusImageRequest.uploadPrint(base64Body, cropWhiteBorder, params).then((args) => {
                 $message({
                     message: t('message.print.uploaded'),
                     type: 'success'
                 });
                 // API.$on('PRINT:ADD')
-                if (Object.keys(props.printTable).length !== 0) {
-                    props.printTable.unshift(args.json);
+                if (Object.keys(printTable.value).length !== 0) {
+                    printTable.value.unshift(args.json);
                 }
 
                 return args;
@@ -1053,10 +996,6 @@
         clearFile();
     }
 
-    function refreshPrintTable() {
-        emit('refreshPrintTable');
-    }
-
     function displayPrintUpload() {
         document.getElementById('PrintUploadButton').click();
     }
@@ -1064,7 +1003,7 @@
     function deletePrint(printId) {
         vrcPlusImageRequest.deletePrint(printId).then((args) => {
             // API.$on('PRINT:DELETE');
-            const array = props.printTable;
+            const array = printTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (args.printId === array[i].id) {
@@ -1080,8 +1019,8 @@
             const args = await inventoryRequest.consumeInventoryBundle({
                 inventoryId
             });
-            API.currentUserInventory.delete(inventoryId);
-            const array = props.inventoryTable;
+            currentUserInventory.value.delete(inventoryId);
+            const array = inventoryTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
                 if (inventoryId === array[i].id) {
@@ -1089,7 +1028,7 @@
                     break;
                 }
             }
-            this.getInventory();
+            getInventory();
         } catch (error) {
             console.error('Error consuming inventory bundle:', error);
         }

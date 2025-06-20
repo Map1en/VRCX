@@ -59,7 +59,6 @@ import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import languages from './classes/languages.js';
 import prompts from './classes/prompts.js';
-import inventory from './classes/inventory';
 
 // main app classes
 import API from './classes/apiInit';
@@ -329,9 +328,6 @@ let $app = {
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog,
-            showGalleryDialog: this.showGalleryDialog,
-            inviteImageUpload: this.inviteImageUpload,
-            clearInviteImageUpload: this.clearInviteImageUpload,
             isLinux: this.isLinux,
             openFolderGeneric: this.openFolderGeneric,
             deleteVRChatCache: this.deleteVRChatCache
@@ -438,7 +434,6 @@ groups();
 discordRpc();
 feed();
 vrcRegistry();
-inventory();
 
 // #endregion
 // #region | Init: drop/keyup event listeners
@@ -1080,7 +1075,7 @@ API.$on('LOGIN', function () {
     $app.store.favorite.cachedFavoriteGroups.clear();
     $app.store.favorite.cachedFavoriteGroupsByTypeName.clear();
     $app.store.group.currentUserGroups.clear();
-    this.currentUserInventory.clear();
+    $app.store.advancedSettings.currentUserInventory.clear();
     this.queuedInstances.clear();
     $app.store.favorite.favoriteFriendGroups = [];
     $app.store.favorite.favoriteWorldGroups = [];
@@ -2860,11 +2855,6 @@ $app.data.pastDisplayNameTable = {
     },
     layout: 'table'
 };
-$app.data.printTable = [];
-$app.data.stickerTable = [];
-$app.data.emojiTable = [];
-$app.data.VRCPlusIconsTable = [];
-$app.data.galleryTable = [];
 $app.data.currentInstanceUserList = {
     data: [],
     tableProps: {
@@ -2987,7 +2977,7 @@ $app.data.windowState = await VRCXStorage.Get('VRCX_WindowState');
 $app.methods.saveVRCXWindowOption = async function (configKey = '') {
     switch (configKey) {
         case 'VRCX_cropInstancePrints':
-            this.cropPrintsChanged();
+            this.store.advancedSettings.cropPrintsChanged();
             break;
         default:
             break;
@@ -4328,72 +4318,6 @@ $app.methods.copyToClipboard = function (text) {
     document.getElementById('copy_to_clipboard').remove();
 };
 
-// #endregion
-// #region | App: VRCPlus Icons
-
-API.$on('LOGIN', function () {
-    $app.VRCPlusIconsTable = [];
-});
-
-$app.methods.refreshVRCPlusIconsTable = function () {
-    this.galleryDialogIconsLoading = true;
-    const params = {
-        n: 100,
-        tag: 'icon'
-    };
-    vrcPlusIconRequest.getFileList(params);
-};
-
-API.$on('FILES:LIST', function (args) {
-    if (args.params.tag === 'icon') {
-        $app.VRCPlusIconsTable = args.json.reverse();
-        $app.galleryDialogIconsLoading = false;
-    }
-});
-
-API.$on('VRCPLUSICON:ADD', function (args) {
-    if (Object.keys($app.VRCPlusIconsTable).length !== 0) {
-        $app.VRCPlusIconsTable.unshift(args.json);
-    }
-});
-
-$app.data.uploadImage = '';
-
-$app.methods.inviteImageUpload = function (e) {
-    const files = e.target.files || e.dataTransfer.files;
-    if (!files.length) {
-        return;
-    }
-    if (files[0].size >= 100000000) {
-        // 100MB
-        $app.$message({
-            message: $t('message.file.too_large'),
-            type: 'error'
-        });
-        this.clearInviteImageUpload();
-        return;
-    }
-    if (!files[0].type.match(/image.*/)) {
-        $app.$message({
-            message: $t('message.file.not_image'),
-            type: 'error'
-        });
-        this.clearInviteImageUpload();
-        return;
-    }
-    const r = new FileReader();
-    r.onload = function () {
-        $app.uploadImage = btoa(r.result);
-    };
-    r.readAsBinaryString(files[0]);
-};
-
-$app.methods.clearInviteImageUpload = function () {
-    const buttonList = document.querySelectorAll('.inviteImageUploadButton');
-    buttonList.forEach((button) => (button.value = ''));
-    this.uploadImage = '';
-};
-
 $app.methods.userOnlineFor = function (ctx) {
     if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
         return timeToText(Date.now() - ctx.ref.$online_for);
@@ -4665,286 +4589,6 @@ $app.methods.sortGroupInstancesByInGame = function (a, b) {
     }
     return aIndex - bIndex;
 };
-
-// #endregion
-// #region | Gallery
-
-$app.data.galleryDialog = {};
-$app.data.galleryDialogVisible = false;
-$app.data.galleryDialogGalleryLoading = false;
-$app.data.galleryDialogIconsLoading = false;
-$app.data.galleryDialogEmojisLoading = false;
-$app.data.galleryDialogStickersLoading = false;
-$app.data.galleryDialogPrintsLoading = false;
-$app.data.galleryDialogInventoryLoading = false;
-
-API.$on('LOGIN', function () {
-    $app.galleryTable = [];
-});
-
-$app.methods.showGalleryDialog = function (pageNum) {
-    this.galleryDialogVisible = true;
-    this.refreshGalleryTable();
-    this.refreshVRCPlusIconsTable();
-    this.refreshEmojiTable();
-    this.refreshStickerTable();
-    this.refreshPrintTable();
-    this.getInventory();
-    workerTimers.setTimeout(() => this.setGalleryTab(pageNum), 100);
-};
-
-$app.methods.setGalleryTab = function (pageNum) {
-    if (
-        typeof pageNum !== 'undefined' &&
-        typeof this.$refs.galleryTabs !== 'undefined'
-    ) {
-        this.$refs.galleryTabs.setCurrentName(`${pageNum}`);
-    }
-};
-
-$app.methods.refreshGalleryTable = function () {
-    this.galleryDialogGalleryLoading = true;
-    const params = {
-        n: 100,
-        tag: 'gallery'
-    };
-    vrcPlusIconRequest.getFileList(params);
-};
-
-API.$on('FILES:LIST', function (args) {
-    if (args.params.tag === 'gallery') {
-        $app.galleryTable = args.json.reverse();
-        $app.galleryDialogGalleryLoading = false;
-    }
-});
-
-API.$on('GALLERYIMAGE:ADD', function (args) {
-    if (Object.keys($app.galleryTable).length !== 0) {
-        $app.galleryTable.unshift(args.json);
-    }
-});
-
-// #endregion
-// #region | Sticker
-API.$on('LOGIN', function () {
-    $app.stickerTable = [];
-});
-
-$app.methods.refreshStickerTable = function () {
-    this.galleryDialogStickersLoading = true;
-    const params = {
-        n: 100,
-        tag: 'sticker'
-    };
-    vrcPlusIconRequest.getFileList(params);
-};
-
-API.$on('FILES:LIST', function (args) {
-    if (args.params.tag === 'sticker') {
-        $app.stickerTable = args.json.reverse();
-        $app.galleryDialogStickersLoading = false;
-    }
-});
-
-$app.methods.displayStickerUpload = function () {
-    document.getElementById('StickerUploadButton').click();
-};
-
-API.$on('STICKER:ADD', function (args) {
-    if (Object.keys($app.stickerTable).length !== 0) {
-        $app.stickerTable.unshift(args.json);
-    }
-});
-
-$app.data.stickersCache = [];
-
-$app.methods.trySaveStickerToFile = async function (displayName, fileId) {
-    if ($app.stickersCache.includes(fileId)) return;
-    $app.stickersCache.push(fileId);
-    if ($app.stickersCache.size > 100) {
-        $app.stickersCache.shift();
-    }
-    const args = await API.call(`file/${fileId}`);
-    const imageUrl = args.versions[1].file.url;
-    const createdAt = args.versions[0].created_at;
-    const monthFolder = createdAt.slice(0, 7);
-    const fileNameDate = createdAt
-        .replace(/:/g, '-')
-        .replace(/T/g, '_')
-        .replace(/Z/g, '');
-    const fileName = `${displayName}_${fileNameDate}_${fileId}.png`;
-    const filePath = await AppApi.SaveStickerToFile(
-        imageUrl,
-        this.ugcFolderPath,
-        monthFolder,
-        fileName
-    );
-    if (filePath) {
-        console.log(`Sticker saved to file: ${monthFolder}\\${fileName}`);
-    }
-};
-
-// #endregion
-// #region | Prints
-// todo: move to settings.vue
-$app.methods.cropPrintsChanged = function () {
-    if (!this.store.advancedSettings.cropInstancePrints) return;
-    this.$confirm(
-        $t(
-            'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old'
-        ),
-        {
-            confirmButtonText: $t(
-                'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_confirm'
-            ),
-            cancelButtonText: $t(
-                'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_cancel'
-            ),
-            type: 'info',
-            showInput: false,
-            callback: async (action) => {
-                if (action === 'confirm') {
-                    const msgBox = this.$message({
-                        message: 'Batch print cropping in progress...',
-                        type: 'warning',
-                        duration: 0
-                    });
-                    try {
-                        await AppApi.CropAllPrints(this.ugcFolderPath);
-                        this.$message({
-                            message: 'Batch print cropping complete',
-                            type: 'success'
-                        });
-                    } catch (err) {
-                        console.error(err);
-                        this.$message({
-                            message: `Batch print cropping failed: ${err}`,
-                            type: 'error'
-                        });
-                    } finally {
-                        msgBox.close();
-                    }
-                }
-            }
-        }
-    );
-};
-
-API.$on('LOGIN', function () {
-    $app.printTable = [];
-});
-
-$app.methods.refreshPrintTable = function () {
-    this.galleryDialogPrintsLoading = true;
-    const params = {
-        n: 100
-    };
-    vrcPlusImageRequest.getPrints(params);
-};
-
-API.$on('PRINT:LIST', function (args) {
-    $app.printTable = args.json;
-    $app.galleryDialogPrintsLoading = false;
-});
-
-$app.data.printUploadNote = '';
-$app.data.printCropBorder = true;
-
-$app.data.printCache = [];
-$app.data.printQueue = [];
-$app.data.printQueueWorker = undefined;
-
-$app.methods.queueSavePrintToFile = function (printId) {
-    if (this.printCache.includes(printId)) {
-        return;
-    }
-    this.printCache.push(printId);
-    if (this.printCache.length > 100) {
-        this.printCache.shift();
-    }
-
-    this.printQueue.push(printId);
-
-    if (!this.printQueueWorker) {
-        this.printQueueWorker = workerTimers.setInterval(() => {
-            const printId = this.printQueue.shift();
-            if (printId) {
-                this.trySavePrintToFile(printId);
-            }
-        }, 2_500);
-    }
-};
-
-$app.methods.trySavePrintToFile = async function (printId) {
-    const args = await vrcPlusImageRequest.getPrint({ printId });
-    const imageUrl = args.json?.files?.image;
-    if (!imageUrl) {
-        console.error('Print image URL is missing', args);
-        return;
-    }
-    const print = args.json;
-    const createdAt = getPrintLocalDate(print);
-    try {
-        const owner = await userRequest.getCachedUser({
-            userId: print.ownerId
-        });
-        console.log(
-            `Print spawned by ${owner?.json?.displayName} id:${print.id} note:${print.note} authorName:${print.authorName} at:${new Date().toISOString()}`
-        );
-    } catch (err) {
-        console.error(err);
-    }
-    const monthFolder = createdAt.toISOString().slice(0, 7);
-    const fileName = getPrintFileName(print);
-    const filePath = await AppApi.SavePrintToFile(
-        imageUrl,
-        this.ugcFolderPath,
-        monthFolder,
-        fileName
-    );
-    if (filePath) {
-        console.log(`Print saved to file: ${monthFolder}\\${fileName}`);
-        if (this.store.advancedSettings.cropInstancePrints) {
-            if (!(await AppApi.CropPrintImage(filePath))) {
-                console.error('Failed to crop print image');
-            }
-        }
-    }
-
-    if (this.printQueue.length === 0) {
-        workerTimers.clearInterval(this.printQueueWorker);
-        this.printQueueWorker = undefined;
-    }
-};
-
-// #endregion
-// #region | Emoji
-
-API.$on('LOGIN', function () {
-    $app.emojiTable = [];
-});
-
-$app.methods.refreshEmojiTable = function () {
-    this.galleryDialogEmojisLoading = true;
-    const params = {
-        n: 100,
-        tag: 'emoji'
-    };
-    vrcPlusIconRequest.getFileList(params);
-};
-
-API.$on('FILES:LIST', function (args) {
-    if (args.params.tag === 'emoji') {
-        $app.emojiTable = args.json.reverse();
-        $app.galleryDialogEmojisLoading = false;
-    }
-});
-
-API.$on('EMOJI:ADD', function (args) {
-    if (Object.keys($app.emojiTable).length !== 0) {
-        $app.emojiTable.unshift(args.json);
-    }
-});
 
 // #endregion
 // #region Misc
@@ -5538,29 +5182,17 @@ $app.methods.updateDatabaseVersion = async function () {
 
 // #endregion
 // #region | App: note export
-
-// user generated content
-$app.data.ugcFolderPath = await configRepository.getString(
-    'VRCX_userGeneratedContentPath',
-    ''
-);
-
 $app.data.folderSelectorDialogVisible = false;
-
-$app.methods.setUGCFolderPath = async function (path) {
-    await configRepository.setString('VRCX_userGeneratedContentPath', path);
-    this.ugcFolderPath = path;
-};
 
 $app.methods.resetUGCFolder = function () {
     this.setUGCFolderPath('');
 };
 
 $app.methods.openUGCFolder = async function () {
-    if (LINUX && this.ugcFolderPath == null) {
+    if (LINUX && this.store.advancedSettings.ugcFolderPath == null) {
         this.resetUGCFolder();
     }
-    await AppApi.OpenUGCPhotosFolder(this.ugcFolderPath);
+    await AppApi.OpenUGCPhotosFolder(this.store.advancedSettings.ugcFolderPath);
 };
 
 $app.methods.folderSelectorDialog = async function (oldPath) {
@@ -5582,7 +5214,9 @@ $app.methods.folderSelectorDialog = async function (oldPath) {
 };
 
 $app.methods.openUGCFolderSelector = async function () {
-    const path = await this.folderSelectorDialog(this.ugcFolderPath);
+    const path = await this.folderSelectorDialog(
+        this.store.advancedSettings.ugcFolderPath
+    );
     await this.setUGCFolderPath(path);
 };
 
@@ -6052,15 +5686,7 @@ $app.computed.notificationTabBind = function () {
         notificationTable: this.notificationTable,
         shiftHeld: this.shiftHeld,
         lastLocationDestination: this.lastLocationDestination,
-        isGameRunning: this.isGameRunning,
-        uploadImage: this.uploadImage
-    };
-};
-
-$app.computed.notificationTabEvent = function () {
-    return {
-        inviteImageUpload: this.inviteImageUpload,
-        clearInviteImageUpload: this.clearInviteImageUpload
+        isGameRunning: this.isGameRunning
     };
 };
 
@@ -6157,7 +5783,6 @@ $app.computed.settingsTabBind = function () {
         getTTSVoiceName: this.getTTSVoiceName,
         TTSvoices: this.TTSvoices,
         notificationTTSTest: this.notificationTTSTest,
-        ugcFolderPath: this.ugcFolderPath,
         notificationPosition: this.notificationPosition,
         currentlyDroppingFile: this.currentlyDroppingFile,
         fullscreenImageDialog: this.fullscreenImageDialog,

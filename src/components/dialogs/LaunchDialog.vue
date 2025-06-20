@@ -77,10 +77,7 @@
                 {{ $t('dialog.launch.launch') }}
             </el-button>
         </template>
-        <InviteDialog
-            :invite-dialog="inviteDialog"
-            :upload-image="uploadImage"
-            @closeInviteDialog="closeInviteDialog" />
+        <InviteDialog :invite-dialog="inviteDialog" @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
@@ -99,12 +96,6 @@
         name: 'LaunchDialog',
         components: { InviteDialog },
         inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
-        props: {
-            uploadImage: {
-                type: String,
-                default: ''
-            }
-        },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();

@@ -78,32 +78,32 @@
             :visible.sync="isSendInviteConfirmDialogVisible"
             :send-invite-dialog="sendInviteDialog"
             :invite-dialog="inviteDialog"
-            :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
         <EditAndSendInviteDialog
             :edit-and-send-invite-dialog.sync="editAndSendInviteDialog"
             :send-invite-dialog="sendInviteDialog"
             :invite-dialog="inviteDialog"
-            :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref } from 'vue';
+    import { ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { API } from '../../../app';
+    import { useGalleryStore } from '../../../stores/gallery';
     import { useInviteStore } from '../../../stores/invite';
     import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
     import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
 
     const { t } = useI18n();
 
-    const inviteImageUpload = inject('inviteImageUpload');
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
     const { inviteMessageTable } = storeToRefs(inviteStore);
+    const galleryStore = useGalleryStore();
+    const { inviteImageUpload } = galleryStore;
 
     const props = defineProps({
         sendInviteDialogVisible: {
@@ -118,10 +118,6 @@
             type: Object,
             required: false,
             default: () => ({})
-        },
-        uploadImage: {
-            type: String,
-            default: ''
         }
     });
 

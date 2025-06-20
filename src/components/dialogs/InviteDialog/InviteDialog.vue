@@ -158,22 +158,22 @@
             :send-invite-dialog-visible.sync="sendInviteDialogVisible"
             :send-invite-dialog="sendInviteDialog"
             :invite-dialog="inviteDialog"
-            :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
     </safe-dialog>
 </template>
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, ref } from 'vue';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
+    import { instanceRequest, notificationRequest } from '../../../api';
     import { API } from '../../../app';
-    import { parseLocation, userStatusClass, userImage } from '../../../shared/utils';
+    import { parseLocation, userImage, userStatusClass } from '../../../shared/utils';
     import { useFriendStore } from '../../../stores/friend';
+    import { useGalleryStore } from '../../../stores/gallery';
+    import { useInviteStore } from '../../../stores/invite';
     import Location from '../../Location.vue';
     import SendInviteDialog from './SendInviteDialog.vue';
-    import { useInviteStore } from '../../../stores/invite';
 
     const friendStore = useFriendStore();
     const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
@@ -185,16 +185,13 @@
     const $message = instance.proxy.$message;
     const $confirm = instance.proxy.$confirm;
 
-    const clearInviteImageUpload = inject('clearInviteImageUpload');
+    const galleryStore = useGalleryStore();
+    const { clearInviteImageUpload } = galleryStore;
 
     const props = defineProps({
         inviteDialog: {
             type: Object,
             required: true
-        },
-        uploadImage: {
-            type: String,
-            default: ''
         }
     });
 

@@ -1762,12 +1762,10 @@
         <SendInviteDialog
             :send-invite-dialog-visible.sync="sendInviteDialogVisible"
             :send-invite-dialog="sendInviteDialog"
-            :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
         <SendInviteRequestDialog
             :send-invite-request-dialog-visible.sync="sendInviteRequestDialogVisible"
             :send-invite-dialog="sendInviteDialog"
-            :upload-image="uploadImage"
             @closeInviteDialog="closeInviteDialog" />
         <PreviousInstancesUserDialog
             :previous-instances-user-dialog.sync="previousInstancesUserDialog"
@@ -1782,28 +1780,7 @@
         <LanguageDialog :language-dialog="languageDialog" />
         <BioDialog :bio-dialog="bioDialog" />
         <PronounsDialog :pronouns-dialog="pronounsDialog" />
-        <GalleryDialog
-            :gallery-dialog-visible.sync="galleryDialogVisible"
-            :gallery-dialog-gallery-loading="galleryDialogGalleryLoading"
-            :gallery-dialog-icons-loading="galleryDialogIconsLoading"
-            :gallery-dialog-emojis-loading="galleryDialogEmojisLoading"
-            :gallery-dialog-stickers-loading="galleryDialogStickersLoading"
-            :gallery-dialog-prints-loading="galleryDialogPrintsLoading"
-            :gallery-dialog-inventory-loading="galleryDialogInventoryLoading"
-            :gallery-table="galleryTable"
-            :VRCPlusIconsTable="VRCPlusIconsTable"
-            :emoji-table="emojiTable"
-            :sticker-table="stickerTable"
-            :print-upload-note="printUploadNote"
-            :print-crop-border="printCropBorder"
-            :print-table="printTable"
-            :inventory-table="inventoryTable"
-            @refreshGalleryTable="refreshGalleryTable"
-            @refreshVRCPlusIconsTable="refreshVRCPlusIconsTable"
-            @refreshStickerTable="refreshStickerTable"
-            @refreshEmojiTable="refreshEmojiTable"
-            @refreshPrintTable="refreshPrintTable"
-            @closeGalleryDialog="closeGalleryDialog" />
+        <GalleryDialog @closeGalleryDialog="closeGalleryDialog" />
     </safe-dialog>
 </template>
 
@@ -1816,7 +1793,6 @@
         friendRequest,
         groupRequest,
         imageRequest,
-        inviteMessagesRequest,
         miscRequest,
         notificationRequest,
         playerModerationRequest,
@@ -1826,7 +1802,9 @@
     import { API } from '../../../app';
     import database from '../../../service/database';
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
+    import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';
     import {
+        checkCanInvite,
         compareByMemberCount,
         compareByName,
         copyToClipboard,
@@ -1844,11 +1822,13 @@
         timeToText,
         userImage,
         userOnlineForTimestamp,
-        userStatusClass,
-        checkCanInvite
+        userStatusClass
     } from '../../../shared/utils';
     import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useFriendStore } from '../../../stores/friend';
+    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGroupStore } from '../../../stores/group';
     import { useInviteStore } from '../../../stores/invite';
     import { useLocationStore } from '../../../stores/location';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
@@ -1866,9 +1846,6 @@
     import PronounsDialog from './PronounsDialog.vue';
     import SendInviteRequestDialog from './SendInviteRequestDialog.vue';
     import SocialStatusDialog from './SocialStatusDialog.vue';
-    import { useGroupStore } from '../../../stores/group';
-    import { userDialogWorldSortingOptions, userDialogWorldOrderOptions } from '../../../shared/constants/';
-    import { useFriendStore } from '../../../stores/friend';
 
     const { t } = useI18n();
 
@@ -1899,9 +1876,11 @@
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
     const { friendLogTable } = storeToRefs(friendStore);
+    const galleryStore = useGalleryStore();
+    const { galleryDialogVisible } = storeToRefs(galleryStore);
+    const { clearInviteImageUpload, showGalleryDialog } = galleryStore;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const clearInviteImageUpload = inject('clearInviteImageUpload');
 
     const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
@@ -1935,9 +1914,6 @@
             type: Function,
             default: () => {}
         },
-        uploadImage: {
-            type: String
-        },
         inGameGroupOrder: {
             type: Array,
             default: () => []
@@ -1945,68 +1921,6 @@
         shiftHeld: {
             type: Boolean,
             default: false
-        },
-        // Gallery Dialog
-        galleryDialogVisible: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogGalleryLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogIconsLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogEmojisLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogStickersLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogPrintsLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryDialogInventoryLoading: {
-            type: Boolean,
-            required: true
-        },
-        galleryTable: {
-            type: Array,
-            required: true
-        },
-        // eslint-disable-next-line vue/prop-name-casing
-        VRCPlusIconsTable: {
-            type: Array,
-            required: true
-        },
-        emojiTable: {
-            type: Array,
-            required: true
-        },
-        stickerTable: {
-            type: Array,
-            required: true
-        },
-        printUploadNote: {
-            type: String,
-            required: true
-        },
-        printCropBorder: {
-            type: Boolean,
-            required: true
-        },
-        printTable: {
-            type: Array,
-            required: true
-        },
-        inventoryTable: {
-            type: Array,
-            required: true
         }
     });
 
@@ -2014,17 +1928,10 @@
         'sortUserDialogAvatars',
         'logout',
         'showAvatarAuthorDialog',
-        'showGalleryDialog',
         'refreshUserDialogAvatars',
         'refreshUserDialogTreeData',
         'setGroupVisibility',
-        'leaveGroupPrompt',
-        'refreshGalleryTable',
-        'refreshVRCPlusIconsTable',
-        'refreshStickerTable',
-        'refreshEmojiTable',
-        'refreshPrintTable',
-        'closeGalleryDialog'
+        'leaveGroupPrompt'
     ]);
 
     watch(
@@ -2131,7 +2038,7 @@
     }
 
     function closeGalleryDialog() {
-        emit('closeGalleryDialog');
+        galleryDialogVisible.value = false;
     }
 
     function toggleLastActiveTab(userId) {
@@ -3202,26 +3109,8 @@
     function showAvatarAuthorDialog(userId, authorId, currentAvatarImageUrl) {
         emit('showAvatarAuthorDialog', userId, authorId, currentAvatarImageUrl);
     }
-    function showGalleryDialog() {
-        emit('showGalleryDialog');
-    }
     function closeInviteDialog() {
         clearInviteImageUpload();
-    }
-    function refreshGalleryTable() {
-        emit('refreshGalleryTable');
-    }
-    function refreshVRCPlusIconsTable() {
-        emit('refreshVRCPlusIconsTable');
-    }
-    function refreshStickerTable() {
-        emit('refreshStickerTable');
-    }
-    function refreshEmojiTable() {
-        emit('refreshEmojiTable');
-    }
-    function refreshPrintTable() {
-        emit('refreshPrintTable');
     }
 
     // $app.methods.toggleAllowBooping = function () {

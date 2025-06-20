@@ -16,8 +16,7 @@ mixin dialogs
     ChooseFavoriteGroupDialog
 
     //- launch
-    LaunchDialog(
-        :uploadImage='uploadImage')
+    LaunchDialog
 
     UserDialog(
         :languageDialog='languageDialog'
@@ -27,45 +26,21 @@ mixin dialogs
         :userOnlineFor='userOnlineFor'
         :lookupAvatars='lookupAvatars'
         :updateInGameGroupOrder='updateInGameGroupOrder'
-        :uploadImage='uploadImage'
         :inGameGroupOrder='inGameGroupOrder'
         :shiftHeld='shiftHeld'
-        :galleryDialogVisible='galleryDialogVisible'
-        :galleryDialogGalleryLoading='galleryDialogGalleryLoading'
-        :galleryDialogIconsLoading='galleryDialogIconsLoading'
-        :galleryDialogEmojisLoading='galleryDialogEmojisLoading'
-        :galleryDialogStickersLoading='galleryDialogStickersLoading'
-        :galleryDialogPrintsLoading='galleryDialogPrintsLoading'
-        :galleryDialogInventoryLoading='galleryDialogInventoryLoading'
-        :galleryTable='galleryTable'
-        :VRCPlusIconsTable='VRCPlusIconsTable'
-        :emojiTable='emojiTable'
-        :stickerTable='stickerTable'
-        :printUploadNote='printUploadNote'
-        :printCropBorder='printCropBorder'
-        :printTable='printTable'
-        :inventoryTable='inventoryTable'
-        @refreshGalleryTable='refreshGalleryTable'
-        @refreshEmojiTable='refreshEmojiTable'
-        @refreshStickerTable='refreshStickerTable'
-        @refreshVRCPlusIconsTable='refreshVRCPlusIconsTable'
-        @refreshPrintTable='refreshPrintTable'
         @sortUserDialogAvatars='sortUserDialogAvatars'
         @logout='logout'
         @showAvatarAuthorDialog='showAvatarAuthorDialog'
-        @showGalleryDialog='showGalleryDialog'
         @refreshUserDialogAvatars='refreshUserDialogAvatars'
         @refreshUserDialogTreeData='refreshUserDialogTreeData'
         @setGroupVisibility='setGroupVisibility'
-        @leaveGroupPrompt='leaveGroupPrompt'
-        @closeGalleryDialog='galleryDialogVisible = false')
+        @leaveGroupPrompt='leaveGroupPrompt')
 
     WorldDialog(
         :shiftHeld='shiftHeld'
         :isGameRunning='isGameRunning'
         :instanceJoinHistory='instanceJoinHistory'
         :updateInstanceInfo='updateInstanceInfo'
-        :uploadImage='uploadImage'
         @openFolderGeneric='openFolderGeneric'
         @deleteVRChatCache='deleteVRChatCache'
         @worldDialogCommand='worldDialogCommand')

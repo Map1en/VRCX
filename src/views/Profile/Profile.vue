@@ -510,6 +510,7 @@
     import { useUserStore } from '../../stores/user';
     import { useAvatarStore } from '../../stores/avatar';
     import { useInviteStore } from '../../stores/invite';
+    import { useGalleryStore } from '../../stores/gallery';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -528,12 +529,12 @@
         inviteRequestMessageTable,
         inviteRequestResponseMessageTable
     } = storeToRefs(inviteStore);
+    const galleryStore = useGalleryStore();
+    const { showGalleryDialog } = galleryStore;
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
-
-    const showGalleryDialog = inject('showGalleryDialog');
 
     const props = defineProps({
         menuActiveIndex: {

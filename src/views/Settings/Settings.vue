@@ -2041,7 +2041,8 @@
         showConfirmationOnSwitchAvatar,
         gameLogDisabled,
         sqliteTableSizes,
-        youTubeApiKey
+        youTubeApiKey,
+        ugcFolderPath
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2109,10 +2110,6 @@
         notificationTTSTest: {
             type: Boolean,
             default: false
-        },
-        ugcFolderPath: {
-            type: String,
-            default: ''
         },
         notificationPosition: {
             type: String,
