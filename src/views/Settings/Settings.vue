@@ -2117,8 +2117,7 @@
 
         getSqliteTableSizes,
         setNotificationOpacity,
-        setAutoDeleteOldPrints,
-        setScreenshotHelperModifyFilename
+        setAutoDeleteOldPrints
     } = advancedSettingsStore;
 
     const {
