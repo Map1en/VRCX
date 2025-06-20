@@ -606,6 +606,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -614,6 +615,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -622,6 +624,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is joining`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -634,6 +637,7 @@ export default function init() {
                             noty.groupName
                         )}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -650,6 +654,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has logged in${locationName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -658,6 +663,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has logged out`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -666,6 +672,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} status is now ${noty.status} ${noty.statusDescription}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -679,6 +686,7 @@ export default function init() {
                             noty.details.worldName
                         )}${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -687,6 +695,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has requested an invite${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -695,6 +704,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has responded to your invite${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -703,6 +713,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has responded to your invite request${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -711,6 +722,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has sent you a friend request`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -719,6 +731,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is now your friend`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -727,6 +740,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is no longer your friend`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -735,6 +749,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} trust level is now ${noty.trustLevel}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -743,40 +758,90 @@ export default function init() {
                         'VRCX',
                         `${noty.previousDisplayName} changed their name to ${noty.displayName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
                 case 'boop':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'groupChange':
                     AppApi.XSNotification(
                         'VRCX',
                         `${noty.senderUsername}: ${noty.message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
                 case 'group.announcement':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'group.informative':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'group.invite':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'group.joinRequest':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'group.transfer':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'group.queueReady':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'instance.closed':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'PortalSpawn':
                     if (noty.displayName) {
@@ -790,6 +855,7 @@ export default function init() {
                                 noty.groupName
                             )}`,
                             timeout,
+                            opacity,
                             image
                         );
                     } else {
@@ -797,6 +863,7 @@ export default function init() {
                             'VRCX',
                             'User has spawned a portal',
                             timeout,
+                            opacity,
                             image
                         );
                     }
@@ -806,6 +873,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} changed into avatar ${noty.name}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -814,20 +882,34 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} said ${noty.text}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
                 case 'Event':
-                    AppApi.XSNotification('VRCX', noty.data, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.data,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'External':
-                    AppApi.XSNotification('VRCX', noty.message, timeout, image);
+                    AppApi.XSNotification(
+                        'VRCX',
+                        noty.message,
+                        timeout,
+                        opacity,
+                        image
+                    );
                     break;
                 case 'VideoPlay':
                     AppApi.XSNotification(
                         'VRCX',
                         `Now playing: ${noty.notyName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -836,6 +918,7 @@ export default function init() {
                         'VRCX',
                         `Blocked user ${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -844,6 +927,7 @@ export default function init() {
                         'VRCX',
                         `Blocked user ${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -852,6 +936,7 @@ export default function init() {
                         'VRCX',
                         `Muted user ${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -860,6 +945,7 @@ export default function init() {
                         'VRCX',
                         `Muted user ${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -868,6 +954,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has blocked you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -876,6 +963,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has unblocked you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -884,6 +972,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has muted you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -892,6 +981,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has unmuted you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -916,6 +1006,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -926,6 +1017,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -936,6 +1028,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is joining`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -950,6 +1043,7 @@ export default function init() {
                             noty.groupName
                         )}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -968,6 +1062,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has logged in${locationName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -978,6 +1073,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has logged out`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -988,6 +1084,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} status is now ${noty.status} ${noty.statusDescription}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1003,6 +1100,7 @@ export default function init() {
                             noty.details.worldName
                         )}${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1013,6 +1111,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has requested an invite${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1023,6 +1122,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has responded to your invite${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1033,6 +1133,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has responded to your invite request${message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1043,6 +1144,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername} has sent you a friend request`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1053,6 +1155,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is now your friend`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1063,6 +1166,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} is no longer your friend`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1073,6 +1177,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} trust level is now ${noty.trustLevel}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1083,6 +1188,7 @@ export default function init() {
                         'VRCX',
                         `${noty.previousDisplayName} changed their name to ${noty.displayName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1093,6 +1199,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1103,6 +1210,7 @@ export default function init() {
                         'VRCX',
                         `${noty.senderUsername}: ${noty.message}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1113,6 +1221,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1123,6 +1232,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1133,6 +1243,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1143,6 +1254,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1153,6 +1265,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1163,6 +1276,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1173,6 +1287,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1190,6 +1305,7 @@ export default function init() {
                                 noty.groupName
                             )}`,
                             timeout,
+                            opacity,
                             image
                         );
                     } else {
@@ -1199,6 +1315,7 @@ export default function init() {
                             'VRCX',
                             'User has spawned a portal',
                             timeout,
+                            opacity,
                             image
                         );
                     }
@@ -1210,6 +1327,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} changed into avatar ${noty.name}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1220,6 +1338,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} said ${noty.text}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1230,6 +1349,7 @@ export default function init() {
                         'VRCX',
                         noty.data,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1240,6 +1360,7 @@ export default function init() {
                         'VRCX',
                         noty.message,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1250,6 +1371,7 @@ export default function init() {
                         'VRCX',
                         `Now playing: ${noty.notyName}`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1260,6 +1382,7 @@ export default function init() {
                         'VRCX',
                         `Blocked user ${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1270,6 +1393,7 @@ export default function init() {
                         'VRCX',
                         `Blocked user ${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1280,6 +1404,7 @@ export default function init() {
                         'VRCX',
                         `Muted user ${noty.displayName} has joined`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1290,6 +1415,7 @@ export default function init() {
                         'VRCX',
                         `Muted user ${noty.displayName} has left`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1300,6 +1426,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has blocked you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1310,6 +1437,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has unblocked you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1320,6 +1448,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has muted you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;
@@ -1330,6 +1459,7 @@ export default function init() {
                         'VRCX',
                         `${noty.displayName} has unmuted you`,
                         timeout,
+                        opacity,
                         image
                     );
                     break;

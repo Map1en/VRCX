@@ -33,7 +33,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         sqliteTableSizes: {},
         ugcFolderPath: '',
         currentUserInventory: new Map(),
-        autoDeleteOldPrints: false
+        autoDeleteOldPrints: false,
+        notificationOpacity: 100
     });
 
     async function initAdvancedSettings() {
@@ -59,7 +60,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             showConfirmationOnSwitchAvatar,
             gameLogDisabled,
             ugcFolderPath,
-            autoDeleteOldPrints
+            autoDeleteOldPrints,
+            notificationOpacity
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -91,7 +93,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             ),
             configRepository.getBool('VRCX_gameLogDisabled', false),
             configRepository.getString('VRCX_userGeneratedContentPath', ''),
-            configRepository.getBool('VRCX_autoDeleteOldPrints', false)
+            configRepository.getBool('VRCX_autoDeleteOldPrints', false),
+            configRepository.getFloat('VRCX_notificationOpacity', 100)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -116,6 +119,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.gameLogDisabled = gameLogDisabled === 'true';
         state.ugcFolderPath = ugcFolderPath;
         state.autoDeleteOldPrints = autoDeleteOldPrints;
+        state.notificationOpacity = notificationOpacity;
 
         handleSetAppLauncherSettings();
     }
@@ -162,6 +166,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const sqliteTableSizes = computed(() => state.sqliteTableSizes);
     const ugcFolderPath = computed(() => state.ugcFolderPath);
     const autoDeleteOldPrints = computed(() => state.autoDeleteOldPrints);
+    const notificationOpacity = computed(() => state.notificationOpacity);
 
     const currentUserInventory = computed({
         get: () => state.currentUserInventory,
@@ -323,6 +328,11 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     async function setAutoDeleteOldPrints(value) {
         state.autoDeleteOldPrints = value;
         await configRepository.setBool('VRCX_autoDeleteOldPrints', value);
+    }
+
+    async function setNotificationOpacity(value) {
+        state.notificationOpacity = value;
+        await configRepository.setInt('VRCX_notificationOpacity', value);
     }
 
     async function getSqliteTableSizes() {
@@ -492,6 +502,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         ugcFolderPath,
         currentUserInventory,
         autoDeleteOldPrints,
+        notificationOpacity,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -516,6 +527,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         setUGCFolderPath,
         cropPrintsChanged,
         setAutoDeleteOldPrints,
+        setNotificationOpacity,
 
         getSqliteTableSizes,
         handleSetAppLauncherSettings,

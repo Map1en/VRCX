@@ -879,12 +879,29 @@
                             saveOpenVROption();
                         " />
                     <simple-switch
-                        :label="t('view.settings.notifications.notifications.steamvr_notifications.user_images')"
+                        :label="
+                            t(
+                                'view.settings.notifications.notifications.steamvr_notifications.ovrtoolkit_wrist_notifications'
+                            )
+                        "
                         :value="imageNotifications"
                         @change="
                             setImageNotifications();
                             saveOpenVROption();
                         " />
+                    <div class="options-container-item">
+                        <span class="name" style="vertical-align: top; padding-top: 10px">{{
+                            t('view.settings.notifications.notifications.steamvr_notifications.notification_opacity')
+                        }}</span>
+                        <el-slider
+                            v-model="notificationOpacity"
+                            @input="setNotificationOpacity"
+                            :show-tooltip="false"
+                            :min="0"
+                            :max="100"
+                            show-input
+                            style="display: inline-block; width: 300px" />
+                    </div>
                     <div class="options-container-item">
                         <el-button
                             size="small"
@@ -1297,7 +1314,7 @@
 
                 <div class="options-container">
                     <span class="header">{{ $t('view.settings.pictures.pictures.auto_delete_old_prints') }}</span>
-                    <div class="options-container-item">
+                    <div class="options-container-item" style="margin-top: 0">
                         <simple-switch
                             :label="$t('view.settings.pictures.pictures.auto_delete_prints_from_vrc')"
                             :value="autoDeleteOldPrints"
@@ -2072,7 +2089,8 @@
         gameLogDisabled,
         sqliteTableSizes,
         youTubeApiKey,
-        ugcFolderPath
+        ugcFolderPath,
+        notificationOpacity
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2096,7 +2114,8 @@
         setShowConfirmationOnSwitchAvatar,
         setGameLogDisabled,
 
-        getSqliteTableSizes
+        getSqliteTableSizes,
+        setNotificationOpacity
     } = advancedSettingsStore;
 
     const {

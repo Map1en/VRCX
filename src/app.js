@@ -3047,7 +3047,8 @@ $app.methods.updateVRConfigVars = function () {
         backgroundEnabled: this.store.wristOverlaySettings.vrBackgroundEnabled,
         dtHour12: this.store.appearanceSettings.dtHour12,
         pcUptimeOnFeed: this.store.wristOverlaySettings.pcUptimeOnFeed,
-        appLanguage: this.store.appearanceSettings.appLanguage
+        appLanguage: this.store.appearanceSettings.appLanguage,
+        notificationOpacity: this.store.advancedSettings.notificationOpacity
     };
     const json = JSON.stringify(VRConfigVars);
     AppApi.ExecuteVrFeedFunction('configUpdate', json);
