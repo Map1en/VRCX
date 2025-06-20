@@ -1236,6 +1236,122 @@
                 </div>
             </el-tab-pane>
 
+            <!--//- "Pictures" Tab-->
+            <el-tab-pane lazy :label="$t('view.settings.category.pictures')">
+                <div class="options-container" style="margin-top: 0">
+                    <span class="header">{{ $t('view.settings.category.pictures') }}</span>
+                </div>
+
+                <div class="options-container">
+                    <el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
+                        $t('view.settings.advanced.advanced.screenshot_metadata')
+                    }}</el-button>
+                </div>
+
+                <div class="options-container">
+                    <span class="header">{{ $t('view.settings.pictures.pictures.open_folder') }}</span>
+                    <div class="options-container-item" style="margin-top: 15px">
+                        <el-button-group>
+                            <el-button size="small" icon="el-icon-folder" @click="openVrcPhotosFolder()">{{
+                                $t('view.settings.pictures.pictures.vrc_photos')
+                            }}</el-button>
+                            <el-button size="small" icon="el-icon-folder" @click="openVrcScreenshotsFolder()">{{
+                                $t('view.settings.pictures.pictures.steam_screenshots')
+                            }}</el-button>
+                        </el-button-group>
+                    </div>
+                </div>
+
+                <!--//- Pictures | Screenshot Helper-->
+                <div class="options-container">
+                    <span class="header">{{ $t('view.settings.advanced.advanced.screenshot_helper.header') }}</span>
+                    <div class="options-container-item">
+                        <span class="name">{{
+                            $t('view.settings.advanced.advanced.screenshot_helper.description')
+                        }}</span>
+                        <el-tooltip
+                            placement="top"
+                            style="margin-left: 5px"
+                            :content="$t('view.settings.advanced.advanced.screenshot_helper.description_tooltip')">
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
+                    <simple-switch
+                        :label="$t('view.settings.advanced.advanced.screenshot_helper.enable')"
+                        :value="screenshotHelper"
+                        @change="saveScreenshotHelper('VRCX_screenshotHelper')"
+                        :long-label="true"></simple-switch>
+                    <simple-switch
+                        :label="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
+                        :value="screenshotHelperModifyFilename"
+                        @change="saveScreenshotHelper('VRCX_screenshotHelperModifyFilename')"
+                        :disabled="!screenshotHelper"
+                        :tooltip="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
+                        :long-label="true"></simple-switch>
+                    <simple-switch
+                        :label="$t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
+                        :value="screenshotHelperCopyToClipboard"
+                        @change="saveScreenshotHelper('VRCX_screenshotHelperCopyToClipboard')"
+                        :long-label="true"></simple-switch>
+                </div>
+
+                <div class="options-container">
+                    <span class="header">{{
+                        $t('view.settings.advanced.advanced.user_generated_content.header')
+                    }}</span>
+                    <div class="options-container-item">
+                        <span class="name" style="min-width: 300px">{{
+                            $t('view.settings.advanced.advanced.user_generated_content.description')
+                        }}</span>
+                        <br />
+                        <el-button
+                            size="small"
+                            icon="el-icon-folder"
+                            @click="openUGCFolder()"
+                            style="margin-top: 5px"
+                            >{{ $t('view.settings.advanced.advanced.user_generated_content.folder') }}</el-button
+                        >
+                        <el-button size="small" icon="el-icon-folder-opened" @click="openUGCFolderSelector()">{{
+                            $t('view.settings.advanced.advanced.user_generated_content.set_folder')
+                        }}</el-button>
+                        <el-button size="small" icon="el-icon-delete" @click="resetUGCFolder()" v-if="ugcFolderPath">{{
+                            $t('view.settings.advanced.advanced.user_generated_content.reset_override')
+                        }}</el-button>
+                        <br />
+                        <span class="sub-header">{{
+                            $t('view.settings.advanced.advanced.save_instance_prints_to_file.header')
+                        }}</span>
+                        <el-tooltip
+                            placement="top"
+                            style="margin-left: 5px"
+                            :content="
+                                $t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')
+                            ">
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                        <simple-switch
+                            :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
+                            :value="saveInstancePrints"
+                            @change="saveVRCXWindowOption('VRCX_saveInstancePrints')"
+                            :long-label="true"></simple-switch>
+                        <simple-switch
+                            :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
+                            :value="cropInstancePrints"
+                            @change="saveVRCXWindowOption('VRCX_cropInstancePrints')"
+                            :long-label="true"></simple-switch>
+                        <br />
+                        <span class="sub-header">{{
+                            $t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
+                        }}</span>
+                        <simple-switch
+                            :label="$t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
+                            :value="saveInstanceStickers"
+                            @change="saveVRCXWindowOption('VRCX_saveInstanceStickers')"
+                            :long-label="true"></simple-switch>
+                    </div>
+                </div>
+            </el-tab-pane>
+
             <!--//- "Advanced" Tab-->
             <el-tab-pane lazy :label="t('view.settings.category.advanced')">
                 <!--//- Advanced | Advanced-->
@@ -1248,9 +1364,6 @@
                             >
                             <el-button size="small" icon="el-icon-s-operation" @click="showLaunchOptions()">{{
                                 t('view.settings.advanced.advanced.launch_options')
-                            }}</el-button>
-                            <el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
-                                t('view.settings.advanced.advanced.screenshot_metadata')
                             }}</el-button>
                             <el-button size="small" icon="el-icon-goods" @click="showRegistryBackupDialog()">{{
                                 t('view.settings.advanced.advanced.vrc_registry_backup')
@@ -1268,12 +1381,6 @@
                             >
                             <el-button size="small" icon="el-icon-folder" @click="openVrcAppDataFolder()"
                                 >AppData</el-button
-                            >
-                            <el-button size="small" icon="el-icon-folder" @click="openVrcPhotosFolder()"
-                                >Photos</el-button
-                            >
-                            <el-button size="small" icon="el-icon-folder" @click="openVrcScreenshotsFolder()"
-                                >Screenshots</el-button
                             >
                             <el-button size="small" icon="el-icon-folder" @click="openCrashVrcCrashDumps()"
                                 >Crash Dumps</el-button
@@ -1340,64 +1447,6 @@
                     </template>
                 </div>
 
-                <!--//- Advanced | User Generated Content-->
-                <div class="options-container">
-                    <span class="header">{{ t('view.settings.advanced.advanced.user_generated_content.header') }}</span>
-                    <div class="options-container-item">
-                        <span class="name" style="min-width: 300px">{{
-                            t('view.settings.advanced.advanced.user_generated_content.description')
-                        }}</span>
-                        <br />
-                        <el-button
-                            size="small"
-                            icon="el-icon-folder"
-                            style="margin-top: 5px"
-                            @click="openUGCFolder()"
-                            >{{ t('view.settings.advanced.advanced.user_generated_content.folder') }}</el-button
-                        >
-                        <el-button size="small" icon="el-icon-folder-opened" @click="openUGCFolderSelector()">{{
-                            t('view.settings.advanced.advanced.user_generated_content.set_folder')
-                        }}</el-button>
-                        <el-button v-if="ugcFolderPath" size="small" icon="el-icon-delete" @click="resetUGCFolder()">{{
-                            t('view.settings.advanced.advanced.user_generated_content.reset_override')
-                        }}</el-button>
-                    </div>
-                    <br />
-                    <span class="sub-header"
-                        >{{ t('view.settings.advanced.advanced.save_instance_prints_to_file.header') }}
-                        <el-tooltip
-                            placement="top"
-                            style="margin-left: 5px"
-                            :content="t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')">
-                            <i class="el-icon-info"></i>
-                        </el-tooltip>
-                    </span>
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
-                        :value="saveInstancePrints"
-                        :long-label="true"
-                        @change="setSaveInstancePrints" />
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
-                        :value="cropInstancePrints"
-                        :long-label="true"
-                        @change="
-                            setCropInstancePrints();
-                            saveVRCXWindowOption('VRCX_cropInstancePrints');
-                        " />
-                    <br />
-                    <span class="sub-header">{{
-                        t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
-                    }}</span>
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
-                        :value="saveInstanceStickers"
-                        :long-label="true"
-                        @change="
-                            setSaveInstanceStickers();
-                            saveVRCXWindowOption();
-                        " />
-                </div>
                 <!--//- Advanced | Remote Avatar Database-->
                 <div class="options-container">
                     <span class="header">{{ t('view.settings.advanced.advanced.remote_database.header') }}</span>
@@ -1445,38 +1494,7 @@
                             @change="setEnableAppLauncherAutoClose" />
                     </div>
                 </template>
-                <!--//- Advanced | Screenshot Helper-->
-                <div class="options-container">
-                    <span class="header">{{ t('view.settings.advanced.advanced.screenshot_helper.header') }}</span>
-                    <div class="options-container-item">
-                        <span class="name"
-                            >{{ t('view.settings.advanced.advanced.screenshot_helper.description') }}
-                            <el-tooltip
-                                placement="top"
-                                style="margin-left: 5px"
-                                :content="t('view.settings.advanced.advanced.screenshot_helper.description_tooltip')">
-                                <i class="el-icon-info"></i>
-                            </el-tooltip>
-                        </span>
-                    </div>
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.screenshot_helper.enable')"
-                        :value="screenshotHelper"
-                        :long-label="true"
-                        @change="setScreenshotHelper" />
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
-                        :value="screenshotHelperModifyFilename"
-                        :disabled="!screenshotHelper"
-                        :tooltip="t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
-                        :long-label="true"
-                        @change="setScreenshotHelperModifyFilename" />
-                    <simple-switch
-                        :label="t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
-                        :value="screenshotHelperCopyToClipboard"
-                        :long-label="true"
-                        @change="setScreenshotHelperCopyToClipboard" />
-                </div>
+
                 <!--//- Advanced | YouTube API-->
                 <div class="options-container">
                     <span class="header">{{ t('view.settings.advanced.advanced.youtube_api.header') }}</span>
