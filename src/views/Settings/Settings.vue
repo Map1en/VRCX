@@ -1296,6 +1296,18 @@
                 </div>
 
                 <div class="options-container">
+                    <span class="header">{{ $t('view.settings.pictures.pictures.auto_delete_old_prints') }}</span>
+                    <div class="options-container-item">
+                        <simple-switch
+                            :label="$t('view.settings.pictures.pictures.auto_delete_prints_from_vrc')"
+                            :value="autoDeleteOldPrints"
+                            @change="saveOpenVROption('VRCX_autoDeleteOldPrints')"
+                            :long-label="true" />
+                    </div>
+                </div>
+
+                <!-- //- Pictures | User Generated Content -->
+                <div class="options-container">
                     <span class="header">{{
                         $t('view.settings.advanced.advanced.user_generated_content.header')
                     }}</span>

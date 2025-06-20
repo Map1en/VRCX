@@ -71,6 +71,9 @@ export default function init() {
             })
             .then((response) => {
                 if (!response.data) {
+                    if ($app.store.debug.debugWebRequests) {
+                        console.log(init, response);
+                    }
                     return response;
                 }
                 try {
@@ -79,9 +82,7 @@ export default function init() {
                         console.log(init, response.data);
                     }
                     return response;
-                } catch (e) {
-                    console.log(e);
-                }
+                } catch (e) {}
                 if (response.status === 200) {
                     this.$throw(
                         0,

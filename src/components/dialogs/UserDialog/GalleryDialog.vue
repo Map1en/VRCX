@@ -452,6 +452,14 @@
                 </span>
                 <br />
                 <br />
+                <div style="display: flex; align-items: center">
+                    <el-button-group>
+                        <el-button type="default" size="small" @click="getInventory" icon="el-icon-refresh">
+                            {{ t('dialog.gallery_icons.refresh') }}
+                        </el-button>
+                    </el-button-group>
+                </div>
+                <br />
                 <div
                     class="x-friend-item"
                     v-for="item in inventoryTable"

@@ -532,15 +532,21 @@ export default function init() {
                         $app.store.gallery.refreshEmojiTable();
                     }
                 } else if (
-                    contentType === 'print' ||
-                    contentType === 'prints'
+                    contentType === 'print'
                 ) {
                     if (
+                        $app.autoDeleteOldPrints &&
+                        content.actionType === 'created'
+                    ) {
+                        $app.tryDeleteOldPrints();
+                    } else if (
                         $app.store.gallery.galleryDialogVisible &&
                         !$app.store.gallery.galleryDialogPrintsLoading
                     ) {
-                        $app.store.gallery.refreshPrintTable();
+                        $app.refreshPrintTable();
                     }
+                } else if (contentType === 'prints') {
+                    // lol
                 } else if (contentType === 'avatar') {
                     // hmm, utilizing this might be too spamy and cause UI to move around
                 } else if (contentType === 'world') {
