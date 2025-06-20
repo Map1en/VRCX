@@ -308,6 +308,9 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     }
 
     async function setUGCFolderPath(path) {
+        if (typeof path !== 'string') {
+            path = '';
+        }
         state.ugcFolderPath = path;
         await configRepository.setString('VRCX_userGeneratedContentPath', path);
     }
