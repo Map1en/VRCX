@@ -2566,49 +2566,6 @@ API.$on('FRIEND:REQUEST:CANCEL', function (args) {
     D.outgoingRequest = false;
 });
 
-API.$on('NOTIFICATION', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (
-        D.visible === false ||
-        ref.$isDeleted ||
-        ref.type !== 'friendRequest' ||
-        ref.senderUserId !== D.id
-    ) {
-        return;
-    }
-    D.incomingRequest = true;
-});
-
-API.$on('NOTIFICATION:ACCEPT', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    // 얘는 @DELETE가 오고나서 ACCEPT가 옴
-    // 따라서 $isDeleted라면 ref가 undefined가 됨
-    if (
-        D.visible === false ||
-        typeof ref === 'undefined' ||
-        ref.type !== 'friendRequest' ||
-        ref.senderUserId !== D.id
-    ) {
-        return;
-    }
-    D.isFriend = true;
-});
-
-API.$on('NOTIFICATION:EXPIRE', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (
-        D.visible === false ||
-        ref.type !== 'friendRequest' ||
-        ref.senderUserId !== D.id
-    ) {
-        return;
-    }
-    D.incomingRequest = false;
-});
-
 API.$on('FRIEND:DELETE', function (args) {
     const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {

@@ -1,14 +1,17 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { notificationRequest, worldRequest } from '../api';
+import { notificationRequest, userRequest, worldRequest } from '../api';
 import { $app } from '../app';
 import API from '../classes/apiInit';
 import configRepository from '../service/config';
 import database from '../service/database';
 import {
     checkCanInvite,
+    displayLocation,
     escapeTag,
+    extractFileId,
+    extractFileVersion,
     parseLocation,
     removeFromArray
 } from '../shared/utils';
@@ -17,6 +20,9 @@ import { useLocationStore } from './location';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
 import { useNotificationsSettingsStore } from './settings/notifications';
+import { useAdvancedSettingsStore } from './settings/advanced';
+import { useAppearanceSettingsStore } from './settings/appearance';
+import { useUserStore } from './user';
 
 export const useNotificationStore = defineStore('Notification', () => {
     const generalSettingsStore = useGeneralSettingsStore();
@@ -24,6 +30,9 @@ export const useNotificationStore = defineStore('Notification', () => {
     const favoriteStore = useFavoriteStore();
     const friendStore = useFriendStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const userStore = useUserStore();
     const state = reactive({
         notificationInitStatus: false,
         notificationTable: {
@@ -369,6 +378,49 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     });
 
+    API.$on('NOTIFICATION', function (args) {
+        const { ref } = args;
+        const D = userStore.userDialog;
+        if (
+            D.visible === false ||
+            ref.$isDeleted ||
+            ref.type !== 'friendRequest' ||
+            ref.senderUserId !== D.id
+        ) {
+            return;
+        }
+        D.incomingRequest = true;
+    });
+
+    API.$on('NOTIFICATION:ACCEPT', function (args) {
+        const { ref } = args;
+        const D = userStore.userDialog;
+        // 얘는 @DELETE가 오고나서 ACCEPT가 옴
+        // 따라서 $isDeleted라면 ref가 undefined가 됨
+        if (
+            D.visible === false ||
+            typeof ref === 'undefined' ||
+            ref.type !== 'friendRequest' ||
+            ref.senderUserId !== D.id
+        ) {
+            return;
+        }
+        D.isFriend = true;
+    });
+
+    API.$on('NOTIFICATION:EXPIRE', function (args) {
+        const { ref } = args;
+        const D = userStore.userDialog;
+        if (
+            D.visible === false ||
+            ref.type !== 'friendRequest' ||
+            ref.senderUserId !== D.id
+        ) {
+            return;
+        }
+        D.incomingRequest = false;
+    });
+
     /**
      * aka: `API.applyNotification`
      * @param {object} json
@@ -542,7 +594,1527 @@ export const useNotificationStore = defineStore('Notification', () => {
                 notyFilter[noty.type] === 'Friends' ||
                 (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
         ) {
-            $app.playNoty(noty);
+            playNoty(noty);
+        }
+    }
+
+    function playNoty(noty) {
+        if (
+            API.currentUser.status === 'busy' ||
+            !friendStore.friendLogInitStatus
+        ) {
+            return;
+        }
+        let displayName = '';
+        if (noty.displayName) {
+            displayName = noty.displayName;
+        } else if (noty.senderUsername) {
+            displayName = noty.senderUsername;
+        } else if (noty.sourceDisplayName) {
+            displayName = noty.sourceDisplayName;
+        }
+        if (displayName) {
+            // don't play noty twice
+            const notyId = `${noty.type},${displayName}`;
+            if (
+                $app.notyMap[notyId] &&
+                $app.notyMap[notyId] >= noty.created_at
+            ) {
+                return;
+            }
+            $app.notyMap[notyId] = noty.created_at;
+        }
+        var bias = new Date(Date.now() - 60000).toJSON();
+        if (noty.created_at < bias) {
+            // don't play noty if it's over 1min old
+            return;
+        }
+
+        const notiConditions = {
+            Always: () => true,
+            'Inside VR': () => $app.isSteamVRRunning,
+            'Outside VR': () => !$app.isSteamVRRunning,
+            'Game Closed': () => !$app.isGameRunning, // Also known as "Outside VRChat"
+            'Game Running': () => $app.isGameRunning, // Also known as "Inside VRChat"
+            'Desktop Mode': () => $app.isGameNoVR && $app.isGameRunning,
+            AFK: () =>
+                notificationsSettingsStore.afkDesktopToast &&
+                $app.isHmdAfk &&
+                $app.isGameRunning &&
+                !$app.isGameNoVR
+        };
+
+        const playNotificationTTS =
+            notiConditions[notificationsSettingsStore.notificationTTS]?.();
+        const playDesktopToast =
+            notiConditions[notificationsSettingsStore.desktopToast]?.() ||
+            notiConditions['AFK']();
+
+        const playOverlayToast =
+            notiConditions[notificationsSettingsStore.overlayToast]?.();
+        const playOverlayNotification =
+            notificationsSettingsStore.overlayNotifications && playOverlayToast;
+        const playXSNotification =
+            notificationsSettingsStore.xsNotifications && playOverlayToast;
+        const playOvrtHudNotifications =
+            notificationsSettingsStore.ovrtHudNotifications && playOverlayToast;
+        const playOvrtWristNotifications =
+            notificationsSettingsStore.ovrtWristNotifications &&
+            playOverlayToast;
+
+        let message = '';
+        if (noty.title) {
+            message = `${noty.title}, ${noty.message}`;
+        } else if (noty.message) {
+            message = noty.message;
+        }
+        const messageList = [
+            'inviteMessage',
+            'requestMessage',
+            'responseMessage'
+        ];
+        for (let k = 0; k < messageList.length; k++) {
+            if (
+                typeof noty.details !== 'undefined' &&
+                typeof noty.details[messageList[k]] !== 'undefined'
+            ) {
+                message = `, ${noty.details[messageList[k]]}`;
+            }
+        }
+        if (playNotificationTTS) {
+            playNotyTTS(noty, displayName, message);
+        }
+        if (
+            playDesktopToast ||
+            playXSNotification ||
+            playOvrtHudNotifications ||
+            playOvrtWristNotifications ||
+            playOverlayNotification
+        ) {
+            if (notificationsSettingsStore.imageNotifications) {
+                notySaveImage(noty).then((image) => {
+                    if (playXSNotification) {
+                        displayXSNotification(noty, message, image);
+                    }
+                    if (
+                        playOvrtHudNotifications ||
+                        playOvrtWristNotifications
+                    ) {
+                        displayOvrtNotification(
+                            playOvrtHudNotifications,
+                            playOvrtWristNotifications,
+                            noty,
+                            message,
+                            image
+                        );
+                    }
+                    if (playDesktopToast) {
+                        displayDesktopToast(noty, message, image);
+                    }
+                    if (playOverlayNotification) {
+                        displayOverlayNotification(noty, message, image);
+                    }
+                });
+            } else {
+                if (playXSNotification) {
+                    displayXSNotification(noty, message, '');
+                }
+                if (playOvrtHudNotifications || playOvrtWristNotifications) {
+                    displayOvrtNotification(
+                        playOvrtHudNotifications,
+                        playOvrtWristNotifications,
+                        noty,
+                        message,
+                        ''
+                    );
+                }
+                if (playDesktopToast) {
+                    displayDesktopToast(noty, message, '');
+                }
+                if (playOverlayNotification) {
+                    displayOverlayNotification(noty, message, '');
+                }
+            }
+        }
+    }
+
+    async function playNotyTTS(noty, displayName, message) {
+        if (notificationsSettingsStore.notificationTTSNickName) {
+            const userId = getUserIdFromNoty(noty);
+            const memo = await $app.getUserMemo(userId);
+            if (memo.memo) {
+                const array = memo.memo.split('\n');
+                const nickName = array[0];
+                displayName = nickName;
+            }
+        }
+        switch (noty.type) {
+            case 'OnPlayerJoined':
+                $app.speak(`${displayName} has joined`);
+                break;
+            case 'OnPlayerLeft':
+                $app.speak(`${displayName} has left`);
+                break;
+            case 'OnPlayerJoining':
+                $app.speak(`${displayName} is joining`);
+                break;
+            case 'GPS':
+                $app.speak(
+                    `${displayName} is in ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`
+                );
+                break;
+            case 'Online':
+                var locationName = '';
+                if (noty.worldName) {
+                    locationName = ` to ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`;
+                }
+                $app.speak(`${displayName} has logged in${locationName}`);
+                break;
+            case 'Offline':
+                $app.speak(`${displayName} has logged out`);
+                break;
+            case 'Status':
+                $app.speak(
+                    `${displayName} status is now ${noty.status} ${noty.statusDescription}`
+                );
+                break;
+            case 'invite':
+                $app.speak(
+                    `${displayName} has invited you to ${displayLocation(
+                        noty.details.worldId,
+                        noty.details.worldName,
+                        noty.groupName
+                    )}${message}`
+                );
+                break;
+            case 'requestInvite':
+                $app.speak(`${displayName} has requested an invite${message}`);
+                break;
+            case 'inviteResponse':
+                $app.speak(
+                    `${displayName} has responded to your invite${message}`
+                );
+                break;
+            case 'requestInviteResponse':
+                $app.speak(
+                    `${displayName} has responded to your invite request${message}`
+                );
+                break;
+            case 'friendRequest':
+                $app.speak(`${displayName} has sent you a friend request`);
+                break;
+            case 'Friend':
+                $app.speak(`${displayName} is now your friend`);
+                break;
+            case 'Unfriend':
+                $app.speak(`${displayName} is no longer your friend`);
+                break;
+            case 'TrustLevel':
+                $app.speak(
+                    `${displayName} trust level is now ${noty.trustLevel}`
+                );
+                break;
+            case 'DisplayName':
+                $app.speak(
+                    `${noty.previousDisplayName} changed their name to ${noty.displayName}`
+                );
+                break;
+            case 'boop':
+                $app.speak(noty.message);
+                break;
+            case 'groupChange':
+                $app.speak(`${displayName} ${noty.message}`);
+                break;
+            case 'group.announcement':
+                $app.speak(noty.message);
+                break;
+            case 'group.informative':
+                $app.speak(noty.message);
+                break;
+            case 'group.invite':
+                $app.speak(noty.message);
+                break;
+            case 'group.joinRequest':
+                $app.speak(noty.message);
+                break;
+            case 'group.transfer':
+                $app.speak(noty.message);
+                break;
+            case 'group.queueReady':
+                $app.speak(noty.message);
+                break;
+            case 'instance.closed':
+                $app.speak(noty.message);
+                break;
+            case 'PortalSpawn':
+                if (displayName) {
+                    $app.speak(
+                        `${displayName} has spawned a portal to ${displayLocation(
+                            noty.instanceId,
+                            noty.worldName,
+                            noty.groupName
+                        )}`
+                    );
+                } else {
+                    $app.speak('User has spawned a portal');
+                }
+                break;
+            case 'AvatarChange':
+                $app.speak(`${displayName} changed into avatar ${noty.name}`);
+                break;
+            case 'ChatBoxMessage':
+                $app.speak(`${displayName} said ${noty.text}`);
+                break;
+            case 'Event':
+                $app.speak(noty.data);
+                break;
+            case 'External':
+                $app.speak(noty.message);
+                break;
+            case 'VideoPlay':
+                $app.speak(`Now playing: ${noty.notyName}`);
+                break;
+            case 'BlockedOnPlayerJoined':
+                $app.speak(`Blocked user ${displayName} has joined`);
+                break;
+            case 'BlockedOnPlayerLeft':
+                $app.speak(`Blocked user ${displayName} has left`);
+                break;
+            case 'MutedOnPlayerJoined':
+                $app.speak(`Muted user ${displayName} has joined`);
+                break;
+            case 'MutedOnPlayerLeft':
+                $app.speak(`Muted user ${displayName} has left`);
+                break;
+            case 'Blocked':
+                $app.speak(`${displayName} has blocked you`);
+                break;
+            case 'Unblocked':
+                $app.speak(`${displayName} has unblocked you`);
+                break;
+            case 'Muted':
+                $app.speak(`${displayName} has muted you`);
+                break;
+            case 'Unmuted':
+                $app.speak(`${displayName} has unmuted you`);
+                break;
+        }
+    }
+
+    async function notySaveImage(noty) {
+        const imageUrl = await notyGetImage(noty);
+        let fileId = extractFileId(imageUrl);
+        let fileVersion = extractFileVersion(imageUrl);
+        let imageLocation = '';
+        try {
+            if (fileId && fileVersion) {
+                imageLocation = await AppApi.GetImage(
+                    imageUrl,
+                    fileId,
+                    fileVersion
+                );
+            } else if (imageUrl) {
+                fileVersion = imageUrl.split('/').pop(); // 1416226261.thumbnail-500.png
+                fileId = fileVersion.split('.').shift(); // 1416226261
+                imageLocation = await AppApi.GetImage(
+                    imageUrl,
+                    fileId,
+                    fileVersion
+                );
+            }
+        } catch (err) {
+            console.error(imageUrl, err);
+        }
+        return imageLocation;
+    }
+
+    function displayDesktopToast(noty, message, image) {
+        switch (noty.type) {
+            case 'OnPlayerJoined':
+                desktopNotification(noty.displayName, 'has joined', image);
+                break;
+            case 'OnPlayerLeft':
+                desktopNotification(noty.displayName, 'has left', image);
+                break;
+            case 'OnPlayerJoining':
+                desktopNotification(noty.displayName, 'is joining', image);
+                break;
+            case 'GPS':
+                desktopNotification(
+                    noty.displayName,
+                    `is in ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`,
+                    image
+                );
+                break;
+            case 'Online':
+                let locationName = '';
+                if (noty.worldName) {
+                    locationName = ` to ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`;
+                }
+                desktopNotification(
+                    noty.displayName,
+                    `has logged in${locationName}`,
+                    image
+                );
+                break;
+            case 'Offline':
+                desktopNotification(noty.displayName, 'has logged out', image);
+                break;
+            case 'Status':
+                desktopNotification(
+                    noty.displayName,
+                    `status is now ${noty.status} ${noty.statusDescription}`,
+                    image
+                );
+                break;
+            case 'invite':
+                desktopNotification(
+                    noty.senderUsername,
+                    `has invited you to ${displayLocation(
+                        noty.details.worldId,
+                        noty.details.worldName
+                    )}${message}`,
+                    image
+                );
+                break;
+            case 'requestInvite':
+                desktopNotification(
+                    noty.senderUsername,
+                    `has requested an invite${message}`,
+                    image
+                );
+                break;
+            case 'inviteResponse':
+                desktopNotification(
+                    noty.senderUsername,
+                    `has responded to your invite${message}`,
+                    image
+                );
+                break;
+            case 'requestInviteResponse':
+                desktopNotification(
+                    noty.senderUsername,
+                    `has responded to your invite request${message}`,
+                    image
+                );
+                break;
+            case 'friendRequest':
+                desktopNotification(
+                    noty.senderUsername,
+                    'has sent you a friend request',
+                    image
+                );
+                break;
+            case 'Friend':
+                desktopNotification(
+                    noty.displayName,
+                    'is now your friend',
+                    image
+                );
+                break;
+            case 'Unfriend':
+                desktopNotification(
+                    noty.displayName,
+                    'is no longer your friend',
+                    image
+                );
+                break;
+            case 'TrustLevel':
+                desktopNotification(
+                    noty.displayName,
+                    `trust level is now ${noty.trustLevel}`,
+                    image
+                );
+                break;
+            case 'DisplayName':
+                desktopNotification(
+                    noty.previousDisplayName,
+                    `changed their name to ${noty.displayName}`,
+                    image
+                );
+                break;
+            case 'boop':
+                desktopNotification(noty.senderUsername, noty.message, image);
+                break;
+            case 'groupChange':
+                desktopNotification(noty.senderUsername, noty.message, image);
+                break;
+            case 'group.announcement':
+                desktopNotification('Group Announcement', noty.message, image);
+                break;
+            case 'group.informative':
+                desktopNotification('Group Informative', noty.message, image);
+                break;
+            case 'group.invite':
+                desktopNotification('Group Invite', noty.message, image);
+                break;
+            case 'group.joinRequest':
+                desktopNotification('Group Join Request', noty.message, image);
+                break;
+            case 'group.transfer':
+                desktopNotification(
+                    'Group Transfer Request',
+                    noty.message,
+                    image
+                );
+                break;
+            case 'group.queueReady':
+                desktopNotification(
+                    'Instance Queue Ready',
+                    noty.message,
+                    image
+                );
+                break;
+            case 'instance.closed':
+                desktopNotification('Instance Closed', noty.message, image);
+                break;
+            case 'PortalSpawn':
+                if (noty.displayName) {
+                    desktopNotification(
+                        noty.displayName,
+                        `has spawned a portal to ${displayLocation(
+                            noty.instanceId,
+                            noty.worldName,
+                            noty.groupName
+                        )}`,
+                        image
+                    );
+                } else {
+                    desktopNotification('', 'User has spawned a portal', image);
+                }
+                break;
+            case 'AvatarChange':
+                desktopNotification(
+                    noty.displayName,
+                    `changed into avatar ${noty.name}`,
+                    image
+                );
+                break;
+            case 'ChatBoxMessage':
+                desktopNotification(
+                    noty.displayName,
+                    `said ${noty.text}`,
+                    image
+                );
+                break;
+            case 'Event':
+                desktopNotification('Event', noty.data, image);
+                break;
+            case 'External':
+                desktopNotification('External', noty.message, image);
+                break;
+            case 'VideoPlay':
+                desktopNotification('Now playing', noty.notyName, image);
+                break;
+            case 'BlockedOnPlayerJoined':
+                desktopNotification(
+                    noty.displayName,
+                    'blocked user has joined',
+                    image
+                );
+                break;
+            case 'BlockedOnPlayerLeft':
+                desktopNotification(
+                    noty.displayName,
+                    'blocked user has left',
+                    image
+                );
+                break;
+            case 'MutedOnPlayerJoined':
+                desktopNotification(
+                    noty.displayName,
+                    'muted user has joined',
+                    image
+                );
+                break;
+            case 'MutedOnPlayerLeft':
+                desktopNotification(
+                    noty.displayName,
+                    'muted user has left',
+                    image
+                );
+                break;
+            case 'Blocked':
+                desktopNotification(noty.displayName, 'has blocked you', image);
+                break;
+            case 'Unblocked':
+                desktopNotification(
+                    noty.displayName,
+                    'has unblocked you',
+                    image
+                );
+                break;
+            case 'Muted':
+                desktopNotification(noty.displayName, 'has muted you', image);
+                break;
+            case 'Unmuted':
+                desktopNotification(noty.displayName, 'has unmuted you', image);
+                break;
+        }
+    }
+
+    function displayOverlayNotification(noty, message, imageFile) {
+        let image = '';
+        if (imageFile) {
+            image = `file:///${imageFile}`;
+        }
+        AppApi.ExecuteVrOverlayFunction(
+            'playNoty',
+            JSON.stringify({ noty, message, image })
+        );
+    }
+
+    function displayXSNotification(noty, message, image) {
+        const timeout = Math.floor(
+            parseInt(this.notificationTimeout, 10) / 1000
+        );
+        const opacity = parseFloat(this.notificationOpacity) / 100;
+        switch (noty.type) {
+            case 'OnPlayerJoined':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'OnPlayerLeft':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'OnPlayerJoining':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} is joining`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'GPS':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} is in ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Online':
+                let locationName = '';
+                if (noty.worldName) {
+                    locationName = ` to ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`;
+                }
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has logged in${locationName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Offline':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has logged out`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Status':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} status is now ${noty.status} ${noty.statusDescription}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'invite':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${
+                        noty.senderUsername
+                    } has invited you to ${displayLocation(
+                        noty.details.worldId,
+                        noty.details.worldName
+                    )}${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'requestInvite':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.senderUsername} has requested an invite${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'inviteResponse':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.senderUsername} has responded to your invite${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'requestInviteResponse':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.senderUsername} has responded to your invite request${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'friendRequest':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.senderUsername} has sent you a friend request`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Friend':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} is now your friend`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unfriend':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} is no longer your friend`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'TrustLevel':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} trust level is now ${noty.trustLevel}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'DisplayName':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.previousDisplayName} changed their name to ${noty.displayName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'boop':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'groupChange':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.senderUsername}: ${noty.message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.announcement':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.informative':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.invite':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.joinRequest':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.transfer':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.queueReady':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'instance.closed':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'PortalSpawn':
+                if (noty.displayName) {
+                    AppApi.XSNotification(
+                        'VRCX',
+                        `${
+                            noty.displayName
+                        } has spawned a portal to ${displayLocation(
+                            noty.instanceId,
+                            noty.worldName,
+                            noty.groupName
+                        )}`,
+                        timeout,
+                        opacity,
+                        image
+                    );
+                } else {
+                    AppApi.XSNotification(
+                        'VRCX',
+                        'User has spawned a portal',
+                        timeout,
+                        opacity,
+                        image
+                    );
+                }
+                break;
+            case 'AvatarChange':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} changed into avatar ${noty.name}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'ChatBoxMessage':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} said ${noty.text}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Event':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.data,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'External':
+                AppApi.XSNotification(
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'VideoPlay':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `Now playing: ${noty.notyName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'BlockedOnPlayerJoined':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `Blocked user ${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'BlockedOnPlayerLeft':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `Blocked user ${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'MutedOnPlayerJoined':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `Muted user ${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'MutedOnPlayerLeft':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `Muted user ${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Blocked':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has blocked you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unblocked':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has unblocked you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Muted':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has muted you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unmuted':
+                AppApi.XSNotification(
+                    'VRCX',
+                    `${noty.displayName} has unmuted you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+        }
+    }
+
+    function displayOvrtNotification(
+        playOvrtHudNotifications,
+        playOvrtWristNotifications,
+        noty,
+        message,
+        image
+    ) {
+        const timeout = Math.floor(
+            parseInt($app.notificationTimeout, 10) / 1000
+        );
+        const opacity =
+            parseFloat(advancedSettingsStore.notificationOpacity) / 100;
+        switch (noty.type) {
+            case 'OnPlayerJoined':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'OnPlayerLeft':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'OnPlayerJoining':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} is joining`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'GPS':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} is in ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Online':
+                let locationName = '';
+                if (noty.worldName) {
+                    locationName = ` to ${displayLocation(
+                        noty.location,
+                        noty.worldName,
+                        noty.groupName
+                    )}`;
+                }
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has logged in${locationName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Offline':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has logged out`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Status':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} status is now ${noty.status} ${noty.statusDescription}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'invite':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${
+                        noty.senderUsername
+                    } has invited you to ${displayLocation(
+                        noty.details.worldId,
+                        noty.details.worldName
+                    )}${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'requestInvite':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.senderUsername} has requested an invite${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'inviteResponse':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.senderUsername} has responded to your invite${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'requestInviteResponse':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.senderUsername} has responded to your invite request${message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'friendRequest':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.senderUsername} has sent you a friend request`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Friend':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} is now your friend`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unfriend':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} is no longer your friend`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'TrustLevel':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} trust level is now ${noty.trustLevel}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'DisplayName':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.previousDisplayName} changed their name to ${noty.displayName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'boop':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'groupChange':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.senderUsername}: ${noty.message}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.announcement':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.informative':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.invite':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.joinRequest':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.transfer':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'group.queueReady':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'instance.closed':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'PortalSpawn':
+                if (noty.displayName) {
+                    AppApi.OVRTNotification(
+                        playOvrtHudNotifications,
+                        playOvrtWristNotifications,
+                        'VRCX',
+                        `${
+                            noty.displayName
+                        } has spawned a portal to ${displayLocation(
+                            noty.instanceId,
+                            noty.worldName,
+                            noty.groupName
+                        )}`,
+                        timeout,
+                        opacity,
+                        image
+                    );
+                } else {
+                    AppApi.OVRTNotification(
+                        playOvrtHudNotifications,
+                        playOvrtWristNotifications,
+                        'VRCX',
+                        'User has spawned a portal',
+                        timeout,
+                        opacity,
+                        image
+                    );
+                }
+                break;
+            case 'AvatarChange':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} changed into avatar ${noty.name}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'ChatBoxMessage':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} said ${noty.text}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Event':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.data,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'External':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    noty.message,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'VideoPlay':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `Now playing: ${noty.notyName}`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'BlockedOnPlayerJoined':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `Blocked user ${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'BlockedOnPlayerLeft':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `Blocked user ${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'MutedOnPlayerJoined':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `Muted user ${noty.displayName} has joined`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'MutedOnPlayerLeft':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `Muted user ${noty.displayName} has left`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Blocked':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has blocked you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unblocked':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has unblocked you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Muted':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has muted you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+            case 'Unmuted':
+                AppApi.OVRTNotification(
+                    playOvrtHudNotifications,
+                    playOvrtWristNotifications,
+                    'VRCX',
+                    `${noty.displayName} has unmuted you`,
+                    timeout,
+                    opacity,
+                    image
+                );
+                break;
+        }
+    }
+
+    function getUserIdFromNoty(noty) {
+        let userId = '';
+        if (noty.userId) {
+            userId = noty.userId;
+        } else if (noty.senderUserId) {
+            userId = noty.senderUserId;
+        } else if (noty.sourceUserId) {
+            userId = noty.sourceUserId;
+        } else if (noty.displayName) {
+            for (const ref of API.cachedUsers.values()) {
+                if (ref.displayName === noty.displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        return userId;
+    }
+
+    async function notyGetImage(noty) {
+        let imageUrl = '';
+        const userId = getUserIdFromNoty(noty);
+
+        if (noty.thumbnailImageUrl) {
+            imageUrl = noty.thumbnailImageUrl;
+        } else if (noty.details && noty.details.imageUrl) {
+            imageUrl = noty.details.imageUrl;
+        } else if (noty.imageUrl) {
+            imageUrl = noty.imageUrl;
+        } else if (userId && !userId.startsWith('grp_')) {
+            imageUrl = await userRequest
+                .getCachedUser({
+                    userId
+                })
+                .catch((err) => {
+                    console.error(err);
+                    return '';
+                })
+                .then((args) => {
+                    if (!args.json) {
+                        return '';
+                    }
+                    if (
+                        appearanceSettingsStore.displayVRCPlusIconsAsAvatar &&
+                        args.json.userIcon
+                    ) {
+                        return args.json.userIcon;
+                    }
+                    if (args.json.profilePicOverride) {
+                        return args.json.profilePicOverride;
+                    }
+                    return args.json.currentAvatarThumbnailImageUrl;
+                });
+        }
+        return imageUrl;
+    }
+
+    function desktopNotification(displayName, message, image) {
+        if (WINDOWS) {
+            AppApi.DesktopNotification(displayName, message, image);
+        } else {
+            window.electron.desktopNotification(displayName, message, image);
         }
     }
 
@@ -552,8 +2124,10 @@ export const useNotificationStore = defineStore('Notification', () => {
         notificationTable,
         unseenNotifications,
         isNotificationsLoading,
+
         expireNotification,
         refreshNotifications,
-        queueNotificationNoty
+        queueNotificationNoty,
+        playNoty
     };
 });
