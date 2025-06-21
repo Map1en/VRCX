@@ -3877,25 +3877,6 @@ API.$on('LOGIN', function () {
     $app.previousImagesTable = [];
 });
 
-// Avatar names
-
-API.cachedAvatarNames = new Map();
-
-$app.methods.getAvatarName = async function (imageUrl) {
-    const fileId = extractFileId(imageUrl);
-    if (!fileId) {
-        return {
-            ownerId: '',
-            avatarName: '-'
-        };
-    }
-    if (API.cachedAvatarNames.has(fileId)) {
-        return API.cachedAvatarNames.get(fileId);
-    }
-    const args = await imageRequest.getAvatarImages({ fileId });
-    return storeAvatarImage(args);
-};
-
 // VRChat Config JSON
 
 $app.data.isVRChatConfigDialogVisible = false;
@@ -4180,7 +4161,7 @@ $app.methods.clearVRCXCache = function () {
             $app.store.instance.cachedInstances.delete(id);
         }
     });
-    API.cachedAvatarNames = new Map();
+    this.store.avatar.cachedAvatarNames = new Map();
     this.customUserTags = new Map();
     this.updateInstanceInfo = 0;
 };

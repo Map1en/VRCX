@@ -4,9 +4,10 @@ import { replaceBioSymbols } from './common';
 /**
  *
  * @param {object} args
+ * @param {Map} cachedAvatarNames
  * @returns
  */
-function storeAvatarImage(args) {
+function storeAvatarImage(args, cachedAvatarNames) {
     const refCreatedAt = args.json.versions[0];
     const fileCreatedAt = refCreatedAt.created_at;
     const fileId = args.params.fileId;
@@ -22,7 +23,7 @@ function storeAvatarImage(args) {
         avatarName,
         fileCreatedAt
     };
-    API.cachedAvatarNames.set(fileId, avatarInfo);
+    cachedAvatarNames.set(fileId, avatarInfo);
     return avatarInfo;
 }
 
@@ -38,6 +39,7 @@ function parseAvatarUrl(avatar) {
         const avatarId = urlPath.substring(13);
         return avatarId;
     }
+    return null;
 }
 
 /**

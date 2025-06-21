@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { avatarRequest } from '../api';
+import { avatarRequest, imageRequest } from '../api';
 import { $app, API } from '../app';
 import database from '../service/database';
 import {
@@ -8,7 +8,9 @@ import {
     getAvailablePlatforms,
     getPlatformInfo,
     getBundleDateSize,
-    replaceBioSymbols
+    replaceBioSymbols,
+    extractFileId,
+    storeAvatarImage
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
 import { useUserStore } from './user';
@@ -44,7 +46,8 @@ export const useAvatarStore = defineStore('Avatar', () => {
         cachedAvatarModerations: new Map(),
         avatarHistory: new Set(),
         avatarHistoryArray: [],
-        cachedAvatars: new Map()
+        cachedAvatars: new Map(),
+        cachedAvatarNames: new Map()
     });
 
     const avatarDialog = computed({
@@ -72,6 +75,13 @@ export const useAvatarStore = defineStore('Avatar', () => {
         get: () => state.cachedAvatars,
         set: (value) => {
             state.cachedAvatars = value;
+        }
+    });
+
+    const cachedAvatarNames = computed({
+        get: () => state.cachedAvatarNames,
+        set: (value) => {
+            state.cachedAvatarNames = value;
         }
     });
 
@@ -413,6 +423,26 @@ export const useAvatarStore = defineStore('Avatar', () => {
         });
     }
 
+    /**
+     *
+     * @param {string} imageUrl
+     * @returns {Promise<object>}
+     */
+    async function getAvatarName(imageUrl) {
+        const fileId = extractFileId(imageUrl);
+        if (!fileId) {
+            return {
+                ownerId: '',
+                avatarName: '-'
+            };
+        }
+        if (state.cachedAvatarNames.has(fileId)) {
+            return state.cachedAvatarNames.get(fileId);
+        }
+        const args = await imageRequest.getAvatarImages({ fileId });
+        return storeAvatarImage(args, state.cachedAvatarNames);
+    }
+
     return {
         state,
         avatarDialog,
@@ -420,6 +450,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         avatarHistoryArray,
         cachedAvatarModerations,
         cachedAvatars,
+        cachedAvatarNames,
 
         showAvatarDialog,
         applyAvatarModeration,
@@ -428,6 +459,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         getAvatarHistory,
         addAvatarToHistory,
         applyAvatar,
-        promptClearAvatarHistory
+        promptClearAvatarHistory,
+        getAvatarName
     };
 });

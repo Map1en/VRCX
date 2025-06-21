@@ -1738,7 +1738,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.avatar_name_cache') }}
-                            <span v-text="API.cachedAvatarNames.size"></span
+                            <span v-text="cachedAvatarNames.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1888,7 +1888,7 @@
     import { useAvatarProviderStore } from '../../stores/avatarProvider';
     import { useWorldStore } from '../../stores/world';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
-    import { photonEventTableTypeFilterList } from '../../shared/constants/photon';
+    import { photonEventTableTypeFilterList } from '../../shared/constants';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
     import NoteExportDialog from './dialogs/NoteExportDialog.vue';
     import NotificationPositionDialog from './dialogs/NotificationPositionDialog.vue';
@@ -1932,7 +1932,7 @@
     const { cachedGroups } = storeToRefs(groupStore);
 
     const avatarStore = useAvatarStore();
-    const { cachedAvatars } = storeToRefs(avatarStore);
+    const { cachedAvatars, cachedAvatarNames } = storeToRefs(avatarStore);
 
     const {
         isStartAtWindowsStartup,

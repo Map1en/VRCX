@@ -407,7 +407,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         worldStore.cachedWorlds.clear();
         API.cachedUsers.clear();
         instanceStore.cachedInstances.clear();
-        API.cachedAvatarNames.clear();
+        avatarStore.cachedAvatarNames.clear();
         avatarStore.cachedAvatarModerations.clear();
         moderationStore.cachedPlayerModerations.clear();
         state.cachedFavorites.clear();
@@ -725,6 +725,14 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.localAvatarFavoritesList = [];
         state.localAvatarFavorites = {};
         workerTimers.setTimeout(() => getLocalAvatarFavorites(), 100);
+    });
+
+    API.$on('FAVORITE:ADD', function (args) {
+        updateFavoriteDialog(args.params.favoriteId);
+    });
+
+    API.$on('FAVORITE:DELETE', function (args) {
+        updateFavoriteDialog(args.params.objectId);
     });
 
     /**
@@ -2016,14 +2024,6 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         D.visible = true;
         updateFavoriteDialog(objectId);
     }
-
-    API.$on('FAVORITE:ADD', function (args) {
-        updateFavoriteDialog(args.params.favoriteId);
-    });
-
-    API.$on('FAVORITE:DELETE', function (args) {
-        updateFavoriteDialog(args.params.objectId);
-    });
 
     return {
         state,
