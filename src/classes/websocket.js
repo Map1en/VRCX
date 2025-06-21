@@ -492,18 +492,22 @@ export default function init() {
                 var instanceId = content.instanceLocation;
                 var position = content.position ?? 0;
                 var queueSize = content.queueSize ?? 0;
-                $app.instanceQueueUpdate(instanceId, position, queueSize);
+                $app.store.instance.instanceQueueUpdate(
+                    instanceId,
+                    position,
+                    queueSize
+                );
                 break;
 
             case 'instance-queue-ready':
                 var instanceId = content.instanceLocation;
                 // var expiry = Date.parse(content.expiry);
-                $app.instanceQueueReady(instanceId);
+                $app.store.instance.instanceQueueReady(instanceId);
                 break;
 
             case 'instance-queue-left':
                 var instanceId = content.instanceLocation;
-                $app.removeQueuedInstance(instanceId);
+                $app.store.instance.removeQueuedInstance(instanceId);
                 // $app.instanceQueueClear();
                 break;
 

@@ -1,15 +1,18 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
-import { $app, API } from '../app';
+import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
 import { instanceContentSettings } from '../shared/constants';
 import {
     checkVRChatCache,
     compareByDisplayName,
     compareByLocationAt,
+    displayLocation,
     getAvailablePlatforms,
     getBundleDateSize,
+    getGroupName,
+    getWorldName,
     hasGroupPermission,
     isRealInstance,
     parseLocation
@@ -42,7 +45,8 @@ export const useInstanceStore = defineStore('Instance', () => {
             bundleSizes: [],
             lastUpdated: ''
         },
-        currentInstanceLocation: {}
+        currentInstanceLocation: {},
+        queuedInstances: new Map()
     });
 
     const cachedInstances = computed({
@@ -65,6 +69,13 @@ export const useInstanceStore = defineStore('Instance', () => {
         get: () => state.currentInstanceLocation,
         set: (value) => {
             state.currentInstanceLocation = value;
+        }
+    });
+
+    const queuedInstances = computed({
+        get: () => state.queuedInstances,
+        set: (value) => {
+            state.queuedInstances = value;
         }
     });
 
@@ -741,15 +752,181 @@ export const useInstanceStore = defineStore('Instance', () => {
         $app.updateTimers();
     }
 
+    function removeAllQueuedInstances() {
+        state.queuedInstances.forEach((ref) => {
+            $app.$message({
+                message: `Removed instance ${ref.$worldName} from queue`,
+                type: 'info'
+            });
+            ref.$msgBox?.close();
+        });
+        state.queuedInstances.clear();
+    }
+
+    /**
+     *
+     * @param {string} instanceId
+     */
+    function removeQueuedInstance(instanceId) {
+        const ref = state.queuedInstances.get(instanceId);
+        if (typeof ref !== 'undefined') {
+            ref.$msgBox.close();
+            state.queuedInstances.delete(instanceId);
+        }
+    }
+
+    /**
+     * aka: `API.applyQueuedInstance`
+     * @param {string} instanceId
+     */
+    function applyQueuedInstance(instanceId) {
+        state.queuedInstances.forEach((ref) => {
+            if (ref.location !== instanceId) {
+                $app.$message({
+                    message: $t('message.instance.removed_form_queue', {
+                        worldName: ref.$worldName
+                    }),
+                    type: 'info'
+                });
+                ref.$msgBox?.close();
+                state.queuedInstances.delete(ref.location);
+            }
+        });
+        if (!instanceId) {
+            return;
+        }
+        if (!state.queuedInstances.has(instanceId)) {
+            const L = parseLocation(instanceId);
+            if (L.isRealInstance) {
+                instanceRequest
+                    .getInstance({
+                        worldId: L.worldId,
+                        instanceId: L.instanceId
+                    })
+                    .then((args) => {
+                        if (args.json?.queueSize) {
+                            instanceQueueUpdate(
+                                instanceId,
+                                args.json?.queueSize,
+                                args.json?.queueSize
+                            );
+                        }
+                    });
+            }
+            instanceQueueUpdate(instanceId, 0, 0);
+        }
+    }
+
+    /**
+     *
+     * @param {string} instanceId
+     */
+    function instanceQueueReady(instanceId) {
+        const ref = state.queuedInstances.get(instanceId);
+        if (typeof ref !== 'undefined') {
+            ref.$msgBox.close();
+            state.queuedInstances.delete(instanceId);
+        }
+        const L = parseLocation(instanceId);
+        const group = groupStore.cachedGroups.get(L.groupId);
+        const groupName = group?.name ?? '';
+        const worldName = ref?.$worldName ?? '';
+        const location = displayLocation(instanceId, worldName, groupName);
+        $app.$message({
+            message: `Instance ready to join ${location}`,
+            type: 'success'
+        });
+        const noty = {
+            created_at: new Date().toJSON(),
+            type: 'group.queueReady',
+            imageUrl: group?.iconUrl,
+            message: `Instance ready to join ${location}`,
+            location: instanceId,
+            groupName,
+            worldName
+        };
+        if (
+            $app.notificationTable.filters[0].value.length === 0 ||
+            $app.notificationTable.filters[0].value.includes(noty.type)
+        ) {
+            $app.notifyMenu('notification');
+        }
+        $app.queueNotificationNoty(noty);
+        $app.notificationTable.data.push(noty);
+        $app.updateSharedFeed(true);
+    }
+
+    /**
+     *
+     * @param {string} instanceId
+     * @param {string} position
+     * @param {string} queueSize
+     * @returns {Promise<void>}
+     */
+    async function instanceQueueUpdate(instanceId, position, queueSize) {
+        let ref = state.queuedInstances.get(instanceId);
+        if (typeof ref === 'undefined') {
+            ref = {
+                $msgBox: null,
+                $groupName: '',
+                $worldName: '',
+                location: instanceId,
+                position: 0,
+                queueSize: 0,
+                updatedAt: 0
+            };
+        }
+        ref.position = position;
+        ref.queueSize = queueSize;
+        ref.updatedAt = Date.now();
+        if (!ref.$msgBox || ref.$msgBox.closed) {
+            ref.$msgBox = $app.$message({
+                message: '',
+                type: 'info',
+                duration: 0,
+                showClose: true,
+                customClass: 'vrc-instance-queue-message'
+            });
+        }
+        if (!ref.$groupName) {
+            ref.$groupName = await getGroupName(instanceId);
+        }
+        if (!ref.$worldName) {
+            ref.$worldName = await getWorldName(instanceId);
+        }
+        const location = displayLocation(
+            instanceId,
+            ref.$worldName,
+            ref.$groupName
+        );
+        ref.$msgBox.message = `You are in position ${ref.position} of ${ref.queueSize} in the queue for ${location} `;
+        state.queuedInstances.set(instanceId, ref);
+        // workerTimers.setTimeout(this.instanceQueueTimeout, 3600000);
+    }
+
+    // $app.methods.instanceQueueClear = function () {
+    //     // remove all instances from queue
+    //     state.queuedInstances.forEach((ref) => {
+    //         ref.$msgBox.close();
+    //         state.queuedInstances.delete(ref.location);
+    //     });
+    // };
+
     return {
         state,
         cachedInstances,
         currentInstanceWorld,
         currentInstanceLocation,
+        queuedInstances,
         applyInstance,
         updateCurrentInstanceWorld,
         createNewInstance,
         applyWorldDialogInstances,
-        applyGroupDialogInstances
+        applyGroupDialogInstances,
+        removeAllQueuedInstances,
+        removeQueuedInstance,
+        applyQueuedInstance,
+        instanceQueueReady,
+        instanceQueueUpdate
     };
 });

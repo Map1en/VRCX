@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import * as workerTimers from 'worker-timers';
 import { favoriteRequest } from '../api';
 import { $app, $t, API } from '../app';
 import database from '../service/database';
@@ -415,7 +416,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.cachedFavoriteGroupsByTypeName.clear();
         groupStore.currentUserGroups.clear();
         advancedSettingsStore.currentUserInventory.clear();
-        API.queuedInstances.clear();
+        instanceStore.queuedInstances.clear();
         state.favoriteFriendGroups = [];
         state.favoriteWorldGroups = [];
         state.favoriteAvatarGroups = [];
@@ -689,6 +690,41 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             return;
         }
         D.isFavorite = false;
+    });
+
+    API.$on('LOGIN', function () {
+        getLocalWorldFavorites();
+    });
+
+    API.$on('AVATAR', function (args) {
+        if (state.localAvatarFavoritesList.includes(args.ref.id)) {
+            for (let i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
+                const groupName = state.localAvatarFavoriteGroups[i];
+                if (!state.localAvatarFavorites[groupName]) {
+                    continue;
+                }
+                for (
+                    let j = 0;
+                    j < state.localAvatarFavorites[groupName].length;
+                    ++j
+                ) {
+                    const ref = state.localAvatarFavorites[groupName][j];
+                    if (ref.id === args.ref.id) {
+                        state.localAvatarFavorites[groupName][j] = args.ref;
+                    }
+                }
+            }
+
+            // update db cache
+            database.addAvatarToCache(args.ref);
+        }
+    });
+
+    API.$on('LOGIN', function () {
+        state.localAvatarFavoriteGroups = [];
+        state.localAvatarFavoritesList = [];
+        state.localAvatarFavorites = {};
+        workerTimers.setTimeout(() => getLocalAvatarFavorites(), 100);
     });
 
     /**

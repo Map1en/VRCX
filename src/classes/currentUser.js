@@ -193,7 +193,7 @@ export default function init() {
             $app.store.appearanceSettings.applyUserTrustLevel(ref);
             $app.store.user.applyUserLanguage(ref);
             this.applyPresenceLocation(ref);
-            this.applyQueuedInstance(ref.queuedInstance);
+            this.store.instance.applyQueuedInstance(ref.queuedInstance);
             $app.store.group.applyPresenceGroups(ref);
         } else {
             ref = {

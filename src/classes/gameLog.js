@@ -69,7 +69,9 @@ export default function init() {
                         this.lastLocationDestinationTime = Date.parse(
                             gameLog.dt
                         );
-                        this.removeQueuedInstance(gameLog.location);
+                        this.store.instance.removeQueuedInstance(
+                            gameLog.location
+                        );
                         this.updateCurrentUserLocation();
                         this.clearNowPlaying();
                         this.store.instance.updateCurrentInstanceWorld();
@@ -94,7 +96,9 @@ export default function init() {
                             playerList: new Map(),
                             friendList: new Map()
                         };
-                        this.removeQueuedInstance(gameLog.location);
+                        this.store.instance.removeQueuedInstance(
+                            gameLog.location
+                        );
                         this.updateCurrentUserLocation();
                         this.updateVRLastLocation();
                         this.store.instance.updateCurrentInstanceWorld();
