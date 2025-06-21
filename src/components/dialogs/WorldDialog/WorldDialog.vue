@@ -777,6 +777,7 @@
         userImage,
         userStatusClass
     } from '../../../shared/utils';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useLocationStore } from '../../../stores/location';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -787,6 +788,7 @@
     import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
+    import { useInviteStore } from '../../../stores/invite';
 
     export default {
         name: 'WorldDialog',
@@ -802,7 +804,6 @@
             'adjustDialogZ',
             'showPreviousInstancesInfoDialog',
             'showFullscreenImageDialog',
-            'showFavoriteDialog',
             'openFolderGeneric',
             'deleteVRChatCache'
         ],
@@ -824,6 +825,10 @@
             const { showWorldDialog } = worldStore;
             const locationStore = useLocationStore();
             const { lastLocation } = storeToRefs(locationStore);
+            const inviteStore = useInviteStore();
+            const { newInstanceSelfInvite } = inviteStore;
+            const favoriteStore = useFavoriteStore();
+            const { showFavoriteDialog } = favoriteStore;
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -837,7 +842,9 @@
                 userImage,
                 showWorldDialog,
                 cachedWorlds,
-                lastLocation
+                lastLocation,
+                newInstanceSelfInvite,
+                showFavoriteDialog
             };
         },
         data() {
@@ -1149,8 +1156,25 @@
                     case 'Add Favorite':
                         this.showFavoriteDialog('world', D.id);
                         break;
+                    case 'New Instance and Self Invite':
+                        this.newInstanceSelfInvite(D.id);
+                        break;
+                    case 'Rename':
+                        $app.promptRenameWorld(D);
+                        break;
+                    case 'Change Description':
+                        $app.promptChangeWorldDescription(D);
+                        break;
+                    case 'Change Capacity':
+                        $app.promptChangeWorldCapacity(D);
+                        break;
+                    case 'Change Recommended Capacity':
+                        $app.promptChangeWorldRecommendedCapacity(D);
+                        break;
+                    case 'Change YouTube Preview':
+                        $app.promptChangeWorldYouTubePreview(D);
+                        break;
                     default:
-                        this.$emit('worldDialogCommand', command);
                         break;
                 }
             },

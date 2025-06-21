@@ -1702,6 +1702,22 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             });
     }
 
+    function showFavoriteDialog(type, objectId) {
+        const D = state.favoriteDialog;
+        D.type = type;
+        D.objectId = objectId;
+        D.visible = true;
+        updateFavoriteDialog(objectId);
+    }
+
+    API.$on('FAVORITE:ADD', function (args) {
+        updateFavoriteDialog(args.params.favoriteId);
+    });
+
+    API.$on('FAVORITE:DELETE', function (args) {
+        updateFavoriteDialog(args.params.objectId);
+    });
+
     return {
         state,
 
@@ -1772,6 +1788,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         removeLocalWorldFavorite,
         getLocalWorldFavorites,
         newLocalWorldFavoriteGroup,
-        deleteFavoriteNoConfirm
+        deleteFavoriteNoConfirm,
+        showFavoriteDialog
     };
 });

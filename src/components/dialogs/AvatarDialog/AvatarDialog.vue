@@ -625,6 +625,7 @@
         timeToText,
         commaNumber
     } from '../../../shared/utils';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import { useAvatarStore } from '../../../stores/avatar';
@@ -634,7 +635,6 @@
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -644,6 +644,8 @@
     const avatarStore = useAvatarStore();
     const { avatarDialog, cachedAvatarModerations } = storeToRefs(avatarStore);
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
+    const favoriteStore = useFavoriteStore();
+    const { showFavoriteDialog } = favoriteStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

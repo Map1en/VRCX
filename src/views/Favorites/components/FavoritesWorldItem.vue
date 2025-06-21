@@ -138,7 +138,6 @@
 
     export default {
         name: 'FavoritesWorldItem',
-        inject: ['showFavoriteDialog'],
         props: {
             group: [Object, String],
             favorite: Object,
@@ -151,13 +150,15 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteWorldGroups } = storeToRefs(favoriteStore);
+            const { showFavoriteDialog } = favoriteStore;
             const inviteStore = useInviteStore();
             const { newInstanceSelfInvite } = storeToRefs(inviteStore);
             return {
                 hideTooltips,
                 API,
                 favoriteWorldGroups,
-                newInstanceSelfInvite
+                newInstanceSelfInvite,
+                showFavoriteDialog
             };
         },
         computed: {

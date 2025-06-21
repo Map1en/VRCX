@@ -148,7 +148,6 @@
 
     export default {
         name: 'FavoritesAvatarItem',
-        inject: ['showFavoriteDialog'],
         props: {
             favorite: Object,
             group: [Object, String],
@@ -161,12 +160,14 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
-            const { removeLocalAvatarFavorite } = favoriteStore;
+            const { removeLocalAvatarFavorite, showFavoriteDialog } = favoriteStore;
+
             return {
                 hideTooltips,
                 API,
                 favoriteAvatarGroups,
-                removeLocalAvatarFavorite
+                removeLocalAvatarFavorite,
+                showFavoriteDialog
             };
         },
         computed: {

@@ -51,7 +51,6 @@
 
     export default {
         name: 'FavoritesAvatarLocalHistoryItem',
-        inject: ['showFavoriteDialog'],
         props: {
             favorite: {
                 type: Object,
@@ -63,10 +62,12 @@
             const { hideTooltips } = storeToRefs(appearanceSettingsStore);
             const favoriteStore = useFavoriteStore();
             const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
+            const { showFavoriteDialog } = favoriteStore;
             return {
                 hideTooltips,
                 API,
-                cachedFavoritesByObjectId
+                cachedFavoritesByObjectId,
+                showFavoriteDialog
             };
         },
         computed: {

@@ -94,7 +94,6 @@
 
     export default {
         components: { Location },
-        inject: ['showFavoriteDialog'],
         props: {
             favorite: {
                 type: Object,
@@ -117,13 +116,15 @@
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+            const { showFavoriteDialog } = favoriteStore;
             return {
                 hideTooltips,
                 API,
                 userStatusClass,
                 showUserDialog,
                 favoriteFriendGroups,
-                userImage
+                userImage,
+                showFavoriteDialog
             };
         },
         methods: {

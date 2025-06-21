@@ -1866,6 +1866,7 @@
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog, applyUser } = userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
+    const { showFavoriteDialog } = favoriteStore;
     const { showAvatarDialog } = avatarStore;
     const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
@@ -1882,7 +1883,6 @@
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
-    const showFavoriteDialog = inject('showFavoriteDialog');
     const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({

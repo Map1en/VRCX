@@ -324,7 +324,6 @@ let $app = {
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             showPreviousInstancesInfoDialog:
                 this.showPreviousInstancesInfoDialog,
-            showFavoriteDialog: this.showFavoriteDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog,
@@ -4023,33 +4022,6 @@ API.$on('FAVORITE:@DELETE', function (args) {
     D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(D.id);
 });
 
-$app.methods.worldDialogCommand = function (command) {
-    const D = this.store.world.worldDialog;
-    if (D.visible === false) {
-        return;
-    }
-    switch (command) {
-        case 'New Instance and Self Invite':
-            this.store.invite.newInstanceSelfInvite(D.id);
-            break;
-        case 'Rename':
-            this.promptRenameWorld(D);
-            break;
-        case 'Change Description':
-            this.promptChangeWorldDescription(D);
-            break;
-        case 'Change Capacity':
-            this.promptChangeWorldCapacity(D);
-            break;
-        case 'Change Recommended Capacity':
-            this.promptChangeWorldRecommendedCapacity(D);
-            break;
-        case 'Change YouTube Preview':
-            this.promptChangeWorldYouTubePreview(D);
-            break;
-    }
-};
-
 // #endregion
 // #region | App: Avatar Dialog
 
@@ -4174,25 +4146,6 @@ $app.methods.showAvatarAuthorDialog = async function (
         }
     }
 };
-
-// #endregion
-// #region | App: Favorite Dialog
-
-$app.methods.showFavoriteDialog = function (type, objectId) {
-    const D = this.store.favorite.favoriteDialog;
-    D.type = type;
-    D.objectId = objectId;
-    D.visible = true;
-    this.store.favorite.updateFavoriteDialog(objectId);
-};
-
-API.$on('FAVORITE:ADD', function (args) {
-    $app.store.favorite.updateFavoriteDialog(args.params.favoriteId);
-});
-
-API.$on('FAVORITE:DELETE', function (args) {
-    $app.store.favorite.updateFavoriteDialog(args.params.objectId);
-});
 
 // #endregion
 // #region | App: Copy To Clipboard
