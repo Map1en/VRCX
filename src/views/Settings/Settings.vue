@@ -1257,6 +1257,13 @@
             <el-tab-pane lazy :label="$t('view.settings.category.pictures')">
                 <div class="options-container" style="margin-top: 0">
                     <span class="header">{{ $t('view.settings.category.pictures') }}</span>
+                    <div class="options-container-item" style="margin-top: 15px">
+                        <el-button-group
+                            ><el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
+                                $t('view.settings.advanced.advanced.screenshot_metadata')
+                            }}</el-button>
+                        </el-button-group>
+                    </div>
                 </div>
 
                 <div class="options-container">
