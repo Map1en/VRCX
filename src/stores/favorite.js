@@ -9,6 +9,10 @@ import { useFriendStore } from './friend';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useWorldStore } from './world';
+import { useGroupStore } from './group';
+import { useInstanceStore } from './instance';
+import { useModerationStore } from './moderation';
+import { useAdvancedSettingsStore } from './settings/advanced';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -16,6 +20,11 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const generalSettingsStore = useGeneralSettingsStore();
     const avatarStore = useAvatarStore();
     const worldStore = useWorldStore();
+    const groupStore = useGroupStore();
+    const instanceStore = useInstanceStore();
+    const moderationStore = useModerationStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
+
     const state = reactive({
         isFavoriteGroupLoading: false,
         favoriteFriendGroups: [],
@@ -388,6 +397,205 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     });
 
     API.$on('LOGIN', function () {
+        friendStore.localFavoriteFriends.clear();
+        $app.currentUserGroupsInit = false;
+        groupStore.cachedGroups.clear();
+        API.cachedAvatars.clear();
+        worldStore.cachedWorlds.clear();
+        API.cachedUsers.clear();
+        instanceStore.cachedInstances.clear();
+        API.cachedAvatarNames.clear();
+        avatarStore.cachedAvatarModerations.clear();
+        moderationStore.cachedPlayerModerations.clear();
+        state.cachedFavorites.clear();
+        state.cachedFavoritesByObjectId.clear();
+        state.cachedFavoriteGroups.clear();
+        state.cachedFavoriteGroupsByTypeName.clear();
+        groupStore.currentUserGroups.clear();
+        advancedSettingsStore.currentUserInventory.clear();
+        API.queuedInstances.clear();
+        state.favoriteFriendGroups = [];
+        state.favoriteWorldGroups = [];
+        state.favoriteAvatarGroups = [];
+        state.isFavoriteLoading = false;
+        state.isFavoriteGroupLoading = false;
+        refreshFavorites();
+    });
+
+    API.$on('FAVORITE', function (args) {
+        const ref = applyFavoriteCached(args.json);
+        if (ref.$isDeleted) {
+            return;
+        }
+        args.ref = ref;
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        const { ref } = args;
+        if (ref.$groupRef !== null) {
+            --ref.$groupRef.count;
+        }
+    });
+
+    API.$on('FAVORITE:LIST', function (args) {
+        for (const json of args.json) {
+            API.$emit('FAVORITE', {
+                json,
+                params: {
+                    favoriteId: json.id
+                },
+                sortTop: false
+            });
+        }
+    });
+
+    API.$on('FAVORITE:ADD', function (args) {
+        API.$emit('FAVORITE', {
+            json: args.json,
+            params: {
+                favoriteId: args.json.id
+            },
+            sortTop: true
+        });
+    });
+
+    API.$on('FAVORITE:ADD', function (args) {
+        if (
+            args.params.type === 'avatar' &&
+            !API.cachedAvatars.has(args.params.favoriteId)
+        ) {
+            refreshFavoriteAvatars(args.params.tags);
+        }
+
+        if (
+            args.params.type === 'friend' &&
+            generalSettingsStore.localFavoriteFriendsGroups.includes(
+                'friend:' + args.params.tags
+            )
+        ) {
+            friendStore.updateLocalFavoriteFriends();
+        }
+    });
+
+    API.$on('FAVORITE:DELETE', function (args) {
+        const ref = state.cachedFavoritesByObjectId.get(args.params.objectId);
+        if (typeof ref === 'undefined') {
+            return;
+        }
+        // 애초에 $isDeleted인데 여기로 올 수 가 있나..?
+        state.cachedFavoritesByObjectId.delete(args.params.objectId);
+        friendStore.localFavoriteFriends.delete(args.params.objectId);
+        friendStore.updateSidebarFriendsList();
+        if (ref.$isDeleted) {
+            return;
+        }
+        args.ref = ref;
+        ref.$isDeleted = true;
+        API.$emit('FAVORITE:@DELETE', {
+            ref,
+            params: {
+                favoriteId: ref.id
+            }
+        });
+    });
+
+    API.$on('FAVORITE:GROUP', function (args) {
+        const ref = applyFavoriteGroup(args.json);
+        if (ref.$isDeleted) {
+            return;
+        }
+        args.ref = ref;
+        if (ref.$groupRef !== null) {
+            ref.$groupRef.displayName = ref.displayName;
+            ref.$groupRef.visibility = ref.visibility;
+        }
+    });
+
+    API.$on('FAVORITE:GROUP:LIST', function (args) {
+        for (const json of args.json) {
+            API.$emit('FAVORITE:GROUP', {
+                json,
+                params: {
+                    favoriteGroupId: json.id
+                }
+            });
+        }
+    });
+
+    API.$on('FAVORITE:GROUP:SAVE', function (args) {
+        API.$emit('FAVORITE:GROUP', {
+            json: args.json,
+            params: {
+                favoriteGroupId: args.json.id
+            }
+        });
+    });
+
+    API.$on('FAVORITE:GROUP:CLEAR', function (args) {
+        const key = `${args.params.type}:${args.params.group}`;
+        for (const ref of state.cachedFavorites.values()) {
+            if (ref.$isDeleted || ref.$groupKey !== key) {
+                continue;
+            }
+            state.cachedFavoritesByObjectId.delete(ref.favoriteId);
+            friendStore.localFavoriteFriends.delete(ref.favoriteId);
+            friendStore.updateSidebarFriendsList();
+            ref.$isDeleted = true;
+            API.$emit('FAVORITE:@DELETE', {
+                ref,
+                params: {
+                    favoriteId: ref.id
+                }
+            });
+        }
+    });
+
+    API.$on('FAVORITE:WORLD:LIST', function (args) {
+        for (const json of args.json) {
+            if (json.id === '???') {
+                // FIXME
+                // json.favoriteId로 따로 불러와야 하나?
+                // 근데 ???가 많으면 과다 요청이 될듯
+                continue;
+            }
+            API.$emit('WORLD', {
+                json,
+                params: {
+                    worldId: json.id
+                }
+            });
+        }
+    });
+
+    API.$on('FAVORITE:AVATAR:LIST', function (args) {
+        for (const json of args.json) {
+            if (json.releaseStatus === 'hidden') {
+                // NOTE: 얘는 또 더미 데이터로 옴
+                continue;
+            }
+            this.$emit('AVATAR', {
+                json,
+                params: {
+                    avatarId: json.id
+                }
+            });
+        }
+    });
+
+    API.expireFavorites = function () {
+        friendStore.localFavoriteFriends.clear();
+        state.cachedFavorites.clear();
+        state.cachedFavoritesByObjectId.clear();
+        state.favoriteObjects.clear();
+        state.favoriteFriends_ = [];
+        state.favoriteFriendsSorted = [];
+        state.favoriteWorlds_ = [];
+        state.favoriteWorldsSorted = [];
+        state.favoriteAvatars_ = [];
+        state.favoriteAvatarsSorted = [];
+    };
+
+    API.$on('LOGIN', function () {
         state.favoriteObjects.clear();
         state.favoriteFriends_ = [];
         state.favoriteFriendsSorted = [];
@@ -418,6 +626,14 @@ export const useFavoriteStore = defineStore('Favorite', () => {
 
     API.$on('AVATAR', function (args) {
         applyFavorite('avatar', args.ref.id);
+    });
+
+    API.$on('FAVORITE', function (args) {
+        friendStore.updateFriend({ id: args.ref.favoriteId });
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        friendStore.updateFriend({ id: args.ref.favoriteId });
     });
 
     /**
