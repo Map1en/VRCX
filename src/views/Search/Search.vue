@@ -353,6 +353,7 @@
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog } = userStore;
     const { showAvatarDialog } = avatarStore;
+    const { cachedAvatars } = storeToRefs(avatarStore);
     const worldStore = useWorldStore();
     const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
@@ -585,7 +586,7 @@
         const query = props.searchText;
         const queryUpper = query.toUpperCase();
         if (!query) {
-            for (ref of API.cachedAvatars.values()) {
+            for (ref of cachedAvatars.value.values()) {
                 switch (searchAvatarFilter.value) {
                     case 'all':
                         avatars.set(ref.id, ref);
@@ -605,7 +606,7 @@
             isSearchAvatarLoading.value = false;
         } else {
             if (searchAvatarFilterRemote.value === 'all' || searchAvatarFilterRemote.value === 'local') {
-                for (ref of API.cachedAvatars.values()) {
+                for (ref of cachedAvatars.value.values()) {
                     let match = ref.name.toUpperCase().includes(queryUpper);
                     if (!match && ref.description) {
                         match = ref.description.toUpperCase().includes(queryUpper);

@@ -1868,6 +1868,7 @@
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showFavoriteDialog } = favoriteStore;
     const { showAvatarDialog } = avatarStore;
+    const { cachedAvatars } = storeToRefs(avatarStore);
     const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
@@ -2689,7 +2690,7 @@
         userDialogAvatars.value.forEach((avatar) => {
             avatars.add(avatar.id, avatar);
         });
-        for (const ref of API.cachedAvatars.values()) {
+        for (const ref of cachedAvatars.value.values()) {
             if (ref.authorId === userId && !avatars.has(ref.id)) {
                 userDialog.value.avatars.push(ref);
             }

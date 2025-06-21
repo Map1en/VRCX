@@ -403,7 +403,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         friendStore.localFavoriteFriends.clear();
         $app.currentUserGroupsInit = false;
         groupStore.cachedGroups.clear();
-        API.cachedAvatars.clear();
+        avatarStore.cachedAvatars.clear();
         worldStore.cachedWorlds.clear();
         API.cachedUsers.clear();
         instanceStore.cachedInstances.clear();
@@ -465,7 +465,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     API.$on('FAVORITE:ADD', function (args) {
         if (
             args.params.type === 'avatar' &&
-            !API.cachedAvatars.has(args.params.favoriteId)
+            !avatarStore.cachedAvatars.has(args.params.favoriteId)
         ) {
             refreshFavoriteAvatars(args.params.tags);
         }
@@ -768,7 +768,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                         ctx.name = ref.name;
                     }
                 } else if (type === 'avatar') {
-                    ref = API.cachedAvatars.get(objectId);
+                    ref = avatarStore.cachedAvatars.get(objectId);
                     if (typeof ref !== 'undefined') {
                         ctx.ref = ref;
                         ctx.name = ref.name;
@@ -836,7 +836,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                         }
                     }
                 } else if (type === 'avatar') {
-                    ref = API.cachedAvatars.get(objectId);
+                    ref = avatarStore.cachedAvatars.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;
@@ -1448,7 +1448,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         if (hasLocalAvatarFavorite(avatarId, group)) {
             return;
         }
-        const ref = API.cachedAvatars.get(avatarId);
+        const ref = avatarStore.cachedAvatars.get(avatarId);
         if (typeof ref === 'undefined') {
             return;
         }
@@ -1693,7 +1693,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         const avatarCache = await database.getAvatarCache();
         for (i = 0; i < avatarCache.length; ++i) {
             ref = avatarCache[i];
-            if (!API.cachedAvatars.has(ref.id)) {
+            if (!avatarStore.cachedAvatars.has(ref.id)) {
                 avatarStore.applyAvatar(ref);
             }
         }
@@ -1709,7 +1709,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             if (!state.localAvatarFavoriteGroups.includes(favorite.groupName)) {
                 state.localAvatarFavoriteGroups.push(favorite.groupName);
             }
-            ref = API.cachedAvatars.get(favorite.avatarId);
+            ref = avatarStore.cachedAvatars.get(favorite.avatarId);
             if (typeof ref === 'undefined') {
                 ref = {
                     id: favorite.avatarId

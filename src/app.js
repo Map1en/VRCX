@@ -626,64 +626,6 @@ API.$on('INSTANCE', function (args) {
 });
 
 // #endregion
-// #region | API: Avatar
-
-API.cachedAvatars = new Map();
-
-API.$on('AVATAR', function (args) {
-    args.ref = $app.store.avatar.applyAvatar(args.json);
-});
-
-API.$on('AVATAR:LIST', function (args) {
-    for (let json of args.json) {
-        this.$emit('AVATAR', {
-            json,
-            params: {
-                avatarId: json.id
-            }
-        });
-    }
-});
-
-API.$on('AVATAR:SAVE', function (args) {
-    let { json } = args;
-    this.$emit('AVATAR', {
-        json,
-        params: {
-            avatarId: json.id
-        }
-    });
-});
-
-API.$on('AVATAR:SELECT', function (args) {
-    this.$emit('USER:CURRENT', args);
-});
-
-API.$on('AVATAR:DELETE', function (args) {
-    let { json } = args;
-    this.cachedAvatars.delete(json._id);
-    if ($app.store.user.userDialog.id === json.authorId) {
-        const map = new Map();
-        for (let ref of this.cachedAvatars.values()) {
-            if (ref.authorId === json.authorId) {
-                map.set(ref.id, ref);
-            }
-        }
-        const array = Array.from(map.values());
-        $app.sortUserDialogAvatars(array);
-    }
-});
-
-// API.$on('AVATAR:IMPOSTER:DELETE', function (args) {
-//     if (
-//         $app.avatarDialog.visible &&
-//         args.params.avatarId === $app.avatarDialog.id
-//     ) {
-//         $app.showAvatarDialog($app.avatarDialog.id);
-//     }
-// });
-
-// #endregion
 // #region | API: Notification
 
 API.isNotificationsLoading = false;
@@ -3718,9 +3660,9 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
         releaseStatus: 'all',
         user: 'me'
     };
-    for (const ref of API.cachedAvatars.values()) {
+    for (const ref of this.store.avatar.cachedAvatars.values()) {
         if (ref.authorId === D.id) {
-            API.cachedAvatars.delete(ref.id);
+            this.store.avatar.cachedAvatars.delete(ref.id);
         }
     }
     const map = new Map();
@@ -3730,7 +3672,7 @@ $app.methods.refreshUserDialogAvatars = function (fileId) {
         params,
         handle: (args) => {
             for (let json of args.json) {
-                const $ref = API.cachedAvatars.get(json.id);
+                const $ref = this.store.avatar.cachedAvatars.get(json.id);
                 if (typeof $ref !== 'undefined') {
                     map.set($ref.id, $ref);
                 }
@@ -3807,7 +3749,7 @@ $app.methods.selectAvatarWithoutConfirmation = function (id) {
 
 $app.methods.checkAvatarCache = function (fileId) {
     let avatarId = '';
-    for (let ref of API.cachedAvatars.values()) {
+    for (let ref of this.store.avatar.cachedAvatars.values()) {
         if (extractFileId(ref.imageUrl) === fileId) {
             avatarId = ref.id;
         }
@@ -4217,14 +4159,14 @@ $app.methods.clearVRCXCache = function () {
             this.store.world.cachedWorlds.delete(id);
         }
     });
-    API.cachedAvatars.forEach((ref, id) => {
+    this.store.avatar.cachedAvatars.forEach((ref, id) => {
         if (
             !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
             ref.authorId !== API.currentUser.id &&
             !this.store.favorite.localAvatarFavoritesList.includes(id) &&
             !$app.store.avatar.avatarHistory.has(id)
         ) {
-            API.cachedAvatars.delete(id);
+            this.store.avatar.cachedAvatars.delete(id);
         }
     });
     $app.store.group.cachedGroups.forEach((ref, id) => {

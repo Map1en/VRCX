@@ -1726,7 +1726,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.avatar_cache') }}
-                            <span v-text="API.cachedAvatars.size"></span
+                            <span v-text="cachedAvatars.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1903,6 +1903,7 @@
     import { useGroupStore } from '../../stores/group';
     import { useInstanceStore } from '../../stores/instance';
     import { useLaunchStore } from '../../stores/launch';
+    import { useAvatarStore } from '../../stores/avatar';
 
     const { messages, t } = useI18n();
 
@@ -1929,6 +1930,9 @@
 
     const groupStore = useGroupStore();
     const { cachedGroups } = storeToRefs(groupStore);
+
+    const avatarStore = useAvatarStore();
+    const { cachedAvatars } = storeToRefs(avatarStore);
 
     const {
         isStartAtWindowsStartup,

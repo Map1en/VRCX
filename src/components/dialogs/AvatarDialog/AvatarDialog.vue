@@ -642,7 +642,7 @@
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
     const avatarStore = useAvatarStore();
-    const { avatarDialog, cachedAvatarModerations } = storeToRefs(avatarStore);
+    const { avatarDialog, cachedAvatarModerations, cachedAvatars } = storeToRefs(avatarStore);
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
     const favoriteStore = useFavoriteStore();
     const { showFavoriteDialog } = favoriteStore;
@@ -910,11 +910,11 @@
                                     })
                                     .then((args) => {
                                         // API.$on('AVATAR:DELETE')
-                                        let { json } = args;
-                                        API.cachedAvatars.delete(json._id);
+                                        const { json } = args;
+                                        cachedAvatars.value.delete(json._id);
                                         if ($app.store.user.userDialog.id === json.authorId) {
                                             const map = new Map();
-                                            for (let ref of API.cachedAvatars.values()) {
+                                            for (const ref of cachedAvatars.value.values()) {
                                                 if (ref.authorId === json.authorId) {
                                                     map.set(ref.id, ref);
                                                 }
@@ -1226,7 +1226,7 @@
                     break;
             }
         });
-        for (const ref of API.cachedAvatars.values()) {
+        for (const ref of cachedAvatars.value.values()) {
             if (ref.authorId === API.currentUser.id) {
                 ref.$selected = false;
                 ref.$tagString = '';

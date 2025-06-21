@@ -14,8 +14,10 @@
 </template>
 
 <script>
+    import { storeToRefs } from 'pinia';
     import { avatarRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useAvatarStore } from '../../../stores/avatar';
 
     export default {
         name: 'ExportAvatarsListDialog',
@@ -23,8 +25,11 @@
             isExportAvatarsListDialogVisible: Boolean
         },
         setup() {
+            const avatarStore = useAvatarStore();
+            const { cachedAvatars } = storeToRefs(avatarStore);
             return {
-                API
+                API,
+                cachedAvatars
             };
         },
         data() {
@@ -53,9 +58,9 @@
         methods: {
             initExportAvatarsListDialog() {
                 this.loading = true;
-                for (const ref of this.API.cachedAvatars.values()) {
+                for (const ref of this.cachedAvatars.values()) {
                     if (ref.authorId === this.API.currentUser.id) {
-                        this.API.cachedAvatars.delete(ref.id);
+                        this.cachedAvatars.delete(ref.id);
                     }
                 }
                 const params = {
@@ -73,7 +78,7 @@
                     params,
                     handle: (args) => {
                         for (const json of args.json) {
-                            const $ref = this.API.cachedAvatars.get(json.id);
+                            const $ref = this.cachedAvatars.get(json.id);
                             if (typeof $ref !== 'undefined') {
                                 map.set($ref.id, $ref);
                             }

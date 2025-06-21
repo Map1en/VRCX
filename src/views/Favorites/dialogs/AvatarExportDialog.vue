@@ -83,6 +83,7 @@
     import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAvatarStore } from '../../../stores/avatar';
 
     export default {
         name: 'AvatarExportDialog',
@@ -99,6 +100,8 @@
                 localAvatarFavoriteGroups
             } = storeToRefs(favoriteStore);
             const { getLocalAvatarFavoriteGroupLength } = favoriteStore;
+            const avatarStore = useAvatarStore();
+            const { cachedAvatars } = storeToRefs(avatarStore);
             return {
                 favoriteAvatars,
                 API,
@@ -106,7 +109,8 @@
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavorites,
                 localAvatarFavoritesList,
-                localAvatarFavoriteGroups
+                localAvatarFavoriteGroups,
+                cachedAvatars
             };
         },
         data() {
@@ -212,7 +216,7 @@
                     });
                     for (let i = 0; i < this.localAvatarFavoritesList.length; ++i) {
                         const avatarId = this.localAvatarFavoritesList[i];
-                        const ref = this.API.cachedAvatars.get(avatarId);
+                        const ref = this.cachedAvatars.get(avatarId);
                         if (typeof ref !== 'undefined') {
                             lines.push(resText(ref));
                         }

@@ -11,9 +11,11 @@ import {
     replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
+import { useUserStore } from './user';
 
 export const useAvatarStore = defineStore('Avatar', () => {
     const favoriteStore = useFavoriteStore();
+    const userStore = useUserStore();
     const state = reactive({
         avatarDialog: {
             visible: false,
@@ -41,7 +43,8 @@ export const useAvatarStore = defineStore('Avatar', () => {
         },
         cachedAvatarModerations: new Map(),
         avatarHistory: new Set(),
-        avatarHistoryArray: []
+        avatarHistoryArray: [],
+        cachedAvatars: new Map()
     });
 
     const avatarDialog = computed({
@@ -62,6 +65,57 @@ export const useAvatarStore = defineStore('Avatar', () => {
         get: () => state.cachedAvatarModerations,
         set: (value) => {
             state.cachedAvatarModerations = value;
+        }
+    });
+
+    const cachedAvatars = computed({
+        get: () => state.cachedAvatars,
+        set: (value) => {
+            state.cachedAvatars = value;
+        }
+    });
+
+    API.$on('AVATAR', function (args) {
+        args.ref = applyAvatar(args.json);
+    });
+
+    API.$on('AVATAR:LIST', function (args) {
+        for (const json of args.json) {
+            API.$emit('AVATAR', {
+                json,
+                params: {
+                    avatarId: json.id
+                }
+            });
+        }
+    });
+
+    API.$on('AVATAR:SAVE', function (args) {
+        const { json } = args;
+        API.$emit('AVATAR', {
+            json,
+            params: {
+                avatarId: json.id
+            }
+        });
+    });
+
+    API.$on('AVATAR:SELECT', function (args) {
+        API.$emit('USER:CURRENT', args);
+    });
+
+    API.$on('AVATAR:DELETE', function (args) {
+        const { json } = args;
+        state.cachedAvatars.delete(json._id);
+        if (userStore.userDialog.id === json.authorId) {
+            const map = new Map();
+            for (const ref of state.cachedAvatars.values()) {
+                if (ref.authorId === json.authorId) {
+                    map.set(ref.id, ref);
+                }
+            }
+            const array = Array.from(map.values());
+            $app.sortUserDialogAvatars(array);
         }
     });
 
@@ -95,7 +149,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
             (API.currentUser.$isVRCPlus &&
                 favoriteStore.localAvatarFavoritesList.includes(avatarId));
         D.isBlocked = state.cachedAvatarModerations.has(avatarId);
-        const ref2 = API.cachedAvatars.get(avatarId);
+        const ref2 = state.cachedAvatars.get(avatarId);
         if (typeof ref2 !== 'undefined') {
             D.ref = ref2;
             updateVRChatAvatarCache();
@@ -289,7 +343,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
      * @returns {object} ref
      */
     function applyAvatar(json) {
-        let ref = API.cachedAvatars.get(json.id);
+        let ref = state.cachedAvatars.get(json.id);
         if (typeof ref === 'undefined') {
             ref = {
                 acknowledgements: '',
@@ -318,7 +372,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
                 version: 0,
                 ...json
             };
-            API.cachedAvatars.set(ref.id, ref);
+            state.cachedAvatars.set(ref.id, ref);
         } else {
             const { unityPackages } = ref;
             Object.assign(ref, json);
@@ -365,6 +419,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         avatarHistory,
         avatarHistoryArray,
         cachedAvatarModerations,
+        cachedAvatars,
 
         showAvatarDialog,
         applyAvatarModeration,
