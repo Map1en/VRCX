@@ -1,5 +1,5 @@
 <template>
-    <div v-show="menuActiveIndex === 'notification'" v-loading="API.isNotificationsLoading" class="x-container">
+    <div v-show="menuActiveIndex === 'notification'" v-loading="isNotificationsLoading" class="x-container">
         <data-tables v-bind="notificationTable" ref="notificationTableRef" class="notification-table">
             <template #tool>
                 <div style="margin: 0 0 10px; display: flex; align-items: center">
@@ -45,11 +45,11 @@
                         :disabled="hideTooltips">
                         <el-button
                             type="default"
-                            :loading="API.isNotificationsLoading"
+                            :loading="isNotificationsLoading"
                             icon="el-icon-refresh"
                             circle
                             style="flex: none"
-                            @click="API.refreshNotifications()" />
+                            @click="refreshNotifications()" />
                     </el-tooltip>
                 </div>
             </template>
@@ -432,6 +432,7 @@
     import { useUserStore } from '../../stores/user';
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
+    import { useNotificationStore } from '../../stores/notification';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -447,6 +448,9 @@
     const { refreshInviteMessageTableData } = inviteStore;
     const galleryStore = useGalleryStore();
     const { clearInviteImageUpload } = galleryStore;
+    const notificationStore = useNotificationStore();
+    const { notificationTable, isNotificationsLoading } = storeToRefs(notificationStore);
+    const { refreshNotifications } = notificationStore;
 
     const { t } = useI18n();
 
@@ -458,10 +462,6 @@
         menuActiveIndex: {
             type: String,
             default: ''
-        },
-        notificationTable: {
-            type: Object,
-            default: () => ({})
         },
         shiftHeld: { type: Boolean, default: false },
         lastLocationDestination: {
@@ -486,7 +486,7 @@
     function saveTableFilters() {
         configRepository.setString(
             'VRCX_notificationTableFilters',
-            JSON.stringify(props.notificationTable.filters[0].value)
+            JSON.stringify(notificationTable.value.filters[0].value)
         );
     }
 
@@ -632,7 +632,7 @@
     }
 
     function deleteNotificationLog(row) {
-        removeFromArray(props.notificationTable.data, row);
+        removeFromArray(notificationTable.value.data, row);
         if (row.type !== 'friendRequest' && row.type !== 'ignoredFriendRequest') {
             database.deleteNotification(row.id);
         }

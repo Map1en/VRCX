@@ -19,12 +19,14 @@ import { useFavoriteStore } from './favorite';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useUserStore } from './user';
+import { useNotificationStore } from './notification';
 
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const generalSettingsStore = useGeneralSettingsStore();
     const debugStore = useDebugStore();
     const userStore = useUserStore();
+    const notificationStore = useNotificationStore();
 
     const state = reactive({
         friends: new Map(),
@@ -1109,7 +1111,7 @@ export const useFriendStore = defineStore('Friend', () => {
      * @param {string} userId
      */
     function deleteFriendRequest(userId) {
-        const array = $app.notificationTable.data;
+        const array = notificationStore.notificationTable.data;
         for (let i = array.length - 1; i >= 0; i--) {
             if (
                 array[i].type === 'friendRequest' &&

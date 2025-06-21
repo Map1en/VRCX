@@ -192,7 +192,7 @@ export default function init() {
                     endpoint.startsWith('invite/') &&
                     init.inviteId
                 ) {
-                    this.expireNotification(init.inviteId);
+                    this.store.notification.expireNotification(init.inviteId);
                 }
                 if (
                     status === 403 &&

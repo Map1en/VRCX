@@ -20,6 +20,7 @@ import { useInstanceStore } from './instance';
 import { useModerationStore } from './moderation';
 import { useInviteStore } from './invite';
 import { useGalleryStore } from './gallery';
+import { useNotificationStore } from './notification';
 
 export const pinia = createPinia();
 
@@ -45,6 +46,7 @@ export function createGlobalStores() {
         instance: useInstanceStore(),
         moderation: useModerationStore(),
         invite: useInviteStore(),
-        gallery: useGalleryStore()
+        gallery: useGalleryStore(),
+        notification: useNotificationStore()
     };
 }

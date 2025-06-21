@@ -580,20 +580,23 @@ export default function init() {
 
             case 'instance-closed':
                 // TODO: get worldName, groupName, hardClose
-                var noty = {
+                const noty = {
                     type: 'instance.closed',
                     location: content.instanceLocation,
                     message: 'Instance Closed',
                     created_at: new Date().toJSON()
                 };
                 if (
-                    $app.notificationTable.filters[0].value.length === 0 ||
-                    $app.notificationTable.filters[0].value.includes(noty.type)
+                    $app.store.notification.notificationTable.filters[0].value
+                        .length === 0 ||
+                    $app.store.notification.notificationTable.filters[0].value.includes(
+                        noty.type
+                    )
                 ) {
                     $app.notifyMenu('notification');
                 }
-                $app.queueNotificationNoty(noty);
-                $app.notificationTable.data.push(noty);
+                $app.store.notification.queueNotificationNoty(noty);
+                $app.store.notification.notificationTable.data.push(noty);
                 $app.updateSharedFeed(true);
                 break;
 

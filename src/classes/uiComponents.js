@@ -428,9 +428,10 @@ export default function init() {
                     this.ownerId = this.hintownerid;
                 } else {
                     try {
-                        const avatarInfo = await $app.getAvatarName(
-                            this.imageurl
-                        );
+                        const avatarInfo =
+                            await $app.store.avatar.getAvatarName(
+                                this.imageurl
+                            );
                         this.avatarName = avatarInfo.avatarName;
                         this.ownerId = avatarInfo.ownerId;
                     } catch (err) {}

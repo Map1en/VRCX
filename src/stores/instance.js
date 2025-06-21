@@ -22,6 +22,7 @@ import { useGroupStore } from './group';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useWorldStore } from './world';
+import { useNotificationStore } from './notification';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const locationStore = useLocationStore();
@@ -29,6 +30,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     const friendStore = useFriendStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const groupStore = useGroupStore();
+    const notificationStore = useNotificationStore();
 
     const state = reactive({
         cachedInstances: new Map(),
@@ -846,13 +848,15 @@ export const useInstanceStore = defineStore('Instance', () => {
             worldName
         };
         if (
-            $app.notificationTable.filters[0].value.length === 0 ||
-            $app.notificationTable.filters[0].value.includes(noty.type)
+            notificationStore.notificationTable.filters[0].value.length === 0 ||
+            notificationStore.notificationTable.filters[0].value.includes(
+                noty.type
+            )
         ) {
             $app.notifyMenu('notification');
         }
-        $app.queueNotificationNoty(noty);
-        $app.notificationTable.data.push(noty);
+        notificationStore.queueNotificationNoty(noty);
+        notificationStore.notificationTable.data.push(noty);
         $app.updateSharedFeed(true);
     }
 

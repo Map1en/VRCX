@@ -117,23 +117,6 @@ export default function init() {
             }
         },
 
-        queueNotificationNoty(noty) {
-            noty.isFriend = this.store.friend.friends.has(noty.senderUserId);
-            noty.isFavorite = this.store.friend.localFavoriteFriends.has(
-                noty.senderUserId
-            );
-            var notyFilter =
-                this.store.notificationsSettings.sharedFeedFilters.noty;
-            if (
-                notyFilter[noty.type] &&
-                (notyFilter[noty.type] === 'On' ||
-                    notyFilter[noty.type] === 'Friends' ||
-                    (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
-            ) {
-                this.playNoty(noty);
-            }
-        },
-
         queueFriendLogNoty(noty) {
             if (noty.type === 'FriendRequest') {
                 return;

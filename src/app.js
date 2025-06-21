@@ -626,299 +626,9 @@ API.$on('INSTANCE', function (args) {
 });
 
 // #endregion
-// #region | API: Notification
-
-API.isNotificationsLoading = false;
-
-API.$on('LOGIN', function () {
-    this.isNotificationsLoading = false;
-});
-
-API.$on('NOTIFICATION', function (args) {
-    args.ref = this.applyNotification(args.json);
-});
-
-API.$on('NOTIFICATION:LIST', function (args) {
-    for (let json of args.json) {
-        this.$emit('NOTIFICATION', {
-            json,
-            params: {
-                notificationId: json.id
-            }
-        });
-    }
-});
-
-API.$on('NOTIFICATION:LIST:HIDDEN', function (args) {
-    for (let json of args.json) {
-        json.type = 'ignoredFriendRequest';
-        this.$emit('NOTIFICATION', {
-            json,
-            params: {
-                notificationId: json.id
-            }
-        });
-    }
-});
-
-API.$on('NOTIFICATION:ACCEPT', function (args) {
-    let ref;
-    const array = $app.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (array[i].id === args.params.notificationId) {
-            ref = array[i];
-            break;
-        }
-    }
-    if (typeof ref === 'undefined') {
-        return;
-    }
-    ref.$isExpired = true;
-    args.ref = ref;
-    this.$emit('NOTIFICATION:EXPIRE', {
-        ref,
-        params: {
-            notificationId: ref.id
-        }
-    });
-    this.$emit('FRIEND:ADD', {
-        params: {
-            userId: ref.senderUserId
-        }
-    });
-});
-
-API.$on('NOTIFICATION:HIDE', function (args) {
-    let ref;
-    const array = $app.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (array[i].id === args.params.notificationId) {
-            ref = array[i];
-            break;
-        }
-    }
-    if (typeof ref === 'undefined') {
-        return;
-    }
-    args.ref = ref;
-    if (
-        ref.type === 'friendRequest' ||
-        ref.type === 'ignoredFriendRequest' ||
-        ref.type.includes('.')
-    ) {
-        for (let i = array.length - 1; i >= 0; i--) {
-            if (array[i].id === ref.id) {
-                array.splice(i, 1);
-                break;
-            }
-        }
-    } else {
-        ref.$isExpired = true;
-        database.updateNotificationExpired(ref);
-    }
-    this.$emit('NOTIFICATION:EXPIRE', {
-        ref,
-        params: {
-            notificationId: ref.id
-        }
-    });
-});
-
-API.applyNotification = function (json) {
-    let ref;
-    const array = $app.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (array[i].id === json.id) {
-            ref = array[i];
-            break;
-        }
-    }
-    // delete any null in json
-    for (let key in json) {
-        if (json[key] === null) {
-            delete json[key];
-        }
-    }
-    if (typeof ref === 'undefined') {
-        ref = {
-            id: '',
-            senderUserId: '',
-            senderUsername: '',
-            type: '',
-            message: '',
-            details: {},
-            seen: false,
-            created_at: '',
-            // VRCX
-            $isExpired: false,
-            //
-            ...json
-        };
-    } else {
-        Object.assign(ref, json);
-        ref.$isExpired = false;
-    }
-    if (ref.details !== Object(ref.details)) {
-        let details = {};
-        if (ref.details !== '{}') {
-            try {
-                const object = JSON.parse(ref.details);
-                if (object === Object(object)) {
-                    details = object;
-                }
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        ref.details = details;
-    }
-    return ref;
-};
-
-API.expireFriendRequestNotifications = function () {
-    const array = $app.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (
-            array[i].type === 'friendRequest' ||
-            array[i].type === 'ignoredFriendRequest' ||
-            array[i].type.includes('.')
-        ) {
-            array.splice(i, 1);
-        }
-    }
-};
-
-API.expireNotification = function (notificationId) {
-    let ref;
-    const array = $app.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (array[i].id === notificationId) {
-            ref = array[i];
-            break;
-        }
-    }
-    if (typeof ref === 'undefined') {
-        return;
-    }
-    ref.$isExpired = true;
-    database.updateNotificationExpired(ref);
-    this.$emit('NOTIFICATION:EXPIRE', {
-        ref,
-        params: {
-            notificationId: ref.id
-        }
-    });
-};
-
-API.refreshNotifications = async function () {
-    this.isNotificationsLoading = true;
-    let count;
-    let params;
-    try {
-        this.expireFriendRequestNotifications();
-        params = {
-            n: 100,
-            offset: 0
-        };
-        count = 50; // 5000 max
-        for (let i = 0; i < count; i++) {
-            const args = await notificationRequest.getNotifications(params);
-            $app.unseenNotifications = [];
-            params.offset += 100;
-            if (args.json.length < 100) {
-                break;
-            }
-        }
-        params = {
-            n: 100,
-            offset: 0
-        };
-        count = 50; // 5000 max
-        for (let i = 0; i < count; i++) {
-            const args = await notificationRequest.getNotificationsV2(params);
-            $app.unseenNotifications = [];
-            params.offset += 100;
-            if (args.json.length < 100) {
-                break;
-            }
-        }
-        params = {
-            n: 100,
-            offset: 0
-        };
-        count = 50; // 5000 max
-        for (let i = 0; i < count; i++) {
-            const args =
-                await notificationRequest.getHiddenFriendRequests(params);
-            $app.unseenNotifications = [];
-            params.offset += 100;
-            if (args.json.length < 100) {
-                break;
-            }
-        }
-    } catch (err) {
-        console.error(err);
-    } finally {
-        this.isNotificationsLoading = false;
-        $app.notificationInitStatus = true;
-    }
-};
-
-API.$on('NOTIFICATION:V2:LIST', function (args) {
-    for (let json of args.json) {
-        this.$emit('NOTIFICATION:V2', { json });
-    }
-});
-
-API.$on('NOTIFICATION:V2', function (args) {
-    const json = args.json;
-    json.created_at = json.createdAt;
-    if (json.title && json.message) {
-        json.message = `${json.title}, ${json.message}`;
-    } else if (json.title) {
-        json.message = json.title;
-    }
-    this.$emit('NOTIFICATION', {
-        json,
-        params: {
-            notificationId: json.id
-        }
-    });
-});
-
-API.$on('NOTIFICATION:V2:UPDATE', function (args) {
-    const notificationId = args.params.notificationId;
-    const json = args.json;
-    if (!json) {
-        return;
-    }
-    json.id = notificationId;
-    this.$emit('NOTIFICATION', {
-        json,
-        params: {
-            notificationId
-        }
-    });
-    if (json.seen) {
-        this.$emit('NOTIFICATION:SEE', {
-            params: {
-                notificationId
-            }
-        });
-    }
-});
-
-API.$on('NOTIFICATION:RESPONSE', function (args) {
-    this.$emit('NOTIFICATION:HIDE', args);
-    new Noty({
-        type: 'success',
-        text: escapeTag(args.json)
-    }).show();
-    console.log('NOTIFICATION:RESPONSE', args);
-});
 
 API.getFriendRequest = function (userId) {
-    const array = $app.notificationTable.data;
+    const array = $app.store.notification.notificationTable.data;
     for (let i = array.length - 1; i >= 0; i--) {
         if (
             array[i].type === 'friendRequest' &&
@@ -1111,7 +821,7 @@ $app.methods.selectMenu = function (index) {
         item.$el.classList.remove('notify');
     }
     if (index === 'notification') {
-        this.unseenNotifications = [];
+        this.store.notification.unseenNotifications = [];
     }
 };
 
@@ -1176,7 +886,7 @@ API.$on('LOGOUT', function () {
     }
     this.isLoggedIn = false;
     $app.store.friend.friendLogInitStatus = false;
-    $app.notificationInitStatus = false;
+    $app.store.notification.notificationInitStatus = false;
 });
 
 API.$on('LOGIN', function (args) {
@@ -1551,7 +1261,7 @@ API.$on('LOGIN', async function (args) {
     $app.feedTable.data = [];
     $app.feedSessionTable = [];
     $app.store.friend.friendLogInitStatus = false;
-    $app.notificationInitStatus = false;
+    $app.store.notification.notificationInitStatus = false;
     await database.initUserTables(args.json.id);
     $app.menuActiveIndex = 'feed';
     await $app.updateDatabaseVersion();
@@ -1562,8 +1272,9 @@ API.$on('LOGIN', async function (args) {
     );
     $app.feedSessionTable = await database.getFeedDatabase();
     await $app.feedTableLookup();
-    $app.notificationTable.data = await database.getNotifications();
-    this.refreshNotifications();
+    $app.store.notification.notificationTable.data =
+        await database.getNotifications();
+    $app.store.notification.refreshNotifications();
     $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
     try {
         if (await configRepository.getBool(`friendLogInit_${args.json.id}`)) {
@@ -1870,7 +1581,9 @@ API.$on('USER:UPDATE', async function (args) {
                 avatarName: ''
             };
             try {
-                avatarInfo = await $app.getAvatarName(currentAvatarImageUrl);
+                avatarInfo = await $app.store.avatar.getAvatarName(
+                    currentAvatarImageUrl
+                );
             } catch (err) {
                 console.log(err);
             }
@@ -1879,7 +1592,7 @@ API.$on('USER:UPDATE', async function (args) {
                 avatarName: ''
             };
             try {
-                previousAvatarInfo = await $app.getAvatarName(
+                previousAvatarInfo = await $app.store.avatar.getAvatarName(
                     previousCurrentAvatarImageUrl
                 );
             } catch (err) {
@@ -2261,162 +1974,6 @@ $app.methods.moreSearchUser = async function (go, params) {
 
 // #endregion
 // #region | App: Notification
-$app.data.notificationInitStatus = false;
-$app.data.notificationTable = {
-    data: [],
-    filters: [
-        {
-            prop: 'type',
-            value: [],
-            filterFn: (row, filter) => filter.value.some((v) => v === row.type)
-        },
-        {
-            prop: ['senderUsername', 'message'],
-            value: ''
-        }
-    ],
-    tableProps: {
-        stripe: true,
-        size: 'mini',
-        defaultSort: {
-            prop: 'created_at',
-            order: 'descending'
-        }
-    },
-    pageSize: 15,
-    paginationProps: {
-        small: true,
-        layout: 'sizes,prev,pager,next,total',
-        pageSizes: [10, 15, 20, 25, 50, 100]
-    }
-};
-
-API.$on('LOGIN', function () {
-    $app.notificationTable.data = [];
-});
-
-API.$on('PIPELINE:NOTIFICATION', function (args) {
-    const ref = args.json;
-    if (
-        ref.type !== 'requestInvite' ||
-        $app.store.generalSettings.autoAcceptInviteRequests === 'Off'
-    ) {
-        return;
-    }
-
-    let currentLocation = $app.store.location.lastLocation.location;
-    if ($app.store.location.lastLocation.location === 'traveling') {
-        currentLocation = $app.lastLocationDestination;
-    }
-    if (!currentLocation) {
-        return;
-    }
-    if (
-        $app.store.generalSettings.autoAcceptInviteRequests ===
-            'All Favorites' &&
-        !$app.store.favorite.favoriteFriends.some(
-            (x) => x.id === ref.senderUserId
-        )
-    ) {
-        return;
-    }
-    if (
-        $app.store.generalSettings.autoAcceptInviteRequests ===
-            'Selected Favorites' &&
-        !$app.store.friend.localFavoriteFriends.has(ref.senderUserId)
-    ) {
-        return;
-    }
-    if (!checkCanInvite(currentLocation)) {
-        return;
-    }
-
-    const L = parseLocation(currentLocation);
-    worldRequest
-        .getCachedWorld({
-            worldId: L.worldId
-        })
-        .then((args1) => {
-            notificationRequest
-                .sendInvite(
-                    {
-                        instanceId: L.tag,
-                        worldId: L.tag,
-                        worldName: args1.ref.name,
-                        rsvp: true
-                    },
-                    ref.senderUserId
-                )
-                .then((_args) => {
-                    const text = `Auto invite sent to ${ref.senderUsername}`;
-                    if (this.errorNoty) {
-                        this.errorNoty.close();
-                    }
-                    this.errorNoty = new Noty({
-                        type: 'info',
-                        text
-                    });
-                    this.errorNoty.show();
-                    console.log(text);
-                    notificationRequest.hideNotification({
-                        notificationId: ref.id
-                    });
-                    return _args;
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        });
-});
-
-$app.data.unseenNotifications = [];
-
-API.$on('NOTIFICATION', function (args) {
-    let { ref } = args;
-    const array = $app.notificationTable.data;
-    let { length } = array;
-    for (let i = 0; i < length; ++i) {
-        if (array[i].id === ref.id) {
-            Vue.set(array, i, ref);
-            return;
-        }
-    }
-    if (ref.senderUserId !== this.currentUser.id) {
-        if (
-            ref.type !== 'friendRequest' &&
-            ref.type !== 'ignoredFriendRequest' &&
-            !ref.type.includes('.')
-        ) {
-            database.addNotificationToDatabase(ref);
-        }
-        if (
-            $app.store.friend.friendLogInitStatus &&
-            $app.notificationInitStatus
-        ) {
-            if (
-                $app.notificationTable.filters[0].value.length === 0 ||
-                $app.notificationTable.filters[0].value.includes(ref.type)
-            ) {
-                $app.notifyMenu('notification');
-            }
-            $app.unseenNotifications.push(ref.id);
-            $app.queueNotificationNoty(ref);
-        }
-    }
-    $app.notificationTable.data.push(ref);
-    $app.updateSharedFeed(true);
-});
-
-API.$on('NOTIFICATION:SEE', function (args) {
-    let { notificationId } = args.params;
-    removeFromArray($app.unseenNotifications, notificationId);
-    if ($app.unseenNotifications.length === 0) {
-        const item = $app.$refs.menu.$children[0]?.items['notification'];
-        if (item) {
-            item.$el.classList.remove('notify');
-        }
-    }
-});
 
 $app.data.feedTable.filter = JSON.parse(
     await configRepository.getString('VRCX_feedTableFilters', '[]')
@@ -2433,9 +1990,6 @@ $app.data.gameLogTable.vip = false;
 // );
 $app.data.gameLogTable.filter = JSON.parse(
     await configRepository.getString('VRCX_gameLogTableFilters', '[]')
-);
-$app.data.notificationTable.filters[0].value = JSON.parse(
-    await configRepository.getString('VRCX_notificationTableFilters', '[]')
 );
 $app.data.photonEventTableTypeFilter = JSON.parse(
     await configRepository.getString('VRCX_photonEventTypeFilter', '[]')
@@ -2940,7 +2494,7 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.gameLogTable.pageSize = pageSize;
     this.store.friend.friendLogTable.pageSize = pageSize;
     this.store.moderation.playerModerationTable.pageSize = pageSize;
-    this.notificationTable.pageSize = pageSize;
+    this.store.notification.notificationTable.pageSize = pageSize;
     this.store.appearanceSettings.setTablePageSize(pageSize);
 };
 
@@ -3518,7 +3072,9 @@ $app.methods.showAvatarAuthorDialog = async function (
         let avatarId = this.checkAvatarCache(fileId);
         let avatarInfo;
         if (!avatarId) {
-            avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
+            avatarInfo = await this.store.avatar.getAvatarName(
+                currentAvatarImageUrl
+            );
             if (avatarInfo.ownerId === API.currentUser.id) {
                 this.store.user.refreshUserDialogAvatars(fileId);
             }
@@ -4715,7 +4271,6 @@ $app.computed.gameLogTabEvent = function () {
 $app.computed.notificationTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex,
-        notificationTable: this.notificationTable,
         shiftHeld: this.shiftHeld,
         lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning

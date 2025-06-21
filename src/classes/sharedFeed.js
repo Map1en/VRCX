@@ -432,8 +432,9 @@ export default function init() {
 
         updateSharedFeedNotificationTable(forceUpdate) {
             // invite, requestInvite, requestInviteResponse, inviteResponse, friendRequest
-            const notificationTable = this.notificationTable.data;
-            var i = notificationTable.length;
+            const notificationTable =
+                this.store.notification.notificationTable.data;
+            let i = notificationTable.length;
             if (i > 0) {
                 if (
                     notificationTable[i - 1].created_at ===
@@ -452,7 +453,7 @@ export default function init() {
             let w = 0;
             const wristFilter =
                 this.store.notificationsSettings.sharedFeedFilters.wrist;
-            for (var i = notificationTable.length - 1; i > -1; i--) {
+            for (i = notificationTable.length - 1; i > -1; i--) {
                 const ctx = notificationTable[i];
                 if (ctx.created_at < bias) {
                     break;
