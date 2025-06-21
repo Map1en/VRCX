@@ -738,6 +738,12 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     }
 
+    /**
+     *
+     * @param {object} noty
+     * @param {string} displayName
+     * @param {string} message
+     */
     async function playNotyTTS(noty, displayName, message) {
         if (notificationsSettingsStore.notificationTTSNickName) {
             const userId = getUserIdFromNoty(noty);
@@ -909,6 +915,11 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     }
 
+    /**
+     *
+     * @param {object} noty
+     * @returns
+     */
     async function notySaveImage(noty) {
         const imageUrl = await notyGetImage(noty);
         let fileId = extractFileId(imageUrl);
@@ -1169,6 +1180,12 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     }
 
+    /**
+     *
+     * @param {string} noty
+     * @param {string} message
+     * @param {string} imageFile
+     */
     function displayOverlayNotification(noty, message, imageFile) {
         let image = '';
         if (imageFile) {
@@ -1180,6 +1197,12 @@ export const useNotificationStore = defineStore('Notification', () => {
         );
     }
 
+    /**
+     *
+     * @param {string} noty
+     * @param {string} message
+     * @param {string} image
+     */
     function displayXSNotification(noty, message, image) {
         const timeout = Math.floor(
             parseInt(this.notificationTimeout, 10) / 1000
@@ -2053,6 +2076,11 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     }
 
+    /**
+     *
+     * @param {object} noty
+     * @returns
+     */
     function getUserIdFromNoty(noty) {
         let userId = '';
         if (noty.userId) {
@@ -2072,6 +2100,11 @@ export const useNotificationStore = defineStore('Notification', () => {
         return userId;
     }
 
+    /**
+     *
+     * @param {object} noty
+     * @returns
+     */
     async function notyGetImage(noty) {
         let imageUrl = '';
         const userId = getUserIdFromNoty(noty);
@@ -2110,6 +2143,12 @@ export const useNotificationStore = defineStore('Notification', () => {
         return imageUrl;
     }
 
+    /**
+     *
+     * @param {string} displayName
+     * @param {string} message
+     * @param {string} image
+     */
     function desktopNotification(displayName, message, image) {
         if (WINDOWS) {
             AppApi.DesktopNotification(displayName, message, image);
