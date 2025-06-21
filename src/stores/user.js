@@ -936,6 +936,33 @@ export const useUserStore = defineStore('User', () => {
         // this.menuActiveIndex = 'search';
     }
 
+    // $app.methods.silentSearchUser = function (displayName) {
+    //     console.log('Searching for userId for:', displayName);
+    //     const params = {
+    //         n: 5,
+    //         offset: 0,
+    //         fuzzy: false,
+    //         search: displayName
+    //     };
+    //     userRequest.getUsers(params).then((args) => {
+    //         const map = new Map();
+    //         let nameFound = false;
+    //         for (let json of args.json) {
+    //             const ref = API.cachedUsers.get(json.id);
+    //             if (typeof ref !== 'undefined') {
+    //                 map.set(ref.id, ref);
+    //             }
+    //             if (json.displayName === displayName) {
+    //                 nameFound = true;
+    //             }
+    //         }
+    //         if (!nameFound) {
+    //             console.error('userId not found for', displayName);
+    //         }
+    //         return args;
+    //     });
+    // };
+
     return {
         state,
         userDialog,
