@@ -1,22 +1,34 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
-
-import { groupRequest, userRequest } from '../api';
+import Vue, { computed, reactive } from 'vue';
+import {
+    avatarRequest,
+    groupRequest,
+    instanceRequest,
+    userRequest
+} from '../api';
 import { $app, API } from '../app';
 import { userNotes } from '../classes/userNotes';
 import database from '../service/database';
 import {
     arraysMatch,
+    buildTreeData,
+    compareByDisplayName,
+    compareByLocationAt,
+    compareByName,
+    compareByUpdatedAt,
     convertFileUrlToImageUrl,
+    extractFileId,
     getUserMemo,
     getWorldName,
     parseLocation,
     removeEmojis,
     replaceBioSymbols
 } from '../shared/utils';
+import { useAvatarStore } from './avatar';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
+import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 
@@ -26,6 +38,8 @@ export const useUserStore = defineStore('User', () => {
     const friendStore = useFriendStore();
     const favoriteStore = useFavoriteStore();
     const locationStore = useLocationStore();
+    const instanceStore = useInstanceStore();
+    const avatarStore = useAvatarStore();
 
     const state = reactive({
         userDialog: {
@@ -517,7 +531,7 @@ export const useUserStore = defineStore('User', () => {
                         } else if (D.ref.friendRequestStatus === 'outgoing') {
                             D.outgoingRequest = true;
                         }
-                        $app.applyUserDialogLocation(true);
+                        applyUserDialogLocation(true);
 
                         if (args.cache) {
                             userRequest.getUser(args.params);
@@ -676,12 +690,233 @@ export const useUserStore = defineStore('User', () => {
         $app.queueFeedNoty(onPlayerJoining);
     }
 
+    /**
+     *
+     * @param {boolean} updateInstanceOccupants
+     */
+    function applyUserDialogLocation(updateInstanceOccupants) {
+        let addUser;
+        let friend;
+        let ref;
+        const D = state.userDialog;
+        if (!D.visible) {
+            return;
+        }
+        const L = parseLocation(D.ref.$location.tag);
+        if (updateInstanceOccupants && L.isRealInstance) {
+            instanceRequest.getInstance({
+                worldId: L.worldId,
+                instanceId: L.instanceId
+            });
+        }
+        D.$location = L;
+        if (L.userId) {
+            ref = API.cachedUsers.get(L.userId);
+            if (typeof ref === 'undefined') {
+                userRequest
+                    .getUser({
+                        userId: L.userId
+                    })
+                    .then((args) => {
+                        Vue.set(L, 'user', args.ref);
+                        return args;
+                    });
+            } else {
+                L.user = ref;
+            }
+        }
+        const users = [];
+        let friendCount = 0;
+        const playersInInstance = locationStore.lastLocation.playerList;
+        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const currentLocation = cachedCurrentUser.$location.tag;
+        if (!L.isOffline && currentLocation === L.tag) {
+            ref = API.cachedUsers.get(API.currentUser.id);
+            if (typeof ref !== 'undefined') {
+                users.push(ref); // add self
+            }
+        }
+        // dont use gamelog when using api location
+        if (
+            locationStore.lastLocation.location === L.tag &&
+            playersInInstance.size > 0
+        ) {
+            const friendsInInstance = locationStore.lastLocation.friendList;
+            for (friend of friendsInInstance.values()) {
+                // if friend isn't in instance add them
+                addUser = !users.some(function (user) {
+                    return friend.userId === user.id;
+                });
+                if (addUser) {
+                    ref = API.cachedUsers.get(friend.userId);
+                    if (typeof ref !== 'undefined') {
+                        users.push(ref);
+                    }
+                }
+            }
+            friendCount = users.length - 1;
+        }
+        if (!L.isOffline) {
+            for (friend of friendStore.friends.values()) {
+                if (typeof friend.ref === 'undefined') {
+                    continue;
+                }
+                if (
+                    friend.ref.location === locationStore.lastLocation.location
+                ) {
+                    // don't add friends to currentUser gameLog instance (except when traveling)
+                    continue;
+                }
+                if (friend.ref.$location.tag === L.tag) {
+                    if (
+                        friend.state !== 'online' &&
+                        friend.ref.location === 'private'
+                    ) {
+                        // don't add offline friends to private instances
+                        continue;
+                    }
+                    // if friend isn't in instance add them
+                    addUser = !users.some(function (user) {
+                        return friend.name === user.displayName;
+                    });
+                    if (addUser) {
+                        users.push(friend.ref);
+                    }
+                }
+            }
+            friendCount = users.length;
+        }
+        if (appearanceSettingsStore.instanceUsersSortAlphabetical) {
+            users.sort(compareByDisplayName);
+        } else {
+            users.sort(compareByLocationAt);
+        }
+        D.users = users;
+        if (
+            L.worldId &&
+            currentLocation === L.tag &&
+            playersInInstance.size > 0
+        ) {
+            D.instance = {
+                id: L.instanceId,
+                tag: L.tag,
+                $location: L,
+                friendCount: 0,
+                users: [],
+                shortName: '',
+                ref: {}
+            };
+        }
+        if (!L.isRealInstance) {
+            D.instance = {
+                id: L.instanceId,
+                tag: L.tag,
+                $location: L,
+                friendCount: 0,
+                users: [],
+                shortName: '',
+                ref: {}
+            };
+        }
+        const instanceRef = instanceStore.cachedInstances.get(L.tag);
+        if (typeof instanceRef !== 'undefined') {
+            D.instance.ref = instanceRef;
+        }
+        D.instance.friendCount = friendCount;
+        $app.updateTimers();
+    }
+
+    function sortUserDialogAvatars(array) {
+        const D = state.userDialog;
+        if (D.avatarSorting === 'update') {
+            array.sort(compareByUpdatedAt);
+        } else {
+            array.sort(compareByName);
+        }
+        D.avatars = array;
+    }
+
+    function refreshUserDialogAvatars(fileId) {
+        const D = state.userDialog;
+        if (D.isAvatarsLoading) {
+            return;
+        }
+        D.isAvatarsLoading = true;
+        if (fileId) {
+            D.loading = true;
+        }
+        D.avatarSorting = 'update';
+        D.avatarReleaseStatus = 'all';
+        const params = {
+            n: 50,
+            offset: 0,
+            sort: 'updated',
+            order: 'descending',
+            releaseStatus: 'all',
+            user: 'me'
+        };
+        for (const ref of avatarStore.cachedAvatars.values()) {
+            if (ref.authorId === D.id) {
+                avatarStore.cachedAvatars.delete(ref.id);
+            }
+        }
+        const map = new Map();
+        API.bulk({
+            fn: avatarRequest.getAvatars,
+            N: -1,
+            params,
+            handle: (args) => {
+                for (const json of args.json) {
+                    const $ref = avatarStore.cachedAvatars.get(json.id);
+                    if (typeof $ref !== 'undefined') {
+                        map.set($ref.id, $ref);
+                    }
+                }
+            },
+            done: () => {
+                const array = Array.from(map.values());
+                sortUserDialogAvatars(array);
+                D.isAvatarsLoading = false;
+                if (fileId) {
+                    D.loading = false;
+                    for (const ref of array) {
+                        if (extractFileId(ref.imageUrl) === fileId) {
+                            avatarStore.showAvatarDialog(ref.id);
+                            return;
+                        }
+                    }
+                    this.$message({
+                        message: 'Own avatar not found',
+                        type: 'error'
+                    });
+                }
+            }
+        });
+    }
+
+    function refreshUserDialogTreeData() {
+        const D = state.userDialog;
+        if (D.id === API.currentUser.id) {
+            const treeData = {
+                ...API.currentUser,
+                ...D.ref
+            };
+            D.treeData = buildTreeData(treeData);
+            return;
+        }
+        D.treeData = buildTreeData(D.ref);
+    }
+
     return {
         state,
         userDialog,
         applyUserLanguage,
         applyUser,
         showUserDialog,
-        quickSearchUserHistory
+        quickSearchUserHistory,
+        applyUserDialogLocation,
+        sortUserDialogAvatars,
+        refreshUserDialogAvatars,
+        refreshUserDialogTreeData
     };
 });

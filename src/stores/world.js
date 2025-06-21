@@ -76,7 +76,7 @@ export const useWorldStore = defineStore('World', () => {
         if (D.visible === false || D.$location.worldId !== args.ref.id) {
             return;
         }
-        $app.applyUserDialogLocation();
+        userStore.applyUserDialogLocation();
     });
 
     API.$on('WORLD', function (args) {

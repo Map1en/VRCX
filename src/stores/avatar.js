@@ -125,7 +125,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
                 }
             }
             const array = Array.from(map.values());
-            $app.sortUserDialogAvatars(array);
+            userStore.sortUserDialogAvatars(array);
         }
     });
 

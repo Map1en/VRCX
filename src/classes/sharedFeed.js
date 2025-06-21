@@ -190,7 +190,7 @@ export default function init() {
                 'wristFeedUpdate',
                 JSON.stringify(wristFeed)
             );
-            this.applyUserDialogLocation();
+            this.store.user.applyUserDialogLocation();
             this.store.instance.applyWorldDialogInstances();
             this.store.instance.applyGroupDialogInstances();
             feeds.pendingUpdate = false;

@@ -1864,7 +1864,8 @@
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
     const { userDialog } = storeToRefs(userStore);
-    const { showUserDialog, applyUser } = userStore;
+    const { showUserDialog, applyUser, sortUserDialogAvatars, refreshUserDialogAvatars, refreshUserDialogTreeData } =
+        userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showFavoriteDialog } = favoriteStore;
     const { showAvatarDialog } = avatarStore;
@@ -1925,15 +1926,7 @@
         }
     });
 
-    const emit = defineEmits([
-        'sortUserDialogAvatars',
-        'logout',
-        'showAvatarAuthorDialog',
-        'refreshUserDialogAvatars',
-        'refreshUserDialogTreeData',
-        'setGroupVisibility',
-        'leaveGroupPrompt'
-    ]);
+    const emit = defineEmits(['logout', 'showAvatarAuthorDialog', 'setGroupVisibility', 'leaveGroupPrompt']);
 
     watch(
         () => userDialog.value.loading,
@@ -3089,20 +3082,11 @@
         sortUserDialogAvatars(D.avatars);
     }
 
-    function refreshUserDialogTreeData() {
-        emit('refreshUserDialogTreeData');
-    }
     function setGroupVisibility(groupId, visibility) {
         emit('setGroupVisibility', groupId, visibility);
     }
-    function refreshUserDialogAvatars() {
-        emit('refreshUserDialogAvatars');
-    }
     function leaveGroupPrompt(id) {
         emit('leaveGroupPrompt', id);
-    }
-    function sortUserDialogAvatars(avatars) {
-        emit('sortUserDialogAvatars', avatars);
     }
     function logout() {
         emit('logout');

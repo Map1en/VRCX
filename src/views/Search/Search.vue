@@ -351,7 +351,7 @@
     const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
     const { setAvatarProvider } = avatarProviderStore;
     const { userDialog } = storeToRefs(userStore);
-    const { showUserDialog } = userStore;
+    const { showUserDialog, refreshUserDialogAvatars } = userStore;
     const { showAvatarDialog } = avatarStore;
     const { cachedAvatars } = storeToRefs(avatarStore);
     const worldStore = useWorldStore();
@@ -386,7 +386,7 @@
         }
     });
 
-    const emit = defineEmits(['clearSearch', 'refreshUserDialogAvatars', 'update:searchText']);
+    const emit = defineEmits(['clearSearch', 'update:searchText']);
 
     const searchTabRef = ref(null);
 
@@ -561,10 +561,6 @@
                 searchWorldResults.value = Array.from(map.values());
                 return args;
             });
-    }
-
-    function refreshUserDialogAvatars(fileId) {
-        emit('refreshUserDialogAvatars', fileId);
     }
 
     async function searchAvatar() {

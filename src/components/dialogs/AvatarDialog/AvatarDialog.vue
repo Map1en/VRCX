@@ -640,7 +640,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
-    const { showUserDialog } = userStore;
+    const { showUserDialog, sortUserDialogAvatars } = userStore;
     const avatarStore = useAvatarStore();
     const { avatarDialog, cachedAvatarModerations, cachedAvatars } = storeToRefs(avatarStore);
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
@@ -920,7 +920,7 @@
                                                 }
                                             }
                                             const array = Array.from(map.values());
-                                            $app.sortUserDialogAvatars(array);
+                                            sortUserDialogAvatars(array);
                                         }
 
                                         $message({

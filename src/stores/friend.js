@@ -1097,7 +1097,7 @@ export const useFriendStore = defineStore('Friend', () => {
                                 userStore.userDialog.visible &&
                                 id === userStore.userDialog.id
                             ) {
-                                $app.applyUserDialogLocation(true);
+                                userStore.applyUserDialogLocation(true);
                             }
                         });
                 }

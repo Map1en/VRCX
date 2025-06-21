@@ -603,7 +603,7 @@ API.$on('INSTANCE', function (args) {
         $app.store.user.userDialog.visible &&
         $app.store.user.userDialog.ref.$location.tag === args.json.id
     ) {
-        $app.applyUserDialogLocation();
+        $app.store.user.applyUserDialogLocation();
     }
     if (
         $app.store.world.worldDialog.visible &&
@@ -1680,7 +1680,7 @@ $app.methods.loadPlayerList = function () {
         this.store.instance.updateCurrentInstanceWorld();
         this.updateVRLastLocation();
         this.getCurrentInstanceUserList();
-        this.applyUserDialogLocation();
+        this.store.user.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
         this.store.instance.applyGroupDialogInstances();
     }
@@ -1719,7 +1719,7 @@ API.$on('USER:UPDATE', async function (args) {
     }
     if (props.location && ref.id === $app.store.user.userDialog.id) {
         // update user dialog instance occupants
-        $app.applyUserDialogLocation(true);
+        $app.store.user.applyUserDialogLocation(true);
     }
     if (
         props.location &&
@@ -2033,7 +2033,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
     this.getCurrentInstanceUserList();
     this.lastVideoUrl = '';
     this.lastResourceloadUrl = '';
-    this.applyUserDialogLocation();
+    this.store.user.applyUserDialogLocation();
     this.store.instance.applyWorldDialogInstances();
     this.store.instance.applyGroupDialogInstances();
 };
@@ -3047,7 +3047,7 @@ API.$on('USER', function (args) {
     ) {
         return;
     }
-    $app.refreshUserDialogTreeData();
+    $app.store.user.refreshUserDialogTreeData();
 });
 
 API.$on('FRIEND:STATUS', function (args) {
@@ -3168,135 +3168,6 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
         D.isMuteChat = false;
     }
 });
-
-$app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
-    let addUser;
-    let friend;
-    let ref;
-    const D = this.store.user.userDialog;
-    if (!D.visible) {
-        return;
-    }
-    const L = parseLocation(D.ref.$location.tag);
-    if (updateInstanceOccupants && L.isRealInstance) {
-        instanceRequest.getInstance({
-            worldId: L.worldId,
-            instanceId: L.instanceId
-        });
-    }
-    D.$location = L;
-    if (L.userId) {
-        ref = API.cachedUsers.get(L.userId);
-        if (typeof ref === 'undefined') {
-            userRequest
-                .getUser({
-                    userId: L.userId
-                })
-                .then((args) => {
-                    Vue.set(L, 'user', args.ref);
-                    return args;
-                });
-        } else {
-            L.user = ref;
-        }
-    }
-    const users = [];
-    let friendCount = 0;
-    const playersInInstance = this.store.location.lastLocation.playerList;
-    const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
-    const currentLocation = cachedCurrentUser.$location.tag;
-    if (!L.isOffline && currentLocation === L.tag) {
-        ref = API.cachedUsers.get(API.currentUser.id);
-        if (typeof ref !== 'undefined') {
-            users.push(ref); // add self
-        }
-    }
-    // dont use gamelog when using api location
-    if (
-        this.store.location.lastLocation.location === L.tag &&
-        playersInInstance.size > 0
-    ) {
-        const friendsInInstance = this.store.location.lastLocation.friendList;
-        for (friend of friendsInInstance.values()) {
-            // if friend isn't in instance add them
-            addUser = !users.some(function (user) {
-                return friend.userId === user.id;
-            });
-            if (addUser) {
-                ref = API.cachedUsers.get(friend.userId);
-                if (typeof ref !== 'undefined') {
-                    users.push(ref);
-                }
-            }
-        }
-        friendCount = users.length - 1;
-    }
-    if (!L.isOffline) {
-        for (friend of this.store.friend.friends.values()) {
-            if (typeof friend.ref === 'undefined') {
-                continue;
-            }
-            if (
-                friend.ref.location ===
-                this.store.location.lastLocation.location
-            ) {
-                // don't add friends to currentUser gameLog instance (except when traveling)
-                continue;
-            }
-            if (friend.ref.$location.tag === L.tag) {
-                if (
-                    friend.state !== 'online' &&
-                    friend.ref.location === 'private'
-                ) {
-                    // don't add offline friends to private instances
-                    continue;
-                }
-                // if friend isn't in instance add them
-                addUser = !users.some(function (user) {
-                    return friend.name === user.displayName;
-                });
-                if (addUser) {
-                    users.push(friend.ref);
-                }
-            }
-        }
-        friendCount = users.length;
-    }
-    if (this.store.appearanceSettings.instanceUsersSortAlphabetical) {
-        users.sort(compareByDisplayName);
-    } else {
-        users.sort(compareByLocationAt);
-    }
-    D.users = users;
-    if (L.worldId && currentLocation === L.tag && playersInInstance.size > 0) {
-        D.instance = {
-            id: L.instanceId,
-            tag: L.tag,
-            $location: L,
-            friendCount: 0,
-            users: [],
-            shortName: '',
-            ref: {}
-        };
-    }
-    if (!L.isRealInstance) {
-        D.instance = {
-            id: L.instanceId,
-            tag: L.tag,
-            $location: L,
-            friendCount: 0,
-            users: [],
-            shortName: '',
-            ref: {}
-        };
-    }
-    const instanceRef = $app.store.instance.cachedInstances.get(L.tag);
-    if (typeof instanceRef !== 'undefined') {
-        D.instance.ref = instanceRef;
-    }
-    D.instance.friendCount = friendCount;
-    this.updateTimers();
-};
 
 // #endregion
 // #region | App: player list
@@ -3631,87 +3502,6 @@ $app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
     return avatars;
 };
 
-$app.methods.sortUserDialogAvatars = function (array) {
-    const D = this.store.user.userDialog;
-    if (D.avatarSorting === 'update') {
-        array.sort(compareByUpdatedAt);
-    } else {
-        array.sort(compareByName);
-    }
-    D.avatars = array;
-};
-
-$app.methods.refreshUserDialogAvatars = function (fileId) {
-    const D = this.store.user.userDialog;
-    if (D.isAvatarsLoading) {
-        return;
-    }
-    D.isAvatarsLoading = true;
-    if (fileId) {
-        D.loading = true;
-    }
-    D.avatarSorting = 'update';
-    D.avatarReleaseStatus = 'all';
-    const params = {
-        n: 50,
-        offset: 0,
-        sort: 'updated',
-        order: 'descending',
-        releaseStatus: 'all',
-        user: 'me'
-    };
-    for (const ref of this.store.avatar.cachedAvatars.values()) {
-        if (ref.authorId === D.id) {
-            this.store.avatar.cachedAvatars.delete(ref.id);
-        }
-    }
-    const map = new Map();
-    API.bulk({
-        fn: avatarRequest.getAvatars,
-        N: -1,
-        params,
-        handle: (args) => {
-            for (let json of args.json) {
-                const $ref = this.store.avatar.cachedAvatars.get(json.id);
-                if (typeof $ref !== 'undefined') {
-                    map.set($ref.id, $ref);
-                }
-            }
-        },
-        done: () => {
-            const array = Array.from(map.values());
-            this.sortUserDialogAvatars(array);
-            D.isAvatarsLoading = false;
-            if (fileId) {
-                D.loading = false;
-                for (const ref of array) {
-                    if (extractFileId(ref.imageUrl) === fileId) {
-                        this.store.avatar.showAvatarDialog(ref.id);
-                        return;
-                    }
-                }
-                this.$message({
-                    message: 'Own avatar not found',
-                    type: 'error'
-                });
-            }
-        }
-    });
-};
-
-$app.methods.refreshUserDialogTreeData = function () {
-    const D = this.store.user.userDialog;
-    if (D.id === API.currentUser.id) {
-        const treeData = {
-            ...API.currentUser,
-            ...D.ref
-        };
-        D.treeData = buildTreeData(treeData);
-        return;
-    }
-    D.treeData = buildTreeData(D.ref);
-};
-
 $app.methods.selectAvatarWithConfirmation = function (id) {
     this.$confirm(`Continue? Select Avatar`, 'Confirm', {
         confirmButtonText: 'Confirm',
@@ -3787,7 +3577,7 @@ $app.methods.showAvatarAuthorDialog = async function (
         if (!avatarId) {
             avatarInfo = await this.getAvatarName(currentAvatarImageUrl);
             if (avatarInfo.ownerId === API.currentUser.id) {
-                this.refreshUserDialogAvatars(fileId);
+                this.store.user.refreshUserDialogAvatars(fileId);
             }
         }
         if (!avatarId) {
@@ -4551,7 +4341,7 @@ $app.methods.updateCurrentUserLocation = function () {
     if (!this.isGameRunning || this.store.advancedSettings.gameLogDisabled) {
         ref.$location_at = API.currentUser.$location_at;
         ref.$travelingToTime = API.currentUser.$travelingToTime;
-        this.applyUserDialogLocation();
+        this.store.user.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
         this.store.instance.applyGroupDialogInstances();
     } else {
@@ -4611,7 +4401,7 @@ $app.methods.setCurrentUserLocation = async function (
         this.addGameLog(entry);
         this.addInstanceJoinHistory(location, dt);
 
-        this.applyUserDialogLocation();
+        this.store.user.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
         this.store.instance.applyGroupDialogInstances();
     } else {
@@ -5017,7 +4807,6 @@ $app.computed.searchTabBind = function () {
 $app.computed.searchTabEvent = function () {
     return {
         clearSearch: this.clearSearch,
-        refreshUserDialogAvatars: this.refreshUserDialogAvatars,
         'update:searchText': (value) => (this.searchText = value)
     };
 };

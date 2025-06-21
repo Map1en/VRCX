@@ -75,7 +75,7 @@ export default function init() {
                         this.updateCurrentUserLocation();
                         this.clearNowPlaying();
                         this.store.instance.updateCurrentInstanceWorld();
-                        this.applyUserDialogLocation();
+                        this.store.user.applyUserDialogLocation();
                         this.store.instance.applyWorldDialogInstances();
                         this.store.instance.applyGroupDialogInstances();
                     }
@@ -102,7 +102,7 @@ export default function init() {
                         this.updateCurrentUserLocation();
                         this.updateVRLastLocation();
                         this.store.instance.updateCurrentInstanceWorld();
-                        this.applyUserDialogLocation();
+                        this.store.user.applyUserDialogLocation();
                         this.store.instance.applyWorldDialogInstances();
                         this.store.instance.applyGroupDialogInstances();
                     }
