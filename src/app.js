@@ -5,7 +5,6 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 // #region | Imports
-import './app.scss';
 import '@fontsource/noto-sans-kr';
 import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';

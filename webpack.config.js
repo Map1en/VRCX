@@ -15,11 +15,11 @@ module.exports = (env, argv) => {
         entry: {
             vendor: ['element-ui', 'noty', 'vue', 'vue-i18n', 'worker-timers'],
             app: {
-                import: ['./src/app.js'],
+                import: ['./src/app.js', './src/app.scss'],
                 dependOn: 'vendor'
             },
             vr: {
-                import: ['./src/vr.js'],
+                import: ['./src/vr.js', './src/vr.scss'],
                 dependOn: 'vendor'
             },
             'theme.dark': `${themeBasePath}theme.dark.scss`,
@@ -82,7 +82,7 @@ module.exports = (env, argv) => {
         performance: {
             hints: false
         },
-        devtool: 'inline-source-map',
+        devtool: isProduction ? 'inline-source-map' : false,
         target: ['web', 'es2022'],
         stats: {
             preset: 'errors-warnings',

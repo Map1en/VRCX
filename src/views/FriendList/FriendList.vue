@@ -401,10 +401,10 @@
                             match = localeIncludes(ctx.memo, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Note') && ctx.ref.note) {
-                            match = utils.localeIncludes(ctx.ref.note, query, this.stringComparer);
+                            match = localeIncludes(ctx.ref.note, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Note') && ctx.ref.note) {
-                            match = utils.localeIncludes(ctx.ref.note, query, this.stringComparer);
+                            match = localeIncludes(ctx.ref.note, query, this.stringComparer);
                         }
                         if (!match && filters.includes('Bio') && ctx.ref.bio) {
                             match = localeIncludes(ctx.ref.bio, query, this.stringComparer);
