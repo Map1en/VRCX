@@ -204,11 +204,14 @@
     import { removeFromArray, openExternalLink } from '../../shared/utils';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useWorldStore } from '../../stores/world';
+    import { useUserStore } from '../../stores/user';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const worldStore = useWorldStore();
     const { showWorldDialog } = worldStore;
+    const userStore = useUserStore();
+    const { lookupUser } = userStore;
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;
@@ -242,17 +245,12 @@
         'gameLogTableLookup',
         'gameLogIsFriend',
         'gameLogIsFavorite',
-        'lookupUser',
         'updateGameLogSessionTable',
         'updateSharedFeed'
     ]);
 
     function gameLogTableLookup() {
         emit('gameLogTableLookup');
-    }
-
-    function lookupUser(ref) {
-        emit('lookupUser', ref);
     }
 
     function deleteGameLogEntry(row) {

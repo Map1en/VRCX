@@ -167,6 +167,7 @@
     import { vrcPlusImageRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
     import { API } from '../../../app';
+    import { useUserStore } from '../../../stores/user';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
@@ -174,6 +175,9 @@
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+
+    const userStore = useUserStore();
+    const { lookupUser } = userStore;
 
     const props = defineProps({
         screenshotMetadataDialog: {
@@ -189,8 +193,6 @@
             default: null
         }
     });
-
-    const emit = defineEmits(['lookupUser']);
 
     watch(
         () => props.screenshotMetadataDialog.visible,
@@ -396,9 +398,6 @@
         if (props.fullscreenImageDialog.visible) {
             // TODO
         }
-    }
-    function lookupUser(user) {
-        emit('lookupUser', user);
     }
 
     function screenshotMetadataResetSearch() {

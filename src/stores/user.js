@@ -907,6 +907,35 @@ export const useUserStore = defineStore('User', () => {
         D.treeData = buildTreeData(D.ref);
     }
 
+    async function lookupUser(ref) {
+        let ctx;
+        if (ref.userId) {
+            showUserDialog(ref.userId);
+            return;
+        }
+        if (!ref.displayName || ref.displayName.substring(0, 3) === 'ID:') {
+            return;
+        }
+        for (ctx of API.cachedUsers.values()) {
+            if (ctx.displayName === ref.displayName) {
+                showUserDialog(ctx.id);
+                return;
+            }
+        }
+        $app.searchText = ref.displayName;
+        await $app.searchUserByDisplayName(ref.displayName);
+        for (ctx of $app.searchUserResults) {
+            if (ctx.displayName === ref.displayName) {
+                $app.searchText = '';
+                $app.clearSearch();
+                showUserDialog(ctx.id);
+                return;
+            }
+        }
+        // this.$refs.searchTab.currentName = '0';
+        // this.menuActiveIndex = 'search';
+    }
+
     return {
         state,
         userDialog,
@@ -917,6 +946,7 @@ export const useUserStore = defineStore('User', () => {
         applyUserDialogLocation,
         sortUserDialogAvatars,
         refreshUserDialogAvatars,
-        refreshUserDialogTreeData
+        refreshUserDialogTreeData,
+        lookupUser
     };
 });

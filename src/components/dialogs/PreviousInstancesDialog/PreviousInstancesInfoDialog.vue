@@ -63,6 +63,7 @@
     import { parseLocation, compareByCreatedAt, timeToText } from '../../../shared/utils';
     import database from '../../../service/database';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
 
     export default {
@@ -78,14 +79,16 @@
             },
             instanceId: { type: String, required: true },
             gameLogIsFriend: { type: Function, required: true },
-            gameLogIsFavorite: { type: Function, required: true },
-            lookupUser: { type: Function, required: true }
+            gameLogIsFavorite: { type: Function, required: true }
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const { isDarkMode } = storeToRefs(appearanceSettingsStore);
+            const userStore = useUserStore();
+            const { lookupUser } = userStore;
             return {
-                isDarkMode
+                isDarkMode,
+                lookupUser
             };
         },
         data() {

@@ -862,7 +862,7 @@
     const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
     const { photonLoggingEnabled } = storeToRefs(photonStore);
     const userStore = useUserStore();
-    const { showUserDialog } = userStore;
+    const { showUserDialog, lookupUser } = userStore;
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
     const worldStore = useWorldStore();
@@ -916,12 +916,7 @@
         }
     });
 
-    const emit = defineEmits([
-        'photonEventTableFilterChange',
-        'getCurrentInstanceUserList',
-        'showUserFromPhotonId',
-        'lookupUser'
-    ]);
+    const emit = defineEmits(['photonEventTableFilterChange', 'getCurrentInstanceUserList', 'showUserFromPhotonId']);
 
     const chatboxBlacklistDialog = ref({
         visible: false,
@@ -941,10 +936,6 @@
 
     function showUserFromPhotonId(photonId) {
         emit('showUserFromPhotonId', photonId);
-    }
-
-    function lookupUser(user) {
-        emit('lookupUser', user);
     }
 
     function selectCurrentInstanceRow(val) {

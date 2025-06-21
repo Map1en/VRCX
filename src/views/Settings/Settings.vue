@@ -1853,8 +1853,7 @@
         <ScreenshotMetadataDialog
             :screenshotMetadataDialog="screenshotMetadataDialog"
             :currentlyDroppingFile="currentlyDroppingFile"
-            :fullscreenImageDialog="fullscreenImageDialog"
-            @lookupUser="lookupUser" />
+            :fullscreenImageDialog="fullscreenImageDialog" />
         <RegistryBackupDialog
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
@@ -1878,6 +1877,7 @@
     import { useFavoriteStore } from '../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useGeneralSettingsStore } from '../../stores/settings/general';
+    import { useUserStore } from '../../stores/user';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import { useNotificationsSettingsStore } from '../../stores/settings/notifications';
     import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
@@ -2200,7 +2200,6 @@
 
     const emit = defineEmits([
         'updateSharedFeed',
-        'lookupUser',
         'changeNotificationPosition',
         'saveVRCXWindowOption',
         'promptProxySettings',
@@ -2281,10 +2280,6 @@
 
     function updateSharedFeed($event) {
         emit('updateSharedFeed', $event);
-    }
-
-    function lookupUser(ref) {
-        emit('lookupUser', ref);
     }
 
     function changeNotificationPosition(value) {

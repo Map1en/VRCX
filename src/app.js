@@ -1529,7 +1529,7 @@ $app.methods.quickSearchChange = function (value) {
             } else {
                 this.menuActiveIndex = 'search';
                 this.searchText = searchText;
-                this.lookupUser({ displayName: searchText });
+                $app.store.user.lookupUser({ displayName: searchText });
             }
         } else {
             this.store.user.showUserDialog(value);
@@ -2238,35 +2238,6 @@ $app.methods.updateAutoStateChange = function () {
             this.errorNoty.show();
             console.log(text);
         });
-};
-
-$app.methods.lookupUser = async function (ref) {
-    let ctx;
-    if (ref.userId) {
-        this.store.user.showUserDialog(ref.userId);
-        return;
-    }
-    if (!ref.displayName || ref.displayName.substring(0, 3) === 'ID:') {
-        return;
-    }
-    for (ctx of API.cachedUsers.values()) {
-        if (ctx.displayName === ref.displayName) {
-            this.store.user.showUserDialog(ctx.id);
-            return;
-        }
-    }
-    this.searchText = ref.displayName;
-    await this.searchUserByDisplayName(ref.displayName);
-    for (ctx of this.searchUserResults) {
-        if (ctx.displayName === ref.displayName) {
-            this.searchText = '';
-            this.clearSearch();
-            this.store.user.showUserDialog(ctx.id);
-            return;
-        }
-    }
-    // this.$refs.searchTab.currentName = '0';
-    // this.menuActiveIndex = 'search';
 };
 
 // #endregion
@@ -4686,7 +4657,6 @@ $app.computed.friendsListTabBind = function () {
 };
 $app.computed.friendsListTabEvent = function () {
     return {
-        'lookup-user': this.lookupUser,
         'update:friends-list-search': (value) =>
             (this.friendsListSearch = value)
     };
@@ -4765,7 +4735,6 @@ $app.computed.gameLogTabBind = function () {
 $app.computed.gameLogTabEvent = function () {
     return {
         gameLogTableLookup: this.gameLogTableLookup,
-        lookupUser: this.lookupUser,
         updateGameLogSessionTable: (val) => (this.gameLogSessionTable = val),
         updateSharedFeed: this.updateSharedFeed
     };
@@ -4821,8 +4790,7 @@ $app.computed.profileTabBind = function () {
 
 $app.computed.profileTabEvent = function () {
     return {
-        logout: this.logout,
-        lookupUser: this.lookupUser
+        logout: this.logout
     };
 };
 
@@ -4845,8 +4813,7 @@ $app.computed.playerListTabEvent = function () {
     return {
         photonEventTableFilterChange: this.photonEventTableFilterChange,
         getCurrentInstanceUserList: this.getCurrentInstanceUserList,
-        showUserFromPhotonId: this.showUserFromPhotonId,
-        lookupUser: this.lookupUser
+        showUserFromPhotonId: this.showUserFromPhotonId
     };
 };
 
@@ -4884,7 +4851,6 @@ $app.computed.settingsTabBind = function () {
 
 $app.computed.settingsTabEvent = function () {
     return {
-        lookupUser: this.lookupUser,
         changeNotificationPosition: this.changeNotificationPosition,
         saveVRCXWindowOption: this.saveVRCXWindowOption,
         promptProxySettings: this.promptProxySettings,

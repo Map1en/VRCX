@@ -518,7 +518,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
-    const { showUserDialog } = userStore;
+    const { showUserDialog, lookupUser } = userStore;
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
     const inviteStore = useInviteStore();
@@ -553,7 +553,7 @@
             default: () => {}
         }
     });
-    const emit = defineEmits(['logout', 'lookupUser']);
+    const emit = defineEmits(['logout']);
 
     const vrchatCredit = ref(null);
     const configTreeData = ref([]);
@@ -601,7 +601,7 @@
             inputErrorMessage: t('prompt.direct_access_username.input_error'),
             callback: (action, instance) => {
                 if (action === 'confirm' && instance.inputValue) {
-                    emit('lookupUser', {
+                    lookupUser({
                         displayName: instance.inputValue
                     });
                 }

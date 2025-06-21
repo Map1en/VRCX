@@ -298,7 +298,7 @@ export default function init() {
                     if (typeof ref.id !== 'undefined') {
                         this.store.user.showUserDialog(ref.id);
                     } else if (typeof ref.displayName !== 'undefined') {
-                        this.lookupUser(ref);
+                        this.store.user.lookupUser(ref);
                     }
                 } else {
                     this.$message({
