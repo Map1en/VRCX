@@ -13,6 +13,7 @@ import { useGroupStore } from './group';
 import { useInstanceStore } from './instance';
 import { useModerationStore } from './moderation';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUserStore } from './user';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -24,6 +25,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     const instanceStore = useInstanceStore();
     const moderationStore = useModerationStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const userStore = useUserStore();
 
     const state = reactive({
         isFavoriteGroupLoading: false,
@@ -634,6 +636,59 @@ export const useFavoriteStore = defineStore('Favorite', () => {
 
     API.$on('FAVORITE:@DELETE', function (args) {
         friendStore.updateFriend({ id: args.ref.favoriteId });
+    });
+
+    API.$on('FAVORITE', function (args) {
+        const { ref } = args;
+        const D = userStore.userDialog;
+        if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
+            return;
+        }
+        D.isFavorite = true;
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        const D = userStore.userDialog;
+        if (D.visible === false || D.id !== args.ref.favoriteId) {
+            return;
+        }
+        D.isFavorite = false;
+    });
+
+    API.$on('FAVORITE', function (args) {
+        const { ref } = args;
+        const D = worldStore.worldDialog;
+        if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
+            return;
+        }
+        D.isFavorite = true;
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        const D = worldStore.worldDialog;
+        if (D.visible === false || D.id !== args.ref.favoriteId) {
+            return;
+        }
+        D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(
+            D.id
+        );
+    });
+
+    API.$on('FAVORITE', function (args) {
+        const { ref } = args;
+        const D = avatarStore.avatarDialog;
+        if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
+            return;
+        }
+        D.isFavorite = true;
+    });
+
+    API.$on('FAVORITE:@DELETE', function (args) {
+        const D = avatarStore.avatarDialog;
+        if (D.visible === false || D.id !== args.ref.favoriteId) {
+            return;
+        }
+        D.isFavorite = false;
     });
 
     /**

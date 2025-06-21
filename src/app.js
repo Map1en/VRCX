@@ -3227,23 +3227,6 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
     }
 });
 
-API.$on('FAVORITE', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
-        return;
-    }
-    D.isFavorite = true;
-});
-
-API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.id !== args.ref.favoriteId) {
-        return;
-    }
-    D.isFavorite = false;
-});
-
 $app.methods.applyUserDialogLocation = function (updateInstanceOccupants) {
     let addUser;
     let friend;
@@ -3786,46 +3769,6 @@ $app.methods.refreshUserDialogTreeData = function () {
     }
     D.treeData = buildTreeData(D.ref);
 };
-
-// #endregion
-// #region | App: World Dialog
-
-API.$on('FAVORITE', function (args) {
-    let { ref } = args;
-    const D = $app.store.world.worldDialog;
-    if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
-        return;
-    }
-    D.isFavorite = true;
-});
-
-API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.store.world.worldDialog;
-    if (D.visible === false || D.id !== args.ref.favoriteId) {
-        return;
-    }
-    D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(D.id);
-});
-
-// #endregion
-// #region | App: Avatar Dialog
-
-API.$on('FAVORITE', function (args) {
-    let { ref } = args;
-    const D = $app.store.avatar.avatarDialog;
-    if (D.visible === false || ref.$isDeleted || ref.favoriteId !== D.id) {
-        return;
-    }
-    D.isFavorite = true;
-});
-
-API.$on('FAVORITE:@DELETE', function (args) {
-    const D = $app.store.avatar.avatarDialog;
-    if (D.visible === false || D.id !== args.ref.favoriteId) {
-        return;
-    }
-    D.isFavorite = false;
-});
 
 $app.methods.selectAvatarWithConfirmation = function (id) {
     this.$confirm(`Continue? Select Avatar`, 'Confirm', {
