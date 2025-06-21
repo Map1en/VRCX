@@ -587,70 +587,6 @@ API.applyPresenceLocation = function (ref) {
 };
 
 // #endregion
-// #region | API: World
-
-API.$on('WORLD', function (args) {
-    args.ref = $app.store.world.applyWorld(args.json);
-});
-
-// todo: use in cef
-API.actuallyGetCurrentLocation = async function () {
-    let gameLogLocation = $app.store.location.lastLocation.location;
-    if (gameLogLocation.startsWith('local')) {
-        console.warn('PWI: local test mode', 'test_world');
-        return 'test_world';
-    }
-    if (gameLogLocation === 'traveling') {
-        gameLogLocation = $app.lastLocationDestination;
-    }
-
-    let presenceLocation = this.currentUser.$locationTag;
-    if (presenceLocation === 'traveling') {
-        presenceLocation = this.currentUser.$travelingToLocation;
-    }
-
-    // We want to use presence if it's valid to avoid extra API calls, but its prone to being outdated when this function is called.
-    // So we check if the presence location is the same as the gameLog location; If it is, the presence is (probably) valid and we can use it.
-    // If it's not, we need to get the user manually to get the correct location.
-    // If the user happens to be offline or the api is just being dumb, we assume that the user logged into VRCX is different than the one in-game and return the gameLog location.
-    // This is really dumb.
-    if (presenceLocation === gameLogLocation) {
-        const L = parseLocation(presenceLocation);
-        return L.worldId;
-    }
-
-    const args = await userRequest.getUser({ userId: this.currentUser.id });
-    const user = args.json;
-    let userLocation = user.location;
-    if (userLocation === 'traveling') {
-        userLocation = user.travelingToLocation;
-    }
-    console.warn(
-        "PWI: location didn't match, fetched user location",
-        userLocation
-    );
-
-    if (isRealInstance(userLocation)) {
-        console.warn('PWI: returning user location', userLocation);
-        const L = parseLocation(userLocation);
-        return L.worldId;
-    }
-
-    if (isRealInstance(gameLogLocation)) {
-        console.warn(`PWI: returning gamelog location: `, gameLogLocation);
-        const L = parseLocation(gameLogLocation);
-        return L.worldId;
-    }
-
-    console.error(
-        `PWI: all locations invalid: `,
-        gameLogLocation,
-        userLocation
-    );
-    return 'test_world';
-};
-
-// #endregion
 // #region | API: Instance
 
 API.$on('INSTANCE', function (args) {
@@ -3388,14 +3324,6 @@ API.$on('USER', function (args) {
     $app.refreshUserDialogTreeData();
 });
 
-API.$on('WORLD', function (args) {
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.$location.worldId !== args.ref.id) {
-        return;
-    }
-    $app.applyUserDialogLocation();
-});
-
 API.$on('FRIEND:STATUS', function (args) {
     const D = $app.store.user.userDialog;
     if (D.visible === false || D.id !== args.params.userId) {
@@ -4077,33 +4005,6 @@ $app.methods.refreshUserDialogTreeData = function () {
 
 // #endregion
 // #region | App: World Dialog
-
-API.$on('WORLD', function (args) {
-    let { ref } = args;
-    const D = $app.store.world.worldDialog;
-    if (D.visible === false || D.id !== ref.id) {
-        return;
-    }
-    D.ref = ref;
-    D.avatarScalingDisabled = ref.tags?.includes(
-        'feature_avatar_scaling_disabled'
-    );
-    D.focusViewDisabled = ref.tags?.includes('feature_focus_view_disabled');
-    $app.store.instance.applyWorldDialogInstances();
-    for (let room of D.rooms) {
-        if (isRealInstance(room.tag)) {
-            instanceRequest.getInstance({
-                worldId: D.id,
-                instanceId: room.id
-            });
-        }
-    }
-    if (D.bundleSizes.length === 0) {
-        getBundleDateSize(ref).then((bundleSizes) => {
-            D.bundleSizes = bundleSizes;
-        });
-    }
-});
 
 API.$on('FAVORITE', function (args) {
     let { ref } = args;
@@ -5224,13 +5125,6 @@ $app.methods.openUGCFolderSelector = async function () {
 
 // #endregion
 // #region | App: local world favorites
-
-API.$on('WORLD', function (args) {
-    if ($app.store.favorite.localWorldFavoritesList.includes(args.ref.id)) {
-        // update db cache
-        database.addWorldToCache(args.ref);
-    }
-});
 
 API.$on('LOGIN', function () {
     $app.store.favorite.getLocalWorldFavorites();

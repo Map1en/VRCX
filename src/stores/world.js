@@ -1,21 +1,28 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { miscRequest, worldRequest } from '../api';
+import { instanceRequest, miscRequest, worldRequest } from '../api';
 import { $app } from '../app';
+import API from '../classes/apiInit';
 import database from '../service/database';
 import {
     checkVRChatCache,
     getAvailablePlatforms,
+    getBundleDateSize,
     getWorldMemo,
+    isRealInstance,
     parseLocation,
     replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
 import { useLocationStore } from './location';
+import { useUserStore } from './user';
+import { useInstanceStore } from './instance';
 
 export const useWorldStore = defineStore('World', () => {
     const locationStore = useLocationStore();
     const favoriteStore = useFavoriteStore();
+    const instanceStore = useInstanceStore();
+    const userStore = useUserStore();
     const state = reactive({
         worldDialog: {
             visible: false,
@@ -57,6 +64,52 @@ export const useWorldStore = defineStore('World', () => {
         get: () => state.cachedWorlds,
         set: (value) => {
             state.cachedWorlds = value;
+        }
+    });
+
+    API.$on('WORLD', function (args) {
+        args.ref = applyWorld(args.json);
+    });
+
+    API.$on('WORLD', function (args) {
+        const D = userStore.userDialog;
+        if (D.visible === false || D.$location.worldId !== args.ref.id) {
+            return;
+        }
+        $app.applyUserDialogLocation();
+    });
+
+    API.$on('WORLD', function (args) {
+        const { ref } = args;
+        const D = state.worldDialog;
+        if (D.visible === false || D.id !== ref.id) {
+            return;
+        }
+        D.ref = ref;
+        D.avatarScalingDisabled = ref.tags?.includes(
+            'feature_avatar_scaling_disabled'
+        );
+        D.focusViewDisabled = ref.tags?.includes('feature_focus_view_disabled');
+        instanceStore.applyWorldDialogInstances();
+        for (const room of D.rooms) {
+            if (isRealInstance(room.tag)) {
+                instanceRequest.getInstance({
+                    worldId: D.id,
+                    instanceId: room.id
+                });
+            }
+        }
+        if (D.bundleSizes.length === 0) {
+            getBundleDateSize(ref).then((bundleSizes) => {
+                D.bundleSizes = bundleSizes;
+            });
+        }
+    });
+
+    API.$on('WORLD', function (args) {
+        if (favoriteStore.localWorldFavoritesList.includes(args.ref.id)) {
+            // update db cache
+            database.addWorldToCache(args.ref);
         }
     });
 
