@@ -62,49 +62,29 @@
     </div>
 </template>
 
-<script>
+<script setup>
+    import { computed } from 'vue';
     import { storeToRefs } from 'pinia';
     import { useFriendStore } from '../stores/friend';
     import { useAppearanceSettingsStore } from '../stores/settings/appearance';
     import Location from './Location.vue';
     import { userStatusClass, userImage } from '../shared/utils';
 
-    export default {
-        name: 'FriendItem',
-        components: {
-            Location
-        },
-        props: {
-            friend: {
-                type: Object,
-                required: true
-            },
-            isGroupByInstance: Boolean
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const friendStore = useFriendStore();
-            const { hideNicknames } = storeToRefs(appearanceSettingsStore);
-            const { isRefreshFriendsLoading } = storeToRefs(friendStore);
-            return {
-                hideNicknames,
-                isRefreshFriendsLoading,
-                userStatusClass,
-                userImage
-            };
-        },
-        computed: {
-            isFriendTraveling() {
-                return this.friend.ref.location === 'traveling';
-            },
-            isFriendActiveOrOffline() {
-                return this.friend.state === 'active' || this.friend.state === 'offline';
-            },
-            epoch() {
-                return this.isFriendTraveling ? this.friend.ref.$travelingToTime : this.friend.ref.$location_at;
-            }
-        }
-    };
+    const props = defineProps({
+        friend: { type: Object, required: true },
+        isGroupByInstance: Boolean
+    });
+
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const friendStore = useFriendStore();
+    const { hideNicknames } = storeToRefs(appearanceSettingsStore);
+    const { isRefreshFriendsLoading } = storeToRefs(friendStore);
+
+    const isFriendTraveling = computed(() => props.friend.ref.location === 'traveling');
+    const isFriendActiveOrOffline = computed(() => props.friend.state === 'active' || props.friend.state === 'offline');
+    const epoch = computed(() =>
+        isFriendTraveling.value ? props.friend.ref.$travelingToTime : props.friend.ref.$location_at
+    );
 </script>
 
 <style scoped>

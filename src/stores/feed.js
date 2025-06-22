@@ -10,6 +10,7 @@ import { useUiStore } from './ui';
 export const useFeedStore = defineStore('Feed', () => {
     const friendStore = useFriendStore();
     const notificationStore = useNotificationStore();
+    const UiStore = useUiStore();
     const state = reactive({
         feedTable: {
             data: [],
@@ -176,7 +177,7 @@ export const useFeedStore = defineStore('Feed', () => {
         }
         state.feedTable.data.push(feed);
         sweepFeed();
-        useUiStore.notifyMenu('feed');
+        UiStore.notifyMenu('feed');
     }
 
     function sweepFeed() {
