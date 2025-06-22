@@ -48,7 +48,9 @@ export const useInstanceStore = defineStore('Instance', () => {
             lastUpdated: ''
         },
         currentInstanceLocation: {},
-        queuedInstances: new Map()
+        queuedInstances: new Map(),
+        previousInstancesInfoDialogVisible: false,
+        previousInstancesInfoDialogInstanceId: ''
     });
 
     const cachedInstances = computed({
@@ -80,6 +82,25 @@ export const useInstanceStore = defineStore('Instance', () => {
             state.queuedInstances = value;
         }
     });
+
+    const previousInstancesInfoDialogVisible = computed({
+        get: () => state.previousInstancesInfoDialogVisible,
+        set: (value) => {
+            state.previousInstancesInfoDialogVisible = value;
+        }
+    });
+
+    const previousInstancesInfoDialogInstanceId = computed({
+        get: () => state.previousInstancesInfoDialogInstanceId,
+        set: (value) => {
+            state.previousInstancesInfoDialogInstanceId = value;
+        }
+    });
+
+    function showPreviousInstancesInfoDialog(instanceId) {
+        state.previousInstancesInfoDialogVisible = true;
+        state.previousInstancesInfoDialogInstanceId = instanceId;
+    }
 
     function updateCurrentInstanceWorld() {
         let L;
@@ -922,6 +943,8 @@ export const useInstanceStore = defineStore('Instance', () => {
         currentInstanceWorld,
         currentInstanceLocation,
         queuedInstances,
+        previousInstancesInfoDialogVisible,
+        previousInstancesInfoDialogInstanceId,
         applyInstance,
         updateCurrentInstanceWorld,
         createNewInstance,

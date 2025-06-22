@@ -1,12 +1,12 @@
 <template>
     <safe-dialog
         ref="dialog"
-        :visible="visible"
+        :visible="previousInstancesInfoDialogVisible"
         :title="$t('dialog.previous_instances.info')"
         width="800px"
         :fullscreen="fullscreen"
         destroy-on-close
-        @close="$emit('update:visible', false)">
+        @close="closeDialog">
         <div style="display: flex; align-items: center; justify-content: space-between">
             <location :location="location.tag" style="font-size: 14px"></location>
             <el-input
@@ -65,6 +65,7 @@
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
+    import { useInstanceStore } from '../../../stores/instance';
 
     export default {
         name: 'PreviousInstancesInfoDialog',
@@ -73,11 +74,6 @@
         },
         inject: ['adjustDialogZ'],
         props: {
-            visible: {
-                type: Boolean,
-                default: false
-            },
-            instanceId: { type: String, required: true },
             gameLogIsFriend: { type: Function, required: true },
             gameLogIsFavorite: { type: Function, required: true }
         },
@@ -86,9 +82,14 @@
             const { isDarkMode } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { lookupUser } = userStore;
+            const instanceStore = useInstanceStore();
+            const { previousInstancesInfoDialogVisible, previousInstancesInfoDialogInstanceId } =
+                storeToRefs(instanceStore);
             return {
                 isDarkMode,
-                lookupUser
+                lookupUser,
+                previousInstancesInfoDialogVisible,
+                previousInstancesInfoDialogInstanceId
             };
         },
         data() {
@@ -152,7 +153,7 @@
             init() {
                 this.adjustDialogZ(this.$refs.dialog.$el);
                 this.loading = true;
-                this.location = parseLocation(this.instanceId);
+                this.location = parseLocation(this.previousInstancesInfoDialogInstanceId);
             },
             refreshPreviousInstancesInfoTable() {
                 database.getPlayersFromInstance(this.location.tag).then((data) => {
@@ -165,6 +166,9 @@
                     this.dataTable.data = array;
                     this.loading = false;
                 });
+            },
+            closeDialog() {
+                this.previousInstancesInfoDialogVisible = false;
             }
         }
     };

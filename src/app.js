@@ -3729,17 +3729,6 @@ $app.methods.eventLaunchCommand = function (input) {
     }
 };
 
-// #endregion
-// #region | App: Previous Instances Info Dialog
-
-$app.data.previousInstancesInfoDialogVisible = false;
-$app.data.previousInstancesInfoDialogInstanceId = '';
-
-$app.methods.showPreviousInstancesInfoDialog = function (instanceId) {
-    this.previousInstancesInfoDialogVisible = true;
-    this.previousInstancesInfoDialogInstanceId = instanceId;
-};
-
 $app.data.enableCustomEndpoint = await configRepository.getBool(
     'VRCX_enableCustomEndpoint',
     false
