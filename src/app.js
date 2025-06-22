@@ -52,7 +52,6 @@ import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
 import discordRpc from './classes/discordRpc.js';
-// import feed from './classes/feed.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
@@ -430,7 +429,6 @@ config();
 languages();
 groups();
 discordRpc();
-// feed();
 vrcRegistry();
 
 // #endregion
@@ -1259,7 +1257,7 @@ API.$on('LOGIN', async function (args) {
 
     $app.store.friend.friendLog = new Map();
     $app.store.feed.feedTable.data = [];
-    $app.feedSessionTable = [];
+    $app.store.feed.feedSessionTable = [];
     $app.store.friend.friendLogInitStatus = false;
     $app.store.notification.notificationInitStatus = false;
     await database.initUserTables(args.json.id);
@@ -1270,8 +1268,8 @@ API.$on('LOGIN', async function (args) {
         $app.gameLogTable.search,
         $app.gameLogTable.filter
     );
-    $app.feedSessionTable = await database.getFeedDatabase();
-    await $app.feedTableLookup();
+    $app.store.feed.feedSessionTable = await database.getFeedDatabase();
+    await $app.store.feed.feedTableLookup();
     $app.store.notification.notificationTable.data =
         await database.getNotifications();
     $app.store.notification.refreshNotifications();
@@ -1499,7 +1497,7 @@ API.$on('USER:UPDATE', async function (args) {
                 previousLocation,
                 time
             };
-            $app.addFeed(feed);
+            $app.store.feed.addFeed(feed);
             database.addGPSToDatabase(feed);
             $app.store.friend.updateFriendGPS(ref.id);
             // clear previousLocation after GPS
@@ -1614,7 +1612,7 @@ API.$on('USER:UPDATE', async function (args) {
                 currentAvatarTags,
                 previousCurrentAvatarTags
             };
-            $app.addFeed(feed);
+            $app.store.feed.addFeed(feed);
             database.addAvatarToDatabase(feed);
         }
     }
@@ -1655,7 +1653,7 @@ API.$on('USER:UPDATE', async function (args) {
             previousStatus,
             previousStatusDescription
         };
-        $app.addFeed(feed);
+        $app.store.feed.addFeed(feed);
         database.addStatusToDatabase(feed);
     }
     if (props.bio && props.bio[0] && props.bio[1]) {
@@ -1675,7 +1673,7 @@ API.$on('USER:UPDATE', async function (args) {
             bio,
             previousBio
         };
-        $app.addFeed(feed);
+        $app.store.feed.addFeed(feed);
         database.addBioToDatabase(feed);
     }
 });
@@ -4230,12 +4228,6 @@ $app.computed.notificationTabBind = function () {
 $app.computed.feedTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex
-    };
-};
-
-$app.computed.feedTabEvent = function () {
-    return {
-        feedTableLookup: this.feedTableLookup
     };
 };
 

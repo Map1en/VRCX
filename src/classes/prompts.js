@@ -470,7 +470,7 @@ export default function init() {
                                 this.maxTableSize
                             );
                             database.setmaxTableSize(this.maxTableSize);
-                            this.feedTableLookup();
+                            this.store.feed.feedTableLookup();
                             this.gameLogTableLookup();
                         }
                     }

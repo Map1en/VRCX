@@ -20,6 +20,7 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useUserStore } from './user';
 import { useNotificationStore } from './notification';
+import { useFeedStore } from './feed';
 
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -27,6 +28,7 @@ export const useFriendStore = defineStore('Friend', () => {
     const debugStore = useDebugStore();
     const userStore = useUserStore();
     const notificationStore = useNotificationStore();
+    const feedStore = useFeedStore();
 
     const state = reactive({
         friends: new Map(),
@@ -555,7 +557,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     groupName,
                     time
                 };
-                $app.addFeed(feed);
+                feedStore.addFeed(feed);
                 database.addOnlineOfflineToDatabase(feed);
             } else if (
                 newState === 'online' &&
@@ -579,7 +581,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     groupName,
                     time: ''
                 };
-                $app.addFeed(feed);
+                feedStore.addFeed(feed);
                 database.addOnlineOfflineToDatabase(feed);
             }
             if (newState === 'active') {

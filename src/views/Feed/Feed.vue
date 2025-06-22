@@ -337,6 +337,7 @@
     const { showUserDialog } = userStore;
     const feedStore = useFeedStore();
     const { feedTable } = storeToRefs(feedStore);
+    const { feedTableLookup } = feedStore;
 
     const { t } = useI18n();
 
@@ -348,8 +349,6 @@
             default: 'feed'
         }
     });
-
-    const emit = defineEmits(['feedTableLookup']);
 
     /**
      * Function that format the differences between two strings with HTML tags
@@ -464,9 +463,5 @@
             .join(' ')
             .replace(/<br>[ ]+<br>/g, '<br><br>')
             .replace(/<br> /g, '<br>');
-    }
-
-    function feedTableLookup() {
-        emit('feedTableLookup');
     }
 </script>

@@ -372,7 +372,7 @@ export default function init() {
 
         updateSharedFeedFeedTable(forceUpdate) {
             // GPS, Online, Offline, Status, Avatar
-            const feedSession = this.feedSessionTable;
+            const feedSession = this.store.feed.feedSessionTable;
             var i = feedSession.length;
             if (i > 0) {
                 if (

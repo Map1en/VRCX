@@ -51,6 +51,13 @@ export const useFeedStore = defineStore('Feed', () => {
         }
     });
 
+    const feedSessionTable = computed({
+        get: () => state.feedSessionTable,
+        set: (value) => {
+            state.feedSessionTable = value;
+        }
+    });
+
     function feedSearch(row) {
         const value = state.feedTable.search.toUpperCase();
         if (!value) {
@@ -192,5 +199,5 @@ export const useFeedStore = defineStore('Feed', () => {
         }
     }
 
-    return { state, feedTable };
+    return { state, feedTable, feedSessionTable, feedTableLookup, addFeed };
 });
