@@ -329,11 +329,14 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
     import { timeToText, statusClass } from '../../shared/utils';
+    import { useFeedStore } from '../../stores/feed';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
     const { showUserDialog } = userStore;
+    const feedStore = useFeedStore();
+    const { feedTable } = storeToRefs(feedStore);
 
     const { t } = useI18n();
 
@@ -343,10 +346,6 @@
         menuActiveIndex: {
             type: String,
             default: 'feed'
-        },
-        feedTable: {
-            type: Object,
-            default: () => ({})
         }
     });
 

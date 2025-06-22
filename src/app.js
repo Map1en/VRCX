@@ -52,7 +52,7 @@ import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
 import discordRpc from './classes/discordRpc.js';
-import feed from './classes/feed.js';
+// import feed from './classes/feed.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
@@ -430,7 +430,7 @@ config();
 languages();
 groups();
 discordRpc();
-feed();
+// feed();
 vrcRegistry();
 
 // #endregion
@@ -1255,10 +1255,10 @@ $app.data.dontLogMeOut = false;
 API.$on('LOGIN', async function (args) {
     // early loading indicator
     $app.store.friend.isRefreshFriendsLoading = true;
-    $app.feedTable.loading = true;
+    $app.store.feed.feedTable.loading = true;
 
     $app.store.friend.friendLog = new Map();
-    $app.feedTable.data = [];
+    $app.store.feed.feedTable.data = [];
     $app.feedSessionTable = [];
     $app.store.friend.friendLogInitStatus = false;
     $app.store.notification.notificationInitStatus = false;
@@ -1975,13 +1975,6 @@ $app.methods.moreSearchUser = async function (go, params) {
 // #endregion
 // #region | App: Notification
 
-$app.data.feedTable.filter = JSON.parse(
-    await configRepository.getString('VRCX_feedTableFilters', '[]')
-);
-$app.data.feedTable.vip = await configRepository.getBool(
-    'VRCX_feedTableVIPFilter',
-    false
-);
 $app.data.gameLogTable.vip = false;
 // gameLog loads before favorites
 // await configRepository.getBool(
@@ -2490,7 +2483,7 @@ $app.methods.directAccessParse = function (input) {
 };
 
 $app.methods.handleSetTablePageSize = async function (pageSize) {
-    this.feedTable.pageSize = pageSize;
+    this.store.feed.feedTable.pageSize = pageSize;
     this.gameLogTable.pageSize = pageSize;
     this.store.friend.friendLogTable.pageSize = pageSize;
     this.store.moderation.playerModerationTable.pageSize = pageSize;
@@ -4236,8 +4229,7 @@ $app.computed.notificationTabBind = function () {
 
 $app.computed.feedTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
-        feedTable: this.feedTable
+        menuActiveIndex: this.menuActiveIndex
     };
 };
 
