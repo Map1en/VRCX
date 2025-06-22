@@ -22,7 +22,7 @@
             collapse
             :default-active="menuActiveIndex"
             :collapse-transition="false"
-            @select="$emit('select', $event)">
+            @select="selectMenu">
             <el-menu-item index="feed">
                 <i class="el-icon-news"></i>
                 <template slot="title">
@@ -110,32 +110,16 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
     import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
+    import { useUiStore } from '../stores/ui';
 
-    export default {
-        name: 'NavMenu',
-        props: {
-            menuActiveIndex: {
-                type: String,
-                default: 'feed'
-            }
-        },
-        setup() {
-            const VRCXUpdaterStore = useVRCXUpdaterStore();
-            const { pendingVRCXUpdate, pendingVRCXInstall, updateInProgress, updateProgress, updateProgressText } =
-                storeToRefs(VRCXUpdaterStore);
-            const { showVRCXUpdateDialog } = VRCXUpdaterStore;
-
-            return {
-                pendingVRCXUpdate,
-                pendingVRCXInstall,
-                updateInProgress,
-                updateProgress,
-                updateProgressText,
-                showVRCXUpdateDialog
-            };
-        }
-    };
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
+    const { pendingVRCXUpdate, pendingVRCXInstall, updateInProgress, updateProgress, updateProgressText } =
+        storeToRefs(VRCXUpdaterStore);
+    const { showVRCXUpdateDialog } = VRCXUpdaterStore;
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { selectMenu } = uiStore;
 </script>

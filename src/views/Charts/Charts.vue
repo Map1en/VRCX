@@ -1,7 +1,7 @@
 <template>
     <div id="chart" class="x-container" v-show="menuActiveIndex === 'charts'">
         <div class="options-container" style="margin-top: 0">
-            <span class="header">{{ $t('view.charts.header') }}</span>
+            <span class="header">{{ t('view.charts.header') }}</span>
         </div>
         <keep-alive>
             <InstanceActivity v-if="menuActiveIndex === 'charts'" />
@@ -11,15 +11,19 @@
 </template>
 
 <script>
-    import InstanceActivity from './components/InstanceActivity.vue';
-
     export default {
-        name: 'ChartsTab',
-        components: {
-            InstanceActivity
-        },
-        props: {
-            menuActiveIndex: String
-        }
+        name: 'ChartsTab'
     };
+</script>
+
+<script setup>
+    import { storeToRefs } from 'pinia';
+    import { useI18n } from 'vue-i18n-bridge';
+    import InstanceActivity from './components/InstanceActivity.vue';
+    import { useUiStore } from '../../stores/ui';
+
+    const { t } = useI18n();
+
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 </script>

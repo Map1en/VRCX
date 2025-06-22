@@ -197,7 +197,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, getCurrentInstance } from 'vue';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
@@ -206,6 +206,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useWorldStore } from '../../stores/world';
     import { useUserStore } from '../../stores/user';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -215,15 +216,13 @@
     const { lookupUser } = userStore;
     const instanceStore = useInstanceStore();
     const { showPreviousInstancesInfoDialog } = instanceStore;
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;
 
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            required: true
-        },
         gameLogTable: {
             type: Object,
             required: true

@@ -497,7 +497,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref, getCurrentInstance } from 'vue';
+    import { ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { miscRequest, userRequest } from '../../api';
     import { parseAvatarUrl, buildTreeData, openExternalLink, userImage, parseUserUrl } from '../../shared/utils';
@@ -511,6 +511,7 @@
     import { useAvatarStore } from '../../stores/avatar';
     import { useInviteStore } from '../../stores/invite';
     import { useGalleryStore } from '../../stores/gallery';
+    import { useUiStore } from '../../stores/ui';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -531,16 +532,14 @@
     } = storeToRefs(inviteStore);
     const galleryStore = useGalleryStore();
     const { showGalleryDialog } = galleryStore;
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
 
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: 'profile'
-        },
         pastDisplayNameTable: {
             type: Object,
             default: () => ({

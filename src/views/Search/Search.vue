@@ -321,7 +321,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref } from 'vue';
+    import { ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, worldRequest } from '../../api';
     import {
@@ -340,6 +340,7 @@
     import { useAvatarStore } from '../../stores/avatar';
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -360,14 +361,12 @@
     const groupStore = useGroupStore();
     const { showGroupDialog } = groupStore;
     const { cachedGroups } = storeToRefs(groupStore);
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
 
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: ''
-        },
         searchText: {
             type: String,
             default: ''

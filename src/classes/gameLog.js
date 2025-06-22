@@ -515,7 +515,7 @@ export default function init() {
             }
             this.gameLogTable.data.push(entry);
             this.sweepGameLog();
-            this.notifyMenu('gameLog');
+            this.store.ui.notifyMenu('gameLog');
         },
 
         async addGamelogLocationToDatabase(input) {

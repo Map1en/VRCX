@@ -5,6 +5,7 @@ import database from '../service/database';
 import { useFriendStore } from './friend';
 import { $app } from '../app.js';
 import { useNotificationStore } from './notification';
+import { useUiStore } from './ui';
 
 export const useFeedStore = defineStore('Feed', () => {
     const friendStore = useFriendStore();
@@ -175,7 +176,7 @@ export const useFeedStore = defineStore('Feed', () => {
         }
         state.feedTable.data.push(feed);
         sweepFeed();
-        $app.notifyMenu('feed');
+        useUiStore.notifyMenu('feed');
     }
 
     function sweepFeed() {

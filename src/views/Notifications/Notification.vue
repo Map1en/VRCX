@@ -433,6 +433,7 @@
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
     import { useNotificationStore } from '../../stores/notification';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -451,6 +452,8 @@
     const notificationStore = useNotificationStore();
     const { notificationTable, isNotificationsLoading } = storeToRefs(notificationStore);
     const { refreshNotifications } = notificationStore;
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
 
@@ -459,10 +462,6 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: ''
-        },
         shiftHeld: { type: Boolean, default: false },
         lastLocationDestination: {
             type: String,

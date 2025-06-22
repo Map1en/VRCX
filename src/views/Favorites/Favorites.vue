@@ -68,6 +68,7 @@
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
     import FavoritesWorldTab from './components/FavoritesWorldTab.vue';
     import { useFavoriteStore } from '../../stores/favorite';
+    import { useUiStore } from '../../stores/ui';
 
     export default {
         name: 'FavoritesTab',
@@ -77,7 +78,6 @@
             FavoritesAvatarTab
         },
         props: {
-            menuActiveIndex: String,
             shiftHeld: Boolean
         },
         setup() {
@@ -99,6 +99,8 @@
                 bulkCopyFavoriteSelection,
                 getLocalWorldFavorites
             } = favoriteStore;
+            const uiStore = useUiStore();
+            const { menuActiveIndex } = storeToRefs(uiStore);
             return {
                 hideTooltips,
                 favoriteFriends,
@@ -112,7 +114,8 @@
                 bulkCopyFavoriteSelection,
                 localAvatarFavoritesList,
                 localWorldFavoritesList,
-                getLocalWorldFavorites
+                getLocalWorldFavorites,
+                menuActiveIndex
             };
         },
         data() {

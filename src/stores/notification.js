@@ -24,6 +24,7 @@ import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUserStore } from './user';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
+import { useUiStore } from './ui';
 
 export const useNotificationStore = defineStore('Notification', () => {
     const generalSettingsStore = useGeneralSettingsStore();
@@ -35,6 +36,7 @@ export const useNotificationStore = defineStore('Notification', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const userStore = useUserStore();
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
+    const uiStore = useUiStore();
     const state = reactive({
         notificationInitStatus: false,
         notificationTable: {
@@ -360,7 +362,7 @@ export const useNotificationStore = defineStore('Notification', () => {
                     state.notificationTable.filters[0].value.length === 0 ||
                     state.notificationTable.filters[0].value.includes(ref.type)
                 ) {
-                    $app.notifyMenu('notification');
+                    uiStore.notifyMenu('notification');
                 }
                 state.unseenNotifications.push(ref.id);
                 queueNotificationNoty(ref);
@@ -2232,7 +2234,7 @@ export const useNotificationStore = defineStore('Notification', () => {
                 (notyFilter[noty.type] === 'Friends' && noty.isFriend) ||
                 (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
         ) {
-            state.playNoty(noty);
+            playNoty(noty);
         }
     }
 
@@ -2257,7 +2259,7 @@ export const useNotificationStore = defineStore('Notification', () => {
                 (notyFilter[noty.type] === 'Friends' && noty.isFriend) ||
                 (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
         ) {
-            state.playNoty(noty);
+            playNoty(noty);
         }
     }
 
@@ -2274,7 +2276,7 @@ export const useNotificationStore = defineStore('Notification', () => {
                 notyFilter[noty.type] === 'Friends' ||
                 (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
         ) {
-            state.playNoty(noty);
+            playNoty(noty);
         }
     }
 
@@ -2287,7 +2289,7 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
         const notyFilter = notificationsSettingsStore.sharedFeedFilters.noty;
         if (notyFilter[noty.type] && notyFilter[noty.type] === 'On') {
-            state.playNoty(noty);
+            playNoty(noty);
         }
     }
 

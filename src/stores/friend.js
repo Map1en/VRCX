@@ -21,6 +21,7 @@ import { useGeneralSettingsStore } from './settings/general';
 import { useUserStore } from './user';
 import { useNotificationStore } from './notification';
 import { useFeedStore } from './feed';
+import { useUiStore } from './ui';
 
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -29,6 +30,7 @@ export const useFriendStore = defineStore('Friend', () => {
     const userStore = useUserStore();
     const notificationStore = useNotificationStore();
     const feedStore = useFeedStore();
+    const uiStore = useUiStore();
 
     const state = reactive({
         friends: new Map(),
@@ -1089,7 +1091,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     };
                     state.friendLog.set(id, friendLogCurrent);
                     database.setFriendLogCurrent(friendLogCurrent);
-                    $app.notifyMenu('friendLog');
+                    uiStore.notifyMenu('friendLog');
                     deleteFriendRequest(id);
                     $app.updateSharedFeed(true);
                     userRequest
@@ -1152,7 +1154,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     state.friendLog.delete(id);
                     database.deleteFriendLogCurrent(id);
                     if (!appearanceSettingsStore.hideUnfriends) {
-                        $app.notifyMenu('friendLog');
+                        uiStore.notifyMenu('friendLog');
                     }
                     $app.updateSharedFeed(true);
                     deleteFriend(id);
@@ -1220,7 +1222,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 state.friendLog.set(ref.id, friendLogCurrent);
                 database.setFriendLogCurrent(friendLogCurrent);
                 ctx.displayName = ref.displayName;
-                $app.notifyMenu('friendLog');
+                uiStore.notifyMenu('friendLog');
                 $app.updateSharedFeed(true);
             }
         }
@@ -1265,7 +1267,7 @@ export const useFriendStore = defineStore('Friend', () => {
             };
             state.friendLog.set(ref.id, friendLogCurrent2);
             database.setFriendLogCurrent(friendLogCurrent2);
-            $app.notifyMenu('friendLog');
+            uiStore.notifyMenu('friendLog');
             $app.updateSharedFeed(true);
         }
         ctx.trustLevel = ref.$trustLevel;

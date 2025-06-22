@@ -87,52 +87,35 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
+    import { computed } from 'vue';
     import Location from '../../components/Location.vue';
+    import { userImage } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
-    import { API } from '../../app';
-    import { userImage } from '../../shared/utils';
+    import { useUiStore } from '../../stores/ui';
 
-    export default {
-        name: 'Sidebar',
-        components: {
-            FriendsSidebar,
-            GroupsSidebar,
-            Location
-        },
-        props: {
-            isGameRunning: Boolean,
+    defineProps({
+        isGameRunning: Boolean,
+        quickSearchRemoteMethod: Function,
+        quickSearchItems: Array,
+        lastLocationDestination: String,
+        groupInstances: Array,
+        inGameGroupOrder: Array
+    });
 
-            isSideBarTabShow: Boolean,
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const friendsStore = useFriendStore();
+    const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
+    const { refreshFriendsList } = friendsStore;
+    const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
-            quickSearchRemoteMethod: Function,
-            quickSearchItems: Array,
-
-            lastLocationDestination: String,
-
-            groupInstances: Array,
-            inGameGroupOrder: Array
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const friendsStore = useFriendStore();
-            const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
-            const { refreshFriendsList } = friendsStore;
-            const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
-            return {
-                hideTooltips,
-                asideWidth,
-                friends,
-                isRefreshFriendsLoading,
-                refreshFriendsList,
-                onlineFriendCount,
-                API,
-                userImage
-            };
-        }
-    };
+    const isSideBarTabShow = computed(() => {
+        return !(menuActiveIndex.value === 'friendList' || menuActiveIndex.value === 'charts');
+    });
 </script>

@@ -23,6 +23,7 @@ import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useWorldStore } from './world';
 import { useNotificationStore } from './notification';
+import { useUiStore } from './ui';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const locationStore = useLocationStore();
@@ -31,6 +32,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const groupStore = useGroupStore();
     const notificationStore = useNotificationStore();
+    const uiStore = useUiStore();
 
     const state = reactive({
         cachedInstances: new Map(),
@@ -874,7 +876,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 noty.type
             )
         ) {
-            $app.notifyMenu('notification');
+            uiStore.notifyMenu('notification');
         }
         notificationStore.queueNotificationNoty(noty);
         notificationStore.notificationTable.data.push(noty);

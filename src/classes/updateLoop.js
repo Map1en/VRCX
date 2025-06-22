@@ -50,7 +50,7 @@ export default function init() {
                         this.nextAppUpdateCheck = 3600; // 1hour
                         if (this.store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
                             this.store.vrcxUpdater.checkForVRCXUpdate(
-                                this.notifyMenu
+                                this.store.ui.notifyMenu
                             );
                         }
                     }

@@ -593,7 +593,7 @@ export default function init() {
                         noty.type
                     )
                 ) {
-                    $app.notifyMenu('notification');
+                    $app.store.ui.notifyMenu('notification');
                 }
                 $app.store.notification.queueNotificationNoty(noty);
                 $app.store.notification.notificationTable.data.push(noty);

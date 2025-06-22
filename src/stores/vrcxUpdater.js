@@ -6,9 +6,11 @@ import configRepository from '../service/config';
 import { branches } from '../shared/constants/vrcxUpdater';
 import { changeLogRemoveLinks } from '../shared/utils';
 import { useDebugStore } from './debug';
+import { useUiStore } from './ui';
 
 export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     const debugStore = useDebugStore();
+    const uiStore = useUiStore();
     const state = reactive({
         appVersion: '',
         autoUpdateVRCX: 'Auto Download',
@@ -253,7 +255,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
                     return;
                 }
                 state.pendingVRCXUpdate = true;
-                $app.notifyMenu('settings');
+                uiStore.notifyMenu('settings');
                 const type = 'Auto';
                 if (!API.isLoggedIn) {
                     showVRCXUpdateDialog();

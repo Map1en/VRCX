@@ -353,7 +353,7 @@ let $app = {
             this.store.vrcxUpdater.showChangeLogDialog();
         }
         if (this.store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
-            await this.store.vrcxUpdater.checkForVRCXUpdate(this.notifyMenu);
+            await this.store.vrcxUpdater.checkForVRCXUpdate();
         }
 
         API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
@@ -794,29 +794,6 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-$app.data.menuActiveIndex = 'feed';
-
-$app.methods.notifyMenu = function (index) {
-    const navRef = this.$refs.menu.$children[0];
-    if (this.menuActiveIndex !== index) {
-        const item = navRef.items[index];
-        if (item) {
-            item.$el.classList.add('notify');
-        }
-    }
-};
-
-$app.methods.selectMenu = function (index) {
-    this.menuActiveIndex = index;
-    const item = this.$refs.menu.$children[0]?.items[index];
-    if (item) {
-        item.$el.classList.remove('notify');
-    }
-    if (index === 'notification') {
-        this.store.notification.unseenNotifications = [];
-    }
-};
-
 $app.data.twoFactorAuthDialogVisible = false;
 
 API.$on('LOGIN', function () {
@@ -1227,9 +1204,9 @@ $app.methods.quickSearchChange = function (value) {
             const searchText = value.substr(7);
             if (this.quickSearchItems.length > 1 && searchText.length) {
                 this.friendsListSearch = searchText;
-                this.menuActiveIndex = 'friendList';
+                this.store.ui.menuActiveIndex = 'friendList';
             } else {
-                this.menuActiveIndex = 'search';
+                this.store.ui.menuActiveIndex = 'search';
                 this.searchText = searchText;
                 $app.store.user.lookupUser({ displayName: searchText });
             }
@@ -1255,7 +1232,7 @@ API.$on('LOGIN', async function (args) {
     $app.store.friend.friendLogInitStatus = false;
     $app.store.notification.notificationInitStatus = false;
     await database.initUserTables(args.json.id);
-    $app.menuActiveIndex = 'feed';
+    $app.store.ui.menuActiveIndex = 'feed';
     await $app.updateDatabaseVersion();
 
     $app.gameLogTable.data = await database.lookupGameLogDatabase(
@@ -4071,14 +4048,12 @@ API.$on('WORLD:PERSIST:DELETE', function (args) {
 
 $app.computed.moderationTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld
     };
 };
 
 $app.computed.friendsListTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         confirmDeleteFriend: this.confirmDeleteFriend,
         friendsListSearch: this.friendsListSearch,
         stringComparer: this.stringComparer
@@ -4093,7 +4068,6 @@ $app.computed.friendsListTabEvent = function () {
 
 $app.computed.sidebarTabBind = function () {
     return {
-        isSideBarTabShow: this.isSideBarTabShow,
         quickSearchRemoteMethod: this.quickSearchRemoteMethod,
         quickSearchItems: this.quickSearchItems,
         isGameRunning: this.isGameRunning,
@@ -4111,16 +4085,8 @@ $app.computed.sidebarTabEvent = function () {
     };
 };
 
-$app.computed.isSideBarTabShow = function () {
-    return !(
-        this.menuActiveIndex === 'friendList' ||
-        this.menuActiveIndex === 'charts'
-    );
-};
-
 $app.computed.favoritesTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld
     };
 };
@@ -4132,22 +4098,14 @@ $app.computed.favoritesTabEvent = function () {
     };
 };
 
-$app.computed.chartsTabBind = function () {
-    return {
-        menuActiveIndex: this.menuActiveIndex
-    };
-};
-
 $app.computed.friendLogTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld
     };
 };
 
 $app.computed.gameLogTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         gameLogTable: this.gameLogTable,
         shiftHeld: this.shiftHeld,
         gameLogIsFriend: this.gameLogIsFriend,
@@ -4165,22 +4123,14 @@ $app.computed.gameLogTabEvent = function () {
 
 $app.computed.notificationTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         shiftHeld: this.shiftHeld,
         lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning
     };
 };
 
-$app.computed.feedTabBind = function () {
-    return {
-        menuActiveIndex: this.menuActiveIndex
-    };
-};
-
 $app.computed.searchTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
         lookupAvatars: this.lookupAvatars,
@@ -4197,7 +4147,6 @@ $app.computed.searchTabEvent = function () {
 
 $app.computed.profileTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         pastDisplayNameTable: this.pastDisplayNameTable,
         directAccessWorld: this.directAccessWorld
     };
@@ -4211,7 +4160,6 @@ $app.computed.profileTabEvent = function () {
 
 $app.computed.playerListTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
         photonEventTableTypeFilter: this.photonEventTableTypeFilter,
         photonEventTableFilter: this.photonEventTableFilter,
@@ -4251,7 +4199,6 @@ $app.computed.loginPageEvent = function () {
 
 $app.computed.settingsTabBind = function () {
     return {
-        menuActiveIndex: this.menuActiveIndex,
         getTTSVoiceName: this.getTTSVoiceName,
         TTSvoices: this.TTSvoices,
         notificationTTSTest: this.notificationTTSTest,
@@ -4259,8 +4206,7 @@ $app.computed.settingsTabBind = function () {
         currentlyDroppingFile: this.currentlyDroppingFile,
         fullscreenImageDialog: this.fullscreenImageDialog,
         backupVrcRegistry: this.backupVrcRegistry,
-        isTestTTSVisible: this.isTestTTSVisible,
-        notifyMenu: this.notifyMenu
+        isTestTTSVisible: this.isTestTTSVisible
     };
 };
 

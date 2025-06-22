@@ -856,6 +856,7 @@
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
     import { useInstanceStore } from '../../stores/instance';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const photonStore = usePhotonStore();
@@ -873,16 +874,14 @@
     const { lastLocation } = storeToRefs(locationStore);
     const instanceStore = useInstanceStore();
     const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(instanceStore);
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: 'playerList'
-        },
         photonEventTableTypeFilter: {
             type: Array,
             default: () => []

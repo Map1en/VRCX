@@ -287,6 +287,7 @@
     import { useFriendStore } from '../../stores/friend';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
+    import { useUiStore } from '../../stores/ui';
 
     export default {
         name: 'FriendListTab',
@@ -294,7 +295,6 @@
         props: {
             confirmDeleteFriend: Function,
             friendsListSearch: String,
-            menuActiveIndex: String,
             stringComparer: Intl.Collator
         },
         setup() {
@@ -305,6 +305,8 @@
             const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
+            const uiStore = useUiStore();
+            const { menuActiveIndex } = storeToRefs(uiStore);
             return {
                 appLanguage,
                 hideTooltips,
@@ -319,7 +321,8 @@
                 showUserDialog,
                 userImage,
                 userImageFull,
-                getAllUserStats
+                getAllUserStats,
+                menuActiveIndex
             };
         },
         data() {
@@ -352,8 +355,8 @@
         },
 
         watch: {
-            menuActiveIndex() {
-                if (this.menuActiveIndex === 'friendList') {
+            menuActiveIndex(val) {
+                if (val === 'friendList') {
                     requestAnimationFrame(() => {
                         this.friendsListSearchChange();
                     });

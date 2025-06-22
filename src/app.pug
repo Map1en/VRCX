@@ -7,13 +7,13 @@ doctype html
 
     template(v-if='API.isLoggedIn')
         //- ### Menu ###
-        NavMenu(ref='menu' @select='selectMenu' :menu-active-index='menuActiveIndex')
+        NavMenu(ref='menu')
 
         //- ### Sidebar ###
         Sidebar(v-bind='sidebarTabBind' v-on='sidebarTabEvent')
 
         //- ### Tabs ###
-        FeedTab(v-bind='feedTabBind')
+        FeedTab
 
         GameLogTab(v-bind='gameLogTabBind' v-on='gameLogTabEvent')
 
@@ -31,7 +31,7 @@ doctype html
 
         FriendListTab(v-bind='friendsListTabBind' v-on='friendsListTabEvent')
 
-        ChartsTab(v-bind='chartsTabBind')
+        ChartsTab
 
         ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
 

@@ -103,6 +103,7 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
     import { useFriendStore } from '../../stores/friend';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
@@ -110,6 +111,8 @@
     const { showUserDialog } = userStore;
     const friendStore = useFriendStore();
     const { friendLogTable } = storeToRefs(friendStore);
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     watch(
         () => hideUnfriends.value,
@@ -126,10 +129,6 @@
     const { $confirm } = proxy;
 
     defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: ''
-        },
         shiftHeld: { type: Boolean, default: false }
     });
 

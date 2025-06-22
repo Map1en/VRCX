@@ -330,6 +330,7 @@
     import { useUserStore } from '../../stores/user';
     import { timeToText, statusClass } from '../../shared/utils';
     import { useFeedStore } from '../../stores/feed';
+    import { useUiStore } from '../../stores/ui';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -338,17 +339,12 @@
     const feedStore = useFeedStore();
     const { feedTable } = storeToRefs(feedStore);
     const { feedTableLookup } = feedStore;
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
 
     const { t } = useI18n();
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: 'feed'
-        }
-    });
 
     /**
      * Function that format the differences between two strings with HTML tags

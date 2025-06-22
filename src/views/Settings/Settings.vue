@@ -1904,6 +1904,7 @@
     import { useInstanceStore } from '../../stores/instance';
     import { useLaunchStore } from '../../stores/launch';
     import { useAvatarStore } from '../../stores/avatar';
+    import { useUiStore } from '../../stores/ui';
 
     const { messages, t } = useI18n();
 
@@ -2155,11 +2156,10 @@
     const launchStore = useLaunchStore();
     const { showLaunchOptions } = launchStore;
 
+    const uiStore = useUiStore();
+    const { menuActiveIndex } = storeToRefs(uiStore);
+
     const props = defineProps({
-        menuActiveIndex: {
-            type: String,
-            default: ''
-        },
         getTTSVoiceName: {
             type: Function,
             default: () => ''
@@ -2191,10 +2191,6 @@
         isTestTTSVisible: {
             type: Boolean,
             default: false
-        },
-        notifyMenu: {
-            type: Function,
-            default: () => {}
         }
     });
 
