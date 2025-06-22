@@ -3,7 +3,7 @@ import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
-import { branches } from '../shared/constants/vrcxUpdater';
+import { branches } from '../shared/constants';
 import { changeLogRemoveLinks } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useUiStore } from './ui';

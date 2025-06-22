@@ -66,7 +66,7 @@
     import { storeToRefs } from 'pinia';
     import { inject, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { branches } from '../../shared/constants/vrcxUpdater';
+    import { branches } from '../../shared/constants';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
