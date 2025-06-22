@@ -469,7 +469,7 @@ export default function init() {
                         entry.tagColour = tagRef.colour;
                     }
                 }
-                this.queueGameLogNoty(entry);
+                this.store.notification.queueGameLogNoty(entry);
                 this.addGameLog(entry);
             }
         },

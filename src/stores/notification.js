@@ -23,6 +23,7 @@ import { useNotificationsSettingsStore } from './settings/notifications';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUserStore } from './user';
+import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 
 export const useNotificationStore = defineStore('Notification', () => {
     const generalSettingsStore = useGeneralSettingsStore();
@@ -33,6 +34,7 @@ export const useNotificationStore = defineStore('Notification', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const userStore = useUserStore();
+    const wristOverlaySettingsStore = useWristOverlaySettingsStore();
     const state = reactive({
         notificationInitStatus: false,
         notificationTable: {
@@ -65,7 +67,8 @@ export const useNotificationStore = defineStore('Notification', () => {
             }
         },
         unseenNotifications: [],
-        isNotificationsLoading: false
+        isNotificationsLoading: false,
+        notyMap: []
     });
 
     async function init() {
@@ -617,14 +620,14 @@ export const useNotificationStore = defineStore('Notification', () => {
             // don't play noty twice
             const notyId = `${noty.type},${displayName}`;
             if (
-                $app.notyMap[notyId] &&
-                $app.notyMap[notyId] >= noty.created_at
+                state.notyMap[notyId] &&
+                state.notyMap[notyId] >= noty.created_at
             ) {
                 return;
             }
-            $app.notyMap[notyId] = noty.created_at;
+            state.notyMap[notyId] = noty.created_at;
         }
-        var bias = new Date(Date.now() - 60000).toJSON();
+        const bias = new Date(Date.now() - 60000).toJSON();
         if (noty.created_at < bias) {
             // don't play noty if it's over 1min old
             return;
@@ -2157,6 +2160,137 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     }
 
+    function queueGameLogNoty(noty) {
+        let bias;
+        // remove join/leave notifications when switching worlds
+        if (
+            noty.type === 'OnPlayerJoined' ||
+            noty.type === 'BlockedOnPlayerJoined' ||
+            noty.type === 'MutedOnPlayerJoined'
+        ) {
+            bias = locationStore.lastLocation.date + 30 * 1000; // 30 secs
+            if (Date.parse(noty.created_at) <= bias) {
+                return;
+            }
+        }
+        if (
+            noty.type === 'OnPlayerLeft' ||
+            noty.type === 'BlockedOnPlayerLeft' ||
+            noty.type === 'MutedOnPlayerLeft'
+        ) {
+            bias = $app.lastLocationDestinationTime + 5 * 1000; // 5 secs
+            if (Date.parse(noty.created_at) <= bias) {
+                return;
+            }
+        }
+        if (
+            noty.type === 'Notification' ||
+            noty.type === 'LocationDestination'
+            // skip unused entries
+        ) {
+            return;
+        }
+        if (noty.type === 'VideoPlay') {
+            if (!noty.videoName) {
+                // skip video without name
+                return;
+            }
+            noty.notyName = noty.videoName;
+            if (noty.displayName) {
+                // add requester's name to noty
+                noty.notyName = `${noty.videoName} (${noty.displayName})`;
+            }
+        }
+        if (
+            noty.type !== 'VideoPlay' &&
+            noty.displayName === API.currentUser.displayName
+        ) {
+            // remove current user
+            return;
+        }
+        noty.isFriend = false;
+        noty.isFavorite = false;
+        if (noty.userId) {
+            noty.isFriend = friendStore.friends.has(noty.userId);
+            noty.isFavorite = friendStore.localFavoriteFriends.has(noty.userId);
+        } else if (noty.displayName) {
+            for (var ref of API.cachedUsers.values()) {
+                if (ref.displayName === noty.displayName) {
+                    noty.isFriend = friendStore.friends.has(ref.id);
+                    noty.isFavorite = friendStore.localFavoriteFriends.has(
+                        ref.id
+                    );
+                    break;
+                }
+            }
+        }
+        const notyFilter = notificationsSettingsStore.sharedFeedFilters.noty;
+        if (
+            notyFilter[noty.type] &&
+            (notyFilter[noty.type] === 'On' ||
+                notyFilter[noty.type] === 'Everyone' ||
+                (notyFilter[noty.type] === 'Friends' && noty.isFriend) ||
+                (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
+        ) {
+            state.playNoty(noty);
+        }
+    }
+
+    function queueFeedNoty(noty) {
+        if (noty.type === 'Avatar') {
+            return;
+        }
+        // hide private worlds from feed
+        if (
+            wristOverlaySettingsStore.hidePrivateFromFeed &&
+            noty.type === 'GPS' &&
+            noty.location === 'private'
+        ) {
+            return;
+        }
+        noty.isFriend = friendStore.friends.has(noty.userId);
+        noty.isFavorite = friendStore.localFavoriteFriends.has(noty.userId);
+        const notyFilter = notificationsSettingsStore.sharedFeedFilters.noty;
+        if (
+            notyFilter[noty.type] &&
+            (notyFilter[noty.type] === 'Everyone' ||
+                (notyFilter[noty.type] === 'Friends' && noty.isFriend) ||
+                (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
+        ) {
+            state.playNoty(noty);
+        }
+    }
+
+    function queueFriendLogNoty(noty) {
+        if (noty.type === 'FriendRequest') {
+            return;
+        }
+        noty.isFriend = friendStore.friends.has(noty.userId);
+        noty.isFavorite = friendStore.localFavoriteFriends.has(noty.userId);
+        const notyFilter = notificationsSettingsStore.sharedFeedFilters.noty;
+        if (
+            notyFilter[noty.type] &&
+            (notyFilter[noty.type] === 'On' ||
+                notyFilter[noty.type] === 'Friends' ||
+                (notyFilter[noty.type] === 'VIP' && noty.isFavorite))
+        ) {
+            state.playNoty(noty);
+        }
+    }
+
+    function queueModerationNoty(noty) {
+        noty.isFriend = false;
+        noty.isFavorite = false;
+        if (noty.userId) {
+            noty.isFriend = friendStore.friends.has(noty.userId);
+            noty.isFavorite = friendStore.localFavoriteFriends.has(noty.userId);
+        }
+        const notyFilter = notificationsSettingsStore.sharedFeedFilters.noty;
+        if (notyFilter[noty.type] && notyFilter[noty.type] === 'On') {
+            state.playNoty(noty);
+        }
+    }
+
     return {
         state,
         notificationInitStatus,
@@ -2167,6 +2301,10 @@ export const useNotificationStore = defineStore('Notification', () => {
         expireNotification,
         refreshNotifications,
         queueNotificationNoty,
-        playNoty
+        playNoty,
+        queueGameLogNoty,
+        queueFeedNoty,
+        queueFriendLogNoty,
+        queueModerationNoty
     };
 });

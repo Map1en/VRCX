@@ -153,7 +153,7 @@ export const useFeedStore = defineStore('Feed', () => {
     }
 
     function addFeed(feed) {
-        $app.queueFeedNoty(feed);
+        $app.store.notification.queueFeedNoty(feed);
         state.feedSessionTable.push(feed);
         $app.updateSharedFeed(false);
         if (

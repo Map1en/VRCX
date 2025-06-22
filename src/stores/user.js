@@ -687,7 +687,7 @@ export const useUserStore = defineStore('User', () => {
             displayName: ref.displayName,
             type: 'OnPlayerJoining'
         };
-        $app.queueFeedNoty(onPlayerJoining);
+        $app.store.notification.queueFeedNoty(onPlayerJoining);
     }
 
     /**

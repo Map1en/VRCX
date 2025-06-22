@@ -1080,7 +1080,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     };
                     state.friendLogTable.data.push(friendLogHistory);
                     database.addFriendLogHistory(friendLogHistory);
-                    $app.queueFriendLogNoty(friendLogHistory);
+                    notificationStore.queueFriendLogNoty(friendLogHistory);
                     const friendLogCurrent = {
                         userId: id,
                         displayName: ref.displayName,
@@ -1148,7 +1148,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     };
                     state.friendLogTable.data.push(friendLogHistory);
                     database.addFriendLogHistory(friendLogHistory);
-                    $app.queueFriendLogNoty(friendLogHistory);
+                    notificationStore.queueFriendLogNoty(friendLogHistory);
                     state.friendLog.delete(id);
                     database.deleteFriendLogCurrent(id);
                     if (!appearanceSettingsStore.hideUnfriends) {
@@ -1208,7 +1208,9 @@ export const useFriendStore = defineStore('Friend', () => {
                 };
                 state.friendLogTable.data.push(friendLogHistoryDisplayName);
                 database.addFriendLogHistory(friendLogHistoryDisplayName);
-                $app.queueFriendLogNoty(friendLogHistoryDisplayName);
+                notificationStore.queueFriendLogNoty(
+                    friendLogHistoryDisplayName
+                );
                 const friendLogCurrent = {
                     userId: ref.id,
                     displayName: ref.displayName,
@@ -1254,7 +1256,7 @@ export const useFriendStore = defineStore('Friend', () => {
             };
             state.friendLogTable.data.push(friendLogHistoryTrustLevel);
             database.addFriendLogHistory(friendLogHistoryTrustLevel);
-            $app.queueFriendLogNoty(friendLogHistoryTrustLevel);
+            notificationStore.queueFriendLogNoty(friendLogHistoryTrustLevel);
             const friendLogCurrent2 = {
                 userId: ref.id,
                 displayName: ref.displayName,

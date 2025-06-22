@@ -698,7 +698,7 @@ export default function init() {
                         type: 'ChatBoxMessage',
                         text
                     };
-                    this.queueGameLogNoty(entry);
+                    this.store.notification.queueGameLogNoty(entry);
                     this.addGameLog(entry);
                     break;
                 case 70:
@@ -960,7 +960,7 @@ export default function init() {
         },
 
         addPhotonEventToGameLog(entry) {
-            this.queueGameLogNoty(entry);
+            this.store.notification.queueGameLogNoty(entry);
             this.addGameLog(entry);
             if (entry.type === 'PortalSpawn') {
                 database.addGamelogPortalSpawnToDatabase(entry);
@@ -1172,7 +1172,7 @@ export default function init() {
                         photonId
                     )} (${this.getUserIdFromPhotonId(photonId)})`
                 };
-                this.queueGameLogNoty(entry);
+                this.store.notification.queueGameLogNoty(entry);
                 this.addGameLog(entry);
                 database.addGamelogEventToDatabase(entry);
             }
@@ -1260,7 +1260,7 @@ export default function init() {
                         displayName: ref.displayName,
                         type
                     };
-                    this.queueModerationNoty(noty);
+                    this.store.notification.queueModerationNoty(noty);
                     var entry = {
                         created_at: gameLogDate,
                         userId: ref.id,
@@ -1323,7 +1323,7 @@ export default function init() {
                         imageUrl: avatar.imageUrl,
                         thumbnailImageUrl: avatar.thumbnailImageUrl
                     };
-                    this.queueGameLogNoty(entry);
+                    this.store.notification.queueGameLogNoty(entry);
                     this.addGameLog(entry);
                     this.addEntryPhotonEvent({
                         photonId,

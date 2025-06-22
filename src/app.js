@@ -65,7 +65,6 @@ import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
 import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
-import vrcxNotifications from './classes/vrcxNotifications.js';
 import websocket from './classes/websocket.js';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
@@ -417,7 +416,6 @@ websocket();
 
 sharedFeed();
 prompts();
-vrcxNotifications();
 apiLogin();
 currentUser();
 updateLoop();
@@ -1798,7 +1796,7 @@ $app.methods.setNowPlaying = function (ctx) {
                 }
             }
         }
-        this.queueGameLogNoty(ctx);
+        this.store.notification.queueGameLogNoty(ctx);
         this.addGameLog(ctx);
         database.addGamelogVideoPlayToDatabase(ctx);
 
@@ -3273,7 +3271,7 @@ $app.methods.restartCrashedGame = function (location) {
         data: message
     };
     database.addGamelogEventToDatabase(entry);
-    this.queueGameLogNoty(entry);
+    this.store.notification.queueGameLogNoty(entry);
     this.addGameLog(entry);
     this.store.launch.launchGame(location, '', this.isGameNoVR);
 };
@@ -3555,7 +3553,7 @@ $app.methods.eventVrcxMessage = function (data) {
                 data: data.Data
             };
             database.addGamelogEventToDatabase(entry);
-            this.queueGameLogNoty(entry);
+            this.store.notification.queueGameLogNoty(entry);
             this.addGameLog(entry);
             break;
         case 'External': {
@@ -3569,7 +3567,7 @@ $app.methods.eventVrcxMessage = function (data) {
                 location: this.lastLocation.location
             };
             database.addGamelogExternalToDatabase(entry);
-            this.queueGameLogNoty(entry);
+            this.store.notification.queueGameLogNoty(entry);
             this.addGameLog(entry);
             break;
         }
@@ -3831,7 +3829,7 @@ $app.methods.setCurrentUserLocation = async function (
             time: 0
         };
         database.addGamelogLocationToDatabase(entry);
-        this.queueGameLogNoty(entry);
+        this.store.notification.queueGameLogNoty(entry);
         this.addGameLog(entry);
         this.addInstanceJoinHistory(location, dt);
 

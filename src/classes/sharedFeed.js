@@ -342,7 +342,7 @@ export default function init() {
                         ) {
                             wristArr.unshift(entry);
                         }
-                        this.queueGameLogNoty(entry);
+                        this.store.notification.queueGameLogNoty(entry);
                     }
                 }
                 // when too many user joins happen at once when switching instances
