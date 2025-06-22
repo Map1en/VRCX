@@ -38,17 +38,14 @@ module.exports = (env, argv) => {
             rules: [
                 {
                     test: /\.vue$/,
-                    loader: 'vue-loader',
-                    options: {
-                        hotReload: false
-                    }
+                    loader: 'vue-loader'
                 },
                 {
-                    test: /\.jsx?$/,
-                    exclude: /node_modules/,
+                    test: /\.js$/,
+                    exclude: [/node_modules/],
+                    resourceQuery: { not: [/vue/] },
                     loader: 'esbuild-loader',
                     options: {
-                        loader: 'js',
                         target: 'es2022'
                     }
                 },
@@ -74,7 +71,7 @@ module.exports = (env, argv) => {
             ]
         },
         resolve: {
-            extensions: ['.js', '.css', '.scss'],
+            extensions: ['.js', '.vue', '.css', '.scss'],
             alias: {
                 vue: 'vue/dist/vue.esm.js'
             }
@@ -82,21 +79,19 @@ module.exports = (env, argv) => {
         performance: {
             hints: false
         },
-        devtool: isProduction ? 'inline-source-map' : false,
+        devtool: 'inline-cheap-module-source-map',
         target: ['web', 'es2022'],
         stats: {
             preset: 'errors-warnings',
             timings: true
         },
         plugins: [
-            new EsbuildPlugin({
-                define: {
-                    LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
-                    WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
-                    __VUE_I18N_LEGACY_API__: JSON.stringify(false),
-                    __VUE_I18N_FULL_INSTALL__: JSON.stringify(false),
-                    __INTLIFY_DROP_MESSAGE_COMPILER__: JSON.stringify(true)
-                }
+            new webpack.DefinePlugin({
+                LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
+                WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
+                __VUE_I18N_LEGACY_API__: JSON.stringify(false),
+                __VUE_I18N_FULL_INSTALL__: JSON.stringify(false),
+                __INTLIFY_DROP_MESSAGE_COMPILER__: JSON.stringify(true)
             }),
             new VueLoaderPlugin(),
             new MiniCssExtractPlugin({
