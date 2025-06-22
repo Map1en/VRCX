@@ -268,7 +268,7 @@ export default function init() {
             return;
         }
         for (var language of languages) {
-            var value = $app.subsetOfLanguages[language];
+            var value = $app.store.user.subsetOfLanguages[language];
             if (typeof value === 'undefined') {
                 continue;
             }

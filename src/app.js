@@ -55,7 +55,6 @@ import discordRpc from './classes/discordRpc.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
-import languages from './classes/languages.js';
 import prompts from './classes/prompts.js';
 
 // main app classes
@@ -422,7 +421,6 @@ updateLoop();
 gameLog();
 gameRealtimeLogging();
 config();
-languages();
 groups();
 discordRpc();
 vrcRegistry();
@@ -2503,36 +2501,6 @@ $app.methods.adjustDialogZ = function (el) {
 
 // #endregion
 // #region | App: User Dialog
-
-API.$on('USER', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.id !== ref.id) {
-        return;
-    }
-    D.ref = ref;
-    D.note = String(ref.note || '');
-    D.noteSaving = false;
-    D.incomingRequest = false;
-    D.outgoingRequest = false;
-    if (D.ref.friendRequestStatus === 'incoming') {
-        D.incomingRequest = true;
-    } else if (D.ref.friendRequestStatus === 'outgoing') {
-        D.outgoingRequest = true;
-    }
-});
-
-API.$on('USER', function (args) {
-    // refresh user dialog JSON tab
-    if (
-        !$app.store.user.userDialog.visible ||
-        $app.store.user.userDialog.id !== args.ref.id ||
-        $app.$refs.userDialogTabs?.currentName !== '5'
-    ) {
-        return;
-    }
-    $app.store.user.refreshUserDialogTreeData();
-});
 
 API.$on('FRIEND:STATUS', function (args) {
     const D = $app.store.user.userDialog;

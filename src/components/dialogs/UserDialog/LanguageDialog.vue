@@ -46,25 +46,22 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
     import { API } from '../../../app';
     import { languageClass } from '../../../shared/utils';
+    import { useUserStore } from '../../../stores/user';
 
     const { t } = useI18n();
-
-    const props = defineProps({
-        languageDialog: {
-            type: Object,
-            required: true
-        }
-    });
+    const userStore = useUserStore();
+    const { languageDialog } = storeToRefs(userStore);
 
     function removeUserLanguage(language) {
         if (language !== String(language)) {
             return;
         }
-        const D = props.languageDialog;
+        const D = languageDialog.value;
         D.loading = true;
         userRequest
             .removeUserTags({
@@ -79,7 +76,7 @@
         if (language !== String(language)) {
             return;
         }
-        const D = props.languageDialog;
+        const D = languageDialog.value;
         D.loading = true;
         userRequest
             .addUserTags({

@@ -1777,7 +1777,7 @@
         <SocialStatusDialog
             :social-status-dialog="socialStatusDialog"
             :social-status-history-table="socialStatusHistoryTable" />
-        <LanguageDialog :language-dialog="languageDialog" />
+        <LanguageDialog />
         <BioDialog :bio-dialog="bioDialog" />
         <PronounsDialog :pronouns-dialog="pronounsDialog" />
         <GalleryDialog @closeGalleryDialog="closeGalleryDialog" />
@@ -1863,7 +1863,7 @@
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
     const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
-    const { userDialog } = storeToRefs(userStore);
+    const { userDialog, languageDialog } = storeToRefs(userStore);
     const { showUserDialog, applyUser, sortUserDialogAvatars, refreshUserDialogAvatars, refreshUserDialogTreeData } =
         userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
@@ -1888,10 +1888,6 @@
     const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({
-        languageDialog: {
-            type: Object,
-            required: true
-        },
         lastLocationDestination: {
             type: String,
             default: ''
@@ -2078,7 +2074,7 @@
     }
 
     function showLanguageDialog() {
-        const D = props.languageDialog;
+        const D = languageDialog.value;
         D.visible = true;
     }
 

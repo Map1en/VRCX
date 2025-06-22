@@ -120,7 +120,14 @@ export const useUserStore = defineStore('User', () => {
             unFriended: false,
             dateFriendedInfo: []
         },
-        showUserDialogHistory: new Set()
+        showUserDialogHistory: new Set(),
+        subsetOfLanguages: [],
+        languageDialog: {
+            visible: false,
+            loading: false,
+            languageChoice: false,
+            languages: []
+        }
     });
 
     const userDialog = computed({
@@ -130,12 +137,74 @@ export const useUserStore = defineStore('User', () => {
         }
     });
 
+    const subsetOfLanguages = computed({
+        get: () => state.subsetOfLanguages,
+        set: (value) => {
+            state.subsetOfLanguages = value;
+        }
+    });
+
+    const languageDialog = computed({
+        get: () => state.languageDialog,
+        set: (value) => {
+            state.languageDialog = value;
+        }
+    });
+
+    API.$on('CONFIG', function (args) {
+        const languages =
+            args.ref?.constants?.LANGUAGE?.SPOKEN_LANGUAGE_OPTIONS;
+        if (!languages) {
+            return;
+        }
+        state.subsetOfLanguages = languages;
+        const data = [];
+        for (const key in languages) {
+            const value = languages[key];
+            data.push({
+                key,
+                value
+            });
+        }
+        state.languageDialog.languages = data;
+    });
+
+    API.$on('USER', function (args) {
+        const { ref } = args;
+        const D = state.userDialog;
+        if (D.visible === false || D.id !== ref.id) {
+            return;
+        }
+        D.ref = ref;
+        D.note = String(ref.note || '');
+        D.noteSaving = false;
+        D.incomingRequest = false;
+        D.outgoingRequest = false;
+        if (D.ref.friendRequestStatus === 'incoming') {
+            D.incomingRequest = true;
+        } else if (D.ref.friendRequestStatus === 'outgoing') {
+            D.outgoingRequest = true;
+        }
+    });
+
+    API.$on('USER', function (args) {
+        // refresh user dialog JSON tab
+        if (
+            !state.userDialog.visible ||
+            state.userDialog.id !== args.ref.id ||
+            $app.$refs.userDialogTabs?.currentName !== '5'
+        ) {
+            return;
+        }
+        refreshUserDialogTreeData();
+    });
+
     /**
      * aka: `API.applyUserLanguage`
      * @param {object} ref
      */
     function applyUserLanguage(ref) {
-        if (!ref || !ref.tags || !$app.subsetOfLanguages) {
+        if (!ref || !ref.tags || !state.subsetOfLanguages) {
             return;
         }
 
@@ -146,7 +215,7 @@ export const useUserStore = defineStore('User', () => {
         for (const tag of ref.tags) {
             if (tag.startsWith(languagePrefix)) {
                 const key = tag.substring(prefixLength);
-                const value = $app.subsetOfLanguages[key];
+                const value = state.subsetOfLanguages[key];
 
                 if (value !== undefined) {
                     ref.$languages.push({ key, value });
@@ -966,6 +1035,8 @@ export const useUserStore = defineStore('User', () => {
     return {
         state,
         userDialog,
+        subsetOfLanguages,
+        languageDialog,
         applyUserLanguage,
         applyUser,
         showUserDialog,

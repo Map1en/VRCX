@@ -4,9 +4,11 @@ import configRepository from '../service/config';
 import database from '../service/database';
 import { useFriendStore } from './friend';
 import { $app } from '../app.js';
+import { useNotificationStore } from './notification';
 
 export const useFeedStore = defineStore('Feed', () => {
     const friendStore = useFriendStore();
+    const notificationStore = useNotificationStore();
     const state = reactive({
         feedTable: {
             data: [],
@@ -153,7 +155,7 @@ export const useFeedStore = defineStore('Feed', () => {
     }
 
     function addFeed(feed) {
-        $app.store.notification.queueFeedNoty(feed);
+        notificationStore.queueFeedNoty(feed);
         state.feedSessionTable.push(feed);
         $app.updateSharedFeed(false);
         if (
