@@ -6,10 +6,7 @@
                     v-show="!isLoading"
                     class="location"
                     :location="activityDetailData[0].location"
-                    is-open-previous-instance-info-dialog
-                    @open-previous-instance-info-dialog="
-                        $emit('open-previous-instance-info-dialog', $event)
-                    "></location>
+                    is-open-previous-instance-info-dialog></location>
             </transition>
         </div>
 

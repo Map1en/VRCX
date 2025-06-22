@@ -137,7 +137,7 @@
             }
         },
         watch: {
-            visible(value) {
+            previousInstancesInfoDialogVisible(value) {
                 if (value) {
                     this.$nextTick(() => {
                         this.init();

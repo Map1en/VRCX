@@ -21,6 +21,7 @@
     import { getGroupName, getWorldName, parseLocation } from '../shared/utils';
     import { useGroupStore } from '../stores/group';
     import { useWorldStore } from '../stores/world';
+    import { useInstanceStore } from '../stores/instance';
 
     export default {
         name: 'Location',
@@ -47,7 +48,9 @@
             const { showWorldDialog } = worldStore;
             const groupStore = useGroupStore();
             const { showGroupDialog } = groupStore;
-            return { API, showWorldDialog, showGroupDialog, cachedWorlds };
+            const instanceStore = useInstanceStore();
+            const { showPreviousInstancesInfoDialog } = instanceStore;
+            return { API, showWorldDialog, showGroupDialog, cachedWorlds, showPreviousInstancesInfoDialog };
         },
         data() {
             return {
@@ -138,7 +141,7 @@
                         return;
                     }
                     if (this.isOpenPreviousInstanceInfoDialog) {
-                        this.$emit('open-previous-instance-info-dialog', instanceId);
+                        this.showPreviousInstancesInfoDialog(instanceId);
                     } else {
                         this.showWorldDialog(instanceId);
                     }

@@ -202,6 +202,7 @@
     import database from '../../service/database';
     import Location from '../../components/Location.vue';
     import { removeFromArray, openExternalLink } from '../../shared/utils';
+    import { useInstanceStore } from '../../stores/instance';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useWorldStore } from '../../stores/world';
     import { useUserStore } from '../../stores/user';
@@ -212,11 +213,11 @@
     const { showWorldDialog } = worldStore;
     const userStore = useUserStore();
     const { lookupUser } = userStore;
+    const instanceStore = useInstanceStore();
+    const { showPreviousInstancesInfoDialog } = instanceStore;
 
     const { t } = useI18n();
     const { $confirm } = getCurrentInstance().proxy;
-
-    const showPreviousInstancesInfoDialog = inject('showPreviousInstancesInfoDialog');
 
     const props = defineProps({
         menuActiveIndex: {

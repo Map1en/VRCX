@@ -153,9 +153,9 @@ export const useFeedStore = defineStore('Feed', () => {
     }
 
     function addFeed(feed) {
-        this.queueFeedNoty(feed);
+        $app.queueFeedNoty(feed);
         state.feedSessionTable.push(feed);
-        this.updateSharedFeed(false);
+        $app.updateSharedFeed(false);
         if (
             state.feedTable.filter.length > 0 &&
             !state.feedTable.filter.includes(feed.type)
@@ -173,7 +173,7 @@ export const useFeedStore = defineStore('Feed', () => {
         }
         state.feedTable.data.push(feed);
         sweepFeed();
-        this.notifyMenu('feed');
+        $app.notifyMenu('feed');
     }
 
     function sweepFeed() {

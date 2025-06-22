@@ -954,6 +954,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         removeQueuedInstance,
         applyQueuedInstance,
         instanceQueueReady,
-        instanceQueueUpdate
+        instanceQueueUpdate,
+        showPreviousInstancesInfoDialog
     };
 });

@@ -320,8 +320,6 @@ let $app = {
         return {
             adjustDialogZ: this.adjustDialogZ,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
-            showPreviousInstancesInfoDialog:
-                this.showPreviousInstancesInfoDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog,
@@ -4171,12 +4169,6 @@ $app.computed.favoritesTabEvent = function () {
 $app.computed.chartsTabBind = function () {
     return {
         menuActiveIndex: this.menuActiveIndex
-    };
-};
-$app.computed.chartsTabEvent = function () {
-    return {
-        'open-previous-instance-info-dialog':
-            this.showPreviousInstancesInfoDialog
     };
 };
 

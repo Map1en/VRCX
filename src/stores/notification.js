@@ -1205,9 +1205,9 @@ export const useNotificationStore = defineStore('Notification', () => {
      */
     function displayXSNotification(noty, message, image) {
         const timeout = Math.floor(
-            parseInt(this.notificationTimeout, 10) / 1000
+            parseInt($app.notificationTimeout, 10) / 1000
         );
-        const opacity = parseFloat(this.notificationOpacity) / 100;
+        const opacity = parseFloat($app.notificationOpacity) / 100;
         switch (noty.type) {
             case 'OnPlayerJoined':
                 AppApi.XSNotification(

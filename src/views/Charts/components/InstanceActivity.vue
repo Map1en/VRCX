@@ -109,8 +109,7 @@
             :activity-detail-data="arr"
             :is-dark-mode="isDarkMode"
             :dt-hour12="dtHour12"
-            :bar-width="barWidth"
-            @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
+            :bar-width="barWidth" />
     </div>
 </template>
 

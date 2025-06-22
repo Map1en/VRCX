@@ -72,6 +72,7 @@
 <script>
     import database from '../../../service/database';
     import { removeFromArray, timeToText, compareByCreatedAt, parseLocation } from '../../../shared/utils';
+    import { useInstanceStore } from '../../../stores/instance';
     import { useLaunchStore } from '../../../stores/launch';
     import Location from '../../Location.vue';
 
@@ -80,7 +81,7 @@
         components: {
             Location
         },
-        inject: ['adjustDialogZ', 'showPreviousInstancesInfoDialog'],
+        inject: ['adjustDialogZ'],
         props: {
             previousInstancesUserDialog: {
                 type: Object,
@@ -114,8 +115,11 @@
         setup() {
             const launchStore = useLaunchStore();
             const { showLaunchDialog } = launchStore;
+            const instanceStore = useInstanceStore();
+            const { showPreviousInstancesInfoDialog } = instanceStore;
             return {
-                showLaunchDialog
+                showLaunchDialog,
+                showPreviousInstancesInfoDialog
             };
         },
         data() {

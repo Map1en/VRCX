@@ -778,6 +778,7 @@
         userStatusClass
     } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useInstanceStore } from '../../../stores/instance';
     import { useLocationStore } from '../../../stores/location';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -800,13 +801,7 @@
             NewInstanceDialog,
             ChangeWorldImageDialog
         },
-        inject: [
-            'adjustDialogZ',
-            'showPreviousInstancesInfoDialog',
-            'showFullscreenImageDialog',
-            'openFolderGeneric',
-            'deleteVRChatCache'
-        ],
+        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'openFolderGeneric', 'deleteVRChatCache'],
         props: {
             shiftHeld: Boolean,
             isGameRunning: Boolean,
@@ -829,6 +824,8 @@
             const { newInstanceSelfInvite } = inviteStore;
             const favoriteStore = useFavoriteStore();
             const { showFavoriteDialog } = favoriteStore;
+            const instanceStore = useInstanceStore();
+            const { showPreviousInstancesInfoDialog } = instanceStore;
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -844,7 +841,8 @@
                 cachedWorlds,
                 lastLocation,
                 newInstanceSelfInvite,
-                showFavoriteDialog
+                showFavoriteDialog,
+                showPreviousInstancesInfoDialog
             };
         },
         data() {

@@ -69,10 +69,11 @@
     import { removeFromArray, timeToText, parseLocation, compareByCreatedAt } from '../../../shared/utils';
     import database from '../../../service/database';
     import { API } from '../../../app';
+    import { useInstanceStore } from '../../../stores/instance';
 
     export default {
         name: 'PreviousInstancesWorldDialog',
-        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['adjustDialogZ'],
         props: {
             previousInstancesWorldDialog: {
                 type: Object,
@@ -81,7 +82,9 @@
             shiftHeld: Boolean
         },
         setup() {
-            return { API };
+            const instanceStore = useInstanceStore();
+            const { showPreviousInstancesInfoDialog } = instanceStore;
+            return { API, showPreviousInstancesInfoDialog };
         },
         data() {
             return {

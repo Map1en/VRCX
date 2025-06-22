@@ -4,9 +4,7 @@
             <span class="header">{{ $t('view.charts.header') }}</span>
         </div>
         <keep-alive>
-            <InstanceActivity
-                v-if="menuActiveIndex === 'charts'"
-                @open-previous-instance-info-dialog="$emit('open-previous-instance-info-dialog', $event)" />
+            <InstanceActivity v-if="menuActiveIndex === 'charts'" />
             <el-backtop target="#chart" :right="30" :bottom="30"></el-backtop>
         </keep-alive>
     </div>

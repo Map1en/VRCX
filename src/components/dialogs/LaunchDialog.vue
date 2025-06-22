@@ -91,11 +91,12 @@
     import InviteDialog from './InviteDialog/InviteDialog.vue';
     import { useLocationStore } from '../../stores/location';
     import { useLaunchStore } from '../../stores/launch';
+    import { useInstanceStore } from '../../stores/instance';
 
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
-        inject: ['showPreviousInstancesInfoDialog', 'adjustDialogZ'],
+        inject: ['adjustDialogZ'],
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();
@@ -106,6 +107,8 @@
             const launchStore = useLaunchStore();
             const { launchGame } = launchStore;
             const { launchDialogData } = storeToRefs(launchStore);
+            const instanceStore = useInstanceStore();
+            const { showPreviousInstancesInfoDialog } = instanceStore;
             return {
                 hideTooltips,
                 vipFriends,
@@ -115,7 +118,8 @@
                 checkCanInvite,
                 lastLocation,
                 launchGame,
-                launchDialogData
+                launchDialogData,
+                showPreviousInstancesInfoDialog
             };
         },
         data() {
