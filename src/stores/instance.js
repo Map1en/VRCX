@@ -3,6 +3,7 @@ import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
 import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
+import database from '../service/database';
 import { instanceContentSettings } from '../shared/constants';
 import {
     checkVRChatCache,
@@ -54,7 +55,8 @@ export const useInstanceStore = defineStore('Instance', () => {
         currentInstanceLocation: {},
         queuedInstances: new Map(),
         previousInstancesInfoDialogVisible: false,
-        previousInstancesInfoDialogInstanceId: ''
+        previousInstancesInfoDialogInstanceId: '',
+        instanceJoinHistory: new Map()
     });
 
     const cachedInstances = computed({
@@ -101,6 +103,18 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
     });
 
+    const instanceJoinHistory = computed({
+        get: () => state.instanceJoinHistory,
+        set: (value) => {
+            state.instanceJoinHistory = value;
+        }
+    });
+
+    API.$on('LOGIN', function () {
+        state.instanceJoinHistory = new Map();
+        getInstanceJoinHistory();
+    });
+
     API.$on('INSTANCE', function (args) {
         const { json } = args;
         if (!json) {
@@ -138,6 +152,23 @@ export const useInstanceStore = defineStore('Instance', () => {
         // old comment: hacky workaround to force update instance info
         $app.updateInstanceInfo++;
     });
+
+    async function getInstanceJoinHistory() {
+        state.instanceJoinHistory = await database.getInstanceJoinHistory();
+    }
+
+    function addInstanceJoinHistory(location, dateTime) {
+        if (!location || !dateTime) {
+            return;
+        }
+
+        if (state.instanceJoinHistory.has(location)) {
+            state.instanceJoinHistory.delete(location);
+        }
+
+        const epoch = new Date(dateTime).getTime();
+        state.instanceJoinHistory.set(location, epoch);
+    }
 
     function showPreviousInstancesInfoDialog(instanceId) {
         state.previousInstancesInfoDialogVisible = true;
@@ -987,6 +1018,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         queuedInstances,
         previousInstancesInfoDialogVisible,
         previousInstancesInfoDialogInstanceId,
+        instanceJoinHistory,
         applyInstance,
         updateCurrentInstanceWorld,
         createNewInstance,
@@ -997,6 +1029,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         applyQueuedInstance,
         instanceQueueReady,
         instanceQueueUpdate,
-        showPreviousInstancesInfoDialog
+        showPreviousInstancesInfoDialog,
+        addInstanceJoinHistory
     };
 });

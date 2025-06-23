@@ -197,7 +197,9 @@ export default function init() {
         },
         methods: {
             parse() {
-                this.lastJoin = $app.instanceJoinHistory.get(this.location);
+                this.lastJoin = $app.store.instance.instanceJoinHistory.get(
+                    this.location
+                );
             }
         },
         template:

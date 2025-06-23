@@ -81,7 +81,7 @@ export default function init() {
                     }
                     break;
                 case 'location':
-                    this.addInstanceJoinHistory(
+                    this.store.instance.addInstanceJoinHistory(
                         this.store.location.lastLocation.location,
                         gameLog.dt
                     );
@@ -106,7 +106,10 @@ export default function init() {
                         this.store.instance.applyWorldDialogInstances();
                         this.store.instance.applyGroupDialogInstances();
                     }
-                    this.addInstanceJoinHistory(gameLog.location, gameLog.dt);
+                    this.store.instance.addInstanceJoinHistory(
+                        gameLog.location,
+                        gameLog.dt
+                    );
                     var L = parseLocation(gameLog.location);
                     var entry = {
                         created_at: gameLog.dt,

@@ -185,7 +185,7 @@ export const useWorldStore = defineStore('World', () => {
                 });
                 throw err;
             })
-            .then((args) => {
+            .then(async (args) => {
                 if (D.id === args.ref.id) {
                     D.loading = false;
                     D.ref = args.ref;
@@ -211,7 +211,15 @@ export const useWorldStore = defineStore('World', () => {
                     D.isQuest = isQuest;
                     D.isIos = isIos;
                     updateVRChatWorldCache();
-                    miscRequest.hasWorldPersistData({ worldId: D.id });
+                    const args = await miscRequest.hasWorldPersistData({
+                        worldId: D.id
+                    });
+                    if (
+                        args.params.worldId === state.worldDialog.id &&
+                        state.worldDialog.visible
+                    ) {
+                        state.worldDialog.hasPersistData = args.json !== false;
+                    }
                     if (args.cache) {
                         worldRequest
                             .getWorld(args.params)

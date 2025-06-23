@@ -2725,52 +2725,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 // #endregion
 // #region instance join history
 
-$app.data.instanceJoinHistory = new Map();
-
-API.$on('LOGIN', function () {
-    $app.instanceJoinHistory = new Map();
-    $app.getInstanceJoinHistory();
-});
-
-$app.methods.getInstanceJoinHistory = async function () {
-    this.instanceJoinHistory = await database.getInstanceJoinHistory();
-};
-
-$app.methods.addInstanceJoinHistory = function (location, dateTime) {
-    if (!location || !dateTime) {
-        return;
-    }
-
-    if (this.instanceJoinHistory.has(location)) {
-        this.instanceJoinHistory.delete(location);
-    }
-
-    const epoch = new Date(dateTime).getTime();
-    this.instanceJoinHistory.set(location, epoch);
-};
-
-// #endregion
-
-// #region persistent data
-
-API.$on('WORLD:PERSIST:HAS', function (args) {
-    if (
-        args.params.worldId === $app.store.world.worldDialog.id &&
-        $app.store.world.worldDialog.visible
-    ) {
-        $app.store.world.worldDialog.hasPersistData = args.json !== false;
-    }
-});
-
-API.$on('WORLD:PERSIST:DELETE', function (args) {
-    if (
-        args.params.worldId === $app.store.world.worldDialog.id &&
-        $app.store.world.worldDialog.visible
-    ) {
-        $app.store.world.worldDialog.hasPersistData = false;
-    }
-});
-
 // #endregion
 // #region | Tab Props
 
@@ -2959,10 +2913,6 @@ $app.computed.settingsTabEvent = function () {
     };
 };
 
-$app.methods.languageClass = function (key) {
-    return languageClass(key);
-};
-
 // #endregion
 // #region | Electron
 
@@ -2995,7 +2945,6 @@ if (LINUX) {
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
-window.$t = $t;
 
 export { $app, API, $t, i18n };
 

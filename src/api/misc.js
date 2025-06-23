@@ -150,7 +150,7 @@ const miscReq = {
                 json,
                 params
             };
-            API.$emit('WORLD:PERSIST:HAS', args);
+            // API.$emit('WORLD:PERSIST:HAS', args);
             return args;
         });
     },

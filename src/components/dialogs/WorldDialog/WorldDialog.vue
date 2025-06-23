@@ -805,7 +805,6 @@
         props: {
             shiftHeld: Boolean,
             isGameRunning: Boolean,
-            instanceJoinHistory: Map,
 
             // TODO: Remove
             updateInstanceInfo: Number
@@ -826,6 +825,7 @@
             const { showFavoriteDialog } = favoriteStore;
             const instanceStore = useInstanceStore();
             const { showPreviousInstancesInfoDialog } = instanceStore;
+            const { instanceJoinHistory } = storeToRefs(instanceStore);
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -842,7 +842,8 @@
                 lastLocation,
                 newInstanceSelfInvite,
                 showFavoriteDialog,
-                showPreviousInstancesInfoDialog
+                showPreviousInstancesInfoDialog,
+                instanceJoinHistory
             };
         },
         data() {
@@ -1086,6 +1087,12 @@
                                                 worldId: D.id
                                             })
                                             .then((args) => {
+                                                if (
+                                                    args.params.worldId === this.worldDialog.id &&
+                                                    this.worldDialog.visible
+                                                ) {
+                                                    this.worldDialog.hasPersistData = false;
+                                                }
                                                 this.$message({
                                                     message: 'Persistent data has been deleted',
                                                     type: 'success'
