@@ -465,7 +465,7 @@ export default function init() {
                 if (!this.imageurl) {
                     return;
                 }
-                $app.showAvatarAuthorDialog(
+                $app.store.avatar.showAvatarAuthorDialog(
                     this.userid,
                     this.ownerId,
                     this.imageurl

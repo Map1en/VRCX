@@ -143,6 +143,7 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useAvatarStore } from '../../../stores/avatar';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useFavoriteStore } from '../../../stores/favorite';
 
@@ -161,13 +162,16 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
             const { removeLocalAvatarFavorite, showFavoriteDialog } = favoriteStore;
+            const avatarStore = useAvatarStore();
+            const { selectAvatarWithConfirmation } = avatarStore;
 
             return {
                 hideTooltips,
                 API,
                 favoriteAvatarGroups,
                 removeLocalAvatarFavorite,
-                showFavoriteDialog
+                showFavoriteDialog,
+                selectAvatarWithConfirmation
             };
         },
         computed: {
@@ -206,9 +210,6 @@
                             tags: group.name
                         });
                     });
-            },
-            selectAvatarWithConfirmation() {
-                this.$emit('select-avatar-with-confirmation', this.favorite.id);
             },
             deleteFavorite(objectId) {
                 favoriteRequest.deleteFavorite({

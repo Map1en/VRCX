@@ -93,7 +93,6 @@
                         :edit-favorites-mode="editFavoritesMode"
                         style="display: inline-block; width: 300px; margin-right: 15px"
                         @handle-select="favorite.$selected = $event"
-                        @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                         @click="showAvatarDialog(favorite.id)" />
                 </div>
                 <div
@@ -131,7 +130,6 @@
                         style="display: inline-block; width: 300px; margin-right: 15px"
                         :favorite="favorite"
                         :hide-tooltips="hideTooltips"
-                        @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                         @click="showAvatarDialog(favorite.id)" />
                 </div>
                 <div
@@ -204,7 +202,6 @@
                         :shift-held="shiftHeld"
                         :edit-favorites-mode="editFavoritesMode"
                         @handle-select="favorite.$selected = $event"
-                        @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                         @click="showAvatarDialog(favorite.id)" />
                 </div>
                 <div
@@ -389,9 +386,6 @@
             },
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);
-            },
-            selectAvatarWithConfirmation(id) {
-                this.$emit('select-avatar-with-confirmation', id);
             },
             promptNewLocalAvatarFavoriteGroup() {
                 this.$prompt(

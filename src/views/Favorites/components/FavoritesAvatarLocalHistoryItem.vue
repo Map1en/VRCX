@@ -43,42 +43,30 @@
     </div>
 </template>
 
-<script>
+<script setup>
+    import { computed } from 'vue';
     import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAvatarStore } from '../../../stores/avatar';
 
-    export default {
-        name: 'FavoritesAvatarLocalHistoryItem',
-        props: {
-            favorite: {
-                type: Object,
-                required: true
-            }
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-            const favoriteStore = useFavoriteStore();
-            const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
-            const { showFavoriteDialog } = favoriteStore;
-            return {
-                hideTooltips,
-                API,
-                cachedFavoritesByObjectId,
-                showFavoriteDialog
-            };
-        },
-        computed: {
-            smallThumbnail() {
-                return this.favorite.thumbnailImageUrl.replace('256', '128') || this.favorite.thumbnailImageUrl;
-            }
-        },
-        methods: {
-            selectAvatarWithConfirmation() {
-                this.$emit('select-avatar-with-confirmation', this.favorite.id);
-            }
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const favoriteStore = useFavoriteStore();
+    const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
+    const { showFavoriteDialog } = favoriteStore;
+    const avatarStore = useAvatarStore();
+    const { selectAvatarWithConfirmation } = avatarStore;
+
+    const props = defineProps({
+        favorite: {
+            type: Object,
+            required: true
         }
-    };
+    });
+
+    const smallThumbnail = computed(() => {
+        return props.favorite.thumbnailImageUrl.replace('256', '128') || props.favorite.thumbnailImageUrl;
+    });
 </script>

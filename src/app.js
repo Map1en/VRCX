@@ -2089,243 +2089,6 @@ $app.methods.updateTimers = function () {
     }
 };
 
-$app.methods.lookupAvatars = async function (type, search) {
-    const avatars = new Map();
-    if (type === 'search') {
-        try {
-            const response = await webApiService.execute({
-                url: `${
-                    this.store.avatarProvider.avatarRemoteDatabaseProvider
-                }?${type}=${encodeURIComponent(search)}&n=5000`,
-                method: 'GET',
-                headers: {
-                    Referer: 'https://vrcx.app',
-                    'VRCX-ID': this.store.vrcxUpdater.vrcxId
-                }
-            });
-            const json = JSON.parse(response.data);
-            if (this.store.debug.debugWebRequests) {
-                console.log(json, response);
-            }
-            if (response.status === 200 && typeof json === 'object') {
-                json.forEach((avatar) => {
-                    if (!avatars.has(avatar.Id)) {
-                        const ref = {
-                            authorId: '',
-                            authorName: '',
-                            name: '',
-                            description: '',
-                            id: '',
-                            imageUrl: '',
-                            thumbnailImageUrl: '',
-                            created_at: '0001-01-01T00:00:00.0000000Z',
-                            updated_at: '0001-01-01T00:00:00.0000000Z',
-                            releaseStatus: 'public',
-                            ...avatar
-                        };
-                        avatars.set(ref.id, ref);
-                    }
-                });
-            } else {
-                throw new Error(`Error: ${response.data}`);
-            }
-        } catch (err) {
-            const msg = `Avatar search failed for ${search} with ${this.store.avatarProvider.avatarRemoteDatabaseProvider}\n${err}`;
-            console.error(msg);
-            this.$message({
-                message: msg,
-                type: 'error'
-            });
-        }
-    } else if (type === 'authorId') {
-        const length =
-            this.store.avatarProvider.avatarRemoteDatabaseProviderList.length;
-        for (let i = 0; i < length; ++i) {
-            const url =
-                this.store.avatarProvider.avatarRemoteDatabaseProviderList[i];
-            const avatarArray = await this.lookupAvatarsByAuthor(url, search);
-            avatarArray.forEach((avatar) => {
-                if (!avatars.has(avatar.id)) {
-                    avatars.set(avatar.id, avatar);
-                }
-            });
-        }
-    }
-    return avatars;
-};
-
-$app.methods.lookupAvatarByImageFileId = async function (authorId, fileId) {
-    const length =
-        this.store.avatarProvider.avatarRemoteDatabaseProviderList.length;
-    for (let i = 0; i < length; ++i) {
-        const url =
-            this.store.avatarProvider.avatarRemoteDatabaseProviderList[i];
-        const avatarArray = await this.lookupAvatarsByAuthor(url, authorId);
-        for (let avatar of avatarArray) {
-            if (extractFileId(avatar.imageUrl) === fileId) {
-                return avatar.id;
-            }
-        }
-    }
-    return null;
-};
-
-$app.methods.lookupAvatarsByAuthor = async function (url, authorId) {
-    const avatars = [];
-    if (!url) {
-        return avatars;
-    }
-    try {
-        const response = await webApiService.execute({
-            url: `${url}?authorId=${encodeURIComponent(authorId)}`,
-            method: 'GET',
-            headers: {
-                Referer: 'https://vrcx.app',
-                'VRCX-ID': this.store.vrcxUpdater.vrcxId
-            }
-        });
-        const json = JSON.parse(response.data);
-        if (this.store.debug.debugWebRequests) {
-            console.log(json, response);
-        }
-        if (response.status === 200 && typeof json === 'object') {
-            json.forEach((avatar) => {
-                const ref = {
-                    authorId: '',
-                    authorName: '',
-                    name: '',
-                    description: '',
-                    id: '',
-                    imageUrl: '',
-                    thumbnailImageUrl: '',
-                    created_at: '0001-01-01T00:00:00.0000000Z',
-                    updated_at: '0001-01-01T00:00:00.0000000Z',
-                    releaseStatus: 'public',
-                    ...avatar
-                };
-                avatars.push(ref);
-            });
-        } else {
-            throw new Error(`Error: ${response.data}`);
-        }
-    } catch (err) {
-        const msg = `Avatar lookup failed for ${authorId} with ${url}\n${err}`;
-        console.error(msg);
-        this.$message({
-            message: msg,
-            type: 'error'
-        });
-    }
-    return avatars;
-};
-
-$app.methods.selectAvatarWithConfirmation = function (id) {
-    this.$confirm(`Continue? Select Avatar`, 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action !== 'confirm') {
-                return;
-            }
-            $app.selectAvatarWithoutConfirmation(id);
-        }
-    });
-};
-
-$app.methods.selectAvatarWithoutConfirmation = function (id) {
-    if (API.currentUser.currentAvatar === id) {
-        this.$message({
-            message: 'Avatar already selected',
-            type: 'info'
-        });
-        return;
-    }
-    avatarRequest
-        .selectAvatar({
-            avatarId: id
-        })
-        .then((args) => {
-            new Noty({
-                type: 'success',
-                text: 'Avatar changed via launch command'
-            }).show();
-            return args;
-        });
-};
-
-$app.methods.checkAvatarCache = function (fileId) {
-    let avatarId = '';
-    for (let ref of this.store.avatar.cachedAvatars.values()) {
-        if (extractFileId(ref.imageUrl) === fileId) {
-            avatarId = ref.id;
-        }
-    }
-    return avatarId;
-};
-
-$app.methods.checkAvatarCacheRemote = async function (fileId, ownerUserId) {
-    if (this.store.advancedSettings.avatarRemoteDatabase) {
-        const avatarId = await this.lookupAvatarByImageFileId(
-            ownerUserId,
-            fileId
-        );
-        return avatarId;
-    }
-    return null;
-};
-
-$app.methods.showAvatarAuthorDialog = async function (
-    refUserId,
-    ownerUserId,
-    currentAvatarImageUrl
-) {
-    const fileId = extractFileId(currentAvatarImageUrl);
-    if (!fileId) {
-        this.$message({
-            message: 'Sorry, the author is unknown',
-            type: 'error'
-        });
-    } else if (refUserId === API.currentUser.id) {
-        this.store.avatar.showAvatarDialog(API.currentUser.currentAvatar);
-    } else {
-        let avatarId = this.checkAvatarCache(fileId);
-        let avatarInfo;
-        if (!avatarId) {
-            avatarInfo = await this.store.avatar.getAvatarName(
-                currentAvatarImageUrl
-            );
-            if (avatarInfo.ownerId === API.currentUser.id) {
-                this.store.user.refreshUserDialogAvatars(fileId);
-            }
-        }
-        if (!avatarId) {
-            avatarId = await this.checkAvatarCacheRemote(
-                fileId,
-                avatarInfo.ownerId
-            );
-        }
-        if (!avatarId) {
-            if (avatarInfo.ownerId === refUserId) {
-                this.$message({
-                    message:
-                        "It's personal (own) avatar or not found in avatar database",
-                    type: 'warning'
-                });
-            } else {
-                this.$message({
-                    message: 'Avatar not found in avatar database',
-                    type: 'warning'
-                });
-                this.store.user.showUserDialog(avatarInfo.ownerId);
-            }
-        }
-        if (avatarId) {
-            this.store.avatar.showAvatarDialog(avatarId);
-        }
-    }
-};
-
 // #endregion
 // #region | App: Copy To Clipboard
 
@@ -2972,7 +2735,7 @@ $app.methods.eventLaunchCommand = function (input) {
                 break;
             }
             if (this.store.advancedSettings.showConfirmationOnSwitchAvatar) {
-                this.selectAvatarWithConfirmation(avatarId);
+                this.store.avatar.selectAvatarWithConfirmation(avatarId);
                 // Makes sure the window is focused
                 shouldFocusWindow = true;
             } else {
@@ -3318,8 +3081,7 @@ $app.computed.favoritesTabBind = function () {
 
 $app.computed.favoritesTabEvent = function () {
     return {
-        'save-sort-favorites-option': this.saveSortFavoritesOption,
-        'select-avatar-with-confirmation': this.selectAvatarWithConfirmation
+        'save-sort-favorites-option': this.saveSortFavoritesOption
     };
 };
 
@@ -3358,7 +3120,6 @@ $app.computed.searchTabBind = function () {
     return {
         searchText: this.searchText,
         searchUserResults: this.searchUserResults,
-        lookupAvatars: this.lookupAvatars,
         moreSearchUser: this.moreSearchUser
     };
 };

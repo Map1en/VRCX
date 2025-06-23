@@ -1868,7 +1868,7 @@
         userStore;
     const { favoriteLimits } = storeToRefs(favoriteStore);
     const { showFavoriteDialog } = favoriteStore;
-    const { showAvatarDialog } = avatarStore;
+    const { showAvatarDialog, lookupAvatars, showAvatarAuthorDialog } = avatarStore;
     const { cachedAvatars } = storeToRefs(avatarStore);
     const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
@@ -1905,10 +1905,6 @@
             type: Function,
             default: () => {}
         },
-        lookupAvatars: {
-            type: Function,
-            default: () => {}
-        },
         updateInGameGroupOrder: {
             type: Function,
             default: () => {}
@@ -1923,7 +1919,7 @@
         }
     });
 
-    const emit = defineEmits(['logout', 'showAvatarAuthorDialog', 'setGroupVisibility', 'leaveGroupPrompt']);
+    const emit = defineEmits(['logout', 'setGroupVisibility', 'leaveGroupPrompt']);
 
     watch(
         () => userDialog.value.loading,
@@ -2102,7 +2098,7 @@
     async function setUserDialogAvatarsRemote(userId) {
         if (avatarRemoteDatabase.value && userId !== API.currentUser.id) {
             userDialog.value.isAvatarsLoading = true;
-            const data = await props.lookupAvatars('authorId', userId);
+            const data = await lookupAvatars('authorId', userId);
             const avatars = new Set();
             userDialogAvatars.value.forEach((avatar) => {
                 avatars.add(avatar.id, avatar);
@@ -3087,9 +3083,6 @@
     }
     function logout() {
         emit('logout');
-    }
-    function showAvatarAuthorDialog(userId, authorId, currentAvatarImageUrl) {
-        emit('showAvatarAuthorDialog', userId, authorId, currentAvatarImageUrl);
     }
     function closeInviteDialog() {
         clearInviteImageUpload();

@@ -1,8 +1,10 @@
+import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { avatarRequest, imageRequest } from '../api';
 import { $app, API } from '../app';
 import database from '../service/database';
+import webApiService from '../service/webapi';
 import {
     checkVRChatCache,
     getAvailablePlatforms,
@@ -13,11 +15,20 @@ import {
     storeAvatarImage
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
+import { useAvatarProviderStore } from './avatarProvider';
+import { useVRCXUpdaterStore } from './vrcxUpdater';
+import { useDebugStore } from './debug';
+import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
 
 export const useAvatarStore = defineStore('Avatar', () => {
     const favoriteStore = useFavoriteStore();
+    const avatarProviderStore = useAvatarProviderStore();
+    const vrcxUpdaterStore = useVRCXUpdaterStore();
+    const debugStore = useDebugStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
     const userStore = useUserStore();
+
     const state = reactive({
         avatarDialog: {
             visible: false,
@@ -371,7 +382,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
     }
 
     function promptClearAvatarHistory() {
-        this.$confirm('Continue? Clear Avatar History', 'Confirm', {
+        $app.$confirm('Continue? Clear Avatar History', 'Confirm', {
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel',
             type: 'info',
@@ -403,6 +414,240 @@ export const useAvatarStore = defineStore('Avatar', () => {
         return storeAvatarImage(args, state.cachedAvatarNames);
     }
 
+    async function lookupAvatars(type, search) {
+        const avatars = new Map();
+        if (type === 'search') {
+            try {
+                const response = await webApiService.execute({
+                    url: `${
+                        avatarProviderStore.avatarRemoteDatabaseProvider
+                    }?${type}=${encodeURIComponent(search)}&n=5000`,
+                    method: 'GET',
+                    headers: {
+                        Referer: 'https://vrcx.app',
+                        'VRCX-ID': vrcxUpdaterStore.vrcxId
+                    }
+                });
+                const json = JSON.parse(response.data);
+                if (debugStore.debugWebRequests) {
+                    console.log(json, response);
+                }
+                if (response.status === 200 && typeof json === 'object') {
+                    json.forEach((avatar) => {
+                        if (!avatars.has(avatar.Id)) {
+                            const ref = {
+                                authorId: '',
+                                authorName: '',
+                                name: '',
+                                description: '',
+                                id: '',
+                                imageUrl: '',
+                                thumbnailImageUrl: '',
+                                created_at: '0001-01-01T00:00:00.0000000Z',
+                                updated_at: '0001-01-01T00:00:00.0000000Z',
+                                releaseStatus: 'public',
+                                ...avatar
+                            };
+                            avatars.set(ref.id, ref);
+                        }
+                    });
+                } else {
+                    throw new Error(`Error: ${response.data}`);
+                }
+            } catch (err) {
+                const msg = `Avatar search failed for ${search} with ${avatarProviderStore.avatarRemoteDatabaseProvider}\n${err}`;
+                console.error(msg);
+                $app.$message({
+                    message: msg,
+                    type: 'error'
+                });
+            }
+        } else if (type === 'authorId') {
+            const length =
+                avatarProviderStore.avatarRemoteDatabaseProviderList.length;
+            for (let i = 0; i < length; ++i) {
+                const url =
+                    avatarProviderStore.avatarRemoteDatabaseProviderList[i];
+                const avatarArray = await lookupAvatarsByAuthor(url, search);
+                avatarArray.forEach((avatar) => {
+                    if (!avatars.has(avatar.id)) {
+                        avatars.set(avatar.id, avatar);
+                    }
+                });
+            }
+        }
+        return avatars;
+    }
+
+    async function lookupAvatarByImageFileId(authorId, fileId) {
+        const length =
+            avatarProviderStore.avatarRemoteDatabaseProviderList.length;
+        for (let i = 0; i < length; ++i) {
+            const url = avatarProviderStore.avatarRemoteDatabaseProviderList[i];
+            const avatarArray = await lookupAvatarsByAuthor(url, authorId);
+            for (const avatar of avatarArray) {
+                if (extractFileId(avatar.imageUrl) === fileId) {
+                    return avatar.id;
+                }
+            }
+        }
+        return null;
+    }
+
+    async function lookupAvatarsByAuthor(url, authorId) {
+        const avatars = [];
+        if (!url) {
+            return avatars;
+        }
+        try {
+            const response = await webApiService.execute({
+                url: `${url}?authorId=${encodeURIComponent(authorId)}`,
+                method: 'GET',
+                headers: {
+                    Referer: 'https://vrcx.app',
+                    'VRCX-ID': vrcxUpdaterStore.vrcxId
+                }
+            });
+            const json = JSON.parse(response.data);
+            if (debugStore.debugWebRequests) {
+                console.log(json, response);
+            }
+            if (response.status === 200 && typeof json === 'object') {
+                json.forEach((avatar) => {
+                    const ref = {
+                        authorId: '',
+                        authorName: '',
+                        name: '',
+                        description: '',
+                        id: '',
+                        imageUrl: '',
+                        thumbnailImageUrl: '',
+                        created_at: '0001-01-01T00:00:00.0000000Z',
+                        updated_at: '0001-01-01T00:00:00.0000000Z',
+                        releaseStatus: 'public',
+                        ...avatar
+                    };
+                    avatars.push(ref);
+                });
+            } else {
+                throw new Error(`Error: ${response.data}`);
+            }
+        } catch (err) {
+            const msg = `Avatar lookup failed for ${authorId} with ${url}\n${err}`;
+            console.error(msg);
+            $app.$message({
+                message: msg,
+                type: 'error'
+            });
+        }
+        return avatars;
+    }
+
+    function selectAvatarWithConfirmation(id) {
+        $app.$confirm(`Continue? Select Avatar`, 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action !== 'confirm') {
+                    return;
+                }
+                selectAvatarWithoutConfirmation(id);
+            }
+        });
+    }
+
+    function selectAvatarWithoutConfirmation(id) {
+        if (API.currentUser.currentAvatar === id) {
+            $app.$message({
+                message: 'Avatar already selected',
+                type: 'info'
+            });
+            return;
+        }
+        avatarRequest
+            .selectAvatar({
+                avatarId: id
+            })
+            .then((args) => {
+                new Noty({
+                    type: 'success',
+                    text: 'Avatar changed via launch command'
+                }).show();
+                return args;
+            });
+    }
+
+    function checkAvatarCache(fileId) {
+        let avatarId = '';
+        for (let ref of state.cachedAvatars.values()) {
+            if (extractFileId(ref.imageUrl) === fileId) {
+                avatarId = ref.id;
+            }
+        }
+        return avatarId;
+    }
+
+    async function checkAvatarCacheRemote(fileId, ownerUserId) {
+        if (advancedSettingsStore.avatarRemoteDatabase) {
+            const avatarId = await lookupAvatarByImageFileId(
+                ownerUserId,
+                fileId
+            );
+            return avatarId;
+        }
+        return null;
+    }
+
+    async function showAvatarAuthorDialog(
+        refUserId,
+        ownerUserId,
+        currentAvatarImageUrl
+    ) {
+        const fileId = extractFileId(currentAvatarImageUrl);
+        if (!fileId) {
+            $app.$message({
+                message: 'Sorry, the author is unknown',
+                type: 'error'
+            });
+        } else if (refUserId === API.currentUser.id) {
+            showAvatarDialog(API.currentUser.currentAvatar);
+        } else {
+            let avatarId = checkAvatarCache(fileId);
+            let avatarInfo;
+            if (!avatarId) {
+                avatarInfo = await getAvatarName(currentAvatarImageUrl);
+                if (avatarInfo.ownerId === API.currentUser.id) {
+                    userStore.refreshUserDialogAvatars(fileId);
+                }
+            }
+            if (!avatarId) {
+                avatarId = await checkAvatarCacheRemote(
+                    fileId,
+                    avatarInfo.ownerId
+                );
+            }
+            if (!avatarId) {
+                if (avatarInfo.ownerId === refUserId) {
+                    $app.$message({
+                        message:
+                            "It's personal (own) avatar or not found in avatar database",
+                        type: 'warning'
+                    });
+                } else {
+                    $app.$message({
+                        message: 'Avatar not found in avatar database',
+                        type: 'warning'
+                    });
+                    userStore.showUserDialog(avatarInfo.ownerId);
+                }
+            }
+            if (avatarId) {
+                showAvatarDialog(avatarId);
+            }
+        }
+    }
+
     return {
         state,
         avatarDialog,
@@ -420,6 +665,9 @@ export const useAvatarStore = defineStore('Avatar', () => {
         addAvatarToHistory,
         applyAvatar,
         promptClearAvatarHistory,
-        getAvatarName
+        getAvatarName,
+        lookupAvatars,
+        selectAvatarWithConfirmation,
+        showAvatarAuthorDialog
     };
 });

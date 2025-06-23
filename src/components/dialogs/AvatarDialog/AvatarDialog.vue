@@ -642,7 +642,7 @@
     const userStore = useUserStore();
     const { showUserDialog, sortUserDialogAvatars } = userStore;
     const avatarStore = useAvatarStore();
-    const { avatarDialog, cachedAvatarModerations, cachedAvatars } = storeToRefs(avatarStore);
+    const { avatarDialog, cachedAvatarModerations, cachedAvatars, cachedAvatarNames } = storeToRefs(avatarStore);
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
     const favoriteStore = useFavoriteStore();
     const { showFavoriteDialog } = favoriteStore;
@@ -1006,7 +1006,7 @@
             changeAvatarImageDialogVisible.value = true;
         }
         imageRequest.getAvatarImages(params).then((args) => {
-            storeAvatarImage(args);
+            storeAvatarImage(args, cachedAvatarNames.value);
             previousImagesFileId.value = args.json.id;
 
             const images = [];

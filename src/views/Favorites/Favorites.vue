@@ -51,7 +51,6 @@
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
-                    @select-avatar-with-confirmation="selectAvatarWithConfirmation"
                     @refresh-local-avatar-favorites="refreshLocalAvatarFavorites" />
             </el-tab-pane>
         </el-tabs>
@@ -252,9 +251,6 @@
             },
             saveSortFavoritesOption() {
                 this.$emit('save-sort-favorites-option');
-            },
-            selectAvatarWithConfirmation(id) {
-                this.$emit('select-avatar-with-confirmation', id);
             }
         }
     };
