@@ -748,16 +748,16 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
         switch (noty.type) {
             case 'OnPlayerJoined':
-                $app.speak(`${displayName} has joined`);
+                notificationsSettingsStore.speak(`${displayName} has joined`);
                 break;
             case 'OnPlayerLeft':
-                $app.speak(`${displayName} has left`);
+                notificationsSettingsStore.speak(`${displayName} has left`);
                 break;
             case 'OnPlayerJoining':
-                $app.speak(`${displayName} is joining`);
+                notificationsSettingsStore.speak(`${displayName} is joining`);
                 break;
             case 'GPS':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} is in ${displayLocation(
                         noty.location,
                         noty.worldName,
@@ -774,18 +774,22 @@ export const useNotificationStore = defineStore('Notification', () => {
                         noty.groupName
                     )}`;
                 }
-                $app.speak(`${displayName} has logged in${locationName}`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has logged in${locationName}`
+                );
                 break;
             case 'Offline':
-                $app.speak(`${displayName} has logged out`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has logged out`
+                );
                 break;
             case 'Status':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} status is now ${noty.status} ${noty.statusDescription}`
                 );
                 break;
             case 'invite':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} has invited you to ${displayLocation(
                         noty.details.worldId,
                         noty.details.worldName,
@@ -794,67 +798,77 @@ export const useNotificationStore = defineStore('Notification', () => {
                 );
                 break;
             case 'requestInvite':
-                $app.speak(`${displayName} has requested an invite${message}`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has requested an invite${message}`
+                );
                 break;
             case 'inviteResponse':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} has responded to your invite${message}`
                 );
                 break;
             case 'requestInviteResponse':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} has responded to your invite request${message}`
                 );
                 break;
             case 'friendRequest':
-                $app.speak(`${displayName} has sent you a friend request`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has sent you a friend request`
+                );
                 break;
             case 'Friend':
-                $app.speak(`${displayName} is now your friend`);
+                notificationsSettingsStore.speak(
+                    `${displayName} is now your friend`
+                );
                 break;
             case 'Unfriend':
-                $app.speak(`${displayName} is no longer your friend`);
+                notificationsSettingsStore.speak(
+                    `${displayName} is no longer your friend`
+                );
                 break;
             case 'TrustLevel':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${displayName} trust level is now ${noty.trustLevel}`
                 );
                 break;
             case 'DisplayName':
-                $app.speak(
+                notificationsSettingsStore.speak(
                     `${noty.previousDisplayName} changed their name to ${noty.displayName}`
                 );
                 break;
             case 'boop':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'groupChange':
-                $app.speak(`${displayName} ${noty.message}`);
+                notificationsSettingsStore.speak(
+                    `${displayName} ${noty.message}`
+                );
                 break;
             case 'group.announcement':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'group.informative':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'group.invite':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'group.joinRequest':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'group.transfer':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'group.queueReady':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'instance.closed':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'PortalSpawn':
                 if (displayName) {
-                    $app.speak(
+                    notificationsSettingsStore.speak(
                         `${displayName} has spawned a portal to ${displayLocation(
                             noty.instanceId,
                             noty.worldName,
@@ -862,47 +876,71 @@ export const useNotificationStore = defineStore('Notification', () => {
                         )}`
                     );
                 } else {
-                    $app.speak('User has spawned a portal');
+                    notificationsSettingsStore.speak(
+                        'User has spawned a portal'
+                    );
                 }
                 break;
             case 'AvatarChange':
-                $app.speak(`${displayName} changed into avatar ${noty.name}`);
+                notificationsSettingsStore.speak(
+                    `${displayName} changed into avatar ${noty.name}`
+                );
                 break;
             case 'ChatBoxMessage':
-                $app.speak(`${displayName} said ${noty.text}`);
+                notificationsSettingsStore.speak(
+                    `${displayName} said ${noty.text}`
+                );
                 break;
             case 'Event':
-                $app.speak(noty.data);
+                notificationsSettingsStore.speak(noty.data);
                 break;
             case 'External':
-                $app.speak(noty.message);
+                notificationsSettingsStore.speak(noty.message);
                 break;
             case 'VideoPlay':
-                $app.speak(`Now playing: ${noty.notyName}`);
+                notificationsSettingsStore.speak(
+                    `Now playing: ${noty.notyName}`
+                );
                 break;
             case 'BlockedOnPlayerJoined':
-                $app.speak(`Blocked user ${displayName} has joined`);
+                notificationsSettingsStore.speak(
+                    `Blocked user ${displayName} has joined`
+                );
                 break;
             case 'BlockedOnPlayerLeft':
-                $app.speak(`Blocked user ${displayName} has left`);
+                notificationsSettingsStore.speak(
+                    `Blocked user ${displayName} has left`
+                );
                 break;
             case 'MutedOnPlayerJoined':
-                $app.speak(`Muted user ${displayName} has joined`);
+                notificationsSettingsStore.speak(
+                    `Muted user ${displayName} has joined`
+                );
                 break;
             case 'MutedOnPlayerLeft':
-                $app.speak(`Muted user ${displayName} has left`);
+                notificationsSettingsStore.speak(
+                    `Muted user ${displayName} has left`
+                );
                 break;
             case 'Blocked':
-                $app.speak(`${displayName} has blocked you`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has blocked you`
+                );
                 break;
             case 'Unblocked':
-                $app.speak(`${displayName} has unblocked you`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has unblocked you`
+                );
                 break;
             case 'Muted':
-                $app.speak(`${displayName} has muted you`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has muted you`
+                );
                 break;
             case 'Unmuted':
-                $app.speak(`${displayName} has unmuted you`);
+                notificationsSettingsStore.speak(
+                    `${displayName} has unmuted you`
+                );
                 break;
         }
     }

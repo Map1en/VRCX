@@ -350,11 +350,6 @@ let $app = {
         } catch (err) {
             console.error(err);
         }
-        if (LINUX) {
-            setTimeout(() => {
-                this.updateTTSVoices();
-            }, 5000);
-        }
     }
 };
 
@@ -1490,13 +1485,6 @@ $app.data.currentInstanceUserList = {
     layout: 'table'
 };
 $app.data.visits = 0;
-// It's not necessary to store it in configRepo because it's rarely used.
-$app.data.isTestTTSVisible = false;
-
-$app.data.notificationTTSVoice = await configRepository.getString(
-    'VRCX_notificationTTSVoice',
-    '0'
-);
 $app.data.notificationTimeout = await configRepository.getString(
     'VRCX_notificationTimeout',
     '3000'
@@ -1529,39 +1517,6 @@ $app.methods.saveOpenVROption = async function () {
 $app.methods.saveSortFavoritesOption = async function () {
     this.store.favorite.getLocalWorldFavorites();
     this.setSortFavorites();
-};
-
-$app.data.notificationTTSTest = '';
-$app.data.TTSvoices = speechSynthesis.getVoices();
-$app.methods.updateTTSVoices = function () {
-    this.TTSvoices = speechSynthesis.getVoices();
-    if (LINUX) {
-        const voices = speechSynthesis.getVoices();
-        let uniqueVoices = [];
-        voices.forEach((voice) => {
-            if (!uniqueVoices.some((v) => v.lang === voice.lang)) {
-                uniqueVoices.push(voice);
-            }
-        });
-        uniqueVoices = uniqueVoices.filter((v) => v.lang.startsWith('en'));
-        this.TTSvoices = uniqueVoices;
-    }
-};
-$app.methods.saveNotificationTTS = async function (value) {
-    // todo: move
-    speechSynthesis.cancel();
-    if (
-        (await configRepository.getString('VRCX_notificationTTS')) ===
-            'Never' &&
-        value !== 'Never'
-    ) {
-        this.speak('Notification text-to-speech enabled');
-    }
-    this.setNotificationTTS(value);
-};
-$app.methods.testNotificationTTS = function () {
-    speechSynthesis.cancel();
-    this.speak(this.notificationTTSTest);
 };
 
 $app.methods.applyWineEmojis = async function () {
@@ -1718,10 +1673,6 @@ $app.methods.vrInit = function () {
     this.store.friend.updateOnlineFriendCoutner();
 };
 
-API.$on('LOGIN', function () {
-    $app.pastDisplayNameTable.data = [];
-});
-
 API.$on('USER:CURRENT', function (args) {
     if (args.ref.pastDisplayNames) {
         $app.pastDisplayNameTable.data = args.ref.pastDisplayNames;
@@ -1755,61 +1706,6 @@ $app.methods.updateOpenVR = function () {
     } else {
         AppApi.SetVR(false, false, false, false, 0);
     }
-};
-
-$app.methods.getTTSVoiceName = function () {
-    let voices;
-    if (LINUX) {
-        voices = this.TTSvoices;
-    } else {
-        voices = speechSynthesis.getVoices();
-    }
-    if (voices.length === 0) {
-        return '';
-    }
-    if (this.notificationTTSVoice >= voices.length) {
-        this.notificationTTSVoice = 0;
-        configRepository.setString(
-            'VRCX_notificationTTSVoice',
-            this.notificationTTSVoice
-        );
-    }
-    return voices[this.notificationTTSVoice].name;
-};
-
-$app.methods.changeTTSVoice = async function (index) {
-    this.notificationTTSVoice = index;
-    await configRepository.setString(
-        'VRCX_notificationTTSVoice',
-        this.notificationTTSVoice
-    );
-    let voices;
-    if (LINUX) {
-        voices = this.TTSvoices;
-    } else {
-        voices = speechSynthesis.getVoices();
-    }
-    if (voices.length === 0) {
-        return;
-    }
-    const voiceName = voices[index].name;
-    speechSynthesis.cancel();
-    this.speak(voiceName);
-};
-
-$app.methods.speak = function (text) {
-    const tts = new SpeechSynthesisUtterance();
-    const voices = speechSynthesis.getVoices();
-    if (voices.length === 0) {
-        return;
-    }
-    let index = 0;
-    if (this.notificationTTSVoice < voices.length) {
-        index = this.notificationTTSVoice;
-    }
-    tts.voice = voices[index];
-    tts.text = text;
-    speechSynthesis.speak(tts);
 };
 
 $app.methods.directAccessPaste = function () {
@@ -3527,14 +3423,10 @@ $app.computed.loginPageEvent = function () {
 
 $app.computed.settingsTabBind = function () {
     return {
-        getTTSVoiceName: this.getTTSVoiceName,
-        TTSvoices: this.TTSvoices,
-        notificationTTSTest: this.notificationTTSTest,
         notificationPosition: this.notificationPosition,
         currentlyDroppingFile: this.currentlyDroppingFile,
         fullscreenImageDialog: this.fullscreenImageDialog,
-        backupVrcRegistry: this.backupVrcRegistry,
-        isTestTTSVisible: this.isTestTTSVisible
+        backupVrcRegistry: this.backupVrcRegistry
     };
 };
 
@@ -3548,9 +3440,6 @@ $app.computed.settingsTabEvent = function () {
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         saveSidebarSortOrder: this.saveSidebarSortOrder,
         promptNotificationTimeout: this.promptNotificationTimeout,
-        saveNotificationTTS: this.saveNotificationTTS,
-        changeTTSVoice: this.changeTTSVoice,
-        testNotificationTTS: this.testNotificationTTS,
         saveDiscordOption: this.saveDiscordOption,
         showVRChatConfig: this.showVRChatConfig,
         enablePrimaryPasswordChange: this.enablePrimaryPasswordChange,

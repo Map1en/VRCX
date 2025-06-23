@@ -103,7 +103,11 @@ export const useNotificationsSettingsStore = defineStore(
                     Muted: 'On',
                     Unmuted: 'On'
                 }
-            }
+            },
+            isTestTTSVisible: false,
+            notificationTTSVoice: 0,
+            notificationTTSTest: '',
+            TTSvoices: []
         });
 
         async function initNotificationsSettings() {
@@ -119,7 +123,8 @@ export const useNotificationsSettingsStore = defineStore(
                 afkDesktopToast,
                 notificationTTS,
                 notificationTTSNickName,
-                sharedFeedFilters
+                sharedFeedFilters,
+                notificationTTSVoice
             ] = await Promise.all([
                 configRepository.getString('VRCX_overlayToast', 'Game Running'),
                 configRepository.getBool('VRCX_overlayNotifications', true),
@@ -135,7 +140,8 @@ export const useNotificationsSettingsStore = defineStore(
                 configRepository.getString(
                     'sharedFeedFilters',
                     JSON.stringify(sharedFeedFiltersDefaults)
-                )
+                ),
+                configRepository.getString('VRCX_notificationTTSVoice', '0')
             ]);
 
             state.overlayToast = overlayToast;
@@ -150,9 +156,19 @@ export const useNotificationsSettingsStore = defineStore(
             state.notificationTTS = notificationTTS;
             state.notificationTTSNickName = notificationTTSNickName;
             state.sharedFeedFilters = JSON.parse(sharedFeedFilters);
+            state.notificationTTSVoice = notificationTTSVoice;
+            state.TTSvoices = speechSynthesis.getVoices();
 
             initSharedFeedFilters();
+
+            if (LINUX) {
+                setTimeout(() => {
+                    updateTTSVoices();
+                }, 5000);
+            }
         }
+
+        initNotificationsSettings();
 
         const overlayToast = computed(() => state.overlayToast);
         const openVR = computed(() => state.openVR);
@@ -172,6 +188,22 @@ export const useNotificationsSettingsStore = defineStore(
         const sharedFeedFilters = computed({
             get: () => state.sharedFeedFilters,
             set: (value) => (state.sharedFeedFilters = value)
+        });
+        const isTestTTSVisible = computed({
+            get: () => state.isTestTTSVisible,
+            set: (value) => (state.isTestTTSVisible = value)
+        });
+        const notificationTTSVoice = computed({
+            get: () => state.notificationTTSVoice,
+            set: (value) => (state.notificationTTSVoice = value)
+        });
+        const TTSvoices = computed({
+            get: () => state.TTSvoices,
+            set: (value) => (state.TTSvoices = value)
+        });
+        const notificationTTSTest = computed({
+            get: () => state.notificationTTSTest,
+            set: (value) => (state.notificationTTSTest = value)
         });
 
         function setOverlayToast(value) {
@@ -291,8 +323,93 @@ export const useNotificationsSettingsStore = defineStore(
                 state.sharedFeedFilters.wrist.boop = 'On';
             }
         }
+        function setNotificationTTSVoice(index) {
+            state.notificationTTSVoice = index;
+            configRepository.setString(
+                'VRCX_notificationTTSVoice',
+                state.notificationTTSVoice
+            );
+        }
 
-        initNotificationsSettings();
+        function getTTSVoiceName() {
+            let voices;
+            if (LINUX) {
+                voices = state.TTSvoices;
+            } else {
+                voices = speechSynthesis.getVoices();
+            }
+            if (voices.length === 0) {
+                return '';
+            }
+            if (state.notificationTTSVoice >= voices.length) {
+                setNotificationTTSVoice(0);
+            }
+            return voices[state.notificationTTSVoice].name;
+        }
+
+        async function changeTTSVoice(index) {
+            setNotificationTTSVoice(index);
+            let voices;
+            if (LINUX) {
+                voices = state.TTSvoices;
+            } else {
+                voices = speechSynthesis.getVoices();
+            }
+            if (voices.length === 0) {
+                return;
+            }
+            const voiceName = voices[index].name;
+            speechSynthesis.cancel();
+            speak(voiceName);
+        }
+
+        function updateTTSVoices() {
+            state.TTSvoices = speechSynthesis.getVoices();
+            if (LINUX) {
+                const voices = speechSynthesis.getVoices();
+                let uniqueVoices = [];
+                voices.forEach((voice) => {
+                    if (!uniqueVoices.some((v) => v.lang === voice.lang)) {
+                        uniqueVoices.push(voice);
+                    }
+                });
+                uniqueVoices = uniqueVoices.filter((v) =>
+                    v.lang.startsWith('en')
+                );
+                state.TTSvoices = uniqueVoices;
+            }
+        }
+        async function saveNotificationTTS(value) {
+            speechSynthesis.cancel();
+            if (
+                (await configRepository.getString('VRCX_notificationTTS')) ===
+                    'Never' &&
+                value !== 'Never'
+            ) {
+                speak('Notification text-to-speech enabled');
+            }
+            setNotificationTTS(value);
+        }
+
+        function testNotificationTTS() {
+            speechSynthesis.cancel();
+            speak(state.notificationTTSTest);
+        }
+
+        function speak(text) {
+            const tts = new SpeechSynthesisUtterance();
+            const voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                return;
+            }
+            let index = 0;
+            if (state.notificationTTSVoice < voices.length) {
+                index = state.notificationTTSVoice;
+            }
+            tts.voice = voices[index];
+            tts.text = text;
+            speechSynthesis.speak(tts);
+        }
 
         return {
             state,
@@ -309,6 +426,10 @@ export const useNotificationsSettingsStore = defineStore(
             notificationTTS,
             notificationTTSNickName,
             sharedFeedFilters,
+            isTestTTSVisible,
+            notificationTTSVoice,
+            TTSvoices,
+            notificationTTSTest,
 
             setOverlayToast,
             setOpenVR,
@@ -320,7 +441,12 @@ export const useNotificationsSettingsStore = defineStore(
             setDesktopToast,
             setAfkDesktopToast,
             setNotificationTTS,
-            setNotificationTTSNickName
+            setNotificationTTSNickName,
+            getTTSVoiceName,
+            changeTTSVoice,
+            saveNotificationTTS,
+            testNotificationTTS,
+            speak
         };
     }
 );

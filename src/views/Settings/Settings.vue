@@ -983,7 +983,7 @@
                             :value="notificationTTS"
                             size="mini"
                             style="margin-top: 5px"
-                            @change="saveNotificationTTS">
+                            @input="saveNotificationTTS">
                             <el-radio-button label="Never">{{
                                 t('view.settings.notifications.notifications.conditions.never')
                             }}</el-radio-button>
@@ -1012,7 +1012,6 @@
                             <el-dropdown-menu>
                                 <el-dropdown-item
                                     v-for="(voice, index) in TTSvoices"
-                                    v-if="voice"
                                     :key="index"
                                     :command="index"
                                     v-text="voice.name" />
@@ -2028,7 +2027,10 @@
         desktopToast,
         afkDesktopToast,
         notificationTTS,
-        notificationTTSNickName
+        notificationTTSNickName,
+        isTestTTSVisible,
+        notificationTTSTest,
+        TTSvoices
     } = storeToRefs(notificationsSettingsStore);
 
     const {
@@ -2042,7 +2044,11 @@
         setDesktopToast,
         setAfkDesktopToast,
         setNotificationTTS,
-        setNotificationTTSNickName
+        setNotificationTTSNickName,
+        getTTSVoiceName,
+        changeTTSVoice,
+        saveNotificationTTS,
+        testNotificationTTS
     } = notificationsSettingsStore;
 
     const {
@@ -2160,19 +2166,6 @@
     const { menuActiveIndex } = storeToRefs(uiStore);
 
     const props = defineProps({
-        getTTSVoiceName: {
-            type: Function,
-            default: () => ''
-        },
-        TTSvoices: {
-            type: Array,
-            default: () => []
-        },
-        // not settings, and is visible
-        notificationTTSTest: {
-            type: Boolean,
-            default: false
-        },
         notificationPosition: {
             type: String,
             default: ''
@@ -2187,10 +2180,6 @@
         backupVrcRegistry: {
             type: Function,
             default: () => {}
-        },
-        isTestTTSVisible: {
-            type: Boolean,
-            default: false
         }
     });
 
@@ -2204,9 +2193,6 @@
         'promptMaxTableSizeDialog',
         'saveSidebarSortOrder',
         'promptNotificationTimeout',
-        'saveNotificationTTS',
-        'changeTTSVoice',
-        'testNotificationTTS',
         'saveDiscordOption',
         'showVRChatConfig',
         'enablePrimaryPasswordChange',
@@ -2327,17 +2313,6 @@
 
     function promptNotificationTimeout() {
         emit('promptNotificationTimeout');
-    }
-    function saveNotificationTTS(value) {
-        emit('saveNotificationTTS', value);
-    }
-
-    function changeTTSVoice(index) {
-        emit('changeTTSVoice', index);
-    }
-
-    function testNotificationTTS() {
-        emit('testNotificationTTS');
     }
 
     function saveDiscordOption() {
