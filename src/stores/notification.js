@@ -120,29 +120,6 @@ export const useNotificationStore = defineStore('Notification', () => {
         args.ref = applyNotification(args.json);
     });
 
-    API.$on('NOTIFICATION:LIST', function (args) {
-        for (const json of args.json) {
-            API.$emit('NOTIFICATION', {
-                json,
-                params: {
-                    notificationId: json.id
-                }
-            });
-        }
-    });
-
-    API.$on('NOTIFICATION:LIST:HIDDEN', function (args) {
-        for (const json of args.json) {
-            json.type = 'ignoredFriendRequest';
-            API.$emit('NOTIFICATION', {
-                json,
-                params: {
-                    notificationId: json.id
-                }
-            });
-        }
-    });
-
     API.$on('NOTIFICATION:ACCEPT', function (args) {
         let ref;
         const array = state.notificationTable.data;
@@ -569,6 +546,16 @@ export const useNotificationStore = defineStore('Notification', () => {
             for (let i = 0; i < count; i++) {
                 const args =
                     await notificationRequest.getHiddenFriendRequests(params);
+                // API.$on('NOTIFICATION:LIST:HIDDEN');
+                for (const json of args.json) {
+                    json.type = 'ignoredFriendRequest';
+                    API.$emit('NOTIFICATION', {
+                        json,
+                        params: {
+                            notificationId: json.id
+                        }
+                    });
+                }
                 state.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {

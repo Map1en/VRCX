@@ -1100,11 +1100,11 @@
                                             })
                                             .then((args) => {
                                                 // API.$on('WORLD:DELETE')
-                                                let { json } = args;
+                                                const { json } = args;
                                                 this.cachedWorlds.delete(json.id);
                                                 if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
                                                     const map = new Map();
-                                                    for (let ref of this.cachedWorlds.values()) {
+                                                    for (const ref of this.cachedWorlds.values()) {
                                                         if (ref.authorId === json.authorId) {
                                                             map.set(ref.id, ref);
                                                         }

@@ -89,46 +89,6 @@ export const useAvatarStore = defineStore('Avatar', () => {
         args.ref = applyAvatar(args.json);
     });
 
-    API.$on('AVATAR:LIST', function (args) {
-        for (const json of args.json) {
-            API.$emit('AVATAR', {
-                json,
-                params: {
-                    avatarId: json.id
-                }
-            });
-        }
-    });
-
-    API.$on('AVATAR:SAVE', function (args) {
-        const { json } = args;
-        API.$emit('AVATAR', {
-            json,
-            params: {
-                avatarId: json.id
-            }
-        });
-    });
-
-    API.$on('AVATAR:SELECT', function (args) {
-        API.$emit('USER:CURRENT', args);
-    });
-
-    API.$on('AVATAR:DELETE', function (args) {
-        const { json } = args;
-        state.cachedAvatars.delete(json._id);
-        if (userStore.userDialog.id === json.authorId) {
-            const map = new Map();
-            for (const ref of state.cachedAvatars.values()) {
-                if (ref.authorId === json.authorId) {
-                    map.set(ref.id, ref);
-                }
-            }
-            const array = Array.from(map.values());
-            userStore.sortUserDialogAvatars(array);
-        }
-    });
-
     /**
      *
      * @param {string} avatarId

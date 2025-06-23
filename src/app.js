@@ -522,116 +522,6 @@ dayjs.extend(isSameOrAfter);
 API.cachedUsers = new Map();
 API.currentTravelers = new Map();
 
-API.$on('USER:CURRENT:SAVE', function (args) {
-    this.$emit('USER:CURRENT', args);
-});
-
-API.$on('USER', function (args) {
-    if (!args?.json?.id) {
-        console.error('API.$on(USER) invalid args', args);
-        return;
-    }
-    if (args.json.state === 'online') {
-        args.ref = $app.store.user.applyUser(args.json); // GPS
-        $app.store.friend.updateFriend({
-            id: args.json.id,
-            state: args.json.state
-        }); // online/offline
-    } else {
-        $app.store.friend.updateFriend({
-            id: args.json.id,
-            state: args.json.state
-        }); // online/offline
-        args.ref = $app.store.user.applyUser(args.json); // GPS
-    }
-});
-
-API.$on('USER:LIST', function (args) {
-    for (let json of args.json) {
-        if (!json.displayName) {
-            console.error('getUsers gave us garbage', json);
-            continue;
-        }
-        this.$emit('USER', {
-            json,
-            params: {
-                userId: json.id
-            }
-        });
-    }
-});
-
-API.applyPresenceLocation = function (ref) {
-    const presence = ref.presence;
-    if (isRealInstance(presence.world)) {
-        ref.$locationTag = `${presence.world}:${presence.instance}`;
-    } else {
-        ref.$locationTag = presence.world;
-    }
-    if (isRealInstance(presence.travelingToWorld)) {
-        ref.$travelingToLocation = `${presence.travelingToWorld}:${presence.travelingToInstance}`;
-    } else {
-        ref.$travelingToLocation = presence.travelingToWorld;
-    }
-    $app.updateCurrentUserLocation();
-};
-
-// #endregion
-// #region | API: Instance
-
-API.$on('INSTANCE', function (args) {
-    let { json } = args;
-    if (!json) {
-        return;
-    }
-    args.ref = $app.store.instance.applyInstance(args.json);
-});
-
-API.$on('INSTANCE', function (args) {
-    if (!args.json?.id) {
-        return;
-    }
-    if (
-        $app.store.user.userDialog.visible &&
-        $app.store.user.userDialog.ref.$location.tag === args.json.id
-    ) {
-        $app.store.user.applyUserDialogLocation();
-    }
-    if (
-        $app.store.world.worldDialog.visible &&
-        $app.store.world.worldDialog.id === args.json.worldId
-    ) {
-        $app.store.instance.applyWorldDialogInstances();
-    }
-    if (
-        $app.store.group.groupDialog.visible &&
-        $app.store.group.groupDialog.id === args.json.ownerId
-    ) {
-        $app.store.instance.applyGroupDialogInstances();
-    }
-
-    // FIXME:
-    // because use $refs to update data, can not trigger vue's reactivity system, so view will not update
-    // will fix this when refactor the core code, maybe
-    // old comment: hacky workaround to force update instance info
-    $app.updateInstanceInfo++;
-});
-
-// #endregion
-
-API.getFriendRequest = function (userId) {
-    const array = $app.store.notification.notificationTable.data;
-    for (let i = array.length - 1; i >= 0; i--) {
-        if (
-            array[i].type === 'friendRequest' &&
-            array[i].senderUserId === userId
-        ) {
-            return array[i].id;
-        }
-    }
-    return '';
-};
-
 // #endregion
 // #region | Misc
 
@@ -1093,13 +983,6 @@ API.$on('FRIEND:DELETE', function (args) {
     $app.store.friend.deleteFriend(args.params.userId);
 });
 
-API.$on('FRIEND:STATE', function (args) {
-    $app.store.friend.updateFriend({
-        id: args.params.userId,
-        state: args.json.state
-    });
-});
-
 $app.methods.confirmDeleteFriend = function (id) {
     this.$confirm('Continue? Unfriend', 'Confirm', {
         confirmButtonText: 'Confirm',
@@ -1367,287 +1250,6 @@ $app.methods.loadPlayerList = function () {
 };
 
 $app.data.instancePlayerCount = new Map();
-
-API.$on('USER:UPDATE', async function (args) {
-    let feed;
-    let newLocation;
-    let previousLocation;
-    const { ref, props } = args;
-    const friend = $app.store.friend.friends.get(ref.id);
-    if (typeof friend === 'undefined') {
-        return;
-    }
-    if (props.location) {
-        // update instancePlayerCount
-        previousLocation = props.location[1];
-        newLocation = props.location[0];
-        let oldCount = $app.instancePlayerCount.get(previousLocation);
-        if (typeof oldCount !== 'undefined') {
-            oldCount--;
-            if (oldCount <= 0) {
-                $app.instancePlayerCount.delete(previousLocation);
-            } else {
-                $app.instancePlayerCount.set(previousLocation, oldCount);
-            }
-        }
-        let newCount = $app.instancePlayerCount.get(newLocation);
-        if (typeof newCount === 'undefined') {
-            newCount = 0;
-        }
-        newCount++;
-        $app.instancePlayerCount.set(newLocation, newCount);
-    }
-    if (props.location && ref.id === $app.store.user.userDialog.id) {
-        // update user dialog instance occupants
-        $app.store.user.applyUserDialogLocation(true);
-    }
-    if (
-        props.location &&
-        ref.$location.worldId === $app.store.world.worldDialog.id
-    ) {
-        $app.store.instance.applyWorldDialogInstances();
-    }
-    if (
-        props.location &&
-        ref.$location.groupId === $app.store.group.groupDialog.id
-    ) {
-        $app.store.instance.applyGroupDialogInstances();
-    }
-    if (
-        !props.state &&
-        props.location &&
-        props.location[0] !== 'offline' &&
-        props.location[0] !== '' &&
-        props.location[1] !== 'offline' &&
-        props.location[1] !== '' &&
-        props.location[0] !== 'traveling'
-    ) {
-        // skip GPS if user is offline or traveling
-        previousLocation = props.location[1];
-        newLocation = props.location[0];
-        let time = props.location[2];
-        if (previousLocation === 'traveling' && ref.$previousLocation) {
-            previousLocation = ref.$previousLocation;
-            const travelTime = Date.now() - ref.$travelingToTime;
-            time -= travelTime;
-            if (time < 0) {
-                time = 0;
-            }
-        }
-        if ($app.store.debug.debugFriendState && previousLocation) {
-            console.log(
-                `${ref.displayName} GPS ${previousLocation} -> ${newLocation}`
-            );
-        }
-        if (previousLocation === 'offline') {
-            previousLocation = '';
-        }
-        if (!previousLocation) {
-            // no previous location
-            if ($app.store.debug.debugFriendState) {
-                console.log(
-                    ref.displayName,
-                    'Ignoring GPS, no previous location',
-                    newLocation
-                );
-            }
-        } else if (ref.$previousLocation === newLocation) {
-            // location traveled to is the same
-            ref.$location_at = Date.now() - time;
-        } else {
-            const worldName = await getWorldName(newLocation);
-            const groupName = await getGroupName(newLocation);
-            feed = {
-                created_at: new Date().toJSON(),
-                type: 'GPS',
-                userId: ref.id,
-                displayName: ref.displayName,
-                location: newLocation,
-                worldName,
-                groupName,
-                previousLocation,
-                time
-            };
-            $app.store.feed.addFeed(feed);
-            database.addGPSToDatabase(feed);
-            $app.store.friend.updateFriendGPS(ref.id);
-            // clear previousLocation after GPS
-            ref.$previousLocation = '';
-            ref.$travelingToTime = Date.now();
-        }
-    }
-    if (
-        props.location &&
-        props.location[0] === 'traveling' &&
-        props.location[1] !== 'traveling'
-    ) {
-        // store previous location when user is traveling
-        ref.$previousLocation = props.location[1];
-        ref.$travelingToTime = Date.now();
-        $app.store.friend.updateFriendGPS(ref.id);
-    }
-    let imageMatches = false;
-    if (
-        props.currentAvatarThumbnailImageUrl &&
-        props.currentAvatarThumbnailImageUrl[0] &&
-        props.currentAvatarThumbnailImageUrl[1] &&
-        props.currentAvatarThumbnailImageUrl[0] ===
-            props.currentAvatarThumbnailImageUrl[1]
-    ) {
-        imageMatches = true;
-    }
-    if (
-        (((props.currentAvatarImageUrl ||
-            props.currentAvatarThumbnailImageUrl) &&
-            !ref.profilePicOverride) ||
-            props.currentAvatarTags) &&
-        !imageMatches
-    ) {
-        let currentAvatarImageUrl = '';
-        let previousCurrentAvatarImageUrl = '';
-        let currentAvatarThumbnailImageUrl = '';
-        let previousCurrentAvatarThumbnailImageUrl = '';
-        let currentAvatarTags = '';
-        let previousCurrentAvatarTags = '';
-        if (props.currentAvatarImageUrl) {
-            currentAvatarImageUrl = props.currentAvatarImageUrl[0];
-            previousCurrentAvatarImageUrl = props.currentAvatarImageUrl[1];
-        } else {
-            currentAvatarImageUrl = ref.currentAvatarImageUrl;
-            previousCurrentAvatarImageUrl = ref.currentAvatarImageUrl;
-        }
-        if (props.currentAvatarThumbnailImageUrl) {
-            currentAvatarThumbnailImageUrl =
-                props.currentAvatarThumbnailImageUrl[0];
-            previousCurrentAvatarThumbnailImageUrl =
-                props.currentAvatarThumbnailImageUrl[1];
-        } else {
-            currentAvatarThumbnailImageUrl = ref.currentAvatarThumbnailImageUrl;
-            previousCurrentAvatarThumbnailImageUrl =
-                ref.currentAvatarThumbnailImageUrl;
-        }
-        if (props.currentAvatarTags) {
-            currentAvatarTags = props.currentAvatarTags[0];
-            previousCurrentAvatarTags = props.currentAvatarTags[1];
-            if (
-                ref.profilePicOverride &&
-                !props.currentAvatarThumbnailImageUrl
-            ) {
-                // forget last seen avatar
-                ref.currentAvatarImageUrl = '';
-                ref.currentAvatarThumbnailImageUrl = '';
-            }
-        } else {
-            currentAvatarTags = ref.currentAvatarTags;
-            previousCurrentAvatarTags = ref.currentAvatarTags;
-        }
-        if (
-            $app.store.generalSettings.logEmptyAvatars ||
-            ref.currentAvatarImageUrl
-        ) {
-            let avatarInfo = {
-                ownerId: '',
-                avatarName: ''
-            };
-            try {
-                avatarInfo = await $app.store.avatar.getAvatarName(
-                    currentAvatarImageUrl
-                );
-            } catch (err) {
-                console.log(err);
-            }
-            let previousAvatarInfo = {
-                ownerId: '',
-                avatarName: ''
-            };
-            try {
-                previousAvatarInfo = await $app.store.avatar.getAvatarName(
-                    previousCurrentAvatarImageUrl
-                );
-            } catch (err) {
-                console.log(err);
-            }
-            feed = {
-                created_at: new Date().toJSON(),
-                type: 'Avatar',
-                userId: ref.id,
-                displayName: ref.displayName,
-                ownerId: avatarInfo.ownerId,
-                previousOwnerId: previousAvatarInfo.ownerId,
-                avatarName: avatarInfo.avatarName,
-                previousAvatarName: previousAvatarInfo.avatarName,
-                currentAvatarImageUrl,
-                currentAvatarThumbnailImageUrl,
-                previousCurrentAvatarImageUrl,
-                previousCurrentAvatarThumbnailImageUrl,
-                currentAvatarTags,
-                previousCurrentAvatarTags
-            };
-            $app.store.feed.addFeed(feed);
-            database.addAvatarToDatabase(feed);
-        }
-    }
-    if (props.status || props.statusDescription) {
-        let status = '';
-        let previousStatus = '';
-        let statusDescription = '';
-        let previousStatusDescription = '';
-        if (props.status) {
-            if (props.status[0]) {
-                status = props.status[0];
-            }
-            if (props.status[1]) {
-                previousStatus = props.status[1];
-            }
-        } else if (ref.status) {
-            status = ref.status;
-            previousStatus = ref.status;
-        }
-        if (props.statusDescription) {
-            if (props.statusDescription[0]) {
-                statusDescription = props.statusDescription[0];
-            }
-            if (props.statusDescription[1]) {
-                previousStatusDescription = props.statusDescription[1];
-            }
-        } else if (ref.statusDescription) {
-            statusDescription = ref.statusDescription;
-            previousStatusDescription = ref.statusDescription;
-        }
-        feed = {
-            created_at: new Date().toJSON(),
-            type: 'Status',
-            userId: ref.id,
-            displayName: ref.displayName,
-            status,
-            statusDescription,
-            previousStatus,
-            previousStatusDescription
-        };
-        $app.store.feed.addFeed(feed);
-        database.addStatusToDatabase(feed);
-    }
-    if (props.bio && props.bio[0] && props.bio[1]) {
-        let bio = '';
-        let previousBio = '';
-        if (props.bio[0]) {
-            bio = props.bio[0];
-        }
-        if (props.bio[1]) {
-            previousBio = props.bio[1];
-        }
-        feed = {
-            created_at: new Date().toJSON(),
-            type: 'Bio',
-            userId: ref.id,
-            displayName: ref.displayName,
-            bio,
-            previousBio
-        };
-        $app.store.feed.addFeed(feed);
-        database.addBioToDatabase(feed);
-    }
-});
 
 // #endregion
 // #region | App: gameLog
@@ -1929,8 +1531,22 @@ $app.methods.moreSearchUser = async function (go, params) {
         }
     }
     await userRequest.getUsers(params).then((args) => {
+        // API.$on('USER:LIST')
+        for (const json of args.json) {
+            if (!json.displayName) {
+                console.error('getUsers gave us garbage', json);
+                continue;
+            }
+            API.$emit('USER', {
+                json,
+                params: {
+                    userId: json.id
+                }
+            });
+        }
+
         const map = new Map();
-        for (let json of args.json) {
+        for (const json of args.json) {
             const ref = API.cachedUsers.get(json.id);
             if (typeof ref !== 'undefined') {
                 map.set(ref.id, ref);
@@ -2506,32 +2122,6 @@ API.$on('FRIEND:DELETE', function (args) {
     D.isFriend = false;
 });
 
-API.$on('PLAYER-MODERATION:@SEND', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (
-        D.visible === false ||
-        (ref.targetUserId !== D.id && ref.sourceUserId !== this.currentUser.id)
-    ) {
-        return;
-    }
-    if (ref.type === 'block') {
-        D.isBlock = true;
-    } else if (ref.type === 'mute') {
-        D.isMute = true;
-    } else if (ref.type === 'hideAvatar') {
-        D.isHideAvatar = true;
-    } else if (ref.type === 'interactOff') {
-        D.isInteractOff = true;
-    } else if (ref.type === 'muteChat') {
-        D.isMuteChat = true;
-    }
-    $app.$message({
-        message: $t('message.user.moderated'),
-        type: 'success'
-    });
-});
-
 API.$on('PLAYER-MODERATION:@DELETE', function (args) {
     let { ref } = args;
     const D = $app.store.user.userDialog;
@@ -2560,46 +2150,6 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
 
 API.$on('LOGIN', function () {
     $app.currentInstanceUserList.data = [];
-});
-
-API.$on('USER:APPLY', function (ref) {
-    // add user ref to playerList, friendList, photonLobby, photonLobbyCurrent
-    const playerListRef = $app.store.location.lastLocation.playerList.get(
-        ref.id
-    );
-    if (playerListRef) {
-        // add/remove friends from lastLocation.friendList
-        if (
-            !$app.store.location.lastLocation.friendList.has(ref.id) &&
-            $app.store.friend.friends.has(ref.id)
-        ) {
-            const userMap = {
-                displayName: ref.displayName,
-                userId: ref.id,
-                joinTime: playerListRef.joinTime
-            };
-            $app.store.location.lastLocation.friendList.set(ref.id, userMap);
-        }
-        if (
-            $app.store.location.lastLocation.friendList.has(ref.id) &&
-            !$app.store.friend.friends.has(ref.id)
-        ) {
-            $app.store.location.lastLocation.friendList.delete(ref.id);
-        }
-        $app.photonLobby.forEach((ref1, id) => {
-            if (
-                typeof ref1 !== 'undefined' &&
-                ref1.displayName === ref.displayName &&
-                ref1 !== ref
-            ) {
-                $app.photonLobby.set(id, ref);
-                if ($app.photonLobbyCurrent.has(id)) {
-                    $app.photonLobbyCurrent.set(id, ref);
-                }
-            }
-        });
-        $app.getCurrentInstanceUserList();
-    }
 });
 
 $app.data.updatePlayerListTimer = null;

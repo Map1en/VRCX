@@ -287,13 +287,9 @@ export default function init() {
                         }
                     });
                 } else {
-                    this.$emit('FRIEND:STATE', {
-                        json: {
-                            state: 'online'
-                        },
-                        params: {
-                            userId: content.userId
-                        }
+                    $app.store.friend.updateFriend({
+                        id: content.userId,
+                        state: 'online'
                     });
                 }
                 break;
@@ -320,13 +316,9 @@ export default function init() {
                         }
                     });
                 } else {
-                    this.$emit('FRIEND:STATE', {
-                        json: {
-                            state: 'active'
-                        },
-                        params: {
-                            userId: content.userId
-                        }
+                    $app.store.friend.updateFriend({
+                        id: content.userId,
+                        state: 'active'
                     });
                 }
                 break;

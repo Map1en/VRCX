@@ -24,6 +24,7 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useWorldStore } from './world';
 import { useNotificationStore } from './notification';
 import { useUiStore } from './ui';
+import { useUserStore } from './user';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const locationStore = useLocationStore();
@@ -33,6 +34,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     const groupStore = useGroupStore();
     const notificationStore = useNotificationStore();
     const uiStore = useUiStore();
+    const userStore = useUserStore();
 
     const state = reactive({
         cachedInstances: new Map(),
@@ -97,6 +99,44 @@ export const useInstanceStore = defineStore('Instance', () => {
         set: (value) => {
             state.previousInstancesInfoDialogInstanceId = value;
         }
+    });
+
+    API.$on('INSTANCE', function (args) {
+        const { json } = args;
+        if (!json) {
+            return;
+        }
+        args.ref = applyInstance(args.json);
+    });
+
+    API.$on('INSTANCE', function (args) {
+        if (!args.json?.id) {
+            return;
+        }
+        if (
+            userStore.userDialog.visible &&
+            userStore.userDialog.ref.$location.tag === args.json.id
+        ) {
+            userStore.applyUserDialogLocation();
+        }
+        if (
+            worldStore.worldDialog.visible &&
+            worldStore.worldDialog.id === args.json.worldId
+        ) {
+            applyWorldDialogInstances();
+        }
+        if (
+            groupStore.groupDialog.visible &&
+            groupStore.groupDialog.id === args.json.ownerId
+        ) {
+            applyGroupDialogInstances();
+        }
+
+        // todo: FIXME:
+        // because use $refs to update data, can not trigger vue's reactivity system, so view will not update
+        // will fix this when refactor the core code, maybe
+        // old comment: hacky workaround to force update instance info
+        $app.updateInstanceInfo++;
     });
 
     function showPreviousInstancesInfoDialog(instanceId) {

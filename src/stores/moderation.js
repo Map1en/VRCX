@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
-import { API } from '../app';
+import { $app, $t, API } from '../app';
 import { useAvatarStore } from './avatar';
 
 export const useModerationStore = defineStore('Moderation', () => {
@@ -66,15 +66,31 @@ export const useModerationStore = defineStore('Moderation', () => {
         }
     });
 
-    API.$on('PLAYER-MODERATION:SEND', function (args) {
-        const ref = {
-            json: args.json,
-            params: {
-                playerModerationId: args.json.id
-            }
-        };
-        API.$emit('PLAYER-MODERATION', ref);
-        API.$emit('PLAYER-MODERATION:@SEND', ref);
+    API.$on('PLAYER-MODERATION:@SEND', function (args) {
+        let { ref } = args;
+        const D = $app.store.user.userDialog;
+        if (
+            D.visible === false ||
+            (ref.targetUserId !== D.id &&
+                ref.sourceUserId !== this.currentUser.id)
+        ) {
+            return;
+        }
+        if (ref.type === 'block') {
+            D.isBlock = true;
+        } else if (ref.type === 'mute') {
+            D.isMute = true;
+        } else if (ref.type === 'hideAvatar') {
+            D.isHideAvatar = true;
+        } else if (ref.type === 'interactOff') {
+            D.isInteractOff = true;
+        } else if (ref.type === 'muteChat') {
+            D.isMuteChat = true;
+        }
+        $app.$message({
+            message: $t('message.user.moderated'),
+            type: 'success'
+        });
     });
 
     API.$on('PLAYER-MODERATION:DELETE', function (args) {

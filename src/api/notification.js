@@ -26,7 +26,17 @@ const notificationReq = {
                 json,
                 params
             };
-            API.$emit('NOTIFICATION:LIST', args);
+            // API.$emit('NOTIFICATION:LIST', args);
+            API.$on('NOTIFICATION:LIST');
+            for (const json of args.json) {
+                API.$emit('NOTIFICATION', {
+                    json,
+                    params: {
+                        notificationId: json.id
+                    }
+                });
+            }
+
             return args;
         });
     },
@@ -44,7 +54,7 @@ const notificationReq = {
                 json,
                 params
             };
-            API.$emit('NOTIFICATION:LIST:HIDDEN', args);
+            // API.$emit('NOTIFICATION:LIST:HIDDEN', args);
             return args;
         });
     },

@@ -619,10 +619,6 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         applyFavorite(args.ref.type, args.ref.favoriteId);
     });
 
-    API.$on('USER', function (args) {
-        applyFavorite('friend', args.ref.id);
-    });
-
     API.$on('WORLD', function (args) {
         applyFavorite('world', args.ref.id);
     });

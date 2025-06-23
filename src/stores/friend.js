@@ -266,7 +266,18 @@ export const useFriendStore = defineStore('Friend', () => {
         updateFriendships(args.ref);
     });
 
-    API.$on('USER', function (args) {
+    API.$on('FRIEND:ADD', function (args) {
+        addFriendship(args.params.userId);
+    });
+
+    API.$on('FRIEND:DELETE', function (args) {
+        deleteFriendship(args.params.userId);
+    });
+
+    /**
+     * API.$on('USER')
+     */
+    function userOnFriend(args) {
         updateFriendship(args.ref);
         if (
             state.friendLogInitStatus &&
@@ -276,15 +287,25 @@ export const useFriendStore = defineStore('Friend', () => {
         ) {
             addFriendship(args.ref.id);
         }
-    });
+    }
 
-    API.$on('FRIEND:ADD', function (args) {
-        addFriendship(args.params.userId);
-    });
-
-    API.$on('FRIEND:DELETE', function (args) {
-        deleteFriendship(args.params.userId);
-    });
+    /**
+     * aka: `API.getFriendRequest`
+     * @param {string} userId
+     * @returns {*|string}
+     */
+    function getFriendRequest(userId) {
+        const array = notificationStore.notificationTable.data;
+        for (let i = array.length - 1; i >= 0; i--) {
+            if (
+                array[i].type === 'friendRequest' &&
+                array[i].senderUserId === userId
+            ) {
+                return array[i].id;
+            }
+        }
+        return '';
+    }
 
     /**
      * @param {string} value
@@ -1643,6 +1664,8 @@ export const useFriendStore = defineStore('Friend', () => {
         getAllUserStats,
         initFriendLog,
         migrateFriendLog,
-        getFriendLog
+        getFriendLog,
+        getFriendRequest,
+        userOnFriend
     };
 });

@@ -46,7 +46,17 @@ const avatarReq = {
                 json,
                 params
             };
-            API.$emit('AVATAR:LIST', args);
+            // API.$emit('AVATAR:LIST', args);
+            // API.$on('AVATAR:LIST')
+            for (const json of args.json) {
+                API.$emit('AVATAR', {
+                    json,
+                    params: {
+                        avatarId: json.id
+                    }
+                });
+            }
+
             return args;
         });
     },
@@ -64,6 +74,15 @@ const avatarReq = {
                 params
             };
             API.$emit('AVATAR:SAVE', args);
+            // API.$on('AVATAR:SAVE')
+            const { user } = args;
+            API.$emit('AVATAR', {
+                json: user,
+                params: {
+                    avatarId: user.id
+                }
+            });
+            // });
             return args;
         });
     },
@@ -81,7 +100,7 @@ const avatarReq = {
                 json,
                 params
             };
-            API.$emit('AVATAR:SELECT', args);
+            API.$emit('USER:CURRENT', args);
             return args;
         });
     },
@@ -99,7 +118,7 @@ const avatarReq = {
                 json,
                 params
             };
-            API.$emit('AVATAR:SELECT', args);
+            API.$emit('USER:CURRENT', args);
             return args;
         });
     },

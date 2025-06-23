@@ -72,7 +72,7 @@ const worldReq = {
                 option
             };
             // API.$emit('WORLD:LIST', args);
-            for (let json of args.json) {
+            for (const json of args.json) {
                 API.$emit('WORLD', {
                     json,
                     params: {

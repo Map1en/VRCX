@@ -68,7 +68,7 @@ const userReq = {
                 json,
                 params
             };
-            API.$emit('USER:LIST', args);
+            // API.$emit('USER:LIST', args);
             return args;
         });
     },
@@ -86,7 +86,8 @@ const userReq = {
                 json,
                 params
             };
-            API.$emit('USER:CURRENT:SAVE', args);
+            // API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT', args);
             return args;
         });
     },
@@ -104,7 +105,8 @@ const userReq = {
                 json,
                 params
             };
-            API.$emit('USER:CURRENT:SAVE', args);
+            // API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT', args);
             return args;
         });
     },
@@ -150,7 +152,8 @@ const userReq = {
                 json,
                 params
             };
-            API.$emit('USER:CURRENT:SAVE', args);
+            // API.$emit('USER:CURRENT:SAVE', args);
+            API.$emit('USER:CURRENT', args);
             return args;
         });
     },

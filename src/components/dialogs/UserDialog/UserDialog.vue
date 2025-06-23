@@ -1879,6 +1879,7 @@
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
     const { friendLogTable } = storeToRefs(friendStore);
+    const { getFriendRequest } = friendStore;
     const galleryStore = useGalleryStore();
     const { galleryDialogVisible } = storeToRefs(galleryStore);
     const { clearInviteImageUpload, showGalleryDialog } = galleryStore;
@@ -2464,7 +2465,7 @@
                 });
                 break;
             case 'Accept Friend Request':
-                key = API.getFriendRequest(userId);
+                key = getFriendRequest(userId);
                 if (key === '') {
                     const args = await friendRequest.sendFriendRequest({
                         userId
@@ -2477,7 +2478,7 @@
                 }
                 break;
             case 'Decline Friend Request':
-                key = API.getFriendRequest(userId);
+                key = getFriendRequest(userId);
                 if (key === '') {
                     const args = await friendRequest.cancelFriendRequest({
                         userId
