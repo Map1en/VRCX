@@ -601,7 +601,7 @@ $app.methods.updateIsGameRunning = async function (
             this.addAvatarWearTime(API.currentUser.currentAvatar);
             API.currentUser.$previousAvatarSwapTime = '';
         }
-        this.lastLocationReset();
+        this.store.location.lastLocationReset();
         this.clearNowPlaying();
         this.updateVRLastLocation();
         workerTimers.setTimeout(() => this.checkVRChatDebugLogging(), 60000);
@@ -959,88 +959,6 @@ $app.data.instancePlayerCount = new Map();
 
 // #endregion
 // #region | App: gameLog
-
-$app.methods.lastLocationReset = function (gameLogDate) {
-    let dateTime = gameLogDate;
-    if (!gameLogDate) {
-        dateTime = new Date().toJSON();
-    }
-    const dateTimeStamp = Date.parse(dateTime);
-    this.photonLobby = new Map();
-    this.photonLobbyCurrent = new Map();
-    this.photonLobbyMaster = 0;
-    this.photonLobbyCurrentUser = 0;
-    this.photonLobbyUserData = new Map();
-    this.photonLobbyWatcherLoopStop();
-    this.photonLobbyAvatars = new Map();
-    this.photonLobbyLastModeration = new Map();
-    this.photonLobbyJointime = new Map();
-    this.photonLobbyActivePortals = new Map();
-    this.photonEvent7List = new Map();
-    this.photonLastEvent7List = '';
-    this.photonLastChatBoxMsg = new Map();
-    this.moderationEventQueue = new Map();
-    if (this.photonEventTable.data.length > 0) {
-        this.photonEventTablePrevious.data = this.photonEventTable.data;
-        this.photonEventTable.data = [];
-    }
-    const playerList = Array.from(
-        this.store.location.lastLocation.playerList.values()
-    );
-    const dataBaseEntries = [];
-    for (let ref of playerList) {
-        const entry = {
-            created_at: dateTime,
-            type: 'OnPlayerLeft',
-            displayName: ref.displayName,
-            location: this.store.location.lastLocation.location,
-            userId: ref.userId,
-            time: dateTimeStamp - ref.joinTime
-        };
-        dataBaseEntries.unshift(entry);
-        this.addGameLog(entry);
-    }
-    database.addGamelogJoinLeaveBulk(dataBaseEntries);
-    if (this.store.location.lastLocation.date !== 0) {
-        const update = {
-            time: dateTimeStamp - this.store.location.lastLocation.date,
-            created_at: new Date(this.store.location.lastLocation.date).toJSON()
-        };
-        database.updateGamelogLocationTimeToDatabase(update);
-    }
-    this.lastLocationDestination = '';
-    this.lastLocationDestinationTime = 0;
-    this.store.location.lastLocation = {
-        date: 0,
-        location: '',
-        name: '',
-        playerList: new Map(),
-        friendList: new Map()
-    };
-    this.store.location.updateCurrentUserLocation();
-    this.store.instance.updateCurrentInstanceWorld();
-    this.updateVRLastLocation();
-    this.getCurrentInstanceUserList();
-    this.lastVideoUrl = '';
-    this.lastResourceloadUrl = '';
-    this.store.user.applyUserDialogLocation();
-    this.store.instance.applyWorldDialogInstances();
-    this.store.instance.applyGroupDialogInstances();
-};
-
-$app.data.lastLocation$ = {
-    tag: '',
-    instanceId: '',
-    accessType: '',
-    worldName: '',
-    worldCapacity: 0,
-    joinUrl: '',
-    statusName: '',
-    statusImage: ''
-};
-
-$app.data.lastLocationDestination = '';
-$app.data.lastLocationDestinationTime = 0;
 
 $app.data.nowPlaying = {
     url: '',

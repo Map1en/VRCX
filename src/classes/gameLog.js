@@ -63,7 +63,7 @@ export default function init() {
                             type: 'LocationDestination',
                             location: gameLog.location
                         });
-                        this.lastLocationReset(gameLog.dt);
+                        this.store.location.lastLocationReset(gameLog.dt);
                         this.store.location.lastLocation.location = 'traveling';
                         this.lastLocationDestination = gameLog.location;
                         this.lastLocationDestinationTime = Date.parse(
@@ -87,7 +87,7 @@ export default function init() {
                     );
                     var worldName = replaceBioSymbols(gameLog.worldName);
                     if (this.isGameRunning) {
-                        this.lastLocationReset(gameLog.dt);
+                        this.store.location.lastLocationReset(gameLog.dt);
                         this.clearNowPlaying();
                         this.store.location.lastLocation = {
                             date: Date.parse(gameLog.dt),

@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import * as workerTimers from 'worker-timers';
 import { $app, API } from '../app';
 import database from '../service/database';
 import {
+    formatSeconds,
     getGroupName,
     getWorldName,
     isRealInstance,
@@ -25,7 +27,19 @@ export const useLocationStore = defineStore('Location', () => {
             name: '',
             playerList: new Map(),
             friendList: new Map()
-        }
+        },
+        lastLocation$: {
+            tag: '',
+            instanceId: '',
+            accessType: '',
+            worldName: '',
+            worldCapacity: 0,
+            joinUrl: '',
+            statusName: '',
+            statusImage: ''
+        },
+        lastLocationDestination: '',
+        astLocationDestinationTime: 0
     });
 
     const lastLocation = computed({
@@ -136,10 +150,77 @@ export const useLocationStore = defineStore('Location', () => {
         }
     }
 
+    function lastLocationReset(gameLogDate) {
+        let dateTime = gameLogDate;
+        if (!gameLogDate) {
+            dateTime = new Date().toJSON();
+        }
+        const dateTimeStamp = Date.parse(dateTime);
+        $app.photonLobby = new Map();
+        $app.photonLobbyCurrent = new Map();
+        $app.photonLobbyMaster = 0;
+        $app.photonLobbyCurrentUser = 0;
+        $app.photonLobbyUserData = new Map();
+        $app.photonLobbyWatcherLoopStop();
+        $app.photonLobbyAvatars = new Map();
+        $app.photonLobbyLastModeration = new Map();
+        $app.photonLobbyJointime = new Map();
+        $app.photonLobbyActivePortals = new Map();
+        $app.photonEvent7List = new Map();
+        $app.photonLastEvent7List = '';
+        $app.photonLastChatBoxMsg = new Map();
+        $app.moderationEventQueue = new Map();
+        if ($app.photonEventTable.data.length > 0) {
+            $app.photonEventTablePrevious.data = $app.photonEventTable.data;
+            $app.photonEventTable.data = [];
+        }
+        const playerList = Array.from(state.lastLocation.playerList.values());
+        const dataBaseEntries = [];
+        for (const ref of playerList) {
+            const entry = {
+                created_at: dateTime,
+                type: 'OnPlayerLeft',
+                displayName: ref.displayName,
+                location: state.lastLocation.location,
+                userId: ref.userId,
+                time: dateTimeStamp - ref.joinTime
+            };
+            dataBaseEntries.unshift(entry);
+            $app.addGameLog(entry);
+        }
+        database.addGamelogJoinLeaveBulk(dataBaseEntries);
+        if (state.lastLocation.date !== 0) {
+            const update = {
+                time: dateTimeStamp - state.lastLocation.date,
+                created_at: new Date(state.lastLocation.date).toJSON()
+            };
+            database.updateGamelogLocationTimeToDatabase(update);
+        }
+        state.lastLocationDestination = '';
+        state.lastLocationDestinationTime = 0;
+        state.lastLocation = {
+            date: 0,
+            location: '',
+            name: '',
+            playerList: new Map(),
+            friendList: new Map()
+        };
+        state.updateCurrentUserLocation();
+        instanceStore.updateCurrentInstanceWorld();
+        $app.updateVRLastLocation();
+        $app.getCurrentInstanceUserList();
+        $app.lastVideoUrl = '';
+        $app.lastResourceloadUrl = '';
+        userStore.applyUserDialogLocation();
+        instanceStore.applyWorldDialogInstances();
+        instanceStore.applyGroupDialogInstances();
+    }
+
     return {
         state,
         lastLocation,
         updateCurrentUserLocation,
-        setCurrentUserLocation
+        setCurrentUserLocation,
+        lastLocationReset
     };
 });
