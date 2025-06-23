@@ -418,7 +418,7 @@ export default function init() {
                 // content.worldId // where did worldId go?
                 // content.instance // without worldId, this is useless
 
-                $app.setCurrentUserLocation(
+                $app.store.location.setCurrentUserLocation(
                     content.location,
                     content.travelingToLocation
                 );

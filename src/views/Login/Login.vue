@@ -163,20 +163,18 @@
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
     import { openExternalLink, userImage } from '../../shared/utils';
     import { API } from '../../app';
+    import { useAuthStore } from '../../stores/auth';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const VRCXUpdaterStore = useVRCXUpdaterStore();
     const { showVRCXUpdateDialog } = VRCXUpdaterStore;
-
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const authStore = useAuthStore();
+    const { loginForm } = storeToRefs(authStore);
 
     const { t } = useI18n();
 
     defineProps({
-        loginForm: {
-            type: Object,
-            default: () => ({})
-        },
         enableCustomEndpoint: {
             type: Boolean,
             default: false
@@ -212,7 +210,6 @@
     }
 
     onBeforeUnmount(() => {
-        // Because v-if actually it is not required
         if (loginFormRef.value) {
             loginFormRef.value.resetFields();
         }

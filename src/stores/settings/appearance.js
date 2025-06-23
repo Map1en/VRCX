@@ -197,6 +197,7 @@ export const useAppearanceSettingsStore = defineStore(
         }
 
         initAppearanceSettings();
+        changeThemeMode();
 
         const appLanguage = computed(() => state.appLanguage);
         const themeMode = computed(() => state.themeMode);

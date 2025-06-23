@@ -55,6 +55,13 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
 
         await initBranch();
         await loadVrcxId();
+
+        if (await compareAppVersion()) {
+            showChangeLogDialog();
+        }
+        if (state.autoUpdateVRCX !== 'Off') {
+            await checkForVRCXUpdate();
+        }
     }
 
     const appVersion = computed(() => state.appVersion);

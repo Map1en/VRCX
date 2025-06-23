@@ -72,7 +72,7 @@ export default function init() {
                         this.store.instance.removeQueuedInstance(
                             gameLog.location
                         );
-                        this.updateCurrentUserLocation();
+                        this.store.location.updateCurrentUserLocation();
                         this.clearNowPlaying();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.store.user.applyUserDialogLocation();
@@ -99,7 +99,7 @@ export default function init() {
                         this.store.instance.removeQueuedInstance(
                             gameLog.location
                         );
-                        this.updateCurrentUserLocation();
+                        this.store.location.updateCurrentUserLocation();
                         this.updateVRLastLocation();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.store.user.applyUserDialogLocation();

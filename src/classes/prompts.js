@@ -30,7 +30,7 @@ export default function init() {
                                     code: instance.inputValue.trim()
                                 })
                                 .catch((err) => {
-                                    $app.clearCookiesTryLogin();
+                                    this.store.auth.clearCookiesTryLogin();
                                     throw err;
                                 })
                                 .then((args) => {
@@ -71,7 +71,7 @@ export default function init() {
                                     code: instance.inputValue.trim()
                                 })
                                 .catch((err) => {
-                                    $app.clearCookiesTryLogin();
+                                    this.store.auth.clearCookiesTryLogin();
                                     throw err;
                                 })
                                 .then((args) => {
@@ -121,7 +121,7 @@ export default function init() {
                                     return args;
                                 });
                         } else if (action === 'cancel') {
-                            this.resendEmail2fa();
+                            this.store.auth.resendEmail2fa();
                         }
                     },
                     beforeClose: (action, instance, done) => {

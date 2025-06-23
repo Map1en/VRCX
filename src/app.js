@@ -27,20 +27,11 @@ import { createI18n } from 'vue-i18n-bridge';
 import VueLazyload from 'vue-lazyload';
 import * as workerTimers from 'worker-timers';
 import {
-    avatarModerationRequest,
     avatarRequest,
-    favoriteRequest,
     friendRequest,
     groupRequest,
-    imageRequest,
     instanceRequest,
-    inviteMessagesRequest,
-    miscRequest,
-    notificationRequest,
-    playerModerationRequest,
     userRequest,
-    vrcPlusIconRequest,
-    vrcPlusImageRequest,
     worldRequest
 } from './api';
 
@@ -48,6 +39,9 @@ import pugTemplate from './app.pug';
 
 // API classes
 import config from './classes/API/config.js';
+
+// main app classes
+import API from './classes/apiInit';
 import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
@@ -56,30 +50,27 @@ import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
-
-// main app classes
-import API from './classes/apiInit';
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
+import { userNotes } from './classes/userNotes.js';
 import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import websocket from './classes/websocket.js';
+import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
+import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
 import SafeDialog from './components/dialogs/SafeDialog.vue';
 import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
+import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 
 // dialogs
 import Location from './components/Location.vue';
 import NavMenu from './components/NavMenu.vue';
-import SettingsTab from './views/Settings/Settings.vue';
-import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
-import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
-import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 
 // components
 import SimpleSwitch from './components/SimpleSwitch.vue';
@@ -92,53 +83,31 @@ import removeConfusables, { removeWhitespace } from './service/confusables.js';
 import database from './service/database.js';
 import security from './service/security.js';
 import webApiService from './service/webapi.js';
-import { userDialogGroupSortingOptions } from './shared/constants';
 import {
-    arraysMatch,
-    buildTreeData,
-    changeAppThemeStyle,
-    checkVRChatCache,
     commaNumber,
-    compareByDisplayName,
-    compareByLocationAt,
     compareByName,
-    compareByUpdatedAt,
-    compareUnityVersion,
-    convertFileUrlToImageUrl,
     deleteVRChatCache,
-    displayLocation,
     escapeTag,
     extractFileId,
-    extractFileVersion,
-    getAvailablePlatforms,
-    getPrintFileName,
-    getPrintLocalDate,
-    hasGroupPermission,
-    isRealInstance,
-    languageClass,
-    localeIncludes,
-    parseLocation,
-    removeFromArray,
-    replaceBioSymbols,
-    storeAvatarImage,
-    textToHex,
-    timeToText,
-    getWorldName,
-    getGroupName,
-    refreshCustomCss,
-    refreshCustomScript,
-    getNameColour,
-    HueToHex,
     formatSeconds,
     getAllUserMemos,
-    getWorldMemo,
-    migrateMemos,
+    getGroupName,
+    getNameColour,
+    getWorldName,
+    isRealInstance,
     isRpcWorld,
-    getBundleDateSize,
-    checkCanInvite
+    languageClass,
+    localeIncludes,
+    migrateMemos,
+    parseLocation,
+    refreshCustomCss,
+    refreshCustomScript,
+    removeFromArray,
+    textToHex,
+    timeToText
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
-import { updateTrustColorClasses } from './shared/utils';
+import { createGlobalStores, pinia } from './stores';
 
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
@@ -163,9 +132,8 @@ import SearchTab from './views/Search/Search.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
 import PrimaryPasswordDialog from './views/Settings/dialogs/PrimaryPasswordDialog.vue';
 import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue';
+import SettingsTab from './views/Settings/Settings.vue';
 import Sidebar from './views/Sidebar/Sidebar.vue';
-import { userNotes } from './classes/userNotes.js';
-import { pinia, createGlobalStores } from './stores';
 
 // #endregion
 
@@ -328,18 +296,6 @@ let $app = {
     },
     el: '#root',
     async created() {
-        this.store.appearanceSettings.changeThemeMode();
-        const [savedCredentials, lastUserLoggedIn] = await Promise.all([
-            configRepository.getString('savedCredentials'),
-            configRepository.getString('lastUserLoggedIn')
-        ]);
-        this.loginForm = {
-            ...this.loginForm,
-            savedCredentials: savedCredentials
-                ? JSON.parse(savedCredentials)
-                : {},
-            lastUserLoggedIn
-        };
         await AppApi.CheckGameRunning();
         this.isGameNoVR = await configRepository.getBool('isGameNoVR');
     },
@@ -348,13 +304,6 @@ let $app = {
         refreshCustomScript();
 
         AppApi.SetUserAgent();
-
-        if (await this.store.vrcxUpdater.compareAppVersion()) {
-            this.store.vrcxUpdater.showChangeLogDialog();
-        }
-        if (this.store.vrcxUpdater.autoUpdateVRCX !== 'Off') {
-            await this.store.vrcxUpdater.checkForVRCXUpdate();
-        }
 
         API.$on('SHOW_WORLD_DIALOG_SHORTNAME', (tag) =>
             this.verifyShortName('', tag)
@@ -369,24 +318,24 @@ let $app = {
             (await configRepository.getString('lastUserLoggedIn')) !== null
         ) {
             const user =
-                this.loginForm.savedCredentials[
-                    this.loginForm.lastUserLoggedIn
+                this.store.auth.loginForm.savedCredentials[
+                    this.store.auth.loginForm.lastUserLoggedIn
                 ];
             if (user?.loginParmas?.endpoint) {
                 API.endpointDomain = user.loginParmas.endpoint;
                 API.websocketDomain = user.loginParmas.websocket;
             }
             // login at startup
-            this.loginForm.loading = true;
+            this.store.auth.loginForm.loading = true;
             API.getConfig()
                 .catch((err) => {
-                    this.loginForm.loading = false;
+                    this.store.auth.loginForm.loading = false;
                     throw err;
                 })
                 .then((args) => {
                     API.getCurrentUser()
                         .finally(() => {
-                            this.loginForm.loading = false;
+                            this.store.auth.loginForm.loading = false;
                         })
                         .catch((err) => {
                             this.nextCurrentUserRefresh = 60; // 1min
@@ -412,7 +361,6 @@ let $app = {
 apiRequestHandler();
 uiComponents();
 websocket();
-
 sharedFeed();
 prompts();
 apiLogin();
@@ -690,50 +638,6 @@ API.$on('LOGIN', function () {
     $app.twoFactorAuthDialogVisible = false;
 });
 
-$app.methods.clearCookiesTryLogin = async function () {
-    await webApiService.clearCookies();
-    if (this.loginForm.lastUserLoggedIn) {
-        const user =
-            this.loginForm.savedCredentials[this.loginForm.lastUserLoggedIn];
-        if (typeof user !== 'undefined') {
-            delete user.cookies;
-            await this.relogin(user);
-        }
-    }
-};
-
-$app.methods.resendEmail2fa = async function () {
-    if (this.loginForm.lastUserLoggedIn) {
-        const user =
-            this.loginForm.savedCredentials[this.loginForm.lastUserLoggedIn];
-        if (typeof user !== 'undefined') {
-            await webApiService.clearCookies();
-            delete user.cookies;
-            this.relogin(user).then(() => {
-                new Noty({
-                    type: 'success',
-                    text: 'Email 2FA resent.'
-                }).show();
-            });
-            return;
-        }
-    }
-    new Noty({
-        type: 'error',
-        text: 'Cannot send 2FA email without saved credentials. Please login again.'
-    }).show();
-};
-
-API.$on('USER:2FA', function () {
-    AppApi.FocusWindow();
-    $app.promptTOTP();
-});
-
-API.$on('USER:EMAILOTP', function () {
-    AppApi.FocusWindow();
-    $app.promptEmailOTP();
-});
-
 API.$on('LOGOUT', function () {
     if (this.isLoggedIn) {
         new Noty({
@@ -761,7 +665,7 @@ API.$on('LOGIN', function (args) {
 API.$on('LOGOUT', async function () {
     await $app.updateStoredUser(this.currentUser);
     webApiService.clearCookies();
-    $app.loginForm.lastUserLoggedIn = '';
+    $app.store.auth.loginForm.lastUserLoggedIn = '';
     await configRepository.remove('lastUserLoggedIn');
     // workerTimers.setTimeout(() => location.reload(), 500);
 });
@@ -816,22 +720,26 @@ $app.methods.enablePrimaryPasswordChange = function () {
             }
         )
             .then(({ value }) => {
-                for (const userId in this.loginForm.savedCredentials) {
+                for (const userId in this.store.auth.loginForm
+                    .savedCredentials) {
                     security
                         .decrypt(
-                            this.loginForm.savedCredentials[userId].loginParmas
-                                .password,
+                            this.store.auth.loginForm.savedCredentials[userId]
+                                .loginParmas.password,
                             value
                         )
                         .then(async (pt) => {
                             this.saveCredentials = {
                                 username:
-                                    this.loginForm.savedCredentials[userId]
-                                        .loginParmas.username,
+                                    this.store.auth.loginForm.savedCredentials[
+                                        userId
+                                    ].loginParmas.username,
                                 password: pt
                             };
                             await this.updateStoredUser(
-                                this.loginForm.savedCredentials[userId].user
+                                this.store.auth.loginForm.savedCredentials[
+                                    userId
+                                ].user
                             );
                             await configRepository.setBool(
                                 'enablePrimaryPassword',
@@ -863,22 +771,22 @@ $app.methods.setPrimaryPassword = async function () {
     this.enablePrimaryPasswordDialog.visible = false;
     if (this.store.advancedSettings.enablePrimaryPassword) {
         const key = this.enablePrimaryPasswordDialog.password;
-        for (const userId in this.loginForm.savedCredentials) {
+        for (const userId in this.store.auth.loginForm.savedCredentials) {
             security
                 .encrypt(
-                    this.loginForm.savedCredentials[userId].loginParmas
-                        .password,
+                    this.store.auth.loginForm.savedCredentials[userId]
+                        .loginParmas.password,
                     key
                 )
                 .then((ct) => {
                     this.saveCredentials = {
                         username:
-                            this.loginForm.savedCredentials[userId].loginParmas
-                                .username,
+                            this.store.auth.loginForm.savedCredentials[userId]
+                                .loginParmas.username,
                         password: ct
                     };
                     this.updateStoredUser(
-                        this.loginForm.savedCredentials[userId].user
+                        this.store.auth.loginForm.savedCredentials[userId].user
                     );
                 });
         }
@@ -903,10 +811,10 @@ $app.methods.updateStoredUser = async function (user) {
         savedCredentials[user.id].user = user;
         savedCredentials[user.id].cookies = await webApiService.getCookies();
     }
-    this.loginForm.savedCredentials = savedCredentials;
+    this.store.auth.loginForm.savedCredentials = savedCredentials;
     const jsonCredentialsArray = JSON.stringify(savedCredentials);
     await configRepository.setString('savedCredentials', jsonCredentialsArray);
-    this.loginForm.lastUserLoggedIn = user.id;
+    this.store.auth.loginForm.lastUserLoggedIn = user.id;
     await configRepository.setString('lastUserLoggedIn', user.id);
 };
 
@@ -1239,7 +1147,7 @@ $app.methods.loadPlayerList = function () {
             }
         });
 
-        this.updateCurrentUserLocation();
+        this.store.location.updateCurrentUserLocation();
         this.store.instance.updateCurrentInstanceWorld();
         this.updateVRLastLocation();
         this.getCurrentInstanceUserList();
@@ -1311,7 +1219,7 @@ $app.methods.lastLocationReset = function (gameLogDate) {
         playerList: new Map(),
         friendList: new Map()
     };
-    this.updateCurrentUserLocation();
+    this.store.location.updateCurrentUserLocation();
     this.store.instance.updateCurrentInstanceWorld();
     this.updateVRLastLocation();
     this.getCurrentInstanceUserList();
@@ -3229,112 +3137,8 @@ $app.methods.toggleCustomEndpoint = async function () {
         'VRCX_enableCustomEndpoint',
         this.enableCustomEndpoint
     );
-    this.loginForm.endpoint = '';
-    this.loginForm.websocket = '';
-};
-
-$app.methods.updateCurrentUserLocation = function () {
-    const ref = API.cachedUsers.get(API.currentUser.id);
-    if (typeof ref === 'undefined') {
-        return;
-    }
-
-    // update cached user with both gameLog and API locations
-    let currentLocation = API.currentUser.$locationTag;
-    const L = parseLocation(currentLocation);
-    if (L.isTraveling) {
-        currentLocation = API.currentUser.$travelingToLocation;
-    }
-    ref.location = API.currentUser.$locationTag;
-    ref.travelingToLocation = API.currentUser.$travelingToLocation;
-
-    if (
-        this.isGameRunning &&
-        !this.store.advancedSettings.gameLogDisabled &&
-        this.store.location.lastLocation.location !== ''
-    ) {
-        // use gameLog instead of API when game is running
-        currentLocation = this.store.location.lastLocation.location;
-        if (this.store.location.lastLocation.location === 'traveling') {
-            currentLocation = this.lastLocationDestination;
-        }
-        ref.location = this.store.location.lastLocation.location;
-        ref.travelingToLocation = this.lastLocationDestination;
-    }
-
-    ref.$online_for = API.currentUser.$online_for;
-    ref.$offline_for = API.currentUser.$offline_for;
-    ref.$location = parseLocation(currentLocation);
-    if (!this.isGameRunning || this.store.advancedSettings.gameLogDisabled) {
-        ref.$location_at = API.currentUser.$location_at;
-        ref.$travelingToTime = API.currentUser.$travelingToTime;
-        this.store.user.applyUserDialogLocation();
-        this.store.instance.applyWorldDialogInstances();
-        this.store.instance.applyGroupDialogInstances();
-    } else {
-        ref.$location_at = this.store.location.lastLocation.date;
-        ref.$travelingToTime = this.lastLocationDestinationTime;
-        API.currentUser.$travelingToTime = this.lastLocationDestinationTime;
-    }
-};
-
-$app.methods.setCurrentUserLocation = async function (
-    location,
-    travelingToLocation
-) {
-    API.currentUser.$location_at = Date.now();
-    API.currentUser.$travelingToTime = Date.now();
-    API.currentUser.$locationTag = location;
-    API.currentUser.$travelingToLocation = travelingToLocation;
-    this.updateCurrentUserLocation();
-
-    // janky gameLog support for Quest
-    if (this.isGameRunning) {
-        // with the current state of things, lets not run this if we don't need to
-        return;
-    }
-    let lastLocation = '';
-    for (let i = this.gameLogSessionTable.length - 1; i > -1; i--) {
-        const item = this.gameLogSessionTable[i];
-        if (item.type === 'Location') {
-            lastLocation = item.location;
-            break;
-        }
-    }
-    if (lastLocation === location) {
-        return;
-    }
-    this.lastLocationDestination = '';
-    this.lastLocationDestinationTime = 0;
-
-    if (isRealInstance(location)) {
-        const dt = new Date().toJSON();
-        const L = parseLocation(location);
-
-        this.store.location.lastLocation.location = location;
-        this.store.location.lastLocation.date = dt;
-
-        const entry = {
-            created_at: dt,
-            type: 'Location',
-            location,
-            worldId: L.worldId,
-            worldName: await getWorldName(L.worldId),
-            groupName: await getGroupName(L.groupId),
-            time: 0
-        };
-        database.addGamelogLocationToDatabase(entry);
-        this.store.notification.queueGameLogNoty(entry);
-        this.addGameLog(entry);
-        this.addInstanceJoinHistory(location, dt);
-
-        this.store.user.applyUserDialogLocation();
-        this.store.instance.applyWorldDialogInstances();
-        this.store.instance.applyGroupDialogInstances();
-    } else {
-        this.store.location.lastLocation.location = '';
-        this.store.location.lastLocation.date = '';
-    }
+    this.store.auth.loginForm.endpoint = '';
+    this.store.auth.loginForm.websocket = '';
 };
 
 $app.methods.addAvatarWearTime = function (avatarId) {
@@ -3732,7 +3536,6 @@ $app.computed.playerListTabEvent = function () {
 
 $app.computed.loginPageBind = function () {
     return {
-        loginForm: this.loginForm,
         enableCustomEndpoint: this.enableCustomEndpoint
     };
 };

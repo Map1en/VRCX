@@ -23,6 +23,7 @@ import { useGalleryStore } from './gallery';
 import { useNotificationStore } from './notification';
 import { useFeedStore } from './feed';
 import { useUiStore } from './ui';
+import { useAuthStore } from './auth';
 
 export const pinia = createPinia();
 
@@ -51,6 +52,7 @@ export function createGlobalStores() {
         gallery: useGalleryStore(),
         notification: useNotificationStore(),
         feed: useFeedStore(),
-        ui: useUiStore()
+        ui: useUiStore(),
+        auth: useAuthStore()
     };
 }

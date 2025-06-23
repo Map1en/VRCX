@@ -284,7 +284,7 @@ export const useUserStore = defineStore('User', () => {
         } else {
             ref.$travelingToLocation = presence.travelingToWorld;
         }
-        $app.updateCurrentUserLocation();
+        $app.store.location.updateCurrentUserLocation();
     };
 
     const robotUrl = `${API.endpointDomain}/file/file_0e8c4e32-7444-44ea-ade4-313c010d4bae/1/file`;
@@ -532,7 +532,7 @@ export const useUserStore = defineStore('User', () => {
             if (ref.status) {
                 API.currentUser.status = ref.status;
             }
-            $app.updateCurrentUserLocation();
+            $app.store.location.updateCurrentUserLocation();
         }
         userApply(ref);
         return ref;

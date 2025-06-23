@@ -56,7 +56,9 @@ export default async function init() {
         }
         this.attemptingAutoLogin = true;
         const user =
-            $app.loginForm.savedCredentials[$app.loginForm.lastUserLoggedIn];
+            $app.store.auth.loginForm.savedCredentials[
+                $app.store.auth.loginForm.lastUserLoggedIn
+            ];
         if (typeof user === 'undefined') {
             this.attemptingAutoLogin = false;
             return;
@@ -131,40 +133,13 @@ export default async function init() {
         // });
     };
 
-    const _data = {
-        loginForm: {
-            loading: true,
-            username: '',
-            password: '',
-            endpoint: '',
-            websocket: '',
-            saveCredentials: false,
-            savedCredentials: {},
-            lastUserLoggedIn: '',
-            rules: {
-                username: [
-                    {
-                        required: true,
-                        trigger: 'blur'
-                    }
-                ],
-                password: [
-                    {
-                        required: true,
-                        trigger: 'blur'
-                    }
-                ]
-            }
-        }
-    };
-
     const _methods = {
         async relogin(user) {
             const { loginParmas } = user;
             if (user.cookies) {
                 await webApiService.setCookies(user.cookies);
             }
-            this.loginForm.lastUserLoggedIn = user.user.id; // for resend email 2fa
+            this.store.auth.loginForm.lastUserLoggedIn = user.user.id; // for resend email 2fa
             if (loginParmas.endpoint) {
                 API.endpointDomain = loginParmas.endpoint;
                 API.websocketDomain = loginParmas.websocket;
@@ -173,7 +148,7 @@ export default async function init() {
                 API.websocketDomain = API.websocketDomainVrchat;
             }
             return new Promise((resolve, reject) => {
-                this.loginForm.loading = true;
+                this.store.auth.loginForm.loading = true;
                 if (this.store.advancedSettings.enablePrimaryPassword) {
                     this.checkPrimaryPassword(loginParmas)
                         .then((pwd) => {
@@ -226,7 +201,7 @@ export default async function init() {
                                 });
                         });
                 }
-            }).finally(() => (this.loginForm.loading = false));
+            }).finally(() => (this.store.auth.loginForm.loading = false));
         },
 
         async deleteSavedLogin(userId) {
@@ -241,7 +216,7 @@ export default async function init() {
                     false
                 );
             }
-            this.loginForm.savedCredentials = savedCredentials;
+            this.store.auth.loginForm.savedCredentials = savedCredentials;
             const jsonCredentials = JSON.stringify(savedCredentials);
             await configRepository.setString(
                 'savedCredentials',
@@ -255,23 +230,23 @@ export default async function init() {
 
         async login() {
             await webApiService.clearCookies();
-            if (!this.loginForm.loading) {
-                this.loginForm.loading = true;
-                if (this.loginForm.endpoint) {
-                    API.endpointDomain = this.loginForm.endpoint;
-                    API.websocketDomain = this.loginForm.websocket;
+            if (!this.store.auth.loginForm.loading) {
+                this.store.auth.loginForm.loading = true;
+                if (this.store.auth.loginForm.endpoint) {
+                    API.endpointDomain = this.store.auth.loginForm.endpoint;
+                    API.websocketDomain = this.store.auth.loginForm.websocket;
                 } else {
                     API.endpointDomain = API.endpointDomainVrchat;
                     API.websocketDomain = API.websocketDomainVrchat;
                 }
                 API.getConfig()
                     .catch((err) => {
-                        this.loginForm.loading = false;
+                        this.store.auth.loginForm.loading = false;
                         throw err;
                     })
                     .then((args) => {
                         if (
-                            this.loginForm.saveCredentials &&
+                            this.store.auth.loginForm.saveCredentials &&
                             this.store.advancedSettings.enablePrimaryPassword
                         ) {
                             $app.$prompt(
@@ -284,9 +259,11 @@ export default async function init() {
                             )
                                 .then(({ value }) => {
                                     const saveCredential =
-                                        this.loginForm.savedCredentials[
+                                        this.store.auth.loginForm
+                                            .savedCredentials[
                                             Object.keys(
-                                                this.loginForm.savedCredentials
+                                                this.store.auth.loginForm
+                                                    .savedCredentials
                                             )[0]
                                         ];
                                     security
@@ -297,25 +274,31 @@ export default async function init() {
                                         .then(() => {
                                             security
                                                 .encrypt(
-                                                    this.loginForm.password,
+                                                    this.store.auth.loginForm
+                                                        .password,
                                                     value
                                                 )
                                                 .then((pwd) => {
                                                     API.login({
                                                         username:
-                                                            this.loginForm
+                                                            this.store.auth
+                                                                .loginForm
                                                                 .username,
                                                         password:
-                                                            this.loginForm
+                                                            this.store.auth
+                                                                .loginForm
                                                                 .password,
                                                         endpoint:
-                                                            this.loginForm
+                                                            this.store.auth
+                                                                .loginForm
                                                                 .endpoint,
                                                         websocket:
-                                                            this.loginForm
+                                                            this.store.auth
+                                                                .loginForm
                                                                 .websocket,
                                                         saveCredentials:
-                                                            this.loginForm
+                                                            this.store.auth
+                                                                .loginForm
                                                                 .saveCredentials,
                                                         cipher: pwd
                                                     });
@@ -323,18 +306,19 @@ export default async function init() {
                                         });
                                 })
                                 .finally(() => {
-                                    this.loginForm.loading = false;
+                                    this.store.auth.loginForm.loading = false;
                                 });
                             return args;
                         }
                         API.login({
-                            username: this.loginForm.username,
-                            password: this.loginForm.password,
-                            endpoint: this.loginForm.endpoint,
-                            websocket: this.loginForm.websocket,
-                            saveCredentials: this.loginForm.saveCredentials
+                            username: this.store.auth.loginForm.username,
+                            password: this.store.auth.loginForm.password,
+                            endpoint: this.store.auth.loginForm.endpoint,
+                            websocket: this.store.auth.loginForm.websocket,
+                            saveCredentials:
+                                this.store.auth.loginForm.saveCredentials
                         }).finally(() => {
-                            this.loginForm.loading = false;
+                            this.store.auth.loginForm.loading = false;
                         });
                         return args;
                     });
@@ -355,6 +339,5 @@ export default async function init() {
         }
     };
 
-    $app.data = { ...$app.data, ..._data };
     $app.methods = { ...$app.methods, ..._methods };
 }
