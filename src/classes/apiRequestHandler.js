@@ -142,7 +142,7 @@ export default function init() {
                     endpoint !== 'auth/user'
                 ) {
                     // trigger 2FA dialog
-                    if (!$app.twoFactorAuthDialogVisible) {
+                    if (!$app.store.auth.twoFactorAuthDialogVisible) {
                         $app.API.getCurrentUser();
                     }
                     throw new Error(`401 ${$t('api.status_code.401')}`);

@@ -1646,6 +1646,13 @@ export const useFriendStore = defineStore('Friend', () => {
         });
     }
 
+    async function saveSidebarSortOrder() {
+        state.sortVIPFriends = true;
+        state.sortOnlineFriends = true;
+        state.sortActiveFriends = true;
+        state.sortOfflineFriends = true;
+    }
+
     return {
         state,
 
@@ -1690,6 +1697,7 @@ export const useFriendStore = defineStore('Friend', () => {
         getFriendLog,
         getFriendRequest,
         userOnFriend,
-        confirmDeleteFriend
+        confirmDeleteFriend,
+        saveSidebarSortOrder
     };
 });

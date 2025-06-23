@@ -150,7 +150,8 @@ export default async function init() {
             return new Promise((resolve, reject) => {
                 this.store.auth.loginForm.loading = true;
                 if (this.store.advancedSettings.enablePrimaryPassword) {
-                    this.checkPrimaryPassword(loginParmas)
+                    this.store.auth
+                        .checkPrimaryPassword(loginParmas)
                         .then((pwd) => {
                             return API.getConfig()
                                 .catch((err) => {

@@ -627,12 +627,6 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-$app.data.twoFactorAuthDialogVisible = false;
-
-API.$on('LOGIN', function () {
-    $app.twoFactorAuthDialogVisible = false;
-});
-
 API.$on('LOGOUT', function () {
     if (this.isLoggedIn) {
         new Noty({
@@ -664,29 +658,6 @@ API.$on('LOGOUT', async function () {
     await configRepository.remove('lastUserLoggedIn');
     // workerTimers.setTimeout(() => location.reload(), 500);
 });
-
-$app.methods.checkPrimaryPassword = function (args) {
-    return new Promise((resolve, reject) => {
-        if (!this.store.advancedSettings.enablePrimaryPassword) {
-            resolve(args.password);
-        }
-        $app.$prompt(
-            $t('prompt.primary_password.description'),
-            $t('prompt.primary_password.header'),
-            {
-                inputType: 'password',
-                inputPattern: /[\s\S]{1,32}/
-            }
-        )
-            .then(({ value }) => {
-                security
-                    .decrypt(args.password, value)
-                    .then(resolve)
-                    .catch(reject);
-            })
-            .catch(reject);
-    });
-};
 
 // #endregion
 // #region | App: Friends
@@ -1168,69 +1139,6 @@ $app.methods.updateVrNowPlaying = function () {
     AppApi.ExecuteVrOverlayFunction('nowPlayingUpdate', json);
 };
 
-$app.methods.updateAutoStateChange = function () {
-    if (
-        !this.store.generalSettings.autoStateChangeEnabled ||
-        !this.isGameRunning ||
-        !this.store.location.lastLocation.playerList.size ||
-        this.store.location.lastLocation.location === '' ||
-        this.store.location.lastLocation.location === 'traveling'
-    ) {
-        return;
-    }
-
-    const $location = parseLocation(this.store.location.lastLocation.location);
-    let instanceType = $location.accessType;
-    if (instanceType === 'group') {
-        if ($location.groupAccessType === 'members') {
-            instanceType = 'groupOnly';
-        } else if ($location.groupAccessType === 'plus') {
-            instanceType = 'groupPlus';
-        } else {
-            instanceType = 'groupPublic';
-        }
-    }
-    if (
-        this.store.generalSettings.autoStateChangeInstanceTypes.length > 0 &&
-        !this.store.generalSettings.autoStateChangeInstanceTypes.includes(
-            instanceType
-        )
-    ) {
-        return;
-    }
-
-    let withCompany = this.store.location.lastLocation.playerList.size > 1;
-    if (this.store.generalSettings.autoStateChangeNoFriends) {
-        withCompany = this.store.location.lastLocation.friendList.size >= 1;
-    }
-
-    const currentStatus = API.currentUser.status;
-    const newStatus = withCompany
-        ? this.store.generalSettings.autoStateChangeCompanyStatus
-        : this.store.generalSettings.autoStateChangeAloneStatus;
-
-    if (currentStatus === newStatus) {
-        return;
-    }
-
-    userRequest
-        .saveCurrentUser({
-            status: newStatus
-        })
-        .then(() => {
-            const text = `Status automaticly changed to ${newStatus}`;
-            if (this.errorNoty) {
-                this.errorNoty.close();
-            }
-            this.errorNoty = new Noty({
-                type: 'info',
-                text
-            });
-            this.errorNoty.show();
-            console.log(text);
-        });
-};
-
 // #endregion
 // #region | App: Search
 
@@ -1315,18 +1223,6 @@ $app.data.photonEventTablePrevious.filters[1].value =
 // #endregion
 // #region | App: Profile + Settings
 
-$app.data.pastDisplayNameTable = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini',
-        defaultSort: {
-            prop: 'updated_at',
-            order: 'descending'
-        }
-    },
-    layout: 'table'
-};
 $app.data.currentInstanceUserList = {
     data: [],
     tableProps: {
@@ -1440,13 +1336,6 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
     this.updateVRConfigVars();
 };
 
-$app.methods.saveSidebarSortOrder = async function () {
-    this.store.friend.sortVIPFriends = true;
-    this.store.friend.sortOnlineFriends = true;
-    this.store.friend.sortActiveFriends = true;
-    this.store.friend.sortOfflineFriends = true;
-};
-
 $app.data.notificationPosition = await configRepository.getString(
     'VRCX_notificationPosition',
     'topCenter'
@@ -1527,12 +1416,6 @@ $app.methods.vrInit = function () {
     this.store.friend.onlineFriendCount = 0;
     this.store.friend.updateOnlineFriendCoutner();
 };
-
-API.$on('USER:CURRENT', function (args) {
-    if (args.ref.pastDisplayNames) {
-        $app.pastDisplayNameTable.data = args.ref.pastDisplayNames;
-    }
-});
 
 $app.methods.updateOpenVR = function () {
     if (
@@ -2988,7 +2871,6 @@ $app.computed.searchTabEvent = function () {
 
 $app.computed.profileTabBind = function () {
     return {
-        pastDisplayNameTable: this.pastDisplayNameTable,
         directAccessWorld: this.directAccessWorld
     };
 };
@@ -3054,7 +2936,6 @@ $app.computed.settingsTabEvent = function () {
         saveOpenVROption: this.saveOpenVROption,
         saveSortFavoritesOption: this.saveSortFavoritesOption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
-        saveSidebarSortOrder: this.saveSidebarSortOrder,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,
         showVRChatConfig: this.showVRChatConfig,

@@ -44,7 +44,8 @@ export const useAuthStore = defineStore('Auth', () => {
                 done();
             }
         },
-        saveCredentials: null
+        saveCredentials: null,
+        twoFactorAuthDialogVisible: false
     });
 
     async function init() {
@@ -82,6 +83,17 @@ export const useAuthStore = defineStore('Auth', () => {
         set: (value) => {
             state.saveCredentials = value;
         }
+    });
+
+    const twoFactorAuthDialogVisible = computed({
+        get: () => state.twoFactorAuthDialogVisible,
+        set: (value) => {
+            state.twoFactorAuthDialogVisible = value;
+        }
+    });
+
+    API.$on('LOGIN', function () {
+        state.twoFactorAuthDialogVisible = false;
     });
 
     async function clearCookiesTryLogin() {
@@ -269,17 +281,42 @@ export const useAuthStore = defineStore('Auth', () => {
         );
     }
 
+    function checkPrimaryPassword(args) {
+        return new Promise((resolve, reject) => {
+            if (!advancedSettingsStore.enablePrimaryPassword) {
+                resolve(args.password);
+            }
+            $app.$prompt(
+                $t('prompt.primary_password.description'),
+                $t('prompt.primary_password.header'),
+                {
+                    inputType: 'password',
+                    inputPattern: /[\s\S]{1,32}/
+                }
+            )
+                .then(({ value }) => {
+                    security
+                        .decrypt(args.password, value)
+                        .then(resolve)
+                        .catch(reject);
+                })
+                .catch(reject);
+        });
+    }
+
     return {
         state,
         loginForm,
         enablePrimaryPasswordDialog,
         saveCredentials,
+        twoFactorAuthDialogVisible,
 
         clearCookiesTryLogin,
         resendEmail2fa,
         enablePrimaryPasswordChange,
         setPrimaryPassword,
         updateStoredUser,
-        migrateStoredUsers
+        migrateStoredUsers,
+        checkPrimaryPassword
     };
 });

@@ -73,7 +73,7 @@ export default function init() {
                     }
                     if (--this.nextAutoStateChange <= 0) {
                         this.nextAutoStateChange = 3;
-                        this.updateAutoStateChange();
+                        this.store.user.updateAutoStateChange();
                     }
                     if (
                         (this.isRunningUnderWine || LINUX) &&

@@ -519,6 +519,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
     const userStore = useUserStore();
+    const { pastDisplayNameTable } = storeToRefs(userStore);
     const { showUserDialog, lookupUser } = userStore;
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;
@@ -540,13 +541,6 @@
     const { $prompt, $message } = getCurrentInstance().proxy;
 
     const props = defineProps({
-        pastDisplayNameTable: {
-            type: Object,
-            default: () => ({
-                visible: false,
-                data: []
-            })
-        },
         directAccessWorld: {
             type: Function,
             default: () => {}

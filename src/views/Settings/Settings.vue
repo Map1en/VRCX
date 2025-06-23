@@ -2152,7 +2152,7 @@
         photonStore;
 
     const friendStore = useFriendStore();
-    const { updateLocalFavoriteFriends } = friendStore;
+    const { updateLocalFavoriteFriends, saveSidebarSortOrder } = friendStore;
 
     const worldStore = useWorldStore();
     const { cachedWorlds } = storeToRefs(worldStore);
@@ -2195,7 +2195,6 @@
         'saveOpenVROption',
         'saveSortFavoritesOption',
         'promptMaxTableSizeDialog',
-        'saveSidebarSortOrder',
         'promptNotificationTimeout',
         'saveDiscordOption',
         'showVRChatConfig',
@@ -2300,10 +2299,6 @@
 
     function promptMaxTableSizeDialog() {
         emit('promptMaxTableSizeDialog');
-    }
-
-    function saveSidebarSortOrder() {
-        emit('saveSidebarSortOrder');
     }
 
     function showNoteExportDialog() {

@@ -33,6 +33,8 @@ import { useFriendStore } from './friend';
 import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
+import { useGeneralSettingsStore } from './settings/general';
+import Noty from 'noty';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
@@ -42,6 +44,7 @@ export const useUserStore = defineStore('User', () => {
     const locationStore = useLocationStore();
     const instanceStore = useInstanceStore();
     const avatarStore = useAvatarStore();
+    const generalSettingsStore = useGeneralSettingsStore();
 
     const state = reactive({
         userDialog: {
@@ -129,6 +132,18 @@ export const useUserStore = defineStore('User', () => {
             loading: false,
             languageChoice: false,
             languages: []
+        },
+        pastDisplayNameTable: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini',
+                defaultSort: {
+                    prop: 'updated_at',
+                    order: 'descending'
+                }
+            },
+            layout: 'table'
         }
     });
 
@@ -153,9 +168,12 @@ export const useUserStore = defineStore('User', () => {
         }
     });
 
-    // API.$on('USER:CURRENT:SAVE', function (args) {
-    //     API.$emit('USER:CURRENT', args);
-    // });
+    const pastDisplayNameTable = computed({
+        get: () => state.pastDisplayNameTable,
+        set: (value) => {
+            state.pastDisplayNameTable = value;
+        }
+    });
 
     API.$on('USER', function (args) {
         if (!args?.json?.id) {
@@ -180,20 +198,11 @@ export const useUserStore = defineStore('User', () => {
         friendStore.userOnFriend(args);
     });
 
-    // API.$on('USER:LIST', function (args) {
-    //     for (let json of args.json) {
-    //         if (!json.displayName) {
-    //             console.error('getUsers gave us garbage', json);
-    //             continue;
-    //         }
-    //         API.$emit('USER', {
-    //             json,
-    //             params: {
-    //                 userId: json.id
-    //             }
-    //         });
-    //     }
-    // });
+    API.$on('USER:CURRENT', function (args) {
+        if (args.ref.pastDisplayNames) {
+            state.pastDisplayNameTable.data = args.ref.pastDisplayNames;
+        }
+    });
 
     API.$on('CONFIG', function (args) {
         const languages =
@@ -1390,38 +1399,75 @@ export const useUserStore = defineStore('User', () => {
         }
     });
 
-    // $app.methods.silentSearchUser = function (displayName) {
-    //     console.log('Searching for userId for:', displayName);
-    //     const params = {
-    //         n: 5,
-    //         offset: 0,
-    //         fuzzy: false,
-    //         search: displayName
-    //     };
-    //     userRequest.getUsers(params).then((args) => {
-    //         const map = new Map();
-    //         let nameFound = false;
-    //         for (let json of args.json) {
-    //             const ref = API.cachedUsers.get(json.id);
-    //             if (typeof ref !== 'undefined') {
-    //                 map.set(ref.id, ref);
-    //             }
-    //             if (json.displayName === displayName) {
-    //                 nameFound = true;
-    //             }
-    //         }
-    //         if (!nameFound) {
-    //             console.error('userId not found for', displayName);
-    //         }
-    //         return args;
-    //     });
-    // };
+    function updateAutoStateChange() {
+        if (
+            !generalSettingsStore.autoStateChangeEnabled ||
+            !$app.isGameRunning ||
+            !locationStore.lastLocation.playerList.size ||
+            locationStore.lastLocation.location === '' ||
+            locationStore.lastLocation.location === 'traveling'
+        ) {
+            return;
+        }
+
+        const $location = parseLocation(locationStore.lastLocation.location);
+        let instanceType = $location.accessType;
+        if (instanceType === 'group') {
+            if ($location.groupAccessType === 'members') {
+                instanceType = 'groupOnly';
+            } else if ($location.groupAccessType === 'plus') {
+                instanceType = 'groupPlus';
+            } else {
+                instanceType = 'groupPublic';
+            }
+        }
+        if (
+            generalSettingsStore.autoStateChangeInstanceTypes.length > 0 &&
+            !generalSettingsStore.autoStateChangeInstanceTypes.includes(
+                instanceType
+            )
+        ) {
+            return;
+        }
+
+        let withCompany = locationStore.lastLocation.playerList.size > 1;
+        if (generalSettingsStore.autoStateChangeNoFriends) {
+            withCompany = locationStore.lastLocation.friendList.size >= 1;
+        }
+
+        const currentStatus = API.currentUser.status;
+        const newStatus = withCompany
+            ? generalSettingsStore.autoStateChangeCompanyStatus
+            : generalSettingsStore.autoStateChangeAloneStatus;
+
+        if (currentStatus === newStatus) {
+            return;
+        }
+
+        userRequest
+            .saveCurrentUser({
+                status: newStatus
+            })
+            .then(() => {
+                const text = `Status automaticly changed to ${newStatus}`;
+                if ($app.errorNoty) {
+                    $app.errorNoty.close();
+                }
+                $app.errorNoty = new Noty({
+                    type: 'info',
+                    text
+                });
+                $app.errorNoty.show();
+                console.log(text);
+            });
+    }
 
     return {
         state,
         userDialog,
         subsetOfLanguages,
         languageDialog,
+        pastDisplayNameTable,
         applyUserLanguage,
         applyUser,
         showUserDialog,
@@ -1430,6 +1476,7 @@ export const useUserStore = defineStore('User', () => {
         sortUserDialogAvatars,
         refreshUserDialogAvatars,
         refreshUserDialogTreeData,
-        lookupUser
+        lookupUser,
+        updateAutoStateChange
     };
 });

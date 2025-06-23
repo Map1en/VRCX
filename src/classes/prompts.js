@@ -8,11 +8,11 @@ import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
 export default function init() {
     const _methods = {
         promptTOTP() {
-            if (this.twoFactorAuthDialogVisible) {
+            if (this.store.auth.twoFactorAuthDialogVisible) {
                 return;
             }
             AppApi.FlashWindow();
-            this.twoFactorAuthDialogVisible = true;
+            this.store.auth.twoFactorAuthDialogVisible = true;
             this.$prompt(
                 $t('prompt.totp.description'),
                 $t('prompt.totp.header'),
@@ -42,7 +42,7 @@ export default function init() {
                         }
                     },
                     beforeClose: (action, instance, done) => {
-                        this.twoFactorAuthDialogVisible = false;
+                        this.store.auth.twoFactorAuthDialogVisible = false;
                         done();
                     }
                 }
@@ -50,10 +50,10 @@ export default function init() {
         },
 
         promptOTP() {
-            if (this.twoFactorAuthDialogVisible) {
+            if (this.store.auth.twoFactorAuthDialogVisible) {
                 return;
             }
-            this.twoFactorAuthDialogVisible = true;
+            this.store.auth.twoFactorAuthDialogVisible = true;
             this.$prompt(
                 $t('prompt.otp.description'),
                 $t('prompt.otp.header'),
@@ -83,7 +83,7 @@ export default function init() {
                         }
                     },
                     beforeClose: (action, instance, done) => {
-                        this.twoFactorAuthDialogVisible = false;
+                        this.store.auth.twoFactorAuthDialogVisible = false;
                         done();
                     }
                 }
@@ -91,11 +91,11 @@ export default function init() {
         },
 
         promptEmailOTP() {
-            if (this.twoFactorAuthDialogVisible) {
+            if (this.store.auth.twoFactorAuthDialogVisible) {
                 return;
             }
             AppApi.FlashWindow();
-            this.twoFactorAuthDialogVisible = true;
+            this.store.auth.twoFactorAuthDialogVisible = true;
             this.$prompt(
                 $t('prompt.email_otp.description'),
                 $t('prompt.email_otp.header'),
@@ -125,7 +125,7 @@ export default function init() {
                         }
                     },
                     beforeClose: (action, instance, done) => {
-                        this.twoFactorAuthDialogVisible = false;
+                        this.store.auth.twoFactorAuthDialogVisible = false;
                         done();
                     }
                 }
