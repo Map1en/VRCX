@@ -43,7 +43,7 @@ module.exports = (env, argv) => {
                 {
                     test: /\.js$/,
                     exclude: [/node_modules/],
-                    resourceQuery: { not: [/vue/] },
+                    resourceQuery: { not: /vue/ },
                     loader: 'esbuild-loader',
                     options: {
                         target: 'es2022'
@@ -79,7 +79,7 @@ module.exports = (env, argv) => {
         performance: {
             hints: false
         },
-        devtool: 'inline-cheap-module-source-map',
+        devtool: 'inline-source-map',
         target: ['web', 'es2022'],
         stats: {
             preset: 'errors-warnings',
@@ -123,8 +123,8 @@ module.exports = (env, argv) => {
             minimizer: isProduction
                 ? [
                       new EsbuildPlugin({
-                          target: 'es2022',
-                          css: true
+                          css: true,
+                          sourcemap: true
                       })
                   ]
                 : [],
