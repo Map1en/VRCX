@@ -1,12 +1,15 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app } from '../app';
+import { $app, $t } from '../app';
 import API from '../classes/apiInit';
 import configRepository from '../service/config';
+import security from '../service/security';
 import webApiService from '../service/webapi';
+import { useAdvancedSettingsStore } from './settings/advanced';
 
 export const useAuthStore = defineStore('Auth', () => {
+    const advancedSettingsStore = useAdvancedSettingsStore();
     const state = reactive({
         loginForm: {
             loading: true,
@@ -31,7 +34,17 @@ export const useAuthStore = defineStore('Auth', () => {
                     }
                 ]
             }
-        }
+        },
+        enablePrimaryPasswordDialog: {
+            visible: false,
+            password: '',
+            rePassword: '',
+            beforeClose(done) {
+                $app._data.enablePrimaryPassword = false;
+                done();
+            }
+        },
+        saveCredentials: null
     });
 
     async function init() {
@@ -54,6 +67,20 @@ export const useAuthStore = defineStore('Auth', () => {
         get: () => state.loginForm,
         set: (value) => {
             state.loginForm = value;
+        }
+    });
+
+    const enablePrimaryPasswordDialog = computed({
+        get: () => state.enablePrimaryPasswordDialog,
+        set: (value) => {
+            state.enablePrimaryPasswordDialog = value;
+        }
+    });
+
+    const saveCredentials = computed({
+        get: () => state.saveCredentials,
+        set: (value) => {
+            state.saveCredentials = value;
         }
     });
 
@@ -105,5 +132,154 @@ export const useAuthStore = defineStore('Auth', () => {
         $app.promptEmailOTP();
     });
 
-    return { state, loginForm, clearCookiesTryLogin, resendEmail2fa };
+    function enablePrimaryPasswordChange() {
+        advancedSettingsStore.enablePrimaryPassword =
+            !advancedSettingsStore.enablePrimaryPassword;
+
+        state.enablePrimaryPasswordDialog.password = '';
+        state.enablePrimaryPasswordDialog.rePassword = '';
+        if (advancedSettingsStore.enablePrimaryPassword) {
+            state.enablePrimaryPasswordDialog.visible = true;
+        } else {
+            $app.$prompt(
+                $t('prompt.primary_password.description'),
+                $t('prompt.primary_password.header'),
+                {
+                    inputType: 'password',
+                    inputPattern: /[\s\S]{1,32}/
+                }
+            )
+                .then(({ value }) => {
+                    for (const userId in state.loginForm.savedCredentials) {
+                        security
+                            .decrypt(
+                                state.loginForm.savedCredentials[userId]
+                                    .loginParmas.password,
+                                value
+                            )
+                            .then(async (pt) => {
+                                state.saveCredentials = {
+                                    username:
+                                        state.loginForm.savedCredentials[userId]
+                                            .loginParmas.username,
+                                    password: pt
+                                };
+                                await updateStoredUser(
+                                    state.loginForm.savedCredentials[userId]
+                                        .user
+                                );
+                                await configRepository.setBool(
+                                    'enablePrimaryPassword',
+                                    false
+                                );
+                            })
+                            .catch(async () => {
+                                advancedSettingsStore.enablePrimaryPassword =
+                                    true;
+                                advancedSettingsStore.setEnablePrimaryPasswordConfigRepository(
+                                    true
+                                );
+                            });
+                    }
+                })
+                .catch(async () => {
+                    advancedSettingsStore.enablePrimaryPassword = true;
+                    advancedSettingsStore.setEnablePrimaryPasswordConfigRepository(
+                        true
+                    );
+                });
+        }
+    }
+    async function setPrimaryPassword() {
+        await configRepository.setBool(
+            'enablePrimaryPassword',
+            advancedSettingsStore.enablePrimaryPassword
+        );
+        state.enablePrimaryPasswordDialog.visible = false;
+        if (advancedSettingsStore.enablePrimaryPassword) {
+            const key = state.enablePrimaryPasswordDialog.password;
+            for (const userId in state.loginForm.savedCredentials) {
+                security
+                    .encrypt(
+                        state.loginForm.savedCredentials[userId].loginParmas
+                            .password,
+                        key
+                    )
+                    .then((ct) => {
+                        state.saveCredentials = {
+                            username:
+                                state.loginForm.savedCredentials[userId]
+                                    .loginParmas.username,
+                            password: ct
+                        };
+                        updateStoredUser(
+                            state.loginForm.savedCredentials[userId].user
+                        );
+                    });
+            }
+        }
+    }
+
+    async function updateStoredUser(user) {
+        let savedCredentials = {};
+        if ((await configRepository.getString('savedCredentials')) !== null) {
+            savedCredentials = JSON.parse(
+                await configRepository.getString('savedCredentials')
+            );
+        }
+        if (state.saveCredentials) {
+            const credentialsToSave = {
+                user,
+                loginParmas: state.saveCredentials
+            };
+            savedCredentials[user.id] = credentialsToSave;
+            state.saveCredentials = null;
+        } else if (typeof savedCredentials[user.id] !== 'undefined') {
+            savedCredentials[user.id].user = user;
+            savedCredentials[user.id].cookies =
+                await webApiService.getCookies();
+        }
+        state.loginForm.savedCredentials = savedCredentials;
+        const jsonCredentialsArray = JSON.stringify(savedCredentials);
+        await configRepository.setString(
+            'savedCredentials',
+            jsonCredentialsArray
+        );
+        state.loginForm.lastUserLoggedIn = user.id;
+        await configRepository.setString('lastUserLoggedIn', user.id);
+    }
+
+    async function migrateStoredUsers() {
+        let savedCredentials = {};
+        if ((await configRepository.getString('savedCredentials')) !== null) {
+            savedCredentials = JSON.parse(
+                await configRepository.getString('savedCredentials')
+            );
+        }
+        for (const name in savedCredentials) {
+            const userId = savedCredentials[name]?.user?.id;
+            if (userId && userId !== name) {
+                savedCredentials[userId] = savedCredentials[name];
+                delete savedCredentials[name];
+            }
+        }
+        await configRepository.setString(
+            'savedCredentials',
+            JSON.stringify(savedCredentials)
+        );
+    }
+
+    return {
+        state,
+        loginForm,
+        enablePrimaryPasswordDialog,
+        saveCredentials,
+
+        clearCookiesTryLogin,
+        resendEmail2fa,
+        enablePrimaryPasswordChange,
+        setPrimaryPassword,
+        updateStoredUser,
+        migrateStoredUsers
+    };
 });

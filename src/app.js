@@ -312,7 +312,7 @@ let $app = {
         this.getGameLogTable();
         this.checkVRChatDebugLogging();
         this.checkAutoBackupRestoreVrcRegistry();
-        await this.migrateStoredUsers();
+        await this.store.auth.migrateStoredUsers();
         if (
             !this.store.advancedSettings.enablePrimaryPassword &&
             (await configRepository.getString('lastUserLoggedIn')) !== null
@@ -654,11 +654,11 @@ API.$on('LOGIN', function (args) {
             args.ref.displayName
         )}</strong>!`
     }).show();
-    $app.updateStoredUser(this.currentUser);
+    $app.store.auth.updateStoredUser(this.currentUser);
 });
 
 API.$on('LOGOUT', async function () {
-    await $app.updateStoredUser(this.currentUser);
+    await $app.store.auth.updateStoredUser(this.currentUser);
     webApiService.clearCookies();
     $app.store.auth.loginForm.lastUserLoggedIn = '';
     await configRepository.remove('lastUserLoggedIn');
@@ -686,151 +686,6 @@ $app.methods.checkPrimaryPassword = function (args) {
             })
             .catch(reject);
     });
-};
-
-$app.data.enablePrimaryPasswordDialog = {
-    visible: false,
-    password: '',
-    rePassword: '',
-    beforeClose(done) {
-        $app._data.enablePrimaryPassword = false;
-        done();
-    }
-};
-$app.methods.enablePrimaryPasswordChange = function () {
-    this.store.advancedSettings.enablePrimaryPassword =
-        !this.store.advancedSettings.enablePrimaryPassword;
-
-    this.enablePrimaryPasswordDialog.password = '';
-    this.enablePrimaryPasswordDialog.rePassword = '';
-    if (this.store.advancedSettings.enablePrimaryPassword) {
-        this.enablePrimaryPasswordDialog.visible = true;
-    } else {
-        this.$prompt(
-            $t('prompt.primary_password.description'),
-            $t('prompt.primary_password.header'),
-            {
-                inputType: 'password',
-                inputPattern: /[\s\S]{1,32}/
-            }
-        )
-            .then(({ value }) => {
-                for (const userId in this.store.auth.loginForm
-                    .savedCredentials) {
-                    security
-                        .decrypt(
-                            this.store.auth.loginForm.savedCredentials[userId]
-                                .loginParmas.password,
-                            value
-                        )
-                        .then(async (pt) => {
-                            this.saveCredentials = {
-                                username:
-                                    this.store.auth.loginForm.savedCredentials[
-                                        userId
-                                    ].loginParmas.username,
-                                password: pt
-                            };
-                            await this.updateStoredUser(
-                                this.store.auth.loginForm.savedCredentials[
-                                    userId
-                                ].user
-                            );
-                            await configRepository.setBool(
-                                'enablePrimaryPassword',
-                                false
-                            );
-                        })
-                        .catch(async () => {
-                            this.store.advancedSettings.enablePrimaryPassword =
-                                true;
-                            this.store.advancedSettings.setEnablePrimaryPasswordConfigRepository(
-                                true
-                            );
-                        });
-                }
-            })
-            .catch(async () => {
-                this.store.advancedSettings.enablePrimaryPassword = true;
-                this.store.advancedSettings.setEnablePrimaryPasswordConfigRepository(
-                    true
-                );
-            });
-    }
-};
-$app.methods.setPrimaryPassword = async function () {
-    await configRepository.setBool(
-        'enablePrimaryPassword',
-        this.store.advancedSettings.enablePrimaryPassword
-    );
-    this.enablePrimaryPasswordDialog.visible = false;
-    if (this.store.advancedSettings.enablePrimaryPassword) {
-        const key = this.enablePrimaryPasswordDialog.password;
-        for (const userId in this.store.auth.loginForm.savedCredentials) {
-            security
-                .encrypt(
-                    this.store.auth.loginForm.savedCredentials[userId]
-                        .loginParmas.password,
-                    key
-                )
-                .then((ct) => {
-                    this.saveCredentials = {
-                        username:
-                            this.store.auth.loginForm.savedCredentials[userId]
-                                .loginParmas.username,
-                        password: ct
-                    };
-                    this.updateStoredUser(
-                        this.store.auth.loginForm.savedCredentials[userId].user
-                    );
-                });
-        }
-    }
-};
-
-$app.methods.updateStoredUser = async function (user) {
-    let savedCredentials = {};
-    if ((await configRepository.getString('savedCredentials')) !== null) {
-        savedCredentials = JSON.parse(
-            await configRepository.getString('savedCredentials')
-        );
-    }
-    if (this.saveCredentials) {
-        const credentialsToSave = {
-            user,
-            loginParmas: this.saveCredentials
-        };
-        savedCredentials[user.id] = credentialsToSave;
-        delete this.saveCredentials;
-    } else if (typeof savedCredentials[user.id] !== 'undefined') {
-        savedCredentials[user.id].user = user;
-        savedCredentials[user.id].cookies = await webApiService.getCookies();
-    }
-    this.store.auth.loginForm.savedCredentials = savedCredentials;
-    const jsonCredentialsArray = JSON.stringify(savedCredentials);
-    await configRepository.setString('savedCredentials', jsonCredentialsArray);
-    this.store.auth.loginForm.lastUserLoggedIn = user.id;
-    await configRepository.setString('lastUserLoggedIn', user.id);
-};
-
-$app.methods.migrateStoredUsers = async function () {
-    let savedCredentials = {};
-    if ((await configRepository.getString('savedCredentials')) !== null) {
-        savedCredentials = JSON.parse(
-            await configRepository.getString('savedCredentials')
-        );
-    }
-    for (const name in savedCredentials) {
-        const userId = savedCredentials[name]?.user?.id;
-        if (userId && userId !== name) {
-            savedCredentials[userId] = savedCredentials[name];
-            delete savedCredentials[name];
-        }
-    }
-    await configRepository.setString(
-        'savedCredentials',
-        JSON.stringify(savedCredentials)
-    );
 };
 
 // #endregion
@@ -3203,7 +3058,6 @@ $app.computed.settingsTabEvent = function () {
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,
         showVRChatConfig: this.showVRChatConfig,
-        enablePrimaryPasswordChange: this.enablePrimaryPasswordChange,
         openUGCFolder: this.openUGCFolder,
         openUGCFolderSelector: this.openUGCFolderSelector,
         resetUGCFolder: this.resetUGCFolder,

@@ -1904,6 +1904,7 @@
     import { useLaunchStore } from '../../stores/launch';
     import { useAvatarStore } from '../../stores/avatar';
     import { useUiStore } from '../../stores/ui';
+    import { useAuthStore } from '../../stores/auth';
 
     const { messages, t } = useI18n();
 
@@ -2165,6 +2166,9 @@
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
 
+    const authStore = useAuthStore();
+    const { enablePrimaryPasswordChange } = authStore;
+
     const props = defineProps({
         notificationPosition: {
             type: String,
@@ -2195,7 +2199,6 @@
         'promptNotificationTimeout',
         'saveDiscordOption',
         'showVRChatConfig',
-        'enablePrimaryPasswordChange',
         'openUGCFolder',
         'openUGCFolderSelector',
         'resetUGCFolder',
@@ -2409,10 +2412,6 @@
                 });
             }
         });
-    }
-
-    function enablePrimaryPasswordChange() {
-        emit('enablePrimaryPasswordChange');
     }
 
     function openUGCFolder() {

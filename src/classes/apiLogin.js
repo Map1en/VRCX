@@ -23,7 +23,7 @@ export default async function init() {
                 params.password = cipher;
                 delete params.cipher;
             }
-            $app.saveCredentials = params;
+            $app.store.auth.saveCredentials = params;
         }
         return this.call('auth/user', {
             method: 'GET',
