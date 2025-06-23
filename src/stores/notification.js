@@ -13,7 +13,8 @@ import {
     extractFileId,
     extractFileVersion,
     parseLocation,
-    removeFromArray
+    removeFromArray,
+    getUserMemo
 } from '../shared/utils';
 import { useGeneralSettingsStore } from './settings/general';
 import { useLocationStore } from './location';
@@ -251,7 +252,7 @@ export const useNotificationStore = defineStore('Notification', () => {
 
         let currentLocation = locationStore.lastLocation.location;
         if (locationStore.lastLocation.location === 'traveling') {
-            currentLocation = $app.lastLocationDestination;
+            currentLocation = locationStore.lastLocationDestination;
         }
         if (!currentLocation) {
             return;
@@ -739,7 +740,7 @@ export const useNotificationStore = defineStore('Notification', () => {
     async function playNotyTTS(noty, displayName, message) {
         if (notificationsSettingsStore.notificationTTSNickName) {
             const userId = getUserIdFromNoty(noty);
-            const memo = await $app.getUserMemo(userId);
+            const memo = await getUserMemo(userId);
             if (memo.memo) {
                 const array = memo.memo.split('\n');
                 const nickName = array[0];
@@ -2205,7 +2206,7 @@ export const useNotificationStore = defineStore('Notification', () => {
             noty.type === 'BlockedOnPlayerLeft' ||
             noty.type === 'MutedOnPlayerLeft'
         ) {
-            bias = $app.lastLocationDestinationTime + 5 * 1000; // 5 secs
+            bias = locationStore.lastLocationDestinationTime + 5 * 1000; // 5 secs
             if (Date.parse(noty.created_at) <= bias) {
                 return;
             }

@@ -1875,7 +1875,7 @@
     const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
     const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
+    const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
     const { friendLogTable } = storeToRefs(friendStore);
@@ -1889,10 +1889,6 @@
     const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({
-        lastLocationDestination: {
-            type: String,
-            default: ''
-        },
         isGameRunning: {
             type: Boolean,
             default: false
@@ -2307,7 +2303,7 @@
         } else if (command === 'Invite') {
             let currentLocation = lastLocation.value.location;
             if (lastLocation.value.location === 'traveling') {
-                currentLocation = props.lastLocationDestination;
+                currentLocation = lastLocationDestination.value;
             }
             L = parseLocation(currentLocation);
             worldRequest

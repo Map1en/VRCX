@@ -86,7 +86,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 return 'test_world';
             }
             if (gameLogLocation === 'traveling') {
-                gameLogLocation = $app.lastLocationDestination;
+                gameLogLocation = locationStore.lastLocationDestination;
             }
 
             let presenceLocation = API.currentUser.$locationTag;

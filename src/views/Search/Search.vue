@@ -13,7 +13,7 @@
                     icon="el-icon-delete"
                     circle
                     style="flex: none; margin-left: 10px"
-                    @click="clearSearch"></el-button>
+                    @click="handleClearSearch"></el-button>
             </el-tooltip>
         </div>
         <el-tabs ref="searchTabRef" type="card" style="margin-top: 15px" @tab-click="searchText = ''">
@@ -341,6 +341,7 @@
     import { useWorldStore } from '../../stores/world';
     import { useGroupStore } from '../../stores/group';
     import { useUiStore } from '../../stores/ui';
+    import { useSearchStore } from '../../stores/search';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -353,7 +354,7 @@
     const { setAvatarProvider } = avatarProviderStore;
     const { userDialog } = storeToRefs(userStore);
     const { showUserDialog, refreshUserDialogAvatars } = userStore;
-    const { showAvatarDialog } = avatarStore;
+    const { showAvatarDialog, lookupAvatars } = avatarStore;
     const { cachedAvatars } = storeToRefs(avatarStore);
     const worldStore = useWorldStore();
     const { cachedWorlds } = storeToRefs(worldStore);
@@ -363,29 +364,11 @@
     const { cachedGroups } = storeToRefs(groupStore);
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
+    const searchStore = useSearchStore();
+    const { searchText, searchUserResults } = storeToRefs(searchStore);
+    const { clearSearch, moreSearchUser } = searchStore;
 
     const { t } = useI18n();
-
-    const props = defineProps({
-        searchText: {
-            type: String,
-            default: ''
-        },
-        searchUserResults: {
-            type: Array,
-            default: () => []
-        },
-        lookupAvatars: {
-            type: Function,
-            default: () => () => {}
-        },
-        moreSearchUser: {
-            type: Function,
-            default: () => () => {}
-        }
-    });
-
-    const emit = defineEmits(['clearSearch', 'update:searchText']);
 
     const searchTabRef = ref(null);
 
@@ -417,7 +400,7 @@
         return convertFileUrlToImageUrl(url);
     }
 
-    function clearSearch() {
+    function handleClearSearch() {
         searchUserParams.value = {};
         searchWorldParams.value = {};
         searchWorldResults.value = [];
@@ -426,11 +409,11 @@
         searchAvatarPageNum.value = 0;
         searchGroupParams.value = {};
         searchGroupResults.value = [];
-        emit('clearSearch');
+        clearSearch();
     }
 
     function updateSearchText(text) {
-        emit('update:searchText', text);
+        searchText.value = text;
     }
 
     function search() {
@@ -454,7 +437,7 @@
         searchUserParams.value = {
             n: 10,
             offset: 0,
-            search: props.searchText,
+            search: searchText.value,
             customFields: searchUserByBio.value ? 'bio' : 'displayName',
             sort: searchUserSortByLastLoggedIn.value ? 'last_login' : 'relevance'
         };
@@ -463,7 +446,7 @@
 
     async function handleMoreSearchUser(go = null) {
         isSearchUserLoading.value = true;
-        await props.moreSearchUser(go, searchUserParams.value);
+        await moreSearchUser(go, searchUserParams.value);
         isSearchUserLoading.value = false;
     }
 
@@ -512,7 +495,7 @@
                 break;
             default:
                 params.sort = 'relevance';
-                params.search = replaceBioSymbols(props.searchText);
+                params.search = replaceBioSymbols(searchText.value);
                 break;
         }
         params.order = ref.sortOrder || 'descending';
@@ -578,7 +561,7 @@
             searchAvatarSort.value = 'name';
         }
         const avatars = new Map();
-        const query = props.searchText;
+        const query = searchText.value;
         const queryUpper = query.toUpperCase();
         if (!query) {
             for (ref of cachedAvatars.value.values()) {
@@ -633,7 +616,7 @@
                 avatarRemoteDatabase.value &&
                 query.length >= 3
             ) {
-                const data = await props.lookupAvatars('search', query);
+                const data = await lookupAvatars('search', query);
                 if (data && typeof data === 'object') {
                     data.forEach((avatar) => {
                         avatars.set(avatar.id, avatar);
@@ -676,7 +659,7 @@
         searchGroupParams.value = {
             n: 10,
             offset: 0,
-            query: replaceBioSymbols(props.searchText)
+            query: replaceBioSymbols(searchText.value)
         };
         await moreSearchGroup();
     }

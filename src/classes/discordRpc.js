@@ -17,21 +17,21 @@ export default function init() {
             var currentLocation = this.store.location.lastLocation.location;
             var timeStamp = this.store.location.lastLocation.date;
             if (this.store.location.lastLocation.location === 'traveling') {
-                currentLocation = this.lastLocationDestination;
-                timeStamp = this.lastLocationDestinationTime;
+                currentLocation = this.store.location.lastLocationDestination;
+                timeStamp = this.store.location.lastLocationDestinationTime;
             }
             if (
                 !this.store.discordPresenceSettings.discordActive ||
                 (!this.isGameRunning &&
                     !this.store.advancedSettings.gameLogDisabled) ||
-                (!currentLocation && !this.lastLocation$.tag)
+                (!currentLocation && !this.store.location.lastLocation$.tag)
             ) {
                 this.setIsDiscordActive(false);
                 return;
             }
             this.setIsDiscordActive(true);
-            var L = this.lastLocation$;
-            if (currentLocation !== this.lastLocation$.tag) {
+            var L = this.store.location.lastLocation$;
+            if (currentLocation !== this.store.location.lastLocation$.tag) {
                 Discord.SetTimestamps(timeStamp, 0);
                 L = parseLocation(currentLocation);
                 L.worldName = '';
@@ -98,7 +98,7 @@ export default function init() {
                             break;
                     }
                 }
-                this.lastLocation$ = L;
+                this.store.location.lastLocation$ = L;
             }
             var hidePrivate = false;
             if (
@@ -242,7 +242,7 @@ export default function init() {
         },
 
         async saveDiscordOption(configLabel = '') {
-            this.lastLocation$.tag = '';
+            this.store.location.lastLocation$.tag = '';
             this.nextDiscordUpdate = 3;
             this.updateDiscord();
         }

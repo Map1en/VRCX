@@ -10,7 +10,7 @@
                 :remote-method="quickSearchRemoteMethod"
                 popper-class="x-quick-search"
                 style="flex: 1; padding: 10px"
-                @change="$emit('quick-search-change', $event)">
+                @change="quickSearchChange">
                 <el-option v-for="item in quickSearchItems" :key="item.value" :value="item.value" :label="item.label">
                     <div class="x-friend-item">
                         <template v-if="item.ref">
@@ -69,10 +69,7 @@
                     </span>
                 </template>
                 <el-backtop target=".zero-margin-tabs .el-tabs__content" :bottom="20" :right="20"></el-backtop>
-                <FriendsSidebar
-                    :is-game-running="isGameRunning"
-                    :last-location-destination="lastLocationDestination"
-                    @confirm-delete-friend="confirmDeleteFriend" />
+                <FriendsSidebar :is-game-running="isGameRunning" @confirm-delete-friend="confirmDeleteFriend" />
             </el-tab-pane>
             <el-tab-pane lazy>
                 <template slot="label">
@@ -97,12 +94,10 @@
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
     import { useUiStore } from '../../stores/ui';
+    import { useSearchStore } from '../../stores/search';
 
     defineProps({
         isGameRunning: Boolean,
-        quickSearchRemoteMethod: Function,
-        quickSearchItems: Array,
-        lastLocationDestination: String,
         groupInstances: Array,
         inGameGroupOrder: Array
     });
@@ -110,10 +105,13 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendsStore = useFriendStore();
     const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
-    const { refreshFriendsList,confirmDeleteFriend } = friendsStore;
+    const { refreshFriendsList, confirmDeleteFriend } = friendsStore;
     const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
+    const searchStore = useSearchStore();
+    const { quickSearchRemoteMethod, quickSearchChange } = searchStore;
+    const { quickSearchItems } = storeToRefs(searchStore);
 
     const isSideBarTabShow = computed(() => {
         return !(menuActiveIndex.value === 'friendList' || menuActiveIndex.value === 'charts');

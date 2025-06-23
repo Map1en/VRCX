@@ -707,104 +707,6 @@ API.$on('USER:CURRENT', function (args) {
 // #endregion
 // #region | App: Quick Search
 
-$app.data.quickSearchItems = [];
-
-$app.computed.stringComparer = function () {
-    if (typeof this._stringComparer === 'undefined') {
-        this._stringComparer = Intl.Collator(
-            this.store.appearanceSettings.appLanguage.replace('_', '-'),
-            { usage: 'search', sensitivity: 'base' }
-        );
-    }
-    return this._stringComparer;
-};
-
-$app.methods.quickSearchRemoteMethod = function (query) {
-    if (!query) {
-        this.quickSearchItems = this.quickSearchUserHistory();
-        return;
-    }
-
-    const results = [];
-    const cleanQuery = removeWhitespace(query);
-
-    for (const ctx of this.store.friend.friends.values()) {
-        if (typeof ctx.ref === 'undefined') {
-            continue;
-        }
-
-        const cleanName = removeConfusables(ctx.name);
-        let match = localeIncludes(cleanName, cleanQuery, this.stringComparer);
-        if (!match) {
-            // Also check regular name in case search is with special characters
-            match = localeIncludes(ctx.name, cleanQuery, this.stringComparer);
-        }
-        // Use query with whitespace for notes and memos as people are more
-        // likely to include spaces in memos and notes
-        if (!match && ctx.memo) {
-            match = localeIncludes(ctx.memo, query, this.stringComparer);
-        }
-        if (!match && ctx.ref.note) {
-            match = localeIncludes(ctx.ref.note, query, this.stringComparer);
-        }
-
-        if (match) {
-            results.push({
-                value: ctx.id,
-                label: ctx.name,
-                ref: ctx.ref,
-                name: ctx.name
-            });
-        }
-    }
-
-    results.sort(function (a, b) {
-        const A =
-            $app.stringComparer.compare(
-                a.name.substring(0, cleanQuery.length),
-                cleanQuery
-            ) === 0;
-        const B =
-            $app.stringComparer.compare(
-                b.name.substring(0, cleanQuery.length),
-                cleanQuery
-            ) === 0;
-        if (A && !B) {
-            return -1;
-        } else if (B && !A) {
-            return 1;
-        }
-        return compareByName(a, b);
-    });
-    if (results.length > 4) {
-        results.length = 4;
-    }
-    results.push({
-        value: `search:${query}`,
-        label: query
-    });
-
-    this.quickSearchItems = results;
-};
-
-$app.methods.quickSearchChange = function (value) {
-    if (value) {
-        if (value.startsWith('search:')) {
-            const searchText = value.substr(7);
-            if (this.quickSearchItems.length > 1 && searchText.length) {
-                this.friendsListSearch = searchText;
-                this.store.ui.menuActiveIndex = 'friendList';
-            } else {
-                this.store.ui.menuActiveIndex = 'search';
-                this.searchText = searchText;
-                $app.store.user.lookupUser({ displayName: searchText });
-            }
-        } else {
-            this.store.user.showUserDialog(value);
-        }
-    }
-};
-
 // #endregion
 // #region | App: Feed
 
@@ -955,8 +857,6 @@ $app.methods.loadPlayerList = function () {
     }
 };
 
-$app.data.instancePlayerCount = new Map();
-
 // #endregion
 // #region | App: gameLog
 
@@ -1059,64 +959,6 @@ $app.methods.updateVrNowPlaying = function () {
 
 // #endregion
 // #region | App: Search
-
-$app.data.searchText = '';
-$app.data.searchUserResults = [];
-
-API.$on('LOGIN', function () {
-    $app.searchText = '';
-    $app.searchUserResults = [];
-});
-
-$app.methods.clearSearch = function () {
-    this.searchText = '';
-    this.searchUserResults = [];
-};
-
-$app.methods.searchUserByDisplayName = async function (displayName) {
-    const params = {
-        n: 10,
-        offset: 0,
-        fuzzy: false,
-        search: displayName
-    };
-    await this.moreSearchUser(null, params);
-};
-
-$app.methods.moreSearchUser = async function (go, params) {
-    // var params = this.searchUserParams;
-    if (go) {
-        params.offset += params.n * go;
-        if (params.offset < 0) {
-            params.offset = 0;
-        }
-    }
-    await userRequest.getUsers(params).then((args) => {
-        // API.$on('USER:LIST')
-        for (const json of args.json) {
-            if (!json.displayName) {
-                console.error('getUsers gave us garbage', json);
-                continue;
-            }
-            API.$emit('USER', {
-                json,
-                params: {
-                    userId: json.id
-                }
-            });
-        }
-
-        const map = new Map();
-        for (const json of args.json) {
-            const ref = API.cachedUsers.get(json.id);
-            if (typeof ref !== 'undefined') {
-                map.set(ref.id, ref);
-            }
-        }
-        this.searchUserResults = Array.from(map.values());
-        return args;
-    });
-};
 
 // #endregion
 // #region | App: Notification
@@ -2654,8 +2496,7 @@ $app.computed.moderationTabBind = function () {
 
 $app.computed.friendsListTabBind = function () {
     return {
-        friendsListSearch: this.friendsListSearch,
-        stringComparer: this.stringComparer
+        friendsListSearch: this.friendsListSearch
     };
 };
 $app.computed.friendsListTabEvent = function () {
@@ -2667,10 +2508,7 @@ $app.computed.friendsListTabEvent = function () {
 
 $app.computed.sidebarTabBind = function () {
     return {
-        quickSearchRemoteMethod: this.quickSearchRemoteMethod,
-        quickSearchItems: this.quickSearchItems,
         isGameRunning: this.isGameRunning,
-        lastLocationDestination: this.lastLocationDestination,
         groupInstances: this.groupInstances,
         inGameGroupOrder: this.inGameGroupOrder
     };
@@ -2678,7 +2516,6 @@ $app.computed.sidebarTabBind = function () {
 
 $app.computed.sidebarTabEvent = function () {
     return {
-        'quick-search-change': this.quickSearchChange,
         'direct-access-paste': this.directAccessPaste
     };
 };
@@ -2721,23 +2558,7 @@ $app.computed.gameLogTabEvent = function () {
 $app.computed.notificationTabBind = function () {
     return {
         shiftHeld: this.shiftHeld,
-        lastLocationDestination: this.lastLocationDestination,
         isGameRunning: this.isGameRunning
-    };
-};
-
-$app.computed.searchTabBind = function () {
-    return {
-        searchText: this.searchText,
-        searchUserResults: this.searchUserResults,
-        moreSearchUser: this.moreSearchUser
-    };
-};
-
-$app.computed.searchTabEvent = function () {
-    return {
-        clearSearch: this.clearSearch,
-        'update:searchText': (value) => (this.searchText = value)
     };
 };
 

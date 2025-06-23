@@ -444,7 +444,7 @@
     const groupStore = useGroupStore();
     const { showGroupDialog } = groupStore;
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
+    const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
     const inviteStore = useInviteStore();
     const { refreshInviteMessageTableData } = inviteStore;
     const galleryStore = useGalleryStore();
@@ -463,10 +463,6 @@
 
     const props = defineProps({
         shiftHeld: { type: Boolean, default: false },
-        lastLocationDestination: {
-            type: String,
-            default: ''
-        },
         isGameRunning: {
             type: Boolean,
             default: false
@@ -545,7 +541,7 @@
                     let currentLocation = lastLocation.value.location;
                     // todo
                     if (lastLocation.value.location === 'traveling') {
-                        currentLocation = props.lastLocationDestination;
+                        currentLocation = lastLocationDestination.value;
                     }
                     const L = parseLocation(currentLocation);
                     worldRequest

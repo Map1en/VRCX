@@ -192,8 +192,7 @@
             Location
         },
         props: {
-            isGameRunning: Boolean,
-            lastLocationDestination: String
+            isGameRunning: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -208,7 +207,7 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
             const locationStore = useLocationStore();
-            const { lastLocation } = storeToRefs(locationStore);
+            const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,

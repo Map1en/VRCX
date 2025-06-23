@@ -65,10 +65,10 @@ export default function init() {
                         });
                         this.store.location.lastLocationReset(gameLog.dt);
                         this.store.location.lastLocation.location = 'traveling';
-                        this.lastLocationDestination = gameLog.location;
-                        this.lastLocationDestinationTime = Date.parse(
-                            gameLog.dt
-                        );
+                        this.store.location.lastLocationDestination =
+                            gameLog.location;
+                        this.store.location.lastLocationDestinationTime =
+                            Date.parse(gameLog.dt);
                         this.store.instance.removeQueuedInstance(
                             gameLog.location
                         );

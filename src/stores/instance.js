@@ -179,7 +179,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         let L;
         let instanceId = locationStore.lastLocation.location;
         if (locationStore.lastLocation.location === 'traveling') {
-            instanceId = $app.lastLocationDestination;
+            instanceId = locationStore.lastLocationDestination;
         }
         if (!instanceId) {
             state.currentInstanceWorld = {

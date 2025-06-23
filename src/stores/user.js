@@ -1,3 +1,4 @@
+import Noty from 'noty';
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import {
@@ -34,7 +35,7 @@ import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
-import Noty from 'noty';
+import { useSearchStore } from './search';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
@@ -45,6 +46,7 @@ export const useUserStore = defineStore('User', () => {
     const instanceStore = useInstanceStore();
     const avatarStore = useAvatarStore();
     const generalSettingsStore = useGeneralSettingsStore();
+    const searchStore = useSearchStore();
 
     const state = reactive({
         userDialog: {
@@ -144,7 +146,8 @@ export const useUserStore = defineStore('User', () => {
                 }
             },
             layout: 'table'
-        }
+        },
+        instancePlayerCount: new Map()
     });
 
     const userDialog = computed({
@@ -172,6 +175,13 @@ export const useUserStore = defineStore('User', () => {
         get: () => state.pastDisplayNameTable,
         set: (value) => {
             state.pastDisplayNameTable = value;
+        }
+    });
+
+    const showUserDialogHistory = computed({
+        get: () => state.showUserDialogHistory,
+        set: (value) => {
+            state.showUserDialogHistory = value;
         }
     });
 
@@ -418,12 +428,12 @@ export const useUserStore = defineStore('User', () => {
             }
             if (ref.isFriend || ref.id === API.currentUser.id) {
                 // update instancePlayerCount
-                let newCount = $app.instancePlayerCount.get(ref.location);
+                let newCount = state.instancePlayerCount.get(ref.location);
                 if (typeof newCount === 'undefined') {
                     newCount = 0;
                 }
                 newCount++;
-                $app.instancePlayerCount.set(ref.location, newCount);
+                state.instancePlayerCount.set(ref.location, newCount);
             }
             if ($app.customUserTags.has(json.id)) {
                 const tag = $app.customUserTags.get(json.id);
@@ -826,25 +836,7 @@ export const useUserStore = defineStore('User', () => {
             });
         state.showUserDialogHistory.delete(userId);
         state.showUserDialogHistory.add(userId);
-        $app.quickSearchItems = quickSearchUserHistory();
-    }
-
-    function quickSearchUserHistory() {
-        const userHistory = Array.from(state.showUserDialogHistory.values())
-            .reverse()
-            .slice(0, 5);
-        const results = [];
-        userHistory.forEach((userId) => {
-            const ref = API.cachedUsers.get(userId);
-            if (typeof ref !== 'undefined') {
-                results.push({
-                    value: ref.id,
-                    label: ref.name,
-                    ref
-                });
-            }
-        });
-        return results;
+        searchStore.quickSearchItems = searchStore.quickSearchUserHistory();
     }
 
     /**
@@ -1103,12 +1095,12 @@ export const useUserStore = defineStore('User', () => {
                 return;
             }
         }
-        $app.searchText = ref.displayName;
-        await $app.searchUserByDisplayName(ref.displayName);
-        for (ctx of $app.searchUserResults) {
+        searchStore.searchText = ref.displayName;
+        await searchStore.searchUserByDisplayName(ref.displayName);
+        for (ctx of searchStore.searchUserResults) {
             if (ctx.displayName === ref.displayName) {
-                $app.searchText = '';
-                $app.clearSearch();
+                searchStore.searchText = '';
+                searchStore.clearSearch();
                 showUserDialog(ctx.id);
                 return;
             }
@@ -1130,21 +1122,21 @@ export const useUserStore = defineStore('User', () => {
             // update instancePlayerCount
             previousLocation = props.location[1];
             newLocation = props.location[0];
-            let oldCount = $app.instancePlayerCount.get(previousLocation);
+            let oldCount = state.instancePlayerCount.get(previousLocation);
             if (typeof oldCount !== 'undefined') {
                 oldCount--;
                 if (oldCount <= 0) {
-                    $app.instancePlayerCount.delete(previousLocation);
+                    state.instancePlayerCount.delete(previousLocation);
                 } else {
-                    $app.instancePlayerCount.set(previousLocation, oldCount);
+                    state.instancePlayerCount.set(previousLocation, oldCount);
                 }
             }
-            let newCount = $app.instancePlayerCount.get(newLocation);
+            let newCount = state.instancePlayerCount.get(newLocation);
             if (typeof newCount === 'undefined') {
                 newCount = 0;
             }
             newCount++;
-            $app.instancePlayerCount.set(newLocation, newCount);
+            state.instancePlayerCount.set(newLocation, newCount);
         }
         if (props.location && ref.id === $app.store.user.userDialog.id) {
             // update user dialog instance occupants
@@ -1468,10 +1460,10 @@ export const useUserStore = defineStore('User', () => {
         subsetOfLanguages,
         languageDialog,
         pastDisplayNameTable,
+        showUserDialogHistory,
         applyUserLanguage,
         applyUser,
         showUserDialog,
-        quickSearchUserHistory,
         applyUserDialogLocation,
         sortUserDialogAvatars,
         refreshUserDialogAvatars,

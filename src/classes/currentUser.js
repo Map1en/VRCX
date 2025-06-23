@@ -87,11 +87,13 @@ export default function init() {
         var $location = parseLocation(
             $app.store.location.lastLocation.location
         );
-        var $travelingLocation = parseLocation($app.lastLocationDestination);
+        var $travelingLocation = parseLocation(
+            $app.store.location.lastLocationDestination
+        );
         var location = $app.store.location.lastLocation.location;
         var instanceId = $location.instanceId;
         var worldId = $location.worldId;
-        var travelingToLocation = $app.lastLocationDestination;
+        var travelingToLocation = $app.store.location.lastLocationDestination;
         var travelingToWorld = $travelingLocation.worldId;
         var travelingToInstance = $travelingLocation.instanceId;
         if (!$app.isGameRunning && json.presence) {

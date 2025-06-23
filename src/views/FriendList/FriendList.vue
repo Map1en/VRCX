@@ -288,13 +288,13 @@
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUserStore } from '../../stores/user';
     import { useUiStore } from '../../stores/ui';
+    import { useSearchStore } from '../../stores/search';
 
     export default {
         name: 'FriendListTab',
         inject: ['showFullscreenImageDialog'],
         props: {
-            friendsListSearch: String,
-            stringComparer: Intl.Collator
+            friendsListSearch: String
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -306,6 +306,8 @@
             const { showUserDialog } = userStore;
             const uiStore = useUiStore();
             const { menuActiveIndex } = storeToRefs(uiStore);
+            const searchStore = useSearchStore();
+            const { stringComparer } = storeToRefs(searchStore);
             return {
                 appLanguage,
                 hideTooltips,
@@ -322,7 +324,8 @@
                 userImageFull,
                 getAllUserStats,
                 menuActiveIndex,
-                confirmDeleteFriend
+                confirmDeleteFriend,
+                stringComparer
             };
         },
         data() {

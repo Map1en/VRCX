@@ -39,13 +39,34 @@ export const useLocationStore = defineStore('Location', () => {
             statusImage: ''
         },
         lastLocationDestination: '',
-        astLocationDestinationTime: 0
+        lastLocationDestinationTime: 0
     });
 
     const lastLocation = computed({
         get: () => state.lastLocation,
         set: (value) => {
             state.lastLocation = value;
+        }
+    });
+
+    const lastLocation$ = computed({
+        get: () => state.lastLocation$,
+        set: (value) => {
+            state.lastLocation$ = value;
+        }
+    });
+
+    const lastLocationDestination = computed({
+        get: () => state.lastLocationDestination,
+        set: (value) => {
+            state.lastLocationDestination = value;
+        }
+    });
+
+    const lastLocationDestinationTime = computed({
+        get: () => state.lastLocationDestinationTime,
+        set: (value) => {
+            state.lastLocationDestinationTime = value;
         }
     });
 
@@ -72,10 +93,10 @@ export const useLocationStore = defineStore('Location', () => {
             // use gameLog instead of API when game is running
             currentLocation = state.lastLocation.location;
             if (state.lastLocation.location === 'traveling') {
-                currentLocation = $app.lastLocationDestination;
+                currentLocation = state.lastLocationDestination;
             }
             ref.location = state.lastLocation.location;
-            ref.travelingToLocation = $app.lastLocationDestination;
+            ref.travelingToLocation = state.lastLocationDestination;
         }
 
         ref.$online_for = API.currentUser.$online_for;
@@ -89,8 +110,9 @@ export const useLocationStore = defineStore('Location', () => {
             instanceStore.applyGroupDialogInstances();
         } else {
             ref.$location_at = state.lastLocation.date;
-            ref.$travelingToTime = $app.lastLocationDestinationTime;
-            API.currentUser.$travelingToTime = $app.lastLocationDestinationTime;
+            ref.$travelingToTime = state.lastLocationDestinationTime;
+            API.currentUser.$travelingToTime =
+                state.lastLocationDestinationTime;
         }
     }
 
@@ -117,8 +139,8 @@ export const useLocationStore = defineStore('Location', () => {
         if (lastLocation === location) {
             return;
         }
-        $app.lastLocationDestination = '';
-        $app.lastLocationDestinationTime = 0;
+        state.lastLocationDestination = '';
+        state.lastLocationDestinationTime = 0;
 
         if (isRealInstance(location)) {
             const dt = new Date().toJSON();
@@ -219,6 +241,9 @@ export const useLocationStore = defineStore('Location', () => {
     return {
         state,
         lastLocation,
+        lastLocation$,
+        lastLocationDestination,
+        lastLocationDestinationTime,
         updateCurrentUserLocation,
         setCurrentUserLocation,
         lastLocationReset

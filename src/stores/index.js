@@ -24,6 +24,8 @@ import { useNotificationStore } from './notification';
 import { useFeedStore } from './feed';
 import { useUiStore } from './ui';
 import { useAuthStore } from './auth';
+import { useGameLogStore } from './gameLog';
+import { useSearchStore } from './search';
 
 export const pinia = createPinia();
 
@@ -53,6 +55,8 @@ export function createGlobalStores() {
         notification: useNotificationStore(),
         feed: useFeedStore(),
         ui: useUiStore(),
-        auth: useAuthStore()
+        auth: useAuthStore(),
+        gameLog: useGameLogStore(),
+        search: useSearchStore()
     };
 }
