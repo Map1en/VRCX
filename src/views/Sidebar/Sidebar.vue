@@ -72,7 +72,7 @@
                 <FriendsSidebar
                     :is-game-running="isGameRunning"
                     :last-location-destination="lastLocationDestination"
-                    @confirm-delete-friend="$emit('confirm-delete-friend', $event)" />
+                    @confirm-delete-friend="confirmDeleteFriend" />
             </el-tab-pane>
             <el-tab-pane lazy>
                 <template slot="label">
@@ -110,7 +110,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendsStore = useFriendStore();
     const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
-    const { refreshFriendsList } = friendsStore;
+    const { refreshFriendsList,confirmDeleteFriend } = friendsStore;
     const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);

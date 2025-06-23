@@ -293,7 +293,6 @@
         name: 'FriendListTab',
         inject: ['showFullscreenImageDialog'],
         props: {
-            confirmDeleteFriend: Function,
             friendsListSearch: String,
             stringComparer: Intl.Collator
         },
@@ -301,7 +300,7 @@
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendsStore = useFriendStore();
             const { friends } = storeToRefs(friendsStore);
-            const { getAllUserStats } = friendsStore;
+            const { getAllUserStats, confirmDeleteFriend } = friendsStore;
             const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -322,7 +321,8 @@
                 userImage,
                 userImageFull,
                 getAllUserStats,
-                menuActiveIndex
+                menuActiveIndex,
+                confirmDeleteFriend
             };
         },
         data() {

@@ -883,29 +883,6 @@ API.$on('USER:CURRENT', function (args) {
     }
 });
 
-API.$on('FRIEND:ADD', function (args) {
-    $app.store.friend.addFriend(args.params.userId);
-});
-
-API.$on('FRIEND:DELETE', function (args) {
-    $app.store.friend.deleteFriend(args.params.userId);
-});
-
-$app.methods.confirmDeleteFriend = function (id) {
-    this.$confirm('Continue? Unfriend', 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'info',
-        callback: (action) => {
-            if (action === 'confirm') {
-                friendRequest.deleteFriend({
-                    userId: id
-                });
-            }
-        }
-    });
-};
-
 // #endregion
 // #region | App: Quick Search
 
@@ -3408,7 +3385,6 @@ $app.computed.moderationTabBind = function () {
 
 $app.computed.friendsListTabBind = function () {
     return {
-        confirmDeleteFriend: this.confirmDeleteFriend,
         friendsListSearch: this.friendsListSearch,
         stringComparer: this.stringComparer
     };
@@ -3434,8 +3410,7 @@ $app.computed.sidebarTabBind = function () {
 $app.computed.sidebarTabEvent = function () {
     return {
         'quick-search-change': this.quickSearchChange,
-        'direct-access-paste': this.directAccessPaste,
-        'confirm-delete-friend': this.confirmDeleteFriend
+        'direct-access-paste': this.directAccessPaste
     };
 };
 
