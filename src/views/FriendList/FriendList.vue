@@ -284,24 +284,18 @@
         userImage,
         userImageFull
     } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUserStore } from '../../stores/user';
-    import { useUiStore } from '../../stores/ui';
-    import { useSearchStore } from '../../stores/search';
+    import { useAppearanceSettingsStore, useFriendStore, useSearchStore, useUiStore, useUserStore } from '../../stores';
 
     export default {
         name: 'FriendListTab',
         inject: ['showFullscreenImageDialog'],
-        props: {
-            friendsListSearch: String
-        },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendsStore = useFriendStore();
             const { friends } = storeToRefs(friendsStore);
             const { getAllUserStats, confirmDeleteFriend } = friendsStore;
-            const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
+            const { appLanguage, hideTooltips, randomUserColours, friendsListSearch } =
+                storeToRefs(appearanceSettingsStore);
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
             const uiStore = useUiStore();
@@ -325,7 +319,8 @@
                 getAllUserStats,
                 menuActiveIndex,
                 confirmDeleteFriend,
-                stringComparer
+                stringComparer,
+                friendsListSearch
             };
         },
         data() {

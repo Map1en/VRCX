@@ -755,30 +755,11 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
     this.updateVRConfigVars();
 };
 
-$app.methods.handleSetTablePageSize = async function (pageSize) {
-    this.store.feed.feedTable.pageSize = pageSize;
-    this.gameLogTable.pageSize = pageSize;
-    this.store.friend.friendLogTable.pageSize = pageSize;
-    this.store.moderation.playerModerationTable.pageSize = pageSize;
-    this.store.notification.notificationTable.pageSize = pageSize;
-    this.store.appearanceSettings.setTablePageSize(pageSize);
-};
-
-// #endregion
-// #region | App: player list
-
 $app.methods.updateTimers = function () {
     for (let $timer of $timers) {
         $timer.update();
     }
 };
-
-// #endregion
-// #region | App: Friends List
-
-$app.data.friendsListSearch = '';
-
-// Set avatar/world image
 
 $app.methods.checkPreviousImageAvailable = async function (images) {
     this.previousImagesTable = [];
@@ -890,18 +871,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 // #endregion
 // #region | Tab Props
 
-$app.computed.friendsListTabBind = function () {
-    return {
-        friendsListSearch: this.friendsListSearch
-    };
-};
-$app.computed.friendsListTabEvent = function () {
-    return {
-        'update:friends-list-search': (value) =>
-            (this.friendsListSearch = value)
-    };
-};
-
 $app.computed.sidebarTabBind = function () {
     return {
         groupInstances: this.groupInstances
@@ -988,7 +957,6 @@ $app.computed.settingsTabEvent = function () {
         disableGameLogDialog: this.disableGameLogDialog,
         promptAutoClearVRCXCacheFrequency:
             this.promptAutoClearVRCXCacheFrequency,
-        handleSetTablePageSize: this.handleSetTablePageSize,
         updateSharedFeed: this.updateSharedFeed
     };
 };

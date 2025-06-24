@@ -24,7 +24,8 @@ export const useSearchStore = defineStore('Search', () => {
     const state = reactive({
         searchText: '',
         searchUserResults: [],
-        quickSearchItems: []
+        quickSearchItems: [],
+        friendsListSearch: ''
     });
 
     const searchText = computed({
@@ -54,6 +55,13 @@ export const useSearchStore = defineStore('Search', () => {
             sensitivity: 'base'
         })
     );
+
+    const friendsListSearch = computed({
+        get: () => state.friendsListSearch,
+        set: (value) => {
+            state.friendsListSearch = value;
+        }
+    });
 
     API.$on('LOGIN', function () {
         state.searchText = '';
@@ -195,7 +203,7 @@ export const useSearchStore = defineStore('Search', () => {
             if (value.startsWith('search:')) {
                 const searchText = value.substr(7);
                 if (state.quickSearchItems.length > 1 && searchText.length) {
-                    $app.friendsListSearch = searchText;
+                    state.friendsListSearch = searchText;
                     uiStore.menuActiveIndex = 'friendList';
                 } else {
                     uiStore.menuActiveIndex = 'search';
@@ -399,6 +407,7 @@ export const useSearchStore = defineStore('Search', () => {
         searchUserResults,
         stringComparer,
         quickSearchItems,
+        friendsListSearch,
         clearSearch,
         searchUserByDisplayName,
         moreSearchUser,

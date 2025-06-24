@@ -11,7 +11,10 @@ import {
     systemIsDarkMode,
     updateTrustColorClasses
 } from '../../shared/utils';
+import { useFeedStore } from '../feed';
 import { useFriendStore } from '../friend';
+import { useModerationStore } from '../moderation';
+import { useNotificationStore } from '../notification';
 import { useVrStore } from '../vr';
 
 export const useAppearanceSettingsStore = defineStore(
@@ -20,6 +23,10 @@ export const useAppearanceSettingsStore = defineStore(
     () => {
         const friendStore = useFriendStore();
         const vrStore = useVrStore();
+        const notificationStore = useNotificationStore();
+        const feedStore = useFeedStore();
+        const moderationStore = useModerationStore();
+
         const state = reactive({
             appLanguage: 'en',
             themeMode: '',
@@ -161,7 +168,7 @@ export const useAppearanceSettingsStore = defineStore(
             state.instanceUsersSortAlphabetical = instanceUsersSortAlphabetical;
 
             setTablePageSize(tablePageSize);
-            $app.handleSetTablePageSize(state.tablePageSize);
+            handleSetTablePageSize(state.tablePageSize);
 
             state.dtHour12 = dtHour12;
             state.dtIsoFormat = dtIsoFormat;
@@ -651,6 +658,15 @@ export const useAppearanceSettingsStore = defineStore(
             }
         }
 
+        async function handleSetTablePageSize(pageSize) {
+            feedStore.feedTable.pageSize = pageSize;
+            $app.gameLogTable.pageSize = pageSize;
+            friendStore.friendLogTable.pageSize = pageSize;
+            moderationStore.playerModerationTable.pageSize = pageSize;
+            notificationStore.notificationTable.pageSize = pageSize;
+            setTablePageSize(pageSize);
+        }
+
         return {
             state,
 
@@ -710,7 +726,8 @@ export const useAppearanceSettingsStore = defineStore(
             changeThemeMode,
             userColourInit,
             applyUserTrustLevel,
-            changeAppLanguage
+            changeAppLanguage,
+            handleSetTablePageSize
         };
     }
 );

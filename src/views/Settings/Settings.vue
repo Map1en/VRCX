@@ -2029,7 +2029,8 @@
         setHideUnfriends,
         updateTrustColor,
         saveThemeMode,
-        changeAppLanguage
+        changeAppLanguage,
+        handleSetTablePageSize
     } = appearanceSettingsStore;
 
     const {
@@ -2169,8 +2170,7 @@
         'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
         'disableGameLogDialog',
-        'promptAutoClearVRCXCacheFrequency',
-        'handleSetTablePageSize'
+        'promptAutoClearVRCXCacheFrequency'
     ]);
 
     const instanceTypes = ref([
@@ -2385,8 +2385,5 @@
     }
     function promptAutoClearVRCXCacheFrequency() {
         emit('promptAutoClearVRCXCacheFrequency');
-    }
-    function handleSetTablePageSize(pageSize) {
-        emit('handleSetTablePageSize', pageSize);
     }
 </script>
