@@ -383,10 +383,6 @@ discordRpc();
 vrcRegistry();
 
 // #endregion
-// #region | Init: drop/keyup event listeners
-
-// #endregion
-
 // #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet, dayjs
 
 Noty.overrideDefaults({
@@ -647,9 +643,6 @@ API.$on('USER:CURRENT', function (args) {
 });
 
 // #endregion
-// #region | App: Quick Search
-
-// #endregion
 // #region | App: Feed
 
 $app.data.dontLogMeOut = false;
@@ -799,12 +792,6 @@ $app.methods.loadPlayerList = function () {
 };
 
 // #endregion
-// #region | App: gameLog
-
-// #endregion
-// #region | App: Search
-
-// #endregion
 // #region | App: Notification
 
 $app.data.gameLogTable.vip = false;
@@ -907,9 +894,6 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.store.notification.notificationTable.pageSize = pageSize;
     this.store.appearanceSettings.setTablePageSize(pageSize);
 };
-
-// #endregion
-// #region | App: Dialog
 
 // #endregion
 // #region | App: User Dialog
@@ -1094,12 +1078,6 @@ $app.data.currentlyDroppingFile = null;
 $app.methods.dragEnterCef = function (filePath) {
     this.currentlyDroppingFile = filePath;
 };
-
-// YouTube API
-
-// Asset Bundle Cacher
-
-// userDialog Groups
 
 // #endregion
 // #region Misc
@@ -1436,11 +1414,6 @@ $app.methods.saveChatboxUserBlacklist = async function () {
 };
 
 // #endregion
-// #region | App: Instance queuing
-
-// #endregion
-
-// #endregion
 // #region | Dialog: fullscreen image
 
 $app.data.fullscreenImageDialog = {
@@ -1458,9 +1431,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
     D.fileName = fileName;
     D.visible = true;
 };
-
-// #endregion
-// #region instance join history
 
 // #endregion
 // #region | Tab Props
