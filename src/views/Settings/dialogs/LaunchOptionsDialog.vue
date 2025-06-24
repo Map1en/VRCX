@@ -57,13 +57,11 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { ref, inject, getCurrentInstance } from 'vue';
+    import { computed, getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
     import { openExternalLink } from '../../../shared/utils';
     import { useLaunchStore } from '../../../stores/launch';
-
-    const isLinux = inject('isLinux');
 
     const { t } = useI18n();
 
@@ -77,6 +75,8 @@
         launchArguments: '',
         vrcLaunchPathOverride: ''
     });
+
+    const isLinux = computed(() => LINUX);
 
     function init() {
         configRepository

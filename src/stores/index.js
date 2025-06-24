@@ -68,3 +68,37 @@ export function createGlobalStores() {
         vrcx: useVrcxStore()
     };
 }
+
+export {
+    useAuthStore,
+    useAvatarStore,
+    useAvatarProviderStore,
+    useDebugStore,
+    useFavoriteStore,
+    useFeedStore,
+    useFriendStore,
+    useGalleryStore,
+    useGameStore,
+    useGameLogStore,
+    useGroupStore,
+    useInstanceStore,
+    useInviteStore,
+    useLaunchStore,
+    useLocationStore,
+    useModerationStore,
+    useNotificationStore,
+    usePhotonStore,
+    useSearchStore,
+    useAdvancedSettingsStore,
+    useAppearanceSettingsStore,
+    useDiscordPresenceSettingsStore,
+    useGeneralSettingsStore,
+    useNotificationsSettingsStore,
+    useWristOverlaySettingsStore,
+    useUiStore,
+    useUserStore,
+    useVrStore,
+    useVrcxStore,
+    useVRCXUpdaterStore,
+    useWorldStore
+};

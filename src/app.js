@@ -305,8 +305,7 @@ let $app = {
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
-            showGallerySelectDialog: this.showGallerySelectDialog,
-            isLinux: this.isLinux
+            showGallerySelectDialog: this.showGallerySelectDialog
         };
     },
     el: '#root',

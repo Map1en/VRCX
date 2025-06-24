@@ -77,7 +77,7 @@
                 <!--//- General | Application-->
                 <div class="options-container">
                     <span class="header">{{ t('view.settings.general.application.header') }}</span>
-                    <template v-if="!isLinux()">
+                    <template v-if="!isLinux">
                         <simple-switch
                             :label="t('view.settings.general.application.startup')"
                             :value="isStartAtWindowsStartup"
@@ -91,7 +91,7 @@
                             :value="isCloseToTray"
                             @change="setIsCloseToTray" />
                     </template>
-                    <template v-if="!isLinux()">
+                    <template v-if="!isLinux">
                         <simple-switch
                             :label="t('view.settings.general.application.disable_gpu_acceleration')"
                             :value="disableGpuAcceleration"
@@ -371,7 +371,7 @@
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
-                    <div v-if="!isLinux()" class="options-container-item">
+                    <div v-if="!isLinux" class="options-container-item">
                         <span class="name">{{ t('view.settings.appearance.appearance.zoom') }}</span>
                         <el-input-number
                             v-model="zoomLevel"
@@ -796,7 +796,7 @@
                             }}</el-radio-button>
                         </el-radio-group>
                     </div>
-                    <template v-if="!isLinux()">
+                    <template v-if="!isLinux">
                         <simple-switch
                             :label="
                                 t('view.settings.notifications.notifications.steamvr_notifications.steamvr_overlay')
@@ -1051,7 +1051,7 @@
             </el-tab-pane>
 
             <!--//- Wrist Overlay Tab-->
-            <el-tab-pane v-if="!isLinux()" lazy :label="t('view.settings.category.wrist_overlay')">
+            <el-tab-pane v-if="!isLinux" lazy :label="t('view.settings.category.wrist_overlay')">
                 <!--//- Wrist Overlay | SteamVR Wrist Overlay-->
                 <div class="options-container" style="margin-top: 0">
                     <span class="header">{{ t('view.settings.wrist_overlay.steamvr_wrist_overlay.header') }}</span>
@@ -1444,7 +1444,7 @@
                             saveOpenVROption();
                         "></simple-switch>
                     <!--//- Advanced | VRChat Quit Fix-->
-                    <template v-if="!isLinux()">
+                    <template v-if="!isLinux">
                         <span class="sub-header">{{
                             t('view.settings.advanced.advanced.vrchat_quit_fix.header')
                         }}</span>
@@ -1470,7 +1470,7 @@
                             saveOpenVROption();
                         " />
                     <!--//- Advanced | Disable local world database-->
-                    <template v-if="!isLinux()">
+                    <template v-if="!isLinux">
                         <span class="sub-header">{{
                             t('view.settings.advanced.advanced.local_world_persistence.header')
                         }}</span>
@@ -1500,7 +1500,7 @@
                     </div>
                 </div>
                 <!--//- Advanced | Automatic App Launcher-->
-                <template v-if="!isLinux()">
+                <template v-if="!isLinux">
                     <div class="options-container">
                         <span class="header">{{ t('view.settings.advanced.advanced.app_launcher.header') }}</span>
                         <br />
@@ -1546,7 +1546,7 @@
                     </div>
                 </div>
                 <!--//- Advanced | Video Progress Pie-->
-                <div v-if="!isLinux()" class="options-container">
+                <div v-if="!isLinux" class="options-container">
                     <span class="header">{{ t('view.settings.advanced.advanced.video_progress_pie.header') }}</span>
                     <simple-switch
                         :label="t('view.settings.advanced.advanced.video_progress_pie.enable')"
@@ -1868,21 +1868,31 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { ref, getCurrentInstance } from 'vue';
+    import { ref, getCurrentInstance, computed } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useFavoriteStore } from '../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useGeneralSettingsStore } from '../../stores/settings/general';
-    import { useUserStore } from '../../stores/user';
-    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
-    import { useNotificationsSettingsStore } from '../../stores/settings/notifications';
-    import { useWristOverlaySettingsStore } from '../../stores/settings/wristOverlay';
-    import { useDiscordPresenceSettingsStore } from '../../stores/settings/discordPresence';
-    import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
-    import { usePhotonStore } from '../../stores/photon';
-    import { useFriendStore } from '../../stores/friend';
-    import { useAvatarProviderStore } from '../../stores/avatarProvider';
-    import { useWorldStore } from '../../stores/world';
+    import {
+        useFavoriteStore,
+        useAppearanceSettingsStore,
+        useGeneralSettingsStore,
+        useUserStore,
+        useVRCXUpdaterStore,
+        useNotificationsSettingsStore,
+        useWristOverlaySettingsStore,
+        useDiscordPresenceSettingsStore,
+        useAdvancedSettingsStore,
+        usePhotonStore,
+        useFriendStore,
+        useAvatarProviderStore,
+        useWorldStore,
+        useVrStore,
+        useVrcxStore,
+        useAuthStore,
+        useUiStore,
+        useAvatarStore,
+        useLaunchStore,
+        useInstanceStore,
+        useGroupStore
+    } from '../../stores';
     import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
@@ -1895,15 +1905,7 @@
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
-    import { $app, API } from '../../app';
-    import { useGroupStore } from '../../stores/group';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useLaunchStore } from '../../stores/launch';
-    import { useAvatarStore } from '../../stores/avatar';
-    import { useUiStore } from '../../stores/ui';
-    import { useAuthStore } from '../../stores/auth';
-    import { useVrStore } from '../../stores/vr';
-    import { useVrcxStore } from '../../stores/vrcx';
+    import { API } from '../../app';
 
     const { messages, t } = useI18n();
 
@@ -2201,6 +2203,8 @@
 
     const zoomLevel = ref(100);
 
+    const isLinux = computed(() => LINUX);
+
     initGetZoomLevel();
 
     async function initGetZoomLevel() {
@@ -2222,10 +2226,6 @@
 
     function updateSharedFeed($event) {
         emit('updateSharedFeed', $event);
-    }
-
-    function isLinux() {
-        return LINUX;
     }
 
     function showNotyFeedFiltersDialog() {
