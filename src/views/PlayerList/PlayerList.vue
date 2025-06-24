@@ -858,25 +858,16 @@
     import { useInstanceStore } from '../../stores/instance';
     import { useUiStore } from '../../stores/ui';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const photonStore = usePhotonStore();
-    const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
-    const { photonLoggingEnabled } = storeToRefs(photonStore);
-    const userStore = useUserStore();
-    const { showUserDialog, lookupUser } = userStore;
-    const avatarStore = useAvatarStore();
-    const { showAvatarDialog } = avatarStore;
-    const worldStore = useWorldStore();
-    const { showWorldDialog } = worldStore;
-    const groupStore = useGroupStore;
-    const { showGroupDialog } = groupStore;
-    const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
-    const instanceStore = useInstanceStore();
-    const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(instanceStore);
-    const { currentInstanceUserList, getCurrentInstanceUserList } = instanceStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
+    const { photonLoggingEnabled, photonEventIcon } = storeToRefs(usePhotonStore());
+    const { showUserDialog, lookupUser } = useUserStore();
+    const { showAvatarDialog } = useAvatarStore();
+    const { showWorldDialog } = useWorldStore();
+    const { showGroupDialog } = useGroupStore();
+    const { lastLocation } = storeToRefs(useLocationStore());
+    const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(useInstanceStore());
+    const { currentInstanceUserList, getCurrentInstanceUserList } = useInstanceStore();
+    const { menuActiveIndex } = storeToRefs(useUiStore());
 
     const { t } = useI18n();
 
@@ -895,10 +886,7 @@
             type: Boolean,
             default: false
         },
-        photonEventIcon: {
-            type: Boolean,
-            default: false
-        },
+
         photonEventTable: {
             type: Object,
             default: () => ({})

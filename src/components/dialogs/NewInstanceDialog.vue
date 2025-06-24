@@ -499,6 +499,7 @@
     import { instanceContentSettings } from '../../shared/constants';
     import {
         adjustDialogZ,
+        copyToClipboard,
         getLaunchURL,
         hasGroupPermission,
         isRealInstance,
@@ -552,7 +553,8 @@
                 showLaunchDialog,
                 createNewInstance,
                 uploadImage,
-                adjustDialogZ
+                adjustDialogZ,
+                copyToClipboard
             };
         },
         data() {
@@ -908,21 +910,6 @@
                 }
                 const newUrl = getLaunchURL(L);
                 this.copyToClipboard(newUrl);
-            },
-            async copyToClipboard(newUrl) {
-                try {
-                    await navigator.clipboard.writeText(newUrl);
-                    this.$message({
-                        message: 'Instance copied to clipboard',
-                        type: 'success'
-                    });
-                } catch (error) {
-                    this.$message({
-                        message: 'Instance copied failed',
-                        type: 'error'
-                    });
-                    console.error(error.message);
-                }
             }
         }
     };

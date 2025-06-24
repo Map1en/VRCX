@@ -26,7 +26,6 @@ import VueI18n from 'vue-i18n';
 import { createI18n } from 'vue-i18n-bridge';
 import VueLazyload from 'vue-lazyload';
 import * as workerTimers from 'worker-timers';
-import { userRequest, worldRequest } from './api';
 
 import pugTemplate from './app.pug';
 
@@ -714,82 +713,6 @@ API.$on('LOGIN', async function (args) {
     await AppApi.IPCAnnounceStart();
 });
 
-$app.methods.loadPlayerList = function () {
-    let ctx;
-    let i;
-    const data = this.gameLogSessionTable;
-    if (data.length === 0) {
-        return;
-    }
-    let length = 0;
-    for (i = data.length - 1; i > -1; i--) {
-        ctx = data[i];
-        if (ctx.type === 'Location') {
-            this.store.location.lastLocation = {
-                date: Date.parse(ctx.created_at),
-                location: ctx.location,
-                name: ctx.worldName,
-                playerList: new Map(),
-                friendList: new Map()
-            };
-            length = i;
-            break;
-        }
-    }
-    if (length > 0) {
-        for (i = length + 1; i < data.length; i++) {
-            ctx = data[i];
-            if (ctx.type === 'OnPlayerJoined') {
-                if (!ctx.userId) {
-                    for (let ref of API.cachedUsers.values()) {
-                        if (ref.displayName === ctx.displayName) {
-                            ctx.userId = ref.id;
-                            break;
-                        }
-                    }
-                }
-                const userMap = {
-                    displayName: ctx.displayName,
-                    userId: ctx.userId,
-                    joinTime: Date.parse(ctx.created_at),
-                    lastAvatar: ''
-                };
-                this.store.location.lastLocation.playerList.set(
-                    ctx.userId,
-                    userMap
-                );
-                if (this.store.friend.friends.has(ctx.userId)) {
-                    this.store.location.lastLocation.friendList.set(
-                        ctx.userId,
-                        userMap
-                    );
-                }
-            }
-            if (ctx.type === 'OnPlayerLeft') {
-                this.store.location.lastLocation.playerList.delete(ctx.userId);
-                this.store.location.lastLocation.friendList.delete(ctx.userId);
-            }
-        }
-        this.store.location.lastLocation.playerList.forEach((ref1) => {
-            if (
-                ref1.userId &&
-                typeof ref1.userId === 'string' &&
-                !API.cachedUsers.has(ref1.userId)
-            ) {
-                userRequest.getUser({ userId: ref1.userId });
-            }
-        });
-
-        this.store.location.updateCurrentUserLocation();
-        this.store.instance.updateCurrentInstanceWorld();
-        this.store.vr.updateVRLastLocation();
-        this.store.instance.getCurrentInstanceUserList();
-        this.store.user.applyUserDialogLocation();
-        this.store.instance.applyWorldDialogInstances();
-        this.store.instance.applyGroupDialogInstances();
-    }
-};
-
 // #endregion
 // #region | App: Notification
 
@@ -852,34 +775,6 @@ $app.methods.updateTimers = function () {
 };
 
 // #endregion
-// #region | App: Copy To Clipboard
-
-$app.methods.copyToClipboard = function (text) {
-    const textArea = document.createElement('textarea');
-    textArea.id = 'copy_to_clipboard';
-    textArea.value = text;
-    textArea.style.top = '0';
-    textArea.style.left = '0';
-    textArea.style.position = 'fixed';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    document.execCommand('copy');
-    document.getElementById('copy_to_clipboard').remove();
-};
-
-$app.methods.userOnlineFor = function (ctx) {
-    if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
-        return timeToText(Date.now() - ctx.ref.$online_for);
-    } else if (ctx.ref.state === 'active' && ctx.ref.$active_for) {
-        return timeToText(Date.now() - ctx.ref.$active_for);
-    } else if (ctx.ref.$offline_for) {
-        return timeToText(Date.now() - ctx.ref.$offline_for);
-    }
-    return '-';
-};
-
-// #endregion
 // #region | App: Friends List
 
 $app.data.friendsListSearch = '';
@@ -927,251 +822,7 @@ $app.methods.dragEnterCef = function (filePath) {
 // #endregion
 // #region Misc
 
-$app.data.ipcEnabled = false;
-$app.methods.ipcEvent = function (json) {
-    if (!API.isLoggedIn) {
-        return;
-    }
-    let data;
-    try {
-        data = JSON.parse(json);
-    } catch {
-        console.log(`IPC invalid JSON, ${json}`);
-        return;
-    }
-    switch (data.type) {
-        case 'OnEvent':
-            if (!this.store.game.isGameRunning) {
-                console.log('Game closed, skipped event', data);
-                return;
-            }
-            if (this.debugPhotonLogging) {
-                console.log('OnEvent', data.OnEventData.Code, data.OnEventData);
-            }
-            this.parsePhotonEvent(data.OnEventData, data.dt);
-            this.photonEventPulse();
-            break;
-        case 'OnOperationResponse':
-            if (!this.store.game.isGameRunning) {
-                console.log('Game closed, skipped event', data);
-                return;
-            }
-            if (this.debugPhotonLogging) {
-                console.log(
-                    'OnOperationResponse',
-                    data.OnOperationResponseData.OperationCode,
-                    data.OnOperationResponseData
-                );
-            }
-            this.parseOperationResponse(data.OnOperationResponseData, data.dt);
-            this.photonEventPulse();
-            break;
-        case 'OnOperationRequest':
-            if (!this.store.game.isGameRunning) {
-                console.log('Game closed, skipped event', data);
-                return;
-            }
-            if (this.debugPhotonLogging) {
-                console.log(
-                    'OnOperationRequest',
-                    data.OnOperationRequestData.OperationCode,
-                    data.OnOperationRequestData
-                );
-            }
-            break;
-        case 'VRCEvent':
-            if (!this.store.game.isGameRunning) {
-                console.log('Game closed, skipped event', data);
-                return;
-            }
-            this.parseVRCEvent(data);
-            this.photonEventPulse();
-            break;
-        case 'Event7List':
-            this.photonEvent7List.clear();
-            for (let [id, dt] of Object.entries(data.Event7List)) {
-                this.photonEvent7List.set(parseInt(id, 10), dt);
-            }
-            this.photonLastEvent7List = Date.parse(data.dt);
-            break;
-        case 'VrcxMessage':
-            if (this.debugPhotonLogging) {
-                console.log('VrcxMessage:', data);
-            }
-            this.store.vrcx.eventVrcxMessage(data);
-            break;
-        case 'Ping':
-            if (!this.store.photon.photonLoggingEnabled) {
-                this.store.photon.setPhotonLoggingEnabled();
-            }
-            this.ipcEnabled = true;
-            this.ipcTimeout = 60; // 30secs
-            break;
-        case 'MsgPing':
-            this.externalNotifierVersion = data.version;
-            break;
-        case 'LaunchCommand':
-            this.eventLaunchCommand(data.command);
-            break;
-        case 'VRCXLaunch':
-            console.log('VRCXLaunch:', data);
-            break;
-        default:
-            console.log('IPC:', data);
-    }
-};
-
 $app.data.externalNotifierVersion = 0;
-$app.data.photonEventCount = 0;
-$app.data.photonEventIcon = false;
-
-$app.methods.photonEventPulse = function () {
-    this.photonEventCount++;
-    this.photonEventIcon = true;
-    workerTimers.setTimeout(() => (this.photonEventIcon = false), 150);
-};
-
-$app.methods.parseOperationResponse = function (data, dateTime) {
-    switch (data.OperationCode) {
-        case 226:
-            if (
-                typeof data.Parameters[248] !== 'undefined' &&
-                typeof data.Parameters[248][248] !== 'undefined'
-            ) {
-                this.setPhotonLobbyMaster(data.Parameters[248][248]);
-            }
-            if (typeof data.Parameters[254] !== 'undefined') {
-                this.photonLobbyCurrentUser = data.Parameters[254];
-            }
-            if (typeof data.Parameters[249] !== 'undefined') {
-                for (let i in data.Parameters[249]) {
-                    const id = parseInt(i, 10);
-                    const user = data.Parameters[249][i];
-                    this.parsePhotonUser(id, user.user, dateTime);
-                    this.parsePhotonAvatarChange(
-                        id,
-                        user.user,
-                        user.avatarDict,
-                        dateTime
-                    );
-                    this.parsePhotonGroupChange(
-                        id,
-                        user.user,
-                        user.groupOnNameplate,
-                        dateTime
-                    );
-                    this.parsePhotonAvatar(user.avatarDict);
-                    this.parsePhotonAvatar(user.favatarDict);
-                    let hasInstantiated = false;
-                    const lobbyJointime = this.photonLobbyJointime.get(id);
-                    if (typeof lobbyJointime !== 'undefined') {
-                        hasInstantiated = lobbyJointime.hasInstantiated;
-                    }
-                    this.photonLobbyJointime.set(id, {
-                        joinTime: Date.parse(dateTime),
-                        hasInstantiated,
-                        inVRMode: user.inVRMode,
-                        avatarEyeHeight: user.avatarEyeHeight,
-                        canModerateInstance: user.canModerateInstance,
-                        groupOnNameplate: user.groupOnNameplate,
-                        showGroupBadgeToOthers: user.showGroupBadgeToOthers,
-                        showSocialRank: user.showSocialRank,
-                        useImpostorAsFallback: user.useImpostorAsFallback,
-                        platform: user.platform
-                    });
-                }
-            }
-            if (typeof data.Parameters[252] !== 'undefined') {
-                this.parsePhotonLobbyIds(data.Parameters[252]);
-            }
-            this.photonEvent7List = new Map();
-            break;
-    }
-};
-
-API.$on('LOGIN', async function () {
-    const command = await AppApi.GetLaunchCommand();
-    if (command) {
-        $app.eventLaunchCommand(command);
-    }
-});
-
-$app.methods.eventLaunchCommand = function (input) {
-    if (!API.isLoggedIn) {
-        return;
-    }
-    console.log('LaunchCommand:', input);
-    const args = input.split('/');
-    const command = args[0];
-    const commandArg = args[1]?.trim();
-    let shouldFocusWindow = true;
-    switch (command) {
-        case 'world':
-            this.store.search.directAccessWorld(input.replace('world/', ''));
-            break;
-        case 'avatar':
-            this.store.avatar.showAvatarDialog(commandArg);
-            break;
-        case 'user':
-            this.store.user.showUserDialog(commandArg);
-            break;
-        case 'group':
-            this.store.group.showGroupDialog(commandArg);
-            break;
-        case 'local-favorite-world':
-            console.log('local-favorite-world', commandArg);
-            let [id, group] = commandArg.split(':');
-            worldRequest.getCachedWorld({ worldId: id }).then((args1) => {
-                this.store.search.directAccessWorld(id);
-                this.store.favorite.addLocalWorldFavorite(id, group);
-                return args1;
-            });
-            break;
-        case 'addavatardb':
-            this.store.avatarProvider.addAvatarProvider(
-                input.replace('addavatardb/', '')
-            );
-            break;
-        case 'switchavatar':
-            const avatarId = commandArg;
-            const regexAvatarId =
-                /avtr_[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}/g;
-            if (!avatarId.match(regexAvatarId) || avatarId.length !== 41) {
-                this.$message({
-                    message: 'Invalid Avatar ID',
-                    type: 'error'
-                });
-                break;
-            }
-            if (this.store.advancedSettings.showConfirmationOnSwitchAvatar) {
-                this.store.avatar.selectAvatarWithConfirmation(avatarId);
-                // Makes sure the window is focused
-                shouldFocusWindow = true;
-            } else {
-                this.selectAvatarWithoutConfirmation(avatarId);
-                shouldFocusWindow = false;
-            }
-            break;
-        case 'import':
-            const type = args[1];
-            if (!type) break;
-            const data = input.replace(`import/${type}/`, '');
-            if (type === 'avatar') {
-                this.store.favorite.avatarImportDialogInput = data;
-                this.store.favorite.showAvatarImportDialog();
-            } else if (type === 'world') {
-                this.store.favorite.worldImportDialogInput = data;
-                this.store.favorite.showWorldImportDialog();
-            } else if (type === 'friend') {
-                this.store.favorite.friendImportDialogInput = data;
-                this.store.favorite.showFriendImportDialog();
-            }
-            break;
-    }
-    if (shouldFocusWindow) {
-        AppApi.FocusWindow();
-    }
-};
 
 $app.data.enableCustomEndpoint = await configRepository.getBool(
     'VRCX_enableCustomEndpoint',
@@ -1185,9 +836,6 @@ $app.methods.toggleCustomEndpoint = async function () {
     this.store.auth.loginForm.endpoint = '';
     this.store.auth.loginForm.websocket = '';
 };
-
-// #endregion
-// #region | App: note export
 
 // #endregion
 // #region | App: ChatBox Blacklist
@@ -1289,7 +937,6 @@ $app.computed.playerListTabBind = function () {
         photonEventTableTypeFilter: this.photonEventTableTypeFilter,
         photonEventTableFilter: this.photonEventTableFilter,
         ipcEnabled: this.ipcEnabled,
-        photonEventIcon: this.photonEventIcon,
         photonEventTable: this.photonEventTable,
         photonEventTablePrevious: this.photonEventTablePrevious,
         chatboxUserBlacklist: this.chatboxUserBlacklist
@@ -1329,7 +976,6 @@ $app.computed.settingsTabBind = function () {
 
 $app.computed.settingsTabEvent = function () {
     return {
-        saveVRCXWindowOption: this.saveVRCXWindowOption,
         promptProxySettings: this.promptProxySettings,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,

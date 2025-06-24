@@ -199,21 +199,13 @@
     const { VRChatUsedCacheSize, VRChatTotalCacheSize, VRChatCacheSizeLoading } = storeToRefs(useGameStore());
     const { sweepVRChatCache, getVRChatCacheSize } = useGameStore();
     const { folderSelectorDialog } = useAdvancedSettingsStore();
+    const { isVRChatConfigDialogVisible } = storeToRefs(useAdvancedSettingsStore());
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
     const $message = instance.proxy.$message;
-
-    const props = defineProps({
-        isVRChatConfigDialogVisible: {
-            type: Boolean,
-            required: true
-        }
-    });
-
-    const emit = defineEmits(['update:isVRChatConfigDialogVisible']);
 
     const VRChatConfigFile = ref({});
     // it's a object
@@ -265,7 +257,7 @@
     const loading = ref(false);
 
     watch(
-        () => props.isVRChatConfigDialogVisible,
+        () => isVRChatConfigDialogVisible.value,
         async (newValue) => {
             if (newValue) {
                 loading.value = true;
@@ -396,6 +388,6 @@
     }
 
     function closeDialog() {
-        emit('update:isVRChatConfigDialogVisible', false);
+        isVRChatConfigDialogVisible.value = false;
     }
 </script>

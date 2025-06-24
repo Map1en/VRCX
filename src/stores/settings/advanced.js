@@ -178,6 +178,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             state.currentUserInventory = value;
         }
     });
+    const isVRChatConfigDialogVisible = computed({
+        get: () => state.isVRChatConfigDialogVisible,
+        set: (value) => (state.isVRChatConfigDialogVisible = value)
+    });
 
     /**
      * @param {boolean} value
@@ -548,6 +552,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         currentUserInventory,
         autoDeleteOldPrints,
         notificationOpacity,
+        isVRChatConfigDialogVisible,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,

@@ -1819,6 +1819,7 @@
         saveUserMemo,
         timeToText,
         userImage,
+        userOnlineFor,
         userOnlineForTimestamp,
         userStatusClass
     } from '../../../shared/utils';
@@ -1873,13 +1874,6 @@
     const { isGameRunning } = storeToRefs(useGameStore());
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const props = defineProps({
-        userOnlineFor: {
-            type: Function,
-            default: () => {}
-        }
-    });
 
     const emit = defineEmits(['logout', 'setGroupVisibility', 'leaveGroupPrompt']);
 

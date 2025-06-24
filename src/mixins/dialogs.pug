@@ -16,7 +16,6 @@ mixin dialogs
     LaunchDialog
 
     UserDialog(
-        :userOnlineFor='userOnlineFor'
         @logout='logout'
         @setGroupVisibility='setGroupVisibility'
         @leaveGroupPrompt='leaveGroupPrompt')
@@ -36,7 +35,6 @@ mixin dialogs
 
     EditInviteMessageDialog
 
-    VRChatConfigDialog(
-        :isVRChatConfigDialogVisible.sync='isVRChatConfigDialogVisible')
+    VRChatConfigDialog
 
     PrimaryPasswordDialog

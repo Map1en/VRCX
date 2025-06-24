@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { worldRequest } from '../api';
 import { $app, API } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { debounce, parseLocation, refreshCustomCss } from '../shared/utils';
 import { useAvatarStore } from './avatar';
+import { useAvatarProviderStore } from './avatarProvider';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
@@ -14,6 +16,7 @@ import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { usePhotonStore } from './photon';
+import { useSearchStore } from './search';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
 import { useWorldStore } from './world';
@@ -32,6 +35,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     const userStore = useUserStore();
     const photonStore = usePhotonStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const searchStore = useSearchStore();
+    const avatarProviderStore = useAvatarProviderStore();
 
     const state = reactive({
         isRunningUnderWine: false,
@@ -43,7 +48,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         sizeWidth: 800,
         sizeHeight: 600,
         windowState: '',
-        maxTableSize: 1000
+        maxTableSize: 1000,
+        ipcEnabled: false
     });
 
     async function init() {
@@ -378,6 +384,190 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         if (advancedSettingsStore.screenshotHelperCopyToClipboard) {
             await AppApi.CopyImageToClipboard(newPath);
             console.log('Screenshot copied to clipboard', newPath);
+        }
+    }
+
+    function ipcEvent(json) {
+        if (!API.isLoggedIn) {
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(json);
+        } catch {
+            console.log(`IPC invalid JSON, ${json}`);
+            return;
+        }
+        switch (data.type) {
+            case 'OnEvent':
+                if (!gameStore.isGameRunning) {
+                    console.log('Game closed, skipped event', data);
+                    return;
+                }
+                if ($app.debugPhotonLogging) {
+                    console.log(
+                        'OnEvent',
+                        data.OnEventData.Code,
+                        data.OnEventData
+                    );
+                }
+                $app.parsePhotonEvent(data.OnEventData, data.dt);
+                photonStore.photonEventPulse();
+                break;
+            case 'OnOperationResponse':
+                if (!gameStore.isGameRunning) {
+                    console.log('Game closed, skipped event', data);
+                    return;
+                }
+                if ($app.debugPhotonLogging) {
+                    console.log(
+                        'OnOperationResponse',
+                        data.OnOperationResponseData.OperationCode,
+                        data.OnOperationResponseData
+                    );
+                }
+                photonStore.parseOperationResponse(
+                    data.OnOperationResponseData,
+                    data.dt
+                );
+                photonStore.photonEventPulse();
+                break;
+            case 'OnOperationRequest':
+                if (!gameStore.isGameRunning) {
+                    console.log('Game closed, skipped event', data);
+                    return;
+                }
+                if (this.debugPhotonLogging) {
+                    console.log(
+                        'OnOperationRequest',
+                        data.OnOperationRequestData.OperationCode,
+                        data.OnOperationRequestData
+                    );
+                }
+                break;
+            case 'VRCEvent':
+                if (!gameStore.isGameRunning) {
+                    console.log('Game closed, skipped event', data);
+                    return;
+                }
+                $app.parseVRCEvent(data);
+                photonStore.photonEventPulse();
+                break;
+            case 'Event7List':
+                $app.photonEvent7List.clear();
+                for (const [id, dt] of Object.entries(data.Event7List)) {
+                    $app.photonEvent7List.set(parseInt(id, 10), dt);
+                }
+                $app.photonLastEvent7List = Date.parse(data.dt);
+                break;
+            case 'VrcxMessage':
+                if ($app.debugPhotonLogging) {
+                    console.log('VrcxMessage:', data);
+                }
+                state.eventVrcxMessage(data);
+                break;
+            case 'Ping':
+                if (!photonStore.photonLoggingEnabled) {
+                    photonStore.setPhotonLoggingEnabled();
+                }
+                state.ipcEnabled = true;
+                $app.ipcTimeout = 60; // 30secs
+                break;
+            case 'MsgPing':
+                $app.externalNotifierVersion = data.version;
+                break;
+            case 'LaunchCommand':
+                eventLaunchCommand(data.command);
+                break;
+            case 'VRCXLaunch':
+                console.log('VRCXLaunch:', data);
+                break;
+            default:
+                console.log('IPC:', data);
+        }
+    }
+
+    API.$on('LOGIN', async function () {
+        const command = await AppApi.GetLaunchCommand();
+        if (command) {
+            eventLaunchCommand(command);
+        }
+    });
+
+    function eventLaunchCommand(input) {
+        if (!API.isLoggedIn) {
+            return;
+        }
+        console.log('LaunchCommand:', input);
+        const args = input.split('/');
+        const command = args[0];
+        const commandArg = args[1]?.trim();
+        let shouldFocusWindow = true;
+        switch (command) {
+            case 'world':
+                searchStore.directAccessWorld(input.replace('world/', ''));
+                break;
+            case 'avatar':
+                avatarStore.showAvatarDialog(commandArg);
+                break;
+            case 'user':
+                userStore.showUserDialog(commandArg);
+                break;
+            case 'group':
+                groupStore.showGroupDialog(commandArg);
+                break;
+            case 'local-favorite-world':
+                console.log('local-favorite-world', commandArg);
+                const [id, group] = commandArg.split(':');
+                worldRequest.getCachedWorld({ worldId: id }).then((args1) => {
+                    searchStore.directAccessWorld(id);
+                    favoriteStore.addLocalWorldFavorite(id, group);
+                    return args1;
+                });
+                break;
+            case 'addavatardb':
+                avatarProviderStore.addAvatarProvider(
+                    input.replace('addavatardb/', '')
+                );
+                break;
+            case 'switchavatar':
+                const avatarId = commandArg;
+                const regexAvatarId =
+                    /avtr_[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}/g;
+                if (!avatarId.match(regexAvatarId) || avatarId.length !== 41) {
+                    this.$message({
+                        message: 'Invalid Avatar ID',
+                        type: 'error'
+                    });
+                    break;
+                }
+                if (advancedSettingsStore.showConfirmationOnSwitchAvatar) {
+                    avatarStore.selectAvatarWithConfirmation(avatarId);
+                    // Makes sure the window is focused
+                    shouldFocusWindow = true;
+                } else {
+                    this.selectAvatarWithoutConfirmation(avatarId);
+                    shouldFocusWindow = false;
+                }
+                break;
+            case 'import':
+                const type = args[1];
+                if (!type) break;
+                const data = input.replace(`import/${type}/`, '');
+                if (type === 'avatar') {
+                    favoriteStore.avatarImportDialogInput = data;
+                    favoriteStore.showAvatarImportDialog();
+                } else if (type === 'world') {
+                    favoriteStore.worldImportDialogInput = data;
+                    favoriteStore.showWorldImportDialog();
+                } else if (type === 'friend') {
+                    favoriteStore.friendImportDialogInput = data;
+                    favoriteStore.showFriendImportDialog();
+                }
+                break;
+        }
+        if (shouldFocusWindow) {
+            AppApi.FocusWindow();
         }
     }
 

@@ -110,7 +110,7 @@ export const useGameStore = defineStore('Game', () => {
     async function sweepVRChatCache() {
         const output = await AssetBundleManager.SweepCache();
         console.log('SweepCache', output);
-        if ($app.isVRChatConfigDialogVisible) {
+        if (advancedSettingsStore.isVRChatConfigDialogVisible) {
             getVRChatCacheSize();
         }
     }

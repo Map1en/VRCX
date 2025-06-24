@@ -1,8 +1,9 @@
-import { API } from '../../app';
-import { languageMappings } from '../constants';
-import { HueToHex } from './base/ui';
-import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 import { storeToRefs } from 'pinia';
+import { API } from '../../app';
+import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+import { languageMappings } from '../constants';
+import { timeToText } from './base/format';
+import { HueToHex } from './base/ui';
 import { convertFileUrlToImageUrl } from './common';
 
 /**
@@ -256,7 +257,22 @@ function parseUserUrl(user) {
         const userId = urlPath.substring(11);
         return userId;
     }
-    return void 0;
+}
+
+/**
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+function userOnlineFor(ctx) {
+    if (ctx.ref.state === 'online' && ctx.ref.$online_for) {
+        return timeToText(Date.now() - ctx.ref.$online_for);
+    } else if (ctx.ref.state === 'active' && ctx.ref.$active_for) {
+        return timeToText(Date.now() - ctx.ref.$active_for);
+    } else if (ctx.ref.$offline_for) {
+        return timeToText(Date.now() - ctx.ref.$offline_for);
+    }
+    return '-';
 }
 
 export {
@@ -268,5 +284,6 @@ export {
     statusClass,
     userImage,
     userImageFull,
-    parseUserUrl
+    parseUserUrl,
+    userOnlineFor
 };

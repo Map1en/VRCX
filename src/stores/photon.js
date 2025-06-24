@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { API } from '../app';
+import * as workerTimers from 'worker-timers';
+import { $app, API } from '../app';
 import configRepository from '../service/config';
 
 export const usePhotonStore = defineStore('Photon', () => {
@@ -25,7 +26,9 @@ export const usePhotonStore = defineStore('Photon', () => {
             'MasterMigrate'
         ],
         timeoutHudOverlay: false,
-        timeoutHudOverlayFilter: 'Everyone'
+        timeoutHudOverlayFilter: 'Everyone',
+        photonEventCount: 0,
+        photonEventIcon: false
     });
 
     async function initPhotonStates() {
@@ -75,6 +78,12 @@ export const usePhotonStore = defineStore('Photon', () => {
     const timeoutHudOverlayFilter = computed(
         () => state.timeoutHudOverlayFilter
     );
+    const photonEventIcon = computed({
+        get: () => state.photonEventIcon,
+        set: (value) => {
+            state.photonEventIcon = value;
+        }
+    });
 
     function setPhotonLoggingEnabled() {
         state.photonLoggingEnabled = !state.photonLoggingEnabled;
@@ -126,6 +135,69 @@ export const usePhotonStore = defineStore('Photon', () => {
         }
         return '';
     }
+    function photonEventPulse() {
+        state.photonEventCount++;
+        state.photonEventIcon = true;
+        workerTimers.setTimeout(() => (state.photonEventIcon = false), 150);
+    }
+
+    function parseOperationResponse(data, dateTime) {
+        switch (data.OperationCode) {
+            case 226:
+                if (
+                    typeof data.Parameters[248] !== 'undefined' &&
+                    typeof data.Parameters[248][248] !== 'undefined'
+                ) {
+                    $app.setPhotonLobbyMaster(data.Parameters[248][248]);
+                }
+                if (typeof data.Parameters[254] !== 'undefined') {
+                    $app.photonLobbyCurrentUser = data.Parameters[254];
+                }
+                if (typeof data.Parameters[249] !== 'undefined') {
+                    for (const i in data.Parameters[249]) {
+                        const id = parseInt(i, 10);
+                        const user = data.Parameters[249][i];
+                        $app.parsePhotonUser(id, user.user, dateTime);
+                        $app.parsePhotonAvatarChange(
+                            id,
+                            user.user,
+                            user.avatarDict,
+                            dateTime
+                        );
+                        $app.parsePhotonGroupChange(
+                            id,
+                            user.user,
+                            user.groupOnNameplate,
+                            dateTime
+                        );
+                        $app.parsePhotonAvatar(user.avatarDict);
+                        $app.parsePhotonAvatar(user.favatarDict);
+                        let hasInstantiated = false;
+                        const lobbyJointime = $app.photonLobbyJointime.get(id);
+                        if (typeof lobbyJointime !== 'undefined') {
+                            hasInstantiated = lobbyJointime.hasInstantiated;
+                        }
+                        $app.photonLobbyJointime.set(id, {
+                            joinTime: Date.parse(dateTime),
+                            hasInstantiated,
+                            inVRMode: user.inVRMode,
+                            avatarEyeHeight: user.avatarEyeHeight,
+                            canModerateInstance: user.canModerateInstance,
+                            groupOnNameplate: user.groupOnNameplate,
+                            showGroupBadgeToOthers: user.showGroupBadgeToOthers,
+                            showSocialRank: user.showSocialRank,
+                            useImpostorAsFallback: user.useImpostorAsFallback,
+                            platform: user.platform
+                        });
+                    }
+                }
+                if (typeof data.Parameters[252] !== 'undefined') {
+                    $app.parsePhotonLobbyIds(data.Parameters[252]);
+                }
+                $app.photonEvent7List = new Map();
+                break;
+        }
+    }
 
     return {
         state,
@@ -136,6 +208,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventTableTypeOverlayFilter,
         timeoutHudOverlay,
         timeoutHudOverlayFilter,
+        photonEventIcon,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
@@ -143,6 +216,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         setPhotonEventTableTypeOverlayFilter,
         setTimeoutHudOverlay,
         setTimeoutHudOverlayFilter,
-        getDisplayName
+        getDisplayName,
+        photonEventPulse,
+        parseOperationResponse
     };
 });
