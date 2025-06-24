@@ -512,6 +512,7 @@
     import { useInviteStore } from '../../stores/invite';
     import { useGalleryStore } from '../../stores/gallery';
     import { useUiStore } from '../../stores/ui';
+    import { useSearchStore } from '../../stores/search';
 
     const friendStore = useFriendStore();
     const { friends } = storeToRefs(friendStore);
@@ -535,17 +536,13 @@
     const { showGalleryDialog } = galleryStore;
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
+    const searchStore = useSearchStore();
+    const { directAccessWorld } = searchStore;
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
 
-    const props = defineProps({
-        directAccessWorld: {
-            type: Function,
-            default: () => {}
-        }
-    });
     const emit = defineEmits(['logout']);
 
     const vrchatCredit = ref(null);
@@ -637,7 +634,7 @@
             inputErrorMessage: t('prompt.direct_access_world_id.input_error'),
             callback: (action, instance) => {
                 if (action === 'confirm' && instance.inputValue) {
-                    if (!props.directAccessWorld(instance.inputValue)) {
+                    if (!directAccessWorld(instance.inputValue)) {
                         $message({
                             message: t('prompt.direct_access_world_id.message.error'),
                             type: 'error'

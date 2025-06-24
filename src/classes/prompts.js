@@ -132,35 +132,6 @@ export default function init() {
             );
         },
 
-        promptOmniDirectDialog() {
-            this.$prompt(
-                $t('prompt.direct_access_omni.description'),
-                $t('prompt.direct_access_omni.header'),
-                {
-                    distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.direct_access_omni.ok'),
-                    cancelButtonText: $t('prompt.direct_access_omni.cancel'),
-                    inputPattern: /\S+/,
-                    inputErrorMessage: $t(
-                        'prompt.direct_access_omni.input_error'
-                    ),
-                    callback: (action, instance) => {
-                        if (action === 'confirm' && instance.inputValue) {
-                            var input = instance.inputValue.trim();
-                            if (!this.directAccessParse(input)) {
-                                this.$message({
-                                    message: $t(
-                                        'prompt.direct_access_omni.message.error'
-                                    ),
-                                    type: 'error'
-                                });
-                            }
-                        }
-                    }
-                }
-            );
-        },
-
         promptNotificationTimeout() {
             this.$prompt(
                 $t('prompt.notification_timeout.description'),

@@ -10,7 +10,7 @@ doctype html
         NavMenu(ref='menu')
 
         //- ### Sidebar ###
-        Sidebar(v-bind='sidebarTabBind' v-on='sidebarTabEvent')
+        Sidebar(v-bind='sidebarTabBind')
 
         //- ### Tabs ###
         FeedTab
@@ -33,7 +33,7 @@ doctype html
 
         ChartsTab
 
-        ProfileTab(v-bind='profileTabBind' v-on='profileTabEvent')
+        ProfileTab(v-on='profileTabEvent')
 
         SettingsTab(v-bind='settingsTabBind' v-on='settingsTabEvent')
 

@@ -1,19 +1,26 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { userRequest } from '../api';
-import { $app, API } from '../app';
+import { instanceRequest, userRequest } from '../api';
+import { groupRequest } from '../api/';
+import { $app, $t, API } from '../app';
 import removeConfusables, { removeWhitespace } from '../service/confusables';
 import { compareByName, localeIncludes } from '../shared/utils';
+import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
+import { useGroupStore } from './group';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
+import { useWorldStore } from './world';
 
 export const useSearchStore = defineStore('Search', () => {
     const userStore = useUserStore();
     const uiStore = useUiStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendStore = useFriendStore();
+    const worldStore = useWorldStore();
+    const avatarStore = useAvatarStore();
+    const groupStore = useGroupStore();
     const state = reactive({
         searchText: '',
         searchUserResults: [],
@@ -219,6 +226,173 @@ export const useSearchStore = defineStore('Search', () => {
         return results;
     }
 
+    function directAccessPaste() {
+        AppApi.GetClipboard().then((clipboard) => {
+            if (!directAccessParse(clipboard.trim())) {
+                promptOmniDirectDialog();
+            }
+        });
+    }
+
+    function directAccessParse(input) {
+        if (!input) {
+            return false;
+        }
+        if (directAccessWorld(input)) {
+            return true;
+        }
+        if (input.startsWith('https://vrchat.')) {
+            const url = new URL(input);
+            const urlPath = url.pathname;
+            const urlPathSplit = urlPath.split('/');
+            if (urlPathSplit.length < 4) {
+                return false;
+            }
+            const type = urlPathSplit[2];
+            if (type === 'user') {
+                const userId = urlPathSplit[3];
+                userStore.showUserDialog(userId);
+                return true;
+            } else if (type === 'avatar') {
+                const avatarId = urlPathSplit[3];
+                avatarStore.showAvatarDialog(avatarId);
+                return true;
+            } else if (type === 'group') {
+                const groupId = urlPathSplit[3];
+                groupStore.showGroupDialog(groupId);
+                return true;
+            }
+        } else if (input.startsWith('https://vrc.group/')) {
+            const shortCode = input.substring(18);
+            showGroupDialogShortCode(shortCode);
+            return true;
+        } else if (/^[A-Za-z0-9]{3,6}\.[0-9]{4}$/g.test(input)) {
+            showGroupDialogShortCode(input);
+            return true;
+        } else if (
+            input.substring(0, 4) === 'usr_' ||
+            /^[A-Za-z0-9]{10}$/g.test(input)
+        ) {
+            userStore.showUserDialog(input);
+            return true;
+        } else if (input.substring(0, 5) === 'avtr_') {
+            avatarStore.showAvatarDialog(input);
+            return true;
+        } else if (input.substring(0, 4) === 'grp_') {
+            groupStore.showGroupDialog(input);
+            return true;
+        }
+        return false;
+    }
+
+    function directAccessWorld(textBoxInput) {
+        let worldId;
+        let shortName;
+        let input = textBoxInput;
+        if (input.startsWith('/home/')) {
+            input = `https://vrchat.com${input}`;
+        }
+        if (input.length === 8) {
+            return verifyShortName('', input);
+        } else if (input.startsWith('https://vrch.at/')) {
+            shortName = input.substring(16, 24);
+            return verifyShortName('', shortName);
+        } else if (
+            input.startsWith('https://vrchat.') ||
+            input.startsWith('/home/')
+        ) {
+            const url = new URL(input);
+            const urlPath = url.pathname;
+            const urlPathSplit = urlPath.split('/');
+            if (urlPathSplit.length >= 4 && urlPathSplit[2] === 'world') {
+                worldId = urlPathSplit[3];
+                worldStore.showWorldDialog(worldId);
+                return true;
+            } else if (urlPath.substring(5, 12) === '/launch') {
+                const urlParams = new URLSearchParams(url.search);
+                worldId = urlParams.get('worldId');
+                const instanceId = urlParams.get('instanceId');
+                if (instanceId) {
+                    shortName = urlParams.get('shortName');
+                    const location = `${worldId}:${instanceId}`;
+                    if (shortName) {
+                        return verifyShortName(location, shortName);
+                    }
+                    worldStore.showWorldDialog(location);
+                    return true;
+                } else if (worldId) {
+                    worldStore.showWorldDialog(worldId);
+                    return true;
+                }
+            }
+        } else if (input.substring(0, 5) === 'wrld_') {
+            // a bit hacky, but supports weird malformed inputs cut out from url, why not
+            if (input.indexOf('&instanceId=') >= 0) {
+                input = `https://vrchat.com/home/launch?worldId=${input}`;
+                return directAccessWorld(input);
+            }
+            worldStore.showWorldDialog(input.trim());
+            return true;
+        }
+        return false;
+    }
+
+    function promptOmniDirectDialog() {
+        $app.$prompt(
+            $t('prompt.direct_access_omni.description'),
+            $t('prompt.direct_access_omni.header'),
+            {
+                distinguishCancelAndClose: true,
+                confirmButtonText: $t('prompt.direct_access_omni.ok'),
+                cancelButtonText: $t('prompt.direct_access_omni.cancel'),
+                inputPattern: /\S+/,
+                inputErrorMessage: $t('prompt.direct_access_omni.input_error'),
+                callback: (action, instance) => {
+                    if (action === 'confirm' && instance.inputValue) {
+                        const input = instance.inputValue.trim();
+                        if (!directAccessParse(input)) {
+                            $app.$message({
+                                message: $t(
+                                    'prompt.direct_access_omni.message.error'
+                                ),
+                                type: 'error'
+                            });
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    function showGroupDialogShortCode(shortCode) {
+        groupRequest.groupStrictsearch({ query: shortCode }).then((args) => {
+            for (const group of args.json) {
+                if (`${group.shortCode}.${group.discriminator}` === shortCode) {
+                    groupStore.showGroupDialog(group.id);
+                    break;
+                }
+            }
+            return args;
+        });
+    }
+
+    function verifyShortName(location, shortName) {
+        return instanceRequest
+            .getInstanceFromShortName({ shortName })
+            .then((args) => {
+                const newLocation = args.json.location;
+                const newShortName = args.json.shortName;
+                if (newShortName) {
+                    worldStore.showWorldDialog(newLocation, newShortName);
+                } else if (newLocation) {
+                    worldStore.showWorldDialog(newLocation);
+                } else {
+                    worldStore.showWorldDialog(location);
+                }
+                return args;
+            });
+    }
+
     return {
         state,
         searchText,
@@ -230,6 +404,9 @@ export const useSearchStore = defineStore('Search', () => {
         moreSearchUser,
         quickSearchUserHistory,
         quickSearchRemoteMethod,
-        quickSearchChange
+        quickSearchChange,
+        directAccessPaste,
+        directAccessWorld,
+        verifyShortName
     };
 });

@@ -47,7 +47,7 @@
                     size="mini"
                     icon="el-icon-discover"
                     circle
-                    @click="$emit('direct-access-paste')"></el-button>
+                    @click="directAccessPaste"></el-button>
             </el-tooltip>
             <el-tooltip placement="bottom" :content="$t('side_panel.refresh_tooltip')" :disabled="hideTooltips">
                 <el-button
@@ -109,7 +109,7 @@
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
     const searchStore = useSearchStore();
-    const { quickSearchRemoteMethod, quickSearchChange } = searchStore;
+    const { quickSearchRemoteMethod, quickSearchChange, directAccessPaste } = searchStore;
     const { quickSearchItems } = storeToRefs(searchStore);
 
     const isSideBarTabShow = computed(() => {
