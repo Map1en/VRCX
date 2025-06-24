@@ -412,7 +412,7 @@
                                         @click="refreshInstancePlayerCount(room.tag)" />
                                 </el-tooltip>
                                 <last-join :location="room.tag" :currentlocation="lastLocation.location" />
-                                <instance-info
+                                <InstanceInfo
                                     :location="room.tag"
                                     :instance="room.ref"
                                     :friendcount="room.friendCount" />
@@ -1182,10 +1182,8 @@
         userImage,
         userStatusClass
     } from '../../../shared/utils';
-    import { useGroupStore } from '../../../stores/group';
-    import { useLocationStore } from '../../../stores/location';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import { useAppearanceSettingsStore, useGroupStore, useLocationStore, useUserStore } from '../../../stores';
+    import InstanceInfo from '../../InstanceInfo.vue';
     import Location from '../../Location.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';

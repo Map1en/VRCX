@@ -371,7 +371,7 @@
                                         @click="showPreviousInstancesInfoDialog(room.location)" />
                                 </el-tooltip>
                                 <last-join :location="room.$location.tag" :currentlocation="lastLocation.location" />
-                                <instance-info
+                                <InstanceInfo
                                     :location="room.tag"
                                     :instance="room.ref"
                                     :friendcount="room.friendCount" />
@@ -775,14 +775,17 @@
         userImage,
         userStatusClass
     } from '../../../shared/utils';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useGameStore } from '../../../stores/game';
-    import { useInstanceStore } from '../../../stores/instance';
-    import { useInviteStore } from '../../../stores/invite';
-    import { useLocationStore } from '../../../stores/location';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
-    import { useWorldStore } from '../../../stores/world';
+    import {
+        useAppearanceSettingsStore,
+        useFavoriteStore,
+        useGameStore,
+        useInstanceStore,
+        useInviteStore,
+        useLocationStore,
+        useUserStore,
+        useWorldStore
+    } from '../../../stores';
+    import InstanceInfo from '../../InstanceInfo.vue';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
@@ -793,6 +796,7 @@
     export default {
         name: 'WorldDialog',
         components: {
+            InstanceInfo,
             PreviousImagesDialog,
             SetWorldTagsDialog,
             WorldAllowedDomainsDialog,

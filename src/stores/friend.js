@@ -288,7 +288,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     API.$on('USER:CURRENT', function (args) {
         if (state.friendLogInitStatus) {
-            state.refreshFriendsStatus(args.ref, args.fromGetCurrentUser);
+            refreshFriendsStatus(args.ref, args.fromGetCurrentUser);
         }
         updateOnlineFriendCoutner();
 

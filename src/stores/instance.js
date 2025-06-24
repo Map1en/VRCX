@@ -70,8 +70,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             layout: 'table'
         },
         updatePlayerListTimer: null,
-        updatePlayerListPending: false,
-        updateInstanceInfo: 0
+        updatePlayerListPending: false
     });
 
     const cachedInstances = computed({
@@ -171,12 +170,6 @@ export const useInstanceStore = defineStore('Instance', () => {
         ) {
             applyGroupDialogInstances();
         }
-
-        // todo: FIXME:
-        // because use $refs to update data, can not trigger vue's reactivity system, so view will not update
-        // will fix this when refactor the core code, maybe
-        // old comment: hacky workaround to force update instance info
-        state.updateInstanceInfo++;
     });
 
     async function getInstanceJoinHistory() {

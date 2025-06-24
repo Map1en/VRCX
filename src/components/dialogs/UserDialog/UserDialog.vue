@@ -573,7 +573,7 @@
                                     <last-join
                                         :location="userDialog.$location.tag"
                                         :currentlocation="lastLocation.location"></last-join>
-                                    <instance-info
+                                    <InstanceInfo
                                         :location="userDialog.$location.tag"
                                         :instance="userDialog.instance.ref"
                                         :friendcount="userDialog.instance.friendCount" />
@@ -1823,18 +1823,21 @@
         userOnlineForTimestamp,
         userStatusClass
     } from '../../../shared/utils';
-    import { useAvatarStore } from '../../../stores/avatar';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useFriendStore } from '../../../stores/friend';
-    import { useGalleryStore } from '../../../stores/gallery';
-    import { useGameStore } from '../../../stores/game';
-    import { useGroupStore } from '../../../stores/group';
-    import { useInviteStore } from '../../../stores/invite';
-    import { useLocationStore } from '../../../stores/location';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
-    import { useWorldStore } from '../../../stores/world';
+    import {
+        useAdvancedSettingsStore,
+        useAppearanceSettingsStore,
+        useAvatarStore,
+        useFavoriteStore,
+        useFriendStore,
+        useGalleryStore,
+        useGameStore,
+        useGroupStore,
+        useInviteStore,
+        useLocationStore,
+        useUserStore,
+        useWorldStore
+    } from '../../../stores';
+    import InstanceInfo from '../../InstanceInfo.vue';
     import Location from '../../Location.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';

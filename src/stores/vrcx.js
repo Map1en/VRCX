@@ -281,7 +281,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         });
         avatarStore.cachedAvatarNames = new Map();
         userStore.customUserTags = new Map();
-        instanceStore.updateInstanceInfo = 0;
     }
 
     function eventVrcxMessage(data) {
