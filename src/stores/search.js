@@ -1,23 +1,13 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { userRequest } from '../api';
-import { $app, $t } from '../app';
-import API from '../classes/apiInit';
-import { userNotes } from '../classes/userNotes';
-import configRepository from '../service/config';
+import { $app, API } from '../app';
 import removeConfusables, { removeWhitespace } from '../service/confusables';
-import database from '../service/database';
-import {
-    compareByName,
-    getAllUserMemos,
-    getNameColour,
-    localeIncludes,
-    migrateMemos
-} from '../shared/utils';
-import { useUserStore } from './user';
-import { useUiStore } from './ui';
-import { useAppearanceSettingsStore } from './settings/appearance';
+import { compareByName, localeIncludes } from '../shared/utils';
 import { useFriendStore } from './friend';
+import { useAppearanceSettingsStore } from './settings/appearance';
+import { useUiStore } from './ui';
+import { useUserStore } from './user';
 
 export const useSearchStore = defineStore('Search', () => {
     const userStore = useUserStore();

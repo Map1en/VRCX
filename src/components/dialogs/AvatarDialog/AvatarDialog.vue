@@ -614,6 +614,7 @@
     import database from '../../../service/database';
     import {
         buildTreeData,
+        commaNumber,
         compareUnityVersion,
         copyToClipboard,
         downloadAndSaveJson,
@@ -622,13 +623,13 @@
         openExternalLink,
         replaceVrcPackageUrl,
         storeAvatarImage,
-        timeToText,
-        commaNumber
+        timeToText
     } from '../../../shared/utils';
+    import { useAvatarStore } from '../../../stores/avatar';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useGameStore } from '../../../stores/game';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
-    import { useAvatarStore } from '../../../stores/avatar';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
@@ -646,19 +647,15 @@
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
     const favoriteStore = useFavoriteStore();
     const { showFavoriteDialog } = favoriteStore;
+    const gameStore = useGameStore();
+    const { isGameRunning } = storeToRefs(gameStore);
+    const { deleteVRChatCache } = gameStore;
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const { $message, $confirm, $prompt } = instance.proxy;
 
-    const emit = defineEmits(['openFolderGeneric', 'deleteVRChatCache', 'openPreviousImagesDialog']);
-
-    defineProps({
-        isGameRunning: {
-            type: Boolean,
-            default: false
-        }
-    });
+    const emit = defineEmits(['openFolderGeneric', 'openPreviousImagesDialog']);
 
     const avatarDialogRef = ref(null);
     const changeAvatarImageDialogVisible = ref(false);
@@ -774,10 +771,6 @@
 
     function openFolderGeneric(path) {
         emit('openFolderGeneric', path);
-    }
-
-    function deleteVRChatCache(ref) {
-        emit('deleteVRChatCache', ref);
     }
 
     function avatarDialogCommand(command) {

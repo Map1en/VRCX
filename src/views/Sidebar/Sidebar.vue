@@ -69,7 +69,7 @@
                     </span>
                 </template>
                 <el-backtop target=".zero-margin-tabs .el-tabs__content" :bottom="20" :right="20"></el-backtop>
-                <FriendsSidebar :is-game-running="isGameRunning" @confirm-delete-friend="confirmDeleteFriend" />
+                <FriendsSidebar @confirm-delete-friend="confirmDeleteFriend" />
             </el-tab-pane>
             <el-tab-pane lazy>
                 <template slot="label">
@@ -90,14 +90,13 @@
     import Location from '../../components/Location.vue';
     import { userImage } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { useSearchStore } from '../../stores/search';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useUiStore } from '../../stores/ui';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
-    import { useUiStore } from '../../stores/ui';
-    import { useSearchStore } from '../../stores/search';
 
     defineProps({
-        isGameRunning: Boolean,
         groupInstances: Array,
         inGameGroupOrder: Array
     });

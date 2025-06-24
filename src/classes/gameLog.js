@@ -56,7 +56,7 @@ export default function init() {
             }
             switch (gameLog.type) {
                 case 'location-destination':
-                    if (this.isGameRunning) {
+                    if (this.store.game.isGameRunning) {
                         // needs to be added before OnPlayerLeft entries from LocationReset
                         this.addGameLog({
                             created_at: gameLog.dt,
@@ -86,7 +86,7 @@ export default function init() {
                         gameLog.dt
                     );
                     var worldName = replaceBioSymbols(gameLog.worldName);
-                    if (this.isGameRunning) {
+                    if (this.store.game.isGameRunning) {
                         this.store.location.lastLocationReset(gameLog.dt);
                         this.clearNowPlaying();
                         this.store.location.lastLocation = {
@@ -218,7 +218,7 @@ export default function init() {
                     database.addGamelogJoinLeaveToDatabase(entry);
                     break;
                 case 'portal-spawn':
-                    if (this.ipcEnabled && this.isGameRunning) {
+                    if (this.ipcEnabled && this.store.game.isGameRunning) {
                         break;
                     }
                     var entry = {
@@ -406,7 +406,7 @@ export default function init() {
                     database.addGamelogEventToDatabase(entry);
                     break;
                 case 'vrc-quit':
-                    if (!this.isGameRunning) {
+                    if (!this.store.game.isGameRunning) {
                         break;
                     }
                     if (this.store.advancedSettings.vrcQuitFix) {
@@ -433,13 +433,19 @@ export default function init() {
                     }
                     break;
                 case 'openvr-init':
-                    this.isGameNoVR = false;
-                    configRepository.setBool('isGameNoVR', this.isGameNoVR);
+                    this.store.game.isGameNoVR = false;
+                    configRepository.setBool(
+                        'isGameNoVR',
+                        this.store.game.isGameNoVR
+                    );
                     this.updateOpenVR();
                     break;
                 case 'desktop-mode':
-                    this.isGameNoVR = true;
-                    configRepository.setBool('isGameNoVR', this.isGameNoVR);
+                    this.store.game.isGameNoVR = true;
+                    configRepository.setBool(
+                        'isGameNoVR',
+                        this.store.game.isGameNoVR
+                    );
                     this.updateOpenVR();
                     break;
                 case 'udon-exception':
@@ -1116,7 +1122,7 @@ export default function init() {
         },
 
         async disableGameLogDialog() {
-            if (this.isGameRunning) {
+            if (this.store.game.isGameRunning) {
                 this.$message({
                     message:
                         'VRChat needs to be closed before this option can be changed',

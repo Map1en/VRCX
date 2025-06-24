@@ -35,7 +35,7 @@ export default function init() {
                         this.nextFriendsRefresh = 3600; // 1hour
                         this.store.friend.refreshFriendsList();
                         this.store.auth.updateStoredUser(API.currentUser);
-                        if (this.isGameRunning) {
+                        if (this.store.game.isGameRunning) {
                             $app.store.moderation.refreshPlayerModerations();
                         }
                     }
@@ -76,7 +76,7 @@ export default function init() {
                         this.store.user.updateAutoStateChange();
                     }
                     if (
-                        (this.isRunningUnderWine || LINUX) &&
+                        (this.store.game.isRunningUnderWine || LINUX) &&
                         --this.nextGetLogCheck <= 0
                     ) {
                         this.nextGetLogCheck = 0.5;
@@ -88,13 +88,13 @@ export default function init() {
                         }
                     }
                     if (
-                        (this.isRunningUnderWine || LINUX) &&
+                        (this.store.game.isRunningUnderWine || LINUX) &&
                         --this.nextGameRunningCheck <= 0
                     ) {
                         if (LINUX) {
                             this.nextGameRunningCheck = 1;
-                            $app.updateIsGameRunning(
-                                await AppApi.IsGameRunning(),
+                            $app.store.game.updateIsGameRunning(
+                                await AppApi.store.game.IsGameRunning(),
                                 await AppApi.IsSteamVRRunning(),
                                 false
                             );

@@ -1,5 +1,5 @@
 import { worldRequest } from '../api';
-import { API, $app } from '../app.js';
+import { $app, API } from '../app.js';
 import {
     getGroupName,
     getLaunchURL,
@@ -22,7 +22,7 @@ export default function init() {
             }
             if (
                 !this.store.discordPresenceSettings.discordActive ||
-                (!this.isGameRunning &&
+                (!this.store.game.isGameRunning &&
                     !this.store.advancedSettings.gameLogDisabled) ||
                 (!currentLocation && !this.store.location.lastLocation$.tag)
             ) {
@@ -58,7 +58,7 @@ export default function init() {
                                 return args;
                             });
                     }
-                    if (this.isGameNoVR) {
+                    if (this.store.game.isGameNoVR) {
                         var platform = 'Desktop';
                     } else {
                         var platform = 'VR';

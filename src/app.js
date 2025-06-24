@@ -27,8 +27,6 @@ import { createI18n } from 'vue-i18n-bridge';
 import VueLazyload from 'vue-lazyload';
 import * as workerTimers from 'worker-timers';
 import {
-    avatarRequest,
-    friendRequest,
     groupRequest,
     instanceRequest,
     userRequest,
@@ -41,7 +39,6 @@ import pugTemplate from './app.pug';
 import config from './classes/API/config.js';
 
 // main app classes
-import API from './classes/apiInit';
 import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
@@ -79,25 +76,15 @@ import * as localizedStrings from './localization/localizedStrings.js';
 
 // util classes
 import configRepository from './service/config.js';
-import removeConfusables, { removeWhitespace } from './service/confusables.js';
 import database from './service/database.js';
-import security from './service/security.js';
 import webApiService from './service/webapi.js';
 import {
     commaNumber,
-    compareByName,
-    deleteVRChatCache,
     escapeTag,
-    extractFileId,
     formatSeconds,
     getAllUserMemos,
-    getGroupName,
     getNameColour,
-    getWorldName,
-    isRealInstance,
     isRpcWorld,
-    languageClass,
-    localeIncludes,
     migrateMemos,
     parseLocation,
     refreshCustomCss,
@@ -178,6 +165,52 @@ Vue.config.warnHandler = function (msg, vm, trace) {
     console.warn('Trace：', trace);
 };
 
+const eventHandlers = new Map();
+const API = {};
+API.$emit = function (name, ...args) {
+    if ($app.debug) {
+        console.log(name, ...args);
+    }
+    const handlers = eventHandlers.get(name);
+    if (typeof handlers === 'undefined') {
+        return;
+    }
+    try {
+        for (const handler of handlers) {
+            handler.apply(this, args);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+API.$on = function (name, handler) {
+    let handlers = eventHandlers.get(name);
+    if (typeof handlers === 'undefined') {
+        handlers = [];
+        eventHandlers.set(name, handlers);
+    }
+    handlers.push(handler);
+};
+
+API.$off = function (name, handler) {
+    const handlers = eventHandlers.get(name);
+    if (typeof handlers === 'undefined') {
+        return;
+    }
+    const { length } = handlers;
+    for (let i = 0; i < length; ++i) {
+        if (handlers[i] === handler) {
+            if (length > 1) {
+                handlers.splice(i, 1);
+            } else {
+                eventHandlers.delete(name);
+            }
+            break;
+        }
+    }
+};
+
 // #region | localization
 Vue.use(VueI18n, { bridge: true });
 const i18n = createI18n(
@@ -231,11 +264,6 @@ let $app = {
     },
     data: {
         API,
-        isGameRunning: false,
-        isGameNoVR: true,
-        isSteamVRRunning: false,
-        isHmdAfk: false,
-        isRunningUnderWine: false,
         shiftHeld: false
     },
     computed: {},
@@ -290,14 +318,12 @@ let $app = {
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog,
             isLinux: this.isLinux,
-            openFolderGeneric: this.openFolderGeneric,
-            deleteVRChatCache: this.deleteVRChatCache
+            openFolderGeneric: this.openFolderGeneric
         };
     },
     el: '#root',
     async created() {
         await AppApi.CheckGameRunning();
-        this.isGameNoVR = await configRepository.getBool('isGameNoVR');
     },
     async mounted() {
         refreshCustomCss();
@@ -345,7 +371,8 @@ let $app = {
                 });
         }
         try {
-            this.isRunningUnderWine = await AppApi.IsRunningUnderWine();
+            this.store.game.isRunningUnderWine =
+                await AppApi.IsRunningUnderWine();
             this.applyWineEmojis();
         } catch (err) {
             console.error(err);
@@ -575,51 +602,6 @@ workerTimers.setInterval(function () {
 // #endregion
 // #region | initialise
 
-// todo: use in cef
-$app.methods.updateIsGameRunning = async function (
-    isGameRunning,
-    isSteamVRRunning,
-    isHmdAfk
-) {
-    if (this.store.advancedSettings.gameLogDisabled) {
-        return;
-    }
-    if (isGameRunning !== this.isGameRunning) {
-        this.isGameRunning = isGameRunning;
-        if (isGameRunning) {
-            API.currentUser.$online_for = Date.now();
-            API.currentUser.$offline_for = '';
-            API.currentUser.$previousAvatarSwapTime = Date.now();
-        } else {
-            await configRepository.setBool('isGameNoVR', this.isGameNoVR);
-            API.currentUser.$online_for = '';
-            API.currentUser.$offline_for = Date.now();
-            this.store.instance.removeAllQueuedInstances();
-            this.autoVRChatCacheManagement();
-            this.checkIfGameCrashed();
-            this.ipcTimeout = 0;
-            this.addAvatarWearTime(API.currentUser.currentAvatar);
-            API.currentUser.$previousAvatarSwapTime = '';
-        }
-        this.store.location.lastLocationReset();
-        this.clearNowPlaying();
-        this.updateVRLastLocation();
-        workerTimers.setTimeout(() => this.checkVRChatDebugLogging(), 60000);
-        this.nextDiscordUpdate = 0;
-        console.log(new Date(), 'isGameRunning', isGameRunning);
-    }
-
-    if (isSteamVRRunning !== this.isSteamVRRunning) {
-        this.isSteamVRRunning = isSteamVRRunning;
-        console.log('isSteamVRRunning:', isSteamVRRunning);
-    }
-    if (isHmdAfk !== this.isHmdAfk) {
-        this.isHmdAfk = isHmdAfk;
-        console.log('isHmdAfk:', isHmdAfk);
-    }
-    this.updateOpenVR();
-};
-
 $app.data.debug = false;
 $app.data.debugWebSocket = false;
 $app.data.debugUserDiff = false;
@@ -768,7 +750,7 @@ API.$on('LOGIN', async function (args) {
     $app.store.friend.sortOfflineFriends = true;
     this.getAuth();
     $app.updateSharedFeed(true);
-    if ($app.isGameRunning) {
+    if ($app.store.game.isGameRunning) {
         $app.loadPlayerList();
     }
     $app.vrInit();
@@ -1034,7 +1016,7 @@ $app.methods.applyWineEmojis = async function () {
     if (document.contains(document.getElementById('app-emoji-font'))) {
         document.getElementById('app-emoji-font').remove();
     }
-    if (this.isRunningUnderWine) {
+    if (this.store.game.isRunningUnderWine) {
         const $appEmojiFont = document.createElement('link');
         $appEmojiFont.setAttribute('id', 'app-emoji-font');
         $appEmojiFont.rel = 'stylesheet';
@@ -1180,8 +1162,8 @@ $app.methods.vrInit = function () {
 $app.methods.updateOpenVR = function () {
     if (
         this.store.notificationsSettings.openVR &&
-        this.isSteamVRRunning &&
-        ((this.isGameRunning && !this.isGameNoVR) ||
+        this.store.game.isSteamVRRunning &&
+        ((this.store.game.isGameRunning && !this.store.game.isGameNoVR) ||
             this.store.wristOverlaySettings.openVRAlways)
     ) {
         let hmdOverlay = false;
@@ -1653,8 +1635,8 @@ $app.data.isVRChatConfigDialogVisible = false;
 
 $app.methods.showVRChatConfig = async function () {
     this.isVRChatConfigDialogVisible = true;
-    if (!this.VRChatUsedCacheSize) {
-        this.getVRChatCacheSize();
+    if (!this.store.game.VRChatUsedCacheSize) {
+        this.store.game.getVRChatCacheSize();
     }
 };
 
@@ -1736,94 +1718,6 @@ $app.methods.getDisplayName = function (userId) {
         }
     }
     return '';
-};
-
-$app.methods.deleteVRChatCache = async function (ref) {
-    await deleteVRChatCache(ref);
-    this.getVRChatCacheSize();
-    this.updateVRChatWorldCache();
-    this.store.avatar.updateVRChatAvatarCache();
-};
-
-$app.methods.autoVRChatCacheManagement = function () {
-    if (this.store.advancedSettings.autoSweepVRChatCache) {
-        this.sweepVRChatCache();
-    }
-};
-
-$app.methods.sweepVRChatCache = async function () {
-    const output = await AssetBundleManager.SweepCache();
-    console.log('SweepCache', output);
-    if (this.isVRChatConfigDialogVisible) {
-        this.getVRChatCacheSize();
-    }
-};
-
-$app.data.lastCrashedTime = null;
-$app.methods.checkIfGameCrashed = function () {
-    if (!this.store.advancedSettings.relaunchVRChatAfterCrash) {
-        return;
-    }
-    let { location } = this.store.location.lastLocation;
-    AppApi.VrcClosedGracefully().then((result) => {
-        if (result || !isRealInstance(location)) {
-            return;
-        }
-        // check if relaunched less than 2mins ago (prvent crash loop)
-        if (
-            this.lastCrashedTime &&
-            new Date() - this.lastCrashedTime < 120_000
-        ) {
-            console.log('VRChat was recently crashed, not relaunching');
-            return;
-        }
-        this.lastCrashedTime = new Date();
-        // wait a bit for SteamVR to potentially close before deciding to relaunch
-        let restartDelay = 8000;
-        if (this.isGameNoVR) {
-            // wait for game to close before relaunching
-            restartDelay = 2000;
-        }
-        workerTimers.setTimeout(
-            () => this.restartCrashedGame(location),
-            restartDelay
-        );
-    });
-};
-
-$app.methods.restartCrashedGame = function (location) {
-    if (!this.isGameNoVR && !this.isSteamVRRunning) {
-        console.log("SteamVR isn't running, not relaunching VRChat");
-        return;
-    }
-    AppApi.FocusWindow();
-    const message = 'VRChat crashed, attempting to rejoin last instance';
-    this.$message({
-        message,
-        type: 'info'
-    });
-    const entry = {
-        created_at: new Date().toJSON(),
-        type: 'Event',
-        data: message
-    };
-    database.addGamelogEventToDatabase(entry);
-    this.store.notification.queueGameLogNoty(entry);
-    this.addGameLog(entry);
-    this.store.launch.launchGame(location, '', this.isGameNoVR);
-};
-
-$app.data.VRChatUsedCacheSize = '';
-$app.data.VRChatTotalCacheSize = '';
-$app.data.VRChatCacheSizeLoading = false;
-
-$app.methods.getVRChatCacheSize = async function () {
-    this.VRChatCacheSizeLoading = true;
-    const totalCacheSize = 30;
-    this.VRChatTotalCacheSize = totalCacheSize;
-    const usedCacheSize = await AssetBundleManager.GetCacheSize();
-    this.VRChatUsedCacheSize = (usedCacheSize / 1073741824).toFixed(2);
-    this.VRChatCacheSizeLoading = false;
 };
 
 // userDialog Groups
@@ -1950,7 +1844,7 @@ $app.methods.ipcEvent = function (json) {
     }
     switch (data.type) {
         case 'OnEvent':
-            if (!this.isGameRunning) {
+            if (!this.store.game.isGameRunning) {
                 console.log('Game closed, skipped event', data);
                 return;
             }
@@ -1961,7 +1855,7 @@ $app.methods.ipcEvent = function (json) {
             this.photonEventPulse();
             break;
         case 'OnOperationResponse':
-            if (!this.isGameRunning) {
+            if (!this.store.game.isGameRunning) {
                 console.log('Game closed, skipped event', data);
                 return;
             }
@@ -1976,7 +1870,7 @@ $app.methods.ipcEvent = function (json) {
             this.photonEventPulse();
             break;
         case 'OnOperationRequest':
-            if (!this.isGameRunning) {
+            if (!this.store.game.isGameRunning) {
                 console.log('Game closed, skipped event', data);
                 return;
             }
@@ -1989,7 +1883,7 @@ $app.methods.ipcEvent = function (json) {
             }
             break;
         case 'VRCEvent':
-            if (!this.isGameRunning) {
+            if (!this.store.game.isGameRunning) {
                 console.log('Game closed, skipped event', data);
                 return;
             }
@@ -2508,7 +2402,6 @@ $app.computed.friendsListTabEvent = function () {
 
 $app.computed.sidebarTabBind = function () {
     return {
-        isGameRunning: this.isGameRunning,
         groupInstances: this.groupInstances,
         inGameGroupOrder: this.inGameGroupOrder
     };
@@ -2557,8 +2450,7 @@ $app.computed.gameLogTabEvent = function () {
 
 $app.computed.notificationTabBind = function () {
     return {
-        shiftHeld: this.shiftHeld,
-        isGameRunning: this.isGameRunning
+        shiftHeld: this.shiftHeld
     };
 };
 

@@ -1828,6 +1828,7 @@
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useFriendStore } from '../../../stores/friend';
     import { useGalleryStore } from '../../../stores/gallery';
+    import { useGameStore } from '../../../stores/game';
     import { useGroupStore } from '../../../stores/group';
     import { useInviteStore } from '../../../stores/invite';
     import { useLocationStore } from '../../../stores/location';
@@ -1883,16 +1884,14 @@
     const galleryStore = useGalleryStore();
     const { galleryDialogVisible } = storeToRefs(galleryStore);
     const { clearInviteImageUpload, showGalleryDialog } = galleryStore;
+    const gameStore = useGameStore();
+    const { isGameRunning } = storeToRefs(gameStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({
-        isGameRunning: {
-            type: Boolean,
-            default: false
-        },
         updateInstanceInfo: {
             type: Number,
             default: () => {}

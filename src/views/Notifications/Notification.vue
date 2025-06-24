@@ -434,6 +434,7 @@
     import { useGroupStore } from '../../stores/group';
     import { useNotificationStore } from '../../stores/notification';
     import { useUiStore } from '../../stores/ui';
+    import { useGameStore } from '../../stores/game';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
@@ -454,6 +455,8 @@
     const { refreshNotifications } = notificationStore;
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
+    const gameStore = useGameStore();
+    const { isGameRunning } = storeToRefs(gameStore);
 
     const { t } = useI18n();
 
@@ -462,11 +465,7 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
-        shiftHeld: { type: Boolean, default: false },
-        isGameRunning: {
-            type: Boolean,
-            default: false
-        }
+        shiftHeld: { type: Boolean, default: false }
     });
 
     const sendInviteResponseDialog = ref({

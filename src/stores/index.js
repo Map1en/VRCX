@@ -1,31 +1,33 @@
 import { createPinia } from 'pinia';
+import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
+import { useAvatarProviderStore } from './avatarProvider';
+import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
+import { useFeedStore } from './feed';
+import { useFriendStore } from './friend';
+import { useGalleryStore } from './gallery';
+import { useGameStore } from './game';
+import { useGameLogStore } from './gameLog';
 import { useGroupStore } from './group';
+import { useInstanceStore } from './instance';
+import { useInviteStore } from './invite';
+import { useLaunchStore } from './launch';
 import { useLocationStore } from './location';
+import { useModerationStore } from './moderation';
+import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
+import { useSearchStore } from './search';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useDiscordPresenceSettingsStore } from './settings/discordPresence';
 import { useGeneralSettingsStore } from './settings/general';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
-import { useAvatarProviderStore } from './avatarProvider';
-import { useDebugStore } from './debug';
-import { useFriendStore } from './friend';
-import { usePhotonStore } from './photon';
+import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useWorldStore } from './world';
-import { useInstanceStore } from './instance';
-import { useModerationStore } from './moderation';
-import { useInviteStore } from './invite';
-import { useGalleryStore } from './gallery';
-import { useNotificationStore } from './notification';
-import { useFeedStore } from './feed';
-import { useUiStore } from './ui';
-import { useAuthStore } from './auth';
-import { useGameLogStore } from './gameLog';
-import { useSearchStore } from './search';
 
 export const pinia = createPinia();
 
@@ -57,6 +59,8 @@ export function createGlobalStores() {
         ui: useUiStore(),
         auth: useAuthStore(),
         gameLog: useGameLogStore(),
-        search: useSearchStore()
+        search: useSearchStore(),
+        game: useGameStore(),
+        launch: useLaunchStore()
     };
 }

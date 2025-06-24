@@ -8,8 +8,7 @@ import {
     vrcPlusIconRequest,
     vrcPlusImageRequest
 } from '../api';
-import { $app, $t } from '../app';
-import API from '../classes/apiInit';
+import { $app, $t, API } from '../app';
 import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
 import { useAdvancedSettingsStore } from './settings/advanced';
 

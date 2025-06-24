@@ -16,7 +16,6 @@ mixin dialogs
     LaunchDialog
 
     UserDialog(
-        :isGameRunning='isGameRunning'
         :updateInstanceInfo='updateInstanceInfo'
         :userOnlineFor='userOnlineFor'
         :updateInGameGroupOrder='updateInGameGroupOrder'
@@ -28,10 +27,8 @@ mixin dialogs
 
     WorldDialog(
         :shiftHeld='shiftHeld'
-        :isGameRunning='isGameRunning'
         :updateInstanceInfo='updateInstanceInfo'
-        @openFolderGeneric='openFolderGeneric'
-        @deleteVRChatCache='deleteVRChatCache')
+        @openFolderGeneric='openFolderGeneric')
 
     GroupDialog(
         :updateInstanceInfo='updateInstanceInfo'
@@ -40,9 +37,7 @@ mixin dialogs
         @groupDialogCommand='groupDialogCommand')
 
     AvatarDialog(
-        :isGameRunning='isGameRunning'
-        @openFolderGeneric='openFolderGeneric'
-        @deleteVRChatCache='deleteVRChatCache')
+        @openFolderGeneric='openFolderGeneric')
 
     FullscreenImageDialog(:fullscreenImageDialog='fullscreenImageDialog')
 
@@ -52,11 +47,6 @@ mixin dialogs
 
     VRChatConfigDialog(
         :isVRChatConfigDialogVisible.sync='isVRChatConfigDialogVisible'
-        :VRChatUsedCacheSize='VRChatUsedCacheSize'
-        :VRChatTotalCacheSize='VRChatTotalCacheSize'
-        :VRChatCacheSizeLoading='VRChatCacheSizeLoading'
-        :folderSelectorDialog='folderSelectorDialog'
-        @getVRChatCacheSize='getVRChatCacheSize'
-        @sweepVRChatCache='sweepVRChatCache')
+        :folderSelectorDialog='folderSelectorDialog')
 
     PrimaryPasswordDialog

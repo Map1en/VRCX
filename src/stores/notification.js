@@ -2,8 +2,7 @@ import Noty from 'noty';
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { notificationRequest, userRequest, worldRequest } from '../api';
-import { $app } from '../app';
-import API from '../classes/apiInit';
+import { $app, API } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import {
@@ -12,20 +11,21 @@ import {
     escapeTag,
     extractFileId,
     extractFileVersion,
+    getUserMemo,
     parseLocation,
-    removeFromArray,
-    getUserMemo
+    removeFromArray
 } from '../shared/utils';
-import { useGeneralSettingsStore } from './settings/general';
-import { useLocationStore } from './location';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
-import { useNotificationsSettingsStore } from './settings/notifications';
+import { useGameStore } from './game';
+import { useLocationStore } from './location';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
-import { useUserStore } from './user';
+import { useGeneralSettingsStore } from './settings/general';
+import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 import { useUiStore } from './ui';
+import { useUserStore } from './user';
 
 export const useNotificationStore = defineStore('Notification', () => {
     const generalSettingsStore = useGeneralSettingsStore();
@@ -38,6 +38,7 @@ export const useNotificationStore = defineStore('Notification', () => {
     const userStore = useUserStore();
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
     const uiStore = useUiStore();
+    const gameStore = useGameStore();
     const state = reactive({
         notificationInitStatus: false,
         notificationTable: {
@@ -625,16 +626,17 @@ export const useNotificationStore = defineStore('Notification', () => {
 
         const notiConditions = {
             Always: () => true,
-            'Inside VR': () => $app.isSteamVRRunning,
-            'Outside VR': () => !$app.isSteamVRRunning,
-            'Game Closed': () => !$app.isGameRunning, // Also known as "Outside VRChat"
-            'Game Running': () => $app.isGameRunning, // Also known as "Inside VRChat"
-            'Desktop Mode': () => $app.isGameNoVR && $app.isGameRunning,
+            'Inside VR': () => gameStore.isSteamVRRunning,
+            'Outside VR': () => !gameStore.isSteamVRRunning,
+            'Game Closed': () => !gameStore.isGameRunning, // Also known as "Outside VRChat"
+            'Game Running': () => gameStore.isGameRunning, // Also known as "Inside VRChat"
+            'Desktop Mode': () =>
+                gameStore.isGameNoVR && gameStore.isGameRunning,
             AFK: () =>
                 notificationsSettingsStore.afkDesktopToast &&
-                $app.isHmdAfk &&
-                $app.isGameRunning &&
-                !$app.isGameNoVR
+                gameStore.isHmdAfk &&
+                gameStore.isGameRunning &&
+                !gameStore.isGameNoVR
         };
 
         const playNotificationTTS =

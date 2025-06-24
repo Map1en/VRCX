@@ -31,11 +31,13 @@ import { useAvatarStore } from './avatar';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
+import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
+import { useNotificationStore } from './notification';
+import { useSearchStore } from './search';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
-import { useSearchStore } from './search';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
@@ -47,6 +49,8 @@ export const useUserStore = defineStore('User', () => {
     const avatarStore = useAvatarStore();
     const generalSettingsStore = useGeneralSettingsStore();
     const searchStore = useSearchStore();
+    const gameStore = useGameStore();
+    const notificationStore = useNotificationStore();
 
     const state = reactive({
         userDialog: {
@@ -845,7 +849,7 @@ export const useUserStore = defineStore('User', () => {
      */
     function onPlayerTraveling(ref) {
         if (
-            !$app.isGameRunning ||
+            !gameStore.isGameRunning ||
             !locationStore.lastLocation.location ||
             locationStore.lastLocation.location !== ref.travelingToLocation ||
             ref.id === API.currentUser.id ||
@@ -860,7 +864,7 @@ export const useUserStore = defineStore('User', () => {
             displayName: ref.displayName,
             type: 'OnPlayerJoining'
         };
-        $app.store.notification.queueFeedNoty(onPlayerJoining);
+        notificationStore.queueFeedNoty(onPlayerJoining);
     }
 
     /**
@@ -1394,7 +1398,7 @@ export const useUserStore = defineStore('User', () => {
     function updateAutoStateChange() {
         if (
             !generalSettingsStore.autoStateChangeEnabled ||
-            !$app.isGameRunning ||
+            !gameStore.isGameRunning ||
             !locationStore.lastLocation.playerList.size ||
             locationStore.lastLocation.location === '' ||
             locationStore.lastLocation.location === 'traveling'

@@ -177,22 +177,20 @@
     import FriendItem from '../../../components/FriendItem.vue';
     import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
-    import { isRealInstance, userStatusClass, userImage } from '../../../shared/utils';
+    import { isRealInstance, userImage, userStatusClass } from '../../../shared/utils';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useFriendStore } from '../../../stores/friend';
+    import { useGameStore } from '../../../stores/game';
     import { useLocationStore } from '../../../stores/location';
     import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
-    import { useFavoriteStore } from '../../../stores/favorite';
 
     export default {
         name: 'FriendsSidebar',
         components: {
             FriendItem,
             Location
-        },
-        props: {
-            isGameRunning: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -208,6 +206,8 @@
             const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
             const locationStore = useLocationStore();
             const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
+            const gameStore = useGameStore();
+            const { isGameRunning } = storeToRefs(gameStore);
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
@@ -224,7 +224,9 @@
                 favoriteFriendGroups,
                 userImage,
                 lastLocation,
-                groupedByGroupKeyFavoriteFriends
+                groupedByGroupKeyFavoriteFriends,
+                lastLocationDestination,
+                isGameRunning
             };
         },
 

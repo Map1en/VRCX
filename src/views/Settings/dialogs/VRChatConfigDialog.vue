@@ -191,10 +191,14 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
     import { getVRChatResolution, openExternalLink } from '../../../shared/utils';
+    import { useGameStore } from '../../../stores/game';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const gameStore = useGameStore();
+    const { VRChatUsedCacheSize, VRChatTotalCacheSize, VRChatCacheSizeLoading } = storeToRefs(gameStore);
+    const { sweepVRChatCache, getVRChatCacheSize } = gameStore;
 
     const { t } = useI18n();
 
@@ -207,25 +211,13 @@
             type: Boolean,
             required: true
         },
-        VRChatUsedCacheSize: {
-            type: [String, Number],
-            required: true
-        },
-        VRChatTotalCacheSize: {
-            type: [String, Number],
-            required: true
-        },
-        VRChatCacheSizeLoading: {
-            type: Boolean,
-            required: true
-        },
         folderSelectorDialog: {
             type: Function,
             required: true
         }
     });
 
-    const emit = defineEmits(['update:isVRChatConfigDialogVisible', 'getVRChatCacheSize', 'sweepVRChatCache']);
+    const emit = defineEmits(['update:isVRChatConfigDialogVisible']);
 
     const VRChatConfigFile = ref({});
     // it's a object
@@ -288,12 +280,8 @@
     );
 
     const totalCacheSize = computed(() => {
-        return VRChatConfigFile.value.cache_size || props.VRChatTotalCacheSize;
+        return VRChatConfigFile.value.cache_size || VRChatTotalCacheSize.value;
     });
-
-    function getVRChatCacheSize() {
-        emit('getVRChatCacheSize');
-    }
 
     function showDeleteAllVRChatCacheConfirm() {
         $confirm(`Continue? Delete all VRChat cache`, 'Confirm', {
@@ -311,10 +299,6 @@
     async function deleteAllVRChatCache() {
         await AssetBundleManager.DeleteAllCache();
         getVRChatCacheSize();
-    }
-
-    function sweepVRChatCache() {
-        emit('sweepVRChatCache');
     }
 
     async function openConfigFolderBrowser(value) {

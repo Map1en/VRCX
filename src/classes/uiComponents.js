@@ -29,7 +29,7 @@ export default function init() {
                     : 'none';
             },
             confirm() {
-                this.store.launch.showLaunchDialog(this.location);
+                $app.store.launch.showLaunchDialog(this.location);
             }
         },
         template:
@@ -149,7 +149,7 @@ export default function init() {
                 }
             },
             showLaunchDialog() {
-                this.store.launch.showLaunchDialog(
+                $app.store.launch.showLaunchDialog(
                     this.location,
                     this.shortName
                 );
@@ -326,7 +326,7 @@ export default function init() {
                 }
             },
             showUserDialog(userId) {
-                this.store.user.showUserDialog(userId);
+                $app.store.user.showUserDialog(userId);
             },
             closeInstance(location) {
                 this.$confirm(
@@ -530,7 +530,7 @@ export default function init() {
                 }
             },
             showUserDialog() {
-                this.store.user.showUserDialog(this.userid);
+                $app.store.user.showUserDialog(this.userid);
             }
         },
         template:

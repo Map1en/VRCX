@@ -1,25 +1,25 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import * as workerTimers from 'worker-timers';
 import { $app, API } from '../app';
 import database from '../service/database';
 import {
-    formatSeconds,
     getGroupName,
     getWorldName,
     isRealInstance,
     parseLocation
 } from '../shared/utils';
-import { useAdvancedSettingsStore } from './settings/advanced';
-import { useUserStore } from './user';
+import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 import { useNotificationStore } from './notification';
+import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUserStore } from './user';
 
 export const useLocationStore = defineStore('Location', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
     const userStore = useUserStore();
     const instanceStore = useInstanceStore();
     const notificationStore = useNotificationStore();
+    const gameStore = useGameStore();
     const state = reactive({
         lastLocation: {
             date: 0,
@@ -86,7 +86,7 @@ export const useLocationStore = defineStore('Location', () => {
         ref.travelingToLocation = API.currentUser.$travelingToLocation;
 
         if (
-            $app.isGameRunning &&
+            gameStore.isGameRunning &&
             !advancedSettingsStore.gameLogDisabled &&
             state.lastLocation.location !== ''
         ) {
@@ -102,7 +102,7 @@ export const useLocationStore = defineStore('Location', () => {
         ref.$online_for = API.currentUser.$online_for;
         ref.$offline_for = API.currentUser.$offline_for;
         ref.$location = parseLocation(currentLocation);
-        if (!$app.isGameRunning || advancedSettingsStore.gameLogDisabled) {
+        if (!gameStore.isGameRunning || advancedSettingsStore.gameLogDisabled) {
             ref.$location_at = API.currentUser.$location_at;
             ref.$travelingToTime = API.currentUser.$travelingToTime;
             userStore.applyUserDialogLocation();
@@ -124,7 +124,7 @@ export const useLocationStore = defineStore('Location', () => {
         updateCurrentUserLocation();
 
         // janky gameLog support for Quest
-        if ($app.isGameRunning) {
+        if (gameStore.isGameRunning) {
             // with the current state of things, lets not run this if we don't need to
             return;
         }
@@ -227,7 +227,7 @@ export const useLocationStore = defineStore('Location', () => {
             playerList: new Map(),
             friendList: new Map()
         };
-        state.updateCurrentUserLocation();
+        updateCurrentUserLocation();
         instanceStore.updateCurrentInstanceWorld();
         $app.updateVRLastLocation();
         $app.getCurrentInstanceUserList();

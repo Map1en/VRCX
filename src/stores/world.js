@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { instanceRequest, miscRequest, worldRequest } from '../api';
-import { $app } from '../app';
-import API from '../classes/apiInit';
+import { $app, API } from '../app';
 import database from '../service/database';
 import {
     checkVRChatCache,
@@ -14,9 +13,9 @@ import {
     replaceBioSymbols
 } from '../shared/utils';
 import { useFavoriteStore } from './favorite';
+import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useUserStore } from './user';
-import { useInstanceStore } from './instance';
 
 export const useWorldStore = defineStore('World', () => {
     const locationStore = useLocationStore();
@@ -185,7 +184,7 @@ export const useWorldStore = defineStore('World', () => {
                 });
                 throw err;
             })
-            .then(async (args) => {
+            .then((args) => {
                 if (D.id === args.ref.id) {
                     D.loading = false;
                     D.ref = args.ref;
@@ -211,15 +210,20 @@ export const useWorldStore = defineStore('World', () => {
                     D.isQuest = isQuest;
                     D.isIos = isIos;
                     updateVRChatWorldCache();
-                    const args = await miscRequest.hasWorldPersistData({
-                        worldId: D.id
-                    });
-                    if (
-                        args.params.worldId === state.worldDialog.id &&
-                        state.worldDialog.visible
-                    ) {
-                        state.worldDialog.hasPersistData = args.json !== false;
-                    }
+                    miscRequest
+                        .hasWorldPersistData({
+                            worldId: D.id
+                        })
+                        .then((args) => {
+                            if (
+                                args.params.worldId === state.worldDialog.id &&
+                                state.worldDialog.visible
+                            ) {
+                                state.worldDialog.hasPersistData =
+                                    args.json !== false;
+                            }
+                        });
+
                     if (args.cache) {
                         worldRequest
                             .getWorld(args.params)

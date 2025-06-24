@@ -1,10 +1,10 @@
+import { $app, API } from '../app';
 import {
     arraysMatch,
     getWorldName,
     isRealInstance,
     parseLocation
 } from '../shared/utils';
-import { $app, API } from '../app';
 
 export default function init() {
     API.currentUser = {
@@ -96,7 +96,7 @@ export default function init() {
         var travelingToLocation = $app.store.location.lastLocationDestination;
         var travelingToWorld = $travelingLocation.worldId;
         var travelingToInstance = $travelingLocation.instanceId;
-        if (!$app.isGameRunning && json.presence) {
+        if (!$app.store.game.isGameRunning && json.presence) {
             if (isRealInstance(json.presence.world)) {
                 location = `${json.presence.world}:${json.presence.instance}`;
             } else {
@@ -170,7 +170,7 @@ export default function init() {
         if (this.isLoggedIn) {
             if (json.currentAvatar !== ref.currentAvatar) {
                 $app.store.avatar.addAvatarToHistory(json.currentAvatar);
-                if ($app.isGameRunning) {
+                if ($app.store.game.isGameRunning) {
                     $app.addAvatarWearTime(ref.currentAvatar);
                     ref.$previousAvatarSwapTime = Date.now();
                 }
@@ -301,7 +301,7 @@ export default function init() {
                 $travelingToLocation: '',
                 ...json
             };
-            if ($app.isGameRunning) {
+            if ($app.store.game.isGameRunning) {
                 ref.$previousAvatarSwapTime = Date.now();
             }
             ref.$homeLocation = parseLocation(ref.homeLocation);

@@ -778,7 +778,9 @@
         userStatusClass
     } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useGameStore } from '../../../stores/game';
     import { useInstanceStore } from '../../../stores/instance';
+    import { useInviteStore } from '../../../stores/invite';
     import { useLocationStore } from '../../../stores/location';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
@@ -789,7 +791,6 @@
     import ChangeWorldImageDialog from './ChangeWorldImageDialog.vue';
     import SetWorldTagsDialog from './SetWorldTagsDialog.vue';
     import WorldAllowedDomainsDialog from './WorldAllowedDomainsDialog.vue';
-    import { useInviteStore } from '../../../stores/invite';
 
     export default {
         name: 'WorldDialog',
@@ -801,10 +802,9 @@
             NewInstanceDialog,
             ChangeWorldImageDialog
         },
-        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'openFolderGeneric', 'deleteVRChatCache'],
+        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'openFolderGeneric'],
         props: {
             shiftHeld: Boolean,
-            isGameRunning: Boolean,
 
             // TODO: Remove
             updateInstanceInfo: Number
@@ -826,6 +826,9 @@
             const instanceStore = useInstanceStore();
             const { showPreviousInstancesInfoDialog } = instanceStore;
             const { instanceJoinHistory } = storeToRefs(instanceStore);
+            const gameStore = useGameStore();
+            const { isGameRunning } = storeToRefs(gameStore);
+            const { deleteVRChatCache } = gameStore;
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -843,7 +846,9 @@
                 newInstanceSelfInvite,
                 showFavoriteDialog,
                 showPreviousInstancesInfoDialog,
-                instanceJoinHistory
+                instanceJoinHistory,
+                isGameRunning,
+                deleteVRChatCache
             };
         },
         data() {
@@ -998,9 +1003,6 @@
             },
             openFolder(path) {
                 this.openFolderGeneric(path);
-            },
-            deleteWorldFromCache(world) {
-                this.deleteVRChatCache(world);
             },
             worldDialogCommand(command) {
                 const D = this.worldDialog;
