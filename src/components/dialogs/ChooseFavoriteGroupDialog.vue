@@ -65,116 +65,85 @@
     </safe-dialog>
 </template>
 
-<script>
+<script setup>
     import Noty from 'noty';
     import { storeToRefs } from 'pinia';
+    import { computed, nextTick, ref, watch } from 'vue';
     import { favoriteRequest } from '../../api';
     import { API } from '../../app';
     import { adjustDialogZ } from '../../shared/utils';
     import { useFavoriteStore } from '../../stores/favorite';
 
-    export default {
-        name: 'ChooseFavoriteGroupDialog',
-        setup() {
-            const favoriteStore = useFavoriteStore();
-            const {
-                favoriteFriendGroups,
-                favoriteAvatarGroups,
-                favoriteWorldGroups,
-                localAvatarFavoriteGroups,
-                favoriteDialog,
-                localWorldFavoriteGroups
-            } = storeToRefs(favoriteStore);
-            const {
-                getLocalWorldFavoriteGroupLength,
-                addLocalWorldFavorite,
-                hasLocalWorldFavorite,
-                hasLocalAvatarFavorite,
-                addLocalAvatarFavorite,
-                getLocalAvatarFavoriteGroupLength,
-                removeLocalAvatarFavorite,
-                removeLocalWorldFavorite,
-                deleteFavoriteNoConfirm
-            } = favoriteStore;
-            return {
-                API,
-                favoriteFriendGroups,
-                favoriteAvatarGroups,
-                favoriteWorldGroups,
-                getLocalWorldFavoriteGroupLength,
-                addLocalWorldFavorite,
-                hasLocalWorldFavorite,
-                hasLocalAvatarFavorite,
-                addLocalAvatarFavorite,
-                getLocalAvatarFavoriteGroupLength,
-                localAvatarFavoriteGroups,
-                favoriteDialog,
-                localWorldFavoriteGroups,
-                removeLocalAvatarFavorite,
-                removeLocalWorldFavorite,
-                deleteFavoriteNoConfirm,
-                adjustDialogZ
-            };
-        },
-        data() {
-            return {
-                groups: [],
-                loading: false
-            };
-        },
-        computed: {
-            isVisible: {
-                get() {
-                    return this.favoriteDialog.visible;
-                },
-                set(value) {
-                    this.favoriteDialog.visible = value;
-                }
-            },
-            isLocalUserVrcplusSupporter() {
-                return this.API.currentUser.$isVRCPlus;
-            }
-        },
-        watch: {
-            'favoriteDialog.visible'(value) {
-                if (value) {
-                    this.initFavoriteDialog();
-                    this.$nextTick(() => {
-                        this.adjustDialogZ(this.$refs.favoriteDialogRef.$el);
-                    });
-                }
-            }
-        },
-        methods: {
-            initFavoriteDialog() {
-                if (this.favoriteDialog.type === 'friend') {
-                    this.groups = this.favoriteFriendGroups;
-                } else if (this.favoriteDialog.type === 'world') {
-                    this.groups = this.favoriteWorldGroups;
-                } else if (this.favoriteDialog.type === 'avatar') {
-                    this.groups = this.favoriteAvatarGroups;
-                }
-            },
-            addFavorite(group) {
-                const D = this.favoriteDialog;
-                this.loading = true;
-                favoriteRequest
-                    .addFavorite({
-                        type: D.type,
-                        favoriteId: D.objectId,
-                        tags: group.name
-                    })
-                    .then(() => {
-                        this.isVisible = false;
-                        new Noty({
-                            type: 'success',
-                            text: 'Favorite added'
-                        }).show();
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+    const favoriteStore = useFavoriteStore();
+    const {
+        favoriteFriendGroups,
+        favoriteAvatarGroups,
+        favoriteWorldGroups,
+        localAvatarFavoriteGroups,
+        favoriteDialog,
+        localWorldFavoriteGroups
+    } = storeToRefs(favoriteStore);
+    const {
+        getLocalWorldFavoriteGroupLength,
+        addLocalWorldFavorite,
+        hasLocalWorldFavorite,
+        hasLocalAvatarFavorite,
+        addLocalAvatarFavorite,
+        getLocalAvatarFavoriteGroupLength,
+        removeLocalAvatarFavorite,
+        removeLocalWorldFavorite,
+        deleteFavoriteNoConfirm
+    } = favoriteStore;
+
+    const favoriteDialogRef = ref(null);
+    const groups = ref([]);
+    const loading = ref(false);
+
+    const isVisible = computed({
+        get: () => favoriteDialog.value.visible,
+        set: (v) => {
+            favoriteDialog.value.visible = v;
+        }
+    });
+
+    const isLocalUserVrcplusSupporter = computed(() => API.currentUser.$isVRCPlus);
+
+    watch(
+        () => favoriteDialog.value.visible,
+        async (value) => {
+            if (value) {
+                initFavoriteDialog();
+                await nextTick();
+                adjustDialogZ(favoriteDialogRef.value.$el);
             }
         }
-    };
+    );
+
+    function initFavoriteDialog() {
+        if (favoriteDialog.value.type === 'friend') {
+            groups.value = favoriteFriendGroups.value;
+        } else if (favoriteDialog.value.type === 'world') {
+            groups.value = favoriteWorldGroups.value;
+        } else if (favoriteDialog.value.type === 'avatar') {
+            groups.value = favoriteAvatarGroups.value;
+        }
+    }
+
+    function addFavorite(group) {
+        const D = favoriteDialog.value;
+        loading.value = true;
+        favoriteRequest
+            .addFavorite({
+                type: D.type,
+                favoriteId: D.objectId,
+                tags: group.name
+            })
+            .then(() => {
+                isVisible.value = false;
+                new Noty({ type: 'success', text: 'Favorite added' }).show();
+            })
+            .finally(() => {
+                loading.value = false;
+            });
+    }
 </script>
