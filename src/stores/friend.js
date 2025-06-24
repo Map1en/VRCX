@@ -9,6 +9,7 @@ import {
     compareByCreatedAtAscending,
     getFriendsSortFunction,
     getGroupName,
+    getNameColour,
     getUserMemo,
     getWorldName,
     isRealInstance,
@@ -17,6 +18,7 @@ import {
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFeedStore } from './feed';
+import { useGroupStore } from './group';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
@@ -31,6 +33,7 @@ export const useFriendStore = defineStore('Friend', () => {
     const notificationStore = useNotificationStore();
     const feedStore = useFeedStore();
     const uiStore = useUiStore();
+    const groupStore = useGroupStore();
 
     const state = reactive({
         friends: new Map(),
@@ -259,6 +262,40 @@ export const useFriendStore = defineStore('Friend', () => {
         },
         set(value) {
             state.friendLogTable = value;
+        }
+    });
+
+    API.$on('USER:CURRENT', function (args) {
+        checkActiveFriends(args.json);
+    });
+
+    API.$on('LOGIN', function () {
+        state.friends.clear();
+        state.pendingActiveFriends.clear();
+        $app.friendNumber = 0;
+        $app.isGroupInstances = false;
+        $app.groupInstances = [];
+        state.vipFriends_ = [];
+        state.onlineFriends_ = [];
+        state.activeFriends_ = [];
+        state.offlineFriends_ = [];
+        state.sortVIPFriends = false;
+        state.sortOnlineFriends = false;
+        state.sortActiveFriends = false;
+        state.sortOfflineFriends = false;
+        groupStore.updateInGameGroupOrder();
+    });
+
+    API.$on('USER:CURRENT', function (args) {
+        if (state.friendLogInitStatus) {
+            state.refreshFriendsStatus(args.ref, args.fromGetCurrentUser);
+        }
+        updateOnlineFriendCoutner();
+
+        if (appearanceSettingsStore.randomUserColours) {
+            getNameColour(API.currentUser.id).then((colour) => {
+                API.currentUser.$userColour = colour;
+            });
         }
     });
 
@@ -1651,11 +1688,11 @@ export const useFriendStore = defineStore('Friend', () => {
     }
 
     API.$on('FRIEND:ADD', function (args) {
-        $app.store.friend.addFriend(args.params.userId);
+        addFriend(args.params.userId);
     });
 
     API.$on('FRIEND:DELETE', function (args) {
-        $app.store.friend.deleteFriend(args.params.userId);
+        deleteFriend(args.params.userId);
     });
 
     function confirmDeleteFriend(id) {

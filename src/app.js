@@ -44,7 +44,6 @@ import prompts from './classes/prompts.js';
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
-import { userNotes } from './classes/userNotes.js';
 import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import websocket from './classes/websocket.js';
@@ -70,14 +69,10 @@ import * as localizedStrings from './localization/localizedStrings.js';
 
 // util classes
 import configRepository from './service/config.js';
-import database from './service/database.js';
 import webApiService from './service/webapi.js';
 import {
     commaNumber,
     escapeTag,
-    getAllUserMemos,
-    getNameColour,
-    migrateMemos,
     refreshCustomCss,
     refreshCustomScript,
     removeFromArray,
@@ -601,116 +596,10 @@ $app.data.friendNumber = 0;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
 
-API.$on('USER:CURRENT', function (args) {
-    $app.store.friend.checkActiveFriends(args.json);
-});
-
-API.$on('LOGIN', function () {
-    $app.store.friend.friends.clear();
-    $app.store.friend.pendingActiveFriends.clear();
-    $app.friendNumber = 0;
-    $app.isGroupInstances = false;
-    $app.groupInstances = [];
-    $app.store.friend.vipFriends_ = [];
-    $app.store.friend.onlineFriends_ = [];
-    $app.store.friend.activeFriends_ = [];
-    $app.store.friend.offlineFriends_ = [];
-    $app.store.friend.sortVIPFriends = false;
-    $app.store.friend.sortOnlineFriends = false;
-    $app.store.friend.sortActiveFriends = false;
-    $app.store.friend.sortOfflineFriends = false;
-    $app.store.group.updateInGameGroupOrder();
-});
-
-API.$on('USER:CURRENT', function (args) {
-    // USER:CURRENT에서 처리를 함
-    if ($app.store.friend.friendLogInitStatus) {
-        $app.store.friend.refreshFriendsStatus(
-            args.ref,
-            args.fromGetCurrentUser
-        );
-    }
-    $app.store.friend.updateOnlineFriendCoutner();
-
-    if ($app.store.appearanceSettings.randomUserColours) {
-        getNameColour(this.currentUser.id).then((colour) => {
-            this.currentUser.$userColour = colour;
-        });
-    }
-});
-
 // #endregion
 // #region | App: Feed
 
 $app.data.dontLogMeOut = false;
-
-API.$on('LOGIN', async function (args) {
-    // early loading indicator
-    $app.store.friend.isRefreshFriendsLoading = true;
-    $app.store.feed.feedTable.loading = true;
-
-    $app.store.friend.friendLog = new Map();
-    $app.store.feed.feedTable.data = [];
-    $app.store.feed.feedSessionTable = [];
-    $app.store.friend.friendLogInitStatus = false;
-    $app.store.notification.notificationInitStatus = false;
-    await database.initUserTables(args.json.id);
-    $app.store.ui.menuActiveIndex = 'feed';
-
-    $app.gameLogTable.data = await database.lookupGameLogDatabase(
-        $app.gameLogTable.search,
-        $app.gameLogTable.filter
-    );
-    $app.store.feed.feedSessionTable = await database.getFeedDatabase();
-    await $app.store.feed.feedTableLookup();
-    $app.store.notification.notificationTable.data =
-        await database.getNotifications();
-    $app.store.notification.refreshNotifications();
-    $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
-    try {
-        if (await configRepository.getBool(`friendLogInit_${args.json.id}`)) {
-            await $app.store.friend.getFriendLog(args.ref);
-        } else {
-            await $app.store.friend.initFriendLog(args.ref);
-        }
-    } catch (err) {
-        if (!$app.dontLogMeOut) {
-            $app.$message({
-                message: $t('message.friend.load_failed'),
-                type: 'error'
-            });
-            this.logout();
-            throw err;
-        }
-    }
-    await $app.store.avatar.getAvatarHistory();
-    await getAllUserMemos();
-    userNotes.init();
-    if ($app.store.appearanceSettings.randomUserColours) {
-        getNameColour(this.currentUser.id).then((colour) => {
-            this.currentUser.$userColour = colour;
-        });
-        await $app.store.appearanceSettings.userColourInit();
-    }
-    await $app.store.friend.getAllUserStats();
-    $app.store.friend.sortVIPFriends = true;
-    $app.store.friend.sortOnlineFriends = true;
-    $app.store.friend.sortActiveFriends = true;
-    $app.store.friend.sortOfflineFriends = true;
-    this.getAuth();
-    $app.updateSharedFeed(true);
-    if ($app.store.game.isGameRunning) {
-        $app.loadPlayerList();
-    }
-    $app.store.vr.vrInit();
-    // remove old data from json file and migrate to SQLite
-    if (await VRCXStorage.Get(`${args.json.id}_friendLogUpdatedAt`)) {
-        VRCXStorage.Remove(`${args.json.id}_feedTable`);
-        migrateMemos();
-        $app.store.friend.migrateFriendLog(args.json.id);
-    }
-    await AppApi.IPCAnnounceStart();
-});
 
 // #endregion
 // #region | App: Notification

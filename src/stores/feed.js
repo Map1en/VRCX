@@ -1,16 +1,27 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { $app, $t, API } from '../app.js';
+import { userNotes } from '../classes/userNotes';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { getAllUserMemos, getNameColour, migrateMemos } from '../shared/utils';
+import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
-import { $app } from '../app.js';
+import { useGameStore } from './game';
 import { useNotificationStore } from './notification';
+import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
+import { useVrStore } from './vr';
 
 export const useFeedStore = defineStore('Feed', () => {
     const friendStore = useFriendStore();
     const notificationStore = useNotificationStore();
     const UiStore = useUiStore();
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const gameStore = useGameStore();
+    const vrStore = useVrStore();
+    const avatarStore = useAvatarStore();
+
     const state = reactive({
         feedTable: {
             data: [],
@@ -60,6 +71,76 @@ export const useFeedStore = defineStore('Feed', () => {
         set: (value) => {
             state.feedSessionTable = value;
         }
+    });
+
+    API.$on('LOGIN', async function (args) {
+        // early loading indicator
+        friendStore.isRefreshFriendsLoading = true;
+        state.feedTable.loading = true;
+
+        friendStore.friendLog = new Map();
+        state.feedTable.data = [];
+        state.feedSessionTable = [];
+        friendStore.friendLogInitStatus = false;
+        notificationStore.notificationInitStatus = false;
+        await database.initUserTables(args.json.id);
+        UiStore.menuActiveIndex = 'feed';
+
+        $app.gameLogTable.data = await database.lookupGameLogDatabase(
+            $app.gameLogTable.search,
+            $app.gameLogTable.filter
+        );
+        state.feedSessionTable = await database.getFeedDatabase();
+        await feedTableLookup();
+        notificationStore.notificationTable.data =
+            await database.getNotifications();
+        notificationStore.refreshNotifications();
+        $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
+        try {
+            if (
+                await configRepository.getBool(`friendLogInit_${args.json.id}`)
+            ) {
+                await friendStore.getFriendLog(args.ref);
+            } else {
+                await friendStore.initFriendLog(args.ref);
+            }
+        } catch (err) {
+            if (!$app.dontLogMeOut) {
+                $app.$message({
+                    message: $t('message.friend.load_failed'),
+                    type: 'error'
+                });
+                API.logout();
+                throw err;
+            }
+        }
+        await avatarStore.getAvatarHistory();
+        await getAllUserMemos();
+        userNotes.init();
+        if (appearanceSettingsStore.randomUserColours) {
+            getNameColour(API.currentUser.id).then((colour) => {
+                API.currentUser.$userColour = colour;
+            });
+            await appearanceSettingsStore.userColourInit();
+        }
+        await friendStore.getAllUserStats();
+        friendStore.sortVIPFriends = true;
+        friendStore.sortOnlineFriends = true;
+        friendStore.sortActiveFriends = true;
+        friendStore.sortOfflineFriends = true;
+        API.getAuth();
+        $app.updateSharedFeed(true);
+        if (gameStore.isGameRunning) {
+            $app.loadPlayerList();
+        }
+        vrStore.vrInit();
+        // remove old data from json file and migrate to SQLite
+        if (await VRCXStorage.Get(`${args.json.id}_friendLogUpdatedAt`)) {
+            VRCXStorage.Remove(`${args.json.id}_feedTable`);
+            migrateMemos();
+            friendStore.migrateFriendLog(args.json.id);
+        }
+        await AppApi.IPCAnnounceStart();
     });
 
     function feedSearch(row) {
