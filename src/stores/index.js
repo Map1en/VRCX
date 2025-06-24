@@ -26,6 +26,7 @@ import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
+import { useVrStore } from './vr';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useWorldStore } from './world';
 
@@ -61,6 +62,7 @@ export function createGlobalStores() {
         gameLog: useGameLogStore(),
         search: useSearchStore(),
         game: useGameStore(),
-        launch: useLaunchStore()
+        launch: useLaunchStore(),
+        vr: useVrStore()
     };
 }

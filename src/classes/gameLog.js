@@ -100,7 +100,7 @@ export default function init() {
                             gameLog.location
                         );
                         this.store.location.updateCurrentUserLocation();
-                        this.updateVRLastLocation();
+                        this.store.vr.updateVRLastLocation();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.store.user.applyUserDialogLocation();
                         this.store.instance.applyWorldDialogInstances();
@@ -168,7 +168,7 @@ export default function init() {
                         }
                         userRequest.getUser({ userId });
                     }
-                    this.updateVRLastLocation();
+                    this.store.vr.updateVRLastLocation();
                     this.getCurrentInstanceUserList();
                     var entry = {
                         created_at: gameLog.dt,
@@ -205,7 +205,7 @@ export default function init() {
                     this.store.location.lastLocation.playerList.delete(userId);
                     this.store.location.lastLocation.friendList.delete(userId);
                     this.photonLobbyAvatars.delete(userId);
-                    this.updateVRLastLocation();
+                    this.store.vr.updateVRLastLocation();
                     this.getCurrentInstanceUserList();
                     var entry = {
                         created_at: gameLog.dt,
@@ -438,7 +438,7 @@ export default function init() {
                         'isGameNoVR',
                         this.store.game.isGameNoVR
                     );
-                    this.updateOpenVR();
+                    this.store.vr.updateOpenVR();
                     break;
                 case 'desktop-mode':
                     this.store.game.isGameNoVR = true;
@@ -446,7 +446,7 @@ export default function init() {
                         'isGameNoVR',
                         this.store.game.isGameNoVR
                     );
-                    this.updateOpenVR();
+                    this.store.vr.updateOpenVR();
                     break;
                 case 'udon-exception':
                     if (this.store.generalSettings.udonExceptionLogging) {

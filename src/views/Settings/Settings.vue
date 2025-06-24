@@ -1845,10 +1845,7 @@
         </el-tabs>
         <OpenSourceSoftwareNoticeDialog :ossDialog.sync="ossDialog" />
         <NoteExportDialog :isNoteExportDialogVisible.sync="isNoteExportDialogVisible" />
-        <NotificationPositionDialog
-            :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible"
-            :notificationPosition.sync="notificationPosition"
-            @changeNotificationPosition="changeNotificationPosition" />
+        <NotificationPositionDialog :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible" />
         <ScreenshotMetadataDialog
             :screenshotMetadataDialog="screenshotMetadataDialog"
             :currentlyDroppingFile="currentlyDroppingFile"
@@ -1905,6 +1902,7 @@
     import { useAvatarStore } from '../../stores/avatar';
     import { useUiStore } from '../../stores/ui';
     import { useAuthStore } from '../../stores/auth';
+    import { useVrStore } from '../../stores/vr';
 
     const { messages, t } = useI18n();
 
@@ -2170,11 +2168,10 @@
     const authStore = useAuthStore();
     const { enablePrimaryPasswordChange } = authStore;
 
+    const vrStore = useVrStore();
+    const { saveOpenVROption } = vrStore;
+
     const props = defineProps({
-        notificationPosition: {
-            type: String,
-            default: ''
-        },
         currentlyDroppingFile: {
             type: String,
             default: ''
@@ -2190,10 +2187,8 @@
 
     const emit = defineEmits([
         'updateSharedFeed',
-        'changeNotificationPosition',
         'saveVRCXWindowOption',
         'promptProxySettings',
-        'saveOpenVROption',
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
         'saveDiscordOption',
@@ -2266,10 +2261,6 @@
         emit('updateSharedFeed', $event);
     }
 
-    function changeNotificationPosition(value) {
-        emit('changeNotificationPosition', value);
-    }
-
     function isLinux() {
         return LINUX;
     }
@@ -2287,10 +2278,6 @@
 
     function promptProxySettings() {
         emit('promptProxySettings');
-    }
-
-    function saveOpenVROption() {
-        emit('saveOpenVROption');
     }
 
     function promptMaxTableSizeDialog() {

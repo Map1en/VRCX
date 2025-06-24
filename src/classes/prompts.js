@@ -140,7 +140,9 @@ export default function init() {
                     distinguishCancelAndClose: true,
                     confirmButtonText: $t('prompt.notification_timeout.ok'),
                     cancelButtonText: $t('prompt.notification_timeout.cancel'),
-                    inputValue: this.notificationTimeout / 1000,
+                    inputValue:
+                        this.store.notificationsSettings.notificationTimeout /
+                        1000,
                     inputPattern: /\d+$/,
                     inputErrorMessage: $t(
                         'prompt.notification_timeout.input_error'
@@ -151,12 +153,12 @@ export default function init() {
                             instance.inputValue &&
                             !isNaN(instance.inputValue)
                         ) {
-                            this.notificationTimeout = Math.trunc(
-                                Number(instance.inputValue) * 1000
-                            );
+                            this.store.notificationsSettings.notificationTimeout =
+                                Math.trunc(Number(instance.inputValue) * 1000);
                             await configRepository.setString(
                                 'VRCX_notificationTimeout',
-                                this.notificationTimeout
+                                this.store.notificationsSettings
+                                    .notificationTimeout
                             );
                             this.updateVRConfigVars();
                         }

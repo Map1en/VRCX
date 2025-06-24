@@ -5,9 +5,11 @@ import { $app, API } from '../app';
 import database from '../service/database';
 import { formatSeconds } from '../shared/utils';
 import { useNotificationStore } from './notification';
+import { useVrStore } from './vr';
 
 export const useGameLogStore = defineStore('GameLog', () => {
     const notificationStore = useNotificationStore();
+    const vrStore = useVrStore();
     const state = reactive({
         nowPlaying: {
             url: '',
@@ -34,7 +36,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
             remainingText: '',
             playing: false
         };
-        $app.updateVrNowPlaying();
+        vrStore.updateVrNowPlaying();
     }
 
     function setNowPlaying(ctx) {
@@ -77,7 +79,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 remainingText: ''
             };
         }
-        $app.updateVrNowPlaying();
+        vrStore.updateVrNowPlaying();
         if (!state.nowPlaying.playing && ctx.videoLength > 0) {
             state.nowPlaying.playing = true;
             updateNowPlaying();
@@ -97,7 +99,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         np.remainingText = formatSeconds(np.length - np.elapsed);
         np.percentage = Math.round(((np.elapsed * 100) / np.length) * 10) / 10;
-        $app.updateVrNowPlaying();
+        vrStore.updateVrNowPlaying();
         workerTimers.setTimeout(() => updateNowPlaying(), 1000);
     }
 

@@ -13,6 +13,7 @@ import { useInstanceStore } from './instance';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
+import { useVrStore } from './vr';
 
 export const useLocationStore = defineStore('Location', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
@@ -20,6 +21,7 @@ export const useLocationStore = defineStore('Location', () => {
     const instanceStore = useInstanceStore();
     const notificationStore = useNotificationStore();
     const gameStore = useGameStore();
+    const vrStore = useVrStore();
     const state = reactive({
         lastLocation: {
             date: 0,
@@ -229,7 +231,7 @@ export const useLocationStore = defineStore('Location', () => {
         };
         updateCurrentUserLocation();
         instanceStore.updateCurrentInstanceWorld();
-        $app.updateVRLastLocation();
+        vrStore.updateVRLastLocation();
         $app.getCurrentInstanceUserList();
         $app.lastVideoUrl = '';
         $app.lastResourceloadUrl = '';

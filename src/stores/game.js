@@ -15,6 +15,7 @@ import { useLaunchStore } from './launch';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useVrStore } from './vr';
 import { useWorldStore } from './world';
 
 export const useGameStore = defineStore('Game', () => {
@@ -26,6 +27,7 @@ export const useGameStore = defineStore('Game', () => {
     const worldStore = useWorldStore();
     const instanceStore = useInstanceStore();
     const gameLogStore = useGameLogStore();
+    const vrStore = useVrStore();
     const state = reactive({
         lastCrashedTime: null,
         VRChatUsedCacheSize: '',
@@ -211,7 +213,7 @@ export const useGameStore = defineStore('Game', () => {
             }
             locationStore.lastLocationReset();
             gameLogStore.clearNowPlaying();
-            $app.updateVRLastLocation();
+            vrStore.updateVRLastLocation();
             workerTimers.setTimeout(
                 () => $app.checkVRChatDebugLogging(),
                 60000
@@ -228,7 +230,7 @@ export const useGameStore = defineStore('Game', () => {
             state.isHmdAfk = isHmdAfk;
             console.log('isHmdAfk:', isHmdAfk);
         }
-        $app.updateOpenVR();
+        vrStore.updateOpenVR();
     }
 
     return {

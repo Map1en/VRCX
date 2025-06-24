@@ -78,7 +78,6 @@ import {
     escapeTag,
     getAllUserMemos,
     getNameColour,
-    isRpcWorld,
     migrateMemos,
     parseLocation,
     refreshCustomCss,
@@ -742,7 +741,7 @@ API.$on('LOGIN', async function (args) {
     if ($app.store.game.isGameRunning) {
         $app.loadPlayerList();
     }
-    $app.vrInit();
+    $app.store.vr.vrInit();
     // remove old data from json file and migrate to SQLite
     if (await VRCXStorage.Get(`${args.json.id}_friendLogUpdatedAt`)) {
         VRCXStorage.Remove(`${args.json.id}_feedTable`);
@@ -820,7 +819,7 @@ $app.methods.loadPlayerList = function () {
 
         this.store.location.updateCurrentUserLocation();
         this.store.instance.updateCurrentInstanceWorld();
-        this.updateVRLastLocation();
+        this.store.vr.updateVRLastLocation();
         this.getCurrentInstanceUserList();
         this.store.user.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
@@ -830,12 +829,6 @@ $app.methods.loadPlayerList = function () {
 
 // #endregion
 // #region | App: gameLog
-
-$app.methods.updateVrNowPlaying = function () {
-    const json = JSON.stringify(this.nowPlaying);
-    AppApi.ExecuteVrFeedFunction('nowPlayingUpdate', json);
-    AppApi.ExecuteVrOverlayFunction('nowPlayingUpdate', json);
-};
 
 // #endregion
 // #region | App: Search
@@ -876,10 +869,7 @@ $app.data.currentInstanceUserList = {
     layout: 'table'
 };
 $app.data.visits = 0;
-$app.data.notificationTimeout = await configRepository.getString(
-    'VRCX_notificationTimeout',
-    '3000'
-);
+
 $app.data.maxTableSize = await configRepository.getInt(
     'VRCX_maxTableSize',
     1000
@@ -896,14 +886,6 @@ $app.data.clearVRCXCacheFrequency = await configRepository.getInt(
     'VRCX_clearVRCXCacheFrequency',
     172800
 );
-
-$app.methods.saveOpenVROption = async function () {
-    this.updateSharedFeed(true);
-    this.updateVRConfigVars();
-    this.updateVRLastLocation();
-    AppApi.ExecuteVrOverlayFunction('notyClear', '');
-    this.updateOpenVR();
-};
 
 $app.methods.applyWineEmojis = async function () {
     if (document.contains(document.getElementById('app-emoji-font'))) {
@@ -967,118 +949,8 @@ $app.methods.saveEventOverlay = async function (configKey = '') {
     } else if (configKey === 'VRCX_TimeoutHudOverlay') {
         this.store.photon.setTimeoutHudOverlay();
     }
-    this.updateOpenVR();
+    this.store.vr.updateOpenVR();
     this.updateVRConfigVars();
-};
-
-$app.data.notificationPosition = await configRepository.getString(
-    'VRCX_notificationPosition',
-    'topCenter'
-);
-$app.methods.changeNotificationPosition = async function (value) {
-    this.notificationPosition = value;
-    await configRepository.setString(
-        'VRCX_notificationPosition',
-        this.notificationPosition
-    );
-    this.updateVRConfigVars();
-};
-
-$app.methods.updateVRConfigVars = function () {
-    let notificationTheme = 'relax';
-    if (this.store.appearanceSettings.isDarkMode) {
-        notificationTheme = 'sunset';
-    }
-    const VRConfigVars = {
-        overlayNotifications:
-            this.store.notificationsSettings.overlayNotifications,
-        hideDevicesFromFeed:
-            this.store.wristOverlaySettings.hideDevicesFromFeed,
-        vrOverlayCpuUsage: this.store.wristOverlaySettings.vrOverlayCpuUsage,
-        minimalFeed: this.store.wristOverlaySettings.minimalFeed,
-        notificationPosition: this.notificationPosition,
-        notificationTimeout: this.notificationTimeout,
-        photonOverlayMessageTimeout: this.photonOverlayMessageTimeout,
-        notificationTheme,
-        backgroundEnabled: this.store.wristOverlaySettings.vrBackgroundEnabled,
-        dtHour12: this.store.appearanceSettings.dtHour12,
-        pcUptimeOnFeed: this.store.wristOverlaySettings.pcUptimeOnFeed,
-        appLanguage: this.store.appearanceSettings.appLanguage,
-        notificationOpacity: this.store.advancedSettings.notificationOpacity
-    };
-    const json = JSON.stringify(VRConfigVars);
-    AppApi.ExecuteVrFeedFunction('configUpdate', json);
-    AppApi.ExecuteVrOverlayFunction('configUpdate', json);
-};
-
-$app.methods.updateVRLastLocation = function () {
-    let progressPie = false;
-    if (this.progressPie) {
-        progressPie = true;
-        if (this.store.advancedSettings.progressPieFilter) {
-            if (!isRpcWorld(this.store.location.lastLocation.location)) {
-                progressPie = false;
-            }
-        }
-    }
-    let onlineFor = '';
-    if (!this.store.wristOverlaySettings.hideUptimeFromFeed) {
-        onlineFor = API.currentUser.$online_for;
-    }
-    const lastLocation = {
-        date: this.store.location.lastLocation.date,
-        location: this.store.location.lastLocation.location,
-        name: this.store.location.lastLocation.name,
-        playerList: Array.from(
-            this.store.location.lastLocation.playerList.values()
-        ),
-        friendList: Array.from(
-            this.store.location.lastLocation.friendList.values()
-        ),
-        progressPie,
-        onlineFor
-    };
-    const json = JSON.stringify(lastLocation);
-    AppApi.ExecuteVrFeedFunction('lastLocationUpdate', json);
-    AppApi.ExecuteVrOverlayFunction('lastLocationUpdate', json);
-};
-
-$app.methods.vrInit = function () {
-    this.updateVRConfigVars();
-    this.updateVRLastLocation();
-    this.updateVrNowPlaying();
-    this.updateSharedFeed(true);
-    this.store.friend.onlineFriendCount = 0;
-    this.store.friend.updateOnlineFriendCoutner();
-};
-
-$app.methods.updateOpenVR = function () {
-    if (
-        this.store.notificationsSettings.openVR &&
-        this.store.game.isSteamVRRunning &&
-        ((this.store.game.isGameRunning && !this.store.game.isGameNoVR) ||
-            this.store.wristOverlaySettings.openVRAlways)
-    ) {
-        let hmdOverlay = false;
-        if (
-            this.store.notificationsSettings.overlayNotifications ||
-            this.store.advancedSettings.progressPie ||
-            this.store.photon.photonEventOverlay ||
-            this.store.photon.timeoutHudOverlay
-        ) {
-            hmdOverlay = true;
-        }
-        // active, hmdOverlay, wristOverlay, menuButton, overlayHand
-        AppApi.SetVR(
-            true,
-            hmdOverlay,
-            this.store.wristOverlaySettings.overlayWrist,
-            this.store.wristOverlaySettings.overlaybutton,
-            this.store.wristOverlaySettings.overlayHand
-        );
-    } else {
-        AppApi.SetVR(false, false, false, false, 0);
-    }
 };
 
 $app.methods.handleSetTablePageSize = async function (pageSize) {
@@ -1444,8 +1316,8 @@ $app.methods.changeYouTubeApi = async function (configKey = '') {
         this.store.advancedSettings.setProgressPieFilter();
     }
 
-    this.updateVRLastLocation();
-    this.updateOpenVR();
+    this.store.vr.updateVRLastLocation();
+    this.store.vr.updateOpenVR();
 };
 
 // Asset Bundle Cacher
@@ -2190,7 +2062,6 @@ $app.computed.loginPageEvent = function () {
 
 $app.computed.settingsTabBind = function () {
     return {
-        notificationPosition: this.notificationPosition,
         currentlyDroppingFile: this.currentlyDroppingFile,
         fullscreenImageDialog: this.fullscreenImageDialog,
         backupVrcRegistry: this.backupVrcRegistry
@@ -2199,10 +2070,8 @@ $app.computed.settingsTabBind = function () {
 
 $app.computed.settingsTabEvent = function () {
     return {
-        changeNotificationPosition: this.changeNotificationPosition,
         saveVRCXWindowOption: this.saveVRCXWindowOption,
         promptProxySettings: this.promptProxySettings,
-        saveOpenVROption: this.saveOpenVROption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,

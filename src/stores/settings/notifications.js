@@ -2,10 +2,12 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import configRepository from '../../service/config';
 import { sharedFeedFiltersDefaults } from '../../shared/constants';
+import { useVrStore } from '../vr';
 
 export const useNotificationsSettingsStore = defineStore(
     'NotificationsSettings',
     () => {
+        const vrStore = useVrStore();
         const state = reactive({
             overlayToast: true,
             openVR: false,
@@ -107,7 +109,9 @@ export const useNotificationsSettingsStore = defineStore(
             isTestTTSVisible: false,
             notificationTTSVoice: 0,
             notificationTTSTest: '',
-            TTSvoices: []
+            TTSvoices: [],
+            notificationPosition: 'topCenter',
+            notificationTimeout: 3000
         });
 
         async function initNotificationsSettings() {
@@ -124,7 +128,9 @@ export const useNotificationsSettingsStore = defineStore(
                 notificationTTS,
                 notificationTTSNickName,
                 sharedFeedFilters,
-                notificationTTSVoice
+                notificationTTSVoice,
+                notificationPosition,
+                notificationTimeout
             ] = await Promise.all([
                 configRepository.getString('VRCX_overlayToast', 'Game Running'),
                 configRepository.getBool('VRCX_overlayNotifications', true),
@@ -141,7 +147,12 @@ export const useNotificationsSettingsStore = defineStore(
                     'sharedFeedFilters',
                     JSON.stringify(sharedFeedFiltersDefaults)
                 ),
-                configRepository.getString('VRCX_notificationTTSVoice', '0')
+                configRepository.getString('VRCX_notificationTTSVoice', '0'),
+                configRepository.getString(
+                    'VRCX_notificationPosition',
+                    'topCenter'
+                ),
+                configRepository.getString('VRCX_notificationTimeout', '3000')
             ]);
 
             state.overlayToast = overlayToast;
@@ -158,6 +169,8 @@ export const useNotificationsSettingsStore = defineStore(
             state.sharedFeedFilters = JSON.parse(sharedFeedFilters);
             state.notificationTTSVoice = notificationTTSVoice;
             state.TTSvoices = speechSynthesis.getVoices();
+            state.notificationPosition = notificationPosition;
+            state.notificationTimeout = notificationTimeout;
 
             initSharedFeedFilters();
 
@@ -205,6 +218,11 @@ export const useNotificationsSettingsStore = defineStore(
             get: () => state.notificationTTSTest,
             set: (value) => (state.notificationTTSTest = value)
         });
+        const notificationPosition = computed(() => state.notificationPosition);
+        const notificationTimeout = computed({
+            get: () => state.notificationTimeout,
+            set: (value) => (state.notificationTimeout = value)
+        });
 
         function setOverlayToast(value) {
             state.overlayToast = value;
@@ -248,6 +266,15 @@ export const useNotificationsSettingsStore = defineStore(
                 'VRCX_imageNotifications',
                 state.imageNotifications
             );
+        }
+
+        function changeNotificationPosition(value) {
+            state.notificationPosition = value;
+            configRepository.setString(
+                'VRCX_notificationPosition',
+                state.notificationPosition
+            );
+            vrStore.updateVRConfigVars();
         }
         /**
          * @param {string} value
@@ -430,6 +457,8 @@ export const useNotificationsSettingsStore = defineStore(
             notificationTTSVoice,
             TTSvoices,
             notificationTTSTest,
+            notificationPosition,
+            notificationTimeout,
 
             setOverlayToast,
             setOpenVR,
@@ -446,7 +475,8 @@ export const useNotificationsSettingsStore = defineStore(
             changeTTSVoice,
             saveNotificationTTS,
             testNotificationTTS,
-            speak
+            speak,
+            changeNotificationPosition
         };
     }
 );

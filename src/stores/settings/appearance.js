@@ -12,12 +12,14 @@ import {
     updateTrustColorClasses
 } from '../../shared/utils';
 import { useFriendStore } from '../friend';
+import { useVrStore } from '../vr';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
 
     () => {
         const friendStore = useFriendStore();
+        const vrStore = useVrStore();
         const state = reactive({
             appLanguage: 'en',
             themeMode: '',
@@ -243,7 +245,7 @@ export const useAppearanceSettingsStore = defineStore(
          */
         function changeAppLanguage(language) {
             setAppLanguage(language);
-            $app.updateVRConfigVars();
+            vrStore.updateVRConfigVars();
         }
 
         /**
@@ -268,7 +270,7 @@ export const useAppearanceSettingsStore = defineStore(
 
         async function changeThemeMode() {
             await changeAppThemeStyle(state.themeMode);
-            $app.updateVRConfigVars();
+            vrStore.updateVRConfigVars();
             await updateTrustColor();
         }
 
