@@ -33,8 +33,47 @@ export const useVrcxStore = defineStore('Vrcx', () => {
 
     const state = reactive({
         isRunningUnderWine: false,
-        databaseVersion: 0
+        databaseVersion: 0,
+        clearVRCXCacheFrequency: 172800,
+        proxyServer: '',
+        locationX: 0,
+        locationY: 0,
+        sizeWidth: 800,
+        sizeHeight: 600,
+        windowState: ''
     });
+
+    async function init() {
+        state.clearVRCXCacheFrequency = await configRepository.getInt(
+            'VRCX_clearVRCXCacheFrequency',
+            172800
+        );
+
+        if (!(await VRCXStorage.Get('VRCX_DatabaseLocation'))) {
+            await VRCXStorage.Set('VRCX_DatabaseLocation', '');
+        }
+        if (!(await VRCXStorage.Get('VRCX_ProxyServer'))) {
+            await VRCXStorage.Set('VRCX_ProxyServer', '');
+        }
+        if ((await VRCXStorage.Get('VRCX_DisableGpuAcceleration')) === '') {
+            await VRCXStorage.Set('VRCX_DisableGpuAcceleration', 'false');
+        }
+        if (
+            (await VRCXStorage.Get('VRCX_DisableVrOverlayGpuAcceleration')) ===
+            ''
+        ) {
+            await VRCXStorage.Set(
+                'VRCX_DisableVrOverlayGpuAcceleration',
+                'false'
+            );
+        }
+        state.proxyServer = await VRCXStorage.Get('VRCX_ProxyServer');
+        state.locationX = await VRCXStorage.Get('VRCX_LocationX');
+        state.locationY = await VRCXStorage.Get('VRCX_LocationY');
+        state.sizeWidth = await VRCXStorage.Get('VRCX_SizeWidth');
+        state.sizeHeight = await VRCXStorage.Get('VRCX_SizeHeight');
+        state.windowState = await VRCXStorage.Get('VRCX_WindowState');
+    }
 
     // Make sure file drops outside of the screenshot manager don't navigate to the file path dropped.
     // This issue persists on prompts created with prompt(), unfortunately. Not sure how to fix that.
@@ -260,12 +299,24 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     }
 
+    async function saveVRCXWindowOption() {
+        if (LINUX) {
+            VRCXStorage.Set('VRCX_LocationX', this.locationX);
+            VRCXStorage.Set('VRCX_LocationY', this.locationY);
+            VRCXStorage.Set('VRCX_SizeWidth', this.sizeWidth);
+            VRCXStorage.Set('VRCX_SizeHeight', this.sizeHeight);
+            VRCXStorage.Set('VRCX_WindowState', this.windowState);
+            VRCXStorage.Flush();
+        }
+    }
+
     return {
         state,
         isRunningUnderWine,
         showConsole,
         applyWineEmojis,
         clearVRCXCache,
-        eventVrcxMessage
+        eventVrcxMessage,
+        saveVRCXWindowOption
     };
 });

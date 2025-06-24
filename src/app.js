@@ -828,50 +828,6 @@ $app.data.photonLobbyTimeoutThreshold = await configRepository.getInt(
     'VRCX_photonLobbyTimeoutThreshold',
     6000
 );
-$app.data.clearVRCXCacheFrequency = await configRepository.getInt(
-    'VRCX_clearVRCXCacheFrequency',
-    172800
-);
-
-if (!(await VRCXStorage.Get('VRCX_DatabaseLocation'))) {
-    await VRCXStorage.Set('VRCX_DatabaseLocation', '');
-}
-if (!(await VRCXStorage.Get('VRCX_ProxyServer'))) {
-    await VRCXStorage.Set('VRCX_ProxyServer', '');
-}
-if ((await VRCXStorage.Get('VRCX_DisableGpuAcceleration')) === '') {
-    await VRCXStorage.Set('VRCX_DisableGpuAcceleration', 'false');
-}
-if ((await VRCXStorage.Get('VRCX_DisableVrOverlayGpuAcceleration')) === '') {
-    await VRCXStorage.Set('VRCX_DisableVrOverlayGpuAcceleration', 'false');
-}
-$app.data.proxyServer = await VRCXStorage.Get('VRCX_ProxyServer');
-$app.data.locationX = await VRCXStorage.Get('VRCX_LocationX');
-$app.data.locationY = await VRCXStorage.Get('VRCX_LocationY');
-$app.data.sizeWidth = await VRCXStorage.Get('VRCX_SizeWidth');
-$app.data.sizeHeight = await VRCXStorage.Get('VRCX_SizeHeight');
-$app.data.windowState = await VRCXStorage.Get('VRCX_WindowState');
-
-$app.methods.saveVRCXWindowOption = async function (configKey = '') {
-    switch (configKey) {
-        case 'VRCX_cropInstancePrints':
-            this.store.advancedSettings.cropPrintsChanged();
-            break;
-        default:
-            break;
-    }
-
-    // todo: set electron location
-
-    if (LINUX) {
-        VRCXStorage.Set('VRCX_LocationX', this.locationX);
-        VRCXStorage.Set('VRCX_LocationY', this.locationY);
-        VRCXStorage.Set('VRCX_SizeWidth', this.sizeWidth);
-        VRCXStorage.Set('VRCX_SizeHeight', this.sizeHeight);
-        VRCXStorage.Set('VRCX_WindowState', this.windowState);
-        VRCXStorage.Flush();
-    }
-};
 
 $app.data.photonOverlayMessageTimeout = Number(
     await configRepository.getString('VRCX_photonOverlayMessageTimeout', 6000)

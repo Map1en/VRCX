@@ -2157,7 +2157,6 @@
 
     const emit = defineEmits([
         'updateSharedFeed',
-        'saveVRCXWindowOption',
         'promptProxySettings',
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
@@ -2234,10 +2233,6 @@
     }
     function showWristFeedFiltersDialog() {
         feedFiltersDialogMode.value = 'wrist';
-    }
-
-    function saveVRCXWindowOption(option) {
-        emit('saveVRCXWindowOption', option);
     }
 
     function promptProxySettings() {
