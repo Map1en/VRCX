@@ -242,6 +242,19 @@ function HSVtoRGB(h, s, v) {
     return `#${decColor.toString(16).substr(1)}`;
 }
 
+function adjustDialogZ(el) {
+    let z = 0;
+    document.querySelectorAll('.v-modal,.el-dialog__wrapper').forEach((v) => {
+        const _z = Number(v.style.zIndex) || 0;
+        if (_z && _z > z && v !== el) {
+            z = _z;
+        }
+    });
+    if (z) {
+        el.style.zIndex = z + 1;
+    }
+}
+
 export {
     systemIsDarkMode,
     changeAppThemeStyle,
@@ -250,5 +263,6 @@ export {
     refreshCustomCss,
     refreshCustomScript,
     HueToHex,
-    HSVtoRGB
+    HSVtoRGB,
+    adjustDialogZ
 };

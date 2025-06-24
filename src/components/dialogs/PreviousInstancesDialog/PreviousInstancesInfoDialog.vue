@@ -60,19 +60,18 @@
 <script>
     import dayjs from 'dayjs';
     import { storeToRefs } from 'pinia';
-    import { parseLocation, compareByCreatedAt, timeToText } from '../../../shared/utils';
     import database from '../../../service/database';
+    import { adjustDialogZ, compareByCreatedAt, parseLocation, timeToText } from '../../../shared/utils';
+    import { useInstanceStore } from '../../../stores/instance';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
     import Location from '../../Location.vue';
-    import { useInstanceStore } from '../../../stores/instance';
 
     export default {
         name: 'PreviousInstancesInfoDialog',
         components: {
             Location
         },
-        inject: ['adjustDialogZ'],
         props: {
             gameLogIsFriend: { type: Function, required: true },
             gameLogIsFavorite: { type: Function, required: true }
@@ -89,7 +88,8 @@
                 isDarkMode,
                 lookupUser,
                 previousInstancesInfoDialogVisible,
-                previousInstancesInfoDialogInstanceId
+                previousInstancesInfoDialogInstanceId,
+                adjustDialogZ
             };
         },
         data() {

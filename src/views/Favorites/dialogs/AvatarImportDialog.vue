@@ -175,14 +175,14 @@
     import { storeToRefs } from 'pinia';
     import { avatarRequest, favoriteRequest } from '../../../api';
     import { API } from '../../../app';
-    import { removeFromArray } from '../../../shared/utils';
-    import { useUserStore } from '../../../stores/user';
-    import { useFavoriteStore } from '../../../stores/favorite';
+    import { adjustDialogZ, removeFromArray } from '../../../shared/utils';
     import { useAvatarStore } from '../../../stores/avatar';
+    import { useFavoriteStore } from '../../../stores/favorite';
+    import { useUserStore } from '../../../stores/user';
 
     export default {
         name: 'AvatarImportDialog',
-        inject: ['adjustDialogZ', 'showFullscreenImageDialog'],
+        inject: ['showFullscreenImageDialog'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -205,7 +205,8 @@
                 addLocalAvatarFavorite,
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavoriteGroups,
-                showAvatarDialog
+                showAvatarDialog,
+                adjustDialogZ
             };
         },
         data() {

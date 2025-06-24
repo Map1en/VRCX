@@ -613,6 +613,7 @@
     import { $app, API } from '../../../app.js';
     import database from '../../../service/database';
     import {
+        adjustDialogZ,
         buildTreeData,
         commaNumber,
         compareUnityVersion,
@@ -636,7 +637,6 @@
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);

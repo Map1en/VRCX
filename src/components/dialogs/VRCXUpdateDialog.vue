@@ -64,9 +64,10 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, nextTick, ref, watch } from 'vue';
+    import { nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { branches } from '../../shared/constants';
+    import { adjustDialogZ } from '../../shared/utils';
     import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
@@ -83,7 +84,6 @@
     const { installVRCXUpdate, loadBranchVersions, restartVRCX, updateProgressText, cancelUpdate } = VRCXUpdaterStore;
 
     const { t } = useI18n();
-    const adjustDialogZ = inject('adjustDialogZ');
 
     const VRCXUpdateDialogRef = ref(null);
 

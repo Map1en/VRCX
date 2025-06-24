@@ -494,29 +494,29 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { groupRequest, instanceRequest, worldRequest } from '../../api';
+    import { API } from '../../app';
     import configRepository from '../../service/config';
     import { instanceContentSettings } from '../../shared/constants';
     import {
+        adjustDialogZ,
         getLaunchURL,
         hasGroupPermission,
         isRealInstance,
         parseLocation,
-        userStatusClass,
-        userImage
+        userImage,
+        userStatusClass
     } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { useGalleryStore } from '../../stores/gallery';
+    import { useGroupStore } from '../../stores/group';
+    import { useInstanceStore } from '../../stores/instance';
+    import { useLaunchStore } from '../../stores/launch';
     import { useLocationStore } from '../../stores/location';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
-    import { API } from '../../app';
-    import { useGroupStore } from '../../stores/group';
-    import { useLaunchStore } from '../../stores/launch';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useGalleryStore } from '../../stores/gallery';
 
     export default {
         name: 'NewInstanceDialog',
         components: { InviteDialog },
-        inject: ['adjustDialogZ'],
         props: {
             newInstanceDialogLocationTag: {
                 type: String,
@@ -551,7 +551,8 @@
                 userImage,
                 showLaunchDialog,
                 createNewInstance,
-                uploadImage
+                uploadImage,
+                adjustDialogZ
             };
         },
         data() {

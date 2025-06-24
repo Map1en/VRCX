@@ -312,7 +312,6 @@ let $app = {
     },
     provide() {
         return {
-            adjustDialogZ: this.adjustDialogZ,
             showFullscreenImageDialog: this.showFullscreenImageDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
@@ -1339,19 +1338,6 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
 
 // #endregion
 // #region | App: Dialog
-
-$app.methods.adjustDialogZ = function (el) {
-    let z = 0;
-    document.querySelectorAll('.v-modal,.el-dialog__wrapper').forEach((v) => {
-        const _z = Number(v.style.zIndex) || 0;
-        if (_z && _z > z && v !== el) {
-            z = _z;
-        }
-    });
-    if (z) {
-        el.style.zIndex = z + 1;
-    }
-};
 
 // #endregion
 // #region | App: User Dialog

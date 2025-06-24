@@ -1804,6 +1804,7 @@
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';
     import {
+        adjustDialogZ,
         checkCanInvite,
         compareByMemberCount,
         compareByName,
@@ -1888,8 +1889,6 @@
     const { isGameRunning } = storeToRefs(gameStore);
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const adjustDialogZ = inject('adjustDialogZ');
 
     const props = defineProps({
         updateInstanceInfo: {

@@ -767,6 +767,7 @@
     import { $app, API } from '../../../app';
     import database from '../../../service/database.js';
     import {
+        adjustDialogZ,
         buildTreeData,
         downloadAndSaveJson,
         extractFileId,
@@ -802,7 +803,7 @@
             NewInstanceDialog,
             ChangeWorldImageDialog
         },
-        inject: ['adjustDialogZ', 'showFullscreenImageDialog', 'openFolderGeneric'],
+        inject: ['showFullscreenImageDialog', 'openFolderGeneric'],
         props: {
             shiftHeld: Boolean,
 
@@ -848,7 +849,8 @@
                 showPreviousInstancesInfoDialog,
                 instanceJoinHistory,
                 isGameRunning,
-                deleteVRChatCache
+                deleteVRChatCache,
+                adjustDialogZ
             };
         },
         data() {

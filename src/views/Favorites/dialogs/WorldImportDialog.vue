@@ -180,14 +180,14 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, worldRequest } from '../../../api';
     import { API } from '../../../app';
-    import { removeFromArray } from '../../../shared/utils';
+    import { adjustDialogZ, removeFromArray } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useUserStore } from '../../../stores/user';
     import { useWorldStore } from '../../../stores/world';
 
     export default {
         name: 'WorldImportDialog',
-        inject: ['showFullscreenImageDialog', 'adjustDialogZ'],
+        inject: ['showFullscreenImageDialog'],
         setup() {
             const userStore = useUserStore();
             const { showUserDialog } = userStore;
@@ -206,7 +206,8 @@
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavoriteGroups,
                 addLocalWorldFavorite,
-                showWorldDialog
+                showWorldDialog,
+                adjustDialogZ
             };
         },
         data() {

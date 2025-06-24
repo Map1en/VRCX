@@ -66,15 +66,15 @@
 </template>
 
 <script>
+    import Noty from 'noty';
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../api';
-    import Noty from 'noty';
     import { API } from '../../app';
+    import { adjustDialogZ } from '../../shared/utils';
     import { useFavoriteStore } from '../../stores/favorite';
 
     export default {
         name: 'ChooseFavoriteGroupDialog',
-        inject: ['adjustDialogZ'],
         setup() {
             const favoriteStore = useFavoriteStore();
             const {
@@ -112,7 +112,8 @@
                 localWorldFavoriteGroups,
                 removeLocalAvatarFavorite,
                 removeLocalWorldFavorite,
-                deleteFavoriteNoConfirm
+                deleteFavoriteNoConfirm,
+                adjustDialogZ
             };
         },
         data() {

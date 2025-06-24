@@ -1168,7 +1168,9 @@
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
     import { API } from '../../../app';
+    import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import {
+        adjustDialogZ,
         buildTreeData,
         copyToClipboard,
         downloadAndSaveJson,
@@ -1178,8 +1180,8 @@
         openExternalLink,
         refreshInstancePlayerCount,
         removeFromArray,
-        userStatusClass,
-        userImage
+        userImage,
+        userStatusClass
     } from '../../../shared/utils';
     import { useGroupStore } from '../../../stores/group';
     import { useLocationStore } from '../../../stores/location';
@@ -1189,10 +1191,8 @@
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
-    import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-    const adjustDialogZ = inject('adjustDialogZ');
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const { hideTooltips } = storeToRefs(appearanceSettingsStore);

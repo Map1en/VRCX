@@ -85,18 +85,17 @@
     import { storeToRefs } from 'pinia';
     import { instanceRequest, worldRequest } from '../../api';
     import configRepository from '../../service/config';
-    import { getLaunchURL, isRealInstance, parseLocation, checkCanInvite } from '../../shared/utils';
+    import { adjustDialogZ, checkCanInvite, getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { useInstanceStore } from '../../stores/instance';
+    import { useLaunchStore } from '../../stores/launch';
+    import { useLocationStore } from '../../stores/location';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
-    import { useLocationStore } from '../../stores/location';
-    import { useLaunchStore } from '../../stores/launch';
-    import { useInstanceStore } from '../../stores/instance';
 
     export default {
         name: 'LaunchDialog',
         components: { InviteDialog },
-        inject: ['adjustDialogZ'],
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();
             const friendStore = useFriendStore();
@@ -119,7 +118,8 @@
                 lastLocation,
                 launchGame,
                 launchDialogData,
-                showPreviousInstancesInfoDialog
+                showPreviousInstancesInfoDialog,
+                adjustDialogZ
             };
         },
         data() {

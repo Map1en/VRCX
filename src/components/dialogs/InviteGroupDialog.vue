@@ -169,14 +169,13 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { groupRequest, userRequest } from '../../api';
-    import { hasGroupPermission, userStatusClass, userImage } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
     import { API } from '../../app';
+    import { adjustDialogZ, hasGroupPermission, userImage, userStatusClass } from '../../shared/utils';
+    import { useFriendStore } from '../../stores/friend';
     import { useGroupStore } from '../../stores/group';
 
     export default {
         name: 'InviteGroupDialog',
-        inject: ['adjustDialogZ'],
         setup() {
             const friendStore = useFriendStore();
             const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
@@ -191,7 +190,8 @@
                 inviteGroupDialog,
                 userStatusClass,
                 userImage,
-                API
+                API,
+                adjustDialogZ
             };
         },
         watch: {

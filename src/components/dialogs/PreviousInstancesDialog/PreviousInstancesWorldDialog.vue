@@ -66,14 +66,20 @@
 </template>
 
 <script>
-    import { removeFromArray, timeToText, parseLocation, compareByCreatedAt } from '../../../shared/utils';
-    import database from '../../../service/database';
     import { API } from '../../../app';
+    import database from '../../../service/database';
+    import {
+        adjustDialogZ,
+        compareByCreatedAt,
+        parseLocation,
+        removeFromArray,
+        timeToText
+    } from '../../../shared/utils';
     import { useInstanceStore } from '../../../stores/instance';
 
     export default {
         name: 'PreviousInstancesWorldDialog',
-        inject: ['adjustDialogZ'],
+
         props: {
             previousInstancesWorldDialog: {
                 type: Object,
@@ -84,7 +90,7 @@
         setup() {
             const instanceStore = useInstanceStore();
             const { showPreviousInstancesInfoDialog } = instanceStore;
-            return { API, showPreviousInstancesInfoDialog };
+            return { API, showPreviousInstancesInfoDialog, adjustDialogZ };
         },
         data() {
             return {
