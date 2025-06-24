@@ -36,8 +36,7 @@ export const useGameStore = defineStore('Game', () => {
         isGameRunning: false,
         isGameNoVR: true,
         isSteamVRRunning: false,
-        isHmdAfk: false,
-        isRunningUnderWine: false
+        isHmdAfk: false
     });
 
     async function init() {
@@ -92,13 +91,6 @@ export const useGameStore = defineStore('Game', () => {
         get: () => state.isHmdAfk,
         set: (value) => {
             state.isHmdAfk = value;
-        }
-    });
-
-    const isRunningUnderWine = computed({
-        get: () => state.isRunningUnderWine,
-        set: (value) => {
-            state.isRunningUnderWine = value;
         }
     });
 
@@ -208,16 +200,15 @@ export const useGameStore = defineStore('Game', () => {
                 autoVRChatCacheManagement();
                 checkIfGameCrashed();
                 $app.ipcTimeout = 0;
-                $app.addAvatarWearTime(API.currentUser.currentAvatar);
+                $app.store.avatar.addAvatarWearTime(
+                    API.currentUser.currentAvatar
+                );
                 API.currentUser.$previousAvatarSwapTime = '';
             }
             locationStore.lastLocationReset();
             gameLogStore.clearNowPlaying();
             vrStore.updateVRLastLocation();
-            workerTimers.setTimeout(
-                () => $app.checkVRChatDebugLogging(),
-                60000
-            );
+            workerTimers.setTimeout(() => checkVRChatDebugLogging(), 60000);
             $app.nextDiscordUpdate = 0;
             console.log(new Date(), 'isGameRunning', isGameRunning);
         }
@@ -233,6 +224,55 @@ export const useGameStore = defineStore('Game', () => {
         vrStore.updateOpenVR();
     }
 
+    async function checkVRChatDebugLogging() {
+        if (advancedSettingsStore.gameLogDisabled) {
+            return;
+        }
+        try {
+            const loggingEnabled =
+                await getVRChatRegistryKey('LOGGING_ENABLED');
+            if (
+                loggingEnabled === null ||
+                typeof loggingEnabled === 'undefined'
+            ) {
+                // key not found
+                return;
+            }
+            if (parseInt(loggingEnabled, 10) === 1) {
+                // already enabled
+                return;
+            }
+            const result = await AppApi.SetVRChatRegistryKey(
+                'LOGGING_ENABLED',
+                '1',
+                4
+            );
+            if (!result) {
+                // failed to set key
+                $app.$alert(
+                    'VRCX has noticed VRChat debug logging is disabled. VRCX requires debug logging in order to function correctly. Please enable debug logging in VRChat quick menu settings > debug > enable debug logging, then rejoin the instance or restart VRChat.',
+                    'Enable debug logging'
+                );
+                console.error('Failed to enable debug logging', result);
+                return;
+            }
+            $app.$alert(
+                'VRCX has noticed VRChat debug logging is disabled and automatically re-enabled it. VRCX requires debug logging in order to function correctly.',
+                'Enabled debug logging'
+            );
+            console.log('Enabled debug logging');
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function getVRChatRegistryKey(key) {
+        if (LINUX) {
+            return AppApi.GetVRChatRegistryKeyString(key);
+        }
+        return AppApi.GetVRChatRegistryKey(key);
+    }
+
     return {
         state,
         VRChatUsedCacheSize,
@@ -242,10 +282,12 @@ export const useGameStore = defineStore('Game', () => {
         isGameNoVR,
         isSteamVRRunning,
         isHmdAfk,
-        isRunningUnderWine,
+
         deleteVRChatCache,
         sweepVRChatCache,
         getVRChatCacheSize,
-        updateIsGameRunning
+        updateIsGameRunning,
+        getVRChatRegistryKey,
+        checkVRChatDebugLogging
     };
 });

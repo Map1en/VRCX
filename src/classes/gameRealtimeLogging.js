@@ -210,7 +210,7 @@ export default function init() {
             }
             var isFavorite = this.store.friend.localFavoriteFriends.has(userId);
             var colour = '';
-            var tagRef = this.customUserTags.get(userId);
+            var tagRef = this.store.user.customUserTags.get(userId);
             if (typeof tagRef !== 'undefined') {
                 colour = tagRef.colour;
             }
@@ -950,7 +950,7 @@ export default function init() {
             this.addPhotonEventToGameLog({
                 created_at: gameLogDate,
                 type: 'PortalSpawn',
-                displayName: this.getDisplayName(userId),
+                displayName: this.store.photon.getDisplayName(userId),
                 location: this.store.location.lastLocation.location,
                 userId,
                 instanceId: location,

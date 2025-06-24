@@ -171,7 +171,7 @@ export default function init() {
             if (json.currentAvatar !== ref.currentAvatar) {
                 $app.store.avatar.addAvatarToHistory(json.currentAvatar);
                 if ($app.store.game.isGameRunning) {
-                    $app.addAvatarWearTime(ref.currentAvatar);
+                    $app.store.avatar.addAvatarWearTime(ref.currentAvatar);
                     ref.$previousAvatarSwapTime = Date.now();
                 }
             }

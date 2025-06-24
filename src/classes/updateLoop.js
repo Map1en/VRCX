@@ -63,7 +63,7 @@ export default function init() {
                     ) {
                         this.nextClearVRCXCacheCheck =
                             this.clearVRCXCacheFrequency / 2;
-                        this.clearVRCXCache();
+                        this.store.vrcx.clearVRCXCache();
                     }
                     if (--this.nextDiscordUpdate <= 0) {
                         this.nextDiscordUpdate = 3;
@@ -76,7 +76,7 @@ export default function init() {
                         this.store.user.updateAutoStateChange();
                     }
                     if (
-                        (this.store.game.isRunningUnderWine || LINUX) &&
+                        (this.store.vrcx.isRunningUnderWine || LINUX) &&
                         --this.nextGetLogCheck <= 0
                     ) {
                         this.nextGetLogCheck = 0.5;
@@ -88,7 +88,7 @@ export default function init() {
                         }
                     }
                     if (
-                        (this.store.game.isRunningUnderWine || LINUX) &&
+                        (this.store.vrcx.isRunningUnderWine || LINUX) &&
                         --this.nextGameRunningCheck <= 0
                     ) {
                         if (LINUX) {

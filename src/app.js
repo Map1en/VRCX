@@ -323,7 +323,7 @@ let $app = {
 
         this.updateLoop();
         this.getGameLogTable();
-        this.checkVRChatDebugLogging();
+        this.store.game.checkVRChatDebugLogging();
         this.checkAutoBackupRestoreVrcRegistry();
         await this.store.auth.migrateStoredUsers();
         if (
@@ -358,9 +358,9 @@ let $app = {
                 });
         }
         try {
-            this.store.game.isRunningUnderWine =
+            this.store.vrcx.isRunningUnderWine =
                 await AppApi.IsRunningUnderWine();
-            this.applyWineEmojis();
+            this.store.vrcx.applyWineEmojis();
         } catch (err) {
             console.error(err);
         }
@@ -384,23 +384,6 @@ vrcRegistry();
 
 // #endregion
 // #region | Init: drop/keyup event listeners
-// Make sure file drops outside of the screenshot manager don't navigate to the file path dropped.
-// This issue persists on prompts created with prompt(), unfortunately. Not sure how to fix that.
-document.body.addEventListener('drop', function (e) {
-    e.preventDefault();
-});
-
-document.addEventListener('keyup', function (e) {
-    if (e.ctrlKey) {
-        if (e.key === 'I') {
-            $app.showConsole();
-        } else if (e.key === 'r') {
-            location.reload();
-        }
-    } else if (e.altKey && e.key === 'R') {
-        refreshCustomCss();
-    }
-});
 
 // #endregion
 
@@ -683,7 +666,6 @@ API.$on('LOGIN', async function (args) {
     $app.store.notification.notificationInitStatus = false;
     await database.initUserTables(args.json.id);
     $app.store.ui.menuActiveIndex = 'feed';
-    await $app.updateDatabaseVersion();
 
     $app.gameLogTable.data = await database.lookupGameLogDatabase(
         $app.gameLogTable.search,
@@ -863,19 +845,6 @@ $app.data.clearVRCXCacheFrequency = await configRepository.getInt(
     'VRCX_clearVRCXCacheFrequency',
     172800
 );
-
-$app.methods.applyWineEmojis = async function () {
-    if (document.contains(document.getElementById('app-emoji-font'))) {
-        document.getElementById('app-emoji-font').remove();
-    }
-    if (this.store.game.isRunningUnderWine) {
-        const $appEmojiFont = document.createElement('link');
-        $appEmojiFont.setAttribute('id', 'app-emoji-font');
-        $appEmojiFont.rel = 'stylesheet';
-        $appEmojiFont.href = 'emoji.font.css';
-        document.head.appendChild($appEmojiFont);
-    }
-};
 
 if (!(await VRCXStorage.Get('VRCX_DatabaseLocation'))) {
     await VRCXStorage.Set('VRCX_DatabaseLocation', '');
@@ -1128,110 +1097,12 @@ $app.methods.dragEnterCef = function (filePath) {
 
 // YouTube API
 
-$app.data.isYouTubeApiDialogVisible = false;
-
-$app.methods.changeYouTubeApi = async function (configKey = '') {
-    if (configKey === 'VRCX_youtubeAPI') {
-        this.store.advancedSettings.setYouTubeApi();
-    } else if (configKey === 'VRCX_progressPie') {
-        this.store.advancedSettings.setProgressPie();
-    } else if (configKey === 'VRCX_progressPieFilter') {
-        this.store.advancedSettings.setProgressPieFilter();
-    }
-
-    this.store.vr.updateVRLastLocation();
-    this.store.vr.updateOpenVR();
-};
-
 // Asset Bundle Cacher
-
-$app.methods.getDisplayName = function (userId) {
-    if (userId) {
-        const ref = API.cachedUsers.get(userId);
-        if (ref.displayName) {
-            return ref.displayName;
-        }
-    }
-    return '';
-};
 
 // userDialog Groups
 
-$app.methods.getVRChatRegistryKey = async function (key) {
-    if (LINUX) {
-        return AppApi.GetVRChatRegistryKeyString(key);
-    }
-    return AppApi.GetVRChatRegistryKey(key);
-};
-
 // #endregion
 // #region Misc
-
-$app.methods.showConsole = function () {
-    AppApi.ShowDevTools();
-    if (
-        this.debug ||
-        this.store.debug.debugWebRequests ||
-        this.debugWebSocket ||
-        this.debugUserDiff
-    ) {
-        return;
-    }
-    console.log(
-        '%cCareful! This might not do what you think.',
-        'background-color: red; color: yellow; font-size: 32px; font-weight: bold'
-    );
-    console.log(
-        '%cIf someone told you to copy-paste something here, it can give them access to your account.',
-        'font-size: 20px;'
-    );
-};
-
-$app.methods.clearVRCXCache = function () {
-    API.failedGetRequests = new Map();
-    API.cachedUsers.forEach((ref, id) => {
-        if (
-            !this.store.friend.friends.has(id) &&
-            !this.store.location.lastLocation.playerList.has(ref.id) &&
-            id !== API.currentUser.id
-        ) {
-            API.cachedUsers.delete(id);
-        }
-    });
-    this.store.world.cachedWorlds.forEach((ref, id) => {
-        if (
-            !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
-            ref.authorId !== API.currentUser.id &&
-            !$app.store.favorite.localWorldFavoritesList.includes(id)
-        ) {
-            this.store.world.cachedWorlds.delete(id);
-        }
-    });
-    this.store.avatar.cachedAvatars.forEach((ref, id) => {
-        if (
-            !$app.store.favorite.cachedFavoritesByObjectId.has(id) &&
-            ref.authorId !== API.currentUser.id &&
-            !this.store.favorite.localAvatarFavoritesList.includes(id) &&
-            !$app.store.avatar.avatarHistory.has(id)
-        ) {
-            this.store.avatar.cachedAvatars.delete(id);
-        }
-    });
-    $app.store.group.cachedGroups.forEach((ref, id) => {
-        if (!$app.store.group.currentUserGroups.has(id)) {
-            $app.store.group.cachedGroups.delete(id);
-        }
-    });
-    $app.store.instance.cachedInstances.forEach((ref, id) => {
-        // delete instances over an hour old
-        if (Date.parse(ref.$fetchedAt) < Date.now() - 3600000) {
-            $app.store.instance.cachedInstances.delete(id);
-        }
-    });
-    this.store.avatar.cachedAvatarNames = new Map();
-    this.customUserTags = new Map();
-    this.store.instance.updateInstanceInfo = 0;
-};
 
 $app.data.ipcEnabled = false;
 $app.methods.ipcEvent = function (json) {
@@ -1304,7 +1175,7 @@ $app.methods.ipcEvent = function (json) {
             if (this.debugPhotonLogging) {
                 console.log('VrcxMessage:', data);
             }
-            this.eventVrcxMessage(data);
+            this.store.vrcx.eventVrcxMessage(data);
             break;
         case 'Ping':
             if (!this.store.photon.photonLoggingEnabled) {
@@ -1330,86 +1201,6 @@ $app.methods.ipcEvent = function (json) {
 $app.data.externalNotifierVersion = 0;
 $app.data.photonEventCount = 0;
 $app.data.photonEventIcon = false;
-$app.data.customUserTags = new Map();
-
-$app.methods.addCustomTag = function (data) {
-    if (data.Tag) {
-        this.customUserTags.set(data.UserId, {
-            tag: data.Tag,
-            colour: data.TagColour
-        });
-    } else {
-        this.customUserTags.delete(data.UserId);
-    }
-    const feedUpdate = {
-        userId: data.UserId,
-        colour: data.TagColour
-    };
-    AppApi.ExecuteVrOverlayFunction(
-        'updateHudFeedTag',
-        JSON.stringify(feedUpdate)
-    );
-    const ref = API.cachedUsers.get(data.UserId);
-    if (typeof ref !== 'undefined') {
-        ref.$customTag = data.Tag;
-        ref.$customTagColour = data.TagColour;
-    }
-    this.updateSharedFeed(true);
-};
-
-$app.methods.eventVrcxMessage = function (data) {
-    let entry;
-    switch (data.MsgType) {
-        case 'CustomTag':
-            this.addCustomTag(data);
-            break;
-        case 'ClearCustomTags':
-            this.customUserTags.forEach((value, key) => {
-                this.customUserTags.delete(key);
-                const ref = API.cachedUsers.get(key);
-                if (typeof ref !== 'undefined') {
-                    ref.$customTag = '';
-                    ref.$customTagColour = '';
-                }
-            });
-            break;
-        case 'Noty':
-            if (
-                this.store.photon.photonLoggingEnabled ||
-                (this.externalNotifierVersion &&
-                    this.externalNotifierVersion > 21)
-            ) {
-                return;
-            }
-            entry = {
-                created_at: new Date().toJSON(),
-                type: 'Event',
-                data: data.Data
-            };
-            database.addGamelogEventToDatabase(entry);
-            this.store.notification.queueGameLogNoty(entry);
-            this.addGameLog(entry);
-            break;
-        case 'External': {
-            const displayName = data.DisplayName ?? '';
-            entry = {
-                created_at: new Date().toJSON(),
-                type: 'External',
-                message: data.Data,
-                displayName,
-                userId: data.UserId,
-                location: this.lastLocation.location
-            };
-            database.addGamelogExternalToDatabase(entry);
-            this.store.notification.queueGameLogNoty(entry);
-            this.addGameLog(entry);
-            break;
-        }
-        default:
-            console.log('VRCXMessage:', data);
-            break;
-    }
-};
 
 $app.methods.photonEventPulse = function () {
     this.photonEventCount++;
@@ -1572,73 +1363,6 @@ $app.methods.toggleCustomEndpoint = async function () {
     this.store.auth.loginForm.websocket = '';
 };
 
-$app.methods.addAvatarWearTime = function (avatarId) {
-    if (!API.currentUser.$previousAvatarSwapTime || !avatarId) {
-        return;
-    }
-    const timeSpent = Date.now() - API.currentUser.$previousAvatarSwapTime;
-    database.addAvatarTimeSpent(avatarId, timeSpent);
-};
-
-$app.data.databaseVersion = await configRepository.getInt(
-    'VRCX_databaseVersion',
-    0
-);
-
-$app.methods.updateDatabaseVersion = async function () {
-    const databaseVersion = 12;
-    let msgBox;
-    if (this.databaseVersion < databaseVersion) {
-        if (this.databaseVersion) {
-            msgBox = this.$message({
-                message: 'DO NOT CLOSE VRCX, database upgrade in progress...',
-                type: 'warning',
-                duration: 0
-            });
-        }
-        console.log(
-            `Updating database from ${this.databaseVersion} to ${databaseVersion}...`
-        );
-        try {
-            await database.cleanLegendFromFriendLog(); // fix friendLog spammed with crap
-            await database.fixGameLogTraveling(); // fix bug with gameLog location being set as traveling
-            await database.fixNegativeGPS(); // fix GPS being a negative value due to VRCX bug with traveling
-            await database.fixBrokenLeaveEntries(); // fix user instance timer being higher than current user location timer
-            await database.fixBrokenGroupInvites(); // fix notification v2 in wrong table
-            await database.fixBrokenNotifications(); // fix notifications being null
-            await database.fixBrokenGroupChange(); // fix spam group left & name change
-            await database.fixCancelFriendRequestTypo(); // fix CancelFriendRequst typo
-            await database.fixBrokenGameLogDisplayNames(); // fix gameLog display names "DisplayName (userId)"
-            await database.upgradeDatabaseVersion(); // update database version
-            await database.vacuum(); // succ
-            await database.optimize();
-            await configRepository.setInt(
-                'VRCX_databaseVersion',
-                databaseVersion
-            );
-            console.log('Database update complete.');
-            msgBox?.close();
-            if (this.databaseVersion) {
-                // only display when database exists
-                this.$message({
-                    message: 'Database upgrade complete',
-                    type: 'success'
-                });
-            }
-            this.databaseVersion = databaseVersion;
-        } catch (err) {
-            console.error(err);
-            msgBox?.close();
-            this.$message({
-                message: 'Database upgrade failed, check console for details',
-                type: 'error',
-                duration: 120000
-            });
-            AppApi.ShowDevTools();
-        }
-    }
-};
-
 // #endregion
 // #region | App: note export
 $app.data.folderSelectorDialogVisible = false;
@@ -1713,45 +1437,6 @@ $app.methods.saveChatboxUserBlacklist = async function () {
 
 // #endregion
 // #region | App: Instance queuing
-
-$app.methods.checkVRChatDebugLogging = async function () {
-    if (this.store.advancedSettings.gameLogDisabled) {
-        return;
-    }
-    try {
-        const loggingEnabled =
-            await this.getVRChatRegistryKey('LOGGING_ENABLED');
-        if (loggingEnabled === null || typeof loggingEnabled === 'undefined') {
-            // key not found
-            return;
-        }
-        if (parseInt(loggingEnabled, 10) === 1) {
-            // already enabled
-            return;
-        }
-        const result = await AppApi.SetVRChatRegistryKey(
-            'LOGGING_ENABLED',
-            '1',
-            4
-        );
-        if (!result) {
-            // failed to set key
-            this.$alert(
-                'VRCX has noticed VRChat debug logging is disabled. VRCX requires debug logging in order to function correctly. Please enable debug logging in VRChat quick menu settings > debug > enable debug logging, then rejoin the instance or restart VRChat.',
-                'Enable debug logging'
-            );
-            console.error('Failed to enable debug logging', result);
-            return;
-        }
-        this.$alert(
-            'VRCX has noticed VRChat debug logging is disabled and automatically re-enabled it. VRCX requires debug logging in order to function correctly.',
-            'Enabled debug logging'
-        );
-        console.log('Enabled debug logging');
-    } catch (e) {
-        console.error(e);
-    }
-};
 
 // #endregion
 
@@ -1875,7 +1560,6 @@ $app.computed.settingsTabEvent = function () {
         openUGCFolder: this.openUGCFolder,
         openUGCFolderSelector: this.openUGCFolderSelector,
         resetUGCFolder: this.resetUGCFolder,
-        changeYouTubeApi: this.changeYouTubeApi,
         saveEventOverlay: this.saveEventOverlay,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,
@@ -1883,10 +1567,8 @@ $app.computed.settingsTabEvent = function () {
         promptPhotonLobbyTimeoutThreshold:
             this.promptPhotonLobbyTimeoutThreshold,
         disableGameLogDialog: this.disableGameLogDialog,
-        clearVRCXCache: this.clearVRCXCache,
         promptAutoClearVRCXCacheFrequency:
             this.promptAutoClearVRCXCacheFrequency,
-        showConsole: this.showConsole,
         handleSetTablePageSize: this.handleSetTablePageSize,
         updateSharedFeed: this.updateSharedFeed
     };

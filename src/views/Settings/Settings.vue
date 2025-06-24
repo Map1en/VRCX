@@ -1895,7 +1895,7 @@
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
-    import { API } from '../../app';
+    import { $app, API } from '../../app';
     import { useGroupStore } from '../../stores/group';
     import { useInstanceStore } from '../../stores/instance';
     import { useLaunchStore } from '../../stores/launch';
@@ -1903,36 +1903,50 @@
     import { useUiStore } from '../../stores/ui';
     import { useAuthStore } from '../../stores/auth';
     import { useVrStore } from '../../stores/vr';
+    import { useVrcxStore } from '../../stores/vrcx';
 
     const { messages, t } = useI18n();
 
     const { $message } = getCurrentInstance().proxy;
 
-    const VRCXUpdaterStore = useVRCXUpdaterStore();
     const generalSettingsStore = useGeneralSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
-    const discordPresenceSettingsStore = useDiscordPresenceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
-    const photonStore = usePhotonStore();
-    const avatarProviderStore = useAvatarProviderStore();
 
-    const { isAvatarProviderDialogVisible } = storeToRefs(avatarProviderStore);
-    const { showAvatarProviderDialog } = avatarProviderStore;
-    const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(VRCXUpdaterStore);
-
-    const { setAutoUpdateVRCX, checkForVRCXUpdate, showVRCXUpdateDialog, showChangeLogDialog } = VRCXUpdaterStore;
-
-    const favoriteStore = useFavoriteStore();
-    const { favoriteFriendGroups } = storeToRefs(favoriteStore);
-    const { saveSortFavoritesOption } = favoriteStore;
-
-    const groupStore = useGroupStore();
-    const { cachedGroups } = storeToRefs(groupStore);
-
-    const avatarStore = useAvatarStore();
-    const { cachedAvatars, cachedAvatarNames } = storeToRefs(avatarStore);
+    const { isAvatarProviderDialogVisible } = storeToRefs(useAvatarProviderStore());
+    const { showAvatarProviderDialog } = useAvatarProviderStore();
+    const { appVersion, autoUpdateVRCX, latestAppVersion } = storeToRefs(useVRCXUpdaterStore());
+    const { setAutoUpdateVRCX, checkForVRCXUpdate, showVRCXUpdateDialog, showChangeLogDialog } = useVRCXUpdaterStore();
+    const { favoriteFriendGroups } = storeToRefs(useFavoriteStore());
+    const { saveSortFavoritesOption } = useFavoriteStore();
+    const { cachedGroups } = storeToRefs(useGroupStore());
+    const { cachedAvatars, cachedAvatarNames } = storeToRefs(useAvatarStore());
+    const { showConsole } = useVrcxStore();
+    const { discordActive, discordInstance, discordHideInvite, discordJoinButton, discordHideImage } = storeToRefs(
+        useDiscordPresenceSettingsStore()
+    );
+    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
+        useDiscordPresenceSettingsStore();
+    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter, setTimeoutHudOverlayFilter } =
+        usePhotonStore();
+    const {
+        photonLoggingEnabled,
+        photonEventOverlay,
+        photonEventOverlayFilter,
+        photonEventTableTypeOverlayFilter,
+        timeoutHudOverlay,
+        timeoutHudOverlayFilter
+    } = storeToRefs(usePhotonStore());
+    const { updateLocalFavoriteFriends, saveSidebarSortOrder } = useFriendStore();
+    const { cachedWorlds } = storeToRefs(useWorldStore());
+    const { cachedInstances } = storeToRefs(useInstanceStore());
+    const { showLaunchOptions } = useLaunchStore();
+    const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { enablePrimaryPasswordChange } = useAuthStore();
+    const { saveOpenVROption, updateVRLastLocation, updateOpenVR } = useVrStore();
+    const { clearVRCXCache } = useVrcxStore();
 
     const {
         isStartAtWindowsStartup,
@@ -2043,7 +2057,6 @@
         setImageNotifications,
         setDesktopToast,
         setAfkDesktopToast,
-        setNotificationTTS,
         setNotificationTTSNickName,
         getTTSVoiceName,
         changeTTSVoice,
@@ -2079,12 +2092,6 @@
         setPcUptimeOnFeed
     } = wristOverlaySettingsStore;
 
-    const { discordActive, discordInstance, discordHideInvite, discordJoinButton, discordHideImage } =
-        storeToRefs(discordPresenceSettingsStore);
-
-    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
-        discordPresenceSettingsStore;
-
     const {
         enablePrimaryPassword,
         relaunchVRChatAfterCrash,
@@ -2106,7 +2113,6 @@
         showConfirmationOnSwitchAvatar,
         gameLogDisabled,
         sqliteTableSizes,
-        youTubeApiKey,
         ugcFolderPath,
         notificationOpacity,
         autoDeleteOldPrints
@@ -2126,50 +2132,11 @@
         setScreenshotHelper,
         setScreenshotHelperModifyFilename,
         setScreenshotHelperCopyToClipboard,
-        // todo
-        setYouTubeApi,
-        setProgressPie,
-        setProgressPieFilter,
         setShowConfirmationOnSwitchAvatar,
-        setGameLogDisabled,
-
         getSqliteTableSizes,
         setNotificationOpacity,
         setAutoDeleteOldPrints
     } = advancedSettingsStore;
-
-    const {
-        photonLoggingEnabled,
-        photonEventOverlay,
-        photonEventOverlayFilter,
-        photonEventTableTypeOverlayFilter,
-        timeoutHudOverlay,
-        timeoutHudOverlayFilter
-    } = storeToRefs(photonStore);
-
-    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter, setTimeoutHudOverlayFilter } =
-        photonStore;
-
-    const friendStore = useFriendStore();
-    const { updateLocalFavoriteFriends, saveSidebarSortOrder } = friendStore;
-
-    const worldStore = useWorldStore();
-    const { cachedWorlds } = storeToRefs(worldStore);
-
-    const instanceStore = useInstanceStore();
-    const { cachedInstances } = storeToRefs(instanceStore);
-
-    const launchStore = useLaunchStore();
-    const { showLaunchOptions } = launchStore;
-
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-
-    const authStore = useAuthStore();
-    const { enablePrimaryPasswordChange } = authStore;
-
-    const vrStore = useVrStore();
-    const { saveOpenVROption } = vrStore;
 
     const props = defineProps({
         currentlyDroppingFile: {
@@ -2196,15 +2163,12 @@
         'openUGCFolder',
         'openUGCFolderSelector',
         'resetUGCFolder',
-        'changeYouTubeApi',
         'saveEventOverlay',
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
         'disableGameLogDialog',
-        'clearVRCXCache',
         'promptAutoClearVRCXCacheFrequency',
-        'showConsole',
         'handleSetTablePageSize'
     ]);
 
@@ -2392,67 +2356,55 @@
         });
     }
 
-    function openUGCFolder() {
-        emit('openUGCFolder');
+    async function changeYouTubeApi(configKey = '') {
+        if (configKey === 'VRCX_youtubeAPI') {
+            advancedSettingsStore.setYouTubeApi();
+        } else if (configKey === 'VRCX_progressPie') {
+            advancedSettingsStore.setProgressPie();
+        } else if (configKey === 'VRCX_progressPieFilter') {
+            advancedSettingsStore.setProgressPieFilter();
+        }
+        updateVRLastLocation();
+        updateOpenVR();
     }
-
-    function openUGCFolderSelector() {
-        emit('openUGCFolderSelector');
-    }
-
-    function resetUGCFolder() {
-        emit('resetUGCFolder');
-    }
-
     function openShortcutFolder() {
         AppApi.OpenShortcutFolder();
     }
-
-    function changeYouTubeApi(configKey) {
-        emit('changeYouTubeApi', configKey);
-    }
-
     function showYouTubeApiDialog() {
         isYouTubeApiDialogVisible.value = true;
     }
+    function openOSSDialog() {
+        ossDialog.value = true;
+    }
 
+    function openUGCFolder() {
+        emit('openUGCFolder');
+    }
+    function openUGCFolderSelector() {
+        emit('openUGCFolderSelector');
+    }
+    function resetUGCFolder() {
+        emit('resetUGCFolder');
+    }
     function saveEventOverlay(configKey) {
         emit('saveEventOverlay', configKey);
     }
-
     function promptPhotonOverlayMessageTimeout() {
         emit('promptPhotonOverlayMessageTimeout');
     }
-
     function photonEventTableFilterChange() {
         emit('photonEventTableFilterChange');
     }
-
     function promptPhotonLobbyTimeoutThreshold() {
         emit('promptPhotonLobbyTimeoutThreshold');
     }
-
     function disableGameLogDialog() {
         emit('disableGameLogDialog');
     }
-
-    function clearVRCXCache() {
-        emit('clearVRCXCache');
-    }
-
     function promptAutoClearVRCXCacheFrequency() {
         emit('promptAutoClearVRCXCacheFrequency');
     }
-
-    function showConsole() {
-        emit('showConsole');
-    }
-
     function handleSetTablePageSize(pageSize) {
         emit('handleSetTablePageSize', pageSize);
-    }
-
-    function openOSSDialog() {
-        ossDialog.value = true;
     }
 </script>

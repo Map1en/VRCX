@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { reactive, computed } from 'vue';
+import { computed, reactive } from 'vue';
+import { API } from '../app';
 import configRepository from '../service/config';
 
 export const usePhotonStore = defineStore('Photon', () => {
@@ -60,6 +61,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         state.timeoutHudOverlayFilter = timeoutHudOverlayFilter;
     }
 
+    initPhotonStates();
+
     const photonLoggingEnabled = computed(() => state.photonLoggingEnabled);
     const photonEventOverlay = computed(() => state.photonEventOverlay);
     const photonEventOverlayFilter = computed(
@@ -114,7 +117,15 @@ export const usePhotonStore = defineStore('Photon', () => {
         );
     }
 
-    initPhotonStates();
+    function getDisplayName(userId) {
+        if (userId) {
+            const ref = API.cachedUsers.get(userId);
+            if (ref.displayName) {
+                return ref.displayName;
+            }
+        }
+        return '';
+    }
 
     return {
         state,
@@ -131,6 +142,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         setPhotonEventOverlayFilter,
         setPhotonEventTableTypeOverlayFilter,
         setTimeoutHudOverlay,
-        setTimeoutHudOverlayFilter
+        setTimeoutHudOverlayFilter,
+        getDisplayName
     };
 });

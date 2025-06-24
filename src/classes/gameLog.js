@@ -473,7 +473,9 @@ export default function init() {
             if (entry) {
                 // add tag colour
                 if (entry.userId) {
-                    var tagRef = this.customUserTags.get(entry.userId);
+                    var tagRef = this.store.user.customUserTags.get(
+                        entry.userId
+                    );
                     if (typeof tagRef !== 'undefined') {
                         entry.tagColour = tagRef.colour;
                     }

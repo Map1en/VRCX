@@ -7,19 +7,19 @@ import database from '../service/database';
 import webApiService from '../service/webapi';
 import {
     checkVRChatCache,
-    getAvailablePlatforms,
-    getPlatformInfo,
-    getBundleDateSize,
-    replaceBioSymbols,
     extractFileId,
+    getAvailablePlatforms,
+    getBundleDateSize,
+    getPlatformInfo,
+    replaceBioSymbols,
     storeAvatarImage
 } from '../shared/utils';
-import { useFavoriteStore } from './favorite';
 import { useAvatarProviderStore } from './avatarProvider';
-import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useDebugStore } from './debug';
+import { useFavoriteStore } from './favorite';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
+import { useVRCXUpdaterStore } from './vrcxUpdater';
 
 export const useAvatarStore = defineStore('Avatar', () => {
     const favoriteStore = useFavoriteStore();
@@ -648,6 +648,14 @@ export const useAvatarStore = defineStore('Avatar', () => {
         }
     }
 
+    function addAvatarWearTime(avatarId) {
+        if (!API.currentUser.$previousAvatarSwapTime || !avatarId) {
+            return;
+        }
+        const timeSpent = Date.now() - API.currentUser.$previousAvatarSwapTime;
+        database.addAvatarTimeSpent(avatarId, timeSpent);
+    }
+
     return {
         state,
         avatarDialog,
@@ -668,6 +676,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         getAvatarName,
         lookupAvatars,
         selectAvatarWithConfirmation,
-        showAvatarAuthorDialog
+        showAvatarAuthorDialog,
+        addAvatarWearTime
     };
 });

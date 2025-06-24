@@ -11,10 +11,12 @@ import { $app, API } from '../app';
 import configRepository from '../service/config';
 import { groupDialogFilterOptions } from '../shared/constants/';
 import { replaceBioSymbols } from '../shared/utils';
+import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 
 export const useGroupStore = defineStore('Group', () => {
     const instanceStore = useInstanceStore();
+    const gameStore = useGameStore();
 
     const state = reactive({
         groupDialog: {
@@ -584,7 +586,7 @@ export const useGroupStore = defineStore('Group', () => {
     async function updateInGameGroupOrder() {
         state.inGameGroupOrder = [];
         try {
-            const json = await $app.getVRChatRegistryKey(
+            const json = await gameStore.getVRChatRegistryKey(
                 `VRC_GROUP_ORDER_${API.currentUser.id}`
             );
             if (!json) {

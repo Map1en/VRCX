@@ -300,7 +300,9 @@ export default function init() {
                 // add tag colour
                 let tagColour = '';
                 if (ctx.userId) {
-                    const tagRef = this.customUserTags.get(ctx.userId);
+                    const tagRef = this.store.user.customUserTags.get(
+                        ctx.userId
+                    );
                     if (typeof tagRef !== 'undefined') {
                         tagColour = tagRef.colour;
                     }
@@ -572,7 +574,7 @@ export default function init() {
                 );
                 // add tag colour
                 let tagColour = '';
-                const tagRef = this.customUserTags.get(ctx.userId);
+                const tagRef = this.store.user.customUserTags.get(ctx.userId);
                 if (typeof tagRef !== 'undefined') {
                     tagColour = tagRef.colour;
                 }

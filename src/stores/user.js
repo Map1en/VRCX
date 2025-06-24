@@ -151,7 +151,8 @@ export const useUserStore = defineStore('User', () => {
             },
             layout: 'table'
         },
-        instancePlayerCount: new Map()
+        instancePlayerCount: new Map(),
+        customUserTags: new Map()
     });
 
     const userDialog = computed({
@@ -186,6 +187,13 @@ export const useUserStore = defineStore('User', () => {
         get: () => state.showUserDialogHistory,
         set: (value) => {
             state.showUserDialogHistory = value;
+        }
+    });
+
+    const customUserTags = computed({
+        get: () => state.customUserTags,
+        set: (value) => {
+            state.customUserTags = value;
         }
     });
 
@@ -439,8 +447,8 @@ export const useUserStore = defineStore('User', () => {
                 newCount++;
                 state.instancePlayerCount.set(ref.location, newCount);
             }
-            if ($app.customUserTags.has(json.id)) {
-                const tag = $app.customUserTags.get(json.id);
+            if (state.customUserTags.has(json.id)) {
+                const tag = state.customUserTags.get(json.id);
                 ref.$customTag = tag.tag;
                 ref.$customTagColour = tag.colour;
             } else if (ref.$customTag) {
@@ -1062,7 +1070,7 @@ export const useUserStore = defineStore('User', () => {
                             return;
                         }
                     }
-                    this.$message({
+                    $app.$message({
                         message: 'Own avatar not found',
                         type: 'error'
                     });
@@ -1458,6 +1466,31 @@ export const useUserStore = defineStore('User', () => {
             });
     }
 
+    function addCustomTag(data) {
+        if (data.Tag) {
+            state.customUserTags.set(data.UserId, {
+                tag: data.Tag,
+                colour: data.TagColour
+            });
+        } else {
+            state.customUserTags.delete(data.UserId);
+        }
+        const feedUpdate = {
+            userId: data.UserId,
+            colour: data.TagColour
+        };
+        AppApi.ExecuteVrOverlayFunction(
+            'updateHudFeedTag',
+            JSON.stringify(feedUpdate)
+        );
+        const ref = API.cachedUsers.get(data.UserId);
+        if (typeof ref !== 'undefined') {
+            ref.$customTag = data.Tag;
+            ref.$customTagColour = data.TagColour;
+        }
+        $app.updateSharedFeed(true);
+    }
+
     return {
         state,
         userDialog,
@@ -1465,6 +1498,7 @@ export const useUserStore = defineStore('User', () => {
         languageDialog,
         pastDisplayNameTable,
         showUserDialogHistory,
+        customUserTags,
         applyUserLanguage,
         applyUser,
         showUserDialog,
@@ -1473,6 +1507,7 @@ export const useUserStore = defineStore('User', () => {
         refreshUserDialogAvatars,
         refreshUserDialogTreeData,
         lookupUser,
-        updateAutoStateChange
+        updateAutoStateChange,
+        addCustomTag
     };
 });

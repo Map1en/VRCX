@@ -27,6 +27,7 @@ import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
+import { useVrcxStore } from './vrcx';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useWorldStore } from './world';
 
@@ -63,6 +64,7 @@ export function createGlobalStores() {
         search: useSearchStore(),
         game: useGameStore(),
         launch: useLaunchStore(),
-        vr: useVrStore()
+        vr: useVrStore(),
+        vrcx: useVrcxStore()
     };
 }
