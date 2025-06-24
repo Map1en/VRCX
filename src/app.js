@@ -820,7 +820,7 @@ $app.methods.loadPlayerList = function () {
         this.store.location.updateCurrentUserLocation();
         this.store.instance.updateCurrentInstanceWorld();
         this.store.vr.updateVRLastLocation();
-        this.getCurrentInstanceUserList();
+        this.store.instance.getCurrentInstanceUserList();
         this.store.user.applyUserDialogLocation();
         this.store.instance.applyWorldDialogInstances();
         this.store.instance.applyGroupDialogInstances();
@@ -856,18 +856,6 @@ $app.data.photonEventTablePrevious.filters[1].value =
 // #endregion
 // #region | App: Profile + Settings
 
-$app.data.currentInstanceUserList = {
-    data: [],
-    tableProps: {
-        stripe: true,
-        size: 'mini',
-        defaultSort: {
-            prop: 'timer',
-            order: 'descending'
-        }
-    },
-    layout: 'table'
-};
 $app.data.visits = 0;
 
 $app.data.maxTableSize = await configRepository.getInt(
@@ -1020,160 +1008,6 @@ API.$on('PLAYER-MODERATION:@DELETE', function (args) {
 
 // #endregion
 // #region | App: player list
-
-API.$on('LOGIN', function () {
-    $app.currentInstanceUserList.data = [];
-});
-
-$app.data.updatePlayerListTimer = null;
-$app.data.updatePlayerListPending = false;
-$app.methods.getCurrentInstanceUserList = function () {
-    if (!this.store.friend.friendLogInitStatus) {
-        return;
-    }
-    if (this.updatePlayerListTimer) {
-        this.updatePlayerListPending = true;
-    } else {
-        this.updatePlayerListExecute();
-        this.updatePlayerListTimer = setTimeout(() => {
-            if (this.updatePlayerListPending) {
-                this.updatePlayerListExecute();
-            }
-            this.updatePlayerListTimer = null;
-        }, 150);
-    }
-};
-
-$app.methods.updatePlayerListExecute = function () {
-    try {
-        this.updatePlayerListDebounce();
-    } catch (err) {
-        console.error(err);
-    }
-    this.updatePlayerListTimer = null;
-    this.updatePlayerListPending = false;
-};
-
-$app.methods.updatePlayerListDebounce = function () {
-    const users = [];
-    const pushUser = function (ref) {
-        let photonId = '';
-        let isFriend = false;
-        $app.photonLobbyCurrent.forEach((ref1, id) => {
-            if (typeof ref1 !== 'undefined') {
-                if (
-                    (typeof ref.id !== 'undefined' &&
-                        typeof ref1.id !== 'undefined' &&
-                        ref1.id === ref.id) ||
-                    (typeof ref.displayName !== 'undefined' &&
-                        typeof ref1.displayName !== 'undefined' &&
-                        ref1.displayName === ref.displayName)
-                ) {
-                    photonId = id;
-                }
-            }
-        });
-        let isMaster = false;
-        if (
-            $app.photonLobbyMaster !== 0 &&
-            photonId === $app.photonLobbyMaster
-        ) {
-            isMaster = true;
-        }
-        let isModerator = false;
-        const lobbyJointime = $app.photonLobbyJointime.get(photonId);
-        let inVRMode = null;
-        let groupOnNameplate = '';
-        if (typeof lobbyJointime !== 'undefined') {
-            inVRMode = lobbyJointime.inVRMode;
-            groupOnNameplate = lobbyJointime.groupOnNameplate;
-            isModerator = lobbyJointime.canModerateInstance;
-        }
-        // if (groupOnNameplate) {
-        //     API.getCachedGroup({
-        //         groupId: groupOnNameplate
-        //     }).then((args) => {
-        //         groupOnNameplate = args.ref.name;
-        //     });
-        // }
-        let timeoutTime = 0;
-        if (typeof ref.id !== 'undefined') {
-            isFriend = ref.isFriend;
-            if (
-                $app.timeoutHudOverlayFilter === 'VIP' ||
-                $app.timeoutHudOverlayFilter === 'Friends'
-            ) {
-                $app.photonLobbyTimeout.forEach((ref1) => {
-                    if (ref1.userId === ref.id) {
-                        timeoutTime = ref1.time;
-                    }
-                });
-            } else {
-                $app.photonLobbyTimeout.forEach((ref1) => {
-                    if (ref1.displayName === ref.displayName) {
-                        timeoutTime = ref1.time;
-                    }
-                });
-            }
-        }
-        users.push({
-            ref,
-            displayName: ref.displayName,
-            timer: ref.$location_at,
-            $trustSortNum: ref.$trustSortNum ?? 0,
-            photonId,
-            isMaster,
-            isModerator,
-            inVRMode,
-            groupOnNameplate,
-            isFriend,
-            timeoutTime
-        });
-        // get block, mute
-    };
-
-    const playersInInstance = this.store.location.lastLocation.playerList;
-    if (playersInInstance.size > 0) {
-        let ref = API.cachedUsers.get(API.currentUser.id);
-        if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
-            pushUser(ref);
-        }
-        for (const player of playersInInstance.values()) {
-            // if friend isn't in instance add them
-            if (player.displayName === API.currentUser.displayName) {
-                continue;
-            }
-            const addUser = !users.some(function (user) {
-                return player.displayName === user.displayName;
-            });
-            if (addUser) {
-                ref = API.cachedUsers.get(player.userId);
-                if (typeof ref !== 'undefined') {
-                    pushUser(ref);
-                } else {
-                    let { joinTime } =
-                        this.store.location.lastLocation.playerList.get(
-                            player.userId
-                        );
-                    if (!joinTime) {
-                        joinTime = Date.now();
-                    }
-                    ref = {
-                        // if userId is missing just push displayName
-                        displayName: player.displayName,
-                        $location_at: joinTime,
-                        $online_for: joinTime
-                    };
-                    pushUser(ref);
-                }
-            }
-        }
-    }
-    this.currentInstanceUserList.data = users;
-    this.updateTimers();
-};
-
-$app.data.updateInstanceInfo = 0;
 
 $app.methods.updateTimers = function () {
     for (let $timer of $timers) {
@@ -1407,7 +1241,7 @@ $app.methods.clearVRCXCache = function () {
     });
     this.store.avatar.cachedAvatarNames = new Map();
     this.customUserTags = new Map();
-    this.updateInstanceInfo = 0;
+    this.store.instance.updateInstanceInfo = 0;
 };
 
 $app.data.ipcEnabled = false;
@@ -2031,7 +1865,6 @@ $app.computed.playerListTabBind = function () {
         photonEventIcon: this.photonEventIcon,
         photonEventTable: this.photonEventTable,
         photonEventTablePrevious: this.photonEventTablePrevious,
-        currentInstanceUserList: this.currentInstanceUserList,
         chatboxUserBlacklist: this.chatboxUserBlacklist
     };
 };
@@ -2039,7 +1872,6 @@ $app.computed.playerListTabBind = function () {
 $app.computed.playerListTabEvent = function () {
     return {
         photonEventTableFilterChange: this.photonEventTableFilterChange,
-        getCurrentInstanceUserList: this.getCurrentInstanceUserList,
         showUserFromPhotonId: this.showUserFromPhotonId
     };
 };

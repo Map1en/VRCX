@@ -217,8 +217,7 @@ export default function init() {
         props: {
             location: String,
             instance: Object,
-            friendcount: Number,
-            updateelement: Number
+            friendcount: Number
         },
         data() {
             return {
@@ -238,7 +237,8 @@ export default function init() {
             };
         },
         watch: {
-            updateelement() {
+            // todo: remove
+            '$app.store.instance.updateInstanceInfo'() {
                 this.parse();
             },
             location() {

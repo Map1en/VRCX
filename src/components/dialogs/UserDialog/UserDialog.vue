@@ -576,8 +576,7 @@
                                     <instance-info
                                         :location="userDialog.$location.tag"
                                         :instance="userDialog.instance.ref"
-                                        :friendcount="userDialog.instance.friendCount"
-                                        :updateelement="updateInstanceInfo"></instance-info>
+                                        :friendcount="userDialog.instance.friendCount" />
                                 </template>
                                 <location
                                     :location="userDialog.ref.location"
@@ -1891,10 +1890,6 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
-        updateInstanceInfo: {
-            type: Number,
-            default: () => {}
-        },
         userOnlineFor: {
             type: Function,
             default: () => {}

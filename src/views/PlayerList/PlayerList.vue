@@ -874,6 +874,7 @@
     const { lastLocation } = storeToRefs(locationStore);
     const instanceStore = useInstanceStore();
     const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(instanceStore);
+    const { currentInstanceUserList, getCurrentInstanceUserList } = instanceStore;
     const uiStore = useUiStore();
     const { menuActiveIndex } = storeToRefs(uiStore);
 
@@ -906,16 +907,12 @@
             type: Object,
             default: () => ({})
         },
-        currentInstanceUserList: {
-            type: Object,
-            default: () => ({})
-        },
         chatboxUserBlacklist: {
             type: Map
         }
     });
 
-    const emit = defineEmits(['photonEventTableFilterChange', 'getCurrentInstanceUserList', 'showUserFromPhotonId']);
+    const emit = defineEmits(['photonEventTableFilterChange', 'showUserFromPhotonId']);
 
     const chatboxBlacklistDialog = ref({
         visible: false,
@@ -952,7 +949,7 @@
     async function deleteChatboxUserBlacklist(userId) {
         props.chatboxUserBlacklist.delete(userId);
         await saveChatboxUserBlacklist();
-        emit('getCurrentInstanceUserList');
+        getCurrentInstanceUserList();
     }
 
     async function saveChatboxUserBlacklist() {
@@ -965,6 +962,6 @@
     async function addChatboxUserBlacklist(user) {
         props.chatboxUserBlacklist.set(user.id, user.displayName);
         await saveChatboxUserBlacklist();
-        emit('getCurrentInstanceUserList');
+        getCurrentInstanceUserList();
     }
 </script>

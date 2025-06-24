@@ -374,8 +374,7 @@
                                 <instance-info
                                     :location="room.tag"
                                     :instance="room.ref"
-                                    :friendcount="room.friendCount"
-                                    :updateelement="updateInstanceInfo" />
+                                    :friendcount="room.friendCount" />
                                 <div
                                     v-if="room.$location.userId || room.users.length"
                                     class="x-friend-list"
@@ -805,10 +804,7 @@
         },
         inject: ['showFullscreenImageDialog'],
         props: {
-            shiftHeld: Boolean,
-
-            // TODO: Remove
-            updateInstanceInfo: Number
+            shiftHeld: Boolean
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

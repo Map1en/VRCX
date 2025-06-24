@@ -16,7 +16,6 @@ mixin dialogs
     LaunchDialog
 
     UserDialog(
-        :updateInstanceInfo='updateInstanceInfo'
         :userOnlineFor='userOnlineFor'
         :shiftHeld='shiftHeld'
         @logout='logout'
@@ -24,11 +23,9 @@ mixin dialogs
         @leaveGroupPrompt='leaveGroupPrompt')
 
     WorldDialog(
-        :shiftHeld='shiftHeld'
-        :updateInstanceInfo='updateInstanceInfo')
+        :shiftHeld='shiftHeld')
 
     GroupDialog(
-        :updateInstanceInfo='updateInstanceInfo'
         :isGroupGalleryLoading='isGroupGalleryLoading'
         @updateGroupPostSearch='updateGroupPostSearch'
         @groupDialogCommand='groupDialogCommand')

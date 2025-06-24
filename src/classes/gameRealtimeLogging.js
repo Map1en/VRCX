@@ -1,6 +1,6 @@
 import * as workerTimers from 'worker-timers';
 import { instanceRequest, userRequest } from '../api';
-import { API, $app } from '../app.js';
+import { $app, API } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { photonEmojis, photonEventType } from '../shared/constants';
@@ -187,7 +187,7 @@ export default function init() {
                     );
                 }
                 this.photonLobbyTimeout = hudTimeout;
-                this.getCurrentInstanceUserList();
+                this.store.instance.getCurrentInstanceUserList();
             }
             workerTimers.setTimeout(() => this.photonLobbyWatcher(), 500);
         },

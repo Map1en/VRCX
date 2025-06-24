@@ -169,7 +169,7 @@ export default function init() {
                         userRequest.getUser({ userId });
                     }
                     this.store.vr.updateVRLastLocation();
-                    this.getCurrentInstanceUserList();
+                    this.store.instance.getCurrentInstanceUserList();
                     var entry = {
                         created_at: gameLog.dt,
                         type: 'OnPlayerJoined',
@@ -206,7 +206,7 @@ export default function init() {
                     this.store.location.lastLocation.friendList.delete(userId);
                     this.photonLobbyAvatars.delete(userId);
                     this.store.vr.updateVRLastLocation();
-                    this.getCurrentInstanceUserList();
+                    this.store.instance.getCurrentInstanceUserList();
                     var entry = {
                         created_at: gameLog.dt,
                         type: 'OnPlayerLeft',
@@ -387,7 +387,7 @@ export default function init() {
                         };
                         this.photonLobby.set(photonId, ctx);
                         this.photonLobbyCurrent.set(photonId, ctx);
-                        this.getCurrentInstanceUserList();
+                        this.store.instance.getCurrentInstanceUserList();
                     }
                     break;
                 case 'notification':

@@ -232,7 +232,7 @@ export const useLocationStore = defineStore('Location', () => {
         updateCurrentUserLocation();
         instanceStore.updateCurrentInstanceWorld();
         vrStore.updateVRLastLocation();
-        $app.getCurrentInstanceUserList();
+        instanceStore.getCurrentInstanceUserList();
         $app.lastVideoUrl = '';
         $app.lastResourceloadUrl = '';
         userStore.applyUserDialogLocation();

@@ -21,11 +21,11 @@ import {
 import { useFriendStore } from './friend';
 import { useGroupStore } from './group';
 import { useLocationStore } from './location';
-import { useAppearanceSettingsStore } from './settings/appearance';
-import { useWorldStore } from './world';
 import { useNotificationStore } from './notification';
+import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
+import { useWorldStore } from './world';
 
 export const useInstanceStore = defineStore('Instance', () => {
     const locationStore = useLocationStore();
@@ -56,7 +56,22 @@ export const useInstanceStore = defineStore('Instance', () => {
         queuedInstances: new Map(),
         previousInstancesInfoDialogVisible: false,
         previousInstancesInfoDialogInstanceId: '',
-        instanceJoinHistory: new Map()
+        instanceJoinHistory: new Map(),
+        currentInstanceUserList: {
+            data: [],
+            tableProps: {
+                stripe: true,
+                size: 'mini',
+                defaultSort: {
+                    prop: 'timer',
+                    order: 'descending'
+                }
+            },
+            layout: 'table'
+        },
+        updatePlayerListTimer: null,
+        updatePlayerListPending: false,
+        updateInstanceInfo: 0
     });
 
     const cachedInstances = computed({
@@ -110,6 +125,17 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
     });
 
+    const currentInstanceUserList = computed({
+        get: () => state.currentInstanceUserList,
+        set: (value) => {
+            state.currentInstanceUserList = value;
+        }
+    });
+
+    API.$on('LOGIN', function () {
+        state.currentInstanceUserList.data = [];
+    });
+
     API.$on('LOGIN', function () {
         state.instanceJoinHistory = new Map();
         getInstanceJoinHistory();
@@ -150,7 +176,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         // because use $refs to update data, can not trigger vue's reactivity system, so view will not update
         // will fix this when refactor the core code, maybe
         // old comment: hacky workaround to force update instance info
-        $app.updateInstanceInfo++;
+        state.updateInstanceInfo++;
     });
 
     async function getInstanceJoinHistory() {
@@ -267,7 +293,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 });
         }
         if (isRealInstance(instanceId)) {
-            const ref = $app.store.instance.cachedInstances.get(instanceId);
+            const ref = state.cachedInstances.get(instanceId);
             if (typeof ref !== 'undefined') {
                 state.currentInstanceWorld.instance = ref;
             } else {
@@ -1002,6 +1028,152 @@ export const useInstanceStore = defineStore('Instance', () => {
         // workerTimers.setTimeout(this.instanceQueueTimeout, 3600000);
     }
 
+    function getCurrentInstanceUserList() {
+        if (!friendStore.friendLogInitStatus) {
+            return;
+        }
+        if (state.updatePlayerListTimer) {
+            state.updatePlayerListPending = true;
+        } else {
+            updatePlayerListExecute();
+            state.updatePlayerListTimer = setTimeout(() => {
+                if (state.updatePlayerListPending) {
+                    updatePlayerListExecute();
+                }
+                state.updatePlayerListTimer = null;
+            }, 150);
+        }
+    }
+
+    function updatePlayerListExecute() {
+        try {
+            updatePlayerListDebounce();
+        } catch (err) {
+            console.error(err);
+        }
+        state.updatePlayerListTimer = null;
+        state.updatePlayerListPending = false;
+    }
+
+    function updatePlayerListDebounce() {
+        const users = [];
+        const pushUser = function (ref) {
+            let photonId = '';
+            let isFriend = false;
+            $app.photonLobbyCurrent.forEach((ref1, id) => {
+                if (typeof ref1 !== 'undefined') {
+                    if (
+                        (typeof ref.id !== 'undefined' &&
+                            typeof ref1.id !== 'undefined' &&
+                            ref1.id === ref.id) ||
+                        (typeof ref.displayName !== 'undefined' &&
+                            typeof ref1.displayName !== 'undefined' &&
+                            ref1.displayName === ref.displayName)
+                    ) {
+                        photonId = id;
+                    }
+                }
+            });
+            let isMaster = false;
+            if (
+                $app.photonLobbyMaster !== 0 &&
+                photonId === $app.photonLobbyMaster
+            ) {
+                isMaster = true;
+            }
+            let isModerator = false;
+            const lobbyJointime = $app.photonLobbyJointime.get(photonId);
+            let inVRMode = null;
+            let groupOnNameplate = '';
+            if (typeof lobbyJointime !== 'undefined') {
+                inVRMode = lobbyJointime.inVRMode;
+                groupOnNameplate = lobbyJointime.groupOnNameplate;
+                isModerator = lobbyJointime.canModerateInstance;
+            }
+            // if (groupOnNameplate) {
+            //     API.getCachedGroup({
+            //         groupId: groupOnNameplate
+            //     }).then((args) => {
+            //         groupOnNameplate = args.ref.name;
+            //     });
+            // }
+            let timeoutTime = 0;
+            if (typeof ref.id !== 'undefined') {
+                isFriend = ref.isFriend;
+                if (
+                    $app.timeoutHudOverlayFilter === 'VIP' ||
+                    $app.timeoutHudOverlayFilter === 'Friends'
+                ) {
+                    $app.photonLobbyTimeout.forEach((ref1) => {
+                        if (ref1.userId === ref.id) {
+                            timeoutTime = ref1.time;
+                        }
+                    });
+                } else {
+                    $app.photonLobbyTimeout.forEach((ref1) => {
+                        if (ref1.displayName === ref.displayName) {
+                            timeoutTime = ref1.time;
+                        }
+                    });
+                }
+            }
+            users.push({
+                ref,
+                displayName: ref.displayName,
+                timer: ref.$location_at,
+                $trustSortNum: ref.$trustSortNum ?? 0,
+                photonId,
+                isMaster,
+                isModerator,
+                inVRMode,
+                groupOnNameplate,
+                isFriend,
+                timeoutTime
+            });
+            // get block, mute
+        };
+
+        const playersInInstance = locationStore.lastLocation.playerList;
+        if (playersInInstance.size > 0) {
+            let ref = API.cachedUsers.get(API.currentUser.id);
+            if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
+                pushUser(ref);
+            }
+            for (const player of playersInInstance.values()) {
+                // if friend isn't in instance add them
+                if (player.displayName === API.currentUser.displayName) {
+                    continue;
+                }
+                const addUser = !users.some(function (user) {
+                    return player.displayName === user.displayName;
+                });
+                if (addUser) {
+                    ref = API.cachedUsers.get(player.userId);
+                    if (typeof ref !== 'undefined') {
+                        pushUser(ref);
+                    } else {
+                        let { joinTime } =
+                            locationStore.lastLocation.playerList.get(
+                                player.userId
+                            );
+                        if (!joinTime) {
+                            joinTime = Date.now();
+                        }
+                        ref = {
+                            // if userId is missing just push displayName
+                            displayName: player.displayName,
+                            $location_at: joinTime,
+                            $online_for: joinTime
+                        };
+                        pushUser(ref);
+                    }
+                }
+            }
+        }
+        state.currentInstanceUserList.data = users;
+        $app.updateTimers();
+    }
+
     // $app.methods.instanceQueueClear = function () {
     //     // remove all instances from queue
     //     state.queuedInstances.forEach((ref) => {
@@ -1019,6 +1191,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         previousInstancesInfoDialogVisible,
         previousInstancesInfoDialogInstanceId,
         instanceJoinHistory,
+        currentInstanceUserList,
         applyInstance,
         updateCurrentInstanceWorld,
         createNewInstance,
@@ -1030,6 +1203,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         instanceQueueReady,
         instanceQueueUpdate,
         showPreviousInstancesInfoDialog,
-        addInstanceJoinHistory
+        addInstanceJoinHistory,
+        getCurrentInstanceUserList
     };
 });

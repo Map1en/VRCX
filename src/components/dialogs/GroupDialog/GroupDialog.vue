@@ -415,8 +415,7 @@
                                 <instance-info
                                     :location="room.tag"
                                     :instance="room.ref"
-                                    :friendcount="room.friendCount"
-                                    :updateelement="updateInstanceInfo" />
+                                    :friendcount="room.friendCount" />
                             </div>
                             <div
                                 v-if="room.users.length"
@@ -1208,13 +1207,6 @@
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
     const $message = instance.proxy.$message;
-
-    defineProps({
-        updateInstanceInfo: {
-            type: Number,
-            required: true
-        }
-    });
 
     const emit = defineEmits([
         'update:group-dialog',

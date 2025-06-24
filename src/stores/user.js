@@ -598,7 +598,7 @@ export const useUserStore = defineStore('User', () => {
                     }
                 }
             });
-            $app.getCurrentInstanceUserList();
+            instanceStore.getCurrentInstanceUserList();
         }
     }
 
