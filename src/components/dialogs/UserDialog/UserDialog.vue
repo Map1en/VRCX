@@ -1874,8 +1874,8 @@
     const { cachedAvatars } = storeToRefs(avatarStore);
     const { cachedWorlds } = storeToRefs(worldStore);
     const { showWorldDialog } = worldStore;
-    const { showGroupDialog, applyGroup, saveCurrentUserGroups } = groupStore;
-    const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
+    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder } = groupStore;
+    const { currentUserGroups, inviteGroupDialog, inGameGroupOrder } = storeToRefs(groupStore);
     const locationStore = useLocationStore();
     const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
     const inviteStore = useInviteStore();
@@ -1898,14 +1898,6 @@
         userOnlineFor: {
             type: Function,
             default: () => {}
-        },
-        updateInGameGroupOrder: {
-            type: Function,
-            default: () => {}
-        },
-        inGameGroupOrder: {
-            type: Array,
-            default: () => []
         },
         shiftHeld: {
             type: Boolean,
@@ -2629,8 +2621,8 @@
     }
 
     function sortGroupsByInGame(a, b) {
-        const aIndex = props.inGameGroupOrder.indexOf(a?.id);
-        const bIndex = props.inGameGroupOrder.indexOf(b?.id);
+        const aIndex = inGameGroupOrder.value.indexOf(a?.id);
+        const bIndex = inGameGroupOrder.value.indexOf(b?.id);
         if (aIndex === -1 && bIndex === -1) {
             return 0;
         }
@@ -2656,7 +2648,7 @@
                 break;
             case 'inGame':
                 sortMethod = sortGroupsByInGame;
-                await props.updateInGameGroupOrder();
+                await updateInGameGroupOrder();
                 break;
         }
 
@@ -2947,7 +2939,7 @@
     }
 
     async function editModeCurrentUserGroups() {
-        await props.updateInGameGroupOrder();
+        await updateInGameGroupOrder();
         userDialogGroupEditGroups.value = Array.from(currentUserGroups.value.values());
         userDialogGroupEditGroups.value.sort(sortGroupsByInGame);
         userDialogGroupEditMode.value = true;
@@ -2958,7 +2950,7 @@
         try {
             await AppApi.SetVRChatRegistryKey(
                 `VRC_GROUP_ORDER_${API.currentUser.id}`,
-                JSON.stringify(props.inGameGroupOrder),
+                JSON.stringify(inGameGroupOrder.value),
                 3
             );
         } catch (err) {
@@ -3010,37 +3002,37 @@
     }
 
     function moveGroupUp(groupId) {
-        const index = props.inGameGroupOrder.indexOf(groupId);
+        const index = inGameGroupOrder.value.indexOf(groupId);
         if (index > 0) {
-            props.inGameGroupOrder.splice(index, 1);
-            props.inGameGroupOrder.splice(index - 1, 0, groupId);
+            inGameGroupOrder.value.splice(index, 1);
+            inGameGroupOrder.value.splice(index - 1, 0, groupId);
             saveInGameGroupOrder();
         }
     }
 
     function moveGroupDown(groupId) {
-        const index = props.inGameGroupOrder.indexOf(groupId);
-        if (index < props.inGameGroupOrder.length - 1) {
-            props.inGameGroupOrder.splice(index, 1);
-            props.inGameGroupOrder.splice(index + 1, 0, groupId);
+        const index = inGameGroupOrder.value.indexOf(groupId);
+        if (index < inGameGroupOrder.value.length - 1) {
+            inGameGroupOrder.value.splice(index, 1);
+            inGameGroupOrder.value.splice(index + 1, 0, groupId);
             saveInGameGroupOrder();
         }
     }
 
     function moveGroupTop(groupId) {
-        const index = props.inGameGroupOrder.indexOf(groupId);
+        const index = inGameGroupOrder.value.indexOf(groupId);
         if (index > 0) {
-            props.inGameGroupOrder.splice(index, 1);
-            props.inGameGroupOrder.unshift(groupId);
+            inGameGroupOrder.value.splice(index, 1);
+            inGameGroupOrder.value.unshift(groupId);
             saveInGameGroupOrder();
         }
     }
 
     function moveGroupBottom(groupId) {
-        const index = props.inGameGroupOrder.indexOf(groupId);
-        if (index < props.inGameGroupOrder.length - 1) {
-            props.inGameGroupOrder.splice(index, 1);
-            props.inGameGroupOrder.push(groupId);
+        const index = inGameGroupOrder.value.indexOf(groupId);
+        if (index < inGameGroupOrder.value.length - 1) {
+            inGameGroupOrder.value.splice(index, 1);
+            inGameGroupOrder.value.push(groupId);
             saveInGameGroupOrder();
         }
     }

@@ -76,7 +76,6 @@ import webApiService from './service/webapi.js';
 import {
     commaNumber,
     escapeTag,
-    formatSeconds,
     getAllUserMemos,
     getNameColour,
     isRpcWorld,
@@ -311,8 +310,7 @@ let $app = {
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog,
-            isLinux: this.isLinux,
-            openFolderGeneric: this.openFolderGeneric
+            isLinux: this.isLinux
         };
     },
     el: '#root',
@@ -657,7 +655,7 @@ API.$on('LOGIN', function () {
     $app.store.friend.sortOnlineFriends = false;
     $app.store.friend.sortActiveFriends = false;
     $app.store.friend.sortOfflineFriends = false;
-    $app.updateInGameGroupOrder();
+    $app.store.group.updateInGameGroupOrder();
 });
 
 API.$on('USER:CURRENT', function (args) {
@@ -833,97 +831,6 @@ $app.methods.loadPlayerList = function () {
 // #endregion
 // #region | App: gameLog
 
-$app.data.nowPlaying = {
-    url: '',
-    name: '',
-    length: 0,
-    startTime: 0,
-    offset: 0,
-    elapsed: 0,
-    percentage: 0,
-    remainingText: '',
-    playing: false
-};
-
-$app.methods.clearNowPlaying = function () {
-    this.nowPlaying = {
-        url: '',
-        name: '',
-        length: 0,
-        startTime: 0,
-        offset: 0,
-        elapsed: 0,
-        percentage: 0,
-        remainingText: '',
-        playing: false
-    };
-    this.updateVrNowPlaying();
-};
-
-$app.methods.setNowPlaying = function (ctx) {
-    if (this.nowPlaying.url !== ctx.videoUrl) {
-        if (!ctx.userId && ctx.displayName) {
-            for (let ref of API.cachedUsers.values()) {
-                if (ref.displayName === ctx.displayName) {
-                    ctx.userId = ref.id;
-                    break;
-                }
-            }
-        }
-        this.store.notification.queueGameLogNoty(ctx);
-        this.addGameLog(ctx);
-        database.addGamelogVideoPlayToDatabase(ctx);
-
-        let displayName = '';
-        if (ctx.displayName) {
-            displayName = ` (${ctx.displayName})`;
-        }
-        const name = `${ctx.videoName}${displayName}`;
-        this.nowPlaying = {
-            url: ctx.videoUrl,
-            name,
-            length: ctx.videoLength,
-            startTime: Date.parse(ctx.created_at) / 1000,
-            offset: ctx.videoPos,
-            elapsed: 0,
-            percentage: 0,
-            remainingText: ''
-        };
-    } else {
-        this.nowPlaying = {
-            ...this.nowPlaying,
-            length: ctx.videoLength,
-            startTime: Date.parse(ctx.created_at) / 1000,
-            offset: ctx.videoPos,
-            elapsed: 0,
-            percentage: 0,
-            remainingText: ''
-        };
-    }
-    this.updateVrNowPlaying();
-    if (!this.nowPlaying.playing && ctx.videoLength > 0) {
-        this.nowPlaying.playing = true;
-        this.updateNowPlaying();
-    }
-};
-
-$app.methods.updateNowPlaying = function () {
-    const np = this.nowPlaying;
-    if (!this.nowPlaying.playing) {
-        return;
-    }
-    const now = Date.now() / 1000;
-    np.elapsed = Math.round((now - np.startTime + np.offset) * 10) / 10;
-    if (np.elapsed >= np.length) {
-        this.clearNowPlaying();
-        return;
-    }
-    np.remainingText = formatSeconds(np.length - np.elapsed);
-    np.percentage = Math.round(((np.elapsed * 100) / np.length) * 10) / 10;
-    this.updateVrNowPlaying();
-    workerTimers.setTimeout(() => this.updateNowPlaying(), 1000);
-};
-
 $app.methods.updateVrNowPlaying = function () {
     const json = JSON.stringify(this.nowPlaying);
     AppApi.ExecuteVrFeedFunction('nowPlayingUpdate', json);
@@ -996,11 +903,6 @@ $app.methods.saveOpenVROption = async function () {
     this.updateVRLastLocation();
     AppApi.ExecuteVrOverlayFunction('notyClear', '');
     this.updateOpenVR();
-};
-
-$app.methods.saveSortFavoritesOption = async function () {
-    this.store.favorite.getLocalWorldFavorites();
-    this.setSortFavorites();
 };
 
 $app.methods.applyWineEmojis = async function () {
@@ -1560,43 +1462,11 @@ $app.methods.getDisplayName = function (userId) {
 
 // userDialog Groups
 
-$app.data.inGameGroupOrder = [];
-
 $app.methods.getVRChatRegistryKey = async function (key) {
     if (LINUX) {
         return AppApi.GetVRChatRegistryKeyString(key);
     }
     return AppApi.GetVRChatRegistryKey(key);
-};
-
-$app.methods.updateInGameGroupOrder = async function () {
-    this.inGameGroupOrder = [];
-    try {
-        const json = await this.getVRChatRegistryKey(
-            `VRC_GROUP_ORDER_${API.currentUser.id}`
-        );
-        if (!json) {
-            return;
-        }
-        this.inGameGroupOrder = JSON.parse(json);
-    } catch (err) {
-        console.error(err);
-    }
-};
-
-$app.methods.sortGroupInstancesByInGame = function (a, b) {
-    const aIndex = this.inGameGroupOrder.indexOf(a?.group?.id);
-    const bIndex = this.inGameGroupOrder.indexOf(b?.group?.id);
-    if (aIndex === -1 && bIndex === -1) {
-        return 0;
-    }
-    if (aIndex === -1) {
-        return 1;
-    }
-    if (bIndex === -1) {
-        return -1;
-    }
-    return aIndex - bIndex;
 };
 
 // #endregion
@@ -2189,11 +2059,6 @@ $app.methods.checkVRChatDebugLogging = async function () {
 };
 
 // #endregion
-// #region | App: Random unsorted app methods, data structs, API functions, and an API feedback/file analysis event
-
-$app.methods.openFolderGeneric = function (path) {
-    AppApi.OpenFolderAndSelectItem(path, true);
-};
 
 // #endregion
 // #region | Dialog: fullscreen image
@@ -2240,20 +2105,13 @@ $app.computed.friendsListTabEvent = function () {
 
 $app.computed.sidebarTabBind = function () {
     return {
-        groupInstances: this.groupInstances,
-        inGameGroupOrder: this.inGameGroupOrder
+        groupInstances: this.groupInstances
     };
 };
 
 $app.computed.favoritesTabBind = function () {
     return {
         shiftHeld: this.shiftHeld
-    };
-};
-
-$app.computed.favoritesTabEvent = function () {
-    return {
-        'save-sort-favorites-option': this.saveSortFavoritesOption
     };
 };
 
@@ -2345,7 +2203,6 @@ $app.computed.settingsTabEvent = function () {
         saveVRCXWindowOption: this.saveVRCXWindowOption,
         promptProxySettings: this.promptProxySettings,
         saveOpenVROption: this.saveOpenVROption,
-        saveSortFavoritesOption: this.saveSortFavoritesOption,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,

@@ -42,92 +42,65 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
+    import { computed, ref } from 'vue';
     import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useGroupStore } from '../../../stores/group';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
-    export default {
-        name: 'GroupsSidebar',
-        components: {
-            Location
-        },
-        props: {
-            groupInstances: {
-                type: Array,
-                default: () => []
-            },
-            groupOrder: {
-                type: Array,
-                default: () => []
-            }
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
-            const groupStore = useGroupStore();
-            const { showGroupDialog } = groupStore;
-            return {
-                isAgeGatedInstancesVisible,
-                showGroupDialog
-            };
-        },
-        data() {
-            return {
-                groupInstancesCfg: []
-            };
-        },
-        computed: {
-            groupedGroupInstances() {
-                const groupMap = new Map();
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const { isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
+    const groupStore = useGroupStore();
+    const { showGroupDialog, sortGroupInstancesByInGame } = groupStore;
 
-                this.groupInstances.forEach((ref) => {
-                    const groupId = ref.group.groupId;
-                    if (!groupMap.has(groupId)) {
-                        groupMap.set(groupId, []);
-                    }
-                    groupMap.get(groupId).push(ref);
-
-                    if (!this.groupInstancesCfg[ref.group?.groupId]) {
-                        this.groupInstancesCfg = {
-                            [ref.group.groupId]: {
-                                isCollapsed: false
-                            },
-                            ...this.groupInstancesCfg
-                        };
-                    }
-                });
-                return Array.from(groupMap.values()).sort(this.sortGroupInstancesByInGame);
-            }
+    const props = defineProps({
+        groupInstances: {
+            type: Array,
+            default: () => []
         },
-        methods: {
-            getSmallGroupIconUrl(url) {
-                return convertFileUrlToImageUrl(url);
-            },
-            toggleGroupSidebarCollapse(groupId) {
-                this.groupInstancesCfg[groupId].isCollapsed = !this.groupInstancesCfg[groupId].isCollapsed;
-            },
-            getGroupId(group) {
-                return group[0]?.group?.groupId || '';
-            },
-            sortGroupInstancesByInGame(a, b) {
-                var aIndex = this.groupOrder.indexOf(a[0]?.group?.id);
-                var bIndex = this.groupOrder.indexOf(b[0]?.group?.id);
-                if (aIndex === -1 && bIndex === -1) {
-                    return 0;
-                }
-                if (aIndex === -1) {
-                    return 1;
-                }
-                if (bIndex === -1) {
-                    return -1;
-                }
-                return aIndex - bIndex;
-            }
+        groupOrder: {
+            type: Array,
+            default: () => []
         }
-    };
+    });
+
+    const groupInstancesCfg = ref({});
+
+    const groupedGroupInstances = computed(() => {
+        const groupMap = new Map();
+
+        props.groupInstances.forEach((ref) => {
+            const groupId = ref.group.groupId;
+            if (!groupMap.has(groupId)) {
+                groupMap.set(groupId, []);
+            }
+            groupMap.get(groupId).push(ref);
+
+            if (!groupInstancesCfg.value[ref.group?.groupId]) {
+                groupInstancesCfg.value = {
+                    [ref.group.groupId]: {
+                        isCollapsed: false
+                    },
+                    ...groupInstancesCfg.value
+                };
+            }
+        });
+        return Array.from(groupMap.values()).sort(sortGroupInstancesByInGame);
+    });
+
+    function getSmallGroupIconUrl(url) {
+        return convertFileUrlToImageUrl(url);
+    }
+
+    function toggleGroupSidebarCollapse(groupId) {
+        groupInstancesCfg.value[groupId].isCollapsed = !groupInstancesCfg.value[groupId].isCollapsed;
+    }
+
+    function getGroupId(group) {
+        return group[0]?.group?.groupId || '';
+    }
 </script>
 
 <style scoped>

@@ -90,6 +90,7 @@
     import Location from '../../components/Location.vue';
     import { userImage } from '../../shared/utils';
     import { useFriendStore } from '../../stores/friend';
+    import { useGroupStore } from '../../stores/group';
     import { useSearchStore } from '../../stores/search';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { useUiStore } from '../../stores/ui';
@@ -97,8 +98,7 @@
     import GroupsSidebar from './components/GroupsSidebar.vue';
 
     defineProps({
-        groupInstances: Array,
-        inGameGroupOrder: Array
+        groupInstances: Array
     });
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -111,6 +111,8 @@
     const searchStore = useSearchStore();
     const { quickSearchRemoteMethod, quickSearchChange, directAccessPaste } = searchStore;
     const { quickSearchItems } = storeToRefs(searchStore);
+    const groupStore = useGroupStore();
+    const { inGameGroupOrder } = storeToRefs(groupStore);
 
     const isSideBarTabShow = computed(() => {
         return !(menuActiveIndex.value === 'friendList' || menuActiveIndex.value === 'charts');

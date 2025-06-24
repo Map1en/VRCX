@@ -803,7 +803,7 @@
             NewInstanceDialog,
             ChangeWorldImageDialog
         },
-        inject: ['showFullscreenImageDialog', 'openFolderGeneric'],
+        inject: ['showFullscreenImageDialog'],
         props: {
             shiftHeld: Boolean,
 

@@ -55,7 +55,8 @@ export const useGroupStore = defineStore('Group', () => {
             userIds: [],
             userObject: {}
         },
-        cachedGroups: new Map()
+        cachedGroups: new Map(),
+        inGameGroupOrder: []
     });
 
     const groupDialog = computed({
@@ -83,6 +84,13 @@ export const useGroupStore = defineStore('Group', () => {
         get: () => state.cachedGroups,
         set: (value) => {
             state.cachedGroups = value;
+        }
+    });
+
+    const inGameGroupOrder = computed({
+        get: () => state.inGameGroupOrder,
+        set: (value) => {
+            state.inGameGroupOrder = value;
         }
     });
 
@@ -573,16 +581,49 @@ export const useGroupStore = defineStore('Group', () => {
             });
     }
 
+    async function updateInGameGroupOrder() {
+        state.inGameGroupOrder = [];
+        try {
+            const json = await $app.getVRChatRegistryKey(
+                `VRC_GROUP_ORDER_${API.currentUser.id}`
+            );
+            if (!json) {
+                return;
+            }
+            state.inGameGroupOrder = JSON.parse(json);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function sortGroupInstancesByInGame(a, b) {
+        const aIndex = state.inGameGroupOrder.indexOf(a?.group?.id);
+        const bIndex = state.inGameGroupOrder.indexOf(b?.group?.id);
+        if (aIndex === -1 && bIndex === -1) {
+            return 0;
+        }
+        if (aIndex === -1) {
+            return 1;
+        }
+        if (bIndex === -1) {
+            return -1;
+        }
+        return aIndex - bIndex;
+    }
+
     return {
         state,
         groupDialog,
         currentUserGroups,
         inviteGroupDialog,
         cachedGroups,
+        inGameGroupOrder,
         showGroupDialog,
         applyGroup,
         saveCurrentUserGroups,
         applyPresenceGroups,
-        getGroupDialogGroup
+        getGroupDialogGroup,
+        updateInGameGroupOrder,
+        sortGroupInstancesByInGame
     };
 });

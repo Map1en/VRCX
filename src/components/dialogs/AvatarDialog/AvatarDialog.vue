@@ -622,6 +622,7 @@
         extractFileId,
         extractFileVersion,
         openExternalLink,
+        openFolderGeneric,
         replaceVrcPackageUrl,
         storeAvatarImage,
         timeToText
@@ -655,7 +656,7 @@
     const instance = getCurrentInstance();
     const { $message, $confirm, $prompt } = instance.proxy;
 
-    const emit = defineEmits(['openFolderGeneric', 'openPreviousImagesDialog']);
+    defineEmits(['openPreviousImagesDialog']);
 
     const avatarDialogRef = ref(null);
     const changeAvatarImageDialogVisible = ref(false);
@@ -767,10 +768,6 @@
                 memo.value = res.memo;
             }
         });
-    }
-
-    function openFolderGeneric(path) {
-        emit('openFolderGeneric', path);
     }
 
     function avatarDialogCommand(command) {

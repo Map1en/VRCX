@@ -7,14 +7,14 @@ import database from '../service/database';
 import { compareByName, removeFromArray } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
-import { useAppearanceSettingsStore } from './settings/appearance';
-import { useGeneralSettingsStore } from './settings/general';
-import { useWorldStore } from './world';
 import { useGroupStore } from './group';
 import { useInstanceStore } from './instance';
 import { useModerationStore } from './moderation';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useAppearanceSettingsStore } from './settings/appearance';
+import { useGeneralSettingsStore } from './settings/general';
 import { useUserStore } from './user';
+import { useWorldStore } from './world';
 
 export const useFavoriteStore = defineStore('Favorite', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -2021,6 +2021,11 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         updateFavoriteDialog(objectId);
     }
 
+    async function saveSortFavoritesOption() {
+        state.getLocalWorldFavorites();
+        appearanceSettingsStore.setSortFavorites();
+    }
+
     return {
         state,
 
@@ -2092,6 +2097,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         getLocalWorldFavorites,
         newLocalWorldFavoriteGroup,
         deleteFavoriteNoConfirm,
-        showFavoriteDialog
+        showFavoriteDialog,
+        saveSortFavoritesOption
     };
 });

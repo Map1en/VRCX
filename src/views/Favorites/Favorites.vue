@@ -30,7 +30,6 @@
                 <FavoritesFriendTab
                     :hide-tooltips="hideTooltips"
                     :edit-favorites-mode="editFavoritesMode"
-                    @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName" />
             </el-tab-pane>
             <el-tab-pane name="world" :label="$t('view.favorite.worlds.header')" lazy>
@@ -39,7 +38,6 @@
                     :edit-favorites-mode="editFavoritesMode"
                     :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
-                    @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @refresh-local-world-favorite="refreshLocalWorldFavorites" />
             </el-tab-pane>
@@ -49,7 +47,6 @@
                     :shift-held="shiftHeld"
                     :edit-favorites-mode="editFavoritesMode"
                     :refreshing-local-favorites="refreshingLocalFavorites"
-                    @save-sort-favorites-option="saveSortFavoritesOption"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @refresh-local-avatar-favorites="refreshLocalAvatarFavorites" />
             </el-tab-pane>
@@ -62,12 +59,12 @@
     import * as workerTimers from 'worker-timers';
     import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
     import { API } from '../../app';
+    import { useFavoriteStore } from '../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import { useUiStore } from '../../stores/ui';
     import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
     import FavoritesWorldTab from './components/FavoritesWorldTab.vue';
-    import { useFavoriteStore } from '../../stores/favorite';
-    import { useUiStore } from '../../stores/ui';
 
     export default {
         name: 'FavoritesTab',
@@ -248,9 +245,6 @@
                     });
                 }
                 this.refreshingLocalFavorites = false;
-            },
-            saveSortFavoritesOption() {
-                this.$emit('save-sort-favorites-option');
             }
         }
     };

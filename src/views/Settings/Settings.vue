@@ -1928,6 +1928,7 @@
 
     const favoriteStore = useFavoriteStore();
     const { favoriteFriendGroups } = storeToRefs(favoriteStore);
+    const { saveSortFavoritesOption } = favoriteStore;
 
     const groupStore = useGroupStore();
     const { cachedGroups } = storeToRefs(groupStore);
@@ -2193,7 +2194,6 @@
         'saveVRCXWindowOption',
         'promptProxySettings',
         'saveOpenVROption',
-        'saveSortFavoritesOption',
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
         'saveDiscordOption',
@@ -2291,10 +2291,6 @@
 
     function saveOpenVROption() {
         emit('saveOpenVROption');
-    }
-
-    function saveSortFavoritesOption() {
-        emit('saveSortFavoritesOption');
     }
 
     function promptMaxTableSizeDialog() {

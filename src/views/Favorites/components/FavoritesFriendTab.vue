@@ -78,9 +78,9 @@
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
     import { API } from '../../../app';
+    import { useFavoriteStore } from '../../../stores/favorite';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useUserStore } from '../../../stores/user';
-    import { useFavoriteStore } from '../../../stores/favorite';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
 
@@ -98,7 +98,7 @@
             const { showUserDialog } = userStore;
             const favoriteStore = useFavoriteStore();
             const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
-            const { showFriendImportDialog } = favoriteStore;
+            const { showFriendImportDialog, saveSortFavoritesOption } = favoriteStore;
             return {
                 hideTooltips,
                 sortFavorites,
@@ -107,7 +107,8 @@
                 showUserDialog,
                 favoriteFriendGroups,
                 showFriendImportDialog,
-                groupedByGroupKeyFavoriteFriends
+                groupedByGroupKeyFavoriteFriends,
+                saveSortFavoritesOption
             };
         },
         data() {
@@ -128,9 +129,6 @@
         methods: {
             showFriendExportDialog() {
                 this.friendExportDialogVisible = true;
-            },
-            saveSortFavoritesOption() {
-                this.$emit('save-sort-favorites-option');
             },
 
             clearFavoriteGroup(ctx) {

@@ -9,6 +9,7 @@ import {
     isRealInstance
 } from '../shared/utils';
 import { useAvatarStore } from './avatar';
+import { useGameLogStore } from './gameLog';
 import { useInstanceStore } from './instance';
 import { useLaunchStore } from './launch';
 import { useLocationStore } from './location';
@@ -24,6 +25,7 @@ export const useGameStore = defineStore('Game', () => {
     const launchStore = useLaunchStore();
     const worldStore = useWorldStore();
     const instanceStore = useInstanceStore();
+    const gameLogStore = useGameLogStore();
     const state = reactive({
         lastCrashedTime: null,
         VRChatUsedCacheSize: '',
@@ -208,7 +210,7 @@ export const useGameStore = defineStore('Game', () => {
                 API.currentUser.$previousAvatarSwapTime = '';
             }
             locationStore.lastLocationReset();
-            $app.clearNowPlaying();
+            gameLogStore.clearNowPlaying();
             $app.updateVRLastLocation();
             workerTimers.setTimeout(
                 () => $app.checkVRChatDebugLogging(),

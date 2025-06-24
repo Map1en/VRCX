@@ -248,6 +248,7 @@
             const favoriteStore = useFavoriteStore();
             const { favoriteAvatars, favoriteAvatarGroups, localAvatarFavorites, localAvatarFavoriteGroups } =
                 storeToRefs(favoriteStore);
+            const { saveSortFavoritesOption } = favoriteStore;
             const {
                 showAvatarImportDialog,
                 getLocalAvatarFavoriteGroupLength,
@@ -274,7 +275,8 @@
                 renameLocalAvatarFavoriteGroup,
                 newLocalAvatarFavoriteGroup,
                 avatarHistoryArray,
-                promptClearAvatarHistory
+                promptClearAvatarHistory,
+                saveSortFavoritesOption
             };
         },
         data() {
@@ -381,9 +383,7 @@
             showAvatarExportDialog() {
                 this.avatarExportDialogVisible = true;
             },
-            saveSortFavoritesOption() {
-                this.$emit('save-sort-favorites-option');
-            },
+
             changeFavoriteGroupName(group) {
                 this.$emit('change-favorite-group-name', group);
             },

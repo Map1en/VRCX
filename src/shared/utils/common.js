@@ -1,12 +1,12 @@
 import Noty from 'noty';
 import { storeToRefs } from 'pinia';
 import { miscRequest } from '../../api';
+import { $app } from '../../app';
 import { useAvatarStore } from '../../stores/avatar';
+import { useInstanceStore } from '../../stores/instance';
 import { useWorldStore } from '../../stores/world';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
-import { $app } from '../../app';
-import { useInstanceStore } from '../../stores/instance';
 
 /**
  *
@@ -491,6 +491,12 @@ async function getBundleDateSize(ref) {
     return bundleSizes;
 }
 
+// #region | App: Random unsorted app methods, data structs, API functions, and an API feedback/file analysis event
+
+function openFolderGeneric(path) {
+    AppApi.OpenFolderAndSelectItem(path, true);
+}
+
 export {
     getAvailablePlatforms,
     downloadAndSaveJson,
@@ -507,5 +513,6 @@ export {
     replaceBioSymbols,
     openExternalLink,
     copyLink,
-    getBundleDateSize
+    getBundleDateSize,
+    openFolderGeneric
 };

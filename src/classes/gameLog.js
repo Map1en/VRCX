@@ -73,7 +73,7 @@ export default function init() {
                             gameLog.location
                         );
                         this.store.location.updateCurrentUserLocation();
-                        this.clearNowPlaying();
+                        this.store.gameLog.clearNowPlaying();
                         this.store.instance.updateCurrentInstanceWorld();
                         this.store.user.applyUserDialogLocation();
                         this.store.instance.applyWorldDialogInstances();
@@ -88,7 +88,7 @@ export default function init() {
                     var worldName = replaceBioSymbols(gameLog.worldName);
                     if (this.store.game.isGameRunning) {
                         this.store.location.lastLocationReset(gameLog.dt);
-                        this.clearNowPlaying();
+                        this.store.gameLog.clearNowPlaying();
                         this.store.location.lastLocation = {
                             date: Date.parse(gameLog.dt),
                             location: gameLog.location,
@@ -610,7 +610,7 @@ export default function init() {
                     userId,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
             }
         },
 
@@ -648,7 +648,7 @@ export default function init() {
                     videoLength,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
                 return;
             }
             var userId = '';
@@ -682,7 +682,7 @@ export default function init() {
                     userId,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
             }
         },
 
@@ -715,7 +715,7 @@ export default function init() {
                     videoLength,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
                 return;
             }
             var userId = '';
@@ -749,7 +749,7 @@ export default function init() {
                     userId,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
             }
         },
 
@@ -781,7 +781,7 @@ export default function init() {
                     videoLength,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
                 return;
             }
             var userId = '';
@@ -815,7 +815,7 @@ export default function init() {
                     userId,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
             }
         },
 
@@ -841,7 +841,7 @@ export default function init() {
                     videoLength,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
                 return;
             }
             var userId = '';
@@ -865,7 +865,7 @@ export default function init() {
                 userId,
                 videoPos
             };
-            this.setNowPlaying(entry);
+            this.store.gameLog.setNowPlaying(entry);
         },
 
         addGameLogMovieAndChill(gameLog, location) {
@@ -892,7 +892,7 @@ export default function init() {
                     videoLength,
                     videoPos
                 };
-                this.setNowPlaying(entry);
+                this.store.gameLog.setNowPlaying(entry);
                 return;
             }
             var userId = '';
@@ -916,7 +916,7 @@ export default function init() {
                 userId,
                 videoPos
             };
-            this.setNowPlaying(entry);
+            this.store.gameLog.setNowPlaying(entry);
         },
 
         async gameLogTableLookup() {
