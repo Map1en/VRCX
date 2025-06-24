@@ -100,7 +100,7 @@
 </script>
 
 <script setup>
-    import { ref } from 'vue';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { storeToRefs } from 'pinia';
     import { playerModerationRequest } from '../../api';
@@ -113,20 +113,13 @@
     import { useUiStore } from '../../stores/ui';
 
     const { t } = useI18n();
+    const { proxy } = getCurrentInstance();
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const moderationStore = useModerationStore();
-    const { isPlayerModerationsLoading, playerModerationTable } = storeToRefs(moderationStore);
-    const { refreshPlayerModerations } = moderationStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-
-    defineProps({
-        shiftHeld: Boolean
-    });
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { isPlayerModerationsLoading, playerModerationTable } = storeToRefs(useModerationStore());
+    const { refreshPlayerModerations } = useModerationStore();
+    const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
 
     const filters = ref([
         {
@@ -175,7 +168,7 @@
     }
 
     function deletePlayerModerationPrompt(row) {
-        $app.$confirm(`Continue? Delete Moderation ${row.type}`, 'Confirm', {
+        proxy.$confirm(`Continue? Delete Moderation ${row.type}`, 'Confirm', {
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel',
             type: 'info',

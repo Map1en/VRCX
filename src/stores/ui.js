@@ -6,8 +6,23 @@ import { useNotificationStore } from './notification';
 export const useUiStore = defineStore('Ui', () => {
     const notificationStore = useNotificationStore();
     const state = reactive({
-        menuActiveIndex: 'feed'
+        menuActiveIndex: 'feed',
+        shiftHeld: false
     });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.shiftKey) {
+            state.shiftHeld = true;
+        }
+    });
+
+    document.addEventListener('keyup', function (e) {
+        if (!e.shiftKey) {
+            state.shiftHeld = false;
+        }
+    });
+
+    const shiftHeld = computed(() => state.shiftHeld);
 
     const menuActiveIndex = computed({
         get: () => state.menuActiveIndex,
@@ -37,5 +52,5 @@ export const useUiStore = defineStore('Ui', () => {
         }
     }
 
-    return { state, menuActiveIndex, notifyMenu, selectMenu };
+    return { state, menuActiveIndex, shiftHeld, notifyMenu, selectMenu };
 });

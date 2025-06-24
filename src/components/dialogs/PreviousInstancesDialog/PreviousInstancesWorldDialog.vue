@@ -65,7 +65,9 @@
     </safe-dialog>
 </template>
 
-<script>
+<script setup>
+    import { storeToRefs } from 'pinia';
+    import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { API } from '../../../app';
     import database from '../../../service/database';
     import {
@@ -76,112 +78,91 @@
         timeToText
     } from '../../../shared/utils';
     import { useInstanceStore } from '../../../stores/instance';
+    import { useUiStore } from '../../../stores/ui';
 
-    export default {
-        name: 'PreviousInstancesWorldDialog',
+    const { proxy } = getCurrentInstance();
 
-        props: {
-            previousInstancesWorldDialog: {
-                type: Object,
-                required: true
-            },
-            shiftHeld: Boolean
+    const props = defineProps({
+        previousInstancesWorldDialog: {
+            type: Object,
+            required: true
+        }
+    });
+    const emit = defineEmits(['update:previous-instances-world-dialog']);
+
+    const { showPreviousInstancesInfoDialog } = useInstanceStore();
+    const { shiftHeld } = storeToRefs(useUiStore());
+
+    const previousInstancesWorldDialogTable = reactive({
+        data: [],
+        filters: [{ prop: 'groupName', value: '' }],
+        tableProps: {
+            stripe: true,
+            size: 'mini',
+            defaultSort: { prop: 'created_at', order: 'descending' }
         },
-        setup() {
-            const instanceStore = useInstanceStore();
-            const { showPreviousInstancesInfoDialog } = instanceStore;
-            return { API, showPreviousInstancesInfoDialog, adjustDialogZ };
-        },
-        data() {
-            return {
-                previousInstancesWorldDialogTable: {
-                    data: [],
-                    filters: [
-                        {
-                            prop: 'groupName',
-                            value: ''
-                        }
-                    ],
-                    tableProps: {
-                        stripe: true,
-                        size: 'mini',
-                        defaultSort: {
-                            prop: 'created_at',
-                            order: 'descending'
-                        }
-                    },
-                    pageSize: 10,
-                    paginationProps: {
-                        small: true,
-                        layout: 'sizes,prev,pager,next,total',
-                        pageSizes: [10, 25, 50, 100]
-                    }
-                },
-                loading: false
-            };
-        },
-        computed: {
-            isVisible: {
-                get() {
-                    return this.previousInstancesWorldDialog.visible;
-                },
-                set(value) {
-                    this.$emit('update:previous-instances-world-dialog', {
-                        ...this.previousInstancesWorldDialog,
-                        visible: value
-                    });
+        pageSize: 10,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 25, 50, 100]
+        }
+    });
+    const loading = ref(false);
+
+    const isVisible = computed({
+        get: () => props.previousInstancesWorldDialog.visible,
+        set: (value) => {
+            emit('update:previous-instances-world-dialog', {
+                ...props.previousInstancesWorldDialog,
+                visible: value
+            });
+        }
+    });
+
+    function refreshPreviousInstancesWorldTable() {
+        loading.value = true;
+        const D = props.previousInstancesWorldDialog;
+        database.getpreviousInstancesByWorldId(D.worldRef).then((data) => {
+            const array = [];
+            for (const ref of data.values()) {
+                ref.$location = parseLocation(ref.location);
+                ref.timer = ref.time > 0 ? timeToText(ref.time) : '';
+                array.push(ref);
+            }
+            array.sort(compareByCreatedAt);
+            previousInstancesWorldDialogTable.data = array;
+            loading.value = false;
+        });
+    }
+
+    function deleteGameLogWorldInstance(row) {
+        database.deleteGameLogInstanceByInstanceId({ location: row.location });
+        removeFromArray(previousInstancesWorldDialogTable.data, row);
+    }
+
+    function deleteGameLogWorldInstancePrompt(row) {
+        proxy.$confirm('Continue? Delete GameLog Instance', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    deleteGameLogWorldInstance(row);
                 }
             }
-        },
-        watch: {
-            'previousInstancesWorldDialog.openFlg'() {
-                if (this.previousInstancesWorldDialog.visible) {
-                    this.$nextTick(() => {
-                        this.adjustDialogZ(this.$refs.previousInstancesWorldDialog.$el);
-                    });
-                    this.refreshPreviousInstancesWorldTable();
-                }
-            }
-        },
-        methods: {
-            refreshPreviousInstancesWorldTable() {
-                this.loading = true;
-                const D = this.previousInstancesWorldDialog;
-                database.getpreviousInstancesByWorldId(D.worldRef).then((data) => {
-                    const array = [];
-                    for (const ref of data.values()) {
-                        ref.$location = parseLocation(ref.location);
-                        if (ref.time > 0) {
-                            ref.timer = timeToText(ref.time);
-                        } else {
-                            ref.timer = '';
-                        }
-                        array.push(ref);
-                    }
-                    array.sort(compareByCreatedAt);
-                    this.previousInstancesWorldDialogTable.data = array;
-                    this.loading = false;
-                });
-            },
-            deleteGameLogWorldInstance(row) {
-                database.deleteGameLogInstanceByInstanceId({
-                    location: row.location
-                });
-                removeFromArray(this.previousInstancesWorldDialogTable.data, row);
-            },
+        });
+    }
 
-            deleteGameLogWorldInstancePrompt(row) {
-                this.$confirm('Continue? Delete GameLog Instance', 'Confirm', {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            this.deleteGameLogWorldInstance(row);
-                        }
-                    }
+    watch(
+        () => props.previousInstancesWorldDialog.openFlg,
+        () => {
+            if (props.previousInstancesWorldDialog.visible) {
+                nextTick(() => {
+                    adjustDialogZ(proxy.$refs.previousInstancesWorldDialog.$el);
                 });
+                refreshPreviousInstancesWorldTable();
             }
         }
-    };
+    );
 </script>

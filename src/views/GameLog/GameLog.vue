@@ -208,28 +208,19 @@
     import { useUserStore } from '../../stores/user';
     import { useUiStore } from '../../stores/ui';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const worldStore = useWorldStore();
-    const { showWorldDialog } = worldStore;
-    const userStore = useUserStore();
-    const { lookupUser } = userStore;
-    const instanceStore = useInstanceStore();
-    const { showPreviousInstancesInfoDialog } = instanceStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showWorldDialog } = useWorldStore();
+    const { lookupUser } = useUserStore();
+    const { showPreviousInstancesInfoDialog } = useInstanceStore();
+    const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
 
     const { t } = useI18n();
-    const { $confirm } = getCurrentInstance().proxy;
+    const { proxy } = getCurrentInstance();
 
     const props = defineProps({
         gameLogTable: {
             type: Object,
             required: true
-        },
-        shiftHeld: {
-            type: Boolean,
-            default: false
         },
         gameLogIsFriend: {
             type: Function,
@@ -264,7 +255,7 @@
     }
 
     function deleteGameLogEntryPrompt(row) {
-        $confirm('Continue? Delete Log', 'Confirm', {
+        proxy.$confirm('Continue? Delete Log', 'Confirm', {
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel',
             type: 'info',

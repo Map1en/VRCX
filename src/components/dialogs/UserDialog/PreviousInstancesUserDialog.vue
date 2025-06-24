@@ -69,7 +69,9 @@
     </safe-dialog>
 </template>
 
-<script>
+<script setup>
+    import { storeToRefs } from 'pinia';
+    import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import database from '../../../service/database';
     import {
         adjustDialogZ,
@@ -80,144 +82,104 @@
     } from '../../../shared/utils';
     import { useInstanceStore } from '../../../stores/instance';
     import { useLaunchStore } from '../../../stores/launch';
+    import { useUiStore } from '../../../stores/ui';
     import Location from '../../Location.vue';
 
-    export default {
-        name: 'PreviousInstancesUserDialog',
-        components: {
-            Location
-        },
-        props: {
-            previousInstancesUserDialog: {
-                type: Object,
-                default: () => ({
-                    visible: false,
-                    userRef: {},
-                    loading: false,
-                    forceUpdate: 0,
-                    previousInstances: [],
-                    previousInstancesTable: {
-                        data: [],
-                        filters: [
-                            {
-                                prop: 'displayName',
-                                value: ''
-                            }
-                        ],
-                        tableProps: {
-                            stripe: true,
-                            size: 'mini',
-                            height: '400px'
-                        }
-                    }
-                })
-            },
-            shiftHeld: {
-                type: Boolean,
-                default: false
-            }
-        },
-        setup() {
-            const launchStore = useLaunchStore();
-            const { showLaunchDialog } = launchStore;
-            const instanceStore = useInstanceStore();
-            const { showPreviousInstancesInfoDialog } = instanceStore;
-            return {
-                showLaunchDialog,
-                showPreviousInstancesInfoDialog,
-                adjustDialogZ
-            };
-        },
-        data() {
-            return {
-                previousInstancesUserDialogTable: {
+    const props = defineProps({
+        previousInstancesUserDialog: {
+            type: Object,
+            default: () => ({
+                visible: false,
+                userRef: {},
+                loading: false,
+                forceUpdate: 0,
+                previousInstances: [],
+                previousInstancesTable: {
                     data: [],
-                    filters: [
-                        {
-                            prop: 'worldName',
-                            value: ''
-                        }
-                    ],
-                    tableProps: {
-                        stripe: true,
-                        size: 'mini',
-                        defaultSort: {
-                            prop: 'created_at',
-                            order: 'descending'
-                        }
-                    },
-                    pageSize: 10,
-                    paginationProps: {
-                        small: true,
-                        layout: 'sizes,prev,pager,next,total',
-                        pageSizes: [10, 25, 50, 100]
-                    }
-                },
-                loading: false
-            };
-        },
-        computed: {
-            isVisible: {
-                get() {
-                    return this.previousInstancesUserDialog.visible;
-                },
-                set(value) {
-                    this.$emit('update:previous-instances-user-dialog', {
-                        ...this.previousInstancesUserDialog,
-                        visible: value
-                    });
+                    filters: [{ prop: 'displayName', value: '' }],
+                    tableProps: { stripe: true, size: 'mini', height: '400px' }
                 }
-            }
+            })
+        }
+    });
+
+    const emit = defineEmits(['update:previous-instances-user-dialog']);
+    const { proxy } = getCurrentInstance();
+
+    const loading = ref(false);
+    const previousInstancesUserDialogTable = reactive({
+        data: [],
+        filters: [{ prop: 'worldName', value: '' }],
+        tableProps: {
+            stripe: true,
+            size: 'mini',
+            defaultSort: { prop: 'created_at', order: 'descending' }
         },
-        watch: {
-            'previousInstancesUserDialog.openFlg'() {
-                if (this.previousInstancesUserDialog.visible) {
-                    this.$nextTick(() => {
-                        this.adjustDialogZ(this.$refs.previousInstancesUserDialog.$el);
-                    });
-                    this.refreshPreviousInstancesUserTable();
-                }
-            }
-        },
-        methods: {
-            refreshPreviousInstancesUserTable() {
-                this.loading = true;
-                database.getpreviousInstancesByUserId(this.previousInstancesUserDialog.userRef).then((data) => {
-                    const array = [];
-                    for (const ref of data.values()) {
-                        ref.$location = parseLocation(ref.location);
-                        if (ref.time > 0) {
-                            ref.timer = timeToText(ref.time);
-                        } else {
-                            ref.timer = '';
-                        }
-                        array.push(ref);
-                    }
-                    array.sort(compareByCreatedAt);
-                    this.previousInstancesUserDialogTable.data = array;
-                    this.loading = false;
+        pageSize: 10,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 25, 50, 100]
+        }
+    });
+
+    const { showLaunchDialog } = useLaunchStore();
+    const { showPreviousInstancesInfoDialog } = useInstanceStore();
+    const { shiftHeld } = storeToRefs(useUiStore());
+
+    const isVisible = computed({
+        get: () => props.previousInstancesUserDialog.visible,
+        set: (value) => {
+            emit('update:previous-instances-user-dialog', {
+                ...props.previousInstancesUserDialog,
+                visible: value
+            });
+        }
+    });
+
+    const refreshPreviousInstancesUserTable = async () => {
+        loading.value = true;
+        const data = await database.getpreviousInstancesByUserId(props.previousInstancesUserDialog.userRef);
+        const array = [];
+        for (const item of data.values()) {
+            item.$location = parseLocation(item.location);
+            item.timer = item.time > 0 ? timeToText(item.time) : '';
+            array.push(item);
+        }
+        array.sort(compareByCreatedAt);
+        previousInstancesUserDialogTable.data = array;
+        loading.value = false;
+    };
+
+    watch(
+        () => props.previousInstancesUserDialog.openFlg,
+        () => {
+            if (props.previousInstancesUserDialog.visible) {
+                nextTick(() => {
+                    adjustDialogZ(proxy.$refs.previousInstancesUserDialog.$el);
                 });
-            },
-            deleteGameLogUserInstance(row) {
-                database.deleteGameLogInstance({
-                    id: this.previousInstancesUserDialog.userRef.id,
-                    displayName: this.previousInstancesUserDialog.userRef.displayName,
-                    location: row.location
-                });
-                removeFromArray(this.previousInstancesUserDialogTable.data, row);
-            },
-            deleteGameLogUserInstancePrompt(row) {
-                this.$confirm('Continue? Delete User From GameLog Instance', 'Confirm', {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            this.deleteGameLogUserInstance(row);
-                        }
-                    }
-                });
+                refreshPreviousInstancesUserTable();
             }
         }
-    };
+    );
+
+    function deleteGameLogUserInstance(row) {
+        database.deleteGameLogInstance({
+            id: props.previousInstancesUserDialog.userRef.id,
+            displayName: props.previousInstancesUserDialog.userRef.displayName,
+            location: row.location
+        });
+        removeFromArray(previousInstancesUserDialogTable.data, row);
+    }
+
+    function deleteGameLogUserInstancePrompt(row) {
+        proxy.$confirm('Continue? Delete User From GameLog Instance', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') deleteGameLogUserInstance(row);
+            }
+        });
+    }
 </script>

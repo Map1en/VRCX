@@ -125,7 +125,6 @@
                         :favorite="favorite"
                         :edit-favorites-mode="editFavoritesMode"
                         :hide-tooltips="hideTooltips"
-                        :shift-held="shiftHeld"
                         @click="showWorldDialog(favorite.id)"
                         @handle-select="favorite.$selected = $event" />
                 </div>
@@ -195,7 +194,6 @@
                         :favorite="favorite"
                         :edit-favorites-mode="editFavoritesMode"
                         :hide-tooltips="hideTooltips"
-                        :shift-held="shiftHeld"
                         @click="showWorldDialog(favorite.id)"
                         @remove-local-world-favorite="removeLocalWorldFavorite" />
                 </div>
@@ -220,12 +218,12 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
-    import FavoritesWorldItem from './FavoritesWorldItem.vue';
     import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useWorldStore } from '../../../stores/world';
+    import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
+    import FavoritesWorldItem from './FavoritesWorldItem.vue';
 
     export default {
         name: 'FavoritesWorldTab',
@@ -235,15 +233,12 @@
         },
         props: {
             editFavoritesMode: Boolean,
-            shiftHeld: Boolean,
             refreshingLocalFavorites: Boolean
         },
         setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(appearanceSettingsStore);
-            const favoriteStore = useFavoriteStore();
+            const { hideTooltips, sortFavorites, setSortFavorites } = storeToRefs(useAppearanceSettingsStore());
             const { favoriteWorlds, favoriteWorldGroups, localWorldFavorites, localWorldFavoriteGroups } =
-                storeToRefs(favoriteStore);
+                storeToRefs(useFavoriteStore());
             const {
                 showWorldImportDialog,
                 getLocalWorldFavoriteGroupLength,
@@ -251,9 +246,8 @@
                 renameLocalWorldFavoriteGroup,
                 removeLocalWorldFavorite,
                 newLocalWorldFavoriteGroup
-            } = favoriteStore;
-            const worldStore = useWorldStore();
-            const { showWorldDialog } = worldStore;
+            } = useFavoriteStore();
+            const { showWorldDialog } = useWorldStore();
             return {
                 hideTooltips,
                 sortFavorites,

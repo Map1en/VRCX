@@ -256,8 +256,7 @@ let $app = {
         };
     },
     data: {
-        API,
-        shiftHeld: false
+        API
     },
     computed: {},
     methods: {
@@ -391,12 +390,6 @@ document.body.addEventListener('drop', function (e) {
     e.preventDefault();
 });
 
-document.addEventListener('keydown', function (e) {
-    if (e.shiftKey) {
-        $app.shiftHeld = true;
-    }
-});
-
 document.addEventListener('keyup', function (e) {
     if (e.ctrlKey) {
         if (e.key === 'I') {
@@ -406,10 +399,6 @@ document.addEventListener('keyup', function (e) {
         }
     } else if (e.altKey && e.key === 'R') {
         refreshCustomCss();
-    }
-
-    if (!e.shiftKey) {
-        $app.shiftHeld = false;
     }
 });
 
@@ -1791,12 +1780,6 @@ $app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
 // #endregion
 // #region | Tab Props
 
-$app.computed.moderationTabBind = function () {
-    return {
-        shiftHeld: this.shiftHeld
-    };
-};
-
 $app.computed.friendsListTabBind = function () {
     return {
         friendsListSearch: this.friendsListSearch
@@ -1815,22 +1798,9 @@ $app.computed.sidebarTabBind = function () {
     };
 };
 
-$app.computed.favoritesTabBind = function () {
-    return {
-        shiftHeld: this.shiftHeld
-    };
-};
-
-$app.computed.friendLogTabBind = function () {
-    return {
-        shiftHeld: this.shiftHeld
-    };
-};
-
 $app.computed.gameLogTabBind = function () {
     return {
         gameLogTable: this.gameLogTable,
-        shiftHeld: this.shiftHeld,
         gameLogIsFriend: this.gameLogIsFriend,
         gameLogIsFavorite: this.gameLogIsFavorite
     };
@@ -1841,12 +1811,6 @@ $app.computed.gameLogTabEvent = function () {
         gameLogTableLookup: this.gameLogTableLookup,
         updateGameLogSessionTable: (val) => (this.gameLogSessionTable = val),
         updateSharedFeed: this.updateSharedFeed
-    };
-};
-
-$app.computed.notificationTabBind = function () {
-    return {
-        shiftHeld: this.shiftHeld
     };
 };
 

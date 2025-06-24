@@ -105,14 +105,11 @@
     import { useFriendStore } from '../../stores/friend';
     import { useUiStore } from '../../stores/ui';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideUnfriends } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const friendStore = useFriendStore();
-    const { friendLogTable } = storeToRefs(friendStore);
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { hideUnfriends } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { friendLogTable } = storeToRefs(useFriendStore());
+    const { shiftHeld } = storeToRefs(useUiStore());
+    const { menuActiveIndex } = storeToRefs(useUiStore());
 
     watch(
         () => hideUnfriends.value,
@@ -126,17 +123,12 @@
 
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
-    const { $confirm } = proxy;
-
-    defineProps({
-        shiftHeld: { type: Boolean, default: false }
-    });
 
     function saveTableFilters() {
         configRepository.setString('VRCX_friendLogTableFilters', JSON.stringify(friendLogTable.value.filters[0].value));
     }
     function deleteFriendLogPrompt(row) {
-        $confirm('Continue? Delete Log', 'Confirm', {
+        proxy.$confirm('Continue? Delete Log', 'Confirm', {
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel',
             type: 'info',

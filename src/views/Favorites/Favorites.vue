@@ -36,7 +36,6 @@
                 <FavoritesWorldTab
                     :hide-tooltips="hideTooltips"
                     :edit-favorites-mode="editFavoritesMode"
-                    :shift-held="shiftHeld"
                     :refresh-local-world-favorites="refreshLocalWorldFavorites"
                     @change-favorite-group-name="changeFavoriteGroupName"
                     @refresh-local-world-favorite="refreshLocalWorldFavorites" />
@@ -44,7 +43,6 @@
             <el-tab-pane name="avatar" :label="$t('view.favorite.avatars.header')" lazy>
                 <FavoritesAvatarTab
                     :hide-tooltips="hideTooltips"
-                    :shift-held="shiftHeld"
                     :edit-favorites-mode="editFavoritesMode"
                     :refreshing-local-favorites="refreshingLocalFavorites"
                     @change-favorite-group-name="changeFavoriteGroupName"
@@ -73,13 +71,8 @@
             FavoritesWorldTab,
             FavoritesAvatarTab
         },
-        props: {
-            shiftHeld: Boolean
-        },
         setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-            const favoriteStore = useFavoriteStore();
+            const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
             const {
                 favoriteFriends,
                 favoriteWorlds,
@@ -87,16 +80,15 @@
                 isFavoriteLoading,
                 localAvatarFavoritesList,
                 localWorldFavoritesList
-            } = storeToRefs(favoriteStore);
+            } = storeToRefs(useFavoriteStore());
             const {
                 refreshFavorites,
                 refreshFavoriteGroups,
                 clearBulkFavoriteSelection,
                 bulkCopyFavoriteSelection,
                 getLocalWorldFavorites
-            } = favoriteStore;
-            const uiStore = useUiStore();
-            const { menuActiveIndex } = storeToRefs(uiStore);
+            } = useFavoriteStore();
+            const { menuActiveIndex } = storeToRefs(useUiStore());
             return {
                 hideTooltips,
                 favoriteFriends,

@@ -128,123 +128,85 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
+    import { computed, getCurrentInstance } from 'vue';
     import { favoriteRequest } from '../../../api';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { API } from '../../../app';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useInviteStore } from '../../../stores/invite';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUiStore } from '../../../stores/ui';
 
-    export default {
-        name: 'FavoritesWorldItem',
-        props: {
-            group: [Object, String],
-            favorite: Object,
-            editFavoritesMode: Boolean,
-            shiftHeld: Boolean,
-            isLocalFavorite: { type: Boolean, required: false }
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-            const favoriteStore = useFavoriteStore();
-            const { favoriteWorldGroups } = storeToRefs(favoriteStore);
-            const { showFavoriteDialog } = favoriteStore;
-            const inviteStore = useInviteStore();
-            const { newInstanceSelfInvite } = storeToRefs(inviteStore);
-            return {
-                hideTooltips,
-                API,
-                favoriteWorldGroups,
-                newInstanceSelfInvite,
-                showFavoriteDialog
-            };
-        },
-        computed: {
-            isSelected: {
-                get() {
-                    return this.favorite.$selected;
-                },
-                set(value) {
-                    this.$emit('handle-select', value);
-                }
-            },
-            localFavFakeRef() {
-                // local favorite no "ref" property
-                return this.isLocalFavorite ? this.favorite : this.favorite.ref;
-            },
-            smallThumbnail() {
-                return (
-                    this.localFavFakeRef.thumbnailImageUrl.replace('256', '128') ||
-                    this.localFavFakeRef.thumbnailImageUrl
-                );
-            }
-        },
-        methods: {
-            handleDropdownItemClick(groupAPI) {
-                if (this.isLocalFavorite) {
-                    this.addFavoriteWorld(this.localFavFakeRef, groupAPI, true);
-                } else {
-                    this.moveFavorite(this.localFavFakeRef, groupAPI, 'world');
-                }
-            },
-            handleDeleteFavorite() {
-                if (this.isLocalFavorite) {
-                    this.$emit('remove-local-world-favorite', this.favorite.id, this.group);
-                } else {
-                    this.deleteFavorite(this.favorite.id);
-                }
-            },
-            moveFavorite(ref, group, type) {
-                favoriteRequest
-                    .deleteFavorite({
-                        objectId: ref.id
-                    })
-                    .then(() => {
-                        favoriteRequest.addFavorite({
-                            type,
-                            favoriteId: ref.id,
-                            tags: group.name
-                        });
-                    });
-            },
-            deleteFavorite(objectId) {
-                favoriteRequest.deleteFavorite({
-                    objectId
-                });
-                // FIXME: 메시지 수정
-                // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-                //     confirmButtonText: 'Confirm',
-                //     cancelButtonText: 'Cancel',
-                //     type: 'info',
-                //     callback: (action) => {
-                //         if (action === 'confirm') {
-                //             API.deleteFavorite({
-                //                 objectId
-                //             });
-                //         }
-                //     }
-                // });
-            },
-            addFavoriteWorld(ref, group, message) {
-                // wait API splitting PR Merged
-                return favoriteRequest
-                    .addFavorite({
-                        type: 'world',
-                        favoriteId: ref.id,
-                        tags: group.name
-                    })
-                    .then((args) => {
-                        if (message) {
-                            this.$message({
-                                message: 'World added to favorites',
-                                type: 'success'
-                            });
-                        }
-                        return args;
-                    });
-            }
+    const props = defineProps({
+        group: [Object, String],
+        favorite: Object,
+        editFavoritesMode: Boolean,
+        isLocalFavorite: { type: Boolean, default: false }
+    });
+
+    const emit = defineEmits(['handle-select', 'remove-local-world-favorite', 'click']);
+    const { proxy } = getCurrentInstance();
+
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { favoriteWorldGroups } = storeToRefs(useFavoriteStore());
+    const { showFavoriteDialog } = useFavoriteStore();
+    const { newInstanceSelfInvite } = useInviteStore();
+    const { shiftHeld } = storeToRefs(useUiStore());
+
+    const isSelected = computed({
+        get: () => props.favorite.$selected,
+        set: (value) => emit('handle-select', value)
+    });
+
+    const localFavFakeRef = computed(() => (props.isLocalFavorite ? props.favorite : props.favorite.ref));
+
+    const smallThumbnail = computed(() => {
+        const url = localFavFakeRef.value.thumbnailImageUrl.replace('256', '128');
+        return url || localFavFakeRef.value.thumbnailImageUrl;
+    });
+
+    function handleDropdownItemClick(groupAPI) {
+        if (props.isLocalFavorite) {
+            addFavoriteWorld(localFavFakeRef.value, groupAPI, true);
+        } else {
+            moveFavorite(localFavFakeRef.value, groupAPI, 'world');
         }
-    };
+    }
+
+    function handleDeleteFavorite() {
+        if (props.isLocalFavorite) {
+            emit('remove-local-world-favorite', props.favorite.id, props.group);
+        } else {
+            deleteFavorite(props.favorite.id);
+        }
+    }
+
+    function moveFavorite(refObj, group, type) {
+        favoriteRequest.deleteFavorite({ objectId: refObj.id }).then(() => {
+            favoriteRequest.addFavorite({
+                type,
+                favoriteId: refObj.id,
+                tags: group.name
+            });
+        });
+    }
+
+    function deleteFavorite(objectId) {
+        favoriteRequest.deleteFavorite({ objectId });
+    }
+
+    function addFavoriteWorld(refObj, group, message) {
+        return favoriteRequest
+            .addFavorite({
+                type: 'world',
+                favoriteId: refObj.id,
+                tags: group.name
+            })
+            .then((args) => {
+                if (message) {
+                    proxy.$message({ message: 'World added to favorites', type: 'success' });
+                }
+                return args;
+            });
+    }
 </script>

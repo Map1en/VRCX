@@ -36,19 +36,19 @@
                     <el-tooltip
                         v-if="favorite.deleted"
                         placement="left"
-                        :content="$t('view.favorite.unavailable_tooltip')">
+                        :content="t('view.favorite.unavailable_tooltip')">
                         <i class="el-icon-warning" style="color: #f56c6c; margin-left: 5px"></i>
                     </el-tooltip>
                     <el-tooltip
                         v-if="favorite.ref.releaseStatus === 'private'"
                         placement="left"
-                        :content="$t('view.favorite.private')">
+                        :content="t('view.favorite.private')">
                         <i class="el-icon-warning" style="color: #e6a23c; margin-left: 5px"></i>
                     </el-tooltip>
                     <el-tooltip
                         v-if="favorite.ref.releaseStatus !== 'private' && !favorite.deleted"
                         placement="left"
-                        :content="$t('view.favorite.select_avatar_tooltip')"
+                        :content="t('view.favorite.select_avatar_tooltip')"
                         :disabled="hideTooltips">
                         <el-button
                             :disabled="API.currentUser.currentAvatar === favorite.id"
@@ -60,7 +60,7 @@
                     </el-tooltip>
                     <el-tooltip
                         placement="right"
-                        :content="$t('view.favorite.unfavorite_tooltip')"
+                        :content="t('view.favorite.unfavorite_tooltip')"
                         :disabled="hideTooltips">
                         <el-button
                             v-if="shiftHeld"
@@ -82,7 +82,7 @@
                 <template v-else>
                     <el-tooltip
                         placement="left"
-                        :content="$t('view.favorite.select_avatar_tooltip')"
+                        :content="t('view.favorite.select_avatar_tooltip')"
                         :disabled="hideTooltips">
                         <el-button
                             :disabled="API.currentUser.currentAvatar === favorite.id"
@@ -96,7 +96,7 @@
                 <el-tooltip
                     v-if="isLocalFavorite"
                     placement="right"
-                    :content="$t('view.favorite.unfavorite_tooltip')"
+                    :content="t('view.favorite.unfavorite_tooltip')"
                     :disabled="hideTooltips">
                     <el-button
                         v-if="shiftHeld"
@@ -139,119 +139,80 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
+    import { computed } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { $app, API } from '../../../app';
     import { useAvatarStore } from '../../../stores/avatar';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUiStore } from '../../../stores/ui';
 
-    export default {
-        name: 'FavoritesAvatarItem',
-        props: {
-            favorite: Object,
-            group: [Object, String],
-            editFavoritesMode: Boolean,
-            shiftHeld: Boolean,
-            isLocalFavorite: Boolean
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-            const favoriteStore = useFavoriteStore();
-            const { favoriteAvatarGroups } = storeToRefs(favoriteStore);
-            const { removeLocalAvatarFavorite, showFavoriteDialog } = favoriteStore;
-            const avatarStore = useAvatarStore();
-            const { selectAvatarWithConfirmation } = avatarStore;
+    const props = defineProps({
+        favorite: Object,
+        group: [Object, String],
+        editFavoritesMode: Boolean,
+        isLocalFavorite: Boolean
+    });
+    const emit = defineEmits(['click', 'handle-select']);
 
-            return {
-                hideTooltips,
-                API,
-                favoriteAvatarGroups,
-                removeLocalAvatarFavorite,
-                showFavoriteDialog,
-                selectAvatarWithConfirmation
-            };
-        },
-        computed: {
-            isSelected: {
-                get() {
-                    return this.favorite.$selected;
-                },
-                set(value) {
-                    this.$emit('handle-select', value);
-                }
-            },
-            localFavFakeRef() {
-                // local favorite no "ref" property
-                return this.isLocalFavorite ? this.favorite : this.favorite.ref;
-            },
-            tooltipContent() {
-                return $t(this.isLocalFavorite ? 'view.favorite.copy_tooltip' : 'view.favorite.move_tooltip');
-            },
-            smallThumbnail() {
-                return (
-                    this.localFavFakeRef.thumbnailImageUrl.replace('256', '128') ||
-                    this.localFavFakeRef.thumbnailImageUrl
-                );
-            }
-        },
-        methods: {
-            moveFavorite(ref, group, type) {
-                favoriteRequest
-                    .deleteFavorite({
-                        objectId: ref.id
-                    })
-                    .then(() => {
-                        favoriteRequest.addFavorite({
-                            type,
-                            favoriteId: ref.id,
-                            tags: group.name
-                        });
-                    });
-            },
-            deleteFavorite(objectId) {
-                favoriteRequest.deleteFavorite({
-                    objectId
+    const { t } = useI18n();
+
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { favoriteAvatarGroups } = storeToRefs(useFavoriteStore());
+    const { removeLocalAvatarFavorite, showFavoriteDialog } = useFavoriteStore();
+    const { selectAvatarWithConfirmation } = useAvatarStore();
+    const { shiftHeld } = storeToRefs(useUiStore());
+
+    const isSelected = computed({
+        get: () => props.favorite.$selected,
+        set: (value) => emit('handle-select', value)
+    });
+    const localFavFakeRef = computed(() => (props.isLocalFavorite ? props.favorite : props.favorite.ref));
+    const tooltipContent = computed(() =>
+        t(props.isLocalFavorite ? 'view.favorite.copy_tooltip' : 'view.favorite.move_tooltip')
+    );
+    const smallThumbnail = computed(
+        () => localFavFakeRef.value.thumbnailImageUrl.replace('256', '128') || localFavFakeRef.value.thumbnailImageUrl
+    );
+
+    function moveFavorite(ref, group, type) {
+        favoriteRequest.deleteFavorite({ objectId: ref.id }).then(() => {
+            favoriteRequest.addFavorite({
+                type,
+                favoriteId: ref.id,
+                tags: group.name
+            });
+        });
+    }
+
+    function deleteFavorite(objectId) {
+        favoriteRequest.deleteFavorite({ objectId });
+    }
+
+    function addFavoriteAvatar(groupAPI) {
+        return favoriteRequest
+            .addFavorite({
+                type: 'avatar',
+                favoriteId: props.favorite.id,
+                tags: groupAPI.name
+            })
+            .then((args) => {
+                $app.$message({
+                    message: 'Avatar added to favorites',
+                    type: 'success'
                 });
-                // FIXME: 메시지 수정
-                // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-                //     confirmButtonText: 'Confirm',
-                //     cancelButtonText: 'Cancel',
-                //     type: 'info',
-                //     callback: (action) => {
-                //         if (action === 'confirm') {
-                //             API.deleteFavorite({
-                //                 objectId
-                //             });
-                //         }
-                //     }
-                // });
-            },
-            addFavoriteAvatar(groupAPI) {
-                return favoriteRequest
-                    .addFavorite({
-                        type: 'avatar',
-                        favoriteId: this.favorite.id,
-                        tags: groupAPI.name
-                    })
-                    .then((args) => {
-                        this.$message({
-                            message: 'Avatar added to favorites',
-                            type: 'success'
-                        });
+                return args;
+            });
+    }
 
-                        return args;
-                    });
-            },
-            handleDropdownItemClick(groupAPI) {
-                if (this.isLocalFavorite) {
-                    this.addFavoriteAvatar(groupAPI);
-                } else {
-                    this.moveFavorite(this.favorite.ref, groupAPI, 'avatar');
-                }
-            }
+    function handleDropdownItemClick(groupAPI) {
+        if (props.isLocalFavorite) {
+            addFavoriteAvatar(groupAPI);
+        } else {
+            moveFavorite(props.favorite.ref, groupAPI, 'avatar');
         }
-    };
+    }
 </script>

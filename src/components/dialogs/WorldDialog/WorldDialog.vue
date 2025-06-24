@@ -742,9 +742,7 @@
             :old-tags="worldDialog.ref?.tags"
             :world-id="worldDialog.id"
             :is-world-dialog-visible="worldDialog.visible" />
-        <PreviousInstancesWorldDialog
-            :previous-instances-world-dialog.sync="previousInstancesWorldDialog"
-            :shift-held="shiftHeld" />
+        <PreviousInstancesWorldDialog :previous-instances-world-dialog.sync="previousInstancesWorldDialog" />
         <NewInstanceDialog
             :new-instance-dialog-location-tag="newInstanceDialogLocationTag"
             :last-location="lastLocation" />
@@ -803,29 +801,18 @@
             ChangeWorldImageDialog
         },
         inject: ['showFullscreenImageDialog'],
-        props: {
-            shiftHeld: Boolean
-        },
         setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            const worldStore = useWorldStore();
-            const { worldDialog, cachedWorlds } = storeToRefs(worldStore);
-            const { showWorldDialog } = worldStore;
-            const locationStore = useLocationStore();
-            const { lastLocation } = storeToRefs(locationStore);
-            const inviteStore = useInviteStore();
-            const { newInstanceSelfInvite } = inviteStore;
-            const favoriteStore = useFavoriteStore();
-            const { showFavoriteDialog } = favoriteStore;
-            const instanceStore = useInstanceStore();
-            const { showPreviousInstancesInfoDialog } = instanceStore;
-            const { instanceJoinHistory } = storeToRefs(instanceStore);
-            const gameStore = useGameStore();
-            const { isGameRunning } = storeToRefs(gameStore);
-            const { deleteVRChatCache } = gameStore;
+            const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());
+            const { showUserDialog } = useUserStore();
+            const { worldDialog, cachedWorlds } = storeToRefs(useWorldStore());
+            const { showWorldDialog } = useWorldStore();
+            const { lastLocation } = storeToRefs(useLocationStore());
+            const { newInstanceSelfInvite } = useInviteStore();
+            const { showFavoriteDialog } = useFavoriteStore();
+            const { showPreviousInstancesInfoDialog } = useInstanceStore();
+            const { instanceJoinHistory } = storeToRefs(useInstanceStore());
+            const { isGameRunning } = storeToRefs(useGameStore());
+            const { deleteVRChatCache } = useGameStore();
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,

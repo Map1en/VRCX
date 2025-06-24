@@ -436,37 +436,23 @@
     import { useUiStore } from '../../stores/ui';
     import { useGameStore } from '../../stores/game';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const worldStore = useWorldStore();
-    const { showWorldDialog } = worldStore;
-    const groupStore = useGroupStore();
-    const { showGroupDialog } = groupStore;
-    const locationStore = useLocationStore();
-    const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
-    const inviteStore = useInviteStore();
-    const { refreshInviteMessageTableData } = inviteStore;
-    const galleryStore = useGalleryStore();
-    const { clearInviteImageUpload } = galleryStore;
-    const notificationStore = useNotificationStore();
-    const { notificationTable, isNotificationsLoading } = storeToRefs(notificationStore);
-    const { refreshNotifications } = notificationStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-    const gameStore = useGameStore();
-    const { isGameRunning } = storeToRefs(gameStore);
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { showWorldDialog } = useWorldStore();
+    const { showGroupDialog } = useGroupStore();
+    const { lastLocation, lastLocationDestination } = storeToRefs(useLocationStore());
+    const { refreshInviteMessageTableData } = useInviteStore();
+    const { clearInviteImageUpload } = useGalleryStore();
+    const { notificationTable, isNotificationsLoading } = storeToRefs(useNotificationStore());
+    const { refreshNotifications } = useNotificationStore();
+    const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
+    const { isGameRunning } = storeToRefs(useGameStore());
 
     const { t } = useI18n();
 
     const { $confirm, $message } = getCurrentInstance().proxy;
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const props = defineProps({
-        shiftHeld: { type: Boolean, default: false }
-    });
 
     const sendInviteResponseDialog = ref({
         messageSlot: {},

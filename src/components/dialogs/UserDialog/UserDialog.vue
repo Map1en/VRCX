@@ -1766,9 +1766,7 @@
             :send-invite-request-dialog-visible.sync="sendInviteRequestDialogVisible"
             :send-invite-dialog="sendInviteDialog"
             @closeInviteDialog="closeInviteDialog" />
-        <PreviousInstancesUserDialog
-            :previous-instances-user-dialog.sync="previousInstancesUserDialog"
-            :shift-held="shiftHeld" />
+        <PreviousInstancesUserDialog :previous-instances-user-dialog.sync="previousInstancesUserDialog" />
         <PreviousImagesDialog
             :previous-images-dialog-visible.sync="previousImagesDialogVisible"
             :previous-images-table="previousImagesTable" />
@@ -1853,39 +1851,26 @@
     const { proxy } = getCurrentInstance();
     const { $message, $confirm } = proxy;
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const advancedSettingsStore = useAdvancedSettingsStore();
-    const userStore = useUserStore();
-    const favoriteStore = useFavoriteStore();
-    const avatarStore = useAvatarStore();
-    const worldStore = useWorldStore();
-    const groupStore = useGroupStore();
-    const friendStore = useFriendStore();
-
-    const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(appearanceSettingsStore);
-    const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
-    const { userDialog, languageDialog } = storeToRefs(userStore);
+    const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(useAppearanceSettingsStore());
+    const { avatarRemoteDatabase } = storeToRefs(useAdvancedSettingsStore());
+    const { userDialog, languageDialog } = storeToRefs(useUserStore());
     const { showUserDialog, applyUser, sortUserDialogAvatars, refreshUserDialogAvatars, refreshUserDialogTreeData } =
-        userStore;
-    const { favoriteLimits } = storeToRefs(favoriteStore);
-    const { showFavoriteDialog } = favoriteStore;
-    const { showAvatarDialog, lookupAvatars, showAvatarAuthorDialog } = avatarStore;
-    const { cachedAvatars } = storeToRefs(avatarStore);
-    const { cachedWorlds } = storeToRefs(worldStore);
-    const { showWorldDialog } = worldStore;
-    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder } = groupStore;
-    const { currentUserGroups, inviteGroupDialog, inGameGroupOrder } = storeToRefs(groupStore);
-    const locationStore = useLocationStore();
-    const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
-    const inviteStore = useInviteStore();
-    const { refreshInviteMessageTableData } = inviteStore;
-    const { friendLogTable } = storeToRefs(friendStore);
-    const { getFriendRequest } = friendStore;
-    const galleryStore = useGalleryStore();
-    const { galleryDialogVisible } = storeToRefs(galleryStore);
-    const { clearInviteImageUpload, showGalleryDialog } = galleryStore;
-    const gameStore = useGameStore();
-    const { isGameRunning } = storeToRefs(gameStore);
+        useUserStore();
+    const { favoriteLimits } = storeToRefs(useFavoriteStore());
+    const { showFavoriteDialog } = useFavoriteStore();
+    const { showAvatarDialog, lookupAvatars, showAvatarAuthorDialog } = useAvatarStore();
+    const { cachedAvatars } = storeToRefs(useAvatarStore());
+    const { cachedWorlds } = storeToRefs(useWorldStore());
+    const { showWorldDialog } = useWorldStore();
+    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder } = useGroupStore();
+    const { currentUserGroups, inviteGroupDialog, inGameGroupOrder } = storeToRefs(useGroupStore());
+    const { lastLocation, lastLocationDestination } = storeToRefs(useLocationStore());
+    const { refreshInviteMessageTableData } = useInviteStore();
+    const { friendLogTable } = storeToRefs(useFriendStore());
+    const { getFriendRequest } = useFriendStore();
+    const { galleryDialogVisible } = storeToRefs(useGalleryStore());
+    const { clearInviteImageUpload, showGalleryDialog } = useGalleryStore();
+    const { isGameRunning } = storeToRefs(useGameStore());
 
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
@@ -1893,10 +1878,6 @@
         userOnlineFor: {
             type: Function,
             default: () => {}
-        },
-        shiftHeld: {
-            type: Boolean,
-            default: false
         }
     });
 

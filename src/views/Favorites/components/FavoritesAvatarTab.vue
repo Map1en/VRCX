@@ -89,7 +89,6 @@
                         :favorite="favorite"
                         :group="group"
                         :hide-tooltips="hideTooltips"
-                        :shift-held="shiftHeld"
                         :edit-favorites-mode="editFavoritesMode"
                         style="display: inline-block; width: 300px; margin-right: 15px"
                         @handle-select="favorite.$selected = $event"
@@ -199,7 +198,6 @@
                         :favorite="favorite"
                         :group="group"
                         :hide-tooltips="hideTooltips"
-                        :shift-held="shiftHeld"
                         :edit-favorites-mode="editFavoritesMode"
                         @handle-select="favorite.$selected = $event"
                         @click="showAvatarDialog(favorite.id)" />
@@ -237,7 +235,6 @@
         name: 'FavoritesAvatarTab',
         components: { FavoritesAvatarItem, FavoritesAvatarLocalHistoryItem, AvatarExportDialog },
         props: {
-            shiftHeld: Boolean,
             editFavoritesMode: Boolean,
             refreshingLocalFavorites: Boolean
         },

@@ -17,13 +17,11 @@ mixin dialogs
 
     UserDialog(
         :userOnlineFor='userOnlineFor'
-        :shiftHeld='shiftHeld'
         @logout='logout'
         @setGroupVisibility='setGroupVisibility'
         @leaveGroupPrompt='leaveGroupPrompt')
 
-    WorldDialog(
-        :shiftHeld='shiftHeld')
+    WorldDialog
 
     GroupDialog(
         :isGroupGalleryLoading='isGroupGalleryLoading'

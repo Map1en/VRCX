@@ -82,83 +82,40 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { storeToRefs } from 'pinia';
+    import { defineEmits } from 'vue';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../app';
     import Location from '../../../components/Location.vue';
-    import { userStatusClass, userImage } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import { userImage, userStatusClass } from '../../../shared/utils';
     import { useFavoriteStore } from '../../../stores/favorite';
+    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useUiStore } from '../../../stores/ui';
 
-    export default {
-        components: { Location },
-        props: {
-            favorite: {
-                type: Object,
-                required: true
-            },
-            shiftHeld: {
-                type: Boolean,
-                default: false
-            },
-            group: {
-                type: Object,
-                required: true
-            },
-            editFavoritesMode: Boolean
-        },
-        setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups } = storeToRefs(favoriteStore);
-            const { showFavoriteDialog } = favoriteStore;
-            return {
-                hideTooltips,
-                API,
-                userStatusClass,
-                showUserDialog,
-                favoriteFriendGroups,
-                userImage,
-                showFavoriteDialog
-            };
-        },
-        methods: {
-            moveFavorite(ref, group, type) {
-                favoriteRequest
-                    .deleteFavorite({
-                        objectId: ref.id
-                    })
-                    .then(() => {
-                        favoriteRequest.addFavorite({
-                            type,
-                            favoriteId: ref.id,
-                            tags: group.name
-                        });
-                    });
-            },
-            deleteFavorite(objectId) {
-                favoriteRequest.deleteFavorite({
-                    objectId
-                });
-                // FIXME: 메시지 수정
-                // this.$confirm('Continue? Delete Favorite', 'Confirm', {
-                //     confirmButtonText: 'Confirm',
-                //     cancelButtonText: 'Cancel',
-                //     type: 'info',
-                //     callback: (action) => {
-                //         if (action === 'confirm') {
-                //             API.deleteFavorite({
-                //                 objectId
-                //             });
-                //         }
-                //     }
-                // });
-            }
-        }
-    };
+    defineProps({
+        favorite: { type: Object, required: true },
+        group: { type: Object, required: true },
+        editFavoritesMode: Boolean
+    });
+
+    defineEmits(['click']);
+
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { favoriteFriendGroups } = storeToRefs(useFavoriteStore());
+    const { showFavoriteDialog } = useFavoriteStore();
+    const { shiftHeld } = storeToRefs(useUiStore());
+
+    function moveFavorite(ref, group, type) {
+        favoriteRequest.deleteFavorite({ objectId: ref.id }).then(() => {
+            favoriteRequest.addFavorite({
+                type,
+                favoriteId: ref.id,
+                tags: group.name
+            });
+        });
+    }
+
+    function deleteFavorite(objectId) {
+        favoriteRequest.deleteFavorite({ objectId });
+    }
 </script>
