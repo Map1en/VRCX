@@ -191,10 +191,6 @@ export default function init() {
                             this.photonOverlayMessageTimeout = Math.trunc(
                                 Number(instance.inputValue) * 1000
                             );
-                            await configRepository.setString(
-                                'VRCX_photonOverlayMessageTimeout',
-                                this.photonOverlayMessageTimeout
-                            );
                             this.updateVRConfigVars();
                         }
                     }
@@ -503,10 +499,6 @@ export default function init() {
                         ) {
                             this.photonLobbyTimeoutThreshold = Math.trunc(
                                 Number(instance.inputValue) * 1000
-                            );
-                            await configRepository.setString(
-                                'VRCX_photonLobbyTimeoutThreshold',
-                                this.photonLobbyTimeoutThreshold
                             );
                         }
                     }

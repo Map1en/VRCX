@@ -34,60 +34,7 @@ export default function init() {
         photonLastEvent7List: '',
         photonLastChatBoxMsg: new Map(),
 
-        photonEventTable: {
-            data: [],
-            filters: [
-                {
-                    prop: ['displayName', 'text'],
-                    value: ''
-                },
-                {
-                    prop: 'type',
-                    value: [],
-                    filterFn: (row, filter) =>
-                        filter.value.some((v) => v === row.type)
-                }
-            ],
-            tableProps: {
-                stripe: true,
-                size: 'mini'
-            },
-            pageSize: 10,
-            paginationProps: {
-                small: true,
-                layout: 'sizes,prev,pager,next,total',
-                pageSizes: [5, 10, 15, 25, 50]
-            }
-        },
-
-        photonEventTablePrevious: {
-            data: [],
-            filters: [
-                {
-                    prop: ['displayName', 'text'],
-                    value: ''
-                },
-                {
-                    prop: 'type',
-                    value: [],
-                    filterFn: (row, filter) =>
-                        filter.value.some((v) => v === row.type)
-                }
-            ],
-            tableProps: {
-                stripe: true,
-                size: 'mini'
-            },
-            pageSize: 10,
-            paginationProps: {
-                small: true,
-                layout: 'sizes,prev,pager,next,total',
-                pageSizes: [5, 10, 15, 25, 50]
-            }
-        },
-
-        photonEventTableFilter: '',
-        photonEventTableTypeFilter: []
+        photonEventTableFilter: ''
     };
 
     const _methods = {
@@ -224,7 +171,7 @@ export default function init() {
                 colour,
                 ...input
             };
-            this.photonEventTable.data.unshift(feed);
+            this.store.photon.photonEventTable.data.unshift(feed);
             if (
                 this.store.photon.photonEventTableTypeOverlayFilter.length >
                     0 &&
@@ -1417,19 +1364,19 @@ export default function init() {
         },
 
         async photonEventTableFilterChange() {
-            this.photonEventTable.filters[0].value =
+            this.store.photon.photonEventTable.filters[0].value =
                 this.photonEventTableFilter;
-            this.photonEventTable.filters[1].value =
-                this.photonEventTableTypeFilter;
+            this.store.photon.photonEventTable.filters[1].value =
+                this.store.photon.photonEventTableTypeFilter;
 
-            this.photonEventTablePrevious.filters[0].value =
+            this.store.photon.photonEventTablePrevious.filters[0].value =
                 this.photonEventTableFilter;
-            this.photonEventTablePrevious.filters[1].value =
-                this.photonEventTableTypeFilter;
+            this.store.photon.photonEventTablePrevious.filters[1].value =
+                this.store.photon.photonEventTableTypeFilter;
 
             await configRepository.setString(
                 'VRCX_photonEventTypeFilter',
-                JSON.stringify(this.photonEventTableTypeFilter)
+                JSON.stringify(this.store.photon.photonEventTableTypeFilter)
             );
             // await configRepository.setString(
             //     'VRCX_photonEventTypeOverlayFilter',

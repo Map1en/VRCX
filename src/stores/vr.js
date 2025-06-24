@@ -94,7 +94,8 @@ export const useVrStore = defineStore('Vr', () => {
             notificationPosition:
                 notificationsSettingsStore.notificationPosition,
             notificationTimeout: notificationsSettingsStore.notificationTimeout,
-            photonOverlayMessageTimeout: $app.photonOverlayMessageTimeout,
+            photonOverlayMessageTimeout:
+                photonStore.photonOverlayMessageTimeout,
             notificationTheme,
             backgroundEnabled: wristOverlaySettingsStore.vrBackgroundEnabled,
             dtHour12: appearanceSettingsStore.dtHour12,

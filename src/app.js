@@ -613,36 +613,9 @@ $app.data.gameLogTable.vip = false;
 $app.data.gameLogTable.filter = JSON.parse(
     await configRepository.getString('VRCX_gameLogTableFilters', '[]')
 );
-$app.data.photonEventTableTypeFilter = JSON.parse(
-    await configRepository.getString('VRCX_photonEventTypeFilter', '[]')
-);
-$app.data.photonEventTable.filters[1].value =
-    $app.data.photonEventTableTypeFilter;
-$app.data.photonEventTablePrevious.filters[1].value =
-    $app.data.photonEventTableTypeFilter;
 
 // #endregion
 // #region | App: Profile + Settings
-
-$app.data.visits = 0;
-
-$app.data.photonLobbyTimeoutThreshold = await configRepository.getInt(
-    'VRCX_photonLobbyTimeoutThreshold',
-    6000
-);
-
-$app.data.photonOverlayMessageTimeout = Number(
-    await configRepository.getString('VRCX_photonOverlayMessageTimeout', 6000)
-);
-$app.methods.saveEventOverlay = async function (configKey = '') {
-    if (configKey === 'VRCX_PhotonEventOverlay') {
-        this.store.photon.setPhotonEventOverlay();
-    } else if (configKey === 'VRCX_TimeoutHudOverlay') {
-        this.store.photon.setTimeoutHudOverlay();
-    }
-    this.store.vr.updateOpenVR();
-    this.updateVRConfigVars();
-};
 
 $app.methods.updateTimers = function () {
     for (let $timer of $timers) {
@@ -791,11 +764,8 @@ $app.computed.profileTabEvent = function () {
 $app.computed.playerListTabBind = function () {
     return {
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
-        photonEventTableTypeFilter: this.photonEventTableTypeFilter,
         photonEventTableFilter: this.photonEventTableFilter,
         ipcEnabled: this.ipcEnabled,
-        photonEventTable: this.photonEventTable,
-        photonEventTablePrevious: this.photonEventTablePrevious,
         chatboxUserBlacklist: this.chatboxUserBlacklist
     };
 };
@@ -837,7 +807,6 @@ $app.computed.settingsTabEvent = function () {
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,
-        saveEventOverlay: this.saveEventOverlay,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,
         photonEventTableFilterChange: this.photonEventTableFilterChange,

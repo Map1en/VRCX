@@ -3,8 +3,10 @@ import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { $app, API } from '../app';
 import configRepository from '../service/config';
+import { useVrStore } from './vr';
 
 export const usePhotonStore = defineStore('Photon', () => {
+    const vrStore = useVrStore();
     const state = reactive({
         photonLoggingEnabled: false,
         photonEventOverlay: false,
@@ -28,7 +30,60 @@ export const usePhotonStore = defineStore('Photon', () => {
         timeoutHudOverlay: false,
         timeoutHudOverlayFilter: 'Everyone',
         photonEventCount: 0,
-        photonEventIcon: false
+        photonEventIcon: false,
+        photonLobbyTimeoutThreshold: 6000,
+        photonOverlayMessageTimeout: 6000,
+        photonEventTableTypeFilter: [],
+        photonEventTable: {
+            data: [],
+            filters: [
+                {
+                    prop: ['displayName', 'text'],
+                    value: ''
+                },
+                {
+                    prop: 'type',
+                    value: [],
+                    filterFn: (row, filter) =>
+                        filter.value.some((v) => v === row.type)
+                }
+            ],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            pageSize: 10,
+            paginationProps: {
+                small: true,
+                layout: 'sizes,prev,pager,next,total',
+                pageSizes: [5, 10, 15, 25, 50]
+            }
+        },
+        photonEventTablePrevious: {
+            data: [],
+            filters: [
+                {
+                    prop: ['displayName', 'text'],
+                    value: ''
+                },
+                {
+                    prop: 'type',
+                    value: [],
+                    filterFn: (row, filter) =>
+                        filter.value.some((v) => v === row.type)
+                }
+            ],
+            tableProps: {
+                stripe: true,
+                size: 'mini'
+            },
+            pageSize: 10,
+            paginationProps: {
+                small: true,
+                layout: 'sizes,prev,pager,next,total',
+                pageSizes: [5, 10, 15, 25, 50]
+            }
+        }
     });
 
     async function initPhotonStates() {
@@ -37,7 +92,10 @@ export const usePhotonStore = defineStore('Photon', () => {
             photonEventOverlayFilter,
             photonEventTableTypeOverlayFilter,
             timeoutHudOverlay,
-            timeoutHudOverlayFilter
+            timeoutHudOverlayFilter,
+            photonLobbyTimeoutThreshold,
+            photonOverlayMessageTimeout,
+            photonEventTableTypeFilter
         ] = await Promise.all([
             configRepository.getBool('VRCX_PhotonEventOverlay', false),
             configRepository.getString(
@@ -52,7 +110,13 @@ export const usePhotonStore = defineStore('Photon', () => {
             configRepository.getString(
                 'VRCX_TimeoutHudOverlayFilter',
                 'Everyone'
-            )
+            ),
+            configRepository.getInt('VRCX_photonLobbyTimeoutThreshold', 6000),
+            configRepository.getString(
+                'VRCX_photonOverlayMessageTimeout',
+                6000
+            ),
+            configRepository.getString('VRCX_photonEventTypeFilter', '[]')
         ]);
 
         state.photonEventOverlay = photonEventOverlay;
@@ -62,6 +126,16 @@ export const usePhotonStore = defineStore('Photon', () => {
         );
         state.timeoutHudOverlay = timeoutHudOverlay;
         state.timeoutHudOverlayFilter = timeoutHudOverlayFilter;
+        state.photonLobbyTimeoutThreshold = photonLobbyTimeoutThreshold;
+        state.photonOverlayMessageTimeout = Number(photonOverlayMessageTimeout);
+        state.photonEventTableTypeFilter = JSON.parse(
+            photonEventTableTypeFilter
+        );
+
+        state.photonEventTable.filters[1].value =
+            state.photonEventTableTypeFilter;
+        state.photonEventTablePrevious.filters[1].value =
+            state.photonEventTableTypeFilter;
     }
 
     initPhotonStates();
@@ -82,6 +156,46 @@ export const usePhotonStore = defineStore('Photon', () => {
         get: () => state.photonEventIcon,
         set: (value) => {
             state.photonEventIcon = value;
+        }
+    });
+    const photonLobbyTimeoutThreshold = computed({
+        get: () => state.photonLobbyTimeoutThreshold,
+        set: (value) => {
+            state.photonLobbyTimeoutThreshold = value;
+            configRepository.setString(
+                'VRCX_photonLobbyTimeoutThreshold',
+                value
+            );
+        }
+    });
+    const photonOverlayMessageTimeout = computed({
+        get: () => state.photonOverlayMessageTimeout,
+        set: (value) => {
+            state.photonOverlayMessageTimeout = value;
+            configRepository.setString(
+                'VRCX_photonOverlayMessageTimeout',
+                value
+            );
+        }
+    });
+    const photonEventTableTypeFilter = computed({
+        get: () => state.photonEventTableTypeFilter,
+        set: (value) => {
+            state.photonEventTableTypeFilter = value;
+        }
+    });
+
+    const photonEventTable = computed({
+        get: () => state.photonEventTable,
+        set: (value) => {
+            state.photonEventTable = value;
+        }
+    });
+
+    const photonEventTablePrevious = computed({
+        get: () => state.photonEventTablePrevious,
+        set: (value) => {
+            state.photonEventTablePrevious = value;
         }
     });
 
@@ -139,6 +253,16 @@ export const usePhotonStore = defineStore('Photon', () => {
         state.photonEventCount++;
         state.photonEventIcon = true;
         workerTimers.setTimeout(() => (state.photonEventIcon = false), 150);
+    }
+
+    async function saveEventOverlay(configKey = '') {
+        if (configKey === 'VRCX_PhotonEventOverlay') {
+            setPhotonEventOverlay();
+        } else if (configKey === 'VRCX_TimeoutHudOverlay') {
+            setTimeoutHudOverlay();
+        }
+        vrStore.updateOpenVR();
+        vrStore.updateVRConfigVars();
     }
 
     function parseOperationResponse(data, dateTime) {
@@ -209,6 +333,11 @@ export const usePhotonStore = defineStore('Photon', () => {
         timeoutHudOverlay,
         timeoutHudOverlayFilter,
         photonEventIcon,
+        photonLobbyTimeoutThreshold,
+        photonOverlayMessageTimeout,
+        photonEventTableTypeFilter,
+        photonEventTable,
+        photonEventTablePrevious,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
@@ -218,6 +347,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         setTimeoutHudOverlayFilter,
         getDisplayName,
         photonEventPulse,
-        parseOperationResponse
+        parseOperationResponse,
+        saveEventOverlay
     };
 });

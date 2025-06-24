@@ -1931,8 +1931,12 @@
     );
     const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
         useDiscordPresenceSettingsStore();
-    const { setPhotonEventOverlayFilter, setPhotonEventTableTypeOverlayFilter, setTimeoutHudOverlayFilter } =
-        usePhotonStore();
+    const {
+        setPhotonEventOverlayFilter,
+        setPhotonEventTableTypeOverlayFilter,
+        setTimeoutHudOverlayFilter,
+        saveEventOverlay
+    } = usePhotonStore();
     const {
         photonLoggingEnabled,
         photonEventOverlay,
@@ -2165,7 +2169,6 @@
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
         'saveDiscordOption',
-        'saveEventOverlay',
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
@@ -2366,10 +2369,6 @@
     }
     function openOSSDialog() {
         ossDialog.value = true;
-    }
-
-    function saveEventOverlay(configKey) {
-        emit('saveEventOverlay', configKey);
     }
     function promptPhotonOverlayMessageTimeout() {
         emit('promptPhotonOverlayMessageTimeout');

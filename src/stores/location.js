@@ -11,6 +11,7 @@ import {
 import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
@@ -22,6 +23,7 @@ export const useLocationStore = defineStore('Location', () => {
     const notificationStore = useNotificationStore();
     const gameStore = useGameStore();
     const vrStore = useVrStore();
+    const photonStore = usePhotonStore();
     const state = reactive({
         lastLocation: {
             date: 0,
@@ -194,9 +196,10 @@ export const useLocationStore = defineStore('Location', () => {
         $app.photonLastEvent7List = '';
         $app.photonLastChatBoxMsg = new Map();
         $app.moderationEventQueue = new Map();
-        if ($app.photonEventTable.data.length > 0) {
-            $app.photonEventTablePrevious.data = $app.photonEventTable.data;
-            $app.photonEventTable.data = [];
+        if (photonStore.photonEventTable.data.length > 0) {
+            photonStore.photonEventTablePrevious.data =
+                photonStore.photonEventTable.data;
+            photonStore.photonEventTable.data = [];
         }
         const playerList = Array.from(state.lastLocation.playerList.values());
         const dataBaseEntries = [];

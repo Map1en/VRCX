@@ -845,21 +845,29 @@
         userImageFull
     } from '../../shared/utils';
     import configRepository from '../../service/config';
-    import { useLocationStore } from '../../stores/location';
+    import {
+        useLocationStore,
+        useAppearanceSettingsStore,
+        usePhotonStore,
+        useUserStore,
+        useAvatarStore,
+        useWorldStore,
+        useGroupStore,
+        useInstanceStore,
+        useUiStore
+    } from '../../stores';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { usePhotonStore } from '../../stores/photon';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import { API } from '../../app';
-    import { useUserStore } from '../../stores/user';
-    import { useAvatarStore } from '../../stores/avatar';
-    import { useWorldStore } from '../../stores/world';
-    import { useGroupStore } from '../../stores/group';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useUiStore } from '../../stores/ui';
 
     const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
-    const { photonLoggingEnabled, photonEventIcon } = storeToRefs(usePhotonStore());
+    const {
+        photonLoggingEnabled,
+        photonEventIcon,
+        photonEventTableTypeFilter,
+        photonEventTable,
+        photonEventTablePrevious
+    } = storeToRefs(usePhotonStore());
     const { showUserDialog, lookupUser } = useUserStore();
     const { showAvatarDialog } = useAvatarStore();
     const { showWorldDialog } = useWorldStore();
@@ -874,10 +882,6 @@
     const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
-        photonEventTableTypeFilter: {
-            type: Array,
-            default: () => []
-        },
         photonEventTableFilter: {
             type: String,
             default: ''
@@ -885,15 +889,6 @@
         ipcEnabled: {
             type: Boolean,
             default: false
-        },
-
-        photonEventTable: {
-            type: Object,
-            default: () => ({})
-        },
-        photonEventTablePrevious: {
-            type: Object,
-            default: () => ({})
         },
         chatboxUserBlacklist: {
             type: Map
