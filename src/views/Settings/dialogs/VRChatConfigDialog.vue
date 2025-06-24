@@ -192,13 +192,13 @@
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
     import { getVRChatResolution, openExternalLink } from '../../../shared/utils';
     import { useGameStore } from '../../../stores/game';
+    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
     import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const gameStore = useGameStore();
-    const { VRChatUsedCacheSize, VRChatTotalCacheSize, VRChatCacheSizeLoading } = storeToRefs(gameStore);
-    const { sweepVRChatCache, getVRChatCacheSize } = gameStore;
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { VRChatUsedCacheSize, VRChatTotalCacheSize, VRChatCacheSizeLoading } = storeToRefs(useGameStore());
+    const { sweepVRChatCache, getVRChatCacheSize } = useGameStore();
+    const { folderSelectorDialog } = useAdvancedSettingsStore();
 
     const { t } = useI18n();
 
@@ -209,10 +209,6 @@
     const props = defineProps({
         isVRChatConfigDialogVisible: {
             type: Boolean,
-            required: true
-        },
-        folderSelectorDialog: {
-            type: Function,
             required: true
         }
     });
@@ -303,7 +299,7 @@
 
     async function openConfigFolderBrowser(value) {
         const oldPath = VRChatConfigFile.value[value];
-        const newPath = await props.folderSelectorDialog(oldPath);
+        const newPath = await folderSelectorDialog(oldPath);
         if (newPath) {
             VRChatConfigFile.value[value] = newPath;
         }

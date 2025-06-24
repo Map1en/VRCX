@@ -1343,43 +1343,6 @@ $app.methods.toggleCustomEndpoint = async function () {
 
 // #endregion
 // #region | App: note export
-$app.data.folderSelectorDialogVisible = false;
-
-$app.methods.resetUGCFolder = function () {
-    this.setUGCFolderPath('');
-};
-
-$app.methods.openUGCFolder = async function () {
-    if (LINUX && this.store.advancedSettings.ugcFolderPath == null) {
-        this.resetUGCFolder();
-    }
-    await AppApi.OpenUGCPhotosFolder(this.store.advancedSettings.ugcFolderPath);
-};
-
-$app.methods.folderSelectorDialog = async function (oldPath) {
-    if (this.folderSelectorDialogVisible) return;
-    if (!oldPath) {
-        oldPath = '';
-    }
-
-    this.folderSelectorDialogVisible = true;
-    let newFolder = '';
-    if (LINUX) {
-        newFolder = await window.electron.openDirectoryDialog();
-    } else {
-        newFolder = await AppApi.OpenFolderSelectorDialog(oldPath);
-    }
-
-    this.folderSelectorDialogVisible = false;
-    return newFolder;
-};
-
-$app.methods.openUGCFolderSelector = async function () {
-    const path = await this.folderSelectorDialog(
-        this.store.advancedSettings.ugcFolderPath
-    );
-    await this.setUGCFolderPath(path);
-};
 
 // #endregion
 // #region | App: ChatBox Blacklist
@@ -1527,9 +1490,6 @@ $app.computed.settingsTabEvent = function () {
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,
         showVRChatConfig: this.showVRChatConfig,
-        openUGCFolder: this.openUGCFolder,
-        openUGCFolderSelector: this.openUGCFolderSelector,
-        resetUGCFolder: this.resetUGCFolder,
         saveEventOverlay: this.saveEventOverlay,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,

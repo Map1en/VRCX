@@ -84,7 +84,6 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { defineEmits } from 'vue';
     import { favoriteRequest } from '../../../api';
     import Location from '../../../components/Location.vue';
     import { userImage, userStatusClass } from '../../../shared/utils';

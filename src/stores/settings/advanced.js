@@ -34,7 +34,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         ugcFolderPath: '',
         currentUserInventory: new Map(),
         autoDeleteOldPrints: false,
-        notificationOpacity: 100
+        notificationOpacity: 100,
+        folderSelectorDialogVisible: false
     });
 
     async function initAdvancedSettings() {
@@ -475,6 +476,40 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    function resetUGCFolder() {
+        setUGCFolderPath('');
+    }
+
+    async function openUGCFolder() {
+        if (LINUX && state.ugcFolderPath == null) {
+            resetUGCFolder();
+        }
+        await AppApi.OpenUGCPhotosFolder(state.ugcFolderPath);
+    }
+
+    async function folderSelectorDialog(oldPath) {
+        if (state.folderSelectorDialogVisible) return;
+        if (!oldPath) {
+            oldPath = '';
+        }
+
+        state.folderSelectorDialogVisible = true;
+        let newFolder = '';
+        if (LINUX) {
+            newFolder = await window.electron.openDirectoryDialog();
+        } else {
+            newFolder = await AppApi.OpenFolderSelectorDialog(oldPath);
+        }
+
+        state.folderSelectorDialogVisible = false;
+        return newFolder;
+    }
+
+    async function openUGCFolderSelector() {
+        const path = await folderSelectorDialog(state.ugcFolderPath);
+        await setUGCFolderPath(path);
+    }
+
     return {
         state,
 
@@ -528,10 +563,12 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         cropPrintsChanged,
         setAutoDeleteOldPrints,
         setNotificationOpacity,
-
         getSqliteTableSizes,
         handleSetAppLauncherSettings,
-
-        lookupYouTubeVideo
+        lookupYouTubeVideo,
+        resetUGCFolder,
+        openUGCFolder,
+        openUGCFolderSelector,
+        folderSelectorDialog
     };
 });

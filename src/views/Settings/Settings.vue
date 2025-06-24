@@ -2135,7 +2135,10 @@
         setShowConfirmationOnSwitchAvatar,
         getSqliteTableSizes,
         setNotificationOpacity,
-        setAutoDeleteOldPrints
+        setAutoDeleteOldPrints,
+        resetUGCFolder,
+        openUGCFolder,
+        openUGCFolderSelector
     } = advancedSettingsStore;
 
     const props = defineProps({
@@ -2160,9 +2163,6 @@
         'promptNotificationTimeout',
         'saveDiscordOption',
         'showVRChatConfig',
-        'openUGCFolder',
-        'openUGCFolderSelector',
-        'resetUGCFolder',
         'saveEventOverlay',
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
@@ -2377,15 +2377,6 @@
         ossDialog.value = true;
     }
 
-    function openUGCFolder() {
-        emit('openUGCFolder');
-    }
-    function openUGCFolderSelector() {
-        emit('openUGCFolderSelector');
-    }
-    function resetUGCFolder() {
-        emit('resetUGCFolder');
-    }
     function saveEventOverlay(configKey) {
         emit('saveEventOverlay', configKey);
     }
