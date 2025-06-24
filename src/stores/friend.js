@@ -6,22 +6,22 @@ import { $app, API } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import {
+    compareByCreatedAtAscending,
     getFriendsSortFunction,
     getGroupName,
+    getUserMemo,
     getWorldName,
     isRealInstance,
-    removeFromArray,
-    getUserMemo,
-    compareByCreatedAtAscending
+    removeFromArray
 } from '../shared/utils';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
+import { useFeedStore } from './feed';
+import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
-import { useUserStore } from './user';
-import { useNotificationStore } from './notification';
-import { useFeedStore } from './feed';
 import { useUiStore } from './ui';
+import { useUserStore } from './user';
 
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
@@ -260,6 +260,33 @@ export const useFriendStore = defineStore('Friend', () => {
         set(value) {
             state.friendLogTable = value;
         }
+    });
+
+    API.$on('FRIEND:STATUS', function (args) {
+        const D = userStore.userDialog;
+        if (D.visible === false || D.id !== args.params.userId) {
+            return;
+        }
+        const { json } = args;
+        D.isFriend = json.isFriend;
+        D.incomingRequest = json.incomingRequest;
+        D.outgoingRequest = json.outgoingRequest;
+    });
+
+    API.$on('FRIEND:REQUEST:CANCEL', function (args) {
+        const D = userStore.userDialog;
+        if (D.visible === false || D.id !== args.params.userId) {
+            return;
+        }
+        D.outgoingRequest = false;
+    });
+
+    API.$on('FRIEND:DELETE', function (args) {
+        const D = userStore.userDialog;
+        if (D.visible === false || D.id !== args.params.userId) {
+            return;
+        }
+        D.isFriend = false;
     });
 
     API.$on('USER:CURRENT', function (args) {

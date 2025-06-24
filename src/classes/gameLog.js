@@ -277,7 +277,7 @@ export default function init() {
                     // };
                     // database.addGamelogEventToDatabase(entry);
 
-                    this.processScreenshot(gameLog.screenshotPath);
+                    this.store.vrcx.processScreenshot(gameLog.screenshotPath);
                     break;
                 case 'api-request':
                     // var userId = '';

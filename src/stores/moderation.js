@@ -3,9 +3,11 @@ import Vue, { computed, reactive } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
 import { $app, $t, API } from '../app';
 import { useAvatarStore } from './avatar';
+import { useUserStore } from './user';
 
 export const useModerationStore = defineStore('Moderation', () => {
     const avatarStore = useAvatarStore();
+    const userStore = useUserStore();
     const state = reactive({
         cachedPlayerModerations: new Map(),
         cachedPlayerModerationsUserIds: new Set(),
@@ -68,7 +70,7 @@ export const useModerationStore = defineStore('Moderation', () => {
 
     API.$on('PLAYER-MODERATION:@SEND', function (args) {
         let { ref } = args;
-        const D = $app.store.user.userDialog;
+        const D = userStore.userDialog;
         if (
             D.visible === false ||
             (ref.targetUserId !== D.id &&
@@ -91,6 +93,29 @@ export const useModerationStore = defineStore('Moderation', () => {
             message: $t('message.user.moderated'),
             type: 'success'
         });
+    });
+
+    API.$on('PLAYER-MODERATION:@DELETE', function (args) {
+        const { ref } = args;
+        const D = userStore.userDialog;
+        if (
+            D.visible === false ||
+            ref.targetUserId !== D.id ||
+            ref.sourceUserId !== this.currentUser.id
+        ) {
+            return;
+        }
+        if (ref.type === 'block') {
+            D.isBlock = false;
+        } else if (ref.type === 'mute') {
+            D.isMute = false;
+        } else if (ref.type === 'hideAvatar') {
+            D.isHideAvatar = false;
+        } else if (ref.type === 'interactOff') {
+            D.isInteractOff = false;
+        } else if (ref.type === 'muteChat') {
+            D.isMuteChat = false;
+        }
     });
 
     API.$on('PLAYER-MODERATION:DELETE', function (args) {

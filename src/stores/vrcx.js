@@ -3,7 +3,7 @@ import { computed, reactive } from 'vue';
 import { $app, API } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
-import { refreshCustomCss } from '../shared/utils';
+import { debounce, parseLocation, refreshCustomCss } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
@@ -14,6 +14,7 @@ import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { usePhotonStore } from './photon';
+import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
 import { useWorldStore } from './world';
 
@@ -30,6 +31,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     const groupStore = useGroupStore();
     const userStore = useUserStore();
     const photonStore = usePhotonStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
 
     const state = reactive({
         isRunningUnderWine: false,
@@ -40,10 +42,40 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         locationY: 0,
         sizeWidth: 800,
         sizeHeight: 600,
-        windowState: ''
+        windowState: '',
+        maxTableSize: 1000
     });
 
     async function init() {
+        if (LINUX) {
+            window.electron.onWindowPositionChanged((event, position) => {
+                state.locationX = position.x;
+                state.locationY = position.y;
+                debounce(saveVRCXWindowOption(), 300);
+            });
+
+            window.electron.onWindowSizeChanged((event, size) => {
+                state.sizeWidth = size.width;
+                state.sizeHeight = size.height;
+                debounce(saveVRCXWindowOption(), 300);
+            });
+
+            window.electron.onWindowStateChange((event, state) => {
+                state.windowState = state;
+                debounce(saveVRCXWindowOption(), 300);
+            });
+
+            // window.electron.onWindowClosed((event) => {
+            //    window.$app.saveVRCXWindowOption();
+            // });
+        }
+
+        state.databaseVersion = await configRepository.getInt(
+            'VRCX_databaseVersion',
+            0
+        );
+        updateDatabaseVersion();
+
         state.clearVRCXCacheFrequency = await configRepository.getInt(
             'VRCX_clearVRCXCacheFrequency',
             172800
@@ -73,7 +105,18 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         state.sizeWidth = await VRCXStorage.Get('VRCX_SizeWidth');
         state.sizeHeight = await VRCXStorage.Get('VRCX_SizeHeight');
         state.windowState = await VRCXStorage.Get('VRCX_WindowState');
+
+        state.maxTableSize = await configRepository.getInt(
+            'VRCX_maxTableSize',
+            1000
+        );
+        if (state.maxTableSize > 10000) {
+            state.maxTableSize = 1000;
+        }
+        database.setmaxTableSize(state.maxTableSize);
     }
+
+    init();
 
     // Make sure file drops outside of the screenshot manager don't navigate to the file path dropped.
     // This issue persists on prompts created with prompt(), unfortunately. Not sure how to fix that.
@@ -99,16 +142,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             state.isRunningUnderWine = value;
         }
     });
-
-    async function init() {
-        state.databaseVersion = await configRepository.getInt(
-            'VRCX_databaseVersion',
-            0
-        );
-        updateDatabaseVersion();
-    }
-
-    init();
 
     async function applyWineEmojis() {
         if (document.contains(document.getElementById('app-emoji-font'))) {
@@ -310,6 +343,44 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     }
 
+    async function processScreenshot(path) {
+        let newPath = path;
+        if (advancedSettingsStore.screenshotHelper) {
+            const location = parseLocation(locationStore.lastLocation.location);
+            const metadata = {
+                application: 'VRCX',
+                version: 1,
+                author: {
+                    id: API.currentUser.id,
+                    displayName: API.currentUser.displayName
+                },
+                world: {
+                    name: locationStore.lastLocation.name,
+                    id: location.worldId,
+                    instanceId: locationStore.lastLocation.location
+                },
+                players: []
+            };
+            for (const user of locationStore.lastLocation.playerList.values()) {
+                metadata.players.push({
+                    id: user.userId,
+                    displayName: user.displayName
+                });
+            }
+            newPath = await AppApi.AddScreenshotMetadata(
+                path,
+                JSON.stringify(metadata),
+                location.worldId,
+                advancedSettingsStore.screenshotHelperModifyFilename
+            );
+            console.log('Screenshot metadata added', newPath);
+        }
+        if (advancedSettingsStore.screenshotHelperCopyToClipboard) {
+            await AppApi.CopyImageToClipboard(newPath);
+            console.log('Screenshot copied to clipboard', newPath);
+        }
+    }
+
     return {
         state,
         isRunningUnderWine,
@@ -317,6 +388,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         applyWineEmojis,
         clearVRCXCache,
         eventVrcxMessage,
-        saveVRCXWindowOption
+        saveVRCXWindowOption,
+        processScreenshot
     };
 });

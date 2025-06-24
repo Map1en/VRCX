@@ -5,9 +5,11 @@ import configRepository from '../../service/config';
 import database from '../../service/database';
 import webApiService from '../../service/webapi';
 import { useDebugStore } from '../debug';
+import { useGameStore } from '../game';
 
 export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const debugStore = useDebugStore();
+    const gameStore = useGameStore();
 
     const state = reactive({
         enablePrimaryPassword: false,
@@ -35,7 +37,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         currentUserInventory: new Map(),
         autoDeleteOldPrints: false,
         notificationOpacity: 100,
-        folderSelectorDialogVisible: false
+        folderSelectorDialogVisible: false,
+        isVRChatConfigDialogVisible: false
     });
 
     async function initAdvancedSettings() {
@@ -510,6 +513,13 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         await setUGCFolderPath(path);
     }
 
+    async function showVRChatConfig() {
+        state.isVRChatConfigDialogVisible = true;
+        if (!gameStore.VRChatUsedCacheSize) {
+            gameStore.getVRChatCacheSize();
+        }
+    }
+
     return {
         state,
 
@@ -569,6 +579,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         resetUGCFolder,
         openUGCFolder,
         openUGCFolderSelector,
-        folderSelectorDialog
+        folderSelectorDialog,
+        showVRChatConfig
     };
 });

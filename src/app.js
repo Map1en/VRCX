@@ -79,7 +79,6 @@ import {
     getAllUserMemos,
     getNameColour,
     migrateMemos,
-    parseLocation,
     refreshCustomCss,
     refreshCustomScript,
     removeFromArray,
@@ -816,14 +815,6 @@ $app.data.photonEventTablePrevious.filters[1].value =
 
 $app.data.visits = 0;
 
-$app.data.maxTableSize = await configRepository.getInt(
-    'VRCX_maxTableSize',
-    1000
-);
-if ($app.data.maxTableSize > 10000) {
-    $app.data.maxTableSize = 1000;
-}
-database.setmaxTableSize($app.data.maxTableSize);
 $app.data.photonLobbyTimeoutThreshold = await configRepository.getInt(
     'VRCX_photonLobbyTimeoutThreshold',
     6000
@@ -850,59 +841,6 @@ $app.methods.handleSetTablePageSize = async function (pageSize) {
     this.store.notification.notificationTable.pageSize = pageSize;
     this.store.appearanceSettings.setTablePageSize(pageSize);
 };
-
-// #endregion
-// #region | App: User Dialog
-
-API.$on('FRIEND:STATUS', function (args) {
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.id !== args.params.userId) {
-        return;
-    }
-    let { json } = args;
-    D.isFriend = json.isFriend;
-    D.incomingRequest = json.incomingRequest;
-    D.outgoingRequest = json.outgoingRequest;
-});
-
-API.$on('FRIEND:REQUEST:CANCEL', function (args) {
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.id !== args.params.userId) {
-        return;
-    }
-    D.outgoingRequest = false;
-});
-
-API.$on('FRIEND:DELETE', function (args) {
-    const D = $app.store.user.userDialog;
-    if (D.visible === false || D.id !== args.params.userId) {
-        return;
-    }
-    D.isFriend = false;
-});
-
-API.$on('PLAYER-MODERATION:@DELETE', function (args) {
-    let { ref } = args;
-    const D = $app.store.user.userDialog;
-    if (
-        D.visible === false ||
-        ref.targetUserId !== D.id ||
-        ref.sourceUserId !== this.currentUser.id
-    ) {
-        return;
-    }
-    if (ref.type === 'block') {
-        D.isBlock = false;
-    } else if (ref.type === 'mute') {
-        D.isMute = false;
-    } else if (ref.type === 'hideAvatar') {
-        D.isHideAvatar = false;
-    } else if (ref.type === 'interactOff') {
-        D.isInteractOff = false;
-    } else if (ref.type === 'muteChat') {
-        D.isMuteChat = false;
-    }
-});
 
 // #endregion
 // #region | App: player list
@@ -975,56 +913,7 @@ API.$on('LOGIN', function () {
 
 // VRChat Config JSON
 
-$app.data.isVRChatConfigDialogVisible = false;
-
-$app.methods.showVRChatConfig = async function () {
-    this.isVRChatConfigDialogVisible = true;
-    if (!this.store.game.VRChatUsedCacheSize) {
-        this.store.game.getVRChatCacheSize();
-    }
-};
-
 // Screenshot Helper
-
-$app.methods.processScreenshot = async function (path) {
-    let newPath = path;
-    if (this.store.advancedSettings.screenshotHelper) {
-        const location = parseLocation(
-            this.store.location.lastLocation.location
-        );
-        const metadata = {
-            application: 'VRCX',
-            version: 1,
-            author: {
-                id: API.currentUser.id,
-                displayName: API.currentUser.displayName
-            },
-            world: {
-                name: this.store.location.lastLocation.name,
-                id: location.worldId,
-                instanceId: this.store.location.lastLocation.location
-            },
-            players: []
-        };
-        for (let user of this.store.location.lastLocation.playerList.values()) {
-            metadata.players.push({
-                id: user.userId,
-                displayName: user.displayName
-            });
-        }
-        newPath = await AppApi.AddScreenshotMetadata(
-            path,
-            JSON.stringify(metadata),
-            location.worldId,
-            this.store.advancedSettings.screenshotHelperModifyFilename
-        );
-        console.log('Screenshot metadata added', newPath);
-    }
-    if (this.store.advancedSettings.screenshotHelperCopyToClipboard) {
-        await AppApi.CopyImageToClipboard(newPath);
-        console.log('Screenshot copied to clipboard', newPath);
-    }
-};
 
 $app.data.currentlyDroppingFile = null;
 /**
@@ -1445,7 +1334,6 @@ $app.computed.settingsTabEvent = function () {
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,
         saveDiscordOption: this.saveDiscordOption,
-        showVRChatConfig: this.showVRChatConfig,
         saveEventOverlay: this.saveEventOverlay,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,
@@ -1459,32 +1347,6 @@ $app.computed.settingsTabEvent = function () {
         updateSharedFeed: this.updateSharedFeed
     };
 };
-
-// #endregion
-// #region | Electron
-
-if (LINUX) {
-    window.electron.onWindowPositionChanged((event, position) => {
-        window.$app.locationX = position.x;
-        window.$app.locationY = position.y;
-        window.$app.saveVRCXWindowOption();
-    });
-
-    window.electron.onWindowSizeChanged((event, size) => {
-        window.$app.sizeWidth = size.width;
-        window.$app.sizeHeight = size.height;
-        window.$app.saveVRCXWindowOption();
-    });
-
-    window.electron.onWindowStateChange((event, state) => {
-        window.$app.windowState = state;
-        window.$app.saveVRCXWindowOption();
-    });
-
-    // window.electron.onWindowClosed((event) => {
-    //    window.$app.saveVRCXWindowOption();
-    // });
-}
 
 // #endregion
 

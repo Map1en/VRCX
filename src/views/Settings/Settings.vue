@@ -2138,7 +2138,8 @@
         setAutoDeleteOldPrints,
         resetUGCFolder,
         openUGCFolder,
-        openUGCFolderSelector
+        openUGCFolderSelector,
+        showVRChatConfig
     } = advancedSettingsStore;
 
     const props = defineProps({
@@ -2161,7 +2162,6 @@
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
         'saveDiscordOption',
-        'showVRChatConfig',
         'saveEventOverlay',
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
@@ -2257,10 +2257,6 @@
 
     function saveDiscordOption() {
         emit('saveDiscordOption');
-    }
-
-    function showVRChatConfig() {
-        emit('showVRChatConfig');
     }
 
     function showScreenshotMetadataDialog() {
