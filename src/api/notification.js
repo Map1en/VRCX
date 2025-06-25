@@ -1,6 +1,6 @@
-import { API, $app } from '../app';
+import { $app, API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: Notification
 const notificationReq = {
     /** @typedef {{
      *      n: number,
@@ -18,7 +18,7 @@ const notificationReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getNotifications(params) {
-        return API.call('auth/user/notifications', {
+        return request('auth/user/notifications', {
             method: 'GET',
             params
         }).then((json) => {
@@ -42,7 +42,7 @@ const notificationReq = {
     },
 
     getHiddenFriendRequests(params) {
-        return API.call('auth/user/notifications', {
+        return request('auth/user/notifications', {
             method: 'GET',
             params: {
                 type: 'friendRequest',
@@ -60,7 +60,7 @@ const notificationReq = {
     },
 
     getNotificationsV2(params) {
-        return API.call('notifications', {
+        return request('notifications', {
             method: 'GET',
             params
         }).then((json) => {
@@ -91,7 +91,7 @@ const notificationReq = {
      * @return { Promise<{json: any, params}> }
      */
     sendInvite(params, receiverUserId) {
-        return API.call(`invite/${receiverUserId}`, {
+        return request(`invite/${receiverUserId}`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -105,7 +105,7 @@ const notificationReq = {
         });
     },
     sendInvitePhoto(params, receiverUserId) {
-        return API.call(`invite/${receiverUserId}/photo`, {
+        return request(`invite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
             imageData: $app.store.gallery.uploadImage
@@ -121,7 +121,7 @@ const notificationReq = {
     },
 
     sendRequestInvite(params, receiverUserId) {
-        return API.call(`requestInvite/${receiverUserId}`, {
+        return request(`requestInvite/${receiverUserId}`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -136,7 +136,7 @@ const notificationReq = {
     },
 
     sendRequestInvitePhoto(params, receiverUserId) {
-        return API.call(`requestInvite/${receiverUserId}/photo`, {
+        return request(`requestInvite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
             imageData: $app.store.gallery.uploadImage
@@ -152,7 +152,7 @@ const notificationReq = {
     },
 
     sendInviteResponse(params, inviteId) {
-        return API.call(`invite/${inviteId}/response`, {
+        return request(`invite/${inviteId}/response`, {
             method: 'POST',
             params,
             inviteId
@@ -168,7 +168,7 @@ const notificationReq = {
     },
 
     sendInviteResponsePhoto(params, inviteId) {
-        return API.call(`invite/${inviteId}/response/photo`, {
+        return request(`invite/${inviteId}/response/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
             imageData: $app.store.gallery.uploadImage,
@@ -189,7 +189,7 @@ const notificationReq = {
      * @return { Promise<{json: any, params}> }
      */
     acceptFriendRequestNotification(params) {
-        return API.call(
+        return request(
             `auth/user/notifications/${params.notificationId}/accept`,
             {
                 method: 'PUT'
@@ -216,7 +216,7 @@ const notificationReq = {
      * @return { Promise<{json: any, params}> }
      */
     hideNotification(params) {
-        return API.call(
+        return request(
             `auth/user/notifications/${params.notificationId}/hide`,
             {
                 method: 'PUT'
@@ -231,8 +231,6 @@ const notificationReq = {
         });
     },
 
-    // ------------------- need to test -------------------
-
     /**
      * @param {{
      * notificationId: string,
@@ -242,7 +240,7 @@ const notificationReq = {
      * @return { Promise<{json: any, params}> }
      */
     sendNotificationResponse(params) {
-        return API.call(`notifications/${params.notificationId}/respond`, {
+        return request(`notifications/${params.notificationId}/respond`, {
             method: 'POST',
             params
         })
@@ -264,7 +262,7 @@ const notificationReq = {
     },
     // use in sendNotificationResponse
     hideNotificationV2(notificationId) {
-        return API.call(`notifications/${notificationId}`, {
+        return request(`notifications/${notificationId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -282,7 +280,7 @@ const notificationReq = {
     // ------------------ look like no place use these requests ------------------
 
     // sendInviteGalleryPhoto(params, receiverUserId) {
-    //     return API.call(`invite/${receiverUserId}/photo`, {
+    //     return request(`invite/${receiverUserId}/photo`, {
     //         method: 'POST',
     //         params
     //     }).then((json) => {
@@ -297,7 +295,7 @@ const notificationReq = {
     // },
 
     // API.clearNotifications = function () {
-    //     return this.call('auth/user/notifications/clear', {
+    //     return request('auth/user/notifications/clear', {
     //         method: 'PUT'
     //     }).then((json) => {
     //         var args = {

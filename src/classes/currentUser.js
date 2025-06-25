@@ -1,4 +1,6 @@
-import { $app, API } from '../app';
+import { $app } from '../app';
+import { request } from '../service/apiRequestHandler';
+import { API } from '../service/eventBus';
 import {
     arraysMatch,
     getWorldName,
@@ -12,7 +14,7 @@ export default function init() {
     };
 
     API.getCurrentUser = function () {
-        return this.call('auth/user', {
+        return request('auth/user', {
             method: 'GET'
         }).then((json) => {
             var args = {

@@ -2,6 +2,7 @@ import Noty from 'noty';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
 import { $app, API } from '../app.js';
+import { request } from '../service/apiRequestHandler';
 import { escapeTag, parseLocation } from '../shared/utils';
 
 export default function init() {
@@ -15,7 +16,7 @@ export default function init() {
     });
 
     API.getAuth = function () {
-        return this.call('auth', {
+        return request('auth', {
             method: 'GET'
         }).then((json) => {
             var args = {

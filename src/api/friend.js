@@ -1,6 +1,6 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: Friend
 const friendReq = {
     /**
      * Fetch friends of current user.
@@ -8,7 +8,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getFriends(params) {
-        return API.call('auth/user/friends', {
+        return request('auth/user/friends', {
             method: 'GET',
             params
         }).then((json) => {
@@ -38,7 +38,7 @@ const friendReq = {
      * @returns {Promise<{json: T, params}>}
      */
     sendFriendRequest(params) {
-        return API.call(`user/${params.userId}/friendRequest`, {
+        return request(`user/${params.userId}/friendRequest`, {
             method: 'POST'
         }).then((json) => {
             const args = {
@@ -55,7 +55,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     cancelFriendRequest(params) {
-        return API.call(`user/${params.userId}/friendRequest`, {
+        return request(`user/${params.userId}/friendRequest`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -72,7 +72,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     deleteFriend(params) {
-        return API.call(`auth/user/friends/${params.userId}`, {
+        return request(`auth/user/friends/${params.userId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -89,7 +89,7 @@ const friendReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getFriendStatus(params) {
-        return API.call(`user/${params.userId}/friendStatus`, {
+        return request(`user/${params.userId}/friendStatus`, {
             method: 'GET'
         }).then((json) => {
             console.log('getFriendStatus', json);
@@ -102,10 +102,8 @@ const friendReq = {
         });
     },
 
-    // ------------------- need to test -------------------
-
     deleteHiddenFriendRequest(params, userId) {
-        return API.call(`user/${userId}/friendRequest`, {
+        return request(`user/${userId}/friendRequest`, {
             method: 'DELETE',
             params
         }).then((json) => {
@@ -119,6 +117,5 @@ const friendReq = {
         });
     }
 };
-// #endregion
 
 export default friendReq;

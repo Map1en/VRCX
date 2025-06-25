@@ -1,13 +1,13 @@
-import { API, $app } from '../app';
+import { $app, API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: World
 const worldReq = {
     /**
      * @param {{worldId: string}} params
      * @returns {Promise<{json: any, params}>}
      */
     getWorld(params) {
-        return API.call(`worlds/${params.worldId}`, {
+        return request(`worlds/${params.worldId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -62,7 +62,7 @@ const worldReq = {
         if (typeof option !== 'undefined') {
             endpoint = `worlds/${option}`;
         }
-        return API.call(endpoint, {
+        return request(endpoint, {
             method: 'GET',
             params
         }).then((json) => {
@@ -88,7 +88,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     deleteWorld(params) {
-        return API.call(`worlds/${params.worldId}`, {
+        return request(`worlds/${params.worldId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -105,7 +105,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveWorld(params) {
-        return API.call(`worlds/${params.id}`, {
+        return request(`worlds/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -130,7 +130,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     publishWorld(params) {
-        return API.call(`worlds/${params.worldId}/publish`, {
+        return request(`worlds/${params.worldId}/publish`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -155,7 +155,7 @@ const worldReq = {
      * @returns {Promise<{json: any, params}>}
      */
     unpublishWorld(params) {
-        return API.call(`worlds/${params.worldId}/publish`, {
+        return request(`worlds/${params.worldId}/publish`, {
             method: 'DELETE',
             params
         }).then((json) => {
@@ -175,7 +175,5 @@ const worldReq = {
         });
     }
 };
-
-// #endregion
 
 export default worldReq;

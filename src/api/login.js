@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
 const loginReq = {
     /**
@@ -6,7 +6,7 @@ const loginReq = {
      * @returns {Promise<{json: any, params}>}
      */
     verifyOTP(params) {
-        return API.call('auth/twofactorauth/otp/verify', {
+        return request('auth/twofactorauth/otp/verify', {
             method: 'POST',
             params
         }).then((json) => {
@@ -24,7 +24,7 @@ const loginReq = {
      * @returns {Promise<{json: any, params}>}
      */
     verifyTOTP(params) {
-        return API.call('auth/twofactorauth/totp/verify', {
+        return request('auth/twofactorauth/totp/verify', {
             method: 'POST',
             params
         }).then((json) => {
@@ -42,7 +42,7 @@ const loginReq = {
      * @returns {Promise<{json: any, params}>}
      */
     verifyEmailOTP(params) {
-        return API.call('auth/twofactorauth/emailotp/verify', {
+        return request('auth/twofactorauth/emailotp/verify', {
             method: 'POST',
             params
         }).then((json) => {

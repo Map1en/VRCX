@@ -17,6 +17,7 @@
     import { storeToRefs } from 'pinia';
     import { avatarRequest } from '../../../api';
     import { API } from '../../../app';
+    import { bulk } from '../../../service/apiRequestHandler';
     import { useAvatarStore } from '../../../stores/avatar';
 
     export default {
@@ -72,7 +73,7 @@
                     user: 'me'
                 };
                 const map = new Map();
-                this.API.bulk({
+                bulk({
                     fn: avatarRequest.getAvatars,
                     N: -1,
                     params,

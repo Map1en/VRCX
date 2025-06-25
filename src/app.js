@@ -9,7 +9,6 @@ import pugTemplate from './app.pug';
 import './setup';
 
 import apiLogin from './classes/apiLogin.js';
-import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
@@ -159,7 +158,6 @@ let $app = {
     }
 };
 
-apiRequestHandler();
 uiComponents();
 websocket();
 sharedFeed();

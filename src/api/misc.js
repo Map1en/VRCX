@@ -1,8 +1,9 @@
-import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
+import { API } from '../service/eventBus';
 
 const miscReq = {
     getBundles(fileId) {
-        return API.call(`file/${fileId}`, {
+        return request(`file/${fileId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -13,7 +14,7 @@ const miscReq = {
     },
 
     saveNote(params) {
-        return API.call('userNotes', {
+        return request('userNotes', {
             method: 'POST',
             params
         }).then((json) => {
@@ -36,7 +37,7 @@ const miscReq = {
      * @return { Promise<{json: any, params}> }
      */
     reportUser(params) {
-        return API.call(`feedback/${params.userId}/user`, {
+        return request(`feedback/${params.userId}/user`, {
             method: 'POST',
             params: {
                 contentType: params.contentType,
@@ -61,7 +62,7 @@ const miscReq = {
      * @return { Promise<{json: any, params}> }
      */
     getFileAnalysis(params) {
-        return API.call(
+        return request(
             `analysis/${params.fileId}/${params.version}/${params.variant}`,
             {
                 method: 'GET'
@@ -77,7 +78,7 @@ const miscReq = {
     },
 
     getVRChatCredits() {
-        return API.call(`user/${API.currentUser.id}/balance`, {
+        return request(`user/${API.currentUser.id}/balance`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -96,7 +97,7 @@ const miscReq = {
      * @returns {Promise<{json: any, params}>}
      */
     closeInstance(params) {
-        return API.call(`instances/${params.location}`, {
+        return request(`instances/${params.location}`, {
             method: 'DELETE',
             params: {
                 hardClose: params.hardClose ?? false
@@ -118,7 +119,7 @@ const miscReq = {
      * @returns {Promise<{json: any, params}>}
      */
     deleteWorldPersistData(params) {
-        return API.call(
+        return request(
             `users/${API.currentUser.id}/${params.worldId}/persist`,
             {
                 method: 'DELETE'
@@ -140,7 +141,7 @@ const miscReq = {
      * @returns {Promise<{json: any, params}>}
      */
     hasWorldPersistData(params) {
-        return API.call(
+        return request(
             `users/${API.currentUser.id}/${params.worldId}/persist/exists`,
             {
                 method: 'GET'
@@ -156,18 +157,15 @@ const miscReq = {
     },
 
     updateBadge(params) {
-        return API.call(
-            `users/${API.currentUser.id}/badges/${params.badgeId}`,
-            {
-                method: 'PUT',
-                params: {
-                    userId: API.currentUser.id,
-                    badgeId: params.badgeId,
-                    hidden: params.hidden,
-                    showcased: params.showcased
-                }
+        return request(`users/${API.currentUser.id}/badges/${params.badgeId}`, {
+            method: 'PUT',
+            params: {
+                userId: API.currentUser.id,
+                badgeId: params.badgeId,
+                hidden: params.hidden,
+                showcased: params.showcased
             }
-        ).then((json) => {
+        }).then((json) => {
             const args = {
                 json,
                 params
@@ -178,7 +176,7 @@ const miscReq = {
     },
 
     getVisits() {
-        return API.call('visits', {
+        return request('visits', {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -190,7 +188,7 @@ const miscReq = {
     },
 
     deleteFile(fileId) {
-        return API.call(`file/${fileId}`, {
+        return request(`file/${fileId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -209,7 +207,7 @@ const miscReq = {
     //  * @returns {Promise<{json: any, params}>}
     //  */
     // sendBoop(params) {
-    //     return API.call(`users/${params.userId}/boop`, {
+    //     return request(`users/${params.userId}/boop`, {
     //         method: 'POST',
     //         params
     //     }).then((json) => {

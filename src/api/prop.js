@@ -1,10 +1,12 @@
+import { request } from '../service/apiRequestHandler';
+
 const propReq = {
     /**
      * @param {{ propId: string }} params
      * @returns {Promise<{json: any, params}>}
      */
     getProp(params) {
-        return window.API.call(`props/${params.propId}`, {
+        return request(`props/${params.propId}`, {
             method: 'GET',
             params
         }).then((json) => {

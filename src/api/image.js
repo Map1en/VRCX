@@ -1,18 +1,17 @@
-import { API, $app } from '../app';
+import { $app, API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
 const imageReq = {
-    // use in uploadAvatarImage
-    // need to test
     async uploadAvatarFailCleanup(id) {
-        const json = await API.call(`file/${id}`, {
+        const json = await request(`file/${id}`, {
             method: 'GET'
         });
         const fileId = json.id;
         const fileVersion = json.versions[json.versions.length - 1].version;
-        API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
+        request(`file/${fileId}/${fileVersion}/signature/finish`, {
             method: 'PUT'
         });
-        API.call(`file/${fileId}/${fileVersion}/file/finish`, {
+        request(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
         $app.store.avatar.avatarDialog.loading = false;
@@ -21,7 +20,7 @@ const imageReq = {
 
     async uploadAvatarImage(params, fileId) {
         try {
-            return await API.call(`file/${fileId}`, {
+            return await request(`file/${fileId}`, {
                 method: 'POST',
                 params
             }).then((json) => {
@@ -43,7 +42,7 @@ const imageReq = {
 
     async uploadAvatarImageFileStart(params) {
         try {
-            return await API.call(
+            return await request(
                 `file/${params.fileId}/${params.fileVersion}/file/start`,
                 {
                     method: 'PUT'
@@ -64,7 +63,7 @@ const imageReq = {
     },
 
     uploadAvatarImageFileFinish(params) {
-        return API.call(
+        return request(
             `file/${params.fileId}/${params.fileVersion}/file/finish`,
             {
                 method: 'PUT',
@@ -85,7 +84,7 @@ const imageReq = {
 
     async uploadAvatarImageSigStart(params) {
         try {
-            return await API.call(
+            return await request(
                 `file/${params.fileId}/${params.fileVersion}/signature/start`,
                 {
                     method: 'PUT'
@@ -106,7 +105,7 @@ const imageReq = {
     },
 
     uploadAvatarImageSigFinish(params) {
-        return API.call(
+        return request(
             `file/${params.fileId}/${params.fileVersion}/signature/finish`,
             {
                 method: 'PUT',
@@ -126,7 +125,7 @@ const imageReq = {
     },
 
     setAvatarImage(params) {
-        return API.call(`avatars/${params.id}`, {
+        return request(`avatars/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -143,15 +142,15 @@ const imageReq = {
     // use in uploadWorldImage
     // need to test
     async uploadWorldFailCleanup(id) {
-        const json = await API.call(`file/${id}`, {
+        const json = await request(`file/${id}`, {
             method: 'GET'
         });
         const fileId = json.id;
         const fileVersion = json.versions[json.versions.length - 1].version;
-        API.call(`file/${fileId}/${fileVersion}/signature/finish`, {
+        request(`file/${fileId}/${fileVersion}/signature/finish`, {
             method: 'PUT'
         });
-        API.call(`file/${fileId}/${fileVersion}/file/finish`, {
+        request(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
         $app.store.world.worldDialog.loading = false;
@@ -160,7 +159,7 @@ const imageReq = {
 
     async uploadWorldImage(params, fileId) {
         try {
-            return await API.call(`file/${fileId}`, {
+            return await request(`file/${fileId}`, {
                 method: 'POST',
                 params
             }).then((json) => {
@@ -181,7 +180,7 @@ const imageReq = {
 
     async uploadWorldImageFileStart(params) {
         try {
-            return await API.call(
+            return await request(
                 `file/${params.fileId}/${params.fileVersion}/file/start`,
                 {
                     method: 'PUT'
@@ -202,7 +201,7 @@ const imageReq = {
     },
 
     uploadWorldImageFileFinish(params) {
-        return API.call(
+        return request(
             `file/${params.fileId}/${params.fileVersion}/file/finish`,
             {
                 method: 'PUT',
@@ -223,7 +222,7 @@ const imageReq = {
 
     async uploadWorldImageSigStart(params) {
         try {
-            return await API.call(
+            return await request(
                 `file/${params.fileId}/${params.fileVersion}/signature/start`,
                 {
                     method: 'PUT'
@@ -244,7 +243,7 @@ const imageReq = {
     },
 
     uploadWorldImageSigFinish(params) {
-        return API.call(
+        return request(
             `file/${params.fileId}/${params.fileVersion}/signature/finish`,
             {
                 method: 'PUT',
@@ -264,7 +263,7 @@ const imageReq = {
     },
 
     setWorldImage(params) {
-        return API.call(`worlds/${params.id}`, {
+        return request(`worlds/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -279,7 +278,7 @@ const imageReq = {
     },
 
     getAvatarImages(params) {
-        return API.call(`file/${params.fileId}`, {
+        return request(`file/${params.fileId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -292,7 +291,7 @@ const imageReq = {
     },
 
     getWorldImages(params) {
-        return API.call(`file/${params.fileId}`, {
+        return request(`file/${params.fileId}`, {
             method: 'GET',
             params
         }).then((json) => {

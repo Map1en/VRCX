@@ -9,6 +9,7 @@ import {
     userRequest
 } from '../api';
 import { $app, API } from '../app';
+import { bulk } from '../service/apiRequestHandler';
 import database from '../service/database';
 import {
     arraysMatch,
@@ -1048,7 +1049,7 @@ export const useUserStore = defineStore('User', () => {
             }
         }
         const map = new Map();
-        API.bulk({
+        bulk({
             fn: avatarRequest.getAvatars,
             N: -1,
             params,

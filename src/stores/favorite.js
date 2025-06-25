@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { favoriteRequest } from '../api';
 import { $app, $t, API } from '../app';
+import { bulk } from '../service/apiRequestHandler';
 import database from '../service/database';
 import { compareByName, removeFromArray } from '../shared/utils';
 import { useAvatarStore } from './avatar';
@@ -915,7 +916,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
         state.isFavoriteGroupLoading = true;
         expireFavoriteGroups();
-        API.bulk({
+        bulk({
             fn: favoriteRequest.getFavoriteGroups,
             N: -1,
             params: {
@@ -1110,7 +1111,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
         API.expireFavorites();
         state.cachedFavoriteGroupsByTypeName.clear();
-        API.bulk({
+        bulk({
             fn: favoriteRequest.getFavorites,
             N: -1,
             params: {
@@ -1273,7 +1274,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 if (type === 'avatar') {
                     for (const tag of tags) {
                         const n = Math.floor(Math.random() * (50 + 1)) + 50;
-                        API.bulk({
+                        bulk({
                             fn,
                             N,
                             params: {
@@ -1285,7 +1286,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     }
                 } else {
                     const n = Math.floor(Math.random() * (36 + 1)) + 64;
-                    API.bulk({
+                    bulk({
                         fn,
                         N,
                         params: {

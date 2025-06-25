@@ -1,9 +1,9 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: Favorite
 const favoriteReq = {
     getFavoriteLimits() {
-        return API.call('auth/user/favoritelimits', {
+        return request('auth/user/favoritelimits', {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -24,7 +24,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     getFavorites(params) {
-        return API.call('favorites', {
+        return request('favorites', {
             method: 'GET',
             params
         }).then((json) => {
@@ -46,7 +46,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     addFavorite(params) {
-        return API.call('favorites', {
+        return request('favorites', {
             method: 'POST',
             params
         }).then((json) => {
@@ -64,7 +64,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteFavorite(params) {
-        return API.call(`favorites/${params.objectId}`, {
+        return request(`favorites/${params.objectId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -81,7 +81,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     getFavoriteGroups(params) {
-        return API.call('favorite/groups', {
+        return request('favorite/groups', {
             method: 'GET',
             params
         }).then((json) => {
@@ -100,7 +100,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     saveFavoriteGroup(params) {
-        return API.call(
+        return request(
             `favorite/group/${params.type}/${params.group}/${API.currentUser.id}`,
             {
                 method: 'PUT',
@@ -124,7 +124,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     clearFavoriteGroup(params) {
-        return API.call(
+        return request(
             `favorite/group/${params.type}/${params.group}/${API.currentUser.id}`,
             {
                 method: 'DELETE',
@@ -148,7 +148,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     getFavoriteWorlds(params) {
-        return API.call('worlds/favorites', {
+        return request('worlds/favorites', {
             method: 'GET',
             params
         }).then((json) => {
@@ -169,7 +169,7 @@ const favoriteReq = {
      * @return { Promise<{json: any, params}> }
      */
     getFavoriteAvatars(params) {
-        return API.call('avatars/favorites', {
+        return request('avatars/favorites', {
             method: 'GET',
             params
         }).then((json) => {
@@ -182,7 +182,5 @@ const favoriteReq = {
         });
     }
 };
-
-// #endregion
 
 export default favoriteReq;

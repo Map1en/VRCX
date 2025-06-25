@@ -8,7 +8,9 @@ import {
     vrcPlusIconRequest,
     vrcPlusImageRequest
 } from '../api';
-import { $app, $t, API } from '../app';
+import { $app, $t } from '../app';
+import { request } from '../service/apiRequestHandler';
+import { API } from '../service/eventBus';
 import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
 import { useAdvancedSettingsStore } from './settings/advanced';
 
@@ -324,7 +326,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         if (state.stickersCache.size > 100) {
             state.stickersCache.shift();
         }
-        const args = await API.call(`file/${fileId}`);
+        const args = await request(`file/${fileId}`);
         const imageUrl = args.versions[1].file.url;
         const createdAt = args.versions[0].created_at;
         const monthFolder = createdAt.slice(0, 7);

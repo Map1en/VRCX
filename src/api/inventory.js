@@ -1,10 +1,12 @@
+import { request } from '../service/apiRequestHandler';
+
 const inventoryReq = {
     /**
      * @param {{ inventoryId: string }} params
      * @returns {Promise<{json: any, params}>}
      */
     getInventoryItem(params) {
-        return window.API.call(`inventory/${params.inventoryId}`, {
+        return request(`inventory/${params.inventoryId}`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -21,7 +23,7 @@ const inventoryReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getInventoryItems(params) {
-        return window.API.call('inventory', {
+        return request('inventory', {
             method: 'GET',
             params
         }).then((json) => {
@@ -38,7 +40,7 @@ const inventoryReq = {
      * @returns {Promise<{json: any, params}>}
      */
     consumeInventoryBundle(params) {
-        return window.API.call(`inventory/${params.inventoryId}/consume`, {
+        return request(`inventory/${params.inventoryId}/consume`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -55,13 +57,10 @@ const inventoryReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getInventoryTemplate(params) {
-        return window.API.call(
-            `inventory/template/${params.inventoryTemplateId}`,
-            {
-                method: 'GET',
-                params
-            }
-        ).then((json) => {
+        return request(`inventory/template/${params.inventoryTemplateId}`, {
+            method: 'GET',
+            params
+        }).then((json) => {
             const args = {
                 json,
                 params

@@ -1,13 +1,13 @@
-import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
+import { API } from '../service/eventBus';
 
-// #region | API: Avatar
 const avatarReq = {
     /**
      * @param {{ avatarId: string }} params
      * @returns {Promise<{json: any, params}>}
      */
     getAvatar(params) {
-        return API.call(`avatars/${params.avatarId}`, {
+        return request(`avatars/${params.avatarId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -38,7 +38,7 @@ const avatarReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getAvatars(params) {
-        return API.call('avatars', {
+        return request('avatars', {
             method: 'GET',
             params
         }).then((json) => {
@@ -65,7 +65,7 @@ const avatarReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveAvatar(params) {
-        return API.call(`avatars/${params.id}`, {
+        return request(`avatars/${params.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -92,7 +92,7 @@ const avatarReq = {
      * @returns {Promise<{json: any, params}>}
      */
     selectAvatar(params) {
-        return API.call(`avatars/${params.avatarId}/select`, {
+        return request(`avatars/${params.avatarId}/select`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -110,7 +110,7 @@ const avatarReq = {
      * @return { Promise<{json: any, params}> }
      */
     selectFallbackAvatar(params) {
-        return API.call(`avatars/${params.avatarId}/selectfallback`, {
+        return request(`avatars/${params.avatarId}/selectfallback`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -128,7 +128,7 @@ const avatarReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteAvatar(params) {
-        return API.call(`avatars/${params.avatarId}`, {
+        return request(`avatars/${params.avatarId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -144,7 +144,7 @@ const avatarReq = {
      * @returns {Promise<{json: any, params}>}
      */
     createImposter(params) {
-        return API.call(`avatars/${params.avatarId}/impostor/enqueue`, {
+        return request(`avatars/${params.avatarId}/impostor/enqueue`, {
             method: 'POST'
         }).then((json) => {
             const args = {
@@ -161,7 +161,7 @@ const avatarReq = {
      * @returns {Promise<{json: T, params}>}
      */
     deleteImposter(params) {
-        return API.call(`avatars/${params.avatarId}/impostor`, {
+        return request(`avatars/${params.avatarId}/impostor`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -177,7 +177,7 @@ const avatarReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getAvailableAvatarStyles() {
-        return API.call('avatarStyles', {
+        return request('avatarStyles', {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -199,7 +199,7 @@ const avatarReq = {
             n: 100,
             offset: 0
         };
-        return API.call(`files`, {
+        return request(`files`, {
             params,
             method: 'GET'
         }).then((json) => {
@@ -221,7 +221,7 @@ const avatarReq = {
             tag: 'avatargallery',
             galleryId: avatarId
         };
-        return API.call('file/image', {
+        return request('file/image', {
             uploadImage: true,
             matchingDimensions: false,
             postData: JSON.stringify(params),
@@ -244,7 +244,7 @@ const avatarReq = {
         const params = {
             ids: order
         };
-        return API.call('files/order', {
+        return request('files/order', {
             method: 'PUT',
             params
         }).then((json) => {
@@ -257,6 +257,5 @@ const avatarReq = {
         });
     }
 };
-// #endregion
 
 export default avatarReq;

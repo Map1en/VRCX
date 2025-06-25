@@ -1795,6 +1795,7 @@
         worldRequest
     } from '../../../api';
     import { API } from '../../../app';
+    import { bulk, request } from '../../../service/apiRequestHandler';
     import database from '../../../service/database';
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';
@@ -2654,7 +2655,7 @@
                 cachedWorlds.value.delete(ref.id);
             }
         }
-        API.bulk({
+        bulk({
             fn: worldRequest.getWorlds,
             N: -1,
             params,
@@ -2686,7 +2687,7 @@
             ownerId: userId,
             n: 100
         };
-        const json = await API.call('favorite/groups', {
+        const json = await request('favorite/groups', {
             method: 'GET',
             params
         });

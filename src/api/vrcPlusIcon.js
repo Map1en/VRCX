@@ -1,9 +1,9 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | App: VRCPlus Icons
 const VRCPlusIconsReq = {
     getFileList(params) {
-        return API.call('files', {
+        return request('files', {
             method: 'GET',
             params
         }).then((json) => {
@@ -17,7 +17,7 @@ const VRCPlusIconsReq = {
     },
 
     deleteFile(fileId) {
-        return API.call(`file/${fileId}`, {
+        return request(`file/${fileId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -32,7 +32,7 @@ const VRCPlusIconsReq = {
         const params = {
             tag: 'icon'
         };
-        return API.call('file/image', {
+        return request('file/image', {
             uploadImage: true,
             matchingDimensions: true,
             postData: JSON.stringify(params),
@@ -50,7 +50,7 @@ const VRCPlusIconsReq = {
     // unused
     // images.pug line 63
     // deleteFileVersion(params) {
-    //     return API.call(`file/${params.fileId}/${params.version}`, {
+    //     return request(`file/${params.fileId}/${params.version}`, {
     //         method: 'DELETE'
     //     }).then((json) => {
     //         const args = {
@@ -61,7 +61,5 @@ const VRCPlusIconsReq = {
     //     });
     // }
 };
-
-// #endregion
 
 export default VRCPlusIconsReq;

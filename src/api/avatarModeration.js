@@ -1,9 +1,9 @@
-import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
+import { API } from '../service/eventBus';
 
-// #region | API: AvatarModeration
 const avatarModerationReq = {
     getAvatarModerations() {
-        return API.call('auth/user/avatarmoderations', {
+        return request('auth/user/avatarmoderations', {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -19,7 +19,7 @@ const avatarModerationReq = {
      * @return { Promise<{json: any, params}> }
      */
     sendAvatarModeration(params) {
-        return API.call('auth/user/avatarmoderations', {
+        return request('auth/user/avatarmoderations', {
             method: 'POST',
             params
         }).then((json) => {
@@ -37,7 +37,7 @@ const avatarModerationReq = {
      * @return { Promise<{json: any, params}> }
      */
     deleteAvatarModeration(params) {
-        return API.call(
+        return request(
             `auth/user/avatarmoderations?targetAvatarId=${encodeURIComponent(
                 params.targetAvatarId
             )}&avatarModerationType=${encodeURIComponent(
@@ -57,5 +57,4 @@ const avatarModerationReq = {
     }
 };
 
-// #endregion
 export default avatarModerationReq;

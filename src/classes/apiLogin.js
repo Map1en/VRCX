@@ -1,6 +1,8 @@
 import Noty from 'noty';
-import { $app, $t, API } from '../app.js';
+import { $app, $t } from '../app.js';
+import { request } from '../service/apiRequestHandler';
 import configRepository from '../service/config.js';
+import { API } from '../service/eventBus';
 import security from '../service/security.js';
 
 export default async function init() {
@@ -25,7 +27,7 @@ export default async function init() {
             }
             $app.store.auth.saveCredentials = params;
         }
-        return this.call('auth/user', {
+        return request('auth/user', {
             method: 'GET',
             headers: {
                 Authorization: `Basic ${auth}`
@@ -126,7 +128,7 @@ export default async function init() {
 
     API.logout = function () {
         this.$emit('LOGOUT');
-        // return this.call('logout', {
+        // return request('logout', {
         //     method: 'PUT'
         // }).finally(() => {
         //     this.$emit('LOGOUT');

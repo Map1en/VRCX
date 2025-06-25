@@ -1,6 +1,6 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: User
 const userReq = {
     /**
      * Fetch user from API.
@@ -8,7 +8,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUser(params) {
-        return API.call(`users/${params.userId}`, {
+        return request(`users/${params.userId}`, {
             method: 'GET'
         }).then((json) => {
             if (!json) {
@@ -60,7 +60,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUsers(params) {
-        return API.call('users', {
+        return request('users', {
             method: 'GET',
             params
         }).then((json) => {
@@ -78,7 +78,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     addUserTags(params) {
-        return API.call(`users/${API.currentUser.id}/addTags`, {
+        return request(`users/${API.currentUser.id}/addTags`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -97,7 +97,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     removeUserTags(params) {
-        return API.call(`users/${API.currentUser.id}/removeTags`, {
+        return request(`users/${API.currentUser.id}/removeTags`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -116,7 +116,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUserFeedback(params) {
-        return API.call(`users/${params.userId}/feedback`, {
+        return request(`users/${params.userId}/feedback`, {
             method: 'GET',
             params: {
                 n: 100
@@ -144,7 +144,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveCurrentUser(params) {
-        return API.call(`users/${API.currentUser.id}`, {
+        return request(`users/${API.currentUser.id}`, {
             method: 'PUT',
             params
         }).then((json) => {
@@ -163,7 +163,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getUserNotes(params) {
-        return API.call(`userNotes`, {
+        return request(`userNotes`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -176,6 +176,5 @@ const userReq = {
         });
     }
 };
-// #endregion
 
 export default userReq;

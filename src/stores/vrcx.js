@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { worldRequest } from '../api';
 import { $app, $t, API } from '../app';
+import { failedGetRequests } from '../service/apiRequestHandler';
 import configRepository from '../service/config';
 import database from '../service/database';
 import {
@@ -261,7 +262,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     }
 
     function clearVRCXCache() {
-        API.failedGetRequests = new Map();
+        failedGetRequests.clear();
         API.cachedUsers.forEach((ref, id) => {
             if (
                 !friendStore.friends.has(id) &&

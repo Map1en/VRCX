@@ -47,6 +47,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { API } from '../../../app';
+    import { $throw } from '../../../service/apiRequestHandler';
     import { extractFileId } from '../../../shared/utils';
     import { useAvatarStore, useGalleryStore } from '../../../stores';
 
@@ -237,7 +238,7 @@
 
         if (json.status !== 200) {
             changeAvatarImageDialogLoading.value = false;
-            API.$throw('Avatar image upload failed', json, params.url);
+            $throw('Avatar image upload failed', json, params.url);
         }
         const args = {
             json,
@@ -293,7 +294,7 @@
 
         if (json.status !== 200) {
             changeAvatarImageDialogLoading.value = false;
-            API.$throw('Avatar image upload failed', json, params.url);
+            $throw('Avatar image upload failed', json, params.url);
         }
         const args = {
             json,
@@ -334,7 +335,7 @@
             });
             refresh();
         } else {
-            API.$throw(0, 'Avatar image change failed', args.params.imageUrl);
+            $throw(0, 'Avatar image change failed', args.params.imageUrl);
         }
     }
 

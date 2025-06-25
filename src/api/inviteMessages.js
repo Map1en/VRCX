@@ -1,9 +1,9 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | App: Invite Messages
 const inviteMessagesReq = {
     refreshInviteMessageTableData(messageType) {
-        return API.call(`message/${API.currentUser.id}/${messageType}`, {
+        return request(`message/${API.currentUser.id}/${messageType}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -15,13 +15,10 @@ const inviteMessagesReq = {
     },
 
     editInviteMessage(params, messageType, slot) {
-        return API.call(
-            `message/${API.currentUser.id}/${messageType}/${slot}`,
-            {
-                method: 'PUT',
-                params
-            }
-        ).then((json) => {
+        return request(`message/${API.currentUser.id}/${messageType}/${slot}`, {
+            method: 'PUT',
+            params
+        }).then((json) => {
             const args = {
                 json,
                 params,
@@ -32,7 +29,5 @@ const inviteMessagesReq = {
         });
     }
 };
-
-// #endregion
 
 export default inviteMessagesReq;

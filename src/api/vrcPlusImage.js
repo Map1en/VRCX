@@ -1,11 +1,12 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
 const vrcPlusImageReq = {
     uploadGalleryImage(imageData) {
         const params = {
             tag: 'gallery'
         };
-        return API.call('file/image', {
+        return request('file/image', {
             uploadImage: true,
             matchingDimensions: false,
             postData: JSON.stringify(params),
@@ -21,7 +22,7 @@ const vrcPlusImageReq = {
     },
 
     uploadSticker(imageData, params) {
-        return API.call('file/image', {
+        return request('file/image', {
             uploadImage: true,
             matchingDimensions: true,
             postData: JSON.stringify(params),
@@ -37,7 +38,7 @@ const vrcPlusImageReq = {
     },
 
     getPrints(params) {
-        return API.call(`prints/user/${API.currentUser.id}`, {
+        return request(`prints/user/${API.currentUser.id}`, {
             method: 'GET',
             params
         }).then((json) => {
@@ -50,7 +51,7 @@ const vrcPlusImageReq = {
     },
 
     deletePrint(printId) {
-        return API.call(`prints/${printId}`, {
+        return request(`prints/${printId}`, {
             method: 'DELETE'
         }).then((json) => {
             const args = {
@@ -63,7 +64,7 @@ const vrcPlusImageReq = {
     },
 
     uploadPrint(imageData, cropWhiteBorder, params) {
-        return API.call('prints', {
+        return request('prints', {
             uploadImagePrint: true,
             cropWhiteBorder,
             postData: JSON.stringify(params),
@@ -79,7 +80,7 @@ const vrcPlusImageReq = {
     },
 
     getPrint(params) {
-        return API.call(`prints/${params.printId}`, {
+        return request(`prints/${params.printId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -92,7 +93,7 @@ const vrcPlusImageReq = {
     },
 
     uploadEmoji(imageData, params) {
-        return API.call('file/image', {
+        return request('file/image', {
             uploadImage: true,
             matchingDimensions: true,
             postData: JSON.stringify(params),
@@ -110,7 +111,7 @@ const vrcPlusImageReq = {
     // ----------- no place uses this function ------------
 
     // editPrint(params) {
-    //     return API.call(`prints/${params.printId}`, {
+    //     return request(`prints/${params.printId}`, {
     //         method: 'POST',
     //         params
     //     }).then((json) => {

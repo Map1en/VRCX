@@ -1,13 +1,13 @@
-import { API, $app, $t } from '../app';
+import { $app, $t, API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: Instance
 const instanceReq = {
     /**
      * @param {{worldId: string, instanceId: string}} params
      * @returns {Promise<{json: any, params}>}
      */
     getInstance(params) {
-        return API.call(`instances/${params.worldId}:${params.instanceId}`, {
+        return request(`instances/${params.worldId}:${params.instanceId}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -35,7 +35,7 @@ const instanceReq = {
      * @returns {Promise<{json: any, params}>}
      */
     createInstance(params) {
-        return API.call('instances', {
+        return request('instances', {
             method: 'POST',
             params
         }).then((json) => {
@@ -57,7 +57,7 @@ const instanceReq = {
         if (instance.shortName) {
             params.shortName = instance.shortName;
         }
-        return API.call(
+        return request(
             `instances/${instance.worldId}:${instance.instanceId}/shortName`,
             {
                 method: 'GET',
@@ -78,7 +78,7 @@ const instanceReq = {
      * @returns {Promise<{json: any, params}>}
      */
     getInstanceFromShortName(params) {
-        return API.call(`instances/s/${params.shortName}`, {
+        return request(`instances/s/${params.shortName}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -103,7 +103,7 @@ const instanceReq = {
         if (instance.shortName) {
             params.shortName = instance.shortName;
         }
-        return API.call(
+        return request(
             `invite/myself/to/${instance.worldId}:${instance.instanceId}`,
             {
                 method: 'POST',

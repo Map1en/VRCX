@@ -48,6 +48,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { API } from '../../../app';
+    import { $throw } from '../../../service/apiRequestHandler';
     import { extractFileId } from '../../../shared/utils';
     import { useGalleryStore, useWorldStore } from '../../../stores';
 
@@ -236,7 +237,7 @@
         if (json.status !== 200) {
             // $app.worldDialog.loading = false;
             changeWorldImageDialogLoading.value = false;
-            API.$throw('World image upload failed', json, params.url);
+            $throw('World image upload failed', json, params.url);
         }
         const args = {
             json,
@@ -293,7 +294,7 @@
         if (json.status !== 200) {
             // $app.worldDialog.loading = false;
             changeWorldImageDialogLoading.value = false;
-            API.$throw('World image upload failed', json, params.url);
+            $throw('World image upload failed', json, params.url);
         }
         const args = {
             json,
@@ -332,7 +333,7 @@
             });
             refresh();
         } else {
-            API.$throw(0, 'World image change failed', args.params.imageUrl);
+            $throw(0, 'World image change failed', args.params.imageUrl);
         }
     }
 

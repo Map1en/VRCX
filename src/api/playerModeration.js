@@ -1,9 +1,9 @@
 import { API } from '../app';
+import { request } from '../service/apiRequestHandler';
 
-// #region | API: PlayerModeration
 const playerModerationReq = {
     getPlayerModerations() {
-        return API.call('auth/user/playermoderations', {
+        return request('auth/user/playermoderations', {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -20,7 +20,7 @@ const playerModerationReq = {
      */
     // old-way: POST auth/user/blocks {blocked:userId}
     sendPlayerModeration(params) {
-        return API.call('auth/user/playermoderations', {
+        return request('auth/user/playermoderations', {
             method: 'POST',
             params
         }).then((json) => {
@@ -39,7 +39,7 @@ const playerModerationReq = {
      */
     // old-way: PUT auth/user/unblocks {blocked:userId}
     deletePlayerModeration(params) {
-        return API.call('auth/user/unplayermoderate', {
+        return request('auth/user/unplayermoderate', {
             method: 'PUT',
             params
         }).then((json) => {
@@ -53,5 +53,4 @@ const playerModerationReq = {
     }
 };
 
-// #endregion
 export default playerModerationReq;
