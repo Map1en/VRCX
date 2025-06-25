@@ -49,7 +49,9 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         sizeHeight: 600,
         windowState: '',
         maxTableSize: 1000,
-        ipcEnabled: false
+        ipcEnabled: false,
+        externalNotifierVersion: 0,
+        currentlyDroppingFile: null
     });
 
     async function init() {
@@ -123,6 +125,13 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     }
 
     init();
+
+    const currentlyDroppingFile = computed({
+        get: () => state.currentlyDroppingFile,
+        set: (value) => {
+            state.currentlyDroppingFile = value;
+        }
+    });
 
     // Make sure file drops outside of the screenshot manager don't navigate to the file path dropped.
     // This issue persists on prompts created with prompt(), unfortunately. Not sure how to fix that.
@@ -302,8 +311,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             case 'Noty':
                 if (
                     photonStore.photonLoggingEnabled ||
-                    ($app.externalNotifierVersion &&
-                        $app.externalNotifierVersion > 21)
+                    (state.externalNotifierVersion &&
+                        state.externalNotifierVersion > 21)
                 ) {
                     return;
                 }
@@ -473,7 +482,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                 $app.ipcTimeout = 60; // 30secs
                 break;
             case 'MsgPing':
-                $app.externalNotifierVersion = data.version;
+                state.externalNotifierVersion = data.version;
                 break;
             case 'LaunchCommand':
                 eventLaunchCommand(data.command);
@@ -573,6 +582,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     return {
         state,
         isRunningUnderWine,
+        currentlyDroppingFile,
         showConsole,
         applyWineEmojis,
         clearVRCXCache,

@@ -1846,9 +1846,7 @@
         <OpenSourceSoftwareNoticeDialog :ossDialog.sync="ossDialog" />
         <NoteExportDialog :isNoteExportDialogVisible.sync="isNoteExportDialogVisible" />
         <NotificationPositionDialog :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible" />
-        <ScreenshotMetadataDialog
-            :screenshotMetadataDialog="screenshotMetadataDialog"
-            :currentlyDroppingFile="currentlyDroppingFile" />
+        <ScreenshotMetadataDialog :screenshotMetadataDialog="screenshotMetadataDialog" />
         <RegistryBackupDialog
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
@@ -2149,10 +2147,6 @@
     } = advancedSettingsStore;
 
     const props = defineProps({
-        currentlyDroppingFile: {
-            type: String,
-            default: ''
-        },
         backupVrcRegistry: {
             type: Function,
             default: () => {}

@@ -162,14 +162,16 @@
 </template>
 
 <script setup>
+    import { storeToRefs } from 'pinia';
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
     import { API } from '../../../app';
     import Location from '../../../components/Location.vue';
-    import { useGalleryStore, useUserStore } from '../../../stores';
+    import { useGalleryStore, useUserStore, useVrcxStore } from '../../../stores';
 
     const { showFullscreenImageDialog } = useGalleryStore();
+    const { currentlyDroppingFile } = storeToRefs(useVrcxStore());
 
     const { t } = useI18n();
 
@@ -185,10 +187,6 @@
         screenshotMetadataDialog: {
             type: Object,
             required: true
-        },
-        currentlyDroppingFile: {
-            type: String,
-            default: null
         }
     });
 
@@ -217,13 +215,13 @@
     };
 
     function handleDrop(event) {
-        if (props.currentlyDroppingFile === null) {
+        if (currentlyDroppingFile.value === null) {
             return;
         }
-        console.log('Dropped file into viewer: ', props.currentlyDroppingFile);
+        console.log('Dropped file into viewer: ', currentlyDroppingFile.value);
 
         screenshotMetadataResetSearch();
-        getAndDisplayScreenshot(props.currentlyDroppingFile);
+        getAndDisplayScreenshot(currentlyDroppingFile.value);
 
         event.preventDefault();
     }

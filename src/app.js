@@ -247,10 +247,18 @@ let $app = {
         };
     },
     data: {
+        dontLogMeOut: false,
         API
     },
     computed: {},
     methods: {
+        /**
+         * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
+         * @param {string} filePath - The full path to the file being dragged into the window
+         */
+        dragEnterCef(filePath) {
+            this.store.vrcx.currentlyDroppingFile = filePath;
+        },
         ..._utils
     },
     watch: {},
@@ -302,13 +310,12 @@ let $app = {
     },
     el: '#root',
     async created() {
-        await AppApi.CheckGameRunning();
+        AppApi.SetUserAgent();
+        AppApi.CheckGameRunning();
     },
     async mounted() {
         refreshCustomCss();
         refreshCustomScript();
-
-        AppApi.SetUserAgent();
 
         this.updateLoop();
         this.getGameLogTable();
@@ -535,64 +542,11 @@ $app.data.gameLogTable.filter = JSON.parse(
 
 // Screenshot Helper
 
-$app.data.currentlyDroppingFile = null;
-/**
- * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
- * @param {string} filePath - The full path to the file being dragged into the window
- */
-$app.methods.dragEnterCef = function (filePath) {
-    this.currentlyDroppingFile = filePath;
-};
-
 // #endregion
 // #region Misc
 
-$app.data.externalNotifierVersion = 0;
-
-$app.data.enableCustomEndpoint = await configRepository.getBool(
-    'VRCX_enableCustomEndpoint',
-    false
-);
-$app.methods.toggleCustomEndpoint = async function () {
-    await configRepository.setBool(
-        'VRCX_enableCustomEndpoint',
-        this.enableCustomEndpoint
-    );
-    this.store.auth.loginForm.endpoint = '';
-    this.store.auth.loginForm.websocket = '';
-};
-
 // #endregion
 // #region | App: ChatBox Blacklist
-
-$app.methods.checkChatboxBlacklist = function (msg) {
-    for (let i = 0; i < this.chatboxBlacklist.length; ++i) {
-        if (msg.includes(this.chatboxBlacklist[i])) {
-            return true;
-        }
-    }
-    return false;
-};
-
-// #endregion
-// #region | App: ChatBox User Blacklist
-$app.data.chatboxUserBlacklist = new Map();
-if (await configRepository.getString('VRCX_chatboxUserBlacklist')) {
-    $app.data.chatboxUserBlacklist = new Map(
-        Object.entries(
-            JSON.parse(
-                await configRepository.getString('VRCX_chatboxUserBlacklist')
-            )
-        )
-    );
-}
-
-$app.methods.saveChatboxUserBlacklist = async function () {
-    await configRepository.setString(
-        'VRCX_chatboxUserBlacklist',
-        JSON.stringify(Object.fromEntries(this.chatboxUserBlacklist))
-    );
-};
 
 // #endregion
 // #region | Dialog: fullscreen image
@@ -632,8 +586,7 @@ $app.computed.playerListTabBind = function () {
     return {
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
         photonEventTableFilter: this.photonEventTableFilter,
-        ipcEnabled: this.ipcEnabled,
-        chatboxUserBlacklist: this.chatboxUserBlacklist
+        ipcEnabled: this.ipcEnabled
     };
 };
 
@@ -662,7 +615,6 @@ $app.computed.loginPageEvent = function () {
 
 $app.computed.settingsTabBind = function () {
     return {
-        currentlyDroppingFile: this.currentlyDroppingFile,
         backupVrcRegistry: this.backupVrcRegistry
     };
 };
@@ -691,9 +643,6 @@ $app.computed.settingsTabEvent = function () {
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
-
-// -------------- custom flag ---------------
-window.dontLogMeOut = false;
 
 export { $app, API, $t, i18n };
 

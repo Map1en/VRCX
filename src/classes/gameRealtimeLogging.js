@@ -627,8 +627,8 @@ export default function init() {
                     this.photonLastChatBoxMsg.set(photonId, text);
                     var userId = this.getUserIdFromPhotonId(photonId);
                     if (
-                        this.chatboxUserBlacklist.has(userId) ||
-                        this.checkChatboxBlacklist(text)
+                        this.store.photon.chatboxUserBlacklist.has(userId) ||
+                        this.store.photon.checkChatboxBlacklist(text)
                     ) {
                         return;
                     }

@@ -83,7 +83,8 @@ export const usePhotonStore = defineStore('Photon', () => {
                 layout: 'sizes,prev,pager,next,total',
                 pageSizes: [5, 10, 15, 25, 50]
             }
-        }
+        },
+        chatboxUserBlacklist: new Map()
     });
 
     async function initPhotonStates() {
@@ -95,7 +96,8 @@ export const usePhotonStore = defineStore('Photon', () => {
             timeoutHudOverlayFilter,
             photonLobbyTimeoutThreshold,
             photonOverlayMessageTimeout,
-            photonEventTableTypeFilter
+            photonEventTableTypeFilter,
+            chatboxUserBlacklist
         ] = await Promise.all([
             configRepository.getBool('VRCX_PhotonEventOverlay', false),
             configRepository.getString(
@@ -116,7 +118,8 @@ export const usePhotonStore = defineStore('Photon', () => {
                 'VRCX_photonOverlayMessageTimeout',
                 6000
             ),
-            configRepository.getString('VRCX_photonEventTypeFilter', '[]')
+            configRepository.getString('VRCX_photonEventTypeFilter', '[]'),
+            configRepository.getString('VRCX_chatboxUserBlacklist')
         ]);
 
         state.photonEventOverlay = photonEventOverlay;
@@ -136,6 +139,10 @@ export const usePhotonStore = defineStore('Photon', () => {
             state.photonEventTableTypeFilter;
         state.photonEventTablePrevious.filters[1].value =
             state.photonEventTableTypeFilter;
+
+        state.chatboxUserBlacklist = new Map(
+            Object.entries(JSON.parse(chatboxUserBlacklist || '{}'))
+        );
     }
 
     initPhotonStates();
@@ -196,6 +203,12 @@ export const usePhotonStore = defineStore('Photon', () => {
         get: () => state.photonEventTablePrevious,
         set: (value) => {
             state.photonEventTablePrevious = value;
+        }
+    });
+    const chatboxUserBlacklist = computed({
+        get: () => state.chatboxUserBlacklist,
+        set: (value) => {
+            state.chatboxUserBlacklist = value;
         }
     });
 
@@ -323,6 +336,22 @@ export const usePhotonStore = defineStore('Photon', () => {
         }
     }
 
+    function checkChatboxBlacklist(msg) {
+        for (let i = 0; i < this.chatboxBlacklist.length; ++i) {
+            if (msg.includes(this.chatboxBlacklist[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async function saveChatboxUserBlacklist() {
+        await configRepository.setString(
+            'VRCX_chatboxUserBlacklist',
+            JSON.stringify(Object.fromEntries(state.chatboxUserBlacklist))
+        );
+    }
+
     return {
         state,
 
@@ -338,6 +367,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventTableTypeFilter,
         photonEventTable,
         photonEventTablePrevious,
+        chatboxUserBlacklist,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
@@ -348,6 +378,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         getDisplayName,
         photonEventPulse,
         parseOperationResponse,
-        saveEventOverlay
+        saveEventOverlay,
+        checkChatboxBlacklist,
+        saveChatboxUserBlacklist
     };
 });

@@ -107,7 +107,7 @@ export const useFeedStore = defineStore('Feed', () => {
                 await friendStore.initFriendLog(args.ref);
             }
         } catch (err) {
-            if (!window.dontLogMeOut) {
+            if (!$app.dontLogMeOut) {
                 $app.$message({
                     message: $t('message.friend.load_failed'),
                     type: 'error'

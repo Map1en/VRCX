@@ -821,7 +821,6 @@
         </div>
         <ChatboxBlacklistDialog
             :chatbox-blacklist-dialog="chatboxBlacklistDialog"
-            :chatbox-user-blacklist="chatboxUserBlacklist"
             @delete-chatbox-user-blacklist="deleteChatboxUserBlacklist" />
     </div>
 </template>
@@ -868,8 +867,10 @@
         photonEventIcon,
         photonEventTableTypeFilter,
         photonEventTable,
-        photonEventTablePrevious
+        photonEventTablePrevious,
+        chatboxUserBlacklist
     } = storeToRefs(usePhotonStore());
+    const { saveChatboxUserBlacklist } = usePhotonStore();
     const { showUserDialog, lookupUser } = useUserStore();
     const { showAvatarDialog } = useAvatarStore();
     const { showWorldDialog } = useWorldStore();
@@ -890,9 +891,6 @@
         ipcEnabled: {
             type: Boolean,
             default: false
-        },
-        chatboxUserBlacklist: {
-            type: Map
         }
     });
 
@@ -931,20 +929,13 @@
     }
 
     async function deleteChatboxUserBlacklist(userId) {
-        props.chatboxUserBlacklist.delete(userId);
+        chatboxUserBlacklist.value.delete(userId);
         await saveChatboxUserBlacklist();
         getCurrentInstanceUserList();
     }
 
-    async function saveChatboxUserBlacklist() {
-        await configRepository.setString(
-            'VRCX_chatboxUserBlacklist',
-            JSON.stringify(Object.fromEntries(props.chatboxUserBlacklist))
-        );
-    }
-
     async function addChatboxUserBlacklist(user) {
-        props.chatboxUserBlacklist.set(user.id, user.displayName);
+        chatboxUserBlacklist.value.set(user.id, user.displayName);
         await saveChatboxUserBlacklist();
         getCurrentInstanceUserList();
     }

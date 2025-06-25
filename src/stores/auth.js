@@ -49,14 +49,17 @@ export const useAuthStore = defineStore('Auth', () => {
             }
         },
         saveCredentials: null,
-        twoFactorAuthDialogVisible: false
+        twoFactorAuthDialogVisible: false,
+        enableCustomEndpoint: false
     });
 
     async function init() {
-        const [savedCredentials, lastUserLoggedIn] = await Promise.all([
-            configRepository.getString('savedCredentials'),
-            configRepository.getString('lastUserLoggedIn')
-        ]);
+        const [savedCredentials, lastUserLoggedIn, enableCustomEndpoint] =
+            await Promise.all([
+                configRepository.getString('savedCredentials'),
+                configRepository.getString('lastUserLoggedIn'),
+                configRepository.getBool('VRCX_enableCustomEndpoint', false)
+            ]);
         state.loginForm = {
             ...state.loginForm,
             savedCredentials: savedCredentials
@@ -64,6 +67,7 @@ export const useAuthStore = defineStore('Auth', () => {
                 : {},
             lastUserLoggedIn
         };
+        state.enableCustomEndpoint = enableCustomEndpoint;
     }
 
     init();
@@ -338,6 +342,15 @@ export const useAuthStore = defineStore('Auth', () => {
                 .catch(reject);
         });
     }
+
+    $app.methods.toggleCustomEndpoint = async function () {
+        await configRepository.setBool(
+            'VRCX_enableCustomEndpoint',
+            this.enableCustomEndpoint
+        );
+        this.store.auth.loginForm.endpoint = '';
+        this.store.auth.loginForm.websocket = '';
+    };
 
     return {
         state,
