@@ -7,9 +7,8 @@ import security from '../service/security';
 import webApiService from '../service/webapi';
 import { escapeTag } from '../shared/utils';
 import { useFriendStore } from './friend';
+import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
-
-const { useNotificationStore } = $app.store;
 
 export const useAuthStore = defineStore('Auth', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
