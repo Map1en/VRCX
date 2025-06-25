@@ -441,7 +441,7 @@ export default function init() {
                     this.store.group.showGroupDialog(D.id);
                     break;
                 case 'Leave Group':
-                    this.leaveGroupPrompt(D.id);
+                    this.store.group.leaveGroupPrompt(D.id);
                     break;
                 case 'Block Group':
                     this.blockGroup(D.id);
@@ -465,51 +465,6 @@ export default function init() {
                     this.setGroupSubscription(D.id, false);
                     break;
             }
-        },
-
-        leaveGroupPrompt(groupId) {
-            this.$confirm(
-                'Are you sure you want to leave this group?',
-                'Confirm',
-                {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            groupRequest
-                                .leaveGroup({
-                                    groupId
-                                })
-                                .then((args) => {
-                                    // API.$on('GROUP:LEAVE', function (args) {
-                                    const groupId = args.params.groupId;
-                                    if (
-                                        this.store.group.groupDialog.visible &&
-                                        this.store.group.groupDialog.id ===
-                                            groupId
-                                    ) {
-                                        this.store.group.groupDialog.inGroup =
-                                            false;
-                                        this.store.group.getGroupDialogGroup(
-                                            groupId
-                                        );
-                                    }
-                                    if (
-                                        this.store.user.userDialog.visible &&
-                                        this.store.user.userDialog.id ===
-                                            this.currentUser.id &&
-                                        this.store.user.userDialog
-                                            .representedGroup.id === groupId
-                                    ) {
-                                        this.getCurrentUserRepresentedGroup();
-                                    }
-                                    // });
-                                });
-                        }
-                    }
-                }
-            );
         },
 
         setGroupVisibility(groupId, visibility) {

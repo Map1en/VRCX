@@ -13,10 +13,12 @@ import { groupDialogFilterOptions } from '../shared/constants/';
 import { replaceBioSymbols } from '../shared/utils';
 import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
+import { useUserStore } from './user';
 
 export const useGroupStore = defineStore('Group', () => {
     const instanceStore = useInstanceStore();
     const gameStore = useGameStore();
+    const userStore = useUserStore();
 
     const state = reactive({
         groupDialog: {
@@ -613,6 +615,43 @@ export const useGroupStore = defineStore('Group', () => {
         return aIndex - bIndex;
     }
 
+    function leaveGroup(groupId) {
+        groupRequest
+            .leaveGroup({
+                groupId
+            })
+            .then((args) => {
+                const groupId = args.params.groupId;
+                if (
+                    state.groupDialog.visible &&
+                    state.groupDialog.id === groupId
+                ) {
+                    state.groupDialog.inGroup = false;
+                    getGroupDialogGroup(groupId);
+                }
+                if (
+                    userStore.userDialog.visible &&
+                    userStore.userDialog.id === API.currentUser.id &&
+                    userStore.userDialog.representedGroup.id === groupId
+                ) {
+                    userStore.getCurrentUserRepresentedGroup();
+                }
+            });
+    }
+
+    function leaveGroupPrompt(groupId) {
+        $app.$confirm('Are you sure you want to leave this group?', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    leaveGroup(groupId);
+                }
+            }
+        });
+    }
+
     return {
         state,
         groupDialog,
@@ -626,6 +665,8 @@ export const useGroupStore = defineStore('Group', () => {
         applyPresenceGroups,
         getGroupDialogGroup,
         updateInGameGroupOrder,
-        sortGroupInstancesByInGame
+        sortGroupInstancesByInGame,
+        leaveGroup,
+        leaveGroupPrompt
     };
 });

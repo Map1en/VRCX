@@ -1,8 +1,6 @@
 mixin dialogs
     //- previous instances
-    PreviousInstancesInfoDialog(
-        :gameLogIsFriend='gameLogIsFriend'
-        :gameLogIsFavorite='gameLogIsFavorite')
+    PreviousInstancesInfoDialog(:gameLogIsFriend='gameLogIsFriend' :gameLogIsFavorite='gameLogIsFavorite')
 
     //- favorites
     FriendImportDialog
@@ -15,10 +13,7 @@ mixin dialogs
     //- launch
     LaunchDialog
 
-    UserDialog(
-        @logout='logout'
-        @setGroupVisibility='setGroupVisibility'
-        @leaveGroupPrompt='leaveGroupPrompt')
+    UserDialog(@logout='logout' @setGroupVisibility='setGroupVisibility')
 
     WorldDialog
 

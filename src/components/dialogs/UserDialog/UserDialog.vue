@@ -1322,7 +1322,7 @@
                                             icon="el-icon-close"
                                             circle
                                             style="color: #f56c6c; margin-left: 5px"
-                                            @click.stop="leaveGroupPrompt(group.id)">
+                                            @click.stop="leaveGroup(group.id)">
                                         </el-button>
                                         <el-button
                                             v-else
@@ -1866,7 +1866,8 @@
     const { cachedAvatars } = storeToRefs(useAvatarStore());
     const { cachedWorlds } = storeToRefs(useWorldStore());
     const { showWorldDialog } = useWorldStore();
-    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder } = useGroupStore();
+    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder, leaveGroup, leaveGroupPrompt } =
+        useGroupStore();
     const { currentUserGroups, inviteGroupDialog, inGameGroupOrder } = storeToRefs(useGroupStore());
     const { lastLocation, lastLocationDestination } = storeToRefs(useLocationStore());
     const { refreshInviteMessageTableData } = useInviteStore();
@@ -1877,7 +1878,7 @@
         useGalleryStore();
     const { isGameRunning } = storeToRefs(useGameStore());
 
-    const emit = defineEmits(['logout', 'setGroupVisibility', 'leaveGroupPrompt']);
+    const emit = defineEmits(['logout', 'setGroupVisibility']);
 
     watch(
         () => userDialog.value.loading,
@@ -3015,9 +3016,6 @@
 
     function setGroupVisibility(groupId, visibility) {
         emit('setGroupVisibility', groupId, visibility);
-    }
-    function leaveGroupPrompt(id) {
-        emit('leaveGroupPrompt', id);
     }
     function logout() {
         emit('logout');
