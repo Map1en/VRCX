@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { $app, $t, API } from '../app.js';
-import { userNotes } from '../classes/userNotes';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { getAllUserMemos, getNameColour, migrateMemos } from '../shared/utils';
@@ -12,6 +11,7 @@ import { useGameLogStore } from './gameLog';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
+import { useUserStore } from './user';
 import { useVrStore } from './vr';
 
 export const useFeedStore = defineStore('Feed', () => {
@@ -23,6 +23,7 @@ export const useFeedStore = defineStore('Feed', () => {
     const vrStore = useVrStore();
     const avatarStore = useAvatarStore();
     const gameLogStore = useGameLogStore();
+    const userStore = useUserStore();
 
     const state = reactive({
         feedTable: {
@@ -118,7 +119,7 @@ export const useFeedStore = defineStore('Feed', () => {
         }
         await avatarStore.getAvatarHistory();
         await getAllUserMemos();
-        userNotes.init();
+        userStore.initUserNotes();
         if (appearanceSettingsStore.randomUserColours) {
             getNameColour(API.currentUser.id).then((colour) => {
                 API.currentUser.$userColour = colour;

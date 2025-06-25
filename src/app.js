@@ -444,8 +444,6 @@ dayjs.extend(isSameOrAfter);
 API.cachedUsers = new Map();
 API.currentTravelers = new Map();
 
-// Countdown timer
-
 const $countDownTimers = [];
 
 Vue.component('CountdownTimer', {
@@ -519,12 +517,6 @@ $app.data.friendNumber = 0;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
 
-// #endregion
-// #region | App: Feed
-
-// #endregion
-// #region | App: Notification
-
 $app.data.gameLogTable.vip = false;
 // gameLog loads before favorites
 // await configRepository.getBool(
@@ -534,25 +526,6 @@ $app.data.gameLogTable.vip = false;
 $app.data.gameLogTable.filter = JSON.parse(
     await configRepository.getString('VRCX_gameLogTableFilters', '[]')
 );
-
-// #endregion
-// #region | App: Profile + Settings
-
-// VRChat Config JSON
-
-// Screenshot Helper
-
-// #endregion
-// #region Misc
-
-// #endregion
-// #region | App: ChatBox Blacklist
-
-// #endregion
-// #region | Dialog: fullscreen image
-
-// #endregion
-// #region | Tab Props
 
 $app.computed.sidebarTabBind = function () {
     return {
