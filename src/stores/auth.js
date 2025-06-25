@@ -5,10 +5,16 @@ import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
 import security from '../service/security';
 import webApiService from '../service/webapi';
+import { escapeTag } from '../shared/utils';
+import { useFriendStore } from './friend';
 import { useAdvancedSettingsStore } from './settings/advanced';
+
+const { useNotificationStore } = $app.store;
 
 export const useAuthStore = defineStore('Auth', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const notificationStore = useNotificationStore();
+    const friendStore = useFriendStore();
     const state = reactive({
         loginForm: {
             loading: true,
@@ -89,6 +95,38 @@ export const useAuthStore = defineStore('Auth', () => {
         set: (value) => {
             state.twoFactorAuthDialogVisible = value;
         }
+    });
+
+    API.$on('LOGOUT', function () {
+        if (API.isLoggedIn) {
+            new Noty({
+                type: 'success',
+                text: `See you again, <strong>${escapeTag(
+                    API.currentUser.displayName
+                )}</strong>!`
+            }).show();
+        }
+        API.isLoggedIn = false;
+        friendStore.friendLogInitStatus = false;
+        notificationStore.notificationInitStatus = false;
+    });
+
+    API.$on('LOGIN', function (args) {
+        new Noty({
+            type: 'success',
+            text: `Hello there, <strong>${escapeTag(
+                args.ref.displayName
+            )}</strong>!`
+        }).show();
+        updateStoredUser(API.currentUser);
+    });
+
+    API.$on('LOGOUT', async function () {
+        await updateStoredUser(API.currentUser);
+        webApiService.clearCookies();
+        state.loginForm.lastUserLoggedIn = '';
+        await configRepository.remove('lastUserLoggedIn');
+        // workerTimers.setTimeout(() => location.reload(), 500);
     });
 
     API.$on('LOGIN', function () {
@@ -185,8 +223,7 @@ export const useAuthStore = defineStore('Auth', () => {
                                 );
                             })
                             .catch(async () => {
-                                advancedSettingsStore.enablePrimaryPassword =
-                                    true;
+                                advancedSettingsStore.enablePrimaryPassword = true;
                                 advancedSettingsStore.setEnablePrimaryPasswordConfigRepository(
                                     true
                                 );

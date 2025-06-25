@@ -69,10 +69,8 @@ import * as localizedStrings from './localization/localizedStrings.js';
 
 // util classes
 import configRepository from './service/config.js';
-import webApiService from './service/webapi.js';
 import {
     commaNumber,
-    escapeTag,
     refreshCustomCss,
     refreshCustomScript,
     removeFromArray,
@@ -508,38 +506,6 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-API.$on('LOGOUT', function () {
-    if (this.isLoggedIn) {
-        new Noty({
-            type: 'success',
-            text: `See you again, <strong>${escapeTag(
-                this.currentUser.displayName
-            )}</strong>!`
-        }).show();
-    }
-    this.isLoggedIn = false;
-    $app.store.friend.friendLogInitStatus = false;
-    $app.store.notification.notificationInitStatus = false;
-});
-
-API.$on('LOGIN', function (args) {
-    new Noty({
-        type: 'success',
-        text: `Hello there, <strong>${escapeTag(
-            args.ref.displayName
-        )}</strong>!`
-    }).show();
-    $app.store.auth.updateStoredUser(this.currentUser);
-});
-
-API.$on('LOGOUT', async function () {
-    await $app.store.auth.updateStoredUser(this.currentUser);
-    webApiService.clearCookies();
-    $app.store.auth.loginForm.lastUserLoggedIn = '';
-    await configRepository.remove('lastUserLoggedIn');
-    // workerTimers.setTimeout(() => location.reload(), 500);
-});
-
 // #endregion
 // #region | App: Friends
 
@@ -549,8 +515,6 @@ $app.data.groupInstances = [];
 
 // #endregion
 // #region | App: Feed
-
-$app.data.dontLogMeOut = false;
 
 // #endregion
 // #region | App: Notification
@@ -770,6 +734,9 @@ $app.computed.settingsTabEvent = function () {
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
+
+// -------------- custom flag ---------------
+window.dontLogMeOut = false;
 
 export { $app, API, $t, i18n };
 
