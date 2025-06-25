@@ -62,28 +62,19 @@
     import { storeToRefs } from 'pinia';
     import database from '../../../service/database';
     import { adjustDialogZ, compareByCreatedAt, parseLocation, timeToText } from '../../../shared/utils';
-    import { useInstanceStore } from '../../../stores/instance';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
-    import Location from '../../Location.vue';
+    import { useAppearanceSettingsStore, useInstanceStore, useUserStore } from '../../../stores';
 
     export default {
         name: 'PreviousInstancesInfoDialog',
-        components: {
-            Location
-        },
         props: {
             gameLogIsFriend: { type: Function, required: true },
             gameLogIsFavorite: { type: Function, required: true }
         },
         setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const { isDarkMode } = storeToRefs(appearanceSettingsStore);
-            const userStore = useUserStore();
-            const { lookupUser } = userStore;
-            const instanceStore = useInstanceStore();
+            const { isDarkMode } = storeToRefs(useAppearanceSettingsStore());
+            const { lookupUser } = useUserStore();
             const { previousInstancesInfoDialogVisible, previousInstancesInfoDialogInstanceId } =
-                storeToRefs(instanceStore);
+                storeToRefs(useInstanceStore());
             return {
                 isDarkMode,
                 lookupUser,

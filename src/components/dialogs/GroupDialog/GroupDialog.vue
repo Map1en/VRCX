@@ -1189,10 +1189,6 @@
         useLocationStore,
         useUserStore
     } from '../../../stores';
-    import InstanceInfo from '../../InstanceInfo.vue';
-    import LastJoin from '../../LastJoin.vue';
-    import Location from '../../Location.vue';
-    import Timer from '../../Timer.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';

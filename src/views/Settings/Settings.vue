@@ -1888,7 +1888,6 @@
         useInstanceStore,
         useGroupStore
     } from '../../stores';
-    import SimpleSwitch from '../../components/SimpleSwitch.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
     import NoteExportDialog from './dialogs/NoteExportDialog.vue';

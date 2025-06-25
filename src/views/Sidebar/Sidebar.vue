@@ -87,13 +87,14 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { computed } from 'vue';
-    import Location from '../../components/Location.vue';
     import { userImage } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
-    import { useGroupStore } from '../../stores/group';
-    import { useSearchStore } from '../../stores/search';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUiStore } from '../../stores/ui';
+    import {
+        useAppearanceSettingsStore,
+        useFriendStore,
+        useGroupStore,
+        useSearchStore,
+        useUiStore
+    } from '../../stores';
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
 
@@ -101,18 +102,13 @@
         groupInstances: Array
     });
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const friendsStore = useFriendStore();
-    const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(friendsStore);
-    const { refreshFriendsList, confirmDeleteFriend } = friendsStore;
-    const { hideTooltips, asideWidth } = storeToRefs(appearanceSettingsStore);
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-    const searchStore = useSearchStore();
-    const { quickSearchRemoteMethod, quickSearchChange, directAccessPaste } = searchStore;
-    const { quickSearchItems } = storeToRefs(searchStore);
-    const groupStore = useGroupStore();
-    const { inGameGroupOrder } = storeToRefs(groupStore);
+    const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(useFriendStore());
+    const { refreshFriendsList, confirmDeleteFriend } = useFriendStore();
+    const { hideTooltips, asideWidth } = storeToRefs(useAppearanceSettingsStore());
+    const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { quickSearchRemoteMethod, quickSearchChange, directAccessPaste } = useSearchStore();
+    const { quickSearchItems } = storeToRefs(useSearchStore());
+    const { inGameGroupOrder } = storeToRefs(useGroupStore());
 
     const isSideBarTabShow = computed(() => {
         return !(menuActiveIndex.value === 'friendList' || menuActiveIndex.value === 'charts');

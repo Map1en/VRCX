@@ -16,16 +16,12 @@
 
 <script>
     import dayjs from 'dayjs';
-    import Location from '../../../components/Location.vue';
-    import { loadEcharts, timeToText } from '../../../shared/utils';
     import { API } from '../../../app';
-    import { useUserStore } from '../../../stores/user';
+    import { loadEcharts, timeToText } from '../../../shared/utils';
+    import { useUserStore } from '../../../stores';
 
     export default {
         name: 'InstanceActivityDetail',
-        components: {
-            Location
-        },
         props: {
             activityDetailData: {
                 type: Array,

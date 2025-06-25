@@ -13,7 +13,6 @@
     import { storeToRefs } from 'pinia';
     import { ref, watch } from 'vue';
     import { useInstanceStore } from '../stores';
-    import Timer from './Timer.vue';
 
     const { instanceJoinHistory } = storeToRefs(useInstanceStore());
 

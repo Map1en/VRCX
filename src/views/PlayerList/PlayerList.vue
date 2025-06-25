@@ -859,7 +859,6 @@
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import { API } from '../../app';
-    import Timer from '../../components/Timer.vue';
 
     const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const {

@@ -5,32 +5,13 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 // #region | Imports
-import '@fontsource/noto-sans-kr';
-import '@fontsource/noto-sans-jp';
-import '@fontsource/noto-sans-sc';
-import '@fontsource/noto-sans-tc';
-import '@infolektuell/noto-color-emoji';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
-import ElementUI from 'element-ui';
-import Noty from 'noty';
 
 // pinia
-import { PiniaVuePlugin } from 'pinia';
+
 import Vue from 'vue';
-import { DataTables } from 'vue-data-tables';
-import VueI18n from 'vue-i18n';
-import { createI18n } from 'vue-i18n-bridge';
-import VueLazyload from 'vue-lazyload';
 import * as workerTimers from 'worker-timers';
 
 import pugTemplate from './app.pug';
-
-// API classes
-import config from './classes/API/config.js';
 
 // main app classes
 import apiLogin from './classes/apiLogin.js';
@@ -51,29 +32,24 @@ import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vu
 import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
-import SafeDialog from './components/dialogs/SafeDialog.vue';
 import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 
 // dialogs
-import Location from './components/Location.vue';
 import NavMenu from './components/NavMenu.vue';
 
 // components
-import SimpleSwitch from './components/SimpleSwitch.vue';
-import InteropApi from './ipc-electron/interopApi.js';
-import * as localizedStrings from './localization/localizedStrings.js';
-
 // util classes
 import configRepository from './service/config.js';
-import vrcxJsonStorage from './service/vrcxJsonStorage.js';
+
+import './setup';
+import { $t, API, i18n } from './setup';
+
 import {
-    commaNumber,
     refreshCustomCss,
     refreshCustomScript,
     removeFromArray,
-    textToHex,
     timeToText
 } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
@@ -105,124 +81,11 @@ import VRChatConfigDialog from './views/Settings/dialogs/VRChatConfigDialog.vue'
 import SettingsTab from './views/Settings/Settings.vue';
 import Sidebar from './views/Sidebar/Sidebar.vue';
 
-// #endregion
-
-// some workaround for failing to get voice list first run
-speechSynthesis.getVoices();
-
 console.log(`isLinux: ${LINUX}`);
 
 // #region | Hey look it's most of VRCX!
 
-// #region | Init Cef C# bindings
-if (WINDOWS) {
-    await CefSharp.BindObjectAsync(
-        'AppApi',
-        'WebApi',
-        'SharedVariable',
-        'VRCXStorage',
-        'SQLite',
-        'LogWatcher',
-        'Discord',
-        'AssetBundleManager'
-    );
-} else {
-    window.AppApi = InteropApi.AppApiElectron;
-    window.WebApi = InteropApi.WebApi;
-    window.SharedVariable = InteropApi.SharedVariable;
-    window.VRCXStorage = InteropApi.VRCXStorage;
-    window.SQLite = InteropApi.SQLiteLegacy;
-    window.LogWatcher = InteropApi.LogWatcher;
-    window.Discord = InteropApi.Discord;
-    window.AssetBundleManager = InteropApi.AssetBundleManager;
-}
-
-Vue.config.errorHandler = function (err, vm, info) {
-    console.error('Vue Error：', err);
-    console.error('Component：', vm);
-    console.error('Error Info：', info);
-};
-Vue.config.warnHandler = function (msg, vm, trace) {
-    console.warn('Vue Warning：', msg);
-    console.warn('Component：', vm);
-    console.warn('Trace：', trace);
-};
-
-const eventHandlers = new Map();
-const API = {};
-API.$emit = function (name, ...args) {
-    if ($app.debug) {
-        console.log(name, ...args);
-    }
-    const handlers = eventHandlers.get(name);
-    if (typeof handlers === 'undefined') {
-        return;
-    }
-    try {
-        for (const handler of handlers) {
-            handler.apply(this, args);
-        }
-    } catch (err) {
-        console.error(err);
-    }
-};
-
-API.$on = function (name, handler) {
-    let handlers = eventHandlers.get(name);
-    if (typeof handlers === 'undefined') {
-        handlers = [];
-        eventHandlers.set(name, handlers);
-    }
-    handlers.push(handler);
-};
-
-API.$off = function (name, handler) {
-    const handlers = eventHandlers.get(name);
-    if (typeof handlers === 'undefined') {
-        return;
-    }
-    const { length } = handlers;
-    for (let i = 0; i < length; ++i) {
-        if (handlers[i] === handler) {
-            if (length > 1) {
-                handlers.splice(i, 1);
-            } else {
-                eventHandlers.delete(name);
-            }
-            break;
-        }
-    }
-};
-
-// #region | localization
-Vue.use(VueI18n, { bridge: true });
-const i18n = createI18n(
-    {
-        locale: 'en',
-        fallbackLocale: 'en',
-        messages: localizedStrings,
-        legacy: false,
-        globalInjection: true,
-        missingWarn: false,
-        warnHtmlMessage: false,
-        fallbackWarn: false
-    },
-    VueI18n
-);
-const $t = i18n.global.t;
-Vue.use(i18n);
-Vue.use(ElementUI, {
-    i18n: (key, value) => i18n.global.t(key, value)
-});
-
-Vue.use(PiniaVuePlugin);
-
-new vrcxJsonStorage(VRCXStorage);
-
-await configRepository.init();
-
 // todo: seiri
-
 /** Temporary solution, no way store initialization is too slow
  *  Probably the few need to be preloaded like this,
  *  it's normal, frontend always with a bunch of messy requirements.
@@ -277,10 +140,6 @@ let $app = {
         ProfileTab,
         SettingsTab,
         Sidebar,
-
-        // components
-        Location,
-        SimpleSwitch,
 
         // - dialogs
         PreviousInstancesInfoDialog,
@@ -372,46 +231,8 @@ currentUser();
 updateLoop();
 gameLog();
 gameRealtimeLogging();
-config();
 groups();
 discordRpc();
-
-// #endregion
-// #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet, dayjs
-
-Noty.overrideDefaults({
-    animation: {
-        open: 'animate__animated animate__bounceInLeft',
-        close: 'animate__animated animate__bounceOutLeft'
-    },
-    layout: 'bottomLeft',
-    theme: 'mint',
-    timeout: 6000
-});
-
-Vue.filter('commaNumber', commaNumber);
-Vue.filter('textToHex', textToHex);
-
-Vue.use(VueLazyload, {
-    preLoad: 1,
-    observer: true,
-    observerOptions: {
-        rootMargin: '0px',
-        threshold: 0
-    },
-    attempt: 3
-});
-
-Vue.use(DataTables);
-
-Vue.component('SafeDialog', SafeDialog);
-
-dayjs.extend(duration);
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(isSameOrAfter);
-
-// #endregion
 
 // #endregion
 // #region | API: This is NOT all the api functions, not even close :(

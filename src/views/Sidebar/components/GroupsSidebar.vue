@@ -45,15 +45,11 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { computed, ref } from 'vue';
-    import Location from '../../../components/Location.vue';
     import { convertFileUrlToImageUrl } from '../../../shared/utils';
-    import { useGroupStore } from '../../../stores/group';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useAppearanceSettingsStore, useGroupStore } from '../../../stores';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { isAgeGatedInstancesVisible } = storeToRefs(appearanceSettingsStore);
-    const groupStore = useGroupStore();
-    const { showGroupDialog, sortGroupInstancesByInGame } = groupStore;
+    const { isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());
+    const { showGroupDialog, sortGroupInstancesByInGame } = useGroupStore();
 
     const props = defineProps({
         groupInstances: {

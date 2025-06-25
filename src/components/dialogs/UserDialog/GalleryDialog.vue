@@ -507,7 +507,6 @@
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
     import { extractFileId, getPrintFileName } from '../../../shared/utils';
     import { useAdvancedSettingsStore, useGalleryStore } from '../../../stores';
-    import Location from '../../Location.vue';
 
     const { t } = useI18n();
 

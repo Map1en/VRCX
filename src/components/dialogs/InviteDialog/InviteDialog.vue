@@ -169,16 +169,11 @@
     import { instanceRequest, notificationRequest } from '../../../api';
     import { API } from '../../../app';
     import { parseLocation, userImage, userStatusClass } from '../../../shared/utils';
-    import { useFriendStore } from '../../../stores/friend';
-    import { useGalleryStore } from '../../../stores/gallery';
-    import { useInviteStore } from '../../../stores/invite';
-    import Location from '../../Location.vue';
+    import { useFriendStore, useGalleryStore, useInviteStore } from '../../../stores';
     import SendInviteDialog from './SendInviteDialog.vue';
 
-    const friendStore = useFriendStore();
-    const { vipFriends, onlineFriends, activeFriends } = storeToRefs(friendStore);
-    const inviteStore = useInviteStore();
-    const { refreshInviteMessageTableData } = inviteStore;
+    const { vipFriends, onlineFriends, activeFriends } = storeToRefs(useFriendStore());
+    const { refreshInviteMessageTableData } = useInviteStore();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

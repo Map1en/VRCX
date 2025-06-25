@@ -819,7 +819,6 @@
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
     import { useAppearanceSettingsStore, useGalleryStore, useGroupStore, useUserStore } from '../../../stores';
-    import Location from '../../Location.vue';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
 
     const { randomUserColours } = storeToRefs(useAppearanceSettingsStore());

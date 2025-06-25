@@ -64,19 +64,15 @@
     import { storeToRefs } from 'pinia';
     import { computed } from 'vue';
     import { userImage, userStatusClass } from '../shared/utils';
-    import { useFriendStore } from '../stores/friend';
-    import { useAppearanceSettingsStore } from '../stores/settings/appearance';
-    import Location from './Location.vue';
+    import { useAppearanceSettingsStore, useFriendStore } from '../stores';
 
     const props = defineProps({
         friend: { type: Object, required: true },
         isGroupByInstance: Boolean
     });
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const friendStore = useFriendStore();
-    const { hideNicknames } = storeToRefs(appearanceSettingsStore);
-    const { isRefreshFriendsLoading } = storeToRefs(friendStore);
+    const { hideNicknames } = storeToRefs(useAppearanceSettingsStore());
+    const { isRefreshFriendsLoading } = storeToRefs(useFriendStore());
 
     const isFriendTraveling = computed(() => props.friend.ref.location === 'traveling');
     const isFriendActiveOrOffline = computed(() => props.friend.state === 'active' || props.friend.state === 'offline');

@@ -1835,10 +1835,6 @@
         useUserStore,
         useWorldStore
     } from '../../../stores';
-    import InstanceInfo from '../../InstanceInfo.vue';
-    import LastJoin from '../../LastJoin.vue';
-    import Location from '../../Location.vue';
-    import Timer from '../../Timer.vue';
     import SendInviteDialog from '../InviteDialog/SendInviteDialog.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';

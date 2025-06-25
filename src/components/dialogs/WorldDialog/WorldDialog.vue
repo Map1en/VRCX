@@ -783,9 +783,6 @@
         useUserStore,
         useWorldStore
     } from '../../../stores';
-    import InstanceInfo from '../../InstanceInfo.vue';
-    import LastJoin from '../../LastJoin.vue';
-    import Timer from '../../Timer.vue';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
@@ -796,15 +793,12 @@
     export default {
         name: 'WorldDialog',
         components: {
-            InstanceInfo,
             PreviousImagesDialog,
             SetWorldTagsDialog,
             WorldAllowedDomainsDialog,
             PreviousInstancesWorldDialog,
             NewInstanceDialog,
-            ChangeWorldImageDialog,
-            Timer,
-            LastJoin
+            ChangeWorldImageDialog
         },
         setup() {
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());

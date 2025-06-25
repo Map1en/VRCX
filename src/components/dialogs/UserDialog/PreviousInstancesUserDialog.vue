@@ -80,10 +80,7 @@
         removeFromArray,
         timeToText
     } from '../../../shared/utils';
-    import { useInstanceStore } from '../../../stores/instance';
-    import { useLaunchStore } from '../../../stores/launch';
-    import { useUiStore } from '../../../stores/ui';
-    import Location from '../../Location.vue';
+    import { useInstanceStore, useLaunchStore, useUiStore } from '../../../stores';
 
     const props = defineProps({
         previousInstancesUserDialog: {

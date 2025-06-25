@@ -324,7 +324,6 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
-    import Location from '../../components/Location.vue';
     import { useGalleryStore, useAppearanceSettingsStore, useUserStore, useFeedStore, useUiStore } from '../../stores';
     import { timeToText, statusClass } from '../../shared/utils';
 

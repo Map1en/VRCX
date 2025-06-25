@@ -435,7 +435,6 @@
     } from '../../stores';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
-    import Location from '../../components/Location.vue';
     import { API } from '../../app';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());

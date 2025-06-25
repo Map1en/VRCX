@@ -200,13 +200,14 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import database from '../../service/database';
-    import Location from '../../components/Location.vue';
     import { removeFromArray, openExternalLink } from '../../shared/utils';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useWorldStore } from '../../stores/world';
-    import { useUserStore } from '../../stores/user';
-    import { useUiStore } from '../../stores/ui';
+    import {
+        useUserStore,
+        useUiStore,
+        useWorldStore,
+        useAppearanceSettingsStore,
+        useInstanceStore
+    } from '../../stores';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showWorldDialog } = useWorldStore();

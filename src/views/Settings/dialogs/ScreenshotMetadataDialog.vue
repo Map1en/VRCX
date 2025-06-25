@@ -167,7 +167,6 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
     import { API } from '../../../app';
-    import Location from '../../../components/Location.vue';
     import { useGalleryStore, useUserStore, useVrcxStore } from '../../../stores';
 
     const { showFullscreenImageDialog } = useGalleryStore();

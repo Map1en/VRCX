@@ -175,22 +175,22 @@
     import { storeToRefs } from 'pinia';
     import { API } from '../../../app';
     import FriendItem from '../../../components/FriendItem.vue';
-    import Location from '../../../components/Location.vue';
     import configRepository from '../../../service/config';
     import { isRealInstance, userImage, userStatusClass } from '../../../shared/utils';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useFriendStore } from '../../../stores/friend';
-    import { useGameStore } from '../../../stores/game';
-    import { useLocationStore } from '../../../stores/location';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import {
+        useAdvancedSettingsStore,
+        useAppearanceSettingsStore,
+        useFavoriteStore,
+        useFriendStore,
+        useGameStore,
+        useLocationStore,
+        useUserStore
+    } from '../../../stores';
 
     export default {
         name: 'FriendsSidebar',
         components: {
-            FriendItem,
-            Location
+            FriendItem
         },
         setup() {
             const appearanceSettingsStore = useAppearanceSettingsStore();

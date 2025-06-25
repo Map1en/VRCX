@@ -85,11 +85,8 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import Location from '../../../components/Location.vue';
     import { userImage, userStatusClass } from '../../../shared/utils';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUiStore } from '../../../stores/ui';
+    import { useAppearanceSettingsStore, useFavoriteStore, useUiStore } from '../../../stores';
 
     defineProps({
         favorite: { type: Object, required: true },
