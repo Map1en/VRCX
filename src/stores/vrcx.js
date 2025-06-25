@@ -1,10 +1,15 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { worldRequest } from '../api';
-import { $app, API } from '../app';
+import { $app, $t, API } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
-import { debounce, parseLocation, refreshCustomCss } from '../shared/utils';
+import {
+    debounce,
+    parseLocation,
+    refreshCustomCss,
+    removeFromArray
+} from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useAvatarProviderStore } from './avatarProvider';
 import { useDebugStore } from './debug';
@@ -51,7 +56,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         maxTableSize: 1000,
         ipcEnabled: false,
         externalNotifierVersion: 0,
-        currentlyDroppingFile: null
+        currentlyDroppingFile: null,
+        isRegistryBackupDialogVisible: false
     });
 
     async function init() {
@@ -130,6 +136,13 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         get: () => state.currentlyDroppingFile,
         set: (value) => {
             state.currentlyDroppingFile = value;
+        }
+    });
+
+    const isRegistryBackupDialogVisible = computed({
+        get: () => state.isRegistryBackupDialogVisible,
+        set: (value) => {
+            state.isRegistryBackupDialogVisible = value;
         }
     });
 
@@ -579,15 +592,127 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     }
 
+    async function backupVrcRegistry(name) {
+        let regJson;
+        if (LINUX) {
+            regJson = await AppApi.GetVRChatRegistryJson();
+            regJson = JSON.parse(regJson);
+        } else {
+            regJson = await AppApi.GetVRChatRegistry();
+        }
+        const newBackup = {
+            name,
+            date: new Date().toJSON(),
+            data: regJson
+        };
+        let backupsJson = await configRepository.getString(
+            'VRCX_VRChatRegistryBackups'
+        );
+        if (!backupsJson) {
+            backupsJson = JSON.stringify([]);
+        }
+        const backups = JSON.parse(backupsJson);
+        backups.push(newBackup);
+        await configRepository.setString(
+            'VRCX_VRChatRegistryBackups',
+            JSON.stringify(backups)
+        );
+        // await this.updateRegistryBackupDialog();
+    }
+
+    // Because it is a startup func, it is not integrated into RegistryBackupDialog.vue now
+    // func backupVrcRegistry is also split up
+    async function checkAutoBackupRestoreVrcRegistry() {
+        if (!this.vrcRegistryAutoBackup) {
+            return;
+        }
+
+        // check for auto restore
+        const hasVRChatRegistryFolder = await AppApi.HasVRChatRegistryFolder();
+        if (!hasVRChatRegistryFolder) {
+            const lastBackupDate = await configRepository.getString(
+                'VRCX_VRChatRegistryLastBackupDate'
+            );
+            const lastRestoreCheck = await configRepository.getString(
+                'VRCX_VRChatRegistryLastRestoreCheck'
+            );
+            if (
+                !lastBackupDate ||
+                (lastRestoreCheck &&
+                    lastBackupDate &&
+                    lastRestoreCheck === lastBackupDate)
+            ) {
+                // only ask to restore once and when backup is present
+                return;
+            }
+            // popup message about auto restore
+            $app.$alert(
+                $t('dialog.registry_backup.restore_prompt'),
+                $t('dialog.registry_backup.header')
+            );
+            this.showRegistryBackupDialog();
+            await AppApi.FocusWindow();
+            await configRepository.setString(
+                'VRCX_VRChatRegistryLastRestoreCheck',
+                lastBackupDate
+            );
+        } else {
+            await autoBackupVrcRegistry();
+        }
+    }
+
+    function showRegistryBackupDialog() {
+        state.isRegistryBackupDialogVisible = true;
+    }
+
+    async function autoBackupVrcRegistry() {
+        const date = new Date();
+        const lastBackupDate = await configRepository.getString(
+            'VRCX_VRChatRegistryLastBackupDate'
+        );
+        if (lastBackupDate) {
+            const lastBackup = new Date(lastBackupDate);
+            const diff = date.getTime() - lastBackup.getTime();
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            if (diffDays < 7) {
+                return;
+            }
+        }
+        let backupsJson = await configRepository.getString(
+            'VRCX_VRChatRegistryBackups'
+        );
+        if (!backupsJson) {
+            backupsJson = JSON.stringify([]);
+        }
+        const backups = JSON.parse(backupsJson);
+        backups.forEach((backup) => {
+            if (backup.name === 'Auto Backup') {
+                // remove old auto backup
+                removeFromArray(backups, backup);
+            }
+        });
+        await configRepository.setString(
+            'VRCX_VRChatRegistryBackups',
+            JSON.stringify(backups)
+        );
+        backupVrcRegistry('Auto Backup');
+        await configRepository.setString(
+            'VRCX_VRChatRegistryLastBackupDate',
+            date.toJSON()
+        );
+    }
+
     return {
         state,
         isRunningUnderWine,
         currentlyDroppingFile,
+        isRegistryBackupDialogVisible,
         showConsole,
         applyWineEmojis,
         clearVRCXCache,
         eventVrcxMessage,
-        saveVRCXWindowOption,
+        showRegistryBackupDialog,
+        checkAutoBackupRestoreVrcRegistry,
         processScreenshot
     };
 });

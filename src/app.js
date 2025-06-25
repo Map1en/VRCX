@@ -44,7 +44,6 @@ import prompts from './classes/prompts.js';
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
-import vrcRegistry from './classes/vrcRegistry.js';
 import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
@@ -320,7 +319,7 @@ let $app = {
         this.updateLoop();
         this.getGameLogTable();
         this.store.game.checkVRChatDebugLogging();
-        this.checkAutoBackupRestoreVrcRegistry();
+        this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
         await this.store.auth.migrateStoredUsers();
         if (
             !this.store.advancedSettings.enablePrimaryPassword &&
@@ -376,7 +375,6 @@ gameRealtimeLogging();
 config();
 groups();
 discordRpc();
-vrcRegistry();
 
 // #endregion
 // #region | Init: Noty, Vue, Vue-Markdown, ElementUI, VueI18n, VueLazyLoad, Vue filters, dark stylesheet, dayjs
@@ -583,12 +581,6 @@ $app.computed.loginPageEvent = function () {
         deleteSavedLogin: this.deleteSavedLogin,
         login: this.login,
         relogin: this.relogin
-    };
-};
-
-$app.computed.settingsTabBind = function () {
-    return {
-        backupVrcRegistry: this.backupVrcRegistry
     };
 };
 

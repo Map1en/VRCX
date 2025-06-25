@@ -1847,9 +1847,7 @@
         <NoteExportDialog :isNoteExportDialogVisible.sync="isNoteExportDialogVisible" />
         <NotificationPositionDialog :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible" />
         <ScreenshotMetadataDialog :screenshotMetadataDialog="screenshotMetadataDialog" />
-        <RegistryBackupDialog
-            :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
-            :backupVrcRegistry="backupVrcRegistry" />
+        <RegistryBackupDialog />
         <YouTubeApiDialog :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible" />
         <FeedFiltersDialog :feedFiltersDialogMode.sync="feedFiltersDialogMode" @updateSharedFeed="updateSharedFeed" />
         <ChangelogDialog />
@@ -1949,7 +1947,7 @@
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { enablePrimaryPasswordChange } = useAuthStore();
     const { saveOpenVROption, updateVRLastLocation, updateOpenVR } = useVrStore();
-    const { clearVRCXCache } = useVrcxStore();
+    const { clearVRCXCache, showRegistryBackupDialog } = useVrcxStore();
 
     const {
         isStartAtWindowsStartup,
@@ -2146,13 +2144,6 @@
         showVRChatConfig
     } = advancedSettingsStore;
 
-    const props = defineProps({
-        backupVrcRegistry: {
-            type: Function,
-            default: () => {}
-        }
-    });
-
     const emit = defineEmits([
         'updateSharedFeed',
         'promptProxySettings',
@@ -2182,7 +2173,6 @@
     const feedFiltersDialogMode = ref('');
     const isNotificationPositionDialogVisible = ref(false);
 
-    const isRegistryBackupDialogVisible = ref(false);
     const isYouTubeApiDialogVisible = ref(false);
     const screenshotMetadataDialog = ref({
         visible: false,
@@ -2254,10 +2244,6 @@
 
     function showScreenshotMetadataDialog() {
         screenshotMetadataDialog.value.visible = true;
-    }
-
-    function showRegistryBackupDialog() {
-        isRegistryBackupDialogVisible.value = true;
     }
 
     function openVrcxAppDataFolder() {

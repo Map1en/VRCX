@@ -74,29 +74,19 @@
     import { storeToRefs } from 'pinia';
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { downloadAndSaveJson, removeFromArray } from '../../../shared/utils';
     import configRepository from '../../../service/config';
+    import { downloadAndSaveJson, removeFromArray } from '../../../shared/utils';
 
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useAppearanceSettingsStore, useVrcxStore } from '../../../stores';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { backupVrcRegistry } = useVrcxStore();
+    const { isRegistryBackupDialogVisible } = storeToRefs(useVrcxStore());
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const { $confirm, $message, $prompt } = instance.proxy;
-
-    const props = defineProps({
-        isRegistryBackupDialogVisible: {
-            type: Boolean
-        },
-        backupVrcRegistry: {
-            type: Function
-        }
-    });
-
-    const emit = defineEmits(['update:isRegistryBackupDialogVisible']);
 
     const registryBackupTable = ref({
         data: [],
@@ -114,7 +104,7 @@
     const vrcRegistryAutoBackup = ref(false);
 
     watch(
-        () => props.isRegistryBackupDialogVisible,
+        () => isRegistryBackupDialogVisible.value,
         (newVal) => {
             if (newVal) {
                 updateRegistryBackupDialog();
@@ -131,7 +121,7 @@
     }
 
     async function updateRegistryBackupDialog() {
-        let backupsJson = await configRepository.getString('VRCX_VRChatRegistryBackups');
+        const backupsJson = await configRepository.getString('VRCX_VRChatRegistryBackups');
         registryBackupTable.value.data = JSON.parse(backupsJson || '[]');
     }
 
@@ -198,7 +188,7 @@
     }
 
     async function handleBackupVrcRegistry(name) {
-        await props.backupVrcRegistry(name);
+        await backupVrcRegistry(name);
         await updateRegistryBackupDialog();
     }
 
@@ -296,6 +286,6 @@
     }
 
     function closeDialog() {
-        emit('update:isRegistryBackupDialogVisible', false);
+        isRegistryBackupDialogVisible.value = false;
     }
 </script>
