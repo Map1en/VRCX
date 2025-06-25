@@ -173,45 +173,6 @@ export default function init() {
             '<i v-if="strict" class="el-icon el-icon-lock" style="display:inline-block;margin-left:5px"></i></span>'
     });
 
-    Vue.component('LastJoin', {
-        props: {
-            location: String,
-            currentlocation: String
-        },
-        data() {
-            return {
-                lastJoin: this.lastJoin
-            };
-        },
-        watch: {
-            location() {
-                this.parse();
-            },
-            currentlocation() {
-                this.parse();
-            }
-        },
-        created() {
-            this.parse();
-        },
-        methods: {
-            parse() {
-                this.lastJoin = $app.store.instance.instanceJoinHistory.get(
-                    this.location
-                );
-            }
-        },
-        template:
-            '<span v-if="lastJoin">' +
-            '<el-tooltip placement="top" style="margin-left:5px" >' +
-            '<div slot="content">' +
-            '<span>{{ $t("dialog.user.info.last_join") }} <timer :epoch="lastJoin"></timer></span>' +
-            '</div>' +
-            '<i class="el-icon el-icon-location-outline" style="display:inline-block"></i>' +
-            '</el-tooltip>' +
-            '</span>'
-    });
-
     Vue.component('AvatarInfo', {
         props: {
             imageurl: String,

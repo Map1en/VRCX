@@ -188,5 +188,5 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
     }
 
-    return { state, clearNowPlaying, setNowPlaying };
+    return { state, clearNowPlaying, setNowPlaying, loadPlayerList };
 });

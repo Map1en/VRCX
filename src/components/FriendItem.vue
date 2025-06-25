@@ -21,12 +21,10 @@
                     </span>
                     <template v-else-if="isGroupByInstance">
                         <i v-if="isFriendTraveling" class="el-icon el-icon-loading"></i>
-                        <timer
+                        <Timer
                             class="extra"
                             :epoch="epoch"
-                            :style="
-                                isFriendTraveling ? { display: 'inline-block', overflow: 'unset' } : undefined
-                            "></timer>
+                            :style="isFriendTraveling ? { display: 'inline-block', overflow: 'unset' } : undefined" />
                     </template>
                     <location
                         v-else
@@ -63,12 +61,12 @@
 </template>
 
 <script setup>
-    import { computed } from 'vue';
     import { storeToRefs } from 'pinia';
+    import { computed } from 'vue';
+    import { userImage, userStatusClass } from '../shared/utils';
     import { useFriendStore } from '../stores/friend';
     import { useAppearanceSettingsStore } from '../stores/settings/appearance';
     import Location from './Location.vue';
-    import { userStatusClass, userImage } from '../shared/utils';
 
     const props = defineProps({
         friend: { type: Object, required: true },

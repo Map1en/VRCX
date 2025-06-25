@@ -1008,7 +1008,6 @@ export const useUserStore = defineStore('User', () => {
             D.instance.ref = instanceRef;
         }
         D.instance.friendCount = friendCount;
-        $app.updateTimers();
     }
 
     function sortUserDialogAvatars(array) {

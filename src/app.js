@@ -440,55 +440,6 @@ dayjs.extend(isSameOrAfter);
 API.cachedUsers = new Map();
 API.currentTravelers = new Map();
 
-// #endregion
-// #region | Misc
-
-const $timers = [];
-
-Vue.component('Timer', {
-    props: {
-        epoch: {
-            type: Number,
-            default() {
-                return Date.now();
-            }
-        }
-    },
-    data() {
-        return {
-            text: ''
-        };
-    },
-    watch: {
-        date() {
-            this.update();
-        }
-    },
-    mounted() {
-        $timers.push(this);
-        this.update();
-    },
-    destroyed() {
-        removeFromArray($timers, this);
-    },
-    methods: {
-        update() {
-            if (!this.epoch) {
-                this.text = '-';
-                return;
-            }
-            this.text = timeToText(Date.now() - this.epoch);
-        }
-    },
-    template: '<span v-text="text"></span>'
-});
-
-workerTimers.setInterval(function () {
-    for (let $timer of $timers) {
-        $timer.update();
-    }
-}, 5000);
-
 // Countdown timer
 
 const $countDownTimers = [];
@@ -616,12 +567,6 @@ $app.data.gameLogTable.filter = JSON.parse(
 
 // #endregion
 // #region | App: Profile + Settings
-
-$app.methods.updateTimers = function () {
-    for (let $timer of $timers) {
-        $timer.update();
-    }
-};
 
 $app.methods.checkPreviousImageAvailable = async function (images) {
     this.previousImagesTable = [];

@@ -370,7 +370,7 @@
                                         circle
                                         @click="showPreviousInstancesInfoDialog(room.location)" />
                                 </el-tooltip>
-                                <last-join :location="room.$location.tag" :currentlocation="lastLocation.location" />
+                                <LastJoin :location="room.$location.tag" :currentlocation="lastLocation.location" />
                                 <InstanceInfo
                                     :location="room.tag"
                                     :instance="room.ref"
@@ -414,10 +414,10 @@
                                                 v-text="user.displayName" />
                                             <span v-if="user.location === 'traveling'" class="extra">
                                                 <i class="el-icon-loading" style="margin-right: 5px" />
-                                                <timer :epoch="user.$travelingToTime" />
+                                                <Timer :epoch="user.$travelingToTime" />
                                             </span>
                                             <span v-else class="extra">
-                                                <timer :epoch="user.$location_at" />
+                                                <Timer :epoch="user.$location_at" />
                                             </span>
                                         </div>
                                     </div>
@@ -786,6 +786,8 @@
         useWorldStore
     } from '../../../stores';
     import InstanceInfo from '../../InstanceInfo.vue';
+    import LastJoin from '../../LastJoin.vue';
+    import Timer from '../../Timer.vue';
     import NewInstanceDialog from '../NewInstanceDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import PreviousInstancesWorldDialog from '../PreviousInstancesDialog/PreviousInstancesWorldDialog.vue';
@@ -802,7 +804,9 @@
             WorldAllowedDomainsDialog,
             PreviousInstancesWorldDialog,
             NewInstanceDialog,
-            ChangeWorldImageDialog
+            ChangeWorldImageDialog,
+            Timer,
+            LastJoin
         },
         inject: ['showFullscreenImageDialog'],
         setup() {

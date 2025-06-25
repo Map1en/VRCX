@@ -411,7 +411,7 @@
                                         circle
                                         @click="refreshInstancePlayerCount(room.tag)" />
                                 </el-tooltip>
-                                <last-join :location="room.tag" :currentlocation="lastLocation.location" />
+                                <LastJoin :location="room.tag" :currentlocation="lastLocation.location" />
                                 <InstanceInfo
                                     :location="room.tag"
                                     :instance="room.ref"
@@ -436,10 +436,10 @@
                                             v-text="user.displayName" />
                                         <span v-if="user.location === 'traveling'" class="extra">
                                             <i class="el-icon-loading" style="margin-right: 5px" />
-                                            <timer :epoch="user.$travelingToTime" />
+                                            <Timer :epoch="user.$travelingToTime" />
                                         </span>
                                         <span v-else class="extra">
-                                            <timer :epoch="user.$location_at" />
+                                            <Timer :epoch="user.$location_at" />
                                         </span>
                                     </div>
                                 </div>
@@ -535,7 +535,7 @@
                                                 >
                                             </template>
                                         </template>
-                                        <timer :epoch="Date.parse(groupDialog.announcement.updatedAt)" />
+                                        <Timer :epoch="Date.parse(groupDialog.announcement.updatedAt)" />
                                     </el-tooltip>
                                     <template v-if="hasGroupPermission(groupDialog.ref, 'group-announcement-manage')">
                                         <el-tooltip
@@ -806,7 +806,7 @@
                                                     >
                                                 </template>
                                             </template>
-                                            <timer :epoch="Date.parse(post.updatedAt)" />
+                                            <Timer :epoch="Date.parse(post.updatedAt)" />
                                         </el-tooltip>
                                         <template
                                             v-if="hasGroupPermission(groupDialog.ref, 'group-announcement-manage')">
@@ -1184,7 +1184,9 @@
     } from '../../../shared/utils';
     import { useAppearanceSettingsStore, useGroupStore, useLocationStore, useUserStore } from '../../../stores';
     import InstanceInfo from '../../InstanceInfo.vue';
+    import LastJoin from '../../LastJoin.vue';
     import Location from '../../Location.vue';
+    import Timer from '../../Timer.vue';
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';

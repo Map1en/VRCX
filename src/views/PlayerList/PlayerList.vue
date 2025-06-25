@@ -138,7 +138,7 @@
                             <template v-if="lastLocation.friendList.size > 0"
                                 >({{ lastLocation.friendList.size }})</template
                             >
-                            &nbsp;&horbar; <timer v-if="lastLocation.date" :epoch="lastLocation.date"></timer>
+                            &nbsp;&horbar; <Timer v-if="lastLocation.date" :epoch="lastLocation.date" />
                         </span>
                     </div>
                     <div style="margin-top: 5px">
@@ -662,7 +662,7 @@
                     </el-table-column>
                     <el-table-column :label="t('table.playerList.timer')" width="80" prop="timer" sortable>
                         <template #default="scope">
-                            <timer :epoch="scope.row.timer"></timer>
+                            <Timer :epoch="scope.row.timer" />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -859,6 +859,7 @@
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import { API } from '../../app';
+    import Timer from '../../components/Timer.vue';
 
     const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const {

@@ -699,7 +699,6 @@ export const useInstanceStore = defineStore('Instance', () => {
             return -1;
         });
         D.rooms = rooms;
-        $app.updateTimers();
     }
 
     /**
@@ -864,7 +863,6 @@ export const useInstanceStore = defineStore('Instance', () => {
             return -1;
         });
         D.instances = rooms;
-        $app.updateTimers();
     }
 
     function removeAllQueuedInstances() {
@@ -1164,7 +1162,6 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
         }
         state.currentInstanceUserList.data = users;
-        $app.updateTimers();
     }
 
     // $app.methods.instanceQueueClear = function () {

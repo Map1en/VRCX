@@ -8,6 +8,7 @@ import { getAllUserMemos, getNameColour, migrateMemos } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
+import { useGameLogStore } from './gameLog';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
@@ -21,6 +22,7 @@ export const useFeedStore = defineStore('Feed', () => {
     const gameStore = useGameStore();
     const vrStore = useVrStore();
     const avatarStore = useAvatarStore();
+    const gameLogStore = useGameLogStore();
 
     const state = reactive({
         feedTable: {
@@ -131,7 +133,7 @@ export const useFeedStore = defineStore('Feed', () => {
         API.getAuth();
         $app.updateSharedFeed(true);
         if (gameStore.isGameRunning) {
-            $app.loadPlayerList();
+            gameLogStore.loadPlayerList();
         }
         vrStore.vrInit();
         // remove old data from json file and migrate to SQLite
