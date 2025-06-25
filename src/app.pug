@@ -38,7 +38,35 @@ doctype html
         SettingsTab(v-on='settingsTabEvent')
 
         //- ## Dialogs ## -\\
-        include mixins/dialogs
-        +dialogs
+        PreviousInstancesInfoDialog(:gameLogIsFriend='gameLogIsFriend' :gameLogIsFavorite='gameLogIsFavorite')
 
-        //- el-dialog.x-dialog(:before-close="beforeDialogClose" @mousedown.native="dialogMouseDown" @mouseup.native="dialogMouseUp" ref="templateDialog" :visible.sync="templateDialog.visible" :title="$t('dialog.template_dialog.header')" width="450px")
+        FriendImportDialog
+
+        WorldImportDialog
+
+        AvatarImportDialog
+
+        ChooseFavoriteGroupDialog
+
+        LaunchDialog
+
+        UserDialog(@logout='logout' @setGroupVisibility='setGroupVisibility')
+
+        WorldDialog
+
+        GroupDialog(
+            :isGroupGalleryLoading='isGroupGalleryLoading'
+            @updateGroupPostSearch='updateGroupPostSearch'
+            @groupDialogCommand='groupDialogCommand')
+
+        AvatarDialog
+
+        FullscreenImageDialog
+
+        LaunchOptionsDialog
+
+        EditInviteMessageDialog
+
+        VRChatConfigDialog
+
+        PrimaryPasswordDialog

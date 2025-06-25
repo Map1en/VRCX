@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { $app } from '../../app';
+import { i18n } from '../../plugin';
 import configRepository from '../../service/config';
 import { API } from '../../service/eventBus';
 import {
