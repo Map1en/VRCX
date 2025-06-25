@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { $app, API, i18n } from '../../app';
+import { $app } from '../../app';
 import configRepository from '../../service/config';
+import { API } from '../../service/eventBus';
 import {
     changeAppThemeStyle,
     changeCJKFontsOrder,

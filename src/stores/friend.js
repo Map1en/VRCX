@@ -2,9 +2,10 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { friendRequest, userRequest } from '../api';
-import { $app, API } from '../app';
+import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { API } from '../service/eventBus';
 import {
     compareByCreatedAtAscending,
     getFriendsSortFunction,

@@ -2,9 +2,10 @@ import Noty from 'noty';
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { notificationRequest, userRequest, worldRequest } from '../api';
-import { $app, API } from '../app';
+import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { API } from '../service/eventBus';
 import {
     checkCanInvite,
     displayLocation,

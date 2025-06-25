@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
-import { $app, $t, API } from '../app';
+import { $app, $t } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { API } from '../service/eventBus';
 import { instanceContentSettings } from '../shared/constants';
 import {
     checkVRChatCache,

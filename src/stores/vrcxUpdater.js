@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $app, $t, API } from '../app';
+import { $app, $t } from '../app';
 import configRepository from '../service/config';
+import { API } from '../service/eventBus';
 import { branches } from '../shared/constants';
 import { changeLogRemoveLinks } from '../shared/utils';
 import { useDebugStore } from './debug';

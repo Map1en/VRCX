@@ -1,8 +1,9 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, $t, API } from '../app';
+import { $app, $t } from '../app';
 import configRepository from '../service/config';
+import { API } from '../service/eventBus';
 import security from '../service/security';
 import webApiService from '../service/webapi';
 import { escapeTag } from '../shared/utils';

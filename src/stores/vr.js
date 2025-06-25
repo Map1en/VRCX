@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import { $app, API } from '../app';
+import { $app } from '../app';
+import { API } from '../service/eventBus';
 import { isRpcWorld } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';

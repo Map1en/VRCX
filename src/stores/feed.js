@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, $t, API } from '../app.js';
+import { $app, $t } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { API } from '../service/eventBus';
 import { getAllUserMemos, getNameColour, migrateMemos } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';

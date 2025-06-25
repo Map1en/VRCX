@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { instanceRequest, inviteMessagesRequest } from '../api';
-import { $app, API } from '../app';
+import { $app } from '../app';
+import { API } from '../service/eventBus';
 import { parseLocation } from '../shared/utils';
 import { useInstanceStore } from './instance';
 

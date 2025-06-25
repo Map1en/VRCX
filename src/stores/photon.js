@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $app, API } from '../app';
+import { $app } from '../app';
 import configRepository from '../service/config';
+import { API } from '../service/eventBus';
 import { useVrStore } from './vr';
 
 export const usePhotonStore = defineStore('Photon', () => {

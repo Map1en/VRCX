@@ -7,8 +7,9 @@ import {
     userRequest,
     worldRequest
 } from '../api';
-import { $app, API } from '../app';
+import { $app } from '../app';
 import configRepository from '../service/config';
+import { API } from '../service/eventBus';
 import { groupDialogFilterOptions } from '../shared/constants/';
 import { replaceBioSymbols } from '../shared/utils';
 import { useGameStore } from './game';
