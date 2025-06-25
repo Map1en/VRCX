@@ -4,13 +4,10 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-// #region | Imports
-
 import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-// main app classes
 import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
@@ -32,13 +29,12 @@ import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 import NavMenu from './components/NavMenu.vue';
+
 import configRepository from './service/config.js';
 import { $t, API, i18n } from './setup';
-
 import { refreshCustomCss, refreshCustomScript } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { createGlobalStores, pinia } from './stores';
-
 import ChartsTab from './views/Charts/Charts.vue';
 import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
 import FriendImportDialog from './views/Favorites/dialogs/FriendImportDialog.vue';
@@ -49,8 +45,6 @@ import FriendListTab from './views/FriendList/FriendList.vue';
 import FriendLogTab from './views/FriendLog/FriendLog.vue';
 import GameLogTab from './views/GameLog/GameLog.vue';
 import LoginPage from './views/Login/Login.vue';
-
-// tabs
 import ModerationTab from './views/Moderation/Moderation.vue';
 import NotificationTab from './views/Notifications/Notification.vue';
 import PlayerListTab from './views/PlayerList/PlayerList.vue';
@@ -177,37 +171,8 @@ gameLog();
 gameRealtimeLogging();
 groups();
 
-// #endregion
-// #region | API: This is NOT all the api functions, not even close :(
-
-// #region | API: User
-
-// changeUserName: PUT users/${userId} {displayName: string, currentPassword: string}
-// changeUserEmail: PUT users/${userId} {email: string, currentPassword: string}
-// changePassword: PUT users/${userId} {password: string, currentPassword: string}
-// updateTOSAggreement: PUT users/${userId} {acceptedTOSVersion: number}
-
-// 2FA
-// removeTwoFactorAuth: DELETE auth/twofactorauth
-// getTwoFactorAuthpendingSecret: POST auth/twofactorauth/totp/pending -> { qrCodeDataUrl: string, secret: string }
-// verifyTwoFactorAuthPendingSecret: POST auth/twofactorauth/totp/pending/verify { code: string } -> { verified: bool, enabled: bool }
-// cancelVerifyTwoFactorAuthPendingSecret: DELETE auth/twofactorauth/totp/pending
-// getTwoFactorAuthOneTimePasswords: GET auth/user/twofactorauth/otp -> { otp: [ { code: string, used: bool } ] }
-
-// Account Link
-// merge: PUT auth/user/merge {mergeToken: string}
-// 링크됐다면 CurrentUser에 steamId, oculusId 값이 생기는듯
-// 스팀 계정으로 로그인해도 steamId, steamDetails에 값이 생김
-
-// Password Recovery
-// sendLink: PUT auth/password {email: string}
-// setNewPassword: PUT auth/password {emailToken: string, id: string, password: string}
-
 API.cachedUsers = new Map();
 API.currentTravelers = new Map();
-
-// #endregion
-// #region | initialise
 
 $app.data.debug = false;
 $app.data.debugWebSocket = false;
@@ -215,9 +180,6 @@ $app.data.debugUserDiff = false;
 $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
-
-// #endregion
-// #region | App: Friends
 
 $app.data.friendNumber = 0;
 $app.data.isGroupInstances = false;
@@ -238,7 +200,6 @@ $app.computed.sidebarTabBind = function () {
         groupInstances: this.groupInstances
     };
 };
-
 $app.computed.gameLogTabBind = function () {
     return {
         gameLogTable: this.gameLogTable,
@@ -246,7 +207,6 @@ $app.computed.gameLogTabBind = function () {
         gameLogIsFavorite: this.gameLogIsFavorite
     };
 };
-
 $app.computed.gameLogTabEvent = function () {
     return {
         gameLogTableLookup: this.gameLogTableLookup,
@@ -254,13 +214,11 @@ $app.computed.gameLogTabEvent = function () {
         updateSharedFeed: this.updateSharedFeed
     };
 };
-
 $app.computed.profileTabEvent = function () {
     return {
         logout: this.logout
     };
 };
-
 $app.computed.playerListTabBind = function () {
     return {
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
@@ -268,20 +226,17 @@ $app.computed.playerListTabBind = function () {
         ipcEnabled: this.ipcEnabled
     };
 };
-
 $app.computed.playerListTabEvent = function () {
     return {
         photonEventTableFilterChange: this.photonEventTableFilterChange,
         showUserFromPhotonId: this.showUserFromPhotonId
     };
 };
-
 $app.computed.loginPageBind = function () {
     return {
         enableCustomEndpoint: this.enableCustomEndpoint
     };
 };
-
 $app.computed.loginPageEvent = function () {
     return {
         promptProxySettings: this.promptProxySettings,
@@ -291,7 +246,6 @@ $app.computed.loginPageEvent = function () {
         relogin: this.relogin
     };
 };
-
 $app.computed.settingsTabEvent = function () {
     return {
         promptProxySettings: this.promptProxySettings,
@@ -309,7 +263,6 @@ $app.computed.settingsTabEvent = function () {
     };
 };
 
-// "$app" is being replaced by Vue, update references inside all the classes
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
