@@ -1,4 +1,4 @@
-import { $app, $t, API } from '../app';
+import { $app, API, t } from '../app';
 import { request } from '../service/apiRequestHandler';
 
 const instanceReq = {
@@ -126,7 +126,7 @@ const instanceReq = {
                     throw err;
                 }
                 $app.$message({
-                    message: $t('message.instance.not_allowed'),
+                    message: t('message.instance.not_allowed'),
                     type: 'error'
                 });
                 throw err;

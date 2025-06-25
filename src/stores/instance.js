@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
@@ -897,7 +897,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         state.queuedInstances.forEach((ref) => {
             if (ref.location !== instanceId) {
                 $app.$message({
-                    message: $t('message.instance.removed_form_queue', {
+                    message: t('message.instance.removed_form_queue', {
                         worldName: ref.$worldName
                     }),
                     type: 'info'

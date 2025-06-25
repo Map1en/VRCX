@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, $t } from '../../app';
+import { $app, t } from '../../app';
 import configRepository from '../../service/config';
 import database from '../../service/database';
 import { API } from '../../service/eventBus';
@@ -444,14 +444,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     function cropPrintsChanged() {
         if (!state.cropInstancePrints) return;
         $app.$confirm(
-            $t(
+            t(
                 'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old'
             ),
             {
-                confirmButtonText: $t(
+                confirmButtonText: t(
                     'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_confirm'
                 ),
-                cancelButtonText: $t(
+                cancelButtonText: t(
                     'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_cancel'
                 ),
                 type: 'info',

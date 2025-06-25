@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import { API } from '../service/eventBus';
 import { useAvatarStore } from './avatar';
 import { useUserStore } from './user';
@@ -91,7 +91,7 @@ export const useModerationStore = defineStore('Moderation', () => {
             D.isMuteChat = true;
         }
         $app.$message({
-            message: $t('message.user.moderated'),
+            message: t('message.user.moderated'),
             type: 'success'
         });
     });

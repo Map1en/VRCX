@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
@@ -111,7 +111,7 @@ export const useFeedStore = defineStore('Feed', () => {
         } catch (err) {
             if (!$app.dontLogMeOut) {
                 $app.$message({
-                    message: $t('message.friend.load_failed'),
+                    message: t('message.friend.load_failed'),
                     type: 'error'
                 });
                 API.logout();

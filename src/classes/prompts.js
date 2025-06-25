@@ -1,6 +1,6 @@
 import * as workerTimers from 'worker-timers';
 import { loginRequest, worldRequest } from '../api';
-import { $app, $t, API } from '../app.js';
+import { $app, API, t } from '../app.js';
 import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
@@ -14,15 +14,15 @@ export default function init() {
             AppApi.FlashWindow();
             this.store.auth.twoFactorAuthDialogVisible = true;
             this.$prompt(
-                $t('prompt.totp.description'),
-                $t('prompt.totp.header'),
+                t('prompt.totp.description'),
+                t('prompt.totp.header'),
                 {
                     distinguishCancelAndClose: true,
-                    cancelButtonText: $t('prompt.totp.use_otp'),
-                    confirmButtonText: $t('prompt.totp.verify'),
-                    inputPlaceholder: $t('prompt.totp.input_placeholder'),
+                    cancelButtonText: t('prompt.totp.use_otp'),
+                    confirmButtonText: t('prompt.totp.verify'),
+                    inputPlaceholder: t('prompt.totp.input_placeholder'),
                     inputPattern: /^[0-9]{6}$/,
-                    inputErrorMessage: $t('prompt.totp.input_error'),
+                    inputErrorMessage: t('prompt.totp.input_error'),
                     callback: (action, instance) => {
                         if (action === 'confirm') {
                             loginRequest
@@ -54,40 +54,36 @@ export default function init() {
                 return;
             }
             this.store.auth.twoFactorAuthDialogVisible = true;
-            this.$prompt(
-                $t('prompt.otp.description'),
-                $t('prompt.otp.header'),
-                {
-                    distinguishCancelAndClose: true,
-                    cancelButtonText: $t('prompt.otp.use_totp'),
-                    confirmButtonText: $t('prompt.otp.verify'),
-                    inputPlaceholder: $t('prompt.otp.input_placeholder'),
-                    inputPattern: /^[a-z0-9]{4}-[a-z0-9]{4}$/,
-                    inputErrorMessage: $t('prompt.otp.input_error'),
-                    callback: (action, instance) => {
-                        if (action === 'confirm') {
-                            loginRequest
-                                .verifyOTP({
-                                    code: instance.inputValue.trim()
-                                })
-                                .catch((err) => {
-                                    this.store.auth.clearCookiesTryLogin();
-                                    throw err;
-                                })
-                                .then((args) => {
-                                    API.getCurrentUser();
-                                    return args;
-                                });
-                        } else if (action === 'cancel') {
-                            this.promptTOTP();
-                        }
-                    },
-                    beforeClose: (action, instance, done) => {
-                        this.store.auth.twoFactorAuthDialogVisible = false;
-                        done();
+            this.$prompt(t('prompt.otp.description'), t('prompt.otp.header'), {
+                distinguishCancelAndClose: true,
+                cancelButtonText: t('prompt.otp.use_totp'),
+                confirmButtonText: t('prompt.otp.verify'),
+                inputPlaceholder: t('prompt.otp.input_placeholder'),
+                inputPattern: /^[a-z0-9]{4}-[a-z0-9]{4}$/,
+                inputErrorMessage: t('prompt.otp.input_error'),
+                callback: (action, instance) => {
+                    if (action === 'confirm') {
+                        loginRequest
+                            .verifyOTP({
+                                code: instance.inputValue.trim()
+                            })
+                            .catch((err) => {
+                                this.store.auth.clearCookiesTryLogin();
+                                throw err;
+                            })
+                            .then((args) => {
+                                API.getCurrentUser();
+                                return args;
+                            });
+                    } else if (action === 'cancel') {
+                        this.promptTOTP();
                     }
+                },
+                beforeClose: (action, instance, done) => {
+                    this.store.auth.twoFactorAuthDialogVisible = false;
+                    done();
                 }
-            );
+            });
         },
 
         promptEmailOTP() {
@@ -97,15 +93,15 @@ export default function init() {
             AppApi.FlashWindow();
             this.store.auth.twoFactorAuthDialogVisible = true;
             this.$prompt(
-                $t('prompt.email_otp.description'),
-                $t('prompt.email_otp.header'),
+                t('prompt.email_otp.description'),
+                t('prompt.email_otp.header'),
                 {
                     distinguishCancelAndClose: true,
-                    cancelButtonText: $t('prompt.email_otp.resend'),
-                    confirmButtonText: $t('prompt.email_otp.verify'),
-                    inputPlaceholder: $t('prompt.email_otp.input_placeholder'),
+                    cancelButtonText: t('prompt.email_otp.resend'),
+                    confirmButtonText: t('prompt.email_otp.verify'),
+                    inputPlaceholder: t('prompt.email_otp.input_placeholder'),
                     inputPattern: /^[0-9]{6}$/,
-                    inputErrorMessage: $t('prompt.email_otp.input_error'),
+                    inputErrorMessage: t('prompt.email_otp.input_error'),
                     callback: (action, instance) => {
                         if (action === 'confirm') {
                             loginRequest
@@ -134,17 +130,17 @@ export default function init() {
 
         promptNotificationTimeout() {
             this.$prompt(
-                $t('prompt.notification_timeout.description'),
-                $t('prompt.notification_timeout.header'),
+                t('prompt.notification_timeout.description'),
+                t('prompt.notification_timeout.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.notification_timeout.ok'),
-                    cancelButtonText: $t('prompt.notification_timeout.cancel'),
+                    confirmButtonText: t('prompt.notification_timeout.ok'),
+                    cancelButtonText: t('prompt.notification_timeout.cancel'),
                     inputValue:
                         this.store.notificationsSettings.notificationTimeout /
                         1000,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.notification_timeout.input_error'
                     ),
                     callback: async (action, instance) => {
@@ -169,17 +165,17 @@ export default function init() {
 
         promptPhotonOverlayMessageTimeout() {
             this.$prompt(
-                $t('prompt.overlay_message_timeout.description'),
-                $t('prompt.overlay_message_timeout.header'),
+                t('prompt.overlay_message_timeout.description'),
+                t('prompt.overlay_message_timeout.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.overlay_message_timeout.ok'),
-                    cancelButtonText: $t(
+                    confirmButtonText: t('prompt.overlay_message_timeout.ok'),
+                    cancelButtonText: t(
                         'prompt.overlay_message_timeout.cancel'
                     ),
                     inputValue: this.photonOverlayMessageTimeout / 1000,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.overlay_message_timeout.input_error'
                     ),
                     callback: async (action, instance) => {
@@ -200,14 +196,14 @@ export default function init() {
 
         promptRenameWorld(world) {
             this.$prompt(
-                $t('prompt.rename_world.description'),
-                $t('prompt.rename_world.header'),
+                t('prompt.rename_world.description'),
+                t('prompt.rename_world.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.rename_world.ok'),
-                    cancelButtonText: $t('prompt.rename_world.cancel'),
+                    confirmButtonText: t('prompt.rename_world.ok'),
+                    cancelButtonText: t('prompt.rename_world.cancel'),
                     inputValue: world.ref.name,
-                    inputErrorMessage: $t('prompt.rename_world.input_error'),
+                    inputErrorMessage: t('prompt.rename_world.input_error'),
                     callback: (action, instance) => {
                         if (
                             action === 'confirm' &&
@@ -220,7 +216,7 @@ export default function init() {
                                 })
                                 .then((args) => {
                                     this.$message({
-                                        message: $t(
+                                        message: t(
                                             'prompt.rename_world.message.success'
                                         ),
                                         type: 'success'
@@ -235,16 +231,16 @@ export default function init() {
 
         promptChangeWorldDescription(world) {
             this.$prompt(
-                $t('prompt.change_world_description.description'),
-                $t('prompt.change_world_description.header'),
+                t('prompt.change_world_description.description'),
+                t('prompt.change_world_description.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.change_world_description.ok'),
-                    cancelButtonText: $t(
+                    confirmButtonText: t('prompt.change_world_description.ok'),
+                    cancelButtonText: t(
                         'prompt.change_world_description.cancel'
                     ),
                     inputValue: world.ref.description,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.change_world_description.input_error'
                     ),
                     callback: (action, instance) => {
@@ -259,7 +255,7 @@ export default function init() {
                                 })
                                 .then((args) => {
                                     this.$message({
-                                        message: $t(
+                                        message: t(
                                             'prompt.change_world_description.message.success'
                                         ),
                                         type: 'success'
@@ -274,15 +270,15 @@ export default function init() {
 
         promptChangeWorldCapacity(world) {
             this.$prompt(
-                $t('prompt.change_world_capacity.description'),
-                $t('prompt.change_world_capacity.header'),
+                t('prompt.change_world_capacity.description'),
+                t('prompt.change_world_capacity.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.change_world_capacity.ok'),
-                    cancelButtonText: $t('prompt.change_world_capacity.cancel'),
+                    confirmButtonText: t('prompt.change_world_capacity.ok'),
+                    cancelButtonText: t('prompt.change_world_capacity.cancel'),
                     inputValue: world.ref.capacity,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.change_world_capacity.input_error'
                     ),
                     callback: (action, instance) => {
@@ -297,7 +293,7 @@ export default function init() {
                                 })
                                 .then((args) => {
                                     this.$message({
-                                        message: $t(
+                                        message: t(
                                             'prompt.change_world_capacity.message.success'
                                         ),
                                         type: 'success'
@@ -312,15 +308,15 @@ export default function init() {
 
         promptChangeWorldRecommendedCapacity(world) {
             this.$prompt(
-                $t('prompt.change_world_recommended_capacity.description'),
-                $t('prompt.change_world_recommended_capacity.header'),
+                t('prompt.change_world_recommended_capacity.description'),
+                t('prompt.change_world_recommended_capacity.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.change_world_capacity.ok'),
-                    cancelButtonText: $t('prompt.change_world_capacity.cancel'),
+                    confirmButtonText: t('prompt.change_world_capacity.ok'),
+                    cancelButtonText: t('prompt.change_world_capacity.cancel'),
                     inputValue: world.ref.recommendedCapacity,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.change_world_recommended_capacity.input_error'
                     ),
                     callback: (action, instance) => {
@@ -336,7 +332,7 @@ export default function init() {
                                 })
                                 .then((args) => {
                                     this.$message({
-                                        message: $t(
+                                        message: t(
                                             'prompt.change_world_recommended_capacity.message.success'
                                         ),
                                         type: 'success'
@@ -351,14 +347,14 @@ export default function init() {
 
         promptChangeWorldYouTubePreview(world) {
             this.$prompt(
-                $t('prompt.change_world_preview.description'),
-                $t('prompt.change_world_preview.header'),
+                t('prompt.change_world_preview.description'),
+                t('prompt.change_world_preview.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.change_world_preview.ok'),
-                    cancelButtonText: $t('prompt.change_world_preview.cancel'),
+                    confirmButtonText: t('prompt.change_world_preview.ok'),
+                    cancelButtonText: t('prompt.change_world_preview.cancel'),
                     inputValue: world.ref.previewYoutubeId,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.change_world_preview.input_error'
                     ),
                     callback: (action, instance) => {
@@ -382,7 +378,7 @@ export default function init() {
                                     }
                                 } catch {
                                     this.$message({
-                                        message: $t(
+                                        message: t(
                                             'prompt.change_world_preview.message.error'
                                         ),
                                         type: 'error'
@@ -401,7 +397,7 @@ export default function init() {
                                     })
                                     .then((args) => {
                                         this.$message({
-                                            message: $t(
+                                            message: t(
                                                 'prompt.change_world_preview.message.success'
                                             ),
                                             type: 'success'
@@ -417,15 +413,15 @@ export default function init() {
 
         promptMaxTableSizeDialog() {
             this.$prompt(
-                $t('prompt.change_table_size.description'),
-                $t('prompt.change_table_size.header'),
+                t('prompt.change_table_size.description'),
+                t('prompt.change_table_size.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.change_table_size.save'),
-                    cancelButtonText: $t('prompt.change_table_size.cancel'),
+                    confirmButtonText: t('prompt.change_table_size.save'),
+                    cancelButtonText: t('prompt.change_table_size.cancel'),
                     inputValue: this.maxTableSize,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.change_table_size.input_error'
                     ),
                     callback: async (action, instance) => {
@@ -449,14 +445,14 @@ export default function init() {
 
         promptProxySettings() {
             this.$prompt(
-                $t('prompt.proxy_settings.description'),
-                $t('prompt.proxy_settings.header'),
+                t('prompt.proxy_settings.description'),
+                t('prompt.proxy_settings.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.proxy_settings.restart'),
-                    cancelButtonText: $t('prompt.proxy_settings.close'),
+                    confirmButtonText: t('prompt.proxy_settings.restart'),
+                    cancelButtonText: t('prompt.proxy_settings.close'),
                     inputValue: this.proxyServer,
-                    inputPlaceholder: $t('prompt.proxy_settings.placeholder'),
+                    inputPlaceholder: t('prompt.proxy_settings.placeholder'),
                     callback: async (action, instance) => {
                         this.proxyServer = instance.inputValue;
                         await VRCXStorage.Set(
@@ -480,15 +476,15 @@ export default function init() {
 
         promptPhotonLobbyTimeoutThreshold() {
             this.$prompt(
-                $t('prompt.photon_lobby_timeout.description'),
-                $t('prompt.photon_lobby_timeout.header'),
+                t('prompt.photon_lobby_timeout.description'),
+                t('prompt.photon_lobby_timeout.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.photon_lobby_timeout.ok'),
-                    cancelButtonText: $t('prompt.photon_lobby_timeout.cancel'),
+                    confirmButtonText: t('prompt.photon_lobby_timeout.ok'),
+                    cancelButtonText: t('prompt.photon_lobby_timeout.cancel'),
                     inputValue: this.photonLobbyTimeoutThreshold / 1000,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
+                    inputErrorMessage: t(
                         'prompt.photon_lobby_timeout.input_error'
                     ),
                     callback: async (action, instance) => {
@@ -508,17 +504,15 @@ export default function init() {
 
         promptAutoClearVRCXCacheFrequency() {
             this.$prompt(
-                $t('prompt.auto_clear_cache.description'),
-                $t('prompt.auto_clear_cache.header'),
+                t('prompt.auto_clear_cache.description'),
+                t('prompt.auto_clear_cache.header'),
                 {
                     distinguishCancelAndClose: true,
-                    confirmButtonText: $t('prompt.auto_clear_cache.ok'),
-                    cancelButtonText: $t('prompt.auto_clear_cache.cancel'),
+                    confirmButtonText: t('prompt.auto_clear_cache.ok'),
+                    cancelButtonText: t('prompt.auto_clear_cache.cancel'),
                     inputValue: this.clearVRCXCacheFrequency / 3600 / 2,
                     inputPattern: /\d+$/,
-                    inputErrorMessage: $t(
-                        'prompt.auto_clear_cache.input_error'
-                    ),
+                    inputErrorMessage: t('prompt.auto_clear_cache.input_error'),
                     callback: async (action, instance) => {
                         if (
                             action === 'confirm' &&

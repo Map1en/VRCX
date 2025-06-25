@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { branches } from '../shared/constants';
@@ -313,7 +313,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         const releases = [];
         if (typeof json !== 'object' || json.message) {
             $app.$message({
-                message: $t('message.vrcx_updater.failed', {
+                message: t('message.vrcx_updater.failed', {
                     message: json.message
                 }),
                 type: 'error'
@@ -364,7 +364,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         } catch (err) {
             console.error(err);
             $app.$message({
-                message: `${$t('message.vrcx_updater.failed_install')} ${err}`,
+                message: `${t('message.vrcx_updater.failed_install')} ${err}`,
                 type: 'error'
             });
         } finally {
@@ -447,7 +447,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
     }
     function updateProgressText() {
         if (state.updateProgress === 100) {
-            return $t('message.vrcx_updater.checking_hash');
+            return t('message.vrcx_updater.checking_hash');
         }
         return `${state.updateProgress}%`;
     }

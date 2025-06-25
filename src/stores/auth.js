@@ -1,7 +1,7 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import security from '../service/security';
@@ -233,8 +233,8 @@ export const useAuthStore = defineStore('Auth', () => {
             state.enablePrimaryPasswordDialog.visible = true;
         } else {
             $app.$prompt(
-                $t('prompt.primary_password.description'),
-                $t('prompt.primary_password.header'),
+                t('prompt.primary_password.description'),
+                t('prompt.primary_password.header'),
                 {
                     inputType: 'password',
                     inputPattern: /[\s\S]{1,32}/
@@ -365,8 +365,8 @@ export const useAuthStore = defineStore('Auth', () => {
                 resolve(args.password);
             }
             $app.$prompt(
-                $t('prompt.primary_password.description'),
-                $t('prompt.primary_password.header'),
+                t('prompt.primary_password.description'),
+                t('prompt.primary_password.header'),
                 {
                     inputType: 'password',
                     inputPattern: /[\s\S]{1,32}/

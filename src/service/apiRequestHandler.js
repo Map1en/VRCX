@@ -1,5 +1,5 @@
 import Noty from 'noty';
-import { $app, $t } from '../app.js';
+import { $app, t } from '../app.js';
 import { statusCodes } from '../shared/constants/api.js';
 import { escapeTag } from '../shared/utils';
 import {
@@ -10,14 +10,14 @@ import {
 } from '../stores';
 import { API } from './eventBus.js';
 
-function init() {
+function initConfig() {
     API.cachedConfig = {};
     API.endpointDomainVrchat = 'https://api.vrchat.cloud/api/1';
     API.websocketDomainVrchat = 'wss://pipeline.vrchat.cloud';
     API.endpointDomain = 'https://api.vrchat.cloud/api/1';
     API.websocketDomain = 'wss://pipeline.vrchat.cloud';
 }
-init();
+initConfig();
 
 const pendingGetRequests = new Map();
 export let failedGetRequests = new Map();
@@ -41,7 +41,7 @@ export function request(endpoint, options) {
             if (lastRun >= Date.now() - 900000) {
                 // 15mins
                 throw new Error(
-                    `${$t('api.error.message.403_404_bailing_request')}, ${endpoint}`
+                    `${t('api.error.message.403_404_bailing_request')}, ${endpoint}`
                 );
             }
             failedGetRequests.delete(endpoint);
@@ -101,7 +101,7 @@ export function request(endpoint, options) {
             if (response.status === 200) {
                 $throw(
                     0,
-                    $t('api.error.message.invalid_json_response'),
+                    t('api.error.message.invalid_json_response'),
                     endpoint
                 );
             }
@@ -146,7 +146,7 @@ export function request(endpoint, options) {
             ) {
                 API.$emit('AUTOLOGIN');
                 throw new Error(
-                    `401 ${$t('api.error.message.missing_credentials')}`
+                    `401 ${t('api.error.message.missing_credentials')}`
                 );
             }
             if (
@@ -158,12 +158,12 @@ export function request(endpoint, options) {
                 if (!authStore.twoFactorAuthDialogVisible) {
                     API.getCurrentUser();
                 }
-                throw new Error(`401 ${$t('api.status_code.401')}`);
+                throw new Error(`401 ${t('api.status_code.401')}`);
             }
             if (status === 403 && endpoint === 'config') {
                 $app.$alert(
-                    $t('api.error.message.vpn_in_use'),
-                    `403 ${$t('api.error.message.login_error')}`
+                    t('api.error.message.vpn_in_use'),
+                    `403 ${t('api.error.message.login_error')}`
                 );
                 API.logout();
                 throw new Error(`403 ${endpoint}`);
@@ -174,9 +174,7 @@ export function request(endpoint, options) {
                 endpoint.startsWith('avatars/')
             ) {
                 $app.$message({
-                    message: $t(
-                        'message.api_handler.avatar_private_or_deleted'
-                    ),
+                    message: t('message.api_handler.avatar_private_or_deleted'),
                     type: 'error'
                 });
                 avatarStore.avatarDialog.visible = false;
@@ -242,18 +240,18 @@ export function $throw(code, error, endpoint) {
         if (typeof status === 'undefined') {
             text.push(`${code}`);
         } else {
-            const codeText = $t(`api.status_code.${code}`);
+            const codeText = t(`api.status_code.${code}`);
             text.push(`${code} ${codeText}`);
         }
     }
     if (typeof error !== 'undefined') {
         text.push(
-            `${$t('api.error.message.error_message')}: ${typeof error === 'string' ? error : JSON.stringify(error)}`
+            `${t('api.error.message.error_message')}: ${typeof error === 'string' ? error : JSON.stringify(error)}`
         );
     }
     if (typeof endpoint !== 'undefined') {
         text.push(
-            `${$t('api.error.message.endpoint')}: "${typeof endpoint === 'string' ? endpoint : JSON.stringify(endpoint)}"`
+            `${t('api.error.message.endpoint')}: "${typeof endpoint === 'string' ? endpoint : JSON.stringify(endpoint)}"`
         );
     }
     text = text.map((s) => escapeTag(s)).join('<br>');

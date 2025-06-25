@@ -1,5 +1,5 @@
 import Noty from 'noty';
-import { $app, $t } from '../app.js';
+import { $app, t } from '../app.js';
 import { request } from '../service/apiRequestHandler';
 import configRepository from '../service/config.js';
 import { API } from '../service/eventBus';
@@ -253,8 +253,8 @@ export default async function init() {
                             this.store.advancedSettings.enablePrimaryPassword
                         ) {
                             $app.$prompt(
-                                $t('prompt.primary_password.description'),
-                                $t('prompt.primary_password.header'),
+                                t('prompt.primary_password.description'),
+                                t('prompt.primary_password.header'),
                                 {
                                     inputType: 'password',
                                     inputPattern: /[\s\S]{1,32}/

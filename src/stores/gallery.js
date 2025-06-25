@@ -8,7 +8,7 @@ import {
     vrcPlusIconRequest,
     vrcPlusImageRequest
 } from '../api';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import { request } from '../service/apiRequestHandler';
 import { API } from '../service/eventBus';
 import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
@@ -263,7 +263,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         if (files[0].size >= 100000000) {
             // 100MB
             $app.$message({
-                message: $t('message.file.too_large'),
+                message: t('message.file.too_large'),
                 type: 'error'
             });
             clearInviteImageUpload();
@@ -271,7 +271,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
         if (!files[0].type.match(/image.*/)) {
             $app.$message({
-                message: $t('message.file.not_image'),
+                message: t('message.file.not_image'),
                 type: 'error'
             });
             clearInviteImageUpload();

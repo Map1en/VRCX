@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { worldRequest } from '../api';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import { failedGetRequests } from '../service/apiRequestHandler';
 import configRepository from '../service/config';
 import database from '../service/database';
@@ -649,8 +649,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             }
             // popup message about auto restore
             $app.$alert(
-                $t('dialog.registry_backup.restore_prompt'),
-                $t('dialog.registry_backup.header')
+                t('dialog.registry_backup.restore_prompt'),
+                t('dialog.registry_backup.header')
             );
             this.showRegistryBackupDialog();
             await AppApi.FocusWindow();

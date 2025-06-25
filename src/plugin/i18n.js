@@ -41,6 +41,6 @@ Vue.use(VueLazyload, {
 const appLanguage = await configRepository.getString('VRCX_appLanguage', 'en');
 i18n.locale = appLanguage;
 
-const $t = i18n.global.t;
+const t = i18n.global.t;
 
-export { i18n, $t };
+export { i18n, t };

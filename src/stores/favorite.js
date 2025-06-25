@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { favoriteRequest } from '../api';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import { bulk } from '../service/apiRequestHandler';
 import database from '../service/database';
 import { API } from '../service/eventBus';
@@ -1644,12 +1644,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     function renameLocalAvatarFavoriteGroup(newName, group) {
         if (state.localAvatarFavoriteGroups.includes(newName)) {
             $app.$message({
-                message: $t(
-                    'prompt.local_favorite_group_rename.message.error',
-                    {
-                        name: newName
-                    }
-                ),
+                message: t('prompt.local_favorite_group_rename.message.error', {
+                    name: newName
+                }),
                 type: 'error'
             });
             return;
@@ -1670,7 +1667,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     function newLocalAvatarFavoriteGroup(group) {
         if (state.localAvatarFavoriteGroups.includes(group)) {
             $app.$message({
-                message: $t('prompt.new_local_favorite_group.message.error', {
+                message: t('prompt.new_local_favorite_group.message.error', {
                     name: group
                 }),
                 type: 'error'
@@ -1853,12 +1850,9 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     function renameLocalWorldFavoriteGroup(newName, group) {
         if (state.localWorldFavoriteGroups.includes(newName)) {
             $app.$message({
-                message: $t(
-                    'prompt.local_favorite_group_rename.message.error',
-                    {
-                        name: newName
-                    }
-                ),
+                message: t('prompt.local_favorite_group_rename.message.error', {
+                    name: newName
+                }),
                 type: 'error'
             });
             return;
@@ -1978,7 +1972,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     function newLocalWorldFavoriteGroup(group) {
         if (state.localWorldFavoriteGroups.includes(group)) {
             $app.$message({
-                message: $t('prompt.new_local_favorite_group.message.error', {
+                message: t('prompt.new_local_favorite_group.message.error', {
                     name: group
                 }),
                 type: 'error'

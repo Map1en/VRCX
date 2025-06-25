@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { instanceRequest, userRequest } from '../api';
 import { groupRequest } from '../api/';
-import { $app, $t } from '../app';
+import { $app, t } from '../app';
 import removeConfusables, { removeWhitespace } from '../service/confusables';
 import { API } from '../service/eventBus';
 import { compareByName, localeIncludes } from '../shared/utils';
@@ -348,20 +348,20 @@ export const useSearchStore = defineStore('Search', () => {
 
     function promptOmniDirectDialog() {
         $app.$prompt(
-            $t('prompt.direct_access_omni.description'),
-            $t('prompt.direct_access_omni.header'),
+            t('prompt.direct_access_omni.description'),
+            t('prompt.direct_access_omni.header'),
             {
                 distinguishCancelAndClose: true,
-                confirmButtonText: $t('prompt.direct_access_omni.ok'),
-                cancelButtonText: $t('prompt.direct_access_omni.cancel'),
+                confirmButtonText: t('prompt.direct_access_omni.ok'),
+                cancelButtonText: t('prompt.direct_access_omni.cancel'),
                 inputPattern: /\S+/,
-                inputErrorMessage: $t('prompt.direct_access_omni.input_error'),
+                inputErrorMessage: t('prompt.direct_access_omni.input_error'),
                 callback: (action, instance) => {
                     if (action === 'confirm' && instance.inputValue) {
                         const input = instance.inputValue.trim();
                         if (!directAccessParse(input)) {
                             $app.$message({
-                                message: $t(
+                                message: t(
                                     'prompt.direct_access_omni.message.error'
                                 ),
                                 type: 'error'

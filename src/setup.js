@@ -6,13 +6,7 @@ import '@infolektuell/noto-color-emoji';
 import { PiniaVuePlugin } from 'pinia';
 
 import Vue from 'vue';
-// import { API } from './service/eventBus';
-// import { $t, i18n } from './plugin/globalComponents';
-// import '../plugin/globalComponents';
-// import '../plugin/dayjs';
-// import '../plugin/ipc';
-// import '../plugin/noty';
-import { $t, API, i18n } from './plugin';
+import { API, i18n, t } from './plugin';
 import configRepository from './service/config';
 import vrcxJsonStorage from './service/vrcxJsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
@@ -41,4 +35,4 @@ if (process.env.NODE_ENV !== 'production') {
     };
 }
 
-export { API, $t, i18n };
+export { API, t, i18n };

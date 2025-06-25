@@ -30,7 +30,7 @@ import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
 import NavMenu from './components/NavMenu.vue';
 
 import configRepository from './service/config.js';
-import { $t, API, i18n } from './setup';
+import { API, i18n, t } from './setup';
 import { refreshCustomCss, refreshCustomScript } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { createGlobalStores, pinia } from './stores';
@@ -265,4 +265,4 @@ $app = new Vue($app);
 window.$app = $app;
 window.API = API;
 
-export { $app, API, $t, i18n };
+export { $app, API, t, i18n };
