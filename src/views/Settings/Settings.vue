@@ -1923,8 +1923,14 @@
     const { discordActive, discordInstance, discordHideInvite, discordJoinButton, discordHideImage } = storeToRefs(
         useDiscordPresenceSettingsStore()
     );
-    const { setDiscordActive, setDiscordInstance, setDiscordHideInvite, setDiscordJoinButton, setDiscordHideImage } =
-        useDiscordPresenceSettingsStore();
+    const {
+        setDiscordActive,
+        setDiscordInstance,
+        setDiscordHideInvite,
+        setDiscordJoinButton,
+        setDiscordHideImage,
+        saveDiscordOption
+    } = useDiscordPresenceSettingsStore();
     const {
         setPhotonEventOverlayFilter,
         setPhotonEventTableTypeOverlayFilter,
@@ -2148,7 +2154,6 @@
         'promptProxySettings',
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
-        'saveDiscordOption',
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
@@ -2235,10 +2240,6 @@
 
     function promptNotificationTimeout() {
         emit('promptNotificationTimeout');
-    }
-
-    function saveDiscordOption() {
-        emit('saveDiscordOption');
     }
 
     function showScreenshotMetadataDialog() {

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { userRequest } from '../api';
 import { $app, API } from '../app';
@@ -30,6 +30,13 @@ export const useGameLogStore = defineStore('GameLog', () => {
             percentage: 0,
             remainingText: '',
             playing: false
+        }
+    });
+
+    const nowPlaying = computed({
+        get: () => state.nowPlaying,
+        set: (value) => {
+            state.nowPlaying = value;
         }
     });
 
@@ -188,5 +195,11 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
     }
 
-    return { state, clearNowPlaying, setNowPlaying, loadPlayerList };
+    return {
+        state,
+        nowPlaying,
+        clearNowPlaying,
+        setNowPlaying,
+        loadPlayerList
+    };
 });

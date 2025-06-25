@@ -6,18 +6,14 @@
 
 // #region | Imports
 
-// pinia
-
 import Vue from 'vue';
-import * as workerTimers from 'worker-timers';
-
 import pugTemplate from './app.pug';
+import './setup';
 
 // main app classes
 import apiLogin from './classes/apiLogin.js';
 import apiRequestHandler from './classes/apiRequestHandler.js';
 import currentUser from './classes/currentUser.js';
-import discordRpc from './classes/discordRpc.js';
 import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
@@ -35,23 +31,11 @@ import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesD
 import UserDialog from './components/dialogs/UserDialog/UserDialog.vue';
 import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
 import WorldDialog from './components/dialogs/WorldDialog/WorldDialog.vue';
-
-// dialogs
 import NavMenu from './components/NavMenu.vue';
-
-// components
-// util classes
 import configRepository from './service/config.js';
-
-import './setup';
 import { $t, API, i18n } from './setup';
 
-import {
-    refreshCustomCss,
-    refreshCustomScript,
-    removeFromArray,
-    timeToText
-} from './shared/utils';
+import { refreshCustomCss, refreshCustomScript } from './shared/utils';
 import { _utils } from './shared/utils/_utils';
 import { createGlobalStores, pinia } from './stores';
 
@@ -64,7 +48,6 @@ import FeedTab from './views/Feed/Feed.vue';
 import FriendListTab from './views/FriendList/FriendList.vue';
 import FriendLogTab from './views/FriendLog/FriendLog.vue';
 import GameLogTab from './views/GameLog/GameLog.vue';
-
 import LoginPage from './views/Login/Login.vue';
 
 // tabs
@@ -72,7 +55,6 @@ import ModerationTab from './views/Moderation/Moderation.vue';
 import NotificationTab from './views/Notifications/Notification.vue';
 import PlayerListTab from './views/PlayerList/PlayerList.vue';
 import EditInviteMessageDialog from './views/Profile/dialogs/EditInviteMessageDialog.vue';
-
 import ProfileTab from './views/Profile/Profile.vue';
 import SearchTab from './views/Search/Search.vue';
 import LaunchOptionsDialog from './views/Settings/dialogs/LaunchOptionsDialog.vue';
@@ -232,7 +214,6 @@ updateLoop();
 gameLog();
 gameRealtimeLogging();
 groups();
-discordRpc();
 
 // #endregion
 // #region | API: This is NOT all the api functions, not even close :(
@@ -262,62 +243,6 @@ discordRpc();
 
 API.cachedUsers = new Map();
 API.currentTravelers = new Map();
-
-const $countDownTimers = [];
-
-Vue.component('CountdownTimer', {
-    props: {
-        datetime: {
-            type: String,
-            default() {
-                return '';
-            }
-        },
-        hours: {
-            type: Number,
-            default() {
-                return 1;
-            }
-        }
-    },
-    data() {
-        return {
-            text: ''
-        };
-    },
-    watch: {
-        date() {
-            this.update();
-        }
-    },
-    mounted() {
-        $countDownTimers.push(this);
-        this.update();
-    },
-    destroyed() {
-        removeFromArray($countDownTimers, this);
-    },
-    methods: {
-        update() {
-            const epoch =
-                new Date(this.datetime).getTime() +
-                1000 * 60 * 60 * this.hours -
-                Date.now();
-            if (epoch >= 0) {
-                this.text = timeToText(epoch);
-            } else {
-                this.text = '-';
-            }
-        }
-    },
-    template: '<span v-text="text"></span>'
-});
-
-workerTimers.setInterval(function () {
-    for (let $countDownTimer of $countDownTimers) {
-        $countDownTimer.update();
-    }
-}, 5000);
 
 // #endregion
 // #region | initialise
@@ -410,7 +335,6 @@ $app.computed.settingsTabEvent = function () {
         promptProxySettings: this.promptProxySettings,
         promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
         promptNotificationTimeout: this.promptNotificationTimeout,
-        saveDiscordOption: this.saveDiscordOption,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,
         photonEventTableFilterChange: this.photonEventTableFilterChange,
@@ -423,28 +347,9 @@ $app.computed.settingsTabEvent = function () {
     };
 };
 
-// #endregion
-
 // "$app" is being replaced by Vue, update references inside all the classes
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
 
 export { $app, API, $t, i18n };
-
-// #endregion
-
-// // #endregion
-// // #region | Dialog: templateDialog
-
-// $app.data.templateDialog = {
-//     visible: false,
-// };
-
-// $app.methods.showTemplateDialog = function () {
-//     this.$nextTick(() => $app.adjustDialogZ(this.$refs.templateDialog.$el));
-//     var D = this.templateDialog;
-//     D.visible = true;
-// };
-
-// // #endregion

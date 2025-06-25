@@ -242,8 +242,11 @@ export default function init() {
                     break;
                 case 'video-sync':
                     var timestamp = gameLog.timestamp.replace(/,/g, '');
-                    if (this.nowPlaying.playing) {
-                        this.nowPlaying.offset = parseInt(timestamp, 10);
+                    if (this.store.gameLog.nowPlaying.playing) {
+                        this.store.gameLog.nowPlaying.offset = parseInt(
+                            timestamp,
+                            10
+                        );
                     }
                     break;
                 case 'resource-load-string':
@@ -643,7 +646,7 @@ export default function init() {
             if (displayName === 'Random') {
                 displayName = '';
             }
-            if (videoUrl === this.nowPlaying.url) {
+            if (videoUrl === this.store.gameLog.nowPlaying.url) {
                 var entry = {
                     created_at: gameLog.dt,
                     videoUrl,
@@ -710,7 +713,7 @@ export default function init() {
                 // ummm okay
                 videoPos = 0;
             }
-            if (videoUrl === this.nowPlaying.url) {
+            if (videoUrl === this.store.gameLog.nowPlaying.url) {
                 var entry = {
                     created_at: gameLog.dt,
                     videoUrl,
@@ -776,7 +779,7 @@ export default function init() {
             if (videoId === 9999) {
                 videoId = 'YouTube';
             }
-            if (videoUrl === this.nowPlaying.url) {
+            if (videoUrl === this.store.gameLog.nowPlaying.url) {
                 var entry = {
                     created_at: gameLog.dt,
                     videoUrl,
@@ -836,7 +839,7 @@ export default function init() {
             var videoName = replaceBioSymbols(data[4]);
             var videoUrl = videoName;
             var videoId = 'LSMedia';
-            if (videoUrl === this.nowPlaying.url) {
+            if (videoUrl === this.store.gameLog.nowPlaying.url) {
                 var entry = {
                     created_at: gameLog.dt,
                     videoUrl,
@@ -887,7 +890,7 @@ export default function init() {
             if (!videoName) {
                 return;
             }
-            if (videoUrl === this.nowPlaying.url) {
+            if (videoUrl === this.store.gameLog.nowPlaying.url) {
                 var entry = {
                     created_at: gameLog.dt,
                     videoUrl,
