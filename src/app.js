@@ -44,7 +44,6 @@ import prompts from './classes/prompts.js';
 import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
-import _vrcxJsonStorage from './classes/vrcxJsonStorage.js';
 import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
@@ -68,6 +67,7 @@ import * as localizedStrings from './localization/localizedStrings.js';
 
 // util classes
 import configRepository from './service/config.js';
+import vrcxJsonStorage from './service/vrcxJsonStorage.js';
 import {
     commaNumber,
     refreshCustomCss,
@@ -217,7 +217,7 @@ Vue.use(ElementUI, {
 
 Vue.use(PiniaVuePlugin);
 
-new _vrcxJsonStorage(VRCXStorage);
+new vrcxJsonStorage(VRCXStorage);
 
 await configRepository.init();
 
