@@ -50,14 +50,11 @@ doctype html
 
         LaunchDialog
 
-        UserDialog(@logout='logout' @setGroupVisibility='setGroupVisibility')
+        UserDialog(@logout='logout')
 
         WorldDialog
 
-        GroupDialog(
-            :isGroupGalleryLoading='isGroupGalleryLoading'
-            @updateGroupPostSearch='updateGroupPostSearch'
-            @groupDialogCommand='groupDialogCommand')
+        GroupDialog
 
         AvatarDialog
 

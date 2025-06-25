@@ -156,7 +156,7 @@ export default function init() {
         if (!hasPost) {
             D.posts.unshift(newPost);
         }
-        $app.updateGroupPostSearch();
+        $app.store.group.updateGroupPostSearch();
     });
 
     API.$on('GROUP:MEMBERS', function (args) {
@@ -285,78 +285,10 @@ export default function init() {
         // groupDialogLastMembers: '',
         // groupDialogLastGallery: '',
         groupMembersSearchTimer: null,
-        groupMembersSearchPending: false,
-        isGroupGalleryLoading: false
+        groupMembersSearchPending: false
     };
 
     const _methods = {
-        blockGroup(groupId) {
-            this.$confirm(
-                'Are you sure you want to block this group?',
-                'Confirm',
-                {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            groupRequest
-                                .blockGroup({
-                                    groupId
-                                })
-                                .then((args) => {
-                                    // API.$on('GROUP:BLOCK', function (args) {
-                                    if (
-                                        this.store.group.groupDialog.visible &&
-                                        this.store.group.groupDialog.id ===
-                                            args.params.groupId
-                                    ) {
-                                        this.store.group.showGroupDialog(
-                                            args.params.groupId
-                                        );
-                                    }
-                                    // });
-                                });
-                        }
-                    }
-                }
-            );
-        },
-
-        unblockGroup(groupId) {
-            this.$confirm(
-                'Are you sure you want to unblock this group?',
-                'Confirm',
-                {
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    type: 'info',
-                    callback: (action) => {
-                        if (action === 'confirm') {
-                            groupRequest
-                                .unblockGroup({
-                                    groupId,
-                                    userId: API.currentUser.id
-                                })
-                                .then((args) => {
-                                    // API.$on('GROUP:UNBLOCK', function (args) {
-                                    if (
-                                        this.store.group.groupDialog.visible &&
-                                        this.store.group.groupDialog.id ===
-                                            args.params.groupId
-                                    ) {
-                                        this.store.group.showGroupDialog(
-                                            args.params.groupId
-                                        );
-                                    }
-                                    // });
-                                });
-                        }
-                    }
-                }
-            );
-        },
-
         async loadCurrentUserGroups(userId, groups) {
             var savedGroups = JSON.parse(
                 await configRepository.getString(
@@ -429,87 +361,6 @@ export default function init() {
                 userId: API.currentUser.id
             });
             this.store.group.saveCurrentUserGroups();
-        },
-
-        groupDialogCommand(command) {
-            const D = this.store.group.groupDialog;
-            if (D.visible === false) {
-                return;
-            }
-            switch (command) {
-                case 'Refresh':
-                    this.store.group.showGroupDialog(D.id);
-                    break;
-                case 'Leave Group':
-                    this.store.group.leaveGroupPrompt(D.id);
-                    break;
-                case 'Block Group':
-                    this.blockGroup(D.id);
-                    break;
-                case 'Unblock Group':
-                    this.unblockGroup(D.id);
-                    break;
-                case 'Visibility Everyone':
-                    this.setGroupVisibility(D.id, 'visible');
-                    break;
-                case 'Visibility Friends':
-                    this.setGroupVisibility(D.id, 'friends');
-                    break;
-                case 'Visibility Hidden':
-                    this.setGroupVisibility(D.id, 'hidden');
-                    break;
-                case 'Subscribe To Announcements':
-                    this.setGroupSubscription(D.id, true);
-                    break;
-                case 'Unsubscribe To Announcements':
-                    this.setGroupSubscription(D.id, false);
-                    break;
-            }
-        },
-
-        setGroupVisibility(groupId, visibility) {
-            return groupRequest
-                .setGroupMemberProps(API.currentUser.id, groupId, {
-                    visibility
-                })
-                .then((args) => {
-                    this.$message({
-                        message: 'Group visibility updated',
-                        type: 'success'
-                    });
-                    return args;
-                });
-        },
-
-        setGroupSubscription(groupId, subscribe) {
-            return groupRequest
-                .setGroupMemberProps(API.currentUser.id, groupId, {
-                    isSubscribedToAnnouncements: subscribe
-                })
-                .then((args) => {
-                    this.$message({
-                        message: 'Group subscription updated',
-                        type: 'success'
-                    });
-                    return args;
-                });
-        },
-
-        updateGroupPostSearch() {
-            var D = this.store.group.groupDialog;
-            var search = D.postsSearch.toLowerCase();
-            D.postsFiltered = D.posts.filter((post) => {
-                if (search === '') {
-                    return true;
-                }
-                if (post.title.toLowerCase().includes(search)) {
-                    return true;
-                }
-                if (post.text.toLowerCase().includes(search)) {
-                    return true;
-                }
-                return false;
-            });
         },
 
         getCurrentUserRepresentedGroup() {

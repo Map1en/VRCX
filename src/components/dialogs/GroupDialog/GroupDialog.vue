@@ -1166,7 +1166,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { $app, API } from '../../../app';
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import {
         adjustDialogZ,
@@ -1196,7 +1196,8 @@
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
     const { groupDialog, inviteGroupDialog } = storeToRefs(useGroupStore());
-    const { getGroupDialogGroup } = useGroupStore();
+    const { getGroupDialogGroup, updateGroupPostSearch, showGroupDialog, leaveGroupPrompt, setGroupVisibility } =
+        useGroupStore();
     const { lastLocation } = storeToRefs(useLocationStore());
     const { showFullscreenImageDialog } = useGalleryStore();
 
@@ -1204,13 +1205,6 @@
     const instance = getCurrentInstance();
     const $confirm = instance.proxy.$confirm;
     const $message = instance.proxy.$message;
-
-    const emit = defineEmits([
-        'update:group-dialog',
-        'groupDialogCommand',
-        'getGroupDialogGroup',
-        'updateGroupPostSearch'
-    ]);
 
     const groupDialogRef = ref(null);
     const isGroupMembersDone = ref(false);
@@ -1442,9 +1436,93 @@
             case 'Invite To Group':
                 showInviteGroupDialog(D.id, '');
                 break;
-            default:
-                emit('groupDialogCommand', command);
+            case 'Refresh':
+                showGroupDialog(D.id);
+                break;
+            case 'Leave Group':
+                leaveGroupPrompt(D.id);
+                break;
+            case 'Block Group':
+                blockGroup(D.id);
+                break;
+            case 'Unblock Group':
+                unblockGroup(D.id);
+                break;
+            case 'Visibility Everyone':
+                setGroupVisibility(D.id, 'visible');
+                break;
+            case 'Visibility Friends':
+                setGroupVisibility(D.id, 'friends');
+                break;
+            case 'Visibility Hidden':
+                setGroupVisibility(D.id, 'hidden');
+                break;
+            case 'Subscribe To Announcements':
+                setGroupSubscription(D.id, true);
+                break;
+            case 'Unsubscribe To Announcements':
+                setGroupSubscription(D.id, false);
+                break;
         }
+    }
+
+    function setGroupSubscription(groupId, subscribe) {
+        return groupRequest
+            .setGroupMemberProps(API.currentUser.id, groupId, {
+                isSubscribedToAnnouncements: subscribe
+            })
+            .then((args) => {
+                $app.$message({
+                    message: 'Group subscription updated',
+                    type: 'success'
+                });
+                return args;
+            });
+    }
+
+    function blockGroup(groupId) {
+        $app.$confirm('Are you sure you want to block this group?', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    groupRequest
+                        .blockGroup({
+                            groupId
+                        })
+                        .then((args) => {
+                            // API.$on('GROUP:BLOCK', function (args) {
+                            if (groupDialog.value.visible && groupDialog.value.id === args.params.groupId) {
+                                showGroupDialog(args.params.groupId);
+                            }
+                            // });
+                        });
+                }
+            }
+        });
+    }
+
+    function unblockGroup(groupId) {
+        $app.$confirm('Are you sure you want to unblock this group?', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    groupRequest
+                        .unblockGroup({
+                            groupId,
+                            userId: API.currentUser.id
+                        })
+                        .then((args) => {
+                            if (groupDialog.value.visible && groupDialog.value.id === args.params.groupId) {
+                                showGroupDialog(args.params.groupId);
+                            }
+                        });
+                }
+            }
+        });
     }
 
     function showGroupMemberModerationDialog(groupId) {
@@ -1480,7 +1558,6 @@
                 groupId: id
             })
             .then((args) => {
-                // API.$on('GROUP:JOIN', function (args) {
                 if (groupDialog.value.visible && groupDialog.value.id === id) {
                     updateGroupDialogData({
                         ...groupDialog.value,
@@ -1489,7 +1566,6 @@
                     // groupDialog.value.inGroup = json.membershipStatus === 'member';
                     getGroupDialogGroup(id);
                 }
-                // });
                 if (args.json.membershipStatus === 'member') {
                     $message({
                         message: 'Group joined',
@@ -1722,10 +1798,9 @@
     }
 
     function updateGroupDialogData(obj) {
-        // Be careful with the deep merge
-        emit('update:group-dialog', obj);
-    }
-    function updateGroupPostSearch() {
-        emit('updateGroupPostSearch');
+        groupDialog.value = {
+            ...groupDialog.value,
+            ...obj
+        };
     }
 </script>

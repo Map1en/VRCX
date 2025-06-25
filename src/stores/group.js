@@ -507,7 +507,7 @@ export const useGroupStore = defineStore('Group', () => {
                 D.announcement = args.json.posts[0];
             }
             D.posts = args.json.posts;
-            $app.updateGroupPostSearch();
+            updateGroupPostSearch();
         }
 
         return returnArgs;
@@ -653,6 +653,37 @@ export const useGroupStore = defineStore('Group', () => {
         });
     }
 
+    function updateGroupPostSearch() {
+        const D = state.groupDialog;
+        const search = D.postsSearch.toLowerCase();
+        D.postsFiltered = D.posts.filter((post) => {
+            if (search === '') {
+                return true;
+            }
+            if (post.title.toLowerCase().includes(search)) {
+                return true;
+            }
+            if (post.text.toLowerCase().includes(search)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    function setGroupVisibility(groupId, visibility) {
+        return groupRequest
+            .setGroupMemberProps(API.currentUser.id, groupId, {
+                visibility
+            })
+            .then((args) => {
+                $app.$message({
+                    message: 'Group visibility updated',
+                    type: 'success'
+                });
+                return args;
+            });
+    }
+
     return {
         state,
         groupDialog,
@@ -668,6 +699,8 @@ export const useGroupStore = defineStore('Group', () => {
         updateInGameGroupOrder,
         sortGroupInstancesByInGame,
         leaveGroup,
-        leaveGroupPrompt
+        leaveGroupPrompt,
+        updateGroupPostSearch,
+        setGroupVisibility
     };
 });

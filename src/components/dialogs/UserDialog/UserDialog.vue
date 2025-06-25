@@ -1863,8 +1863,15 @@
     const { cachedAvatars } = storeToRefs(useAvatarStore());
     const { cachedWorlds } = storeToRefs(useWorldStore());
     const { showWorldDialog } = useWorldStore();
-    const { showGroupDialog, applyGroup, saveCurrentUserGroups, updateInGameGroupOrder, leaveGroup, leaveGroupPrompt } =
-        useGroupStore();
+    const {
+        showGroupDialog,
+        applyGroup,
+        saveCurrentUserGroups,
+        updateInGameGroupOrder,
+        leaveGroup,
+        leaveGroupPrompt,
+        setGroupVisibility
+    } = useGroupStore();
     const { currentUserGroups, inviteGroupDialog, inGameGroupOrder } = storeToRefs(useGroupStore());
     const { lastLocation, lastLocationDestination } = storeToRefs(useLocationStore());
     const { refreshInviteMessageTableData } = useInviteStore();
@@ -1875,7 +1882,7 @@
         useGalleryStore();
     const { isGameRunning } = storeToRefs(useGameStore());
 
-    const emit = defineEmits(['logout', 'setGroupVisibility']);
+    const emit = defineEmits(['logout']);
 
     watch(
         () => userDialog.value.loading,
@@ -3011,9 +3018,6 @@
         sortUserDialogAvatars(D.avatars);
     }
 
-    function setGroupVisibility(groupId, visibility) {
-        emit('setGroupVisibility', groupId, visibility);
-    }
     function logout() {
         emit('logout');
     }
