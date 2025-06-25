@@ -127,18 +127,16 @@
     import { favoriteRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
     import { adjustDialogZ, removeFromArray, userImage, userImageFull } from '../../../shared/utils';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useUserStore } from '../../../stores/user';
+    import { useFavoriteStore, useGalleryStore, useUserStore } from '../../../stores';
 
     export default {
         name: 'FriendImportDialog',
-        inject: ['showFullscreenImageDialog'],
+
         setup() {
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            const favoriteStore = useFavoriteStore();
+            const { showUserDialog } = useUserStore();
             const { favoriteFriendGroups, friendImportDialogInput, friendImportDialogVisible } =
-                storeToRefs(favoriteStore);
+                storeToRefs(useFavoriteStore());
+            const { showFullscreenImageDialog } = useGalleryStore();
             return {
                 API,
                 showUserDialog,
@@ -147,7 +145,8 @@
                 friendImportDialogVisible,
                 userImage,
                 userImageFull,
-                adjustDialogZ
+                adjustDialogZ,
+                showFullscreenImageDialog
             };
         },
         data() {

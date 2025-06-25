@@ -89,22 +89,18 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref, watch } from 'vue';
+    import { ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { miscRequest } from '../../../api';
     import { removeFromArray, userImage, userImageFull } from '../../../shared/utils';
-    import { useFriendStore } from '../../../stores/friend';
-    import { useUserStore } from '../../../stores/user';
+    import { useFriendStore, useGalleryStore, useUserStore } from '../../../stores';
 
     const { t } = useI18n();
 
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const friendStore = useFriendStore();
-    const { friends } = storeToRefs(friendStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
+    const { friends } = storeToRefs(useFriendStore());
+    const { showUserDialog } = useUserStore();
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const props = defineProps({
         isNoteExportDialogVisible: {

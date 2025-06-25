@@ -266,7 +266,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
+    import { getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { friendRequest, userRequest } from '../../api';
     import removeConfusables, { removeWhitespace } from '../../service/confusables';
@@ -281,21 +281,28 @@
         userImage,
         userImageFull
     } from '../../shared/utils';
-    import { useAppearanceSettingsStore, useFriendStore, useSearchStore, useUiStore, useUserStore } from '../../stores';
+    import {
+        useAppearanceSettingsStore,
+        useFriendStore,
+        useGalleryStore,
+        useSearchStore,
+        useUiStore,
+        useUserStore
+    } from '../../stores';
 
     const { t } = useI18n();
 
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
     const { proxy } = getCurrentInstance();
     const $confirm = proxy.$confirm;
     const emit = defineEmits(['lookup-user']);
 
     const { friends } = storeToRefs(useFriendStore());
     const { getAllUserStats, confirmDeleteFriend } = useFriendStore();
-    const { appLanguage, hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
+    const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { stringComparer, friendsListSearch } = storeToRefs(useSearchStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const friendsListSearchFilters = ref([]);
     const friendsListTable = reactive({

@@ -854,7 +854,8 @@
         useWorldStore,
         useGroupStore,
         useInstanceStore,
-        useUiStore
+        useUiStore,
+        useGalleryStore
     } from '../../stores';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
@@ -877,10 +878,9 @@
     const { currentInstanceLocation, currentInstanceWorld } = storeToRefs(useInstanceStore());
     const { currentInstanceUserList, getCurrentInstanceUserList } = useInstanceStore();
     const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const props = defineProps({
         photonEventTableFilter: {

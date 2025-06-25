@@ -811,27 +811,21 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import Location from '../../Location.vue';
-    import { getCurrentInstance, inject, ref, watch } from 'vue';
+    import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
     import { API } from '../../../app';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
+    import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import { useAppearanceSettingsStore, useGalleryStore, useGroupStore, useUserStore } from '../../../stores';
+    import Location from '../../Location.vue';
     import GroupMemberModerationExportDialog from './GroupMemberModerationExportDialog.vue';
-    import { useGroupStore } from '../../../stores/group';
-    import { groupDialogSortingOptions, groupDialogFilterOptions } from '../../../shared/constants';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { randomUserColours } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const groupStore = useGroupStore();
-    const { groupDialog } = storeToRefs(groupStore);
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
+    const { randomUserColours } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { groupDialog } = storeToRefs(useGroupStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

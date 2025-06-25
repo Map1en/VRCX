@@ -748,13 +748,10 @@
             :last-location="lastLocation" />
         <ChangeWorldImageDialog
             :change-world-image-dialog-visible.sync="changeWorldImageDialogVisible"
-            :previous-images-table="previousImagesTable"
             :previous-images-file-id="previousImagesFileId"
             :world-dialog="worldDialog"
             @refresh="displayPreviousImages" />
-        <PreviousImagesDialog
-            :previous-images-dialog-visible.sync="previousImagesDialogVisible"
-            :previous-images-table="previousImagesTable" />
+        <PreviousImagesDialog />
     </safe-dialog>
 </template>
 
@@ -778,6 +775,7 @@
     import {
         useAppearanceSettingsStore,
         useFavoriteStore,
+        useGalleryStore,
         useGameStore,
         useInstanceStore,
         useInviteStore,
@@ -808,7 +806,6 @@
             Timer,
             LastJoin
         },
-        inject: ['showFullscreenImageDialog'],
         setup() {
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());
             const { showUserDialog } = useUserStore();
@@ -821,6 +818,8 @@
             const { instanceJoinHistory } = storeToRefs(useInstanceStore());
             const { isGameRunning } = storeToRefs(useGameStore());
             const { deleteVRChatCache } = useGameStore();
+            const { previousImagesDialogVisible, previousImagesTable } = storeToRefs(useGalleryStore());
+            const { checkPreviousImageAvailable, showFullscreenImageDialog } = useGalleryStore();
             return {
                 hideTooltips,
                 isAgeGatedInstancesVisible,
@@ -841,7 +840,12 @@
                 instanceJoinHistory,
                 isGameRunning,
                 deleteVRChatCache,
-                adjustDialogZ
+                adjustDialogZ,
+                previousImagesDialogVisible,
+                previousImagesTable,
+                openExternalLink,
+                checkPreviousImageAvailable,
+                showFullscreenImageDialog
             };
         },
         data() {
@@ -860,9 +864,7 @@
                 },
                 newInstanceDialogLocationTag: '',
                 changeWorldImageDialogVisible: false,
-                previousImagesFileId: '',
-                previousImagesDialogVisible: false,
-                previousImagesTable: []
+                previousImagesFileId: ''
             };
         },
         computed: {
@@ -943,7 +945,6 @@
             }
         },
         methods: {
-            openExternalLink,
             displayPreviousImages(command) {
                 this.previousImagesFileId = '';
                 this.previousImagesTable = [];
@@ -973,22 +974,7 @@
                     this.checkPreviousImageAvailable(images);
                 });
             },
-            async checkPreviousImageAvailable(images) {
-                this.previousImagesTable = [];
-                for (const image of images) {
-                    if (image.file && image.file.url) {
-                        const response = await fetch(image.file.url, {
-                            method: 'HEAD',
-                            redirect: 'follow'
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                        if (response.status === 200) {
-                            this.previousImagesTable.push(image);
-                        }
-                    }
-                }
-            },
+
             showNewInstanceDialog(tag) {
                 // trigger watcher
                 this.newInstanceDialogLocationTag = '';

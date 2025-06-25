@@ -162,14 +162,14 @@
 </template>
 
 <script setup>
-    import { ref, inject, getCurrentInstance, watch } from 'vue';
+    import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
-    import Location from '../../../components/Location.vue';
     import { API } from '../../../app';
-    import { useUserStore } from '../../../stores/user';
+    import Location from '../../../components/Location.vue';
+    import { useGalleryStore, useUserStore } from '../../../stores';
 
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
 
@@ -179,6 +179,8 @@
     const userStore = useUserStore();
     const { lookupUser } = userStore;
 
+    const { fullscreenImageDialog } = useGalleryStore();
+
     const props = defineProps({
         screenshotMetadataDialog: {
             type: Object,
@@ -186,10 +188,6 @@
         },
         currentlyDroppingFile: {
             type: String,
-            default: null
-        },
-        fullscreenImageDialog: {
-            type: Object,
             default: null
         }
     });
@@ -395,7 +393,7 @@
             screenshotMetadataCarouselRef.value.setActiveItem(1);
         }
 
-        if (props.fullscreenImageDialog.visible) {
+        if (fullscreenImageDialog.value.visible) {
             // TODO
         }
     }
@@ -504,7 +502,7 @@
             D.metadata.dateTime = Date.parse(metadata.creationDate);
         }
 
-        if (props.fullscreenImageDialog?.visible) {
+        if (fullscreenImageDialog.value.visible) {
             showFullscreenImageDialog(D.metadata.filePath);
         }
     }

@@ -596,18 +596,15 @@
         <SetAvatarStylesDialog :set-avatar-styles-dialog="setAvatarStylesDialog" />
         <ChangeAvatarImageDialog
             :change-avatar-image-dialog-visible.sync="changeAvatarImageDialogVisible"
-            :previous-images-table="previousImagesTable"
             :previous-images-file-id="previousImagesFileId"
             @refresh="displayPreviousImages" />
-        <PreviousImagesDialog
-            :previous-images-dialog-visible.sync="previousImagesDialogVisible"
-            :previous-images-table="previousImagesTable" />
+        <PreviousImagesDialog />
     </safe-dialog>
 </template>
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { computed, getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
+    import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
     import { $app, API } from '../../../app.js';
@@ -627,30 +624,28 @@
         storeAvatarImage,
         timeToText
     } from '../../../shared/utils';
-    import { useAvatarStore } from '../../../stores/avatar';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useGameStore } from '../../../stores/game';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import {
+        useAppearanceSettingsStore,
+        useAvatarStore,
+        useFavoriteStore,
+        useGalleryStore,
+        useGameStore,
+        useUserStore
+    } from '../../../stores';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import ChangeAvatarImageDialog from './ChangeAvatarImageDialog.vue';
     import SetAvatarStylesDialog from './SetAvatarStylesDialog.vue';
     import SetAvatarTagsDialog from './SetAvatarTagsDialog.vue';
 
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog, sortUserDialogAvatars } = userStore;
-    const avatarStore = useAvatarStore();
-    const { avatarDialog, cachedAvatarModerations, cachedAvatars, cachedAvatarNames } = storeToRefs(avatarStore);
-    const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = avatarStore;
-    const favoriteStore = useFavoriteStore();
-    const { showFavoriteDialog } = favoriteStore;
-    const gameStore = useGameStore();
-    const { isGameRunning } = storeToRefs(gameStore);
-    const { deleteVRChatCache } = gameStore;
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog, sortUserDialogAvatars } = useUserStore();
+    const { avatarDialog, cachedAvatarModerations, cachedAvatars, cachedAvatarNames } = storeToRefs(useAvatarStore());
+    const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = useAvatarStore();
+    const { showFavoriteDialog } = useFavoriteStore();
+    const { isGameRunning } = storeToRefs(useGameStore());
+    const { deleteVRChatCache } = useGameStore();
+    const { previousImagesDialogVisible, previousImagesTable } = storeToRefs(useGalleryStore());
+    const { showFullscreenImageDialog, checkPreviousImageAvailable } = useGalleryStore();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -661,8 +656,6 @@
     const avatarDialogRef = ref(null);
     const changeAvatarImageDialogVisible = ref(false);
     const previousImagesFileId = ref('');
-    const previousImagesDialogVisible = ref(false);
-    const previousImagesTable = ref([]);
 
     const treeData = ref([]);
     const timeSpent = ref(0);
@@ -1007,23 +1000,6 @@
             });
             checkPreviousImageAvailable(images);
         });
-    }
-
-    async function checkPreviousImageAvailable(images) {
-        previousImagesTable.value = [];
-        for (const image of images) {
-            if (image.file && image.file.url) {
-                const response = await fetch(image.file.url, {
-                    method: 'HEAD',
-                    redirect: 'follow'
-                }).catch((error) => {
-                    console.log(error);
-                });
-                if (response.status === 200) {
-                    previousImagesTable.value.push(image);
-                }
-            }
-        }
     }
 
     function selectAvatar(id) {

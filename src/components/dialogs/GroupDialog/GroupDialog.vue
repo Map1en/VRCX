@@ -1162,7 +1162,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, nextTick, reactive, ref, watch } from 'vue';
+    import { getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
@@ -1182,7 +1182,13 @@
         userImage,
         userStatusClass
     } from '../../../shared/utils';
-    import { useAppearanceSettingsStore, useGroupStore, useLocationStore, useUserStore } from '../../../stores';
+    import {
+        useAppearanceSettingsStore,
+        useGalleryStore,
+        useGroupStore,
+        useLocationStore,
+        useUserStore
+    } from '../../../stores';
     import InstanceInfo from '../../InstanceInfo.vue';
     import LastJoin from '../../LastJoin.vue';
     import Location from '../../Location.vue';
@@ -1191,17 +1197,12 @@
     import GroupMemberModerationDialog from './GroupMemberModerationDialog.vue';
     import GroupPostEditDialog from './GroupPostEditDialog.vue';
 
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
-
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const groupStore = useGroupStore();
-    const { groupDialog, inviteGroupDialog } = storeToRefs(groupStore);
-    const { getGroupDialogGroup } = groupStore;
-    const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { groupDialog, inviteGroupDialog } = storeToRefs(useGroupStore());
+    const { getGroupDialogGroup } = useGroupStore();
+    const { lastLocation } = storeToRefs(useLocationStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

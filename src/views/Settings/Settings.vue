@@ -1848,8 +1848,7 @@
         <NotificationPositionDialog :isNotificationPositionDialogVisible.sync="isNotificationPositionDialogVisible" />
         <ScreenshotMetadataDialog
             :screenshotMetadataDialog="screenshotMetadataDialog"
-            :currentlyDroppingFile="currentlyDroppingFile"
-            :fullscreenImageDialog="fullscreenImageDialog" />
+            :currentlyDroppingFile="currentlyDroppingFile" />
         <RegistryBackupDialog
             :isRegistryBackupDialogVisible.sync="isRegistryBackupDialogVisible"
             :backupVrcRegistry="backupVrcRegistry" />
@@ -2153,9 +2152,6 @@
         currentlyDroppingFile: {
             type: String,
             default: ''
-        },
-        fullscreenImageDialog: {
-            type: Object
         },
         backupVrcRegistry: {
             type: Function,

@@ -46,26 +46,22 @@
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
-    import { extractFileId } from '../../../shared/utils';
     import { API } from '../../../app';
-    import { useAvatarStore } from '../../../stores/avatar';
+    import { extractFileId } from '../../../shared/utils';
+    import { useAvatarStore, useGalleryStore } from '../../../stores';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const avatarStore = useAvatarStore();
-    const { avatarDialog } = storeToRefs(avatarStore);
+    const { avatarDialog } = storeToRefs(useAvatarStore());
+    const { previousImagesTable } = storeToRefs(useGalleryStore());
 
     const props = defineProps({
         changeAvatarImageDialogVisible: {
             type: Boolean,
             default: false
-        },
-        previousImagesTable: {
-            type: Array,
-            default: () => []
         },
         previousImagesFileId: {
             type: String,
@@ -366,27 +362,4 @@
             avatarDialog.value.ref.imageUrl
         );
     }
-
-    // $app.methods.deleteAvatarImage = function () {
-    //     this.changeAvatarImageDialogLoading = true;
-    //     var parmas = {
-    //         fileId: this.previousImagesFileId,
-    //         version: this.previousImagesTable[0].version
-    //     };
-    //     vrcPlusIconRequest
-    //         .deleteFileVersion(parmas)
-    //         .then((args) => {
-    //             this.previousImagesFileId = args.json.id;
-    //             var images = [];
-    //             args.json.versions.forEach((item) => {
-    //                 if (!item.deleted) {
-    //                     images.unshift(item);
-    //                 }
-    //             });
-    //             this.checkPreviousImageAvailable(images);
-    //         })
-    //         .finally(() => {
-    //             this.changeAvatarImageDialogLoading = false;
-    //         });
-    // };
 </script>

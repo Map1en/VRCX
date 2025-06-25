@@ -500,15 +500,14 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, ref } from 'vue';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { userRequest, vrcPlusIconRequest, vrcPlusImageRequest, miscRequest, inventoryRequest } from '../../../api';
-    import { extractFileId, getPrintFileName } from '../../../shared/utils';
-    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
-    import Location from '../../Location.vue';
+    import { inventoryRequest, miscRequest, userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../../api';
     import { API } from '../../../app';
-    import { useGalleryStore } from '../../../stores/gallery';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
+    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
+    import { extractFileId, getPrintFileName } from '../../../shared/utils';
+    import { useAdvancedSettingsStore, useGalleryStore } from '../../../stores';
+    import Location from '../../Location.vue';
 
     const { t } = useI18n();
 
@@ -541,10 +540,8 @@
         getInventory
     } = galleryStore;
 
-    const advancedSettingsStore = useAdvancedSettingsStore();
-    const { currentUserInventory } = storeToRefs(advancedSettingsStore);
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
+    const { currentUserInventory } = storeToRefs(useAdvancedSettingsStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const emojiAnimFps = ref(15);
     const emojiAnimFrameCount = ref(4);

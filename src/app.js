@@ -295,7 +295,6 @@ let $app = {
     },
     provide() {
         return {
-            showFullscreenImageDialog: this.showFullscreenImageDialog,
             displayPreviousImages: this.displayPreviousImages,
             languageClass: this.languageClass,
             showGallerySelectDialog: this.showGallerySelectDialog
@@ -532,31 +531,6 @@ $app.data.gameLogTable.filter = JSON.parse(
 // #endregion
 // #region | App: Profile + Settings
 
-$app.methods.checkPreviousImageAvailable = async function (images) {
-    this.previousImagesTable = [];
-    for (let image of images) {
-        if (image.file && image.file.url) {
-            const response = await fetch(image.file.url, {
-                method: 'HEAD',
-                redirect: 'follow'
-            }).catch((error) => {
-                console.log(error);
-            });
-            if (response.status === 200) {
-                this.previousImagesTable.push(image);
-            }
-        }
-    }
-};
-
-// todo: ここで置いて大丈夫かな？複雑なステータスじゃないね
-$app.data.previousImagesDialogVisible = false;
-$app.data.previousImagesTable = [];
-
-API.$on('LOGIN', function () {
-    $app.previousImagesTable = [];
-});
-
 // VRChat Config JSON
 
 // Screenshot Helper
@@ -622,22 +596,6 @@ $app.methods.saveChatboxUserBlacklist = async function () {
 
 // #endregion
 // #region | Dialog: fullscreen image
-
-$app.data.fullscreenImageDialog = {
-    visible: false,
-    imageUrl: '',
-    fileName: ''
-};
-
-$app.methods.showFullscreenImageDialog = function (imageUrl, fileName) {
-    if (!imageUrl) {
-        return;
-    }
-    const D = this.fullscreenImageDialog;
-    D.imageUrl = imageUrl;
-    D.fileName = fileName;
-    D.visible = true;
-};
 
 // #endregion
 // #region | Tab Props
@@ -705,7 +663,6 @@ $app.computed.loginPageEvent = function () {
 $app.computed.settingsTabBind = function () {
     return {
         currentlyDroppingFile: this.currentlyDroppingFile,
-        fullscreenImageDialog: this.fullscreenImageDialog,
         backupVrcRegistry: this.backupVrcRegistry
     };
 };

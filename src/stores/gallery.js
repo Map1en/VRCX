@@ -35,7 +35,14 @@ export const useGalleryStore = defineStore('Gallery', () => {
         stickersCache: [],
         printTable: [],
         emojiTable: [],
-        inventoryTable: []
+        inventoryTable: [],
+        previousImagesDialogVisible: false,
+        previousImagesTable: [],
+        fullscreenImageDialog: {
+            visible: false,
+            imageUrl: '',
+            fileName: ''
+        }
     });
 
     const galleryTable = computed({
@@ -155,6 +162,31 @@ export const useGalleryStore = defineStore('Gallery', () => {
         set: (value) => {
             state.inventoryTable = value;
         }
+    });
+
+    const previousImagesDialogVisible = computed({
+        get: () => state.previousImagesDialogVisible,
+        set: (value) => {
+            state.previousImagesDialogVisible = value;
+        }
+    });
+
+    const previousImagesTable = computed({
+        get: () => state.previousImagesTable,
+        set: (value) => {
+            state.previousImagesTable = value;
+        }
+    });
+
+    const fullscreenImageDialog = computed({
+        get: () => state.fullscreenImageDialog,
+        set: (value) => {
+            state.fullscreenImageDialog = value;
+        }
+    });
+
+    API.$on('LOGIN', function () {
+        state.previousImagesTable = [];
     });
 
     API.$on('LOGIN', function () {
@@ -504,6 +536,33 @@ export const useGalleryStore = defineStore('Gallery', () => {
         await refreshPrintTable();
     }
 
+    async function checkPreviousImageAvailable(images) {
+        state.previousImagesTable = [];
+        for (const image of images) {
+            if (image.file && image.file.url) {
+                const response = await fetch(image.file.url, {
+                    method: 'HEAD',
+                    redirect: 'follow'
+                }).catch((error) => {
+                    console.log(error);
+                });
+                if (response.status === 200) {
+                    state.previousImagesTable.push(image);
+                }
+            }
+        }
+    }
+
+    function showFullscreenImageDialog(imageUrl, fileName) {
+        if (!imageUrl) {
+            return;
+        }
+        const D = state.fullscreenImageDialog;
+        D.imageUrl = imageUrl;
+        D.fileName = fileName;
+        D.visible = true;
+    }
+
     return {
         state,
         galleryTable,
@@ -523,6 +582,9 @@ export const useGalleryStore = defineStore('Gallery', () => {
         printTable,
         emojiTable,
         inventoryTable,
+        previousImagesDialogVisible,
+        previousImagesTable,
+        fullscreenImageDialog,
 
         showGalleryDialog,
         refreshGalleryTable,
@@ -535,6 +597,8 @@ export const useGalleryStore = defineStore('Gallery', () => {
         queueSavePrintToFile,
         refreshEmojiTable,
         getInventory,
-        tryDeleteOldPrints
+        tryDeleteOldPrints,
+        checkPreviousImageAvailable,
+        showFullscreenImageDialog
     };
 });

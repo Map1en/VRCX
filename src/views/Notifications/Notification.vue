@@ -415,26 +415,28 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject, ref } from 'vue';
+    import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { friendRequest, notificationRequest, worldRequest } from '../../api';
     import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
-    import { useGalleryStore } from '../../stores/gallery';
-    import { useInviteStore } from '../../stores/invite';
-    import { useLocationStore } from '../../stores/location';
+    import {
+        useGalleryStore,
+        useInviteStore,
+        useLocationStore,
+        useAppearanceSettingsStore,
+        useUserStore,
+        useWorldStore,
+        useGroupStore,
+        useNotificationStore,
+        useUiStore,
+        useGameStore
+    } from '../../stores';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
     import Location from '../../components/Location.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
     import { API } from '../../app';
-    import { useUserStore } from '../../stores/user';
-    import { useWorldStore } from '../../stores/world';
-    import { useGroupStore } from '../../stores/group';
-    import { useNotificationStore } from '../../stores/notification';
-    import { useUiStore } from '../../stores/ui';
-    import { useGameStore } from '../../stores/game';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
@@ -447,12 +449,11 @@
     const { refreshNotifications } = useNotificationStore();
     const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
     const { isGameRunning } = storeToRefs(useGameStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
 
     const { $confirm, $message } = getCurrentInstance().proxy;
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const sendInviteResponseDialog = ref({
         messageSlot: {},

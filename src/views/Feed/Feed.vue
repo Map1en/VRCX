@@ -323,28 +323,19 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import Location from '../../components/Location.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUserStore } from '../../stores/user';
+    import { useGalleryStore, useAppearanceSettingsStore, useUserStore, useFeedStore, useUiStore } from '../../stores';
     import { timeToText, statusClass } from '../../shared/utils';
-    import { useFeedStore } from '../../stores/feed';
-    import { useUiStore } from '../../stores/ui';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { showUserDialog } = userStore;
-    const feedStore = useFeedStore();
-    const { feedTable } = storeToRefs(feedStore);
-    const { feedTableLookup } = feedStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { showUserDialog } = useUserStore();
+    const { feedTable } = storeToRefs(useFeedStore());
+    const { feedTableLookup } = useFeedStore();
+    const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { showFullscreenImageDialog } = useGalleryStore();
 
     const { t } = useI18n();
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     /**
      * Function that format the differences between two strings with HTML tags

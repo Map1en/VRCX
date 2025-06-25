@@ -112,6 +112,7 @@
 
 <script>
     import { groupRequest, vrcPlusIconRequest } from '../../../api';
+    import { useGalleryStore } from '../../../stores';
     import GallerySelectDialog from './GallerySelectDialog.vue';
 
     export default {
@@ -119,7 +120,10 @@
         components: {
             GallerySelectDialog
         },
-        inject: ['showFullscreenImageDialog'],
+        setup() {
+            const { showFullscreenImageDialog } = useGalleryStore();
+            return { showFullscreenImageDialog };
+        },
         props: {
             dialogData: {
                 type: Object,

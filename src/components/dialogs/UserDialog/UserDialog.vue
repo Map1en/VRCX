@@ -1767,9 +1767,7 @@
             :send-invite-dialog="sendInviteDialog"
             @closeInviteDialog="closeInviteDialog" />
         <PreviousInstancesUserDialog :previous-instances-user-dialog.sync="previousInstancesUserDialog" />
-        <PreviousImagesDialog
-            :previous-images-dialog-visible.sync="previousImagesDialogVisible"
-            :previous-images-table="previousImagesTable" />
+        <PreviousImagesDialog />
         <InviteGroupDialog />
         <SocialStatusDialog
             :social-status-dialog="socialStatusDialog"
@@ -1783,7 +1781,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { computed, getCurrentInstance, inject, nextTick, ref, watch } from 'vue';
+    import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import {
         favoriteRequest,
@@ -1874,11 +1872,10 @@
     const { refreshInviteMessageTableData } = useInviteStore();
     const { friendLogTable } = storeToRefs(useFriendStore());
     const { getFriendRequest } = useFriendStore();
-    const { galleryDialogVisible } = storeToRefs(useGalleryStore());
-    const { clearInviteImageUpload, showGalleryDialog } = useGalleryStore();
+    const { galleryDialogVisible, previousImagesDialogVisible, previousImagesTable } = storeToRefs(useGalleryStore());
+    const { clearInviteImageUpload, showGalleryDialog, checkPreviousImageAvailable, showFullscreenImageDialog } =
+        useGalleryStore();
     const { isGameRunning } = storeToRefs(useGameStore());
-
-    const showFullscreenImageDialog = inject('showFullscreenImageDialog');
 
     const emit = defineEmits(['logout', 'setGroupVisibility', 'leaveGroupPrompt']);
 
@@ -1928,9 +1925,6 @@
         openFlg: false,
         userRef: {}
     });
-
-    const previousImagesDialogVisible = ref(false);
-    const previousImagesTable = ref([]);
 
     const socialStatusDialog = ref({
         visible: false,
@@ -2159,23 +2153,6 @@
         refreshInviteMessageTableData('request');
         clearInviteImageUpload();
         sendInviteRequestDialogVisible.value = true;
-    }
-
-    async function checkPreviousImageAvailable(images) {
-        previousImagesTable.value = [];
-        for (const image of images) {
-            if (image.file && image.file.url) {
-                const response = await fetch(image.file.url, {
-                    method: 'HEAD',
-                    redirect: 'follow'
-                }).catch((error) => {
-                    console.log(error);
-                });
-                if (response.status === 200) {
-                    previousImagesTable.value.push(image);
-                }
-            }
-        }
     }
 
     function displayPreviousImages() {

@@ -47,26 +47,22 @@
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
-    import { extractFileId } from '../../../shared/utils';
     import { API } from '../../../app';
-    import { useWorldStore } from '../../../stores/world';
+    import { extractFileId } from '../../../shared/utils';
+    import { useGalleryStore, useWorldStore } from '../../../stores';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const worldStore = useWorldStore();
-    const { worldDialog } = storeToRefs(worldStore);
+    const { worldDialog } = storeToRefs(useWorldStore());
+    const { previousImagesTable } = storeToRefs(useGalleryStore());
 
     const props = defineProps({
         changeWorldImageDialogVisible: {
             type: Boolean,
             default: false
-        },
-        previousImagesTable: {
-            type: Array,
-            default: () => []
         },
         previousImagesFileId: {
             type: String,
@@ -367,27 +363,4 @@
         }
         return false;
     }
-
-    // $app.methods.deleteWorldImage = function () {
-    //     this.changeWorldImageDialogLoading = true;
-    //     var parmas = {
-    //         fileId: this.previousImagesTableFileId,
-    //         version: this.previousImagesTable[0].version
-    //     };
-    //     vrcPlusIconRequest
-    //         .deleteFileVersion(parmas)
-    //         .then((args) => {
-    //             this.previousImagesTableFileId = args.json.id;
-    //             var images = [];
-    //             args.json.versions.forEach((item) => {
-    //                 if (!item.deleted) {
-    //                     images.unshift(item);
-    //                 }
-    //             });
-    //             this.checkPreviousImageAvailable(images);
-    //         })
-    //         .finally(() => {
-    //             this.changeWorldImageDialogLoading = false;
-    //         });
-    // };
 </script>

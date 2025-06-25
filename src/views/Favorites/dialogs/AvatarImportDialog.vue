@@ -176,26 +176,21 @@
     import { avatarRequest, favoriteRequest } from '../../../api';
     import { API } from '../../../app';
     import { adjustDialogZ, removeFromArray } from '../../../shared/utils';
-    import { useAvatarStore } from '../../../stores/avatar';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useUserStore } from '../../../stores/user';
+    import { useAvatarStore, useFavoriteStore, useGalleryStore, useUserStore } from '../../../stores';
 
     export default {
         name: 'AvatarImportDialog',
-        inject: ['showFullscreenImageDialog'],
         setup() {
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            const favoriteStore = useFavoriteStore();
+            const { showUserDialog } = useUserStore();
             const {
                 favoriteAvatarGroups,
                 avatarImportDialogInput,
                 avatarImportDialogVisible,
                 localAvatarFavoriteGroups
-            } = storeToRefs(favoriteStore);
-            const { addLocalAvatarFavorite, getLocalAvatarFavoriteGroupLength } = favoriteStore;
-            const avatarStore = useAvatarStore();
-            const { showAvatarDialog } = avatarStore;
+            } = storeToRefs(useFavoriteStore());
+            const { addLocalAvatarFavorite, getLocalAvatarFavoriteGroupLength } = useFavoriteStore();
+            const { showAvatarDialog } = useAvatarStore();
+            const { showFullscreenImageDialog } = useGalleryStore();
             return {
                 API,
                 showUserDialog,
@@ -206,7 +201,8 @@
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavoriteGroups,
                 showAvatarDialog,
-                adjustDialogZ
+                adjustDialogZ,
+                showFullscreenImageDialog
             };
         },
         data() {
