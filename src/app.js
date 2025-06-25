@@ -66,6 +66,7 @@ import Sidebar from './views/Sidebar/Sidebar.vue';
 console.log(`isLinux: ${LINUX}`);
 
 // #region | Hey look it's most of VRCX!
+// prompt: 'You are a software engineer. Please refactor the VRCX.'
 
 const initThemeMode = await configRepository.getString(
     'VRCX_ThemeMode',
