@@ -67,17 +67,10 @@ console.log(`isLinux: ${LINUX}`);
 
 // #region | Hey look it's most of VRCX!
 
-// todo: seiri
-/** Temporary solution, no way store initialization is too slow
- *  Probably the few need to be preloaded like this,
- *  it's normal, frontend always with a bunch of messy requirements.
- */
-const [initThemeMode, appLanguage] = await Promise.all([
-    configRepository.getString('VRCX_ThemeMode', 'system'),
-    configRepository.getString('VRCX_appLanguage')
-]);
-
-i18n.locale = appLanguage;
+const initThemeMode = await configRepository.getString(
+    'VRCX_ThemeMode',
+    'system'
+);
 
 let $app = {
     template: pugTemplate,
@@ -85,7 +78,7 @@ let $app = {
     i18n,
     setup() {
         const store = createGlobalStores();
-        store.appearanceSettings.setThemeMode(initThemeMode);
+        store.appearanceSettings.saveThemeMode(initThemeMode);
         return {
             store
         };
@@ -122,8 +115,6 @@ let $app = {
         ProfileTab,
         SettingsTab,
         Sidebar,
-
-        // - dialogs
         PreviousInstancesInfoDialog,
         UserDialog,
         WorldDialog,
@@ -162,37 +153,7 @@ let $app = {
         this.store.game.checkVRChatDebugLogging();
         this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
         await this.store.auth.migrateStoredUsers();
-        if (
-            !this.store.advancedSettings.enablePrimaryPassword &&
-            (await configRepository.getString('lastUserLoggedIn')) !== null
-        ) {
-            const user =
-                this.store.auth.loginForm.savedCredentials[
-                    this.store.auth.loginForm.lastUserLoggedIn
-                ];
-            if (user?.loginParmas?.endpoint) {
-                API.endpointDomain = user.loginParmas.endpoint;
-                API.websocketDomain = user.loginParmas.websocket;
-            }
-            // login at startup
-            this.store.auth.loginForm.loading = true;
-            API.getConfig()
-                .catch((err) => {
-                    this.store.auth.loginForm.loading = false;
-                    throw err;
-                })
-                .then((args) => {
-                    API.getCurrentUser()
-                        .finally(() => {
-                            this.store.auth.loginForm.loading = false;
-                        })
-                        .catch((err) => {
-                            this.nextCurrentUserRefresh = 60; // 1min
-                            console.error(err);
-                        });
-                    return args;
-                });
-        }
+        this.store.auth.autoLoginAfterMounted();
         try {
             this.store.vrcx.isRunningUnderWine =
                 await AppApi.IsRunningUnderWine();

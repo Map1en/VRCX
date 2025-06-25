@@ -136,6 +136,44 @@ export const useAuthStore = defineStore('Auth', () => {
         state.twoFactorAuthDialogVisible = false;
     });
 
+    /**
+     * Automatically logs in the last user after the app is mounted.
+     * @returns {Promise<void>}
+     */
+    async function autoLoginAfterMounted() {
+        if (
+            !advancedSettingsStore.enablePrimaryPassword &&
+            (await configRepository.getString('lastUserLoggedIn')) !== null
+        ) {
+            const user =
+                state.loginForm.savedCredentials[
+                    state.loginForm.lastUserLoggedIn
+                ];
+            if (user?.loginParmas?.endpoint) {
+                API.endpointDomain = user.loginParmas.endpoint;
+                API.websocketDomain = user.loginParmas.websocket;
+            }
+            // login at startup
+            state.loginForm.loading = true;
+            API.getConfig()
+                .catch((err) => {
+                    state.loginForm.loading = false;
+                    throw err;
+                })
+                .then((args) => {
+                    API.getCurrentUser()
+                        .finally(() => {
+                            state.loginForm.loading = false;
+                        })
+                        .catch((err) => {
+                            $app.nextCurrentUserRefresh = 60; // 1min
+                            console.error(err);
+                        });
+                    return args;
+                });
+        }
+    }
+
     async function clearCookiesTryLogin() {
         await webApiService.clearCookies();
         if (state.loginForm.lastUserLoggedIn) {
@@ -348,8 +386,8 @@ export const useAuthStore = defineStore('Auth', () => {
             'VRCX_enableCustomEndpoint',
             this.enableCustomEndpoint
         );
-        this.store.auth.loginForm.endpoint = '';
-        this.store.auth.loginForm.websocket = '';
+        state.loginForm.endpoint = '';
+        state.loginForm.websocket = '';
     };
 
     return {
@@ -365,6 +403,7 @@ export const useAuthStore = defineStore('Auth', () => {
         setPrimaryPassword,
         updateStoredUser,
         migrateStoredUsers,
-        checkPrimaryPassword
+        checkPrimaryPassword,
+        autoLoginAfterMounted
     };
 });

@@ -196,13 +196,6 @@ export const useAppearanceSettingsStore = defineStore(
             await mergeOldSortMethodsSettings();
 
             updateTrustColorClasses(state.trustColor);
-
-            // init in app.js
-            // const themeMode = await configRepository.getString(
-            //    'VRCX_ThemeMode',
-            //    'system'
-            // );
-            // setThemeMode(themeMode);
         }
 
         initAppearanceSettings();
