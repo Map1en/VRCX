@@ -14,6 +14,7 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
+import { useVrcxStore } from './vrcx';
 
 export const useFeedStore = defineStore('Feed', () => {
     const friendStore = useFriendStore();
@@ -25,6 +26,7 @@ export const useFeedStore = defineStore('Feed', () => {
     const avatarStore = useAvatarStore();
     const gameLogStore = useGameLogStore();
     const userStore = useUserStore();
+    const vrcxStore = useVrcxStore();
 
     const state = reactive({
         feedTable: {
@@ -90,9 +92,9 @@ export const useFeedStore = defineStore('Feed', () => {
         await database.initUserTables(args.json.id);
         UiStore.menuActiveIndex = 'feed';
 
-        $app.gameLogTable.data = await database.lookupGameLogDatabase(
-            $app.gameLogTable.search,
-            $app.gameLogTable.filter
+        gameLogStore.gameLogTable.data = await database.lookupGameLogDatabase(
+            gameLogStore.gameLogTable.search,
+            gameLogStore.gameLogTable.filter
         );
         state.feedSessionTable = await database.getFeedDatabase();
         await feedTableLookup();
@@ -269,8 +271,8 @@ export const useFeedStore = defineStore('Feed', () => {
         let limit;
         const { data } = state.feedTable;
         const j = data.length;
-        if (j > $app.maxTableSize) {
-            data.splice(0, j - $app.maxTableSize);
+        if (j > vrcxStore.maxTableSize) {
+            data.splice(0, j - vrcxStore.maxTableSize);
         }
 
         const date = new Date();

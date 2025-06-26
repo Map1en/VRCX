@@ -15,27 +15,6 @@ import {
 
 export default function init() {
     const _data = {
-        gameLogTable: {
-            data: [],
-            loading: false,
-            search: '',
-            filter: [],
-            tableProps: {
-                stripe: true,
-                size: 'mini',
-                defaultSort: {
-                    prop: 'created_at',
-                    order: 'descending'
-                }
-            },
-            pageSize: 15,
-            paginationProps: {
-                small: true,
-                layout: 'sizes,prev,pager,next,total',
-                pageSizes: [10, 15, 20, 25, 50, 100]
-            }
-        },
-        gameLogSessionTable: [],
         lastVideoUrl: '',
         lastResourceloadUrl: ''
     };
@@ -58,7 +37,7 @@ export default function init() {
                 case 'location-destination':
                     if (this.store.game.isGameRunning) {
                         // needs to be added before OnPlayerLeft entries from LocationReset
-                        this.addGameLog({
+                        this.store.gameLog.addGameLog({
                             created_at: gameLog.dt,
                             type: 'LocationDestination',
                             location: gameLog.location
@@ -123,7 +102,7 @@ export default function init() {
                     getGroupName(gameLog.location).then((groupName) => {
                         entry.groupName = groupName;
                     });
-                    this.addGamelogLocationToDatabase(entry);
+                    this.store.gameLog.addGamelogLocationToDatabase(entry);
                     break;
                 case 'player-joined':
                     var joinTime = Date.parse(gameLog.dt);
@@ -484,61 +463,8 @@ export default function init() {
                     }
                 }
                 this.store.notification.queueGameLogNoty(entry);
-                this.addGameLog(entry);
+                this.store.gameLog.addGameLog(entry);
             }
-        },
-
-        addGameLog(entry) {
-            this.gameLogSessionTable.push(entry);
-            this.updateSharedFeed(false);
-            if (entry.type === 'VideoPlay') {
-                // event time can be before last gameLog entry
-                this.updateSharedFeed(true);
-            }
-
-            // If the VIP friend filter is enabled, logs from other friends will be ignored.
-            if (
-                this.gameLogTable.vip &&
-                !this.store.friend.localFavoriteFriends.has(entry.userId) &&
-                (entry.type === 'OnPlayerJoined' ||
-                    entry.type === 'OnPlayerLeft' ||
-                    entry.type === 'VideoPlay' ||
-                    entry.type === 'PortalSpawn' ||
-                    entry.type === 'External')
-            ) {
-                return;
-            }
-            if (
-                entry.type === 'LocationDestination' ||
-                entry.type === 'AvatarChange' ||
-                entry.type === 'ChatBoxMessage' ||
-                (entry.userId === API.currentUser.id &&
-                    (entry.type === 'OnPlayerJoined' ||
-                        entry.type === 'OnPlayerLeft'))
-            ) {
-                return;
-            }
-            if (
-                this.gameLogTable.filter.length > 0 &&
-                !this.gameLogTable.filter.includes(entry.type)
-            ) {
-                return;
-            }
-            if (!this.gameLogSearch(entry)) {
-                return;
-            }
-            this.gameLogTable.data.push(entry);
-            this.sweepGameLog();
-            this.store.ui.notifyMenu('gameLog');
-        },
-
-        async addGamelogLocationToDatabase(input) {
-            var groupName = await getGroupName(input.location);
-            var entry = {
-                ...input,
-                groupName
-            };
-            database.addGamelogLocationToDatabase(entry);
         },
 
         async addGameLogVideo(gameLog, location, userId) {
@@ -924,76 +850,11 @@ export default function init() {
             this.store.gameLog.setNowPlaying(entry);
         },
 
-        async gameLogTableLookup() {
-            await configRepository.setString(
-                'VRCX_gameLogTableFilters',
-                JSON.stringify(this.gameLogTable.filter)
-            );
-            await configRepository.setBool(
-                'VRCX_gameLogTableVIPFilter',
-                this.gameLogTable.vip
-            );
-            this.gameLogTable.loading = true;
-            let vipList = [];
-            if (this.gameLogTable.vip) {
-                vipList = Array.from(
-                    this.store.friend.localFavoriteFriends.values()
-                );
-            }
-            this.gameLogTable.data = await database.lookupGameLogDatabase(
-                this.gameLogTable.search,
-                this.gameLogTable.filter,
-                vipList
-            );
-            this.gameLogTable.loading = false;
-        },
-
-        sweepGameLog() {
-            var { data } = this.gameLogTable;
-            var j = data.length;
-            if (j > this.maxTableSize) {
-                data.splice(0, j - this.maxTableSize);
-            }
-
-            var date = new Date();
-            date.setDate(date.getDate() - 1); // 24 hour limit
-            var limit = date.toJSON();
-            var i = 0;
-            var k = this.gameLogSessionTable.length;
-            while (i < k && this.gameLogSessionTable[i].created_at < limit) {
-                ++i;
-            }
-            if (i === k) {
-                this.gameLogSessionTable = [];
-            } else if (i) {
-                this.gameLogSessionTable.splice(0, i);
-            }
-        },
-
-        // async resetGameLog() {
-        //     await gameLogService.reset();
-        //     this.gameLogTable.data = [];
-        //     this.lastLocationReset();
-        // },
-
-        // async refreshEntireGameLog() {
-        //     await gameLogService.setDateTill('1970-01-01');
-        //     await database.initTables();
-        //     await this.resetGameLog();
-        //     var location = '';
-        //     for (var gameLog of await gameLogService.getAll()) {
-        //         if (gameLog.type === 'location') {
-        //             location = gameLog.location;
-        //         }
-        //         this.addGameLogEntry(gameLog, location);
-        //     }
-        //     this.getGameLogTable();
-        // },
-
         async getGameLogTable() {
             await database.initTables();
-            this.gameLogSessionTable = await database.getGamelogDatabase();
-            var dateTill = await database.getLastDateGameLogDatabase();
+            this.store.gameLog.gameLogSessionTable =
+                await database.getGamelogDatabase();
+            const dateTill = await database.getLastDateGameLogDatabase();
             this.updateGameLog(dateTill);
         },
 
@@ -1031,99 +892,6 @@ export default function init() {
                 gameLog,
                 this.store.location.lastLocation.location
             );
-        },
-
-        gameLogSearch(row) {
-            var value = this.gameLogTable.search.toUpperCase();
-            if (!value) {
-                return true;
-            }
-            if (
-                (value.startsWith('wrld_') || value.startsWith('grp_')) &&
-                String(row.location).toUpperCase().includes(value)
-            ) {
-                return true;
-            }
-            switch (row.type) {
-                case 'Location':
-                    if (String(row.worldName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'OnPlayerJoined':
-                    if (String(row.displayName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'OnPlayerLeft':
-                    if (String(row.displayName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'PortalSpawn':
-                    if (String(row.displayName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    if (String(row.worldName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'Event':
-                    if (String(row.data).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'External':
-                    if (String(row.message).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    if (String(row.displayName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'VideoPlay':
-                    if (String(row.displayName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    if (String(row.videoName).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    if (String(row.videoUrl).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-                case 'StringLoad':
-                case 'ImageLoad':
-                    if (String(row.resourceUrl).toUpperCase().includes(value)) {
-                        return true;
-                    }
-                    return false;
-            }
-            return true;
-        },
-
-        gameLogIsFriend(row) {
-            if (typeof row.isFriend !== 'undefined') {
-                return row.isFriend;
-            }
-            if (!row.userId) {
-                return false;
-            }
-            row.isFriend = this.store.friend.friends.has(row.userId);
-            return row.isFriend;
-        },
-
-        gameLogIsFavorite(row) {
-            if (typeof row.isFavorite !== 'undefined') {
-                return row.isFavorite;
-            }
-            if (!row.userId) {
-                return false;
-            }
-            row.isFavorite = this.store.friend.localFavoriteFriends.has(
-                row.userId
-            );
-            return row.isFavorite;
         },
 
         async disableGameLogDialog() {

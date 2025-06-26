@@ -419,7 +419,7 @@ export default function init() {
                     distinguishCancelAndClose: true,
                     confirmButtonText: t('prompt.change_table_size.save'),
                     cancelButtonText: t('prompt.change_table_size.cancel'),
-                    inputValue: this.maxTableSize,
+                    inputValue: this.store.vrcx.maxTableSize,
                     inputPattern: /\d+$/,
                     inputErrorMessage: t(
                         'prompt.change_table_size.input_error'
@@ -429,14 +429,16 @@ export default function init() {
                             if (instance.inputValue > 10000) {
                                 instance.inputValue = 10000;
                             }
-                            this.maxTableSize = instance.inputValue;
+                            this.store.vrcx.maxTableSize = instance.inputValue;
                             await configRepository.setString(
                                 'VRCX_maxTableSize',
-                                this.maxTableSize
+                                this.store.vrcx.maxTableSize
                             );
-                            database.setmaxTableSize(this.maxTableSize);
+                            database.setmaxTableSize(
+                                this.store.vrcx.maxTableSize
+                            );
                             this.store.feed.feedTableLookup();
-                            this.gameLogTableLookup();
+                            this.store.gameLog.gameLogTableLookup();
                         }
                     }
                 }

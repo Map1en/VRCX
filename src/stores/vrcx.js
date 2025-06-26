@@ -18,6 +18,7 @@ import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
+import { useGameLogStore } from './gameLog';
 import { useGroupStore } from './group';
 import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
@@ -44,6 +45,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
     const searchStore = useSearchStore();
     const avatarProviderStore = useAvatarProviderStore();
+    const gameLogStore = useGameLogStore();
 
     const state = reactive({
         isRunningUnderWine: false,
@@ -338,7 +340,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                 };
                 database.addGamelogEventToDatabase(entry);
                 notificationStore.queueGameLogNoty(entry);
-                $app.addGameLog(entry);
+                gameLogStore.addGameLog(entry);
                 break;
             case 'External': {
                 const displayName = data.DisplayName ?? '';
@@ -352,7 +354,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                 };
                 database.addGamelogExternalToDatabase(entry);
                 notificationStore.queueGameLogNoty(entry);
-                $app.addGameLog(entry);
+                gameLogStore.addGameLog(entry);
                 break;
             }
             default:

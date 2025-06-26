@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { $app } from '../../app';
 import { i18n } from '../../plugin';
 import configRepository from '../../service/config';
 import { API } from '../../service/eventBus';
@@ -15,6 +14,7 @@ import {
 } from '../../shared/utils';
 import { useFeedStore } from '../feed';
 import { useFriendStore } from '../friend';
+import { useGameLogStore } from '../gameLog';
 import { useModerationStore } from '../moderation';
 import { useNotificationStore } from '../notification';
 import { useVrStore } from '../vr';
@@ -28,6 +28,7 @@ export const useAppearanceSettingsStore = defineStore(
         const notificationStore = useNotificationStore();
         const feedStore = useFeedStore();
         const moderationStore = useModerationStore();
+        const gameLogStore = useGameLogStore();
 
         const state = reactive({
             appLanguage: 'en',
@@ -655,7 +656,7 @@ export const useAppearanceSettingsStore = defineStore(
 
         async function handleSetTablePageSize(pageSize) {
             feedStore.feedTable.pageSize = pageSize;
-            $app.gameLogTable.pageSize = pageSize;
+            gameLogStore.gameLogTable.pageSize = pageSize;
             friendStore.friendLogTable.pageSize = pageSize;
             moderationStore.playerModerationTable.pageSize = pageSize;
             notificationStore.notificationTable.pageSize = pageSize;

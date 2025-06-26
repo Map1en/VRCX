@@ -10,6 +10,7 @@ import {
     parseLocation
 } from '../shared/utils';
 import { useGameStore } from './game';
+import { useGameLogStore } from './gameLog';
 import { useInstanceStore } from './instance';
 import { useNotificationStore } from './notification';
 import { usePhotonStore } from './photon';
@@ -25,6 +26,8 @@ export const useLocationStore = defineStore('Location', () => {
     const gameStore = useGameStore();
     const vrStore = useVrStore();
     const photonStore = usePhotonStore();
+    const gameLogStore = useGameLogStore();
+
     const state = reactive({
         lastLocation: {
             date: 0,
@@ -134,8 +137,8 @@ export const useLocationStore = defineStore('Location', () => {
             return;
         }
         let lastLocation = '';
-        for (let i = $app.gameLogSessionTable.length - 1; i > -1; i--) {
-            const item = $app.gameLogSessionTable[i];
+        for (let i = gameLogStore.gameLogSessionTable.length - 1; i > -1; i--) {
+            const item = gameLogStore.gameLogSessionTable[i];
             if (item.type === 'Location') {
                 lastLocation = item.location;
                 break;
@@ -165,7 +168,7 @@ export const useLocationStore = defineStore('Location', () => {
             };
             database.addGamelogLocationToDatabase(entry);
             notificationStore.queueGameLogNoty(entry);
-            $app.addGameLog(entry);
+            gameLogStore.addGameLog(entry);
             $app.addInstanceJoinHistory(location, dt);
 
             userStore.applyUserDialogLocation();
@@ -214,7 +217,7 @@ export const useLocationStore = defineStore('Location', () => {
                 time: dateTimeStamp - ref.joinTime
             };
             dataBaseEntries.unshift(entry);
-            $app.addGameLog(entry);
+            gameLogStore.addGameLog(entry);
         }
         database.addGamelogJoinLeaveBulk(dataBaseEntries);
         if (state.lastLocation.date !== 0) {

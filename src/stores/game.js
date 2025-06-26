@@ -165,7 +165,7 @@ export const useGameStore = defineStore('Game', () => {
         };
         database.addGamelogEventToDatabase(entry);
         notificationStore.queueGameLogNoty(entry);
-        $app.addGameLog(entry);
+        gameLogStore.addGameLog(entry);
         launchStore.launchGame(location, '', state.isGameNoVR);
     }
 

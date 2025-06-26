@@ -128,8 +128,7 @@ export default function init() {
                                     .then((args) => {
                                         workerTimers.setTimeout(() => {
                                             // delay to allow for group cache to update
-                                            $app.sharedFeed.pendingUpdate =
-                                                true;
+                                            $app.sharedFeed.pendingUpdate = true;
                                             $app.updateSharedFeed(false);
                                         }, 100);
                                         return args;
@@ -198,7 +197,7 @@ export default function init() {
 
         updateSharedFeedGameLog(forceUpdate) {
             // Location, OnPlayerJoined, OnPlayerLeft
-            const sessionTable = this.gameLogSessionTable;
+            const sessionTable = this.store.gameLog.gameLogSessionTable;
             var i = sessionTable.length;
             if (i > 0) {
                 if (

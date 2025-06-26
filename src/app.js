@@ -183,32 +183,14 @@ $app.data.friendNumber = 0;
 $app.data.isGroupInstances = false;
 $app.data.groupInstances = [];
 
-$app.data.gameLogTable.vip = false;
-// gameLog loads before favorites
-// await configRepository.getBool(
-//     'VRCX_gameLogTableVIPFilter',
-//     false
-// );
-$app.data.gameLogTable.filter = JSON.parse(
-    await configRepository.getString('VRCX_gameLogTableFilters', '[]')
-);
-
 $app.computed.sidebarTabBind = function () {
     return {
         groupInstances: this.groupInstances
     };
 };
-$app.computed.gameLogTabBind = function () {
-    return {
-        gameLogTable: this.gameLogTable,
-        gameLogIsFriend: this.gameLogIsFriend,
-        gameLogIsFavorite: this.gameLogIsFavorite
-    };
-};
+
 $app.computed.gameLogTabEvent = function () {
     return {
-        gameLogTableLookup: this.gameLogTableLookup,
-        updateGameLogSessionTable: (val) => (this.gameLogSessionTable = val),
         updateSharedFeed: this.updateSharedFeed
     };
 };

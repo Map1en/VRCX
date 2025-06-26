@@ -62,25 +62,24 @@
     import { storeToRefs } from 'pinia';
     import database from '../../../service/database';
     import { adjustDialogZ, compareByCreatedAt, parseLocation, timeToText } from '../../../shared/utils';
-    import { useAppearanceSettingsStore, useInstanceStore, useUserStore } from '../../../stores';
+    import { useAppearanceSettingsStore, useGameLogStore, useInstanceStore, useUserStore } from '../../../stores';
 
     export default {
         name: 'PreviousInstancesInfoDialog',
-        props: {
-            gameLogIsFriend: { type: Function, required: true },
-            gameLogIsFavorite: { type: Function, required: true }
-        },
         setup() {
             const { isDarkMode } = storeToRefs(useAppearanceSettingsStore());
             const { lookupUser } = useUserStore();
             const { previousInstancesInfoDialogVisible, previousInstancesInfoDialogInstanceId } =
                 storeToRefs(useInstanceStore());
+            const { gameLogIsFriend, gameLogIsFavorite } = useGameLogStore();
             return {
                 isDarkMode,
                 lookupUser,
                 previousInstancesInfoDialogVisible,
                 previousInstancesInfoDialogInstanceId,
-                adjustDialogZ
+                adjustDialogZ,
+                gameLogIsFriend,
+                gameLogIsFavorite
             };
         },
         data() {

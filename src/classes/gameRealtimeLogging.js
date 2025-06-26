@@ -646,7 +646,7 @@ export default function init() {
                         text
                     };
                     this.store.notification.queueGameLogNoty(entry);
-                    this.addGameLog(entry);
+                    this.store.gameLog.addGameLog(entry);
                     break;
                 case 70:
                     // Portal Spawn
@@ -908,7 +908,7 @@ export default function init() {
 
         addPhotonEventToGameLog(entry) {
             this.store.notification.queueGameLogNoty(entry);
-            this.addGameLog(entry);
+            this.store.gameLog.addGameLog(entry);
             if (entry.type === 'PortalSpawn') {
                 database.addGamelogPortalSpawnToDatabase(entry);
             } else if (entry.type === 'Event') {
@@ -1120,7 +1120,7 @@ export default function init() {
                     )} (${this.getUserIdFromPhotonId(photonId)})`
                 };
                 this.store.notification.queueGameLogNoty(entry);
-                this.addGameLog(entry);
+                this.store.gameLog.addGameLog(entry);
                 database.addGamelogEventToDatabase(entry);
             }
         },
@@ -1271,7 +1271,7 @@ export default function init() {
                         thumbnailImageUrl: avatar.thumbnailImageUrl
                     };
                     this.store.notification.queueGameLogNoty(entry);
-                    this.addGameLog(entry);
+                    this.store.gameLog.addGameLog(entry);
                     this.addEntryPhotonEvent({
                         photonId,
                         displayName: user.displayName,

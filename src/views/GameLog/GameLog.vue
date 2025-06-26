@@ -206,7 +206,8 @@
         useUiStore,
         useWorldStore,
         useAppearanceSettingsStore,
-        useInstanceStore
+        useInstanceStore,
+        useGameLogStore
     } from '../../stores';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
@@ -214,39 +215,16 @@
     const { lookupUser } = useUserStore();
     const { showPreviousInstancesInfoDialog } = useInstanceStore();
     const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
+    const { gameLogIsFriend, gameLogIsFavorite, gameLogTableLookup } = useGameLogStore();
+    const { gameLogTable } = storeToRefs(useGameLogStore());
 
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
 
-    const props = defineProps({
-        gameLogTable: {
-            type: Object,
-            required: true
-        },
-        gameLogIsFriend: {
-            type: Function,
-            default: () => () => false
-        },
-        gameLogIsFavorite: {
-            type: Function,
-            default: () => () => false
-        }
-    });
-
-    const emit = defineEmits([
-        'gameLogTableLookup',
-        'gameLogIsFriend',
-        'gameLogIsFavorite',
-        'updateGameLogSessionTable',
-        'updateSharedFeed'
-    ]);
-
-    function gameLogTableLookup() {
-        emit('gameLogTableLookup');
-    }
+    const emit = defineEmits(['updateGameLogSessionTable', 'updateSharedFeed']);
 
     function deleteGameLogEntry(row) {
-        removeFromArray(props.gameLogTable.data, row);
+        removeFromArray(gameLogTable.value.data, row);
         database.deleteGameLogEntry(row);
         console.log('deleteGameLogEntry', row);
         database.getGamelogDatabase().then((data) => {
