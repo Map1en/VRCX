@@ -1274,7 +1274,6 @@ export const useGameLogStore = defineStore('GameLog', () => {
 
     async function updateGameLog(dateTill) {
         await gameLogService.setDateTill(dateTill);
-        await gameLogService.reset();
         await new Promise((resolve) => {
             workerTimers.setTimeout(resolve, 10000);
         });
