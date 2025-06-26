@@ -3,7 +3,6 @@ import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { $app, t } from '../app';
 import configRepository from '../service/config';
-import { API } from '../service/eventBus';
 import { branches } from '../shared/constants';
 import { changeLogRemoveLinks } from '../shared/utils';
 import { useDebugStore } from './debug';
@@ -265,7 +264,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
                 state.pendingVRCXUpdate = true;
                 uiStore.notifyMenu('settings');
                 const type = 'Auto';
-                if (!API.isLoggedIn) {
+                if (!$app.store.auth.isLoggedIn) {
                     showVRCXUpdateDialog();
                 } else if (state.autoUpdateVRCX === 'Notify') {
                     // this.showVRCXUpdateDialog();

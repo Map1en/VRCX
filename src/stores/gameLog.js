@@ -1287,6 +1287,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
     }
 
+    // use in C#
     function addGameLogEvent(json) {
         const rawLogs = JSON.parse(json);
         const gameLog = gameLogService.parseRawGameLog(

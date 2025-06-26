@@ -888,7 +888,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     break retryLoop;
                 } catch (err) {
                     console.error(err);
-                    if (!API.currentUser.isLoggedIn) {
+                    if (!$app.store.auth.isLoggedIn) {
                         console.error(`User isn't logged in`);
                         break mainLoop;
                     }
@@ -963,7 +963,7 @@ export const useFriendStore = defineStore('Friend', () => {
         for (const userId of API.currentUser.friends) {
             if (!friends.some((x) => x.id === userId)) {
                 try {
-                    if (!API.isLoggedIn) {
+                    if (!$app.store.auth.isLoggedIn) {
                         console.error(`User isn't logged in`);
                         return friends;
                     }

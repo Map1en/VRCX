@@ -55,7 +55,7 @@ export default function init() {
             }
             workerTimers.setTimeout(() => {
                 if (
-                    this.isLoggedIn &&
+                    $app.store.auth.isLoggedIn &&
                     $app.store.friend.friendLogInitStatus &&
                     this.webSocket === null
                 ) {
@@ -123,7 +123,10 @@ export default function init() {
     };
 
     API.reconnectWebSocket = function () {
-        if (!this.isLoggedIn || !$app.store.friend.friendLogInitStatus) {
+        if (
+            !$app.store.auth.isLoggedIn ||
+            !$app.store.friend.friendLogInitStatus
+        ) {
             return;
         }
         this.closeWebSocket();

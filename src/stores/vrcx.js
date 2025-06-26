@@ -419,8 +419,9 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     }
 
+    // use in C# side
     function ipcEvent(json) {
-        if (!API.isLoggedIn) {
+        if (!$app.store.auth.isLoggedIn) {
             return;
         }
         let data;
@@ -527,7 +528,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     });
 
     function eventLaunchCommand(input) {
-        if (!API.isLoggedIn) {
+        if (!$app.store.auth.isLoggedIn) {
             return;
         }
         console.log('LaunchCommand:', input);

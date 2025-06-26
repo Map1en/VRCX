@@ -1,11 +1,11 @@
 doctype html
 #x-app.x-app(@dragenter.prevent @dragover.prevent @drop.prevent)
     //- ### Login ###
-    LoginPage(v-if="!API.isLoggedIn" v-on="loginPageEvent")
+    LoginPage(v-if="!this.store.auth.isLoggedIn" v-on="loginPageEvent")
 
     VRCXUpdateDialog
 
-    template(v-if='API.isLoggedIn')
+    template(v-if='this.store.auth.isLoggedIn')
         //- ### Menu ###
         NavMenu(ref='menu')
 

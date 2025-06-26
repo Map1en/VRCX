@@ -169,7 +169,7 @@ export default function init() {
 
     API.applyCurrentUser = function (json) {
         var ref = this.currentUser;
-        if (this.isLoggedIn) {
+        if ($app.store.auth.isLoggedIn) {
             if (json.currentAvatar !== ref.currentAvatar) {
                 $app.store.avatar.addAvatarToHistory(json.currentAvatar);
                 if ($app.store.game.isGameRunning) {
@@ -313,7 +313,7 @@ export default function init() {
             this.applyPresenceLocation(ref);
             $app.store.group.applyPresenceGroups(ref);
             this.currentUser = ref;
-            this.isLoggedIn = true;
+            $app.store.auth.isLoggedIn = true;
             this.$emit('LOGIN', {
                 json,
                 ref

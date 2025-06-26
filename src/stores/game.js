@@ -178,7 +178,7 @@ export const useGameStore = defineStore('Game', () => {
         state.VRChatCacheSizeLoading = false;
     }
 
-    // todo: use in cef
+    // use in C#
     async function updateIsGameRunning(
         isGameRunning,
         isSteamVRRunning,

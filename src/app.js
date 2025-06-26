@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import apiLogin from './classes/apiLogin.js';
 import currentUser from './classes/currentUser.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
@@ -157,7 +156,6 @@ uiComponents();
 websocket();
 sharedFeed();
 prompts();
-apiLogin();
 currentUser();
 updateLoop();
 gameRealtimeLogging();
@@ -183,10 +181,7 @@ $app.computed.gameLogTabEvent = function () {
 
 $app.computed.loginPageEvent = function () {
     return {
-        promptProxySettings: this.promptProxySettings,
-        deleteSavedLogin: this.deleteSavedLogin,
-        login: this.login,
-        relogin: this.relogin
+        promptProxySettings: this.promptProxySettings
     };
 };
 $app.computed.settingsTabEvent = function () {

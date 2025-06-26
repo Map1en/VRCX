@@ -28,7 +28,7 @@
                         ref="loginFormRef"
                         :model="loginForm"
                         :rules="loginForm.rules"
-                        @submit.native.prevent="login()">
+                        @submit.native.prevent="handleLogin()">
                         <el-form-item :label="t('view.login.field.username')" prop="username" required>
                             <el-input
                                 v-model="loginForm.username"
@@ -166,11 +166,11 @@
     const { showVRCXUpdateDialog } = useVRCXUpdaterStore();
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { loginForm, enableCustomEndpoint } = storeToRefs(useAuthStore());
-    const { toggleCustomEndpoint } = useAuthStore();
+    const { toggleCustomEndpoint, relogin, deleteSavedLogin, login } = useAuthStore();
 
     const { t } = useI18n();
 
-    const emit = defineEmits(['promptProxySettings', 'deleteSavedLogin', 'relogin', 'login']);
+    const emit = defineEmits(['promptProxySettings']);
 
     const loginFormRef = ref(null);
 
@@ -178,18 +178,10 @@
         emit('promptProxySettings');
     }
 
-    function deleteSavedLogin(userId) {
-        emit('deleteSavedLogin', userId);
-    }
-
-    function relogin(user) {
-        emit('relogin', user);
-    }
-
-    function login() {
+    function handleLogin() {
         if (loginFormRef.value) {
             loginFormRef.value.validate((valid) => {
-                valid && emit('login');
+                valid && login();
             });
         }
     }

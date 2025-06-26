@@ -1,7 +1,9 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { loginRequest } from '../api';
 import { $app, t } from '../app';
+import { request } from '../service/apiRequestHandler';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import security from '../service/security';
@@ -16,6 +18,9 @@ export const useAuthStore = defineStore('Auth', () => {
     const notificationStore = useNotificationStore();
     const friendStore = useFriendStore();
     const state = reactive({
+        isLoggedIn: false,
+        attemptingAutoLogin: false,
+        autoLoginAttempts: new Set(),
         loginForm: {
             loading: true,
             username: '',
@@ -73,6 +78,14 @@ export const useAuthStore = defineStore('Auth', () => {
 
     init();
 
+    // LOGIN STATE
+    const isLoggedIn = computed({
+        get: () => state.isLoggedIn,
+        set: (value) => {
+            state.isLoggedIn = value;
+        }
+    });
+
     const loginForm = computed({
         get: () => state.loginForm,
         set: (value) => {
@@ -102,7 +115,7 @@ export const useAuthStore = defineStore('Auth', () => {
     });
 
     API.$on('LOGOUT', function () {
-        if (API.isLoggedIn) {
+        if (state.isLoggedIn) {
             new Noty({
                 type: 'success',
                 text: `See you again, <strong>${escapeTag(
@@ -110,7 +123,7 @@ export const useAuthStore = defineStore('Auth', () => {
                 )}</strong>!`
             }).show();
         }
-        API.isLoggedIn = false;
+        state.isLoggedIn = false;
         friendStore.friendLogInitStatus = false;
         notificationStore.notificationInitStatus = false;
     });
@@ -184,7 +197,7 @@ export const useAuthStore = defineStore('Auth', () => {
                 ];
             if (typeof user !== 'undefined') {
                 delete user.cookies;
-                await $app.relogin(user);
+                await relogin(user);
             }
         }
     }
@@ -198,7 +211,7 @@ export const useAuthStore = defineStore('Auth', () => {
             if (typeof user !== 'undefined') {
                 await webApiService.clearCookies();
                 delete user.cookies;
-                $app.relogin(user).then(() => {
+                relogin(user).then(() => {
                     new Noty({
                         type: 'success',
                         text: 'Email 2FA resent.'
@@ -215,12 +228,12 @@ export const useAuthStore = defineStore('Auth', () => {
 
     API.$on('USER:2FA', function () {
         AppApi.FocusWindow();
-        $app.promptTOTP();
+        promptTOTP();
     });
 
     API.$on('USER:EMAILOTP', function () {
         AppApi.FocusWindow();
-        $app.promptEmailOTP();
+        promptEmailOTP();
     });
 
     function enablePrimaryPasswordChange() {
@@ -404,12 +417,423 @@ export const useAuthStore = defineStore('Auth', () => {
         });
     }
 
+    async function relogin(user) {
+        const { loginParmas } = user;
+        if (user.cookies) {
+            await webApiService.setCookies(user.cookies);
+        }
+        state.loginForm.lastUserLoggedIn = user.user.id; // for resend email 2fa
+        if (loginParmas.endpoint) {
+            API.endpointDomain = loginParmas.endpoint;
+            API.websocketDomain = loginParmas.websocket;
+        } else {
+            API.endpointDomain = API.endpointDomainVrchat;
+            API.websocketDomain = API.websocketDomainVrchat;
+        }
+        return new Promise((resolve, reject) => {
+            state.loginForm.loading = true;
+            if (advancedSettingsStore.enablePrimaryPassword) {
+                checkPrimaryPassword(loginParmas)
+                    .then((pwd) => {
+                        return API.getConfig()
+                            .catch((err) => {
+                                reject(err);
+                            })
+                            .then(() => {
+                                API.login({
+                                    username: loginParmas.username,
+                                    password: pwd,
+                                    cipher: loginParmas.password,
+                                    endpoint: loginParmas.endpoint,
+                                    websocket: loginParmas.websocket
+                                })
+                                    .catch((err2) => {
+                                        // API.logout();
+                                        reject(err2);
+                                    })
+                                    .then(() => {
+                                        resolve();
+                                    });
+                            });
+                    })
+                    .catch((_) => {
+                        $app.$message({
+                            message: 'Incorrect primary password',
+                            type: 'error'
+                        });
+                        reject(_);
+                    });
+            } else {
+                API.getConfig()
+                    .catch((err) => {
+                        reject(err);
+                    })
+                    .then(() => {
+                        API.login({
+                            username: loginParmas.username,
+                            password: loginParmas.password,
+                            endpoint: loginParmas.endpoint,
+                            websocket: loginParmas.websocket
+                        })
+                            .catch((err2) => {
+                                API.$emit('LOGOUT');
+                                reject(err2);
+                            })
+                            .then(() => {
+                                resolve();
+                            });
+                    });
+            }
+        }).finally(() => (state.loginForm.loading = false));
+    }
+
+    async function deleteSavedLogin(userId) {
+        const savedCredentials = JSON.parse(
+            await configRepository.getString('savedCredentials')
+        );
+        delete savedCredentials[userId];
+        // Disable primary password when no account is available.
+        if (Object.keys(savedCredentials).length === 0) {
+            advancedSettingsStore.enablePrimaryPassword = false;
+            advancedSettingsStore.setEnablePrimaryPasswordConfigRepository(
+                false
+            );
+        }
+        state.loginForm.savedCredentials = savedCredentials;
+        const jsonCredentials = JSON.stringify(savedCredentials);
+        await configRepository.setString('savedCredentials', jsonCredentials);
+        new Noty({
+            type: 'success',
+            text: 'Account removed.'
+        }).show();
+    }
+
+    async function login() {
+        await webApiService.clearCookies();
+        if (!state.loginForm.loading) {
+            state.loginForm.loading = true;
+            if (state.loginForm.endpoint) {
+                API.endpointDomain = state.loginForm.endpoint;
+                API.websocketDomain = state.loginForm.websocket;
+            } else {
+                API.endpointDomain = API.endpointDomainVrchat;
+                API.websocketDomain = API.websocketDomainVrchat;
+            }
+            API.getConfig()
+                .catch((err) => {
+                    state.loginForm.loading = false;
+                    throw err;
+                })
+                .then((args) => {
+                    if (
+                        state.loginForm.saveCredentials &&
+                        advancedSettingsStore.enablePrimaryPassword
+                    ) {
+                        $app.$prompt(
+                            t('prompt.primary_password.description'),
+                            t('prompt.primary_password.header'),
+                            {
+                                inputType: 'password',
+                                inputPattern: /[\s\S]{1,32}/
+                            }
+                        )
+                            .then(({ value }) => {
+                                const saveCredential =
+                                    state.loginForm.savedCredentials[
+                                        Object.keys(
+                                            state.loginForm.savedCredentials
+                                        )[0]
+                                    ];
+                                security
+                                    .decrypt(
+                                        saveCredential.loginParmas.password,
+                                        value
+                                    )
+                                    .then(() => {
+                                        security
+                                            .encrypt(
+                                                state.loginForm.password,
+                                                value
+                                            )
+                                            .then((pwd) => {
+                                                API.login({
+                                                    username:
+                                                        state.loginForm
+                                                            .username,
+                                                    password:
+                                                        state.loginForm
+                                                            .password,
+                                                    endpoint:
+                                                        state.loginForm
+                                                            .endpoint,
+                                                    websocket:
+                                                        state.loginForm
+                                                            .websocket,
+                                                    saveCredentials:
+                                                        state.loginForm
+                                                            .saveCredentials,
+                                                    cipher: pwd
+                                                });
+                                            });
+                                    });
+                            })
+                            .finally(() => {
+                                state.loginForm.loading = false;
+                            });
+                        return args;
+                    }
+                    API.login({
+                        username: state.loginForm.username,
+                        password: state.loginForm.password,
+                        endpoint: state.loginForm.endpoint,
+                        websocket: state.loginForm.websocket,
+                        saveCredentials: state.loginForm.saveCredentials
+                    }).finally(() => {
+                        state.loginForm.loading = false;
+                    });
+                    return args;
+                });
+        }
+    }
+
+    function promptTOTP() {
+        if (state.twoFactorAuthDialogVisible) {
+            return;
+        }
+        AppApi.FlashWindow();
+        state.twoFactorAuthDialogVisible = true;
+        $app.$prompt(t('prompt.totp.description'), t('prompt.totp.header'), {
+            distinguishCancelAndClose: true,
+            cancelButtonText: t('prompt.totp.use_otp'),
+            confirmButtonText: t('prompt.totp.verify'),
+            inputPlaceholder: t('prompt.totp.input_placeholder'),
+            inputPattern: /^[0-9]{6}$/,
+            inputErrorMessage: t('prompt.totp.input_error'),
+            callback: (action, instance) => {
+                if (action === 'confirm') {
+                    loginRequest
+                        .verifyTOTP({
+                            code: instance.inputValue.trim()
+                        })
+                        .catch((err) => {
+                            clearCookiesTryLogin();
+                            throw err;
+                        })
+                        .then((args) => {
+                            API.getCurrentUser();
+                            return args;
+                        });
+                } else if (action === 'cancel') {
+                    promptOTP();
+                }
+            },
+            beforeClose: (action, instance, done) => {
+                state.twoFactorAuthDialogVisible = false;
+                done();
+            }
+        });
+    }
+
+    function promptOTP() {
+        if (state.twoFactorAuthDialogVisible) {
+            return;
+        }
+        state.twoFactorAuthDialogVisible = true;
+        $app.$prompt(t('prompt.otp.description'), t('prompt.otp.header'), {
+            distinguishCancelAndClose: true,
+            cancelButtonText: t('prompt.otp.use_totp'),
+            confirmButtonText: t('prompt.otp.verify'),
+            inputPlaceholder: t('prompt.otp.input_placeholder'),
+            inputPattern: /^[a-z0-9]{4}-[a-z0-9]{4}$/,
+            inputErrorMessage: t('prompt.otp.input_error'),
+            callback: (action, instance) => {
+                if (action === 'confirm') {
+                    loginRequest
+                        .verifyOTP({
+                            code: instance.inputValue.trim()
+                        })
+                        .catch((err) => {
+                            clearCookiesTryLogin();
+                            throw err;
+                        })
+                        .then((args) => {
+                            API.getCurrentUser();
+                            return args;
+                        });
+                } else if (action === 'cancel') {
+                    promptTOTP();
+                }
+            },
+            beforeClose: (action, instance, done) => {
+                state.twoFactorAuthDialogVisible = false;
+                done();
+            }
+        });
+    }
+
+    function promptEmailOTP() {
+        if (state.twoFactorAuthDialogVisible) {
+            return;
+        }
+        AppApi.FlashWindow();
+        state.twoFactorAuthDialogVisible = true;
+        $app.$prompt(
+            t('prompt.email_otp.description'),
+            t('prompt.email_otp.header'),
+            {
+                distinguishCancelAndClose: true,
+                cancelButtonText: t('prompt.email_otp.resend'),
+                confirmButtonText: t('prompt.email_otp.verify'),
+                inputPlaceholder: t('prompt.email_otp.input_placeholder'),
+                inputPattern: /^[0-9]{6}$/,
+                inputErrorMessage: t('prompt.email_otp.input_error'),
+                callback: (action, instance) => {
+                    if (action === 'confirm') {
+                        loginRequest
+                            .verifyEmailOTP({
+                                code: instance.inputValue.trim()
+                            })
+                            .catch((err) => {
+                                promptEmailOTP();
+                                throw err;
+                            })
+                            .then((args) => {
+                                API.getCurrentUser();
+                                return args;
+                            });
+                    } else if (action === 'cancel') {
+                        resendEmail2fa();
+                    }
+                },
+                beforeClose: (action, instance, done) => {
+                    state.twoFactorAuthDialogVisible = false;
+                    done();
+                }
+            }
+        );
+    }
+
+    /**
+     * @param {{ username: string, password: string }} params credential to login
+     * @returns {Promise<{origin: boolean, json: any, params}>}
+     */
+    API.login = function (params) {
+        let { username, password, saveCredentials, cipher } = params;
+        username = encodeURIComponent(username);
+        password = encodeURIComponent(password);
+        const auth = btoa(`${username}:${password}`);
+        if (saveCredentials) {
+            delete params.saveCredentials;
+            if (cipher) {
+                params.password = cipher;
+                delete params.cipher;
+            }
+            state.saveCredentials = params;
+        }
+        return request('auth/user', {
+            method: 'GET',
+            headers: {
+                Authorization: `Basic ${auth}`
+            }
+        }).then((json) => {
+            const args = {
+                json,
+                params,
+                origin: true
+            };
+            if (
+                json.requiresTwoFactorAuth &&
+                json.requiresTwoFactorAuth.includes('emailOtp')
+            ) {
+                API.$emit('USER:EMAILOTP', args);
+            } else if (json.requiresTwoFactorAuth) {
+                API.$emit('USER:2FA', args);
+            } else {
+                API.$emit('USER:CURRENT', args);
+            }
+            return args;
+        });
+    };
+
+    API.$on('AUTOLOGIN', function () {
+        if (this.attemptingAutoLogin) {
+            return;
+        }
+        state.attemptingAutoLogin = true;
+        const user =
+            state.loginForm.savedCredentials[state.loginForm.lastUserLoggedIn];
+        if (typeof user === 'undefined') {
+            state.attemptingAutoLogin = false;
+            return;
+        }
+        if (advancedSettingsStore.enablePrimaryPassword) {
+            console.error(
+                'Primary password is enabled, this disables auto login.'
+            );
+            state.attemptingAutoLogin = false;
+            logout();
+            return;
+        }
+        const attemptsInLastHour = Array.from(state.autoLoginAttempts).filter(
+            (timestamp) => timestamp > new Date().getTime() - 3600000
+        ).length;
+        if (attemptsInLastHour >= 3) {
+            console.error(
+                'More than 3 auto login attempts within the past hour, logging out instead of attempting auto login.'
+            );
+            state.attemptingAutoLogin = false;
+            logout();
+            return;
+        }
+        state.autoLoginAttempts.add(new Date().getTime());
+        relogin(user)
+            .then(() => {
+                if ($app.errorNoty) {
+                    $app.errorNoty.close();
+                }
+                $app.errorNoty = new Noty({
+                    type: 'success',
+                    text: 'Automatically logged in.'
+                }).show();
+                console.log('Automatically logged in.');
+            })
+            .catch((err) => {
+                if ($app.errorNoty) {
+                    $app.errorNoty.close();
+                }
+                $app.errorNoty = new Noty({
+                    type: 'error',
+                    text: 'Failed to login automatically.'
+                }).show();
+                console.error('Failed to login automatically.', err);
+            })
+            .finally(() => {
+                if (!navigator.onLine) {
+                    $app.errorNoty = new Noty({
+                        type: 'error',
+                        text: `You're offline.`
+                    }).show();
+                    console.error(`You're offline.`);
+                }
+            });
+    });
+
+    API.$on('USER:CURRENT', function () {
+        state.attemptingAutoLogin = false;
+    });
+
+    API.$on('LOGOUT', function () {
+        state.attemptingAutoLogin = false;
+        state.autoLoginAttempts.clear();
+    });
+
     return {
         state,
         loginForm,
         enablePrimaryPasswordDialog,
         saveCredentials,
         twoFactorAuthDialogVisible,
+        isLoggedIn,
 
         clearCookiesTryLogin,
         resendEmail2fa,
@@ -420,6 +844,9 @@ export const useAuthStore = defineStore('Auth', () => {
         checkPrimaryPassword,
         autoLoginAfterMounted,
         toggleCustomEndpoint,
-        logout
+        logout,
+        relogin,
+        deleteSavedLogin,
+        login
     };
 });

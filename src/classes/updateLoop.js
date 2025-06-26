@@ -26,7 +26,7 @@ export default function init() {
     const _methods = {
         async updateLoop() {
             try {
-                if (API.isLoggedIn === true) {
+                if ($app.store.auth.isLoggedIn === true) {
                     if (--this.nextCurrentUserRefresh <= 0) {
                         this.nextCurrentUserRefresh = 300; // 5min
                         API.getCurrentUser();
