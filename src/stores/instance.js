@@ -431,13 +431,6 @@ export const useInstanceStore = defineStore('Instance', () => {
                     'instanceDialogQueueEnabled',
                     true
                 ),
-                contentSettings: instanceContentSettings || [],
-                selectedContentSettings: JSON.parse(
-                    await configRepository.getString(
-                        'instanceDialogSelectedContentSettings',
-                        JSON.stringify(instanceContentSettings || [])
-                    )
-                ),
                 roleIds: [],
                 groupRef: {}
             };
@@ -471,18 +464,12 @@ export const useInstanceStore = defineStore('Instance', () => {
         } else if (D.region === 'Japan') {
             region = 'jp';
         }
-        const contentSettings = {};
-        for (const setting of D.contentSettings) {
-            contentSettings[setting] =
-                D.selectedContentSettings.includes(setting);
-        }
         const params = {
             type,
             canRequestInvite,
             worldId: D.worldId,
             ownerId: userStore.currentUser.id,
-            region,
-            contentSettings
+            region
         };
         if (type === 'group') {
             params.groupAccessType = D.groupAccessType;
