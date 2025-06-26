@@ -29,12 +29,14 @@ export default function init() {
                 if ($app.store.auth.isLoggedIn === true) {
                     if (--this.nextCurrentUserRefresh <= 0) {
                         this.nextCurrentUserRefresh = 300; // 5min
-                        API.getCurrentUser();
+                        this.store.user.getCurrentUser();
                     }
                     if (--this.nextFriendsRefresh <= 0) {
                         this.nextFriendsRefresh = 3600; // 1hour
                         this.store.friend.refreshFriendsList();
-                        this.store.auth.updateStoredUser(API.currentUser);
+                        this.store.auth.updateStoredUser(
+                            this.store.user.currentUser
+                        );
                         if (this.store.game.isGameRunning) {
                             $app.store.moderation.refreshPlayerModerations();
                         }

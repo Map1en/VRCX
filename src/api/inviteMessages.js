@@ -1,9 +1,13 @@
-import { API } from '../app';
 import { request } from '../service/apiRequestHandler';
+import { useUserStore } from '../stores';
+
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 
 const inviteMessagesReq = {
     refreshInviteMessageTableData(messageType) {
-        return request(`message/${API.currentUser.id}/${messageType}`, {
+        return request(`message/${getCurrentUserId()}/${messageType}`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -15,7 +19,7 @@ const inviteMessagesReq = {
     },
 
     editInviteMessage(params, messageType, slot) {
-        return request(`message/${API.currentUser.id}/${messageType}/${slot}`, {
+        return request(`message/${getCurrentUserId()}/${messageType}/${slot}`, {
             method: 'PUT',
             params
         }).then((json) => {

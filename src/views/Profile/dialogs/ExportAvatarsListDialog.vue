@@ -16,9 +16,8 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { avatarRequest } from '../../../api';
-    import { API } from '../../../app';
     import { bulk } from '../../../service/apiRequestHandler';
-    import { useAvatarStore } from '../../../stores/avatar';
+    import { useAvatarStore, useUserStore } from '../../../stores';
 
     export default {
         name: 'ExportAvatarsListDialog',
@@ -26,11 +25,11 @@
             isExportAvatarsListDialogVisible: Boolean
         },
         setup() {
-            const avatarStore = useAvatarStore();
-            const { cachedAvatars } = storeToRefs(avatarStore);
+            const { cachedAvatars } = storeToRefs(useAvatarStore());
+            const { currentUser } = storeToRefs(useUserStore());
             return {
-                API,
-                cachedAvatars
+                cachedAvatars,
+                currentUser
             };
         },
         data() {
@@ -60,7 +59,7 @@
             initExportAvatarsListDialog() {
                 this.loading = true;
                 for (const ref of this.cachedAvatars.values()) {
-                    if (ref.authorId === this.API.currentUser.id) {
+                    if (ref.authorId === this.currentUser.id) {
                         this.cachedAvatars.delete(ref.id);
                     }
                 }

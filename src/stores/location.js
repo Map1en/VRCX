@@ -79,19 +79,19 @@ export const useLocationStore = defineStore('Location', () => {
     });
 
     function updateCurrentUserLocation() {
-        const ref = API.cachedUsers.get(API.currentUser.id);
+        const ref = API.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref === 'undefined') {
             return;
         }
 
         // update cached user with both gameLog and API locations
-        let currentLocation = API.currentUser.$locationTag;
+        let currentLocation = userStore.currentUser.$locationTag;
         const L = parseLocation(currentLocation);
         if (L.isTraveling) {
-            currentLocation = API.currentUser.$travelingToLocation;
+            currentLocation = userStore.currentUser.$travelingToLocation;
         }
-        ref.location = API.currentUser.$locationTag;
-        ref.travelingToLocation = API.currentUser.$travelingToLocation;
+        ref.location = userStore.currentUser.$locationTag;
+        ref.travelingToLocation = userStore.currentUser.$travelingToLocation;
 
         if (
             gameStore.isGameRunning &&
@@ -107,28 +107,28 @@ export const useLocationStore = defineStore('Location', () => {
             ref.travelingToLocation = state.lastLocationDestination;
         }
 
-        ref.$online_for = API.currentUser.$online_for;
-        ref.$offline_for = API.currentUser.$offline_for;
+        ref.$online_for = userStore.currentUser.$online_for;
+        ref.$offline_for = userStore.currentUser.$offline_for;
         ref.$location = parseLocation(currentLocation);
         if (!gameStore.isGameRunning || advancedSettingsStore.gameLogDisabled) {
-            ref.$location_at = API.currentUser.$location_at;
-            ref.$travelingToTime = API.currentUser.$travelingToTime;
+            ref.$location_at = userStore.currentUser.$location_at;
+            ref.$travelingToTime = userStore.currentUser.$travelingToTime;
             userStore.applyUserDialogLocation();
             instanceStore.applyWorldDialogInstances();
             instanceStore.applyGroupDialogInstances();
         } else {
             ref.$location_at = state.lastLocation.date;
             ref.$travelingToTime = state.lastLocationDestinationTime;
-            API.currentUser.$travelingToTime =
+            userStore.currentUser.$travelingToTime =
                 state.lastLocationDestinationTime;
         }
     }
 
     async function setCurrentUserLocation(location, travelingToLocation) {
-        API.currentUser.$location_at = Date.now();
-        API.currentUser.$travelingToTime = Date.now();
-        API.currentUser.$locationTag = location;
-        API.currentUser.$travelingToLocation = travelingToLocation;
+        userStore.currentUser.$location_at = Date.now();
+        userStore.currentUser.$travelingToTime = Date.now();
+        userStore.currentUser.$locationTag = location;
+        userStore.currentUser.$travelingToLocation = travelingToLocation;
         updateCurrentUserLocation();
 
         // janky gameLog support for Quest

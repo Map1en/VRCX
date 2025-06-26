@@ -124,8 +124,8 @@ export const useFeedStore = defineStore('Feed', () => {
         await getAllUserMemos();
         userStore.initUserNotes();
         if (appearanceSettingsStore.randomUserColours) {
-            getNameColour(API.currentUser.id).then((colour) => {
-                API.currentUser.$userColour = colour;
+            getNameColour(userStore.currentUser.id).then((colour) => {
+                userStore.currentUser.$userColour = colour;
             });
             await appearanceSettingsStore.userColourInit();
         }

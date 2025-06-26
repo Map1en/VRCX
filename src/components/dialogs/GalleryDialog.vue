@@ -33,7 +33,7 @@
                         size="small"
                         @click="displayGalleryUpload"
                         icon="el-icon-upload2"
-                        :disabled="!API.currentUser.$isVRCPlus">
+                        :disabled="!currentUser.$isVRCPlus">
                         {{ t('dialog.gallery_icons.upload') }}
                     </el-button>
                     <el-button
@@ -41,7 +41,7 @@
                         size="small"
                         @click="setProfilePicOverride('')"
                         icon="el-icon-close"
-                        :disabled="!API.currentUser.profilePicOverride">
+                        :disabled="!currentUser.profilePicOverride">
                         {{ t('dialog.gallery_icons.clear') }}
                     </el-button>
                 </el-button-group>
@@ -102,7 +102,7 @@
                         size="small"
                         @click="displayVRCPlusIconUpload"
                         icon="el-icon-upload2"
-                        :disabled="!API.currentUser.$isVRCPlus">
+                        :disabled="!currentUser.$isVRCPlus">
                         {{ t('dialog.gallery_icons.upload') }}
                     </el-button>
                     <el-button
@@ -110,7 +110,7 @@
                         size="small"
                         @click="setVRCPlusIcon('')"
                         icon="el-icon-close"
-                        :disabled="!API.currentUser.userIcon">
+                        :disabled="!currentUser.userIcon">
                         {{ t('dialog.gallery_icons.clear') }}
                     </el-button>
                 </el-button-group>
@@ -172,7 +172,7 @@
                             size="small"
                             @click="displayEmojiUpload"
                             icon="el-icon-upload2"
-                            :disabled="!API.currentUser.$isVRCPlus">
+                            :disabled="!currentUser.$isVRCPlus">
                             {{ t('dialog.gallery_icons.upload') }}
                         </el-button>
                     </el-button-group>
@@ -313,7 +313,7 @@
                         size="small"
                         @click="displayStickerUpload"
                         icon="el-icon-upload2"
-                        :disabled="!API.currentUser.$isVRCPlus">
+                        :disabled="!currentUser.$isVRCPlus">
                         {{ t('dialog.gallery_icons.upload') }}
                     </el-button>
                 </el-button-group>
@@ -373,7 +373,7 @@
                             size="small"
                             @click="displayPrintUpload"
                             icon="el-icon-upload2"
-                            :disabled="!API.currentUser.$isVRCPlus">
+                            :disabled="!currentUser.$isVRCPlus">
                             {{ t('dialog.gallery_icons.upload') }}
                         </el-button>
                     </el-button-group>
@@ -506,13 +506,11 @@
     import { API } from '../../app';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../shared/constants';
     import { extractFileId, getPrintFileName } from '../../shared/utils';
-    import { useAdvancedSettingsStore, useGalleryStore } from '../../stores';
+    import { useAdvancedSettingsStore, useGalleryStore, useUserStore } from '../../stores';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
-    const { $message } = proxy;
-    const galleryStore = useGalleryStore();
     const {
         galleryTable,
         galleryDialogVisible,
@@ -529,7 +527,7 @@
         printTable,
         emojiTable,
         inventoryTable
-    } = storeToRefs(galleryStore);
+    } = storeToRefs(useGalleryStore());
     const {
         refreshGalleryTable,
         refreshVRCPlusIconsTable,
@@ -537,10 +535,11 @@
         refreshPrintTable,
         refreshEmojiTable,
         getInventory
-    } = galleryStore;
+    } = useGalleryStore();
 
     const { currentUserInventory } = storeToRefs(useAdvancedSettingsStore());
     const { showFullscreenImageDialog } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const emojiAnimFps = ref(15);
     const emojiAnimFrameCount = ref(4);
@@ -564,7 +563,7 @@
         }
         if (files[0].size >= 100000000) {
             // 100MB
-            $message({
+            proxy.proxy.$message({
                 message: t('message.file.too_large'),
                 type: 'error'
             });
@@ -572,7 +571,7 @@
             return;
         }
         if (!files[0].type.match(/image.*/)) {
-            $message({
+            proxy.proxy.$message({
                 message: t('message.file.not_image'),
                 type: 'error'
             });
@@ -583,7 +582,7 @@
         r.onload = function () {
             const base64Body = btoa(r.result);
             vrcPlusImageRequest.uploadGalleryImage(base64Body).then((args) => {
-                $message({
+                proxy.proxy.$message({
                     message: t('message.gallery.uploaded'),
                     type: 'success'
                 });
@@ -599,8 +598,8 @@
     }
 
     function setProfilePicOverride(fileId) {
-        if (!API.currentUser.$isVRCPlus) {
-            $message({
+        if (!currentUser.value.$isVRCPlus) {
+            proxy.proxy.$message({
                 message: 'VRCPlus required',
                 type: 'error'
             });
@@ -610,7 +609,7 @@
         if (fileId) {
             profilePicOverride = `${API.endpointDomain}/file/${fileId}/1`;
         }
-        if (profilePicOverride === API.currentUser.profilePicOverride) {
+        if (profilePicOverride === currentUser.value.profilePicOverride) {
             return;
         }
         userRequest
@@ -618,7 +617,7 @@
                 profilePicOverride
             })
             .then((args) => {
-                $message({
+                proxy.proxy.$message({
                     message: 'Profile picture changed',
                     type: 'success'
                 });
@@ -627,7 +626,7 @@
     }
 
     function compareCurrentProfilePic(fileId) {
-        const currentProfilePicOverride = extractFileId(API.currentUser.profilePicOverride);
+        const currentProfilePicOverride = extractFileId(currentUser.value.profilePicOverride);
         if (fileId === currentProfilePicOverride) {
             return true;
         }
@@ -663,7 +662,7 @@
         }
         if (files[0].size >= 100000000) {
             // 100MB
-            $message({
+            proxy.$message({
                 message: t('message.file.too_large'),
                 type: 'error'
             });
@@ -671,7 +670,7 @@
             return;
         }
         if (!files[0].type.match(/image.*/)) {
-            $message({
+            proxy.$message({
                 message: t('message.file.not_image'),
                 type: 'error'
             });
@@ -682,7 +681,7 @@
         r.onload = function () {
             const base64Body = btoa(r.result);
             vrcPlusIconRequest.uploadVRCPlusIcon(base64Body).then((args) => {
-                $message({
+                proxy.$message({
                     message: t('message.icon.uploaded'),
                     type: 'success'
                 });
@@ -698,8 +697,8 @@
     }
 
     function setVRCPlusIcon(fileId) {
-        if (!API.currentUser.$isVRCPlus) {
-            $message({
+        if (!currentUser.value.$isVRCPlus) {
+            proxy.$message({
                 message: 'VRCPlus required',
                 type: 'error'
             });
@@ -709,7 +708,7 @@
         if (fileId) {
             userIcon = `${API.endpointDomain}/file/${fileId}/1`;
         }
-        if (userIcon === API.currentUser.userIcon) {
+        if (userIcon === currentUser.value.userIcon) {
             return;
         }
         userRequest
@@ -717,7 +716,7 @@
                 userIcon
             })
             .then((args) => {
-                $message({
+                proxy.$message({
                     message: 'Icon changed',
                     type: 'success'
                 });
@@ -726,7 +725,7 @@
     }
 
     function compareCurrentVRCPlusIcon(userIcon) {
-        const currentUserIcon = extractFileId(API.currentUser.userIcon);
+        const currentUserIcon = extractFileId(currentUser.value.userIcon);
         if (userIcon === currentUserIcon) {
             return true;
         }
@@ -784,7 +783,7 @@
         }
         if (files[0].size >= 100000000) {
             // 100MB
-            $message({
+            proxy.$message({
                 message: t('message.file.too_large'),
                 type: 'error'
             });
@@ -792,7 +791,7 @@
             return;
         }
         if (!files[0].type.match(/image.*/)) {
-            $message({
+            proxy.$message({
                 message: t('message.file.not_image'),
                 type: 'error'
             });
@@ -817,7 +816,7 @@
             }
             const base64Body = btoa(r.result);
             vrcPlusImageRequest.uploadEmoji(base64Body, params).then((args) => {
-                $message({
+                proxy.$message({
                     message: t('message.emoji.uploaded'),
                     type: 'success'
                 });
@@ -888,7 +887,7 @@
         }
         if (files[0].size >= 100000000) {
             // 100MB
-            $message({
+            proxy.$message({
                 message: t('message.file.too_large'),
                 type: 'error'
             });
@@ -896,7 +895,7 @@
             return;
         }
         if (!files[0].type.match(/image.*/)) {
-            $message({
+            proxy.$message({
                 message: t('message.file.not_image'),
                 type: 'error'
             });
@@ -911,7 +910,7 @@
             };
             const base64Body = btoa(r.result);
             vrcPlusImageRequest.uploadSticker(base64Body, params).then((args) => {
-                $message({
+                proxy.$message({
                     message: t('message.sticker.uploaded'),
                     type: 'success'
                 });
@@ -955,7 +954,7 @@
         }
         if (files[0].size >= 100000000) {
             // 100MB
-            $message({
+            proxy.$message({
                 message: t('message.file.too_large'),
                 type: 'error'
             });
@@ -963,7 +962,7 @@
             return;
         }
         if (!files[0].type.match(/image.*/)) {
-            $message({
+            proxy.$message({
                 message: t('message.file.not_image'),
                 type: 'error'
             });
@@ -984,7 +983,7 @@
             const base64Body = btoa(r.result);
             const cropWhiteBorder = printCropBorder.value;
             vrcPlusImageRequest.uploadPrint(base64Body, cropWhiteBorder, params).then((args) => {
-                $message({
+                proxy.$message({
                     message: t('message.print.uploaded'),
                     type: 'success'
                 });

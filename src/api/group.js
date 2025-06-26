@@ -1,6 +1,10 @@
 import { API } from '../app';
 import { request } from '../service/apiRequestHandler';
+import { useUserStore } from '../stores';
 
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 const groupReq = {
     /**
      * @param {string} groupId
@@ -610,7 +614,7 @@ const groupReq = {
      */
     getGroupInstances(params) {
         return request(
-            `users/${API.currentUser.id}/instances/groups/${params.groupId}`,
+            `users/${getCurrentUserId()}/instances/groups/${params.groupId}`,
             {
                 method: 'GET'
             }
@@ -641,7 +645,7 @@ const groupReq = {
         });
     },
     getUsersGroupInstances() {
-        return request(`users/${API.currentUser.id}/instances/groups`, {
+        return request(`users/${getCurrentUserId()}/instances/groups`, {
             method: 'GET'
         }).then((json) => {
             const args = {

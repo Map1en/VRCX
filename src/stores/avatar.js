@@ -128,7 +128,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
         D.galleryLoading = true;
         D.isFavorite =
             favoriteStore.cachedFavoritesByObjectId.has(avatarId) ||
-            (API.currentUser.$isVRCPlus &&
+            (userStore.currentUser.$isVRCPlus &&
                 favoriteStore.localAvatarFavoritesList.includes(avatarId));
         D.isBlocked = state.cachedAvatarModerations.has(avatarId);
         const ref2 = state.cachedAvatars.get(avatarId);
@@ -137,7 +137,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
             updateVRChatAvatarCache();
             if (
                 ref2.releaseStatus !== 'public' &&
-                ref2.authorId !== API.currentUser.id
+                ref2.authorId !== userStore.currentUser.id
             ) {
                 D.loading = false;
                 return;
@@ -278,12 +278,12 @@ export const useAvatarStore = defineStore('Avatar', () => {
     async function getAvatarHistory() {
         state.avatarHistory = new Set();
         const historyArray = await database.getAvatarHistory(
-            API.currentUser.id
+            userStore.currentUser.id
         );
         state.avatarHistoryArray = historyArray;
         for (let i = 0; i < historyArray.length; i++) {
             const avatar = historyArray[i];
-            if (avatar.authorId === API.currentUser.id) {
+            if (avatar.authorId === userStore.currentUser.id) {
                 continue;
             }
             state.avatarHistory.add(avatar.id);
@@ -302,7 +302,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
             database.addAvatarToCache(ref);
             database.addAvatarToHistory(ref.id);
 
-            if (ref.authorId === API.currentUser.id) {
+            if (ref.authorId === userStore.currentUser.id) {
                 return;
             }
 
@@ -559,7 +559,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
     }
 
     function selectAvatarWithoutConfirmation(id) {
-        if (API.currentUser.currentAvatar === id) {
+        if (userStore.currentUser.currentAvatar === id) {
             $app.$message({
                 message: 'Avatar already selected',
                 type: 'info'
@@ -611,14 +611,14 @@ export const useAvatarStore = defineStore('Avatar', () => {
                 message: 'Sorry, the author is unknown',
                 type: 'error'
             });
-        } else if (refUserId === API.currentUser.id) {
-            showAvatarDialog(API.currentUser.currentAvatar);
+        } else if (refUserId === userStore.currentUser.id) {
+            showAvatarDialog(userStore.currentUser.currentAvatar);
         } else {
             let avatarId = checkAvatarCache(fileId);
             let avatarInfo;
             if (!avatarId) {
                 avatarInfo = await getAvatarName(currentAvatarImageUrl);
-                if (avatarInfo.ownerId === API.currentUser.id) {
+                if (avatarInfo.ownerId === userStore.currentUser.id) {
                     userStore.refreshUserDialogAvatars(fileId);
                 }
             }
@@ -650,10 +650,11 @@ export const useAvatarStore = defineStore('Avatar', () => {
     }
 
     function addAvatarWearTime(avatarId) {
-        if (!API.currentUser.$previousAvatarSwapTime || !avatarId) {
+        if (!userStore.currentUser.$previousAvatarSwapTime || !avatarId) {
             return;
         }
-        const timeSpent = Date.now() - API.currentUser.$previousAvatarSwapTime;
+        const timeSpent =
+            Date.now() - userStore.currentUser.$previousAvatarSwapTime;
         database.addAvatarTimeSpent(avatarId, timeSpent);
     }
 

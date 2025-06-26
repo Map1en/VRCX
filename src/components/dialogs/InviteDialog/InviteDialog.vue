@@ -34,17 +34,17 @@
                 filterable
                 :disabled="inviteDialog.loading"
                 style="width: 100%; margin-top: 15px">
-                <el-option-group v-if="API.currentUser" :label="t('side_panel.me')">
+                <el-option-group v-if="currentUser" :label="t('side_panel.me')">
                     <el-option
                         class="x-friend-item"
-                        :label="API.currentUser.displayName"
-                        :value="API.currentUser.id"
+                        :label="currentUser.displayName"
+                        :value="currentUser.id"
                         style="height: auto">
-                        <div :class="['avatar', userStatusClass(API.currentUser)]">
-                            <img v-lazy="userImage(API.currentUser)" />
+                        <div :class="['avatar', userStatusClass(currentUser)]">
+                            <img v-lazy="userImage(currentUser)" />
                         </div>
                         <div class="detail">
-                            <span class="name">{{ API.currentUser.displayName }}</span>
+                            <span class="name">{{ currentUser.displayName }}</span>
                         </div>
                     </el-option>
                 </el-option-group>
@@ -167,21 +167,19 @@
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, notificationRequest } from '../../../api';
-    import { API } from '../../../app';
     import { parseLocation, userImage, userStatusClass } from '../../../shared/utils';
-    import { useFriendStore, useGalleryStore, useInviteStore } from '../../../stores';
+    import { useFriendStore, useGalleryStore, useInviteStore, useUserStore } from '../../../stores';
     import SendInviteDialog from './SendInviteDialog.vue';
 
     const { vipFriends, onlineFriends, activeFriends } = storeToRefs(useFriendStore());
     const { refreshInviteMessageTableData } = useInviteStore();
+    const { currentUser } = storeToRefs(useUserStore());
+    const { clearInviteImageUpload } = useGalleryStore();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
     const $confirm = instance.proxy.$confirm;
-
-    const galleryStore = useGalleryStore();
-    const { clearInviteImageUpload } = galleryStore;
 
     const props = defineProps({
         inviteDialog: {
@@ -216,8 +214,8 @@
 
     function addSelfToInvite() {
         const D = props.inviteDialog;
-        if (!D.userIds.includes(API.currentUser.id)) {
-            D.userIds.push(API.currentUser.id);
+        if (!D.userIds.includes(currentUser.value.id)) {
+            D.userIds.push(currentUser.value.id);
         }
     }
 
@@ -253,7 +251,7 @@
                 const inviteLoop = () => {
                     if (D.userIds.length > 0) {
                         const receiverUserId = D.userIds.shift();
-                        if (receiverUserId === API.currentUser.id) {
+                        if (receiverUserId === currentUser.value.id) {
                             // can't invite self!?
                             const L = parseLocation(D.worldId);
                             instanceRequest

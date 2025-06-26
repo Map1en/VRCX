@@ -273,7 +273,7 @@ export default function init() {
                     (ctx.type === 'OnPlayerJoined' ||
                         ctx.type === 'OnPlayerLeft' ||
                         ctx.type === 'PortalSpawn') &&
-                    ctx.displayName === API.currentUser.displayName
+                    ctx.displayName === this.store.user.currentUser.displayName
                 ) {
                     continue;
                 }
@@ -459,7 +459,7 @@ export default function init() {
                 if (ctx.created_at < bias) {
                     break;
                 }
-                if (ctx.senderUserId === API.currentUser.id) {
+                if (ctx.senderUserId === this.store.user.currentUser.id) {
                     continue;
                 }
                 const isFriend = this.store.friend.friends.has(

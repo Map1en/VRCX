@@ -261,7 +261,7 @@
                                 type="default"
                                 icon="el-icon-check"
                                 circle
-                                :disabled="API.currentUser.currentAvatar === avatarDialog.id"
+                                :disabled="currentUser.currentAvatar === avatarDialog.id"
                                 style="margin-left: 5px"
                                 @click="selectAvatar(avatarDialog.id)"></el-button>
                         </el-tooltip>
@@ -299,12 +299,12 @@
                                     >{{ t('dialog.avatar.actions.select_fallback') }}</el-dropdown-item
                                 >
                                 <el-dropdown-item
-                                    v-if="avatarDialog.ref.authorId !== API.currentUser.id"
+                                    v-if="avatarDialog.ref.authorId !== currentUser.id"
                                     icon="el-icon-picture-outline"
                                     command="Previous Images"
                                     >{{ t('dialog.avatar.actions.show_previous_images') }}</el-dropdown-item
                                 >
-                                <template v-if="avatarDialog.ref.authorId === API.currentUser.id">
+                                <template v-if="avatarDialog.ref.authorId === currentUser.id">
                                     <el-dropdown-item
                                         v-if="avatarDialog.ref.releaseStatus === 'public'"
                                         icon="el-icon-user-solid"
@@ -367,7 +367,7 @@
                 <el-tab-pane :label="t('dialog.avatar.info.header')">
                     <div class="x-friend-list" style="max-height: unset">
                         <div
-                            v-if="avatarDialog.galleryImages.length || avatarDialog.ref.authorId === API.currentUser.id"
+                            v-if="avatarDialog.galleryImages.length || avatarDialog.ref.authorId === currentUser.id"
                             style="width: 100%">
                             <span class="name">{{ t('dialog.avatar.info.gallery') }}</span>
                             <input
@@ -377,7 +377,7 @@
                                 style="display: none"
                                 @change="onFileChangeAvatarGallery" />
                             <el-button
-                                v-if="avatarDialog.ref.authorId === API.currentUser.id"
+                                v-if="avatarDialog.ref.authorId === currentUser.id"
                                 v-loading="avatarDialog.galleryLoading"
                                 size="small"
                                 icon="el-icon-upload2"
@@ -396,7 +396,7 @@
                                         style="width: 100%; height: 100%; object-fit: contain"
                                         @click="showFullscreenImageDialog(imageUrl)" />
                                     <div
-                                        v-if="avatarDialog.ref.authorId === API.currentUser.id"
+                                        v-if="avatarDialog.ref.authorId === currentUser.id"
                                         style="position: absolute; bottom: 5px; left: 33.3%">
                                         <el-button
                                             size="mini"
@@ -607,7 +607,7 @@
     import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
-    import { $app, API } from '../../../app.js';
+    import { $app } from '../../../app.js';
     import database from '../../../service/database';
     import {
         adjustDialogZ,
@@ -639,6 +639,7 @@
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog, sortUserDialogAvatars } = useUserStore();
+    const { currentUser } = storeToRefs(useUserStore());
     const { avatarDialog, cachedAvatarModerations, cachedAvatars, cachedAvatarNames } = storeToRefs(useAvatarStore());
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = useAvatarStore();
     const { showFavoriteDialog } = useFavoriteStore();
@@ -747,8 +748,8 @@
         database.getAvatarTimeSpent(D.id).then((aviTime) => {
             if (D.id === aviTime.avatarId) {
                 timeSpent.value = aviTime.timeSpent;
-                if (D.id === API.currentUser.currentAvatar && API.currentUser.$previousAvatarSwapTime) {
-                    timeSpent.value += Date.now() - API.currentUser.$previousAvatarSwapTime;
+                if (D.id === currentUser.value.currentAvatar && currentUser.value.$previousAvatarSwapTime) {
+                    timeSpent.value += Date.now() - currentUser.value.$previousAvatarSwapTime;
                 }
             }
         });
@@ -1193,7 +1194,7 @@
             }
         });
         for (const ref of cachedAvatars.value.values()) {
-            if (ref.authorId === API.currentUser.id) {
+            if (ref.authorId === currentUser.value.id) {
                 ref.$selected = false;
                 ref.$tagString = '';
                 if (avatarId === ref.id) {

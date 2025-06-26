@@ -23,21 +23,20 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, inject } from 'vue';
+    import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, notificationRequest } from '../../../api';
     import { parseLocation } from '../../../shared/utils';
-    import { API } from '../../../app';
-    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGalleryStore, useUserStore } from '../../../stores';
 
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
-    const galleryStore = useGalleryStore();
-    const { uploadImage } = storeToRefs(galleryStore);
 
-    const { clearInviteImageUpload } = galleryStore;
+    const { uploadImage } = storeToRefs(useGalleryStore());
+    const { clearInviteImageUpload } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         visible: {
@@ -70,7 +69,7 @@
             const inviteLoop = () => {
                 if (J.userIds.length > 0) {
                     const receiverUserId = J.userIds.shift();
-                    if (receiverUserId === API.currentUser.id) {
+                    if (receiverUserId === currentUser.value.id) {
                         // can't invite self!?
                         const L = parseLocation(J.worldId);
                         instanceRequest

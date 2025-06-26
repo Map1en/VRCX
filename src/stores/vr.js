@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 import { $app } from '../app';
-import { API } from '../service/eventBus';
 import { isRpcWorld } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
@@ -12,6 +11,7 @@ import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
+import { useUserStore } from './user';
 
 export const useVrStore = defineStore('Vr', () => {
     const friendStore = useFriendStore();
@@ -23,6 +23,7 @@ export const useVrStore = defineStore('Vr', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const gameStore = useGameStore();
     const gameLogStore = useGameLogStore();
+    const userStore = useUserStore();
 
     const state = reactive({});
 
@@ -61,7 +62,7 @@ export const useVrStore = defineStore('Vr', () => {
         }
         let onlineFor = '';
         if (!wristOverlaySettingsStore.hideUptimeFromFeed) {
-            onlineFor = API.currentUser.$online_for;
+            onlineFor = userStore.currentUser.$online_for;
         }
         const lastLocation = {
             date: locationStore.lastLocation.date,

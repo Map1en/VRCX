@@ -117,7 +117,7 @@ export default function init() {
     });
 
     API.$on('GROUP:PERMISSIONS', function (args) {
-        if (args.params.userId !== this.currentUser.id) {
+        if (args.params.userId !== $app.store.user.currentUser.id) {
             return;
         }
         var json = args.json;
@@ -348,7 +348,7 @@ export default function init() {
 
         async getCurrentUserGroups() {
             var args = await groupRequest.getGroups({
-                userId: API.currentUser.id
+                userId: this.store.user.currentUser.id
             });
             $app.store.group.currentUserGroups.clear();
             for (var group of args.json) {
@@ -358,7 +358,7 @@ export default function init() {
                 }
             }
             await groupRequest.getGroupPermissions({
-                userId: API.currentUser.id
+                userId: this.store.user.currentUser.id
             });
             this.store.group.saveCurrentUserGroups();
         },
@@ -366,7 +366,7 @@ export default function init() {
         getCurrentUserRepresentedGroup() {
             return groupRequest
                 .getRepresentedGroup({
-                    userId: API.currentUser.id
+                    userId: this.store.user.currentUser.id
                 })
                 .then((args) => {
                     this.store.user.userDialog.representedGroup = args.json;

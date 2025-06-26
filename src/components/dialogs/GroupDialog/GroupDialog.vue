@@ -36,7 +36,7 @@
                 </el-popover>
                 <div style="flex: 1; display: flex; align-items: center; margin-left: 15px">
                     <div class="group-header" style="flex: 1">
-                        <span v-if="groupDialog.ref.ownerId === API.currentUser.id" style="margin-right: 5px">👑</span>
+                        <span v-if="groupDialog.ref.ownerId === currentUser.id" style="margin-right: 5px">👑</span>
                         <span class="dialog-title" style="margin-right: 5px" v-text="groupDialog.ref.name"></span>
                         <span
                             class="group-discriminator x-grey"
@@ -1195,6 +1195,7 @@
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
+    const { currentUser } = storeToRefs(useUserStore());
     const { groupDialog, inviteGroupDialog } = storeToRefs(useGroupStore());
     const { getGroupDialogGroup, updateGroupPostSearch, showGroupDialog, leaveGroupPrompt, setGroupVisibility } =
         useGroupStore();
@@ -1468,7 +1469,7 @@
 
     function setGroupSubscription(groupId, subscribe) {
         return groupRequest
-            .setGroupMemberProps(API.currentUser.id, groupId, {
+            .setGroupMemberProps(currentUser.value.id, groupId, {
                 isSubscribedToAnnouncements: subscribe
             })
             .then((args) => {
@@ -1513,7 +1514,7 @@
                     groupRequest
                         .unblockGroup({
                             groupId,
-                            userId: API.currentUser.id
+                            userId: currentUser.value.id
                         })
                         .then((args) => {
                             if (groupDialog.value.visible && groupDialog.value.id === args.params.groupId) {
@@ -1641,12 +1642,12 @@
             await groupRequest
                 .getGroupMember({
                     groupId: D.id,
-                    userId: API.currentUser.id
+                    userId: currentUser.value.id
                 })
                 .then((args) => {
                     args.ref = API.applyGroupMember(args.json);
                     if (args.json) {
-                        args.json.user = API.currentUser;
+                        args.json.user = currentUser.value;
                         if (D.memberFilter.id === null) {
                             // when flitered by role don't include self
                             D.members.push(args.json);
@@ -1674,8 +1675,8 @@
             .then((args) => {
                 for (let i = 0; i < args.json.length; i++) {
                     const member = args.json[i];
-                    if (member.userId === API.currentUser.id) {
-                        if (D.members.length > 0 && D.members[0].userId === API.currentUser.id) {
+                    if (member.userId === currentUser.value.id) {
+                        if (D.members.length > 0 && D.members[0].userId === currentUser.value.id) {
                             // remove duplicate and keep sort order
                             D.members.splice(0, 1);
                         }

@@ -6,7 +6,7 @@
         width="800px"
         append-to-body
         @close="cancelSendInvite">
-        <template v-if="API.currentUser.$isVRCPlus">
+        <template v-if="currentUser.$isVRCPlus">
             <!--            <template v-if="gallerySelectDialog.selectedFileId">-->
             <!--                <div style="display: inline-block; flex: none; margin-right: 5px">-->
             <!--                    <el-popover placement="right" width="500px" trigger="click">-->
@@ -91,19 +91,16 @@
     import { storeToRefs } from 'pinia';
     import { ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { API } from '../../../app';
-    import { useGalleryStore } from '../../../stores/gallery';
-    import { useInviteStore } from '../../../stores/invite';
+    import { useGalleryStore, useInviteStore, useUserStore } from '../../../stores';
     import EditAndSendInviteDialog from './EditAndSendInviteDialog.vue';
     import SendInviteConfirmDialog from './SendInviteConfirmDialog.vue';
 
     const { t } = useI18n();
 
-    const inviteStore = useInviteStore();
-    const { refreshInviteMessageTableData } = inviteStore;
-    const { inviteMessageTable } = storeToRefs(inviteStore);
-    const galleryStore = useGalleryStore();
-    const { inviteImageUpload } = galleryStore;
+    const { refreshInviteMessageTableData } = useInviteStore();
+    const { inviteMessageTable } = storeToRefs(useInviteStore());
+    const { inviteImageUpload } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         sendInviteDialogVisible: {

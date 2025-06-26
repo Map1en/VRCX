@@ -6,7 +6,7 @@
         width="800px"
         append-to-body
         @close="cancelSendInviteRequestResponse">
-        <template v-if="API.currentUser.$isVRCPlus">
+        <template v-if="currentUser.$isVRCPlus">
             <input class="inviteImageUploadButton" type="file" accept="image/*" @change="inviteImageUpload" />
         </template>
 
@@ -62,9 +62,7 @@
     import { storeToRefs } from 'pinia';
     import { ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { API } from '../../../app';
-    import { useGalleryStore } from '../../../stores/gallery';
-    import { useInviteStore } from '../../../stores/invite';
+    import { useGalleryStore, useInviteStore, useUserStore } from '../../../stores';
     import EditAndSendInviteResponseDialog from './EditAndSendInviteResponseDialog.vue';
     import SendInviteResponseConfirmDialog from './SendInviteResponseConfirmDialog.vue';
 
@@ -74,6 +72,7 @@
     const { inviteRequestResponseMessageTable } = storeToRefs(inviteStore);
     const galleryStore = useGalleryStore();
     const { inviteImageUpload } = galleryStore;
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         sendInviteResponseDialog: {

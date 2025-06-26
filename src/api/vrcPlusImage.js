@@ -1,6 +1,10 @@
 import { API } from '../app';
 import { request } from '../service/apiRequestHandler';
+import { useUserStore } from '../stores';
 
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 const vrcPlusImageReq = {
     uploadGalleryImage(imageData) {
         const params = {
@@ -38,7 +42,7 @@ const vrcPlusImageReq = {
     },
 
     getPrints(params) {
-        return request(`prints/user/${API.currentUser.id}`, {
+        return request(`prints/user/${getCurrentUserId()}`, {
             method: 'GET',
             params
         }).then((json) => {

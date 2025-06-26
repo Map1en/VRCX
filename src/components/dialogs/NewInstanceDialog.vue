@@ -288,17 +288,17 @@
                             filterable
                             style="width: 100%"
                             @change="buildLegacyInstance">
-                            <el-option-group v-if="API.currentUser" :label="$t('side_panel.me')">
+                            <el-option-group v-if="currentUser" :label="$t('side_panel.me')">
                                 <el-option
                                     class="x-friend-item"
-                                    :label="API.currentUser.displayName"
-                                    :value="API.currentUser.id"
+                                    :label="currentUser.displayName"
+                                    :value="currentUser.id"
                                     style="height: auto">
-                                    <div class="avatar" :class="userStatusClass(API.currentUser)">
-                                        <img v-lazy="userImage(API.currentUser)" />
+                                    <div class="avatar" :class="userStatusClass(currentUser)">
+                                        <img v-lazy="userImage(currentUser)" />
                                     </div>
                                     <div class="detail">
-                                        <span class="name" v-text="API.currentUser.displayName"></span>
+                                        <span class="name" v-text="currentUser.displayName"></span>
                                     </div>
                                 </el-option>
                             </el-option-group>
@@ -446,7 +446,7 @@
                     size="small"
                     :disabled="
                         (newInstanceDialog.accessType === 'friends' || newInstanceDialog.accessType === 'invite') &&
-                        newInstanceDialog.userId !== API.currentUser.id
+                        newInstanceDialog.userId !== currentUser.id
                     "
                     @click="showInviteDialog(newInstanceDialog.location)"
                     >{{ $t('dialog.new_instance.invite') }}</el-button
@@ -475,7 +475,7 @@
                 size="small"
                 :disabled="
                     (newInstanceDialog.accessType === 'friends' || newInstanceDialog.accessType === 'invite') &&
-                    newInstanceDialog.userId !== API.currentUser.id
+                    newInstanceDialog.userId !== currentUser.id
                 "
                 @click="showInviteDialog(newInstanceDialog.location)"
                 >{{ $t('dialog.new_instance.invite') }}</el-button
@@ -507,12 +507,15 @@
         userImage,
         userStatusClass
     } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
-    import { useGalleryStore } from '../../stores/gallery';
-    import { useGroupStore } from '../../stores/group';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useLaunchStore } from '../../stores/launch';
-    import { useLocationStore } from '../../stores/location';
+    import {
+        useFriendStore,
+        useGalleryStore,
+        useGroupStore,
+        useInstanceStore,
+        useLaunchStore,
+        useLocationStore,
+        useUserStore
+    } from '../../stores';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {
@@ -525,18 +528,13 @@
             }
         },
         setup() {
-            const friendStore = useFriendStore();
-            const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
-            const groupStore = useGroupStore();
-            const { currentUserGroups, cachedGroups } = storeToRefs(groupStore);
-            const locationStore = useLocationStore();
-            const { lastLocation } = storeToRefs(locationStore);
-            const launchStore = useLaunchStore();
-            const { showLaunchDialog } = launchStore;
-            const instanceStore = useInstanceStore();
-            const { createNewInstance } = instanceStore;
-            const galleryStore = useGalleryStore();
-            const { uploadImage } = storeToRefs(galleryStore);
+            const { friends, vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(useFriendStore());
+            const { currentUserGroups, cachedGroups } = storeToRefs(useGroupStore());
+            const { lastLocation } = storeToRefs(useLocationStore());
+            const { showLaunchDialog } = useLaunchStore();
+            const { createNewInstance } = useInstanceStore();
+            const { uploadImage } = storeToRefs(useGalleryStore());
+            const { currentUser } = storeToRefs(useUserStore());
             return {
                 friends,
                 vipFriends,
@@ -554,7 +552,8 @@
                 createNewInstance,
                 uploadImage,
                 adjustDialogZ,
-                copyToClipboard
+                copyToClipboard,
+                currentUser
             };
         },
         data() {
@@ -656,7 +655,7 @@
                 D.strict = false;
                 D.shortName = '';
                 D.secureOrShortName = '';
-                groupRequest.getGroupPermissions({ userId: this.API.currentUser.id });
+                groupRequest.getGroupPermissions({ userId: this.currentUser.id });
                 this.buildInstance();
                 this.buildLegacyInstance();
                 this.updateNewInstanceDialog();
@@ -715,7 +714,7 @@
                 configRepository.setString('instanceDialogAccessType', accessType);
                 configRepository.setString('instanceRegion', region);
                 configRepository.setString('instanceDialogInstanceName', instanceName);
-                configRepository.setString('instanceDialogUserId', userId === this.API.currentUser.id ? '' : userId);
+                configRepository.setString('instanceDialogUserId', userId === this.currentUser.id ? '' : userId);
                 configRepository.setString('instanceDialogGroupId', groupId);
                 configRepository.setString('instanceDialogGroupAccessType', groupAccessType);
                 configRepository.setBool('instanceDialogQueueEnabled', queueEnabled);
@@ -783,7 +782,7 @@
                 D.shortName = '';
                 D.secureOrShortName = '';
                 if (!D.userId) {
-                    D.userId = this.API.currentUser.id;
+                    D.userId = this.currentUser.id;
                 }
                 if (D.groupId && D.groupId !== D.lastSelectedGroupId) {
                     D.roleIds = [];
@@ -824,7 +823,7 @@
                     tags.push(String(randValue).padStart(5, '0'));
                 }
                 if (!D.userId) {
-                    D.userId = this.API.currentUser.id;
+                    D.userId = this.currentUser.id;
                 }
                 const userId = D.userId;
                 if (D.accessType !== 'public') {

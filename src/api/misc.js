@@ -1,5 +1,10 @@
 import { request } from '../service/apiRequestHandler';
 import { API } from '../service/eventBus';
+import { useUserStore } from '../stores';
+
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 
 const miscReq = {
     getBundles(fileId) {
@@ -78,7 +83,7 @@ const miscReq = {
     },
 
     getVRChatCredits() {
-        return request(`user/${API.currentUser.id}/balance`, {
+        return request(`user/${getCurrentUserId()}/balance`, {
             method: 'GET'
         }).then((json) => {
             const args = {
@@ -120,7 +125,7 @@ const miscReq = {
      */
     deleteWorldPersistData(params) {
         return request(
-            `users/${API.currentUser.id}/${params.worldId}/persist`,
+            `users/${getCurrentUserId()}/${params.worldId}/persist`,
             {
                 method: 'DELETE'
             }
@@ -142,7 +147,7 @@ const miscReq = {
      */
     hasWorldPersistData(params) {
         return request(
-            `users/${API.currentUser.id}/${params.worldId}/persist/exists`,
+            `users/${getCurrentUserId()}/${params.worldId}/persist/exists`,
             {
                 method: 'GET'
             }
@@ -157,10 +162,10 @@ const miscReq = {
     },
 
     updateBadge(params) {
-        return request(`users/${API.currentUser.id}/badges/${params.badgeId}`, {
+        return request(`users/${getCurrentUserId()}/badges/${params.badgeId}`, {
             method: 'PUT',
             params: {
-                userId: API.currentUser.id,
+                userId: getCurrentUserId(),
                 badgeId: params.badgeId,
                 hidden: params.hidden,
                 showcased: params.showcased

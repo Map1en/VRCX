@@ -219,9 +219,10 @@
 
 <script>
     import { storeToRefs } from 'pinia';
+    import { useI18n } from 'vue-i18n-bridge';
     import { favoriteRequest } from '../../../api';
-    import { API, t } from '../../../app';
-    import { useAppearanceSettingsStore, useAvatarStore, useFavoriteStore } from '../../../stores';
+    import { API } from '../../../service/eventBus';
+    import { useAppearanceSettingsStore, useAvatarStore, useFavoriteStore, useUserStore } from '../../../stores';
     import AvatarExportDialog from '../dialogs/AvatarExportDialog.vue';
     import FavoritesAvatarItem from './FavoritesAvatarItem.vue';
     import FavoritesAvatarLocalHistoryItem from './FavoritesAvatarLocalHistoryItem.vue';
@@ -248,6 +249,8 @@
             } = useFavoriteStore();
             const { showAvatarDialog, avatarHistoryArray } = storeToRefs(useAvatarStore());
             const { promptClearAvatarHistory } = useAvatarStore();
+            const { currentUser } = storeToRefs(useUserStore());
+            const { t } = useI18n();
             return {
                 hideTooltips,
                 sortFavorites,
@@ -266,7 +269,8 @@
                 avatarHistoryArray,
                 promptClearAvatarHistory,
                 saveSortFavoritesOption,
-                t
+                t,
+                currentUser
             };
         },
         data() {
@@ -299,7 +303,7 @@
                 return groupedByGroupKeyFavoriteAvatars;
             },
             isLocalUserVrcplusSupporter() {
-                return this.API.currentUser.$isVRCPlus;
+                return this.currentUser.$isVRCPlus;
             }
         },
         methods: {
@@ -379,14 +383,14 @@
             },
             promptNewLocalAvatarFavoriteGroup() {
                 this.$prompt(
-                    t('prompt.new_local_favorite_group.description'),
-                    t('prompt.new_local_favorite_group.header'),
+                    this.t('prompt.new_local_favorite_group.description'),
+                    this.t('prompt.new_local_favorite_group.header'),
                     {
                         distinguishCancelAndClose: true,
-                        confirmButtonText: t('prompt.new_local_favorite_group.ok'),
-                        cancelButtonText: t('prompt.new_local_favorite_group.cancel'),
+                        confirmButtonText: this.t('prompt.new_local_favorite_group.ok'),
+                        cancelButtonText: this.t('prompt.new_local_favorite_group.cancel'),
                         inputPattern: /\S+/,
-                        inputErrorMessage: t('prompt.new_local_favorite_group.input_error'),
+                        inputErrorMessage: this.t('prompt.new_local_favorite_group.input_error'),
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {
                                 this.newLocalAvatarFavoriteGroup(instance.inputValue);
@@ -400,14 +404,14 @@
             },
             promptLocalAvatarFavoriteGroupRename(group) {
                 this.$prompt(
-                    t('prompt.local_favorite_group_rename.description'),
-                    t('prompt.local_favorite_group_rename.header'),
+                    this.t('prompt.local_favorite_group_rename.description'),
+                    this.t('prompt.local_favorite_group_rename.header'),
                     {
                         distinguishCancelAndClose: true,
-                        confirmButtonText: t('prompt.local_favorite_group_rename.save'),
-                        cancelButtonText: t('prompt.local_favorite_group_rename.cancel'),
+                        confirmButtonText: this.t('prompt.local_favorite_group_rename.save'),
+                        cancelButtonText: this.t('prompt.local_favorite_group_rename.cancel'),
                         inputPattern: /\S+/,
-                        inputErrorMessage: t('prompt.local_favorite_group_rename.input_error'),
+                        inputErrorMessage: this.t('prompt.local_favorite_group_rename.input_error'),
                         inputValue: group,
                         callback: (action, instance) => {
                             if (action === 'confirm' && instance.inputValue) {

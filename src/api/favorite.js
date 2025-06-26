@@ -1,5 +1,10 @@
 import { API } from '../app';
 import { request } from '../service/apiRequestHandler';
+import { useUserStore } from '../stores';
+
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 
 const favoriteReq = {
     getFavoriteLimits() {
@@ -101,7 +106,7 @@ const favoriteReq = {
      */
     saveFavoriteGroup(params) {
         return request(
-            `favorite/group/${params.type}/${params.group}/${API.currentUser.id}`,
+            `favorite/group/${params.type}/${params.group}/${getCurrentUserId()}`,
             {
                 method: 'PUT',
                 params
@@ -125,7 +130,7 @@ const favoriteReq = {
      */
     clearFavoriteGroup(params) {
         return request(
-            `favorite/group/${params.type}/${params.group}/${API.currentUser.id}`,
+            `favorite/group/${params.type}/${params.group}/${getCurrentUserId()}`,
             {
                 method: 'DELETE',
                 params

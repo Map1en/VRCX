@@ -11,19 +11,19 @@
                         size="mini"
                         type="primary"
                         @click="closeInstance(props.location)">
-                        {{ $t('dialog.user.info.close_instance') }} </el-button
+                        {{ t('dialog.user.info.close_instance') }} </el-button
                     ><br /><br />
                     <span><span style="color: #409eff">PC: </span>{{ state.platforms.standalonewindows }}</span
                     ><br />
                     <span><span style="color: #67c23a">Android: </span>{{ state.platforms.android }}</span
                     ><br />
-                    <span>{{ $t('dialog.user.info.instance_game_version') }} {{ state.gameServerVersion }}</span
+                    <span>{{ t('dialog.user.info.instance_game_version') }} {{ state.gameServerVersion }}</span
                     ><br />
-                    <span v-if="state.queueEnabled">{{ $t('dialog.user.info.instance_queuing_enabled') }}<br /></span>
+                    <span v-if="state.queueEnabled">{{ t('dialog.user.info.instance_queuing_enabled') }}<br /></span>
                     <span v-if="state.disabledContentSettings"
-                        >{{ $t('dialog.user.info.instance_disabled_content') }} {{ state.disabledContentSettings }}<br
+                        >{{ t('dialog.user.info.instance_disabled_content') }} {{ state.disabledContentSettings }}<br
                     /></span>
-                    <span v-if="state.userList.length">{{ $t('dialog.user.info.instance_users') }}<br /></span>
+                    <span v-if="state.userList.length">{{ t('dialog.user.info.instance_users') }}<br /></span>
                     <template v-for="user in state.userList">
                         <span
                             style="cursor: pointer; margin-right: 5px"
@@ -39,29 +39,32 @@
         <span v-if="state.occupants" style="margin-left: 5px">{{ state.occupants }}/{{ state.capacity }}</span>
         <span v-if="props.friendcount" style="margin-left: 5px">({{ props.friendcount }})</span>
         <span v-if="state.isFull" style="margin-left: 5px; color: lightcoral">{{
-            $t('dialog.user.info.instance_full')
+            t('dialog.user.info.instance_full')
         }}</span>
         <span v-if="state.isHardClosed" style="margin-left: 5px; color: lightcoral">{{
-            $t('dialog.user.info.instance_hard_closed')
+            t('dialog.user.info.instance_hard_closed')
         }}</span>
         <span v-else-if="state.isClosed" style="margin-left: 5px; color: lightcoral">{{
-            $t('dialog.user.info.instance_closed')
+            t('dialog.user.info.instance_closed')
         }}</span>
         <span v-if="state.queueSize" style="margin-left: 5px"
-            >{{ $t('dialog.user.info.instance_queue') }} {{ state.queueSize }}</span
+            >{{ t('dialog.user.info.instance_queue') }} {{ state.queueSize }}</span
         >
         <span v-if="state.isAgeGated" style="margin-left: 5px; color: lightcoral">{{
-            $t('dialog.user.info.instance_age_gated')
+            t('dialog.user.info.instance_age_gated')
         }}</span>
     </div>
 </template>
 
 <script setup>
     import { getCurrentInstance, reactive, watch } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
     import { miscRequest } from '../api';
     import { API } from '../app';
     import { hasGroupPermission } from '../shared/utils';
     import { useGroupStore, useLocationStore, useUserStore } from '../stores';
+
+    const { t } = useI18n();
 
     const locationStore = useLocationStore();
     const userStore = useUserStore();
@@ -130,7 +133,7 @@
         state.queueSize = props.instance.queueSize;
         if (props.instance.platforms) state.platforms = props.instance.platforms;
         if (props.instance.users) state.userList = props.instance.users;
-        if (props.instance.ownerId === API.currentUser.id) {
+        if (props.instance.ownerId === userStore.currentUser.id) {
             state.canCloseInstance = true;
         } else if (props.instance.ownerId?.startsWith('grp_')) {
             const group = groupStore.cachedGroups.get(props.instance.ownerId);
@@ -158,7 +161,7 @@
                 if (action !== 'confirm') return;
                 const args = await miscRequest.closeInstance({ location, hardClose: false });
                 if (args.json) {
-                    proxy.$message({ message: proxy.$t('message.instance.closed'), type: 'success' });
+                    proxy.$message({ message: proxy.t('message.instance.closed'), type: 'success' });
                     API.$emit('INSTANCE', { json: args.json });
                 }
             }

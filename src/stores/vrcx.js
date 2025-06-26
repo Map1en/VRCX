@@ -277,7 +277,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             if (
                 !friendStore.friends.has(id) &&
                 !locationStore.lastLocation.playerList.has(ref.id) &&
-                id !== API.currentUser.id
+                id !== userStore.currentUser.id
             ) {
                 API.cachedUsers.delete(id);
             }
@@ -285,7 +285,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         worldStore.cachedWorlds.forEach((ref, id) => {
             if (
                 !favoriteStore.cachedFavoritesByObjectId.has(id) &&
-                ref.authorId !== API.currentUser.id &&
+                ref.authorId !== userStore.currentUser.id &&
                 !favoriteStore.localWorldFavoritesList.includes(id)
             ) {
                 worldStore.cachedWorlds.delete(id);
@@ -294,7 +294,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         avatarStore.cachedAvatars.forEach((ref, id) => {
             if (
                 !favoriteStore.cachedFavoritesByObjectId.has(id) &&
-                ref.authorId !== API.currentUser.id &&
+                ref.authorId !== userStore.currentUser.id &&
                 !favoriteStore.localAvatarFavoritesList.includes(id) &&
                 !avatarStore.avatarHistory.has(id)
             ) {
@@ -389,8 +389,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                 application: 'VRCX',
                 version: 1,
                 author: {
-                    id: API.currentUser.id,
-                    displayName: API.currentUser.displayName
+                    id: userStore.currentUser.id,
+                    displayName: userStore.currentUser.displayName
                 },
                 world: {
                     name: locationStore.lastLocation.name,

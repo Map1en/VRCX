@@ -1,5 +1,5 @@
-import { storeToRefs } from 'pinia';
-import { $app, API } from '../../app';
+import { $app } from '../../app';
+import { useInstanceStore, useUserStore } from '../../stores';
 import { useLocationStore } from '../../stores/location';
 
 /**
@@ -151,8 +151,8 @@ function parseLocation(tag) {
  * @returns
  */
 function checkCanInvite(location) {
+    const userStore = useUserStore();
     const locationStore = useLocationStore();
-    const { lastLocation } = storeToRefs(locationStore);
     const L = parseLocation(location);
     const instance = $app.store.instance.cachedInstances.get(location);
     if (instance?.closedAt) {
@@ -161,14 +161,14 @@ function checkCanInvite(location) {
     if (
         L.accessType === 'public' ||
         L.accessType === 'group' ||
-        L.userId === API.currentUser.id
+        L.userId === userStore.currentUser.id
     ) {
         return true;
     }
     if (L.accessType === 'invite' || L.accessType === 'friends') {
         return false;
     }
-    if (lastLocation.value.location === location) {
+    if (locationStore.lastLocation.location === location) {
         return true;
     }
     return false;
@@ -180,12 +180,14 @@ function checkCanInvite(location) {
  * @returns
  */
 function checkCanInviteSelf(location) {
+    const userStore = useUserStore();
+    const instanceStore = useInstanceStore();
     const L = parseLocation(location);
-    const instance = $app.store.instance.cachedInstances.get(location);
+    const instance = instanceStore.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }
-    if (L.userId === API.currentUser.id) {
+    if (L.userId === userStore.currentUser.id) {
         return true;
     }
     if (

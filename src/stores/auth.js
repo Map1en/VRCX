@@ -12,11 +12,13 @@ import { escapeTag } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUserStore } from './user';
 
 export const useAuthStore = defineStore('Auth', () => {
     const advancedSettingsStore = useAdvancedSettingsStore();
     const notificationStore = useNotificationStore();
     const friendStore = useFriendStore();
+    const userStore = useUserStore();
     const state = reactive({
         isLoggedIn: false,
         attemptingAutoLogin: false,
@@ -119,7 +121,7 @@ export const useAuthStore = defineStore('Auth', () => {
             new Noty({
                 type: 'success',
                 text: `See you again, <strong>${escapeTag(
-                    API.currentUser.displayName
+                    userStore.currentUser.displayName
                 )}</strong>!`
             }).show();
         }
@@ -135,11 +137,11 @@ export const useAuthStore = defineStore('Auth', () => {
                 args.ref.displayName
             )}</strong>!`
         }).show();
-        updateStoredUser(API.currentUser);
+        updateStoredUser(userStore.currentUser);
     });
 
     API.$on('LOGOUT', async function () {
-        await updateStoredUser(API.currentUser);
+        await updateStoredUser(userStore.currentUser);
         webApiService.clearCookies();
         state.loginForm.lastUserLoggedIn = '';
         await configRepository.remove('lastUserLoggedIn');
@@ -175,7 +177,8 @@ export const useAuthStore = defineStore('Auth', () => {
                     throw err;
                 })
                 .then((args) => {
-                    API.getCurrentUser()
+                    userStore
+                        .getCurrentUser()
                         .finally(() => {
                             state.loginForm.loading = false;
                         })
@@ -620,7 +623,7 @@ export const useAuthStore = defineStore('Auth', () => {
                             throw err;
                         })
                         .then((args) => {
-                            API.getCurrentUser();
+                            userStore.getCurrentUser();
                             return args;
                         });
                 } else if (action === 'cancel') {
@@ -657,7 +660,7 @@ export const useAuthStore = defineStore('Auth', () => {
                             throw err;
                         })
                         .then((args) => {
-                            API.getCurrentUser();
+                            userStore.getCurrentUser();
                             return args;
                         });
                 } else if (action === 'cancel') {
@@ -698,7 +701,7 @@ export const useAuthStore = defineStore('Auth', () => {
                                 throw err;
                             })
                             .then((args) => {
-                                API.getCurrentUser();
+                                userStore.getCurrentUser();
                                 return args;
                             });
                     } else if (action === 'cancel') {

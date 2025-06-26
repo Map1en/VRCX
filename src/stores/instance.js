@@ -480,7 +480,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             type,
             canRequestInvite,
             worldId: D.worldId,
-            ownerId: API.currentUser.id,
+            ownerId: userStore.currentUser.id,
             region,
             contentSettings
         };
@@ -543,7 +543,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 ref: {}
             };
         }
-        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const cachedCurrentUser = API.cachedUsers.get(userStore.currentUser.id);
         const lastLocation$ = cachedCurrentUser.$location;
         const playersInInstance = locationStore.lastLocation.playerList;
         if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
@@ -604,7 +604,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
             instance.users.push(ref);
         }
-        ref = API.cachedUsers.get(API.currentUser.id);
+        ref = API.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.worldId === D.id) {
             const { instanceId } = ref.$location;
             instance = instances[instanceId];
@@ -734,7 +734,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                 };
             }
         }
-        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const cachedCurrentUser = API.cachedUsers.get(userStore.currentUser.id);
         const lastLocation$ = cachedCurrentUser.$location;
         const currentLocation = lastLocation$.tag;
         const playersInInstance = locationStore.lastLocation.playerList;
@@ -795,7 +795,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
             instance.users.push(ref);
         }
-        ref = API.cachedUsers.get(API.currentUser.id);
+        ref = API.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.groupId === D.id) {
             const { instanceId, tag } = ref.$location;
             instance = instances[tag];
@@ -1127,13 +1127,13 @@ export const useInstanceStore = defineStore('Instance', () => {
 
         const playersInInstance = locationStore.lastLocation.playerList;
         if (playersInInstance.size > 0) {
-            let ref = API.cachedUsers.get(API.currentUser.id);
+            let ref = API.cachedUsers.get(userStore.currentUser.id);
             if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
                 pushUser(ref);
             }
             for (const player of playersInInstance.values()) {
                 // if friend isn't in instance add them
-                if (player.displayName === API.currentUser.displayName) {
+                if (player.displayName === userStore.currentUser.displayName) {
                     continue;
                 }
                 const addUser = !users.some(function (user) {

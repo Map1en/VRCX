@@ -19,6 +19,7 @@ import { useFriendStore } from '../friend';
 import { useGameLogStore } from '../gameLog';
 import { useModerationStore } from '../moderation';
 import { useNotificationStore } from '../notification';
+import { useUserStore } from '../user';
 import { useVrStore } from '../vr';
 import { useVrcxStore } from '../vrcx';
 
@@ -33,6 +34,7 @@ export const useAppearanceSettingsStore = defineStore(
         const moderationStore = useModerationStore();
         const gameLogStore = useGameLogStore();
         const vrcxStore = useVrcxStore();
+        const userStore = useUserStore();
 
         const state = reactive({
             appLanguage: 'en',
@@ -292,7 +294,7 @@ export const useAppearanceSettingsStore = defineStore(
             if (setRandomColor) {
                 setRandomUserColours();
             }
-            if (typeof API.currentUser?.id === 'undefined') {
+            if (typeof userStore.currentUser?.id === 'undefined') {
                 return;
             }
             if (field && color) {
@@ -302,12 +304,12 @@ export const useAppearanceSettingsStore = defineStore(
                 });
             }
             if (state.randomUserColours) {
-                getNameColour(API.currentUser.id).then((colour) => {
-                    API.currentUser.$userColour = colour;
+                getNameColour(userStore.currentUser.id).then((colour) => {
+                    userStore.currentUser.$userColour = colour;
                 });
                 userColourInit();
             } else {
-                applyUserTrustLevel(API.currentUser);
+                applyUserTrustLevel(userStore.currentUser);
                 API.cachedUsers.forEach((ref) => {
                     applyUserTrustLevel(ref);
                 });

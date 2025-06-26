@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import currentUser from './classes/currentUser.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
@@ -156,7 +155,6 @@ uiComponents();
 websocket();
 sharedFeed();
 prompts();
-currentUser();
 updateLoop();
 gameRealtimeLogging();
 groups();

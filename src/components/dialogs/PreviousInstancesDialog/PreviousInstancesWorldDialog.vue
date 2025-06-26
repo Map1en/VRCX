@@ -2,31 +2,31 @@
     <safe-dialog
         ref="previousInstancesWorldDialog"
         :visible.sync="isVisible"
-        :title="$t('dialog.previous_instances.header')"
+        :title="t('dialog.previous_instances.header')"
         width="1000px"
         append-to-body>
         <div style="display: flex; align-items: center; justify-content: space-between">
             <span style="font-size: 14px" v-text="previousInstancesWorldDialog.worldRef.name"></span>
             <el-input
                 v-model="previousInstancesWorldDialogTable.filters[0].value"
-                :placeholder="$t('dialog.previous_instances.search_placeholder')"
+                :placeholder="t('dialog.previous_instances.search_placeholder')"
                 style="display: block; width: 150px"></el-input>
         </div>
         <data-tables v-loading="loading" v-bind="previousInstancesWorldDialogTable" style="margin-top: 10px">
-            <el-table-column :label="$t('table.previous_instances.date')" prop="created_at" sortable width="170">
+            <el-table-column :label="t('table.previous_instances.date')" prop="created_at" sortable width="170">
                 <template slot-scope="scope">
                     <span>{{ scope.row.created_at | formatDate('long') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.instance_name')" prop="name">
+            <el-table-column :label="t('table.previous_instances.instance_name')" prop="name">
                 <template slot-scope="scope">
                     <location-world
                         :locationobject="scope.row.$location"
                         :grouphint="scope.row.groupName"
-                        :currentuserid="API.currentUser.id" />
+                        :currentuserid="currentUser.id" />
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.instance_creator')" prop="location">
+            <el-table-column :label="t('table.previous_instances.instance_creator')" prop="location">
                 <template slot-scope="scope">
                     <display-name
                         :userid="scope.row.$location.userId"
@@ -34,12 +34,12 @@
                         :force-update-key="previousInstancesWorldDialog.forceUpdate"></display-name>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.time')" prop="time" width="100" sortable>
+            <el-table-column :label="t('table.previous_instances.time')" prop="time" width="100" sortable>
                 <template slot-scope="scope">
                     <span v-text="scope.row.timer"></span>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('table.previous_instances.action')" width="90" align="right">
+            <el-table-column :label="t('table.previous_instances.action')" width="90" align="right">
                 <template slot-scope="scope">
                     <el-button
                         type="text"
@@ -68,7 +68,7 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
-    import { API } from '../../../app';
+    import { useI18n } from 'vue-i18n-bridge';
     import database from '../../../service/database';
     import {
         adjustDialogZ,
@@ -77,10 +77,10 @@
         removeFromArray,
         timeToText
     } from '../../../shared/utils';
-    import { useInstanceStore } from '../../../stores/instance';
-    import { useUiStore } from '../../../stores/ui';
+    import { useInstanceStore, useUiStore, useUserStore } from '../../../stores';
 
     const { proxy } = getCurrentInstance();
+    const { t } = useI18n();
 
     const props = defineProps({
         previousInstancesWorldDialog: {
@@ -92,6 +92,7 @@
 
     const { showPreviousInstancesInfoDialog } = useInstanceStore();
     const { shiftHeld } = storeToRefs(useUiStore());
+    const { currentUser } = storeToRefs(useUserStore());
 
     const previousInstancesWorldDialogTable = reactive({
         data: [],

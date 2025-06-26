@@ -370,7 +370,7 @@ export const useGroupStore = defineStore('Group', () => {
             });
         }
         configRepository.setString(
-            `VRCX_currentUserGroups_${API.currentUser.id}`,
+            `VRCX_currentUserGroups_${userStore.currentUser.id}`,
             JSON.stringify(groups)
         );
     }
@@ -598,7 +598,7 @@ export const useGroupStore = defineStore('Group', () => {
         state.inGameGroupOrder = [];
         try {
             const json = await gameStore.getVRChatRegistryKey(
-                `VRC_GROUP_ORDER_${API.currentUser.id}`
+                `VRC_GROUP_ORDER_${userStore.currentUser.id}`
             );
             if (!json) {
                 return;
@@ -640,7 +640,7 @@ export const useGroupStore = defineStore('Group', () => {
                 }
                 if (
                     userStore.userDialog.visible &&
-                    userStore.userDialog.id === API.currentUser.id &&
+                    userStore.userDialog.id === userStore.currentUser.id &&
                     userStore.userDialog.representedGroup.id === groupId
                 ) {
                     userStore.getCurrentUserRepresentedGroup();
@@ -680,7 +680,7 @@ export const useGroupStore = defineStore('Group', () => {
 
     function setGroupVisibility(groupId, visibility) {
         return groupRequest
-            .setGroupMemberProps(API.currentUser.id, groupId, {
+            .setGroupMemberProps(userStore.currentUser.id, groupId, {
                 visibility
             })
             .then((args) => {

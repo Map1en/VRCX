@@ -107,7 +107,7 @@
                                     :class="languageClass(item.key)"
                                     style="display: inline-block; margin-right: 5px"></span>
                             </el-tooltip>
-                            <template v-if="userDialog.ref.id === API.currentUser.id">
+                            <template v-if="userDialog.ref.id === currentUser.id">
                                 <br />
                                 <el-popover placement="top" trigger="click">
                                     <span
@@ -119,9 +119,9 @@
                                             font-size: 12px;
                                             cursor: pointer;
                                         "
-                                        v-text="API.currentUser.username"></span>
+                                        v-text="currentUser.username"></span>
                                     <span style="display: block; text-align: center; font-family: monospace">{{
-                                        API.currentUser.username | textToHex
+                                        currentUser.username | textToHex
                                     }}</span>
                                 </el-popover>
                             </template>
@@ -271,7 +271,7 @@
                                             {{ t('dialog.user.badges.assigned') }}:
                                             {{ badge.assignedAt | formatDate('long') }}
                                         </span>
-                                        <template v-if="userDialog.id === API.currentUser.id">
+                                        <template v-if="userDialog.id === currentUser.id">
                                             <br />
                                             <el-checkbox
                                                 v-model="badge.hidden"
@@ -320,8 +320,7 @@
                     <div style="flex: none">
                         <template
                             v-if="
-                                (API.currentUser.id !== userDialog.ref.id && userDialog.isFriend) ||
-                                userDialog.isFavorite
+                                (currentUser.id !== userDialog.ref.id && userDialog.isFriend) || userDialog.isFavorite
                             ">
                             <el-tooltip
                                 v-if="userDialog.isFavorite"
@@ -365,7 +364,7 @@
                                 <el-dropdown-item icon="el-icon-share" command="Share">{{
                                     t('dialog.user.actions.share')
                                 }}</el-dropdown-item>
-                                <template v-if="userDialog.ref.id === API.currentUser.id">
+                                <template v-if="userDialog.ref.id === currentUser.id">
                                     <el-dropdown-item icon="el-icon-picture-outline" command="Manage Gallery" divided>{{
                                         t('dialog.user.actions.manage_gallery_inventory_icon')
                                     }}</el-dropdown-item>
@@ -433,7 +432,7 @@
                                     <el-dropdown-item icon="el-icon-message" command="Invite To Group">{{
                                         t('dialog.user.actions.invite_to_group')
                                     }}</el-dropdown-item>
-                                    <!--//- el-dropdown-item(icon="el-icon-thumb" command="Send Boop" :disabled="!API.currentUser.isBoopingEnabled") {{ t('dialog.user.actions.send_boop') }}-->
+                                    <!--//- el-dropdown-item(icon="el-icon-thumb" command="Send Boop" :disabled="!currentUser.isBoopingEnabled") {{ t('dialog.user.actions.send_boop') }}-->
                                     <el-dropdown-item icon="el-icon-s-custom" command="Show Avatar Author" divided>{{
                                         t('dialog.user.actions.show_avatar_author')
                                     }}</el-dropdown-item>
@@ -537,7 +536,7 @@
 
             <el-tabs ref="userDialogTabsRef" @tab-click="userDialogTabClick">
                 <el-tab-pane :label="t('dialog.user.info.header')">
-                    <template v-if="isFriendOnline(userDialog.friend) || API.currentUser.id === userDialog.id">
+                    <template v-if="isFriendOnline(userDialog.friend) || currentUser.id === userDialog.id">
                         <div
                             v-if="userDialog.ref.location"
                             style="
@@ -682,7 +681,7 @@
                             <div class="detail">
                                 <span
                                     v-if="
-                                        userDialog.id !== API.currentUser.id &&
+                                        userDialog.id !== currentUser.id &&
                                         userDialog.ref.profilePicOverride &&
                                         userDialog.ref.currentAvatarImageUrl
                                     "
@@ -782,7 +781,7 @@
                                     "
                                     >{{ userDialog.ref.bio || '-' }}</pre
                                 >
-                                <div v-if="userDialog.id === API.currentUser.id" style="float: right">
+                                <div v-if="userDialog.id === currentUser.id" style="float: right">
                                     <el-button
                                         type="text"
                                         icon="el-icon-edit"
@@ -810,7 +809,7 @@
                                 </div>
                             </div>
                         </div>
-                        <template v-if="API.currentUser.id !== userDialog.id">
+                        <template v-if="currentUser.id !== userDialog.id">
                             <div class="x-friend-item" style="cursor: default">
                                 <div class="detail">
                                     <span class="name">
@@ -866,7 +865,7 @@
                         </template>
                         <template v-else>
                             <el-tooltip
-                                :disabled="hideTooltips || API.currentUser.id !== userDialog.id"
+                                :disabled="hideTooltips || currentUser.id !== userDialog.id"
                                 placement="top"
                                 :content="t('dialog.user.info.open_previouse_instance')">
                                 <div class="x-friend-item" @click="showPreviousInstancesUserDialog(userDialog.ref)">
@@ -888,7 +887,7 @@
                             </el-tooltip>
                         </template>
                         <div class="x-friend-item" style="cursor: default">
-                            <el-tooltip :placement="API.currentUser.id !== userDialog.id ? 'bottom' : 'top'">
+                            <el-tooltip :placement="currentUser.id !== userDialog.id ? 'bottom' : 'top'">
                                 <template #content>
                                     <span>{{ userOnlineForTimestamp(userDialog) | formatDate('short') }}</span>
                                 </template>
@@ -920,7 +919,7 @@
                             </el-tooltip>
                         </div>
                         <div class="x-friend-item" style="cursor: default">
-                            <el-tooltip :placement="API.currentUser.id !== userDialog.id ? 'bottom' : 'top'">
+                            <el-tooltip :placement="currentUser.id !== userDialog.id ? 'bottom' : 'top'">
                                 <template #content>
                                     <span
                                         >{{ t('dialog.user.info.last_login') }}
@@ -947,7 +946,7 @@
                                 <span class="extra" v-text="userDialog.ref.date_joined"></span>
                             </div>
                         </div>
-                        <div v-if="API.currentUser.id !== userDialog.id" class="x-friend-item" style="cursor: default">
+                        <div v-if="currentUser.id !== userDialog.id" class="x-friend-item" style="cursor: default">
                             <el-tooltip placement="top" :disabled="!userDialog.dateFriendedInfo.length">
                                 <template v-if="userDialog.dateFriendedInfo.length" #content>
                                     <template v-for="ref in userDialog.dateFriendedInfo">
@@ -980,16 +979,13 @@
                                 </div>
                             </el-tooltip>
                         </div>
-                        <template v-if="API.currentUser.id === userDialog.id">
+                        <template v-if="currentUser.id === userDialog.id">
                             <div class="x-friend-item" @click="toggleAvatarCopying">
                                 <div class="detail">
                                     <span class="name">{{ t('dialog.user.info.avatar_cloning') }}</span>
-                                    <span
-                                        v-if="API.currentUser.allowAvatarCopying"
-                                        class="extra"
-                                        style="color: #67c23a"
-                                        >{{ t('dialog.user.info.avatar_cloning_allow') }}</span
-                                    >
+                                    <span v-if="currentUser.allowAvatarCopying" class="extra" style="color: #67c23a">{{
+                                        t('dialog.user.info.avatar_cloning_allow')
+                                    }}</span>
                                     <span v-else class="extra" style="color: #f56c6c">{{
                                         t('dialog.user.info.avatar_cloning_deny')
                                     }}</span>
@@ -998,7 +994,7 @@
                             <!--//- .x-friend-item(@click="toggleAllowBooping")-->
                             <!--//-     .detail-->
                             <!--//-         span.name {{ t('dialog.user.info.booping') }}-->
-                            <!--//-         span.extra(v-if="API.currentUser.isBoopingEnabled" style="color:#67C23A") {{ t('dialog.user.info.avatar_cloning_allow') }}-->
+                            <!--//-         span.extra(v-if="currentUser.isBoopingEnabled" style="color:#67C23A") {{ t('dialog.user.info.avatar_cloning_allow') }}-->
                             <!--//-         span.extra(v-else style="color:#F56C6C") {{ t('dialog.user.info.avatar_cloning_deny') }}-->
                         </template>
                         <template v-else>
@@ -1018,10 +1014,10 @@
                             </div>
                         </template>
                         <div
-                            v-if="userDialog.ref.id === API.currentUser.id && API.currentUser.homeLocation"
+                            v-if="userDialog.ref.id === currentUser.id && currentUser.homeLocation"
                             class="x-friend-item"
                             style="width: 100%"
-                            @click="showWorldDialog(API.currentUser.homeLocation)">
+                            @click="showWorldDialog(currentUser.homeLocation)">
                             <div class="detail">
                                 <span class="name">{{ t('dialog.user.info.home_location') }}</span>
                                 <span class="extra">
@@ -1116,7 +1112,7 @@
                                             :key="key"
                                             :disabled="
                                                 item === userDialogGroupSortingOptions.inGame &&
-                                                userDialog.id !== API.currentUser.id
+                                                userDialog.id !== currentUser.id
                                             "
                                             @click.native="setUserDialogGroupSorting(item)"
                                             >{{ t(item.name) }}
@@ -1133,7 +1129,7 @@
                                 {{ t('dialog.user.groups.exit_edit_mode') }}
                             </el-button>
                             <el-button
-                                v-else-if="API.currentUser.id === userDialog.id"
+                                v-else-if="currentUser.id === userDialog.id"
                                 size="small"
                                 icon="el-icon-edit"
                                 style="margin-right: 5px; height: 29px; padding: 7px 15px"
@@ -1429,9 +1425,9 @@
                                 }}</span>
                                 <span style="color: #909399; font-size: 12px; margin-left: 5px">
                                     {{ userGroups.remainingGroups.length }}
-                                    <template v-if="API.currentUser.id === userDialog.id">
+                                    <template v-if="currentUser.id === userDialog.id">
                                         /
-                                        <template v-if="API.currentUser.$isVRCPlus">
+                                        <template v-if="currentUser.$isVRCPlus">
                                             {{ API.cachedConfig?.constants?.GROUPS?.MAX_JOINED_PLUS }}
                                         </template>
                                         <template v-else>
@@ -1622,7 +1618,7 @@
                     <div style="display: flex; align-items: center; justify-content: space-between">
                         <div style="display: flex; align-items: center">
                             <el-button
-                                v-if="userDialog.ref.id === API.currentUser.id"
+                                v-if="userDialog.ref.id === currentUser.id"
                                 type="default"
                                 :loading="userDialog.isAvatarsLoading"
                                 size="mini"
@@ -1644,7 +1640,7 @@
                             }}</span>
                         </div>
                         <div>
-                            <template v-if="userDialog.ref.id === API.currentUser.id">
+                            <template v-if="userDialog.ref.id === currentUser.id">
                                 <span style="margin-right: 5px">{{ t('dialog.user.avatars.sort_by') }}</span>
                                 <el-dropdown
                                     trigger="click"
@@ -1853,7 +1849,7 @@
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(useAppearanceSettingsStore());
     const { avatarRemoteDatabase } = storeToRefs(useAdvancedSettingsStore());
-    const { userDialog, languageDialog } = storeToRefs(useUserStore());
+    const { userDialog, languageDialog, currentUser } = storeToRefs(useUserStore());
     const { showUserDialog, applyUser, sortUserDialogAvatars, refreshUserDialogAvatars, refreshUserDialogTreeData } =
         useUserStore();
     const { favoriteLimits } = storeToRefs(useFavoriteStore());
@@ -2008,7 +2004,7 @@
             userDialogLastActiveTab.value = t('dialog.user.avatars.header');
             setUserDialogAvatars(userId);
             userDialogLastAvatar.value = userId;
-            if (userId === API.currentUser.id) {
+            if (userId === currentUser.value.id) {
                 refreshUserDialogAvatars();
             }
             setUserDialogAvatarsRemote(userId);
@@ -2020,7 +2016,7 @@
 
     function showPronounsDialog() {
         const D = pronounsDialog.value;
-        D.pronouns = API.currentUser.pronouns;
+        D.pronouns = currentUser.value.pronouns;
         D.visible = true;
     }
 
@@ -2034,7 +2030,7 @@
         //     $app.adjustDialogZ(this.$refs.socialStatusDialog.$el)
         // );
         const D = socialStatusDialog.value;
-        const { statusHistory } = API.currentUser;
+        const { statusHistory } = currentUser.value;
         const statusHistoryArray = [];
         for (let i = 0; i < statusHistory.length; ++i) {
             const addStatus = {
@@ -2044,13 +2040,13 @@
             statusHistoryArray.push(addStatus);
         }
         socialStatusHistoryTable.value.data = statusHistoryArray;
-        D.status = API.currentUser.status;
-        D.statusDescription = API.currentUser.statusDescription;
+        D.status = currentUser.value.status;
+        D.statusDescription = currentUser.value.statusDescription;
         D.visible = true;
     }
 
     async function setUserDialogAvatarsRemote(userId) {
-        if (avatarRemoteDatabase.value && userId !== API.currentUser.id) {
+        if (avatarRemoteDatabase.value && userId !== currentUser.value.id) {
             userDialog.value.isAvatarsLoading = true;
             const data = await lookupAvatars('authorId', userId);
             const avatars = new Set();
@@ -2111,7 +2107,7 @@
 
     function setPlayerModeration(userId, type) {
         const D = userDialog.value;
-        AppApi.SetVRChatUserModeration(API.currentUser.id, userId, type).then((result) => {
+        AppApi.SetVRChatUserModeration(currentUser.value.id, userId, type).then((result) => {
             if (result) {
                 if (type === 4) {
                     D.isShowAvatar = false;
@@ -2526,7 +2522,7 @@
             userDialog.value.isGroupsLoading = false;
             return;
         }
-        if (userId === API.currentUser.id) {
+        if (userId === currentUser.value.id) {
             // update current user groups
             currentUserGroups.value.clear();
             args.json.forEach((group) => {
@@ -2548,7 +2544,7 @@
             if (group.ownerId === userId) {
                 userGroups.value.ownGroups.unshift(group);
             }
-            if (userId === API.currentUser.id) {
+            if (userId === currentUser.value.id) {
                 // skip mutual groups for current user
                 if (group.ownerId !== userId) {
                     userGroups.value.remainingGroups.unshift(group);
@@ -2562,7 +2558,7 @@
                 userGroups.value.remainingGroups.unshift(group);
             }
         }
-        if (userId === API.currentUser.id) {
+        if (userId === currentUser.value.id) {
             userDialog.value.groupSorting = userDialogGroupSortingOptions.inGame;
         } else if (userDialog.value.groupSorting === userDialogGroupSortingOptions.inGame) {
             userDialog.value.groupSorting = userDialogGroupSortingOptions.alphabetical;
@@ -2646,13 +2642,13 @@
             userId: D.id,
             releaseStatus: 'public'
         };
-        if (params.userId === API.currentUser.id) {
+        if (params.userId === currentUser.value.id) {
             params.user = 'me';
             params.releaseStatus = 'all';
         }
         const map = new Map();
         for (const ref of cachedWorlds.value.values()) {
-            if (ref.authorId === D.id && (ref.authorId === API.currentUser.id || ref.releaseStatus === 'public')) {
+            if (ref.authorId === D.id && (ref.authorId === currentUser.value.id || ref.releaseStatus === 'public')) {
                 cachedWorlds.value.delete(ref.id);
             }
         }
@@ -2728,7 +2724,7 @@
             setUserDialogAvatars(userId);
             if (userDialogLastAvatar.value !== userId) {
                 userDialogLastAvatar.value = userId;
-                if (userId === API.currentUser.id) {
+                if (userId === currentUser.value.id) {
                     refreshUserDialogAvatars();
                 } else {
                     setUserDialogAvatarsRemote(userId);
@@ -2814,8 +2810,8 @@
 
     function showBioDialog() {
         const D = bioDialog.value;
-        D.bio = API.currentUser.bio;
-        D.bioLinks = API.currentUser.bioLinks.slice();
+        D.bio = currentUser.value.bio;
+        D.bioLinks = currentUser.value.bioLinks.slice();
         D.visible = true;
     }
 
@@ -2830,7 +2826,7 @@
 
     function toggleAvatarCopying() {
         userRequest.saveCurrentUser({
-            allowAvatarCopying: !API.currentUser.allowAvatarCopying
+            allowAvatarCopying: !currentUser.value.allowAvatarCopying
         });
         //     .then((args) => {
         //     return args;
@@ -2900,7 +2896,7 @@
         userDialogGroupEditGroups.value.sort(sortGroupsByInGame);
         try {
             await AppApi.SetVRChatRegistryKey(
-                `VRC_GROUP_ORDER_${API.currentUser.id}`,
+                `VRC_GROUP_ORDER_${currentUser.value.id}`,
                 JSON.stringify(inGameGroupOrder.value),
                 3
             );

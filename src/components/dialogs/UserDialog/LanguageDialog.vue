@@ -6,7 +6,7 @@
         width="400px"
         append-to-body>
         <div v-loading="languageDialog.loading">
-            <div v-for="item in API.currentUser.$languages" :key="item.key" style="margin: 6px 0">
+            <div v-for="item in currentUser.$languages" :key="item.key" style="margin: 6px 0">
                 <el-tag
                     size="small"
                     type="info"
@@ -23,9 +23,7 @@
             </div>
             <el-select
                 value=""
-                :disabled="
-                    languageDialog.loading || (API.currentUser.$languages && API.currentUser.$languages.length === 3)
-                "
+                :disabled="languageDialog.loading || (currentUser.$languages && currentUser.$languages.length === 3)"
                 :placeholder="t('dialog.language.select_language')"
                 style="margin-top: 14px"
                 @change="addUserLanguage">
@@ -49,13 +47,12 @@
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
     import { userRequest } from '../../../api';
-    import { API } from '../../../app';
     import { languageClass } from '../../../shared/utils';
-    import { useUserStore } from '../../../stores/user';
+    import { useUserStore } from '../../../stores';
 
     const { t } = useI18n();
-    const userStore = useUserStore();
-    const { languageDialog } = storeToRefs(userStore);
+
+    const { languageDialog, currentUser } = storeToRefs(useUserStore());
 
     function removeUserLanguage(language) {
         if (language !== String(language)) {

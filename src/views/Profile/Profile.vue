@@ -3,26 +3,26 @@
         <div class="options-container" style="margin-top: 0">
             <span class="header">{{ t('view.profile.profile.header') }}</span>
             <div class="x-friend-list" style="margin-top: 10px">
-                <div class="x-friend-item" @click="showUserDialog(API.currentUser.id)">
+                <div class="x-friend-item" @click="showUserDialog(currentUser.id)">
                     <div class="avatar">
-                        <img v-lazy="userImage(API.currentUser, true)" />
+                        <img v-lazy="userImage(currentUser, true)" />
                     </div>
                     <div class="detail">
-                        <span class="name" v-text="API.currentUser.displayName"></span>
-                        <span class="extra" v-text="API.currentUser.username"></span>
+                        <span class="name" v-text="currentUser.displayName"></span>
+                        <span class="extra" v-text="currentUser.username"></span>
                     </div>
                 </div>
                 <div class="x-friend-item" style="cursor: default">
                     <div class="detail">
                         <span class="name">{{ t('view.profile.profile.last_activity') }}</span>
-                        <span class="extra">{{ API.currentUser.last_activity | formatDate('long') }}</span>
+                        <span class="extra">{{ currentUser.last_activity | formatDate('long') }}</span>
                     </div>
                 </div>
                 <div class="x-friend-item" style="cursor: default">
                     <div class="detail">
                         <span class="name">{{ t('view.profile.profile.two_factor') }}</span>
                         <span class="extra">{{
-                            API.currentUser.twoFactorAuthEnabled
+                            currentUser.twoFactorAuthEnabled
                                 ? t('view.profile.profile.two_factor_enabled')
                                 : t('view.profile.profile.two_factor_disabled')
                         }}</span>
@@ -519,8 +519,8 @@
 
     const { friends } = storeToRefs(useFriendStore());
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
-    const { pastDisplayNameTable } = storeToRefs(useUserStore());
-    const { showUserDialog, lookupUser } = useUserStore();
+    const { pastDisplayNameTable, currentUser } = storeToRefs(useUserStore());
+    const { showUserDialog, lookupUser, getCurrentUser } = useUserStore();
     const { showAvatarDialog } = useAvatarStore();
     const { showEditInviteMessageDialog, refreshInviteMessageTableData } = useInviteStore();
     const {
@@ -664,13 +664,13 @@
         configTreeData.value = buildTreeData(API.cachedConfig);
     }
     async function refreshCurrentUserTreeData() {
-        await API.getCurrentUser();
-        currentUserTreeData.value = buildTreeData(API.currentUser);
+        await getCurrentUser();
+        currentUserTreeData.value = buildTreeData(currentUser.value);
     }
     function getCurrentUserFeedback() {
-        userRequest.getUserFeedback({ userId: API.currentUser.id }).then((args) => {
+        userRequest.getUserFeedback({ userId: currentUser.value.id }).then((args) => {
             // API.$on('USER:FEEDBACK')
-            if (args.params.userId === API.currentUser.id) {
+            if (args.params.userId === currentUser.value.id) {
                 currentUserFeedbackData.value = buildTreeData(args.json);
             }
         });

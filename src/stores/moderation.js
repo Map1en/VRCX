@@ -121,7 +121,7 @@ export const useModerationStore = defineStore('Moderation', () => {
 
     API.$on('PLAYER-MODERATION:DELETE', function (args) {
         let { type, moderated } = args.params;
-        const userId = API.currentUser.id;
+        const userId = userStore.currentUser.id;
         for (let ref of state.cachedPlayerModerations.values()) {
             if (
                 ref.type === type &&

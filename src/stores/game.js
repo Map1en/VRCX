@@ -4,7 +4,6 @@ import * as workerTimers from 'worker-timers';
 import { $app } from '../app';
 import configRepository from '../service/config.js';
 import database from '../service/database';
-import { API } from '../service/eventBus';
 import {
     deleteVRChatCache as _deleteVRChatCache,
     isRealInstance
@@ -16,6 +15,7 @@ import { useLaunchStore } from './launch';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUserStore } from './user';
 import { useVrStore } from './vr';
 import { useWorldStore } from './world';
 
@@ -29,6 +29,7 @@ export const useGameStore = defineStore('Game', () => {
     const instanceStore = useInstanceStore();
     const gameLogStore = useGameLogStore();
     const vrStore = useVrStore();
+    const userStore = useUserStore();
     const state = reactive({
         lastCrashedTime: null,
         VRChatUsedCacheSize: '',
@@ -190,21 +191,21 @@ export const useGameStore = defineStore('Game', () => {
         if (isGameRunning !== state.isGameRunning) {
             state.isGameRunning = isGameRunning;
             if (isGameRunning) {
-                API.currentUser.$online_for = Date.now();
-                API.currentUser.$offline_for = '';
-                API.currentUser.$previousAvatarSwapTime = Date.now();
+                userStore.currentUser.$online_for = Date.now();
+                userStore.currentUser.$offline_for = '';
+                userStore.currentUser.$previousAvatarSwapTime = Date.now();
             } else {
                 await configRepository.setBool('isGameNoVR', state.isGameNoVR);
-                API.currentUser.$online_for = '';
-                API.currentUser.$offline_for = Date.now();
+                userStore.currentUser.$online_for = '';
+                userStore.currentUser.$offline_for = Date.now();
                 instanceStore.removeAllQueuedInstances();
                 autoVRChatCacheManagement();
                 checkIfGameCrashed();
                 $app.ipcTimeout = 0;
                 $app.store.avatar.addAvatarWearTime(
-                    API.currentUser.currentAvatar
+                    userStore.currentUser.currentAvatar
                 );
-                API.currentUser.$previousAvatarSwapTime = '';
+                userStore.currentUser.$previousAvatarSwapTime = '';
             }
             locationStore.lastLocationReset();
             gameLogStore.clearNowPlaying();

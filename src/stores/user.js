@@ -9,7 +9,7 @@ import {
     userRequest
 } from '../api';
 import { $app } from '../app';
-import { bulk } from '../service/apiRequestHandler';
+import { bulk, request } from '../service/apiRequestHandler';
 import database from '../service/database';
 import { API } from '../service/eventBus';
 import {
@@ -29,17 +29,23 @@ import {
     removeEmojis,
     replaceBioSymbols
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
+import { useFeedStore } from './feed';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
+import { useGroupStore } from './group';
 import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
+import { useModerationStore } from './moderation';
 import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
 import { useSearchStore } from './search';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
+import { useWorldStore } from './world';
 
 export const useUserStore = defineStore('User', () => {
     const debugStore = useDebugStore();
@@ -53,8 +59,17 @@ export const useUserStore = defineStore('User', () => {
     const searchStore = useSearchStore();
     const gameStore = useGameStore();
     const notificationStore = useNotificationStore();
+    const authStore = useAuthStore();
+    const groupStore = useGroupStore();
+    const feedStore = useFeedStore();
+    const worldStore = useWorldStore();
+    const moderationStore = useModerationStore();
+    const photonStore = usePhotonStore();
 
     const state = reactive({
+        currentUser: {
+            $userColour: ''
+        },
         userDialog: {
             visible: false,
             loading: false,
@@ -160,6 +175,13 @@ export const useUserStore = defineStore('User', () => {
         notes: new Map()
     });
 
+    const currentUser = computed({
+        get: () => state.currentUser,
+        set: (value) => {
+            state.currentUser = value;
+        }
+    });
+
     const userDialog = computed({
         get: () => state.userDialog,
         set: (value) => {
@@ -225,12 +247,6 @@ export const useUserStore = defineStore('User', () => {
         friendStore.userOnFriend(args);
     });
 
-    API.$on('USER:CURRENT', function (args) {
-        if (args.ref.pastDisplayNames) {
-            state.pastDisplayNameTable.data = args.ref.pastDisplayNames;
-        }
-    });
-
     API.$on('CONFIG', function (args) {
         const languages =
             args.ref?.constants?.LANGUAGE?.SPOKEN_LANGUAGE_OPTIONS;
@@ -272,6 +288,7 @@ export const useUserStore = defineStore('User', () => {
         if (
             !state.userDialog.visible ||
             state.userDialog.id !== args.ref.id ||
+            // TODO: ref now in component, not $app
             $app.$refs.userDialogTabs?.currentName !== '5'
         ) {
             return;
@@ -308,7 +325,7 @@ export const useUserStore = defineStore('User', () => {
      * aka: `API.applyPresenceLocation`
      * @param {object} ref
      */
-    API.applyPresenceLocation = function (ref) {
+    function applyPresenceLocation(ref) {
         const presence = ref.presence;
         if (isRealInstance(presence.world)) {
             ref.$locationTag = `${presence.world}:${presence.instance}`;
@@ -320,8 +337,8 @@ export const useUserStore = defineStore('User', () => {
         } else {
             ref.$travelingToLocation = presence.travelingToWorld;
         }
-        $app.store.location.updateCurrentUserLocation();
-    };
+        locationStore.updateCurrentUserLocation();
+    }
 
     const robotUrl = `${API.endpointDomain}/file/file_0e8c4e32-7444-44ea-ade4-313c010d4bae/1/file`;
     /**
@@ -443,7 +460,7 @@ export const useUserStore = defineStore('User', () => {
                     $app.updateSharedFeed(false);
                 }
             }
-            if (ref.isFriend || ref.id === API.currentUser.id) {
+            if (ref.isFriend || ref.id === state.currentUser.id) {
                 // update instancePlayerCount
                 let newCount = state.instancePlayerCount.get(ref.location);
                 if (typeof newCount === 'undefined') {
@@ -564,11 +581,11 @@ export const useUserStore = defineStore('User', () => {
             friendCtx.ref = ref;
             friendCtx.name = ref.displayName;
         }
-        if (ref.id === API.currentUser.id) {
+        if (ref.id === state.currentUser.id) {
             if (ref.status) {
-                API.currentUser.status = ref.status;
+                state.currentUser.status = ref.status;
             }
-            $app.store.location.updateCurrentUserLocation();
+            locationStore.updateCurrentUserLocation();
         }
         userApply(ref);
         return ref;
@@ -599,13 +616,13 @@ export const useUserStore = defineStore('User', () => {
             ) {
                 locationStore.lastLocation.friendList.delete(ref.id);
             }
-            $app.photonLobby.forEach((ref1, id) => {
+            photonStore.photonLobby.forEach((ref1, id) => {
                 if (
                     typeof ref1 !== 'undefined' &&
                     ref1.displayName === ref.displayName &&
                     ref1 !== ref
                 ) {
-                    $app.photonLobby.set(id, ref);
+                    photonStore.photonLobby.set(id, ref);
                     if ($app.photonLobbyCurrent.has(id)) {
                         $app.photonLobbyCurrent.set(id, ref);
                     }
@@ -682,8 +699,8 @@ export const useUserStore = defineStore('User', () => {
         D.dateFriended = '';
         D.unFriended = false;
         D.dateFriendedInfo = [];
-        if (userId === API.currentUser.id) {
-            getWorldName(API.currentUser.homeLocation).then((worldName) => {
+        if (userId === state.currentUser.id) {
+            getWorldName(state.currentUser.homeLocation).then((worldName) => {
                 D.$homeLocationName = worldName;
             });
         }
@@ -714,10 +731,10 @@ export const useUserStore = defineStore('User', () => {
                         D.isMute = false;
                         D.isInteractOff = false;
                         D.isMuteChat = false;
-                        for (const ref of $app.store.moderation.cachedPlayerModerations.values()) {
+                        for (const ref of moderationStore.cachedPlayerModerations.values()) {
                             if (
                                 ref.targetUserId === D.id &&
-                                ref.sourceUserId === API.currentUser.id
+                                ref.sourceUserId === state.currentUser.id
                             ) {
                                 if (ref.type === 'block') {
                                     D.isBlock = true;
@@ -750,7 +767,7 @@ export const useUserStore = defineStore('User', () => {
                         ) {
                             inCurrentWorld = true;
                         }
-                        if (userId !== API.currentUser.id) {
+                        if (userId !== state.currentUser.id) {
                             database
                                 .getUserStats(D.ref, inCurrentWorld)
                                 .then((ref1) => {
@@ -814,7 +831,7 @@ export const useUserStore = defineStore('User', () => {
                                     );
                                 });
                             AppApi.GetVRChatUserModeration(
-                                API.currentUser.id,
+                                state.currentUser.id,
                                 userId
                             ).then((result) => {
                                 D.avatarModeration = result;
@@ -865,7 +882,7 @@ export const useUserStore = defineStore('User', () => {
             !gameStore.isGameRunning ||
             !locationStore.lastLocation.location ||
             locationStore.lastLocation.location !== ref.travelingToLocation ||
-            ref.id === API.currentUser.id ||
+            ref.id === state.currentUser.id ||
             locationStore.lastLocation.playerList.has(ref.id)
         ) {
             return;
@@ -918,10 +935,10 @@ export const useUserStore = defineStore('User', () => {
         const users = [];
         let friendCount = 0;
         const playersInInstance = locationStore.lastLocation.playerList;
-        const cachedCurrentUser = API.cachedUsers.get(API.currentUser.id);
+        const cachedCurrentUser = API.cachedUsers.get(state.currentUser.id);
         const currentLocation = cachedCurrentUser.$location.tag;
         if (!L.isOffline && currentLocation === L.tag) {
-            ref = API.cachedUsers.get(API.currentUser.id);
+            ref = API.cachedUsers.get(state.currentUser.id);
             if (typeof ref !== 'undefined') {
                 users.push(ref); // add self
             }
@@ -1085,9 +1102,9 @@ export const useUserStore = defineStore('User', () => {
 
     function refreshUserDialogTreeData() {
         const D = state.userDialog;
-        if (D.id === API.currentUser.id) {
+        if (D.id === state.currentUser.id) {
             const treeData = {
-                ...API.currentUser,
+                ...state.currentUser,
                 ...D.ref
             };
             D.treeData = buildTreeData(treeData);
@@ -1121,8 +1138,6 @@ export const useUserStore = defineStore('User', () => {
                 return;
             }
         }
-        // this.$refs.searchTab.currentName = '0';
-        // this.menuActiveIndex = 'search';
     }
 
     API.$on('USER:UPDATE', async function (args) {
@@ -1130,7 +1145,7 @@ export const useUserStore = defineStore('User', () => {
         let newLocation;
         let previousLocation;
         const { ref, props } = args;
-        const friend = $app.store.friend.friends.get(ref.id);
+        const friend = friendStore.friends.get(ref.id);
         if (typeof friend === 'undefined') {
             return;
         }
@@ -1154,21 +1169,21 @@ export const useUserStore = defineStore('User', () => {
             newCount++;
             state.instancePlayerCount.set(newLocation, newCount);
         }
-        if (props.location && ref.id === $app.store.user.userDialog.id) {
+        if (props.location && ref.id === state.userDialog.id) {
             // update user dialog instance occupants
-            $app.store.user.applyUserDialogLocation(true);
+            applyUserDialogLocation(true);
         }
         if (
             props.location &&
-            ref.$location.worldId === $app.store.world.worldDialog.id
+            ref.$location.worldId === worldStore.worldDialog.id
         ) {
-            $app.store.instance.applyWorldDialogInstances();
+            instanceStore.applyWorldDialogInstances();
         }
         if (
             props.location &&
-            ref.$location.groupId === $app.store.group.groupDialog.id
+            ref.$location.groupId === groupStore.groupDialog.id
         ) {
-            $app.store.instance.applyGroupDialogInstances();
+            instanceStore.applyGroupDialogInstances();
         }
         if (
             !props.state &&
@@ -1191,7 +1206,7 @@ export const useUserStore = defineStore('User', () => {
                     time = 0;
                 }
             }
-            if ($app.store.debug.debugFriendState && previousLocation) {
+            if (debugStore.debugFriendState && previousLocation) {
                 console.log(
                     `${ref.displayName} GPS ${previousLocation} -> ${newLocation}`
                 );
@@ -1201,7 +1216,7 @@ export const useUserStore = defineStore('User', () => {
             }
             if (!previousLocation) {
                 // no previous location
-                if ($app.store.debug.debugFriendState) {
+                if (debugStore.debugFriendState) {
                     console.log(
                         ref.displayName,
                         'Ignoring GPS, no previous location',
@@ -1225,9 +1240,9 @@ export const useUserStore = defineStore('User', () => {
                     previousLocation,
                     time
                 };
-                $app.store.feed.addFeed(feed);
+                feedStore.addFeed(feed);
                 database.addGPSToDatabase(feed);
-                $app.store.friend.updateFriendGPS(ref.id);
+                friendStore.updateFriendGPS(ref.id);
                 // clear previousLocation after GPS
                 ref.$previousLocation = '';
                 ref.$travelingToTime = Date.now();
@@ -1241,7 +1256,7 @@ export const useUserStore = defineStore('User', () => {
             // store previous location when user is traveling
             ref.$previousLocation = props.location[1];
             ref.$travelingToTime = Date.now();
-            $app.store.friend.updateFriendGPS(ref.id);
+            friendStore.updateFriendGPS(ref.id);
         }
         let imageMatches = false;
         if (
@@ -1300,7 +1315,7 @@ export const useUserStore = defineStore('User', () => {
                 previousCurrentAvatarTags = ref.currentAvatarTags;
             }
             if (
-                $app.store.generalSettings.logEmptyAvatars ||
+                generalSettingsStore.logEmptyAvatars ||
                 ref.currentAvatarImageUrl
             ) {
                 let avatarInfo = {
@@ -1308,7 +1323,7 @@ export const useUserStore = defineStore('User', () => {
                     avatarName: ''
                 };
                 try {
-                    avatarInfo = await $app.store.avatar.getAvatarName(
+                    avatarInfo = await avatarStore.getAvatarName(
                         currentAvatarImageUrl
                     );
                 } catch (err) {
@@ -1319,7 +1334,7 @@ export const useUserStore = defineStore('User', () => {
                     avatarName: ''
                 };
                 try {
-                    previousAvatarInfo = await $app.store.avatar.getAvatarName(
+                    previousAvatarInfo = await avatarStore.getAvatarName(
                         previousCurrentAvatarImageUrl
                     );
                 } catch (err) {
@@ -1341,7 +1356,7 @@ export const useUserStore = defineStore('User', () => {
                     currentAvatarTags,
                     previousCurrentAvatarTags
                 };
-                $app.store.feed.addFeed(feed);
+                feedStore.addFeed(feed);
                 database.addAvatarToDatabase(feed);
             }
         }
@@ -1382,7 +1397,7 @@ export const useUserStore = defineStore('User', () => {
                 previousStatus,
                 previousStatusDescription
             };
-            $app.store.feed.addFeed(feed);
+            feedStore.addFeed(feed);
             database.addStatusToDatabase(feed);
         }
         if (props.bio && props.bio[0] && props.bio[1]) {
@@ -1402,7 +1417,7 @@ export const useUserStore = defineStore('User', () => {
                 bio,
                 previousBio
             };
-            $app.store.feed.addFeed(feed);
+            feedStore.addFeed(feed);
             database.addBioToDatabase(feed);
         }
     });
@@ -1443,7 +1458,7 @@ export const useUserStore = defineStore('User', () => {
             withCompany = locationStore.lastLocation.friendList.size >= 1;
         }
 
-        const currentStatus = API.currentUser.status;
+        const currentStatus = state.currentUser.status;
         const newStatus = withCompany
             ? generalSettingsStore.autoStateChangeCompanyStatus
             : generalSettingsStore.autoStateChangeAloneStatus;
@@ -1601,8 +1616,320 @@ export const useUserStore = defineStore('User', () => {
         }
     }
 
+    function getCurrentUser() {
+        return request('auth/user', {
+            method: 'GET'
+        }).then((json) => {
+            const args = {
+                json,
+                fromGetCurrentUser: true
+            };
+            if (
+                json.requiresTwoFactorAuth &&
+                json.requiresTwoFactorAuth.includes('emailOtp')
+            ) {
+                API.$emit('USER:EMAILOTP', args);
+            } else if (json.requiresTwoFactorAuth) {
+                API.$emit('USER:2FA', args);
+            } else {
+                if ($app.debugCurrentUserDiff) {
+                    const ref = args.json;
+                    const $ref = state.currentUser;
+                    const props = {};
+                    for (var prop in $ref) {
+                        if ($ref[prop] !== Object($ref[prop])) {
+                            props[prop] = true;
+                        }
+                    }
+                    for (var prop in ref) {
+                        if (
+                            Array.isArray(ref[prop]) &&
+                            Array.isArray($ref[prop])
+                        ) {
+                            if (!arraysMatch(ref[prop], $ref[prop])) {
+                                props[prop] = true;
+                            }
+                        } else if (ref[prop] !== Object(ref[prop])) {
+                            props[prop] = true;
+                        }
+                    }
+                    let has = false;
+                    for (var prop in props) {
+                        const asis = $ref[prop];
+                        const tobe = ref[prop];
+                        if (asis === tobe) {
+                            delete props[prop];
+                        } else {
+                            if (
+                                prop.startsWith('$') ||
+                                prop === 'offlineFriends' ||
+                                prop === 'onlineFriends' ||
+                                prop === 'activeFriends'
+                            ) {
+                                delete props[prop];
+                                continue;
+                            }
+                            props[prop] = [tobe, asis];
+                            has = true;
+                        }
+                    }
+                    if (has) {
+                        console.log('API.getCurrentUser diff', props);
+                    }
+                }
+                $app.nextCurrentUserRefresh = 420; // 7mins
+                API.$emit('USER:CURRENT', args);
+            }
+            return args;
+        });
+    }
+
+    API.$on('USER:CURRENT', function (args) {
+        const { json } = args;
+        args.ref = applyCurrentUser(json);
+
+        // when isGameRunning use gameLog instead of API
+        const $location = parseLocation(locationStore.lastLocation.location);
+        const $travelingLocation = parseLocation(
+            locationStore.lastLocationDestination
+        );
+        let location = locationStore.lastLocation.location;
+        let instanceId = $location.instanceId;
+        let worldId = $location.worldId;
+        let travelingToLocation = locationStore.lastLocationDestination;
+        let travelingToWorld = $travelingLocation.worldId;
+        let travelingToInstance = $travelingLocation.instanceId;
+        if (!gameStore.isGameRunning && json.presence) {
+            if (isRealInstance(json.presence.world)) {
+                location = `${json.presence.world}:${json.presence.instance}`;
+            } else {
+                location = json.presence.world;
+            }
+            if (isRealInstance(json.presence.travelingToWorld)) {
+                travelingToLocation = `${json.presence.travelingToWorld}:${json.presence.travelingToInstance}`;
+            } else {
+                travelingToLocation = json.presence.travelingToWorld;
+            }
+            instanceId = json.presence.instance;
+            worldId = json.presence.world;
+            travelingToInstance = json.presence.travelingToInstance;
+            travelingToWorld = json.presence.travelingToWorld;
+        }
+        applyUser({
+            allowAvatarCopying: json.allowAvatarCopying,
+            badges: json.badges,
+            bio: json.bio,
+            bioLinks: json.bioLinks,
+            currentAvatarImageUrl: json.currentAvatarImageUrl,
+            currentAvatarTags: json.currentAvatarTags,
+            currentAvatarThumbnailImageUrl: json.currentAvatarThumbnailImageUrl,
+            date_joined: json.date_joined,
+            developerType: json.developerType,
+            displayName: json.displayName,
+            friendKey: json.friendKey,
+            // json.friendRequestStatus - missing from currentUser
+            id: json.id,
+            // instanceId - missing from currentUser
+            isFriend: json.isFriend,
+            last_activity: json.last_activity,
+            last_login: json.last_login,
+            last_mobile: json.last_mobile,
+            last_platform: json.last_platform,
+            // location - missing from currentUser
+            // platform - missing from currentUser
+            // note - missing from currentUser
+            profilePicOverride: json.profilePicOverride,
+            // profilePicOverrideThumbnail - missing from currentUser
+            pronouns: json.pronouns,
+            state: json.state,
+            status: json.status,
+            statusDescription: json.statusDescription,
+            tags: json.tags,
+            // travelingToInstance - missing from currentUser
+            // travelingToLocation - missing from currentUser
+            // travelingToWorld - missing from currentUser
+            userIcon: json.userIcon,
+            // worldId - missing from currentUser
+            fallbackAvatar: json.fallbackAvatar,
+
+            // Location from gameLog/presence
+            location,
+            instanceId,
+            worldId,
+            travelingToLocation,
+            travelingToInstance,
+            travelingToWorld,
+
+            // set VRCX online/offline timers
+            $online_for: state.currentUser.$online_for,
+            $offline_for: state.currentUser.$offline_for,
+            $location_at: state.currentUser.$location_at,
+            $travelingToTime: state.currentUser.$travelingToTime
+        });
+        friendStore.updateFriendships(args.ref);
+        if (args.ref.pastDisplayNames) {
+            state.pastDisplayNameTable.data = args.ref.pastDisplayNames;
+        }
+    });
+
+    function applyCurrentUser(json) {
+        let ref = state.currentUser;
+        if (authStore.isLoggedIn) {
+            if (json.currentAvatar !== ref.currentAvatar) {
+                avatarStore.addAvatarToHistory(json.currentAvatar);
+                if (gameStore.isGameRunning) {
+                    avatarStore.addAvatarWearTime(ref.currentAvatar);
+                    ref.$previousAvatarSwapTime = Date.now();
+                }
+            }
+            Object.assign(ref, json);
+            if (ref.homeLocation !== ref.$homeLocation.tag) {
+                ref.$homeLocation = parseLocation(ref.homeLocation);
+                // apply home location name to user dialog
+                if (
+                    state.userDialog.visible &&
+                    state.userDialog.id === ref.id
+                ) {
+                    getWorldName(state.currentUser.homeLocation).then(
+                        (worldName) => {
+                            state.userDialog.$homeLocationName = worldName;
+                        }
+                    );
+                }
+            }
+            ref.$isVRCPlus = ref.tags.includes('system_supporter');
+            appearanceSettingsStore.applyUserTrustLevel(ref);
+            applyUserLanguage(ref);
+            applyPresenceLocation(ref);
+            instanceStore.applyQueuedInstance(ref.queuedInstance);
+            groupStore.applyPresenceGroups(ref);
+        } else {
+            ref = {
+                acceptedPrivacyVersion: 0,
+                acceptedTOSVersion: 0,
+                accountDeletionDate: null,
+                accountDeletionLog: null,
+                activeFriends: [],
+                ageVerificationStatus: '',
+                ageVerified: false,
+                allowAvatarCopying: false,
+                badges: [],
+                bio: '',
+                bioLinks: [],
+                currentAvatar: '',
+                currentAvatarImageUrl: '',
+                currentAvatarTags: [],
+                currentAvatarThumbnailImageUrl: '',
+                date_joined: '',
+                developerType: '',
+                displayName: '',
+                emailVerified: false,
+                fallbackAvatar: '',
+                friendGroupNames: [],
+                friendKey: '',
+                friends: [],
+                googleId: '',
+                hasBirthday: false,
+                hasEmail: false,
+                hasLoggedInFromClient: false,
+                hasPendingEmail: false,
+                hideContentFilterSettings: false,
+                homeLocation: '',
+                id: '',
+                isAdult: true,
+                isBoopingEnabled: false,
+                isFriend: false,
+                last_activity: '',
+                last_login: '',
+                last_mobile: null,
+                last_platform: '',
+                obfuscatedEmail: '',
+                obfuscatedPendingEmail: '',
+                oculusId: '',
+                offlineFriends: [],
+                onlineFriends: [],
+                pastDisplayNames: [],
+                picoId: '',
+                presence: {
+                    avatarThumbnail: '',
+                    currentAvatarTags: '',
+                    displayName: '',
+                    groups: [],
+                    id: '',
+                    instance: '',
+                    instanceType: '',
+                    platform: '',
+                    profilePicOverride: '',
+                    status: '',
+                    travelingToInstance: '',
+                    travelingToWorld: '',
+                    userIcon: '',
+                    world: '',
+                    ...json.presence
+                },
+                profilePicOverride: '',
+                pronouns: '',
+                queuedInstance: '',
+                state: '',
+                status: '',
+                statusDescription: '',
+                statusFirstTime: false,
+                statusHistory: [],
+                steamDetails: {},
+                steamId: '',
+                tags: [],
+                twoFactorAuthEnabled: false,
+                twoFactorAuthEnabledDate: null,
+                unsubscribe: false,
+                updated_at: '',
+                userIcon: '',
+                userLanguage: '',
+                userLanguageCode: '',
+                username: '',
+                viveId: '',
+                // VRCX
+                $online_for: Date.now(),
+                $offline_for: '',
+                $location_at: Date.now(),
+                $travelingToTime: Date.now(),
+                $previousAvatarSwapTime: '',
+                $homeLocation: {},
+                $isVRCPlus: false,
+                $isModerator: false,
+                $isTroll: false,
+                $isProbableTroll: false,
+                $trustLevel: 'Visitor',
+                $trustClass: 'x-tag-untrusted',
+                $userColour: '',
+                $trustSortNum: 1,
+                $languages: [],
+                $locationTag: '',
+                $travelingToLocation: '',
+                ...json
+            };
+            if (gameStore.isGameRunning) {
+                ref.$previousAvatarSwapTime = Date.now();
+            }
+            ref.$homeLocation = parseLocation(ref.homeLocation);
+            ref.$isVRCPlus = ref.tags.includes('system_supporter');
+            appearanceSettingsStore.applyUserTrustLevel(ref);
+            applyUserLanguage(ref);
+            applyPresenceLocation(ref);
+            groupStore.applyPresenceGroups(ref);
+            state.currentUser = ref;
+            authStore.isLoggedIn = true;
+            API.$emit('LOGIN', {
+                json,
+                ref
+            });
+        }
+        return ref;
+    }
+
     return {
         state,
+
+        currentUser,
         userDialog,
         subsetOfLanguages,
         languageDialog,
@@ -1620,6 +1947,7 @@ export const useUserStore = defineStore('User', () => {
         updateAutoStateChange,
         addCustomTag,
         initUserNotes,
+        getCurrentUser,
 
         checkNote
     };

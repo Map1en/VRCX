@@ -72,7 +72,7 @@
             </el-table-column>
             <el-table-column :label="t('table.moderation.action')" width="80" align="right">
                 <template slot-scope="scope">
-                    <template v-if="scope.row.sourceUserId === API.currentUser.id">
+                    <template v-if="scope.row.sourceUserId === currentUser.id">
                         <el-button
                             v-if="shiftHeld"
                             style="color: #f56c6c"
@@ -104,13 +104,9 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { storeToRefs } from 'pinia';
     import { playerModerationRequest } from '../../api';
-    import { API } from '../../app';
     import configRepository from '../../service/config.js';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUserStore } from '../../stores/user';
-    import { useModerationStore } from '../../stores/moderation';
+    import { useUiStore, useModerationStore, useUserStore, useAppearanceSettingsStore } from '../../stores';
     import { moderationTypes } from '../../shared/constants';
-    import { useUiStore } from '../../stores/ui';
 
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
@@ -120,6 +116,7 @@
     const { isPlayerModerationsLoading, playerModerationTable } = storeToRefs(useModerationStore());
     const { refreshPlayerModerations } = useModerationStore();
     const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
+    const { currentUser } = storeToRefs(useUserStore());
 
     const filters = ref([
         {

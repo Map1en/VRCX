@@ -14,6 +14,7 @@ import {
 import { useGameStore } from '../game';
 import { useGameLogStore } from '../gameLog';
 import { useLocationStore } from '../location';
+import { useUserStore } from '../user';
 import { useWorldStore } from '../world';
 import { useAdvancedSettingsStore } from './advanced';
 
@@ -25,6 +26,8 @@ export const useDiscordPresenceSettingsStore = defineStore(
         const advancedSettingsStore = useAdvancedSettingsStore();
         const worldStore = useWorldStore();
         const gameLogStore = useGameLogStore();
+        const userStore = useUserStore();
+
         const state = reactive({
             discordActive: false,
             discordInstance: true,
@@ -105,9 +108,9 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 gameLogLocation = locationStore.lastLocationDestination;
             }
 
-            let presenceLocation = API.currentUser.$locationTag;
+            let presenceLocation = userStore.currentUser.$locationTag;
             if (presenceLocation === 'traveling') {
-                presenceLocation = API.currentUser.$travelingToLocation;
+                presenceLocation = userStore.currentUser.$travelingToLocation;
             }
 
             // We want to use presence if it's valid to avoid extra API calls, but its prone to being outdated when this function is called.
@@ -121,7 +124,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
             }
 
             const args = await userRequest.getUser({
-                userId: API.currentUser.id
+                userId: userStore.currentUser.id
             });
             const user = args.json;
             let userLocation = user.location;
@@ -253,7 +256,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
             ) {
                 hidePrivate = true;
             }
-            switch (API.currentUser.status) {
+            switch (userStore.currentUser.status) {
                 case 'active':
                     L.statusName = 'Online';
                     L.statusImage = 'active';

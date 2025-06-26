@@ -11,14 +11,12 @@
             <span style="margin-left: 5px">{{ $t('side_panel.me') }}</span>
         </div>
         <div v-show="isFriendsGroupMe">
-            <div class="x-friend-item" @click="showUserDialog(API.currentUser.id)">
-                <div class="avatar" :class="userStatusClass(API.currentUser)">
-                    <img v-lazy="userImage(API.currentUser)" />
+            <div class="x-friend-item" @click="showUserDialog(currentUser.id)">
+                <div class="avatar" :class="userStatusClass(currentUser)">
+                    <img v-lazy="userImage(currentUser)" />
                 </div>
                 <div class="detail">
-                    <span class="name" :style="{ color: API.currentUser.$userColour }">{{
-                        API.currentUser.displayName
-                    }}</span>
+                    <span class="name" :style="{ color: currentUser.$userColour }">{{ currentUser.displayName }}</span>
                     <location
                         v-if="isGameRunning && !gameLogDisabled"
                         class="extra"
@@ -27,15 +25,14 @@
                         :link="false"></location>
                     <location
                         v-else-if="
-                            isRealInstance(API.currentUser.$locationTag) ||
-                            isRealInstance(API.currentUser.$travelingToLocation)
+                            isRealInstance(currentUser.$locationTag) || isRealInstance(currentUser.$travelingToLocation)
                         "
                         class="extra"
-                        :location="API.currentUser.$locationTag"
-                        :traveling="API.currentUser.$travelingToLocation"
+                        :location="currentUser.$locationTag"
+                        :traveling="currentUser.$travelingToLocation"
                         :link="false">
                     </location>
-                    <span v-else class="extra">{{ API.currentUser.statusDescription }}</span>
+                    <span v-else class="extra">{{ currentUser.statusDescription }}</span>
                 </div>
             </div>
         </div>
@@ -193,21 +190,16 @@
             FriendItem
         },
         setup() {
-            const appearanceSettingsStore = useAppearanceSettingsStore();
-            const advancedSettingsStore = useAdvancedSettingsStore();
-            const friendStore = useFriendStore();
-            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
+            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(useFriendStore());
             const { isSidebarGroupByInstance, isHideFriendsInSameInstance, isSidebarDivideByFriendGroup } =
-                storeToRefs(appearanceSettingsStore);
-            const { gameLogDisabled } = storeToRefs(advancedSettingsStore);
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            const favoriteStore = useFavoriteStore();
-            const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(favoriteStore);
-            const locationStore = useLocationStore();
-            const { lastLocation, lastLocationDestination } = storeToRefs(locationStore);
-            const gameStore = useGameStore();
-            const { isGameRunning } = storeToRefs(gameStore);
+                storeToRefs(useAppearanceSettingsStore());
+            const { gameLogDisabled } = storeToRefs(useAdvancedSettingsStore());
+            const { showUserDialog } = useUserStore();
+            const { favoriteFriendGroups, groupedByGroupKeyFavoriteFriends } = storeToRefs(useFavoriteStore());
+            const { lastLocation, lastLocationDestination } = storeToRefs(useLocationStore());
+            const { isGameRunning } = storeToRefs(useGameStore());
+            const { currentUser } = storeToRefs(useUserStore());
+
             return {
                 isSidebarGroupByInstance,
                 isHideFriendsInSameInstance,
@@ -226,7 +218,8 @@
                 lastLocation,
                 groupedByGroupKeyFavoriteFriends,
                 lastLocationDestination,
-                isGameRunning
+                isGameRunning,
+                currentUser
             };
         },
 

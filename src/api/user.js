@@ -1,5 +1,10 @@
 import { API } from '../app';
 import { request } from '../service/apiRequestHandler';
+import { useUserStore } from '../stores';
+
+function getCurrentUserId() {
+    return useUserStore().currentUser.id;
+}
 
 const userReq = {
     /**
@@ -78,7 +83,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     addUserTags(params) {
-        return request(`users/${API.currentUser.id}/addTags`, {
+        return request(`users/${getCurrentUserId()}/addTags`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -97,7 +102,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     removeUserTags(params) {
-        return request(`users/${API.currentUser.id}/removeTags`, {
+        return request(`users/${getCurrentUserId()}/removeTags`, {
             method: 'POST',
             params
         }).then((json) => {
@@ -144,7 +149,7 @@ const userReq = {
      * @returns {Promise<{json: any, params}>}
      */
     saveCurrentUser(params) {
-        return request(`users/${API.currentUser.id}`, {
+        return request(`users/${getCurrentUserId()}`, {
             method: 'PUT',
             params
         }).then((json) => {

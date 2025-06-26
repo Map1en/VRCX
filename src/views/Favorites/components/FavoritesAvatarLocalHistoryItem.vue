@@ -8,9 +8,9 @@
                 <span class="name" v-text="favorite.name"></span>
                 <span class="extra" v-text="favorite.authorName"></span>
             </div>
-            <el-tooltip placement="left" :content="$t('view.favorite.select_avatar_tooltip')" :disabled="hideTooltips">
+            <el-tooltip placement="left" :content="t('view.favorite.select_avatar_tooltip')" :disabled="hideTooltips">
                 <el-button
-                    :disabled="API.currentUser.currentAvatar === favorite.id"
+                    :disabled="currentUser.currentAvatar === favorite.id"
                     size="mini"
                     icon="el-icon-check"
                     circle
@@ -44,20 +44,18 @@
 </template>
 
 <script setup>
-    import { computed } from 'vue';
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../app';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAvatarStore } from '../../../stores/avatar';
+    import { computed } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
+    import { useAppearanceSettingsStore, useAvatarStore, useFavoriteStore, useUserStore } from '../../../stores';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const favoriteStore = useFavoriteStore();
-    const { cachedFavoritesByObjectId } = storeToRefs(favoriteStore);
-    const { showFavoriteDialog } = favoriteStore;
-    const avatarStore = useAvatarStore();
-    const { selectAvatarWithConfirmation } = avatarStore;
+    const { t } = useI18n();
+
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { cachedFavoritesByObjectId } = storeToRefs(useFavoriteStore());
+    const { showFavoriteDialog } = useFavoriteStore();
+    const { selectAvatarWithConfirmation } = useAvatarStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         favorite: {

@@ -36,7 +36,7 @@
                 >{{ t('dialog.screenshot_metadata.open_folder') }}</el-button
             >
             <el-button
-                v-if="API.currentUser.$isVRCPlus && screenshotMetadataDialog.metadata.filePath"
+                v-if="currentUser.$isVRCPlus && screenshotMetadataDialog.metadata.filePath"
                 size="small"
                 icon="el-icon-upload2"
                 @click="uploadScreenshotToGallery"
@@ -166,11 +166,11 @@
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
-    import { API } from '../../../app';
     import { useGalleryStore, useUserStore, useVrcxStore } from '../../../stores';
 
     const { showFullscreenImageDialog } = useGalleryStore();
     const { currentlyDroppingFile } = storeToRefs(useVrcxStore());
+    const { currentUser } = storeToRefs(useUserStore());
 
     const { t } = useI18n();
 

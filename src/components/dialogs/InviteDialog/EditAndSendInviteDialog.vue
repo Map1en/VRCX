@@ -36,17 +36,17 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { instanceRequest, inviteMessagesRequest, notificationRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { API } from '../../../service/eventBus';
     import { parseLocation } from '../../../shared/utils';
-    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGalleryStore, useUserStore } from '../../../stores';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
 
-    const galleryStore = useGalleryStore();
-    const { uploadImage } = storeToRefs(galleryStore);
-    const { clearInviteImageUpload } = galleryStore;
+    const { uploadImage } = storeToRefs(useGalleryStore());
+    const { clearInviteImageUpload } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         editAndSendInviteDialog: {
@@ -104,7 +104,7 @@
             const inviteLoop = () => {
                 if (J.userIds.length > 0) {
                     const receiverUserId = J.userIds.shift();
-                    if (receiverUserId === API.currentUser.id) {
+                    if (receiverUserId === currentUser.value.id) {
                         // can't invite self!?
                         const L = parseLocation(J.worldId);
                         instanceRequest

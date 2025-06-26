@@ -814,8 +814,8 @@
     import { getCurrentInstance, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
-    import { API } from '../../../app';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
+    import { API } from '../../../service/eventBus';
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
     import { useAppearanceSettingsStore, useGalleryStore, useGroupStore, useUserStore } from '../../../stores';
@@ -823,6 +823,7 @@
 
     const { randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
+    const { currentUser } = storeToRefs(useUserStore());
     const { groupDialog } = storeToRefs(useGroupStore());
     const { showFullscreenImageDialog } = useGalleryStore();
 
@@ -974,7 +975,7 @@
             }
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) {
+            if (user.userId === currentUser.value.id) {
                 continue;
             }
             console.log(`Deleting group invite ${user.userId} ${i + 1}/${memberCount}`);
@@ -1062,7 +1063,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
             console.log(`Banning ${user.userId} ${i + 1}/${memberCount}`);
             try {
                 await groupRequest.banGroupMember({ groupId: D.id, userId: user.userId });
@@ -1091,7 +1092,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
             console.log(`Unbanning ${user.userId} ${i + 1}/${memberCount}`);
             try {
                 await groupRequest.unbanGroupMember({ groupId: D.id, userId: user.userId });
@@ -1124,7 +1125,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
 
             console.log(`Kicking ${user.userId} ${i + 1}/${memberCount}`);
             try {
@@ -1386,7 +1387,7 @@
             const user = users[i];
             progressCurrent.value = i + 1;
 
-            if (user.userId === API.currentUser.id) {
+            if (user.userId === currentUser.value.id) {
                 continue;
             }
 
@@ -1424,7 +1425,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
 
             console.log(`Blocking group join request from ${user.userId} ${i + 1}/${memberCount}`);
             try {
@@ -1461,7 +1462,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
 
             console.log(`Rejecting group join request from ${user.userId} ${i + 1}/${memberCount}`);
             try {
@@ -1497,7 +1498,7 @@
             if (!progressTotal.value) break;
             const user = users[i];
             progressCurrent.value = i + 1;
-            if (user.userId === API.currentUser.id) continue;
+            if (user.userId === currentUser.value.id) continue;
 
             console.log(`Accepting group join request from ${user.userId} ${i + 1}/${memberCount}`);
             try {

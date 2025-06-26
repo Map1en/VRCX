@@ -326,7 +326,7 @@ export const useNotificationStore = defineStore('Notification', () => {
                 return;
             }
         }
-        if (ref.senderUserId !== API.currentUser.id) {
+        if (ref.senderUserId !== userStore.currentUser.id) {
             if (
                 ref.type !== 'friendRequest' &&
                 ref.type !== 'ignoredFriendRequest' &&
@@ -595,7 +595,7 @@ export const useNotificationStore = defineStore('Notification', () => {
 
     function playNoty(noty) {
         if (
-            API.currentUser.status === 'busy' ||
+            userStore.currentUser.status === 'busy' ||
             !friendStore.friendLogInitStatus
         ) {
             return;
@@ -2235,7 +2235,7 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
         if (
             noty.type !== 'VideoPlay' &&
-            noty.displayName === API.currentUser.displayName
+            noty.displayName === userStore.currentUser.displayName
         ) {
             // remove current user
             return;

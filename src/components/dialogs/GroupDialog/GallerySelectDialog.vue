@@ -26,7 +26,7 @@
                     type="default"
                     size="small"
                     icon="el-icon-upload2"
-                    :disabled="!API.currentUser.$isVRCPlus"
+                    :disabled="!currentUser.$isVRCPlus"
                     @click="displayGalleryUpload"
                     >{{ t('dialog.gallery_select.upload') }}</el-button
                 >
@@ -54,16 +54,15 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { vrcPlusImageRequest } from '../../../api';
-    import { API } from '../../../app';
-    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGalleryStore, useUserStore } from '../../../stores';
 
     const { t } = useI18n();
 
     const { proxy } = getCurrentInstance();
     const { $message } = proxy;
-    const galleryStore = useGalleryStore();
-    const { galleryTable } = storeToRefs(galleryStore);
-    const { refreshGalleryTable } = galleryStore;
+    const { galleryTable } = storeToRefs(useGalleryStore());
+    const { refreshGalleryTable } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const props = defineProps({
         gallerySelectDialog: {

@@ -1,7 +1,7 @@
 <template>
-    <safe-dialog ref="favoriteDialogRef" :visible.sync="isVisible" :title="$t('dialog.favorite.header')" width="300px">
+    <safe-dialog ref="favoriteDialogRef" :visible.sync="isVisible" :title="t('dialog.favorite.header')" width="300px">
         <div v-loading="loading">
-            <span style="display: block; text-align: center">{{ $t('dialog.favorite.vrchat_favorites') }}</span>
+            <span style="display: block; text-align: center">{{ t('dialog.favorite.vrchat_favorites') }}</span>
             <template v-if="favoriteDialog.currentGroup && favoriteDialog.currentGroup.key">
                 <el-button
                     style="display: block; width: 100%; margin: 10px 0"
@@ -22,7 +22,7 @@
             </template>
         </div>
         <div v-if="favoriteDialog.type === 'world'" style="margin-top: 20px">
-            <span style="display: block; text-align: center">{{ $t('dialog.favorite.local_favorites') }}</span>
+            <span style="display: block; text-align: center">{{ t('dialog.favorite.local_favorites') }}</span>
             <template v-for="group in localWorldFavoriteGroups">
                 <el-button
                     v-if="hasLocalWorldFavorite(favoriteDialog.objectId, group)"
@@ -42,7 +42,7 @@
             </template>
         </div>
         <div v-if="favoriteDialog.type === 'avatar'" style="margin-top: 20px">
-            <span style="display: block; text-align: center">{{ $t('dialog.favorite.local_avatar_favorites') }}</span>
+            <span style="display: block; text-align: center">{{ t('dialog.favorite.local_avatar_favorites') }}</span>
             <template v-for="group in localAvatarFavoriteGroups">
                 <el-button
                     v-if="hasLocalAvatarFavorite(favoriteDialog.objectId, group)"
@@ -69,10 +69,12 @@
     import Noty from 'noty';
     import { storeToRefs } from 'pinia';
     import { computed, nextTick, ref, watch } from 'vue';
+    import { useI18n } from 'vue-i18n-bridge';
     import { favoriteRequest } from '../../api';
-    import { API } from '../../app';
     import { adjustDialogZ } from '../../shared/utils';
-    import { useFavoriteStore } from '../../stores/favorite';
+    import { useFavoriteStore, useUserStore } from '../../stores';
+
+    const { t } = useI18n();
 
     const favoriteStore = useFavoriteStore();
     const {
@@ -94,6 +96,7 @@
         removeLocalWorldFavorite,
         deleteFavoriteNoConfirm
     } = favoriteStore;
+    const { currentUser } = storeToRefs(useUserStore());
 
     const favoriteDialogRef = ref(null);
     const groups = ref([]);
@@ -106,7 +109,7 @@
         }
     });
 
-    const isLocalUserVrcplusSupporter = computed(() => API.currentUser.$isVRCPlus);
+    const isLocalUserVrcplusSupporter = computed(() => currentUser.value.$isVRCPlus);
 
     watch(
         () => favoriteDialog.value.visible,

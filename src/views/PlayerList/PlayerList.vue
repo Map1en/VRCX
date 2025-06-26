@@ -29,8 +29,8 @@
                             @click="showWorldDialog(currentInstanceWorld.ref.id)">
                             <i
                                 v-show="
-                                    API.currentUser.$homeLocation &&
-                                    API.currentUser.$homeLocation.worldId === currentInstanceWorld.ref.id
+                                    currentUser.$homeLocation &&
+                                    currentUser.$homeLocation.worldId === currentInstanceWorld.ref.id
                                 "
                                 class="el-icon-s-home"
                                 style="margin-right: 5px"></i>
@@ -132,7 +132,7 @@
                         </el-tag>
                     </div>
                     <div style="margin-top: 5px">
-                        <location-world :locationobject="currentInstanceLocation" :currentuserid="API.currentUser.id" />
+                        <location-world :locationobject="currentInstanceLocation" :currentuserid="currentUser.id" />
                         <span v-if="lastLocation.playerList.size > 0" style="margin-left: 5px">
                             {{ lastLocation.playerList.size }}
                             <template v-if="lastLocation.friendList.size > 0"
@@ -858,7 +858,6 @@
     } from '../../stores';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
-    import { API } from '../../service/eventBus';
 
     const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const {
@@ -881,6 +880,7 @@
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { showFullscreenImageDialog } = useGalleryStore();
     const { ipcEnabled } = storeToRefs(useVrcxStore());
+    const { currentUser } = storeToRefs(useUserStore());
 
     const { t } = useI18n();
 

@@ -6,7 +6,8 @@ import {
     useAuthStore,
     useAvatarStore,
     useDebugStore,
-    useNotificationStore
+    useNotificationStore,
+    useUserStore
 } from '../stores';
 import { API } from './eventBus.js';
 
@@ -23,6 +24,7 @@ const pendingGetRequests = new Map();
 export let failedGetRequests = new Map();
 
 export function request(endpoint, options) {
+    const userStore = useUserStore();
     const debugStore = useDebugStore();
     const avatarStore = useAvatarStore();
     const authStore = useAuthStore();
@@ -156,7 +158,7 @@ export function request(endpoint, options) {
             ) {
                 // trigger 2FA dialog
                 if (!authStore.twoFactorAuthDialogVisible) {
-                    API.getCurrentUser();
+                    userStore.getCurrentUser();
                 }
                 throw new Error(`401 ${t('api.status_code.401')}`);
             }

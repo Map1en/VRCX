@@ -16,7 +16,8 @@
 
 <script>
     import dayjs from 'dayjs';
-    import { API } from '../../../app';
+    import { storeToRefs } from 'pinia';
+
     import { loadEcharts, timeToText } from '../../../shared/utils';
     import { useUserStore } from '../../../stores';
 
@@ -42,9 +43,9 @@
             }
         },
         setup() {
-            const userStore = useUserStore();
-            const { showUserDialog } = userStore;
-            return { API, showUserDialog };
+            const { showUserDialog } = useUserStore();
+            const { currentUser } = storeToRefs(useUserStore());
+            return { showUserDialog, currentUser };
         },
         data() {
             return {
@@ -57,13 +58,11 @@
         },
         computed: {
             startTimeStamp() {
-                return this.activityDetailData
-                    .find((item) => item.user_id === this.API.currentUser.id)
-                    ?.joinTime.valueOf();
+                return this.activityDetailData.find((item) => item.user_id === this.currentUser.id)?.joinTime.valueOf();
             },
             endTimeStamp() {
                 return this.activityDetailData
-                    .find((item) => item.user_id === this.API.currentUser.id)
+                    .find((item) => item.user_id === this.currentUser.id)
                     ?.leaveTime.valueOf();
             }
         },

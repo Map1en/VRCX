@@ -357,7 +357,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
             entry.type === 'LocationDestination' ||
             entry.type === 'AvatarChange' ||
             entry.type === 'ChatBoxMessage' ||
-            (entry.userId === API.currentUser.id &&
+            (entry.userId === userStore.currentUser.id &&
                 (entry.type === 'OnPlayerJoined' ||
                     entry.type === 'OnPlayerLeft'))
         ) {
@@ -569,7 +569,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 var ref = API.cachedUsers.get(userId);
                 if (!userId) {
                     console.error('Missing userId:', gameLog.displayName);
-                } else if (userId === API.currentUser.id) {
+                } else if (userId === userStore.currentUser.id) {
                     // skip
                 } else if (friendStore.friends.has(userId)) {
                     locationStore.lastLocation.friendList.set(userId, userMap);

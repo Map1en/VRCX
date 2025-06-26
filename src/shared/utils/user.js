@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia';
-import { API } from '../../app';
+import { useUserStore } from '../../stores';
 import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
 import { languageMappings } from '../constants';
 import { timeToText } from './base/format';
@@ -73,6 +73,7 @@ function removeEmojis(text) {
  * @returns
  */
 function userStatusClass(user, pendingOffline) {
+    const userStore = useUserStore();
     const style = {};
     if (typeof user === 'undefined') {
         return style;
@@ -83,7 +84,7 @@ function userStatusClass(user, pendingOffline) {
     } else if (user.userId) {
         id = user.userId;
     }
-    if (id === API.currentUser.id) {
+    if (id === userStore.currentUser.id) {
         return statusClass(user.status);
     }
     if (!user.isFriend) {
@@ -97,10 +98,10 @@ function userStatusClass(user, pendingOffline) {
         user.location === 'private' &&
         user.state === '' &&
         id &&
-        !API.currentUser.onlineFriends.includes(id)
+        !userStore.currentUser.onlineFriends.includes(id)
     ) {
         // temp fix
-        if (API.currentUser.activeFriends.includes(id)) {
+        if (userStore.currentUser.activeFriends.includes(id)) {
             // Active
             style.active = true;
         } else {

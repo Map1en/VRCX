@@ -294,8 +294,8 @@ export const useFriendStore = defineStore('Friend', () => {
         updateOnlineFriendCoutner();
 
         if (appearanceSettingsStore.randomUserColours) {
-            getNameColour(API.currentUser.id).then((colour) => {
-                API.currentUser.$userColour = colour;
+            getNameColour(userStore.currentUser.id).then((colour) => {
+                userStore.currentUser.$userColour = colour;
             });
         }
     });
@@ -327,10 +327,6 @@ export const useFriendStore = defineStore('Friend', () => {
         D.isFriend = false;
     });
 
-    API.$on('USER:CURRENT', function (args) {
-        updateFriendships(args.ref);
-    });
-
     API.$on('FRIEND:ADD', function (args) {
         addFriendship(args.params.userId);
     });
@@ -348,7 +344,7 @@ export const useFriendStore = defineStore('Friend', () => {
             state.friendLogInitStatus &&
             args.json.isFriend &&
             !state.friendLog.has(args.ref.id) &&
-            args.json.id !== API.currentUser.id
+            args.json.id !== userStore.currentUser.id
         ) {
             addFriendship(args.ref.id);
         }
@@ -959,7 +955,7 @@ export const useFriendStore = defineStore('Friend', () => {
      */
     async function refreshRemainingFriends(friends) {
         // API.refreshRemainingFriends
-        for (const userId of API.currentUser.friends) {
+        for (const userId of userStore.currentUser.friends) {
             if (!friends.some((x) => x.id === userId)) {
                 try {
                     if (!$app.store.auth.isLoggedIn) {
@@ -1025,7 +1021,7 @@ export const useFriendStore = defineStore('Friend', () => {
     async function refreshFriendsList() {
         // If we just got user less then 2 min before code call, don't call it again
         if ($app.nextCurrentUserRefresh < 300) {
-            await API.getCurrentUser().catch((err) => {
+            await userStore.getCurrentUser().catch((err) => {
                 console.error(err);
             });
         }
@@ -1129,7 +1125,7 @@ export const useFriendStore = defineStore('Friend', () => {
         if (
             !state.friendLogInitStatus ||
             state.friendLog.has(id) ||
-            id === API.currentUser.id
+            id === userStore.currentUser.id
         ) {
             return;
         }
@@ -1155,7 +1151,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     }
                     ref.$friendNumber = ++state.friendNumber;
                     configRepository.setInt(
-                        `VRCX_friendNumber_${API.currentUser.id}`,
+                        `VRCX_friendNumber_${userStore.currentUser.id}`,
                         state.friendNumber
                     );
                     addFriend(id, ref.state);
@@ -1260,7 +1256,7 @@ export const useFriendStore = defineStore('Friend', () => {
             addFriendship(id);
         }
         for (id of state.friendLog.keys()) {
-            if (id === API.currentUser.id) {
+            if (id === userStore.currentUser.id) {
                 state.friendLog.delete(id);
                 database.deleteFriendLogCurrent(id);
             } else if (!set.has(id)) {
@@ -1441,7 +1437,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
     async function tryRestoreFriendNumber() {
         const lastUpdate = await configRepository.getString(
-            `VRCX_lastStoreTime_${API.currentUser.id}`
+            `VRCX_lastStoreTime_${userStore.currentUser.id}`
         );
         if (lastUpdate == -4) {
             // this means the backup was already applied
@@ -1479,7 +1475,7 @@ export const useFriendStore = defineStore('Friend', () => {
         //     });
         // }
         await configRepository.setString(
-            `VRCX_lastStoreTime_${API.currentUser.id}`,
+            `VRCX_lastStoreTime_${userStore.currentUser.id}`,
             -4
         );
     }
@@ -1489,7 +1485,7 @@ export const useFriendStore = defineStore('Friend', () => {
         let storedData = null;
         try {
             const data = await configRepository.getString(
-                `VRCX_friendOrder_${API.currentUser.id}`
+                `VRCX_friendOrder_${userStore.currentUser.id}`
             );
             if (data) {
                 storedData = JSON.parse(data);
@@ -1529,7 +1525,7 @@ export const useFriendStore = defineStore('Friend', () => {
         applyFriendOrderBackup(bestBackup.table);
         applyFriendLogFriendOrder();
         await configRepository.setInt(
-            `VRCX_friendNumber_${API.currentUser.id}`,
+            `VRCX_friendNumber_${userStore.currentUser.id}`,
             state.friendNumber
         );
         return true;
@@ -1763,6 +1759,7 @@ export const useFriendStore = defineStore('Friend', () => {
         getFriendRequest,
         userOnFriend,
         confirmDeleteFriend,
-        saveSidebarSortOrder
+        saveSidebarSortOrder,
+        updateFriendships
     };
 });

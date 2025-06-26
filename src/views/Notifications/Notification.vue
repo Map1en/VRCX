@@ -213,7 +213,7 @@
 
             <el-table-column :label="t('table.notification.action')" width="100" align="right">
                 <template #default="scope">
-                    <template v-if="scope.row.senderUserId !== API.currentUser.id && !scope.row.$isExpired">
+                    <template v-if="scope.row.senderUserId !== currentUser.id && !scope.row.$isExpired">
                         <template v-if="scope.row.type === 'friendRequest'">
                             <el-tooltip placement="top" content="Accept" :disabled="hideTooltips">
                                 <el-button
@@ -435,7 +435,6 @@
     } from '../../stores';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
-    import { API } from '../../app';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
@@ -449,6 +448,7 @@
     const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
     const { isGameRunning } = storeToRefs(useGameStore());
     const { showFullscreenImageDialog } = useGalleryStore();
+    const { currentUser } = storeToRefs(useUserStore());
 
     const { t } = useI18n();
 

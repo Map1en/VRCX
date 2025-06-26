@@ -51,7 +51,7 @@
                         :content="t('view.favorite.select_avatar_tooltip')"
                         :disabled="hideTooltips">
                         <el-button
-                            :disabled="API.currentUser.currentAvatar === favorite.id"
+                            :disabled="currentUser.currentAvatar === favorite.id"
                             size="mini"
                             icon="el-icon-check"
                             circle
@@ -85,7 +85,7 @@
                         :content="t('view.favorite.select_avatar_tooltip')"
                         :disabled="hideTooltips">
                         <el-button
-                            :disabled="API.currentUser.currentAvatar === favorite.id"
+                            :disabled="currentUser.currentAvatar === favorite.id"
                             size="mini"
                             circle
                             style="margin-left: 5px"
@@ -144,11 +144,14 @@
     import { computed } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { favoriteRequest } from '../../../api';
-    import { $app, API } from '../../../app';
-    import { useAvatarStore } from '../../../stores/avatar';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUiStore } from '../../../stores/ui';
+    import { $app } from '../../../app';
+    import {
+        useAppearanceSettingsStore,
+        useAvatarStore,
+        useFavoriteStore,
+        useUiStore,
+        useUserStore
+    } from '../../../stores';
 
     const props = defineProps({
         favorite: Object,
@@ -165,6 +168,7 @@
     const { removeLocalAvatarFavorite, showFavoriteDialog } = useFavoriteStore();
     const { selectAvatarWithConfirmation } = useAvatarStore();
     const { shiftHeld } = storeToRefs(useUiStore());
+    const { currentUser } = storeToRefs(useUserStore());
 
     const isSelected = computed({
         get: () => props.favorite.$selected,

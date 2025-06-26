@@ -28,7 +28,9 @@
 </template>
 
 <script>
-    import { API } from '../../../app';
+    import { storeToRefs } from 'pinia';
+
+    import { useUserStore } from '../../../stores';
 
     export default {
         name: 'ExportFriendsListDialog',
@@ -37,8 +39,9 @@
             isExportFriendsListDialogVisible: Boolean
         },
         setup() {
+            const { currentUser } = storeToRefs(useUserStore());
             return {
-                API
+                currentUser
             };
         },
         data() {
@@ -66,7 +69,7 @@
         },
         methods: {
             initExportFriendsListDialog() {
-                const { friends } = this.API.currentUser;
+                const { friends } = this.currentUser;
                 if (Array.isArray(friends) === false) {
                     return;
                 }
