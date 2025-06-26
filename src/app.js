@@ -12,7 +12,6 @@ import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
 import uiComponents from './classes/uiComponents.js';
-import updateLoop from './classes/updateLoop.js';
 import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
@@ -127,7 +126,7 @@ let $app = {
     el: '#root',
     created() {
         if (LINUX) {
-            this.updateLoop();
+            this.store.updateLoop.updateLoop();
         }
         AppApi.SetUserAgent();
         AppApi.CheckGameRunning();
@@ -154,7 +153,6 @@ let $app = {
 uiComponents();
 websocket();
 prompts();
-updateLoop();
 gameRealtimeLogging();
 groups();
 

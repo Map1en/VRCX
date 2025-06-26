@@ -26,6 +26,7 @@ import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
+import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
 import { useVrcxStore } from './vrcx';
@@ -67,7 +68,8 @@ export function createGlobalStores() {
         launch: useLaunchStore(),
         vr: useVrStore(),
         vrcx: useVrcxStore(),
-        sharedFeed: useSharedFeedStore()
+        sharedFeed: useSharedFeedStore(),
+        updateLoop: useUpdateLoopStore()
     };
 }
 
@@ -103,5 +105,6 @@ export {
     useVrcxStore,
     useVRCXUpdaterStore,
     useWorldStore,
-    useSharedFeedStore
+    useSharedFeedStore,
+    useUpdateLoopStore
 };
