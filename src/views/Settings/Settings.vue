@@ -1383,6 +1383,23 @@
                             :value="saveInstanceStickers"
                             @change="setSaveInstanceStickers()"
                             :long-label="true" />
+                        <br />
+                        <span class="sub-header"
+                            >{{ $t('view.settings.advanced.advanced.save_instance_emoji_to_file.header') }}
+                            <el-tooltip
+                                placement="top"
+                                style="margin-left: 5px"
+                                :content="
+                                    $t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')
+                                ">
+                                <i class="el-icon-info" />
+                            </el-tooltip>
+                        </span>
+                        <simple-switch
+                            :label="$t('view.settings.advanced.advanced.save_instance_emoji_to_file.description')"
+                            :value="saveInstanceEmoji"
+                            @change="setSaveInstanceEmoji()"
+                            :long-label="true" />
                     </div>
                 </div>
             </el-tab-pane>
@@ -2128,7 +2145,8 @@
         sqliteTableSizes,
         ugcFolderPath,
         notificationOpacity,
-        autoDeleteOldPrints
+        autoDeleteOldPrints,
+        saveInstanceEmoji
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -2153,7 +2171,8 @@
         openUGCFolder,
         openUGCFolderSelector,
         showVRChatConfig,
-        promptAutoClearVRCXCacheFrequency
+        promptAutoClearVRCXCacheFrequency,
+        setSaveInstanceEmoji
     } = advancedSettingsStore;
 
     const emit = defineEmits(['updateSharedFeed']);

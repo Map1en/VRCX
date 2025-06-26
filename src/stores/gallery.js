@@ -10,7 +10,11 @@ import {
 } from '../api';
 import { $app, t } from '../app';
 import { API } from '../service/eventBus';
-import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
+import {
+    getEmojiFileName,
+    getPrintFileName,
+    getPrintLocalDate
+} from '../shared/utils';
 import { useAdvancedSettingsStore } from './settings/advanced';
 
 export const useGalleryStore = defineStore('Gallery', () => {
@@ -43,7 +47,10 @@ export const useGalleryStore = defineStore('Gallery', () => {
             visible: false,
             imageUrl: '',
             fileName: ''
-        }
+        },
+        instanceInventoryCache: [],
+        instanceInventoryQueue: [],
+        instanceInventoryQueueWorker: null
     });
 
     const galleryTable = computed({
@@ -568,6 +575,71 @@ export const useGalleryStore = defineStore('Gallery', () => {
         D.visible = true;
     }
 
+    function queueCheckInstanceInventory(inventoryId) {
+        if (state.instanceInventoryCache.includes(inventoryId)) {
+            return;
+        }
+        state.instanceInventoryCache.push(inventoryId);
+        if (state.instanceInventoryCache.length > 100) {
+            state.instanceInventoryCache.shift();
+        }
+
+        state.instanceInventoryQueue.push(inventoryId);
+
+        if (!state.instanceInventoryQueueWorker) {
+            state.instanceInventoryQueueWorker = workerTimers.setInterval(
+                () => {
+                    const inventoryId = state.instanceInventoryQueue.shift();
+                    if (inventoryId) {
+                        trySaveEmojiToFile(inventoryId);
+                    }
+                },
+                2_500
+            );
+        }
+    }
+
+    async function trySaveEmojiToFile(inventoryId) {
+        const args = await inventoryRequest.getInventoryItem({
+            inventoryId
+        });
+
+        if (args.json.itemType !== 'emoji') {
+            // Not an emoji, skip
+            return;
+        }
+
+        const userArgs = await userRequest.getCachedUser({
+            userId: args.json.holderId
+        });
+        const displayName = userArgs.json?.displayName ?? '';
+
+        const emoji = args.json.metadata;
+        emoji.name = `${displayName}_${inventoryId}`;
+
+        const emojiFileName = getEmojiFileName(emoji);
+        const imageUrl = args.json.metadata?.imageUrl ?? args.json.imageUrl;
+        const createdAt = args.json.created_at;
+        const monthFolder = createdAt.slice(0, 7);
+
+        const filePath = await AppApi.SaveEmojiToFile(
+            imageUrl,
+            advancedSettingsStore.ugcFolderPath,
+            monthFolder,
+            emojiFileName
+        );
+        if (filePath) {
+            console.log(
+                `Emoji saved to file: ${monthFolder}\\${emojiFileName}`
+            );
+        }
+
+        if (state.instanceInventoryQueue.length === 0) {
+            workerTimers.clearInterval(state.instanceInventoryQueueWorker);
+            state.instanceInventoryQueueWorker = null;
+        }
+    }
+
     return {
         state,
         galleryTable,
@@ -604,6 +676,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         getInventory,
         tryDeleteOldPrints,
         checkPreviousImageAvailable,
-        showFullscreenImageDialog
+        showFullscreenImageDialog,
+        queueCheckInstanceInventory
     };
 });

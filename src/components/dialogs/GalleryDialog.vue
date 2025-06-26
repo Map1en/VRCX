@@ -162,7 +162,7 @@
                 <span>{{ t('dialog.gallery_icons.recommended_image_size') }}: 1024x1024px (1:1)</span>
                 <br />
                 <br />
-                <div style="display: flex; align-items: center">
+                <div>
                     <el-button-group style="margin-right: 10px">
                         <el-button type="default" size="small" @click="refreshEmojiTable" icon="el-icon-refresh">
                             {{ t('dialog.gallery_icons.refresh') }}
@@ -489,6 +489,7 @@
                         @click="consumeInventoryBundle(item.id)"
                         size="mini"
                         icon="el-icon-plus"
+                        style="float: right"
                         circle>
                         {{ t('dialog.gallery_icons.consume_bundle') }}
                     </el-button>
@@ -505,7 +506,7 @@
     import { inventoryRequest, miscRequest, userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../api';
     import { API } from '../../app';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../shared/constants';
-    import { extractFileId, getPrintFileName } from '../../shared/utils';
+    import { extractFileId, getEmojiFileName, getPrintFileName } from '../../shared/utils';
     import { useAdvancedSettingsStore, useGalleryStore, useUserStore } from '../../stores';
 
     const { t } = useI18n();
@@ -766,7 +767,7 @@
                 emojiAnimFps.value = parseInt(value.replace('fps', ''));
             }
             if (value.endsWith('loopStyle')) {
-                emojiAnimLoopPingPong.value = value === 'pingpong';
+                emojiAnimLoopPingPong.value = value.replace('loopStyle', '').toLowerCase();
             }
         }
     }
@@ -829,15 +830,6 @@
 
     function displayEmojiUpload() {
         document.getElementById('EmojiUploadButton').click();
-    }
-
-    function getEmojiFileName(emoji) {
-        if (emoji.frames) {
-            const loopStyle = emoji.loopStyle || 'linear';
-            return `${emoji.name}_${emoji.animationStyle}animationStyle_${emoji.frames}frames_${emoji.framesOverTime}fps_${loopStyle}loopStyle.png`;
-        } else {
-            return `${emoji.name}_${emoji.animationStyle}animationStyle.png`;
-        }
     }
 
     function generateEmojiStyle(url, fps, frameCount, loopStyle) {

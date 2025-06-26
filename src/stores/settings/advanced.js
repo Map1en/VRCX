@@ -69,7 +69,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             gameLogDisabled,
             ugcFolderPath,
             autoDeleteOldPrints,
-            notificationOpacity
+            notificationOpacity,
+            saveInstanceEmoji
         ] = await Promise.all([
             configRepository.getBool('enablePrimaryPassword', false),
             configRepository.getBool('VRCX_relaunchVRChatAfterCrash', false),
@@ -102,7 +103,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
             configRepository.getBool('VRCX_gameLogDisabled', false),
             configRepository.getString('VRCX_userGeneratedContentPath', ''),
             configRepository.getBool('VRCX_autoDeleteOldPrints', false),
-            configRepository.getFloat('VRCX_notificationOpacity', 100)
+            configRepository.getFloat('VRCX_notificationOpacity', 100),
+            configRepository.getBool('VRCX_saveInstanceEmoji', false)
         ]);
 
         state.enablePrimaryPassword = enablePrimaryPassword;
@@ -128,6 +130,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         state.ugcFolderPath = ugcFolderPath;
         state.autoDeleteOldPrints = autoDeleteOldPrints;
         state.notificationOpacity = notificationOpacity;
+        state.saveInstanceEmoji = saveInstanceEmoji;
 
         handleSetAppLauncherSettings();
     }
@@ -186,6 +189,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         get: () => state.isVRChatConfigDialogVisible,
         set: (value) => (state.isVRChatConfigDialogVisible = value)
     });
+
+    const saveInstanceEmoji = computed(() => state.saveInstanceEmoji);
 
     /**
      * @param {boolean} value
@@ -326,6 +331,14 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         await configRepository.setBool(
             'VRCX_gameLogDisabled',
             state.gameLogDisabled
+        );
+    }
+
+    async function setSaveInstanceEmoji() {
+        state.saveInstanceEmoji = !state.saveInstanceEmoji;
+        await configRepository.setBool(
+            'VRCX_saveInstanceEmoji',
+            state.saveInstanceEmoji
         );
     }
 
@@ -587,6 +600,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         autoDeleteOldPrints,
         notificationOpacity,
         isVRChatConfigDialogVisible,
+        saveInstanceEmoji,
 
         setEnablePrimaryPasswordConfigRepository,
         setRelaunchVRChatAfterCrash,
@@ -620,6 +634,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         openUGCFolderSelector,
         folderSelectorDialog,
         showVRChatConfig,
-        promptAutoClearVRCXCacheFrequency
+        promptAutoClearVRCXCacheFrequency,
+        setSaveInstanceEmoji
     };
 });

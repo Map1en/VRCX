@@ -701,6 +701,9 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 vrcxStore.processScreenshot(gameLog.screenshotPath);
                 break;
             case 'api-request':
+                if ($app.debugWebRequests) {
+                    console.log('API Request:', gameLog.url);
+                }
                 // var userId = '';
                 // try {
                 //     var url = new URL(gameLog.url);
@@ -718,21 +721,41 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 //     break;
                 // }
 
-                if (!advancedSettingsStore.saveInstancePrints) {
-                    break;
+                if (advancedSettingsStore.saveInstanceEmoji) {
+                    try {
+                        // https://api.vrchat.cloud/api/1/inventory/spawn?id=inv_75781d65-92fe-4a80-a1ff-27ee6e843b08
+                        const url = new URL(gameLog.url);
+                        if (
+                            url.pathname.substring(0, 22) ===
+                            '/api/1/inventory/spawn'
+                        ) {
+                            const inventoryId = url.searchParams.get('id');
+                            if (inventoryId && inventoryId.length === 40) {
+                                galleryStore.queueCheckInstanceInventory(
+                                    inventoryId
+                                );
+                            }
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
-                try {
-                    let printId = '';
-                    const url = new URL(gameLog.url);
-                    if (url.pathname.substring(0, 14) === '/api/1/prints/') {
-                        const pathArray = url.pathname.split('/');
-                        printId = pathArray[4];
+                if (advancedSettingsStore.saveInstanceEmoji) {
+                    try {
+                        let printId = '';
+                        const url1 = new URL(gameLog.url);
+                        if (
+                            url1.pathname.substring(0, 14) === '/api/1/prints/'
+                        ) {
+                            const pathArray = url1.pathname.split('/');
+                            printId = pathArray[4];
+                        }
+                        if (printId && printId.length === 41) {
+                            $app.queueSavePrintToFile(printId);
+                        }
+                    } catch (err) {
+                        console.error(err);
                     }
-                    if (printId && printId.length === 41) {
-                        galleryStore.queueSavePrintToFile(printId);
-                    }
-                } catch (err) {
-                    console.error(err);
                 }
                 break;
             case 'avatar-change':

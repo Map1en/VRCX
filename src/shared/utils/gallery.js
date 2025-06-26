@@ -42,4 +42,16 @@ function getPrintLocalDate(print) {
     return createdAt;
 }
 
-export { getPrintLocalDate, getPrintFileName };
+/**
+ * @param {object} emoji
+ */
+function getEmojiFileName(emoji) {
+    if (emoji.frames) {
+        const loopStyle = emoji.loopStyle || 'linear';
+        return `${emoji.name}_${emoji.animationStyle}animationStyle_${emoji.frames}frames_${emoji.framesOverTime}fps_${loopStyle}loopStyle.png`;
+    } else {
+        return `${emoji.name}_${emoji.animationStyle}animationStyle.png`;
+    }
+}
+
+export { getPrintLocalDate, getPrintFileName, getEmojiFileName };
