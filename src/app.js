@@ -184,11 +184,7 @@ $app.computed.gameLogTabEvent = function () {
         updateSharedFeed: this.updateSharedFeed
     };
 };
-$app.computed.profileTabEvent = function () {
-    return {
-        logout: this.logout
-    };
-};
+
 $app.computed.playerListTabBind = function () {
     return {
         photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
@@ -210,7 +206,6 @@ $app.computed.loginPageBind = function () {
 $app.computed.loginPageEvent = function () {
     return {
         promptProxySettings: this.promptProxySettings,
-        toggleCustomEndpoint: this.toggleCustomEndpoint,
         deleteSavedLogin: this.deleteSavedLogin,
         login: this.login,
         relogin: this.relogin

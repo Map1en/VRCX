@@ -116,7 +116,7 @@ export const useFeedStore = defineStore('Feed', () => {
                     message: t('message.friend.load_failed'),
                     type: 'error'
                 });
-                API.logout();
+                API.$emit('LOGOUT');
                 throw err;
             }
         }

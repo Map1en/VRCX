@@ -501,49 +501,42 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { miscRequest, userRequest } from '../../api';
     import { parseAvatarUrl, buildTreeData, openExternalLink, userImage, parseUserUrl } from '../../shared/utils';
+    import { useAuthStore } from '../../stores';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
     import ExportFriendsListDialog from './dialogs/ExportFriendsListDialog.vue';
     import ExportAvatarsListDialog from './dialogs/ExportAvatarsListDialog.vue';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useFriendStore } from '../../stores/friend';
-    import { API } from '../../app';
-    import { useUserStore } from '../../stores/user';
-    import { useAvatarStore } from '../../stores/avatar';
-    import { useInviteStore } from '../../stores/invite';
-    import { useGalleryStore } from '../../stores/gallery';
-    import { useUiStore } from '../../stores/ui';
-    import { useSearchStore } from '../../stores/search';
+    import {
+        useAppearanceSettingsStore,
+        useSearchStore,
+        useFriendStore,
+        useUserStore,
+        useAvatarStore,
+        useInviteStore,
+        useGalleryStore,
+        useUiStore
+    } from '../../stores';
+    import { API } from '../../service/eventBus';
 
-    const friendStore = useFriendStore();
-    const { friends } = storeToRefs(friendStore);
-
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const userStore = useUserStore();
-    const { pastDisplayNameTable } = storeToRefs(userStore);
-    const { showUserDialog, lookupUser } = userStore;
-    const avatarStore = useAvatarStore();
-    const { showAvatarDialog } = avatarStore;
-    const inviteStore = useInviteStore();
-    const { showEditInviteMessageDialog, refreshInviteMessageTableData } = inviteStore;
+    const { friends } = storeToRefs(useFriendStore());
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { pastDisplayNameTable } = storeToRefs(useUserStore());
+    const { showUserDialog, lookupUser } = useUserStore();
+    const { showAvatarDialog } = useAvatarStore();
+    const { showEditInviteMessageDialog, refreshInviteMessageTableData } = useInviteStore();
     const {
         inviteMessageTable,
         inviteResponseMessageTable,
         inviteRequestMessageTable,
         inviteRequestResponseMessageTable
-    } = storeToRefs(inviteStore);
-    const galleryStore = useGalleryStore();
-    const { showGalleryDialog } = galleryStore;
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-    const searchStore = useSearchStore();
-    const { directAccessWorld } = searchStore;
+    } = storeToRefs(useInviteStore());
+    const { showGalleryDialog } = useGalleryStore();
+    const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { directAccessWorld } = useSearchStore();
+    const { logout } = useAuthStore();
 
     const { t } = useI18n();
 
     const { $prompt, $message } = getCurrentInstance().proxy;
-
-    const emit = defineEmits(['logout']);
 
     const vrchatCredit = ref(null);
     const configTreeData = ref([]);
@@ -558,17 +551,12 @@
 
     function getVisits() {
         miscRequest.getVisits().then((args) => {
-            // API.$on('VISITS')
             visits.value = args.json;
         });
     }
 
     function getVRChatCredits() {
-        // API.$on('VRCCREDITS')
         miscRequest.getVRChatCredits().then((args) => (vrchatCredit.value = args.json?.balance));
-    }
-    function logout() {
-        emit('logout');
     }
 
     function showDiscordNamesDialog() {

@@ -165,7 +165,7 @@ export function request(endpoint, options) {
                     t('api.error.message.vpn_in_use'),
                     `403 ${t('api.error.message.login_error')}`
                 );
-                API.logout();
+                API.$emit('LOGOUT');
                 throw new Error(`403 ${endpoint}`);
             }
             if (

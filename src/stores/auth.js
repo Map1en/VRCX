@@ -382,14 +382,27 @@ export const useAuthStore = defineStore('Auth', () => {
         });
     }
 
-    $app.methods.toggleCustomEndpoint = async function () {
+    async function toggleCustomEndpoint() {
         await configRepository.setBool(
             'VRCX_enableCustomEndpoint',
-            this.enableCustomEndpoint
+            state.enableCustomEndpoint
         );
         state.loginForm.endpoint = '';
         state.loginForm.websocket = '';
-    };
+    }
+
+    function logout() {
+        $app.$confirm('Continue? Logout', 'Confirm', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'info',
+            callback: (action) => {
+                if (action === 'confirm') {
+                    API.$emit('LOGOUT');
+                }
+            }
+        });
+    }
 
     return {
         state,
@@ -405,6 +418,8 @@ export const useAuthStore = defineStore('Auth', () => {
         updateStoredUser,
         migrateStoredUsers,
         checkPrimaryPassword,
-        autoLoginAfterMounted
+        autoLoginAfterMounted,
+        toggleCustomEndpoint,
+        logout
     };
 });

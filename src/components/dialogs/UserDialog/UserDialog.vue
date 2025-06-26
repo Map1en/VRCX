@@ -1825,6 +1825,7 @@
     import {
         useAdvancedSettingsStore,
         useAppearanceSettingsStore,
+        useAuthStore,
         useAvatarStore,
         useFavoriteStore,
         useFriendStore,
@@ -1881,8 +1882,7 @@
     const { clearInviteImageUpload, showGalleryDialog, checkPreviousImageAvailable, showFullscreenImageDialog } =
         useGalleryStore();
     const { isGameRunning } = storeToRefs(useGameStore());
-
-    const emit = defineEmits(['logout']);
+    const { logout } = useAuthStore();
 
     watch(
         () => userDialog.value.loading,
@@ -3018,9 +3018,6 @@
         sortUserDialogAvatars(D.avatars);
     }
 
-    function logout() {
-        emit('logout');
-    }
     function closeInviteDialog() {
         clearInviteImageUpload();
     }

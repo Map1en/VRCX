@@ -159,18 +159,14 @@
     import { storeToRefs } from 'pinia';
     import { onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import { useAppearanceSettingsStore, useVRCXUpdaterStore, useAuthStore } from '../../stores';
     import { openExternalLink, userImage } from '../../shared/utils';
-    import { API } from '../../app';
-    import { useAuthStore } from '../../stores/auth';
+    import { API } from '../../service/eventBus';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const VRCXUpdaterStore = useVRCXUpdaterStore();
-    const { showVRCXUpdateDialog } = VRCXUpdaterStore;
-    const { hideTooltips } = storeToRefs(appearanceSettingsStore);
-    const authStore = useAuthStore();
-    const { loginForm } = storeToRefs(authStore);
+    const { showVRCXUpdateDialog } = useVRCXUpdaterStore();
+    const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
+    const { loginForm } = storeToRefs(useAuthStore());
+    const { toggleCustomEndpoint } = useAuthStore();
 
     const { t } = useI18n();
 
@@ -181,16 +177,12 @@
         }
     });
 
-    const emit = defineEmits(['promptProxySettings', 'toggleCustomEndpoint', 'deleteSavedLogin', 'relogin', 'login']);
+    const emit = defineEmits(['promptProxySettings', 'deleteSavedLogin', 'relogin', 'login']);
 
     const loginFormRef = ref(null);
 
     function promptProxySettings() {
         emit('promptProxySettings');
-    }
-
-    function toggleCustomEndpoint(...args) {
-        emit('toggleCustomEndpoint', args);
     }
 
     function deleteSavedLogin(userId) {

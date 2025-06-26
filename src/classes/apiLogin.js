@@ -70,7 +70,7 @@ export default async function init() {
                 'Primary password is enabled, this disables auto login.'
             );
             this.attemptingAutoLogin = false;
-            this.logout();
+            this.store.auth.logout();
             return;
         }
         const attemptsInLastHour = Array.from(this.autoLoginAttempts).filter(
@@ -81,7 +81,7 @@ export default async function init() {
                 'More than 3 auto login attempts within the past hour, logging out instead of attempting auto login.'
             );
             this.attemptingAutoLogin = false;
-            this.logout();
+            this.store.auth.logout();
             return;
         }
         this.autoLoginAttempts.add(new Date().getTime());
@@ -125,15 +125,6 @@ export default async function init() {
         this.attemptingAutoLogin = false;
         this.autoLoginAttempts.clear();
     });
-
-    API.logout = function () {
-        this.$emit('LOGOUT');
-        // return request('logout', {
-        //     method: 'PUT'
-        // }).finally(() => {
-        //     this.$emit('LOGOUT');
-        // });
-    };
 
     const _methods = {
         async relogin(user) {
@@ -196,7 +187,7 @@ export default async function init() {
                                 websocket: loginParmas.websocket
                             })
                                 .catch((err2) => {
-                                    API.logout();
+                                    API.$emit('LOGOUT');
                                     reject(err2);
                                 })
                                 .then(() => {
@@ -326,19 +317,6 @@ export default async function init() {
                         return args;
                     });
             }
-        },
-
-        logout() {
-            this.$confirm('Continue? Logout', 'Confirm', {
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                type: 'info',
-                callback: (action) => {
-                    if (action === 'confirm') {
-                        API.logout();
-                    }
-                }
-            });
         }
     };
 

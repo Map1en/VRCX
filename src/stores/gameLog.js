@@ -13,6 +13,7 @@ import {
     formatSeconds,
     getGroupName,
     isRpcWorld,
+    parseLocation,
     replaceBioSymbols
 } from '../shared/utils';
 import { useDebugStore } from './debug';
