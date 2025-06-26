@@ -1,7 +1,7 @@
 doctype html
 #x-app.x-app(@dragenter.prevent @dragover.prevent @drop.prevent)
     //- ### Login ###
-    LoginPage(v-if="!API.isLoggedIn" v-bind="loginPageBind" v-on="loginPageEvent")
+    LoginPage(v-if="!API.isLoggedIn" v-on="loginPageEvent")
 
     VRCXUpdateDialog
 
@@ -17,7 +17,7 @@ doctype html
 
         GameLogTab(v-on='gameLogTabEvent')
 
-        PlayerListTab(v-bind='playerListTabBind' v-on='playerListTabEvent')
+        PlayerListTab
 
         SearchTab
 

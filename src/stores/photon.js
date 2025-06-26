@@ -4,10 +4,12 @@ import * as workerTimers from 'worker-timers';
 import { $app } from '../app';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
+import { useUserStore } from './user';
 import { useVrStore } from './vr';
 
 export const usePhotonStore = defineStore('Photon', () => {
     const vrStore = useVrStore();
+    const userStore = useUserStore();
     const state = reactive({
         photonLoggingEnabled: false,
         photonEventOverlay: false,
@@ -85,7 +87,9 @@ export const usePhotonStore = defineStore('Photon', () => {
                 pageSizes: [5, 10, 15, 25, 50]
             }
         },
-        chatboxUserBlacklist: new Map()
+        chatboxUserBlacklist: new Map(),
+        photonEventTableFilter: '',
+        photonLobby: new Map()
     });
 
     async function initPhotonStates() {
@@ -210,6 +214,13 @@ export const usePhotonStore = defineStore('Photon', () => {
         get: () => state.chatboxUserBlacklist,
         set: (value) => {
             state.chatboxUserBlacklist = value;
+        }
+    });
+
+    const photonEventTableFilter = computed({
+        get: () => state.photonEventTableFilter,
+        set: (value) => {
+            state.photonEventTableFilter = value;
         }
     });
 
@@ -353,6 +364,44 @@ export const usePhotonStore = defineStore('Photon', () => {
         );
     }
 
+    async function photonEventTableFilterChange() {
+        state.photonEventTable.filters[0].value = state.photonEventTableFilter;
+        state.photonEventTable.filters[1].value =
+            state.photonEventTableTypeFilter;
+
+        state.photonEventTablePrevious.filters[0].value =
+            state.photonEventTableFilter;
+        state.photonEventTablePrevious.filters[1].value =
+            state.photonEventTableTypeFilter;
+
+        await configRepository.setString(
+            'VRCX_photonEventTypeFilter',
+            JSON.stringify(state.photonEventTableTypeFilter)
+        );
+        // await configRepository.setString(
+        //     'VRCX_photonEventTypeOverlayFilter',
+        //     JSON.stringify(this.photonEventTableTypeOverlayFilter)
+        // );
+    }
+
+    function showUserFromPhotonId(photonId) {
+        if (photonId) {
+            const ref = state.photonLobby.get(photonId);
+            if (typeof ref !== 'undefined') {
+                if (typeof ref.id !== 'undefined') {
+                    userStore.showUserDialog(ref.id);
+                } else if (typeof ref.displayName !== 'undefined') {
+                    userStore.lookupUser(ref);
+                }
+            } else {
+                $app.$message({
+                    message: 'No user info available',
+                    type: 'error'
+                });
+            }
+        }
+    }
+
     return {
         state,
 
@@ -369,6 +418,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventTable,
         photonEventTablePrevious,
         chatboxUserBlacklist,
+        photonEventTableFilter,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
@@ -381,6 +431,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         parseOperationResponse,
         saveEventOverlay,
         checkChatboxBlacklist,
-        saveChatboxUserBlacklist
+        saveChatboxUserBlacklist,
+        photonEventTableFilterChange,
+        showUserFromPhotonId
     };
 });

@@ -150,6 +150,13 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     });
 
+    const ipcEnabled = computed({
+        get: () => state.ipcEnabled,
+        set: (value) => {
+            state.ipcEnabled = value;
+        }
+    });
+
     // Make sure file drops outside of the screenshot manager don't navigate to the file path dropped.
     // This issue persists on prompts created with prompt(), unfortunately. Not sure how to fix that.
     document.body.addEventListener('drop', function (e) {
@@ -711,6 +718,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         isRunningUnderWine,
         currentlyDroppingFile,
         isRegistryBackupDialogVisible,
+        ipcEnabled,
         showConsole,
         applyWineEmojis,
         clearVRCXCache,

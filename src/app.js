@@ -127,13 +127,6 @@ let $app = {
         FullscreenImageDialog,
         GalleryDialog
     },
-    provide() {
-        return {
-            displayPreviousImages: this.displayPreviousImages,
-            languageClass: this.languageClass,
-            showGallerySelectDialog: this.showGallerySelectDialog
-        };
-    },
     el: '#root',
     async created() {
         AppApi.SetUserAgent();
@@ -142,7 +135,6 @@ let $app = {
     async mounted() {
         refreshCustomCss();
         refreshCustomScript();
-
         if (LINUX) {
             this.updateLoop();
         }
@@ -189,24 +181,6 @@ $app.computed.gameLogTabEvent = function () {
     };
 };
 
-$app.computed.playerListTabBind = function () {
-    return {
-        photonLoggingEnabled: this.store.photon.photonLoggingEnabled,
-        photonEventTableFilter: this.photonEventTableFilter,
-        ipcEnabled: this.ipcEnabled
-    };
-};
-$app.computed.playerListTabEvent = function () {
-    return {
-        photonEventTableFilterChange: this.photonEventTableFilterChange,
-        showUserFromPhotonId: this.showUserFromPhotonId
-    };
-};
-$app.computed.loginPageBind = function () {
-    return {
-        enableCustomEndpoint: this.enableCustomEndpoint
-    };
-};
 $app.computed.loginPageEvent = function () {
     return {
         promptProxySettings: this.promptProxySettings,
@@ -222,7 +196,7 @@ $app.computed.settingsTabEvent = function () {
         promptNotificationTimeout: this.promptNotificationTimeout,
         promptPhotonOverlayMessageTimeout:
             this.promptPhotonOverlayMessageTimeout,
-        photonEventTableFilterChange: this.photonEventTableFilterChange,
+
         promptPhotonLobbyTimeoutThreshold:
             this.promptPhotonLobbyTimeoutThreshold,
         promptAutoClearVRCXCacheFrequency:

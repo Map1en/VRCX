@@ -165,17 +165,10 @@
 
     const { showVRCXUpdateDialog } = useVRCXUpdaterStore();
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
-    const { loginForm } = storeToRefs(useAuthStore());
+    const { loginForm, enableCustomEndpoint } = storeToRefs(useAuthStore());
     const { toggleCustomEndpoint } = useAuthStore();
 
     const { t } = useI18n();
-
-    defineProps({
-        enableCustomEndpoint: {
-            type: Boolean,
-            default: false
-        }
-    });
 
     const emit = defineEmits(['promptProxySettings', 'deleteSavedLogin', 'relogin', 'login']);
 

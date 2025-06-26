@@ -55,7 +55,7 @@ export default function init() {
                         }
                     }
                     if (--this.ipcTimeout <= 0) {
-                        this.ipcEnabled = false;
+                        this.store.vrcx.ipcEnabled = false;
                     }
                     if (
                         --this.nextClearVRCXCacheCheck <= 0 &&

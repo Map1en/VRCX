@@ -833,7 +833,7 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { inject, ref } from 'vue';
+    import { ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import {
         languageClass,
@@ -843,7 +843,6 @@
         userImage,
         userImageFull
     } from '../../shared/utils';
-    import configRepository from '../../service/config';
     import {
         useLocationStore,
         useAppearanceSettingsStore,
@@ -854,11 +853,12 @@
         useGroupStore,
         useInstanceStore,
         useUiStore,
-        useGalleryStore
+        useGalleryStore,
+        useVrcxStore
     } from '../../stores';
     import ChatboxBlacklistDialog from './dialogs/ChatboxBlacklistDialog.vue';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
-    import { API } from '../../app';
+    import { API } from '../../service/eventBus';
 
     const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
     const {
@@ -867,9 +867,10 @@
         photonEventTableTypeFilter,
         photonEventTable,
         photonEventTablePrevious,
-        chatboxUserBlacklist
+        chatboxUserBlacklist,
+        photonEventTableFilter
     } = storeToRefs(usePhotonStore());
-    const { saveChatboxUserBlacklist } = usePhotonStore();
+    const { saveChatboxUserBlacklist, photonEventTableFilterChange, showUserFromPhotonId } = usePhotonStore();
     const { showUserDialog, lookupUser } = useUserStore();
     const { showAvatarDialog } = useAvatarStore();
     const { showWorldDialog } = useWorldStore();
@@ -879,21 +880,9 @@
     const { currentInstanceUserList, getCurrentInstanceUserList } = useInstanceStore();
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { showFullscreenImageDialog } = useGalleryStore();
+    const { ipcEnabled } = storeToRefs(useVrcxStore());
 
     const { t } = useI18n();
-
-    const props = defineProps({
-        photonEventTableFilter: {
-            type: String,
-            default: ''
-        },
-        ipcEnabled: {
-            type: Boolean,
-            default: false
-        }
-    });
-
-    const emit = defineEmits(['photonEventTableFilterChange', 'showUserFromPhotonId']);
 
     const chatboxBlacklistDialog = ref({
         visible: false,
@@ -902,17 +891,9 @@
 
     const currentInstanceWorldDescriptionExpanded = ref(false);
 
-    function photonEventTableFilterChange(value) {
-        emit('photonEventTableFilterChange', value);
-    }
-
     function showChatboxBlacklistDialog() {
         const D = chatboxBlacklistDialog.value;
         D.visible = true;
-    }
-
-    function showUserFromPhotonId(photonId) {
-        emit('showUserFromPhotonId', photonId);
     }
 
     function selectCurrentInstanceRow(val) {

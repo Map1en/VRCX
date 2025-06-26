@@ -1,7 +1,6 @@
 import * as workerTimers from 'worker-timers';
 import { instanceRequest, userRequest } from '../api';
 import { $app, API } from '../app.js';
-import configRepository from '../service/config.js';
 import database from '../service/database.js';
 import { photonEmojis, photonEventType } from '../shared/constants';
 import {
@@ -19,7 +18,7 @@ export default function init() {
     const _data = {
         moderationEventQueue: new Map(),
         moderationAgainstTable: [],
-        photonLobby: new Map(),
+
         photonLobbyMaster: 0,
         photonLobbyCurrentUser: 0,
         photonLobbyUserData: new Map(),
@@ -32,9 +31,7 @@ export default function init() {
         photonLobbyActivePortals: new Map(),
         photonEvent7List: new Map(),
         photonLastEvent7List: '',
-        photonLastChatBoxMsg: new Map(),
-
-        photonEventTableFilter: ''
+        photonLastChatBoxMsg: new Map()
     };
 
     const _methods = {
@@ -236,24 +233,6 @@ export default function init() {
                 }
             }
             return userId;
-        },
-
-        showUserFromPhotonId(photonId) {
-            if (photonId) {
-                var ref = this.photonLobby.get(photonId);
-                if (typeof ref !== 'undefined') {
-                    if (typeof ref.id !== 'undefined') {
-                        this.store.user.showUserDialog(ref.id);
-                    } else if (typeof ref.displayName !== 'undefined') {
-                        this.store.user.lookupUser(ref);
-                    }
-                } else {
-                    this.$message({
-                        message: 'No user info available',
-                        type: 'error'
-                    });
-                }
-            }
         },
 
         getPhotonIdFromDisplayName(displayName) {
@@ -1361,27 +1340,6 @@ export default function init() {
                 tags,
                 unityPackages
             });
-        },
-
-        async photonEventTableFilterChange() {
-            this.store.photon.photonEventTable.filters[0].value =
-                this.photonEventTableFilter;
-            this.store.photon.photonEventTable.filters[1].value =
-                this.store.photon.photonEventTableTypeFilter;
-
-            this.store.photon.photonEventTablePrevious.filters[0].value =
-                this.photonEventTableFilter;
-            this.store.photon.photonEventTablePrevious.filters[1].value =
-                this.store.photon.photonEventTableTypeFilter;
-
-            await configRepository.setString(
-                'VRCX_photonEventTypeFilter',
-                JSON.stringify(this.store.photon.photonEventTableTypeFilter)
-            );
-            // await configRepository.setString(
-            //     'VRCX_photonEventTypeOverlayFilter',
-            //     JSON.stringify(this.photonEventTableTypeOverlayFilter)
-            // );
         }
     };
 

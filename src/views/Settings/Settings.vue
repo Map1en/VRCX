@@ -1935,7 +1935,8 @@
         setPhotonEventOverlayFilter,
         setPhotonEventTableTypeOverlayFilter,
         setTimeoutHudOverlayFilter,
-        saveEventOverlay
+        saveEventOverlay,
+        photonEventTableFilterChange
     } = usePhotonStore();
     const {
         photonLoggingEnabled,
@@ -2155,7 +2156,6 @@
         'promptMaxTableSizeDialog',
         'promptNotificationTimeout',
         'promptPhotonOverlayMessageTimeout',
-        'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
         'promptAutoClearVRCXCacheFrequency'
     ]);
@@ -2347,9 +2347,6 @@
     }
     function promptPhotonOverlayMessageTimeout() {
         emit('promptPhotonOverlayMessageTimeout');
-    }
-    function photonEventTableFilterChange() {
-        emit('photonEventTableFilterChange');
     }
     function promptPhotonLobbyTimeoutThreshold() {
         emit('promptPhotonLobbyTimeoutThreshold');
