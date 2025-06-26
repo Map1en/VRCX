@@ -126,27 +126,28 @@ let $app = {
         GalleryDialog
     },
     el: '#root',
-    async created() {
-        AppApi.SetUserAgent();
-        AppApi.CheckGameRunning();
-    },
-    async mounted() {
-        refreshCustomCss();
-        refreshCustomScript();
+    created() {
         if (LINUX) {
             this.updateLoop();
         }
+        AppApi.SetUserAgent();
+        AppApi.CheckGameRunning();
+        refreshCustomCss();
+        refreshCustomScript();
+    },
+    async mounted() {
         this.store.gameLog.getGameLogTable();
-        this.store.game.checkVRChatDebugLogging();
-        this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
         await this.store.auth.migrateStoredUsers();
         this.store.auth.autoLoginAfterMounted();
+        this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
+        this.store.game.checkVRChatDebugLogging();
         try {
-            this.store.vrcx.isRunningUnderWine =
-                await AppApi.IsRunningUnderWine();
-            this.store.vrcx.applyWineEmojis();
+            if (await AppApi.IsRunningUnderWine()) {
+                this.store.vrcx.isRunningUnderWine = true;
+                this.store.vrcx.applyWineEmojis();
+            }
         } catch (err) {
-            console.error(err);
+            console.error(err, 'Failed to check if running under Wine');
         }
     }
 };

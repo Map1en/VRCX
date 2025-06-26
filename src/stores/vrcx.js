@@ -632,8 +632,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         // await this.updateRegistryBackupDialog();
     }
 
-    // Because it is a startup func, it is not integrated into RegistryBackupDialog.vue now
-    // func backupVrcRegistry is also split up
     async function checkAutoBackupRestoreVrcRegistry() {
         if (!this.vrcRegistryAutoBackup) {
             return;
