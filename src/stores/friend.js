@@ -289,7 +289,7 @@ export const useFriendStore = defineStore('Friend', () => {
         groupStore.updateInGameGroupOrder();
     });
 
-    API.$on('USER:CURRENT', function (args) {
+    function updateUserCurrentStatus(args) {
         if (state.friendLogInitStatus) {
             refreshFriendsStatus(args.ref, args.fromGetCurrentUser);
         }
@@ -300,7 +300,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 userStore.currentUser.$userColour = colour;
             });
         }
-    });
+    }
 
     API.$on('FRIEND:STATUS', function (args) {
         const D = userStore.userDialog;
@@ -1762,6 +1762,7 @@ export const useFriendStore = defineStore('Friend', () => {
         userOnFriend,
         confirmDeleteFriend,
         saveSidebarSortOrder,
-        updateFriendships
+        updateFriendships,
+        updateUserCurrentStatus
     };
 });

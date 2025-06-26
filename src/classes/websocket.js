@@ -412,7 +412,7 @@ export default function init() {
 
             case 'user-location':
                 // update current user location
-                if (content.userId !== this.currentUser.id) {
+                if (content.userId !== $app.store.user.currentUser.id) {
                     console.error('user-location wrong userId', content);
                     break;
                 }

@@ -1773,6 +1773,7 @@ export const useUserStore = defineStore('User', () => {
             $location_at: state.currentUser.$location_at,
             $travelingToTime: state.currentUser.$travelingToTime
         });
+        friendStore.updateUserCurrentStatus(args);
         friendStore.updateFriendships(args.ref);
         if (args.ref.pastDisplayNames) {
             state.pastDisplayNameTable.data = args.ref.pastDisplayNames;

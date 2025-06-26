@@ -93,6 +93,13 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonLobby: new Map()
     });
 
+    const photonLobby = computed({
+        get: () => state.photonLobby,
+        set: (value) => {
+            state.photonLobby = value;
+        }
+    });
+
     async function initPhotonStates() {
         const [
             photonEventOverlay,
@@ -475,6 +482,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         photonEventTablePrevious,
         chatboxUserBlacklist,
         photonEventTableFilter,
+        photonLobby,
 
         setPhotonLoggingEnabled,
         setPhotonEventOverlay,
