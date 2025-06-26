@@ -179,23 +179,8 @@ $app.computed.gameLogTabEvent = function () {
     };
 };
 
-$app.computed.loginPageEvent = function () {
-    return {
-        promptProxySettings: this.promptProxySettings
-    };
-};
 $app.computed.settingsTabEvent = function () {
     return {
-        promptProxySettings: this.promptProxySettings,
-        promptMaxTableSizeDialog: this.promptMaxTableSizeDialog,
-        promptNotificationTimeout: this.promptNotificationTimeout,
-        promptPhotonOverlayMessageTimeout:
-            this.promptPhotonOverlayMessageTimeout,
-
-        promptPhotonLobbyTimeoutThreshold:
-            this.promptPhotonLobbyTimeoutThreshold,
-        promptAutoClearVRCXCacheFrequency:
-            this.promptAutoClearVRCXCacheFrequency,
         updateSharedFeed: this.updateSharedFeed
     };
 };

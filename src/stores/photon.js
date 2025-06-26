@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { $app } from '../app';
+import { t } from '../plugin';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { useUserStore } from './user';
@@ -402,6 +403,61 @@ export const usePhotonStore = defineStore('Photon', () => {
         }
     }
 
+    function promptPhotonOverlayMessageTimeout() {
+        $app.$prompt(
+            t('prompt.overlay_message_timeout.description'),
+            t('prompt.overlay_message_timeout.header'),
+            {
+                distinguishCancelAndClose: true,
+                confirmButtonText: t('prompt.overlay_message_timeout.ok'),
+                cancelButtonText: t('prompt.overlay_message_timeout.cancel'),
+                inputValue: state.photonOverlayMessageTimeout / 1000,
+                inputPattern: /\d+$/,
+                inputErrorMessage: t(
+                    'prompt.overlay_message_timeout.input_error'
+                ),
+                callback: async (action, instance) => {
+                    if (
+                        action === 'confirm' &&
+                        instance.inputValue &&
+                        !isNaN(instance.inputValue)
+                    ) {
+                        state.photonOverlayMessageTimeout = Math.trunc(
+                            Number(instance.inputValue) * 1000
+                        );
+                        vrStore.updateVRConfigVars();
+                    }
+                }
+            }
+        );
+    }
+
+    function promptPhotonLobbyTimeoutThreshold() {
+        $app.$prompt(
+            t('prompt.photon_lobby_timeout.description'),
+            t('prompt.photon_lobby_timeout.header'),
+            {
+                distinguishCancelAndClose: true,
+                confirmButtonText: t('prompt.photon_lobby_timeout.ok'),
+                cancelButtonText: t('prompt.photon_lobby_timeout.cancel'),
+                inputValue: state.photonLobbyTimeoutThreshold / 1000,
+                inputPattern: /\d+$/,
+                inputErrorMessage: t('prompt.photon_lobby_timeout.input_error'),
+                callback: async (action, instance) => {
+                    if (
+                        action === 'confirm' &&
+                        instance.inputValue &&
+                        !isNaN(instance.inputValue)
+                    ) {
+                        state.photonLobbyTimeoutThreshold = Math.trunc(
+                            Number(instance.inputValue) * 1000
+                        );
+                    }
+                }
+            }
+        );
+    }
+
     return {
         state,
 
@@ -433,6 +489,8 @@ export const usePhotonStore = defineStore('Photon', () => {
         checkChatboxBlacklist,
         saveChatboxUserBlacklist,
         photonEventTableFilterChange,
-        showUserFromPhotonId
+        showUserFromPhotonId,
+        promptPhotonOverlayMessageTimeout,
+        promptPhotonLobbyTimeoutThreshold
     };
 });

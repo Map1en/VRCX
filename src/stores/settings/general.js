@@ -1,8 +1,15 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import * as workerTimers from 'worker-timers';
+import { $app } from '../../app';
+import { t } from '../../plugin';
 import configRepository from '../../service/config';
+import { useVrcxStore } from '../vrcx';
+import { useVRCXUpdaterStore } from '../vrcxUpdater';
 
 export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
+    const vrcxStore = useVrcxStore();
+    const VRCXUpdaterStore = useVRCXUpdaterStore();
     const state = reactive({
         isStartAtWindowsStartup: false,
         isStartAsMinimizedState: false,
@@ -97,6 +104,8 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         );
         state.autoAcceptInviteRequests = autoAcceptInviteRequests;
     }
+
+    initGeneralSettings();
 
     const isStartAtWindowsStartup = computed(
         () => state.isStartAtWindowsStartup
@@ -243,7 +252,35 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         );
     }
 
-    initGeneralSettings();
+    function promptProxySettings() {
+        $app.$prompt(
+            t('prompt.proxy_settings.description'),
+            t('prompt.proxy_settings.header'),
+            {
+                distinguishCancelAndClose: true,
+                confirmButtonText: t('prompt.proxy_settings.restart'),
+                cancelButtonText: t('prompt.proxy_settings.close'),
+                inputValue: vrcxStore.proxyServer,
+                inputPlaceholder: t('prompt.proxy_settings.placeholder'),
+                callback: async (action, instance) => {
+                    vrcxStore.proxyServer = instance.inputValue;
+                    await VRCXStorage.Set(
+                        'VRCX_ProxyServer',
+                        vrcxStore.proxyServer
+                    );
+                    await VRCXStorage.Flush();
+                    await new Promise((resolve) => {
+                        workerTimers.setTimeout(resolve, 100);
+                    });
+                    if (action === 'confirm') {
+                        const { restartVRCX } = VRCXUpdaterStore;
+                        const isUpgrade = false;
+                        restartVRCX(isUpgrade);
+                    }
+                }
+            }
+        );
+    }
 
     return {
         state,
@@ -278,6 +315,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         setAutoStateChangeCompanyStatus,
         setAutoStateChangeInstanceTypes,
         setAutoStateChangeNoFriends,
-        setAutoAcceptInviteRequests
+        setAutoAcceptInviteRequests,
+        promptProxySettings
     };
 });

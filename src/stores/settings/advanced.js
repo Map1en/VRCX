@@ -1,16 +1,19 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, t } from '../../app';
+import { $app } from '../../app';
+import { t } from '../../plugin';
 import configRepository from '../../service/config';
 import database from '../../service/database';
 import { API } from '../../service/eventBus';
 import webApiService from '../../service/webapi';
 import { useDebugStore } from '../debug';
 import { useGameStore } from '../game';
+import { useVrcxStore } from '../vrcx';
 
 export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     const debugStore = useDebugStore();
     const gameStore = useGameStore();
+    const vrcxStore = useVrcxStore();
 
     const state = reactive({
         enablePrimaryPassword: false,
@@ -525,6 +528,36 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         }
     }
 
+    function promptAutoClearVRCXCacheFrequency() {
+        $app.$prompt(
+            t('prompt.auto_clear_cache.description'),
+            t('prompt.auto_clear_cache.header'),
+            {
+                distinguishCancelAndClose: true,
+                confirmButtonText: t('prompt.auto_clear_cache.ok'),
+                cancelButtonText: t('prompt.auto_clear_cache.cancel'),
+                inputValue: vrcxStore.clearVRCXCacheFrequency / 3600 / 2,
+                inputPattern: /\d+$/,
+                inputErrorMessage: t('prompt.auto_clear_cache.input_error'),
+                callback: async (action, instance) => {
+                    if (
+                        action === 'confirm' &&
+                        instance.inputValue &&
+                        !isNaN(instance.inputValue)
+                    ) {
+                        vrcxStore.clearVRCXCacheFrequency = Math.trunc(
+                            Number(instance.inputValue) * 3600 * 2
+                        );
+                        await configRepository.setString(
+                            'VRCX_clearVRCXCacheFrequency',
+                            vrcxStore.clearVRCXCacheFrequency
+                        );
+                    }
+                }
+            }
+        );
+    }
+
     return {
         state,
 
@@ -586,6 +619,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         openUGCFolder,
         openUGCFolderSelector,
         folderSelectorDialog,
-        showVRChatConfig
+        showVRChatConfig,
+        promptAutoClearVRCXCacheFrequency
     };
 });

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
-import { i18n } from '../../plugin';
+import { $app } from '../../app';
+import { i18n, t } from '../../plugin';
 import configRepository from '../../service/config';
+import database from '../../service/database';
 import { API } from '../../service/eventBus';
 import {
     changeAppThemeStyle,
@@ -18,6 +20,7 @@ import { useGameLogStore } from '../gameLog';
 import { useModerationStore } from '../moderation';
 import { useNotificationStore } from '../notification';
 import { useVrStore } from '../vr';
+import { useVrcxStore } from '../vrcx';
 
 export const useAppearanceSettingsStore = defineStore(
     'AppearanceSettings',
@@ -29,6 +32,7 @@ export const useAppearanceSettingsStore = defineStore(
         const feedStore = useFeedStore();
         const moderationStore = useModerationStore();
         const gameLogStore = useGameLogStore();
+        const vrcxStore = useVrcxStore();
 
         const state = reactive({
             appLanguage: 'en',
@@ -663,6 +667,38 @@ export const useAppearanceSettingsStore = defineStore(
             setTablePageSize(pageSize);
         }
 
+        function promptMaxTableSizeDialog() {
+            $app.$prompt(
+                t('prompt.change_table_size.description'),
+                t('prompt.change_table_size.header'),
+                {
+                    distinguishCancelAndClose: true,
+                    confirmButtonText: t('prompt.change_table_size.save'),
+                    cancelButtonText: t('prompt.change_table_size.cancel'),
+                    inputValue: vrcxStore.maxTableSize,
+                    inputPattern: /\d+$/,
+                    inputErrorMessage: t(
+                        'prompt.change_table_size.input_error'
+                    ),
+                    callback: async (action, instance) => {
+                        if (action === 'confirm' && instance.inputValue) {
+                            if (instance.inputValue > 10000) {
+                                instance.inputValue = 10000;
+                            }
+                            vrcxStore.maxTableSize = instance.inputValue;
+                            await configRepository.setString(
+                                'VRCX_maxTableSize',
+                                vrcxStore.maxTableSize
+                            );
+                            database.setmaxTableSize(vrcxStore.maxTableSize);
+                            feedStore.feedTableLookup();
+                            gameLogStore.gameLogTableLookup();
+                        }
+                    }
+                }
+            );
+        }
+
         return {
             state,
 
@@ -723,7 +759,8 @@ export const useAppearanceSettingsStore = defineStore(
             userColourInit,
             applyUserTrustLevel,
             changeAppLanguage,
-            handleSetTablePageSize
+            handleSetTablePageSize,
+            promptMaxTableSizeDialog
         };
     }
 );

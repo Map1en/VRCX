@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { $app } from '../../app';
+import { t } from '../../plugin';
 import configRepository from '../../service/config';
 import { sharedFeedFiltersDefaults } from '../../shared/constants';
 import { useVrStore } from '../vr';
@@ -438,6 +440,39 @@ export const useNotificationsSettingsStore = defineStore(
             speechSynthesis.speak(tts);
         }
 
+        function promptNotificationTimeout() {
+            $app.$prompt(
+                t('prompt.notification_timeout.description'),
+                t('prompt.notification_timeout.header'),
+                {
+                    distinguishCancelAndClose: true,
+                    confirmButtonText: t('prompt.notification_timeout.ok'),
+                    cancelButtonText: t('prompt.notification_timeout.cancel'),
+                    inputValue: state.notificationTimeout / 1000,
+                    inputPattern: /\d+$/,
+                    inputErrorMessage: t(
+                        'prompt.notification_timeout.input_error'
+                    ),
+                    callback: async (action, instance) => {
+                        if (
+                            action === 'confirm' &&
+                            instance.inputValue &&
+                            !isNaN(instance.inputValue)
+                        ) {
+                            state.notificationTimeout = Math.trunc(
+                                Number(instance.inputValue) * 1000
+                            );
+                            await configRepository.setString(
+                                'VRCX_notificationTimeout',
+                                state.notificationTimeout
+                            );
+                            vrStore.updateVRConfigVars();
+                        }
+                    }
+                }
+            );
+        }
+
         return {
             state,
 
@@ -476,7 +511,8 @@ export const useNotificationsSettingsStore = defineStore(
             saveNotificationTTS,
             testNotificationTTS,
             speak,
-            changeNotificationPosition
+            changeNotificationPosition,
+            promptNotificationTimeout
         };
     }
 );

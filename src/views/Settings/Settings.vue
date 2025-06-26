@@ -1936,7 +1936,9 @@
         setPhotonEventTableTypeOverlayFilter,
         setTimeoutHudOverlayFilter,
         saveEventOverlay,
-        photonEventTableFilterChange
+        photonEventTableFilterChange,
+        promptPhotonOverlayMessageTimeout,
+        promptPhotonLobbyTimeoutThreshold
     } = usePhotonStore();
     const {
         photonLoggingEnabled,
@@ -1986,7 +1988,8 @@
         setAutoStateChangeCompanyStatus,
         setAutoStateChangeInstanceTypes,
         setAutoStateChangeNoFriends,
-        setAutoAcceptInviteRequests
+        setAutoAcceptInviteRequests,
+        promptProxySettings
     } = generalSettingsStore;
 
     const {
@@ -2035,7 +2038,8 @@
         updateTrustColor,
         saveThemeMode,
         changeAppLanguage,
-        handleSetTablePageSize
+        handleSetTablePageSize,
+        promptMaxTableSizeDialog
     } = appearanceSettingsStore;
 
     const {
@@ -2069,7 +2073,8 @@
         getTTSVoiceName,
         changeTTSVoice,
         saveNotificationTTS,
-        testNotificationTTS
+        testNotificationTTS,
+        promptNotificationTimeout
     } = notificationsSettingsStore;
 
     const {
@@ -2147,18 +2152,11 @@
         resetUGCFolder,
         openUGCFolder,
         openUGCFolderSelector,
-        showVRChatConfig
+        showVRChatConfig,
+        promptAutoClearVRCXCacheFrequency
     } = advancedSettingsStore;
 
-    const emit = defineEmits([
-        'updateSharedFeed',
-        'promptProxySettings',
-        'promptMaxTableSizeDialog',
-        'promptNotificationTimeout',
-        'promptPhotonOverlayMessageTimeout',
-        'promptPhotonLobbyTimeoutThreshold',
-        'promptAutoClearVRCXCacheFrequency'
-    ]);
+    const emit = defineEmits(['updateSharedFeed']);
 
     const instanceTypes = ref([
         'invite',
@@ -2221,24 +2219,12 @@
         feedFiltersDialogMode.value = 'wrist';
     }
 
-    function promptProxySettings() {
-        emit('promptProxySettings');
-    }
-
-    function promptMaxTableSizeDialog() {
-        emit('promptMaxTableSizeDialog');
-    }
-
     function showNoteExportDialog() {
         isNoteExportDialogVisible.value = true;
     }
 
     function showNotificationPositionDialog() {
         isNotificationPositionDialogVisible.value = true;
-    }
-
-    function promptNotificationTimeout() {
-        emit('promptNotificationTimeout');
     }
 
     function showScreenshotMetadataDialog() {
@@ -2344,14 +2330,5 @@
     }
     function openOSSDialog() {
         ossDialog.value = true;
-    }
-    function promptPhotonOverlayMessageTimeout() {
-        emit('promptPhotonOverlayMessageTimeout');
-    }
-    function promptPhotonLobbyTimeoutThreshold() {
-        emit('promptPhotonLobbyTimeoutThreshold');
-    }
-    function promptAutoClearVRCXCacheFrequency() {
-        emit('promptAutoClearVRCXCacheFrequency');
     }
 </script>

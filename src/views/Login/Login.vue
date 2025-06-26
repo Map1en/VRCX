@@ -159,7 +159,12 @@
     import { storeToRefs } from 'pinia';
     import { onBeforeUnmount, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useAppearanceSettingsStore, useVRCXUpdaterStore, useAuthStore } from '../../stores';
+    import {
+        useAppearanceSettingsStore,
+        useVRCXUpdaterStore,
+        useAuthStore,
+        useGeneralSettingsStore
+    } from '../../stores';
     import { openExternalLink, userImage } from '../../shared/utils';
     import { API } from '../../service/eventBus';
 
@@ -167,16 +172,11 @@
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { loginForm, enableCustomEndpoint } = storeToRefs(useAuthStore());
     const { toggleCustomEndpoint, relogin, deleteSavedLogin, login } = useAuthStore();
+    const { promptProxySettings } = useGeneralSettingsStore();
 
     const { t } = useI18n();
 
-    const emit = defineEmits(['promptProxySettings']);
-
     const loginFormRef = ref(null);
-
-    function promptProxySettings() {
-        emit('promptProxySettings');
-    }
 
     function handleLogin() {
         if (loginFormRef.value) {

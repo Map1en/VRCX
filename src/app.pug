@@ -1,7 +1,7 @@
 doctype html
 #x-app.x-app(@dragenter.prevent @dragover.prevent @drop.prevent)
     //- ### Login ###
-    LoginPage(v-if="!this.store.auth.isLoggedIn" v-on="loginPageEvent")
+    LoginPage(v-if="!this.store.auth.isLoggedIn")
 
     VRCXUpdateDialog
 
