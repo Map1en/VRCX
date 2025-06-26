@@ -224,7 +224,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
             tag: 'gallery'
         };
         vrcPlusIconRequest.getFileList(params).finally(() => {
-            this.galleryDialogGalleryLoading = false;
+            state.galleryDialogGalleryLoading = false;
         });
     }
 
