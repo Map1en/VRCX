@@ -63,19 +63,15 @@
     import { computed } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
-    import { feedFiltersOptions } from '../../../shared/constants';
-    import { usePhotonStore } from '../../../stores/photon';
-    import { useNotificationsSettingsStore } from '../../../stores/settings/notifications';
-    import { sharedFeedFiltersDefaults } from '../../../shared/constants';
-
-    const photonStore = usePhotonStore();
-    const notificationsSettingsStore = useNotificationsSettingsStore();
-    const { photonLoggingEnabled } = storeToRefs(photonStore);
+    import { feedFiltersOptions, sharedFeedFiltersDefaults } from '../../../shared/constants';
+    import { useNotificationsSettingsStore, usePhotonStore, useSharedFeedStore } from '../../../stores';
 
     const { t } = useI18n();
 
+    const { photonLoggingEnabled } = storeToRefs(usePhotonStore());
     const { notyFeedFiltersOptions, wristFeedFiltersOptions, photonFeedFiltersOptions } = feedFiltersOptions();
-    const { sharedFeedFilters } = storeToRefs(notificationsSettingsStore);
+    const { sharedFeedFilters } = storeToRefs(useNotificationsSettingsStore());
+    const { updateSharedFeed } = useSharedFeedStore();
 
     const props = defineProps({
         feedFiltersDialogMode: {
@@ -107,11 +103,11 @@
         return props.feedFiltersDialogMode === 'noty' ? resetNotyFeedFilters : resetWristFeedFilters;
     });
 
-    const emit = defineEmits(['update:feedFiltersDialogMode', 'updateSharedFeed']);
+    const emit = defineEmits(['update:feedFiltersDialogMode']);
 
     function saveSharedFeedFilters() {
         configRepository.setString('sharedFeedFilters', JSON.stringify(sharedFeedFilters.value));
-        emit('updateSharedFeed', true);
+        updateSharedFeed(true);
     }
 
     function resetNotyFeedFilters() {

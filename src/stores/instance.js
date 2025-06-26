@@ -24,6 +24,7 @@ import { useGroupStore } from './group';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useWorldStore } from './world';
@@ -37,6 +38,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     const notificationStore = useNotificationStore();
     const uiStore = useUiStore();
     const userStore = useUserStore();
+    const sharedFeedStore = useSharedFeedStore();
 
     const state = reactive({
         cachedInstances: new Map(),
@@ -956,7 +958,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
         notificationStore.queueNotificationNoty(noty);
         notificationStore.notificationTable.data.push(noty);
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
     }
 
     /**

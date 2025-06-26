@@ -595,7 +595,7 @@ export default function init() {
                 }
                 $app.store.notification.queueNotificationNoty(noty);
                 $app.store.notification.notificationTable.data.push(noty);
-                $app.updateSharedFeed(true);
+                $app.store.sharedFeed.updateSharedFeed(true);
                 break;
 
             default:

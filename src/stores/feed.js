@@ -11,6 +11,7 @@ import { useGameStore } from './game';
 import { useGameLogStore } from './gameLog';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
@@ -27,6 +28,7 @@ export const useFeedStore = defineStore('Feed', () => {
     const gameLogStore = useGameLogStore();
     const userStore = useUserStore();
     const vrcxStore = useVrcxStore();
+    const sharedFeedStore = useSharedFeedStore();
 
     const state = reactive({
         feedTable: {
@@ -135,7 +137,7 @@ export const useFeedStore = defineStore('Feed', () => {
         friendStore.sortActiveFriends = true;
         friendStore.sortOfflineFriends = true;
         API.getAuth();
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
         if (gameStore.isGameRunning) {
             gameLogStore.loadPlayerList();
         }
@@ -246,7 +248,7 @@ export const useFeedStore = defineStore('Feed', () => {
     function addFeed(feed) {
         notificationStore.queueFeedNoty(feed);
         state.feedSessionTable.push(feed);
-        $app.updateSharedFeed(false);
+        sharedFeedStore.updateSharedFeed(false);
         if (
             state.feedTable.filter.length > 0 &&
             !state.feedTable.filter.includes(feed.type)

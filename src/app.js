@@ -11,7 +11,6 @@ import './setup';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
-import sharedFeed from './classes/sharedFeed.js';
 import uiComponents from './classes/uiComponents.js';
 import updateLoop from './classes/updateLoop.js';
 import websocket from './classes/websocket.js';
@@ -154,14 +153,12 @@ let $app = {
 
 uiComponents();
 websocket();
-sharedFeed();
 prompts();
 updateLoop();
 gameRealtimeLogging();
 groups();
 
 API.cachedUsers = new Map();
-API.currentTravelers = new Map();
 
 $app.data.debug = false;
 $app.data.debugWebSocket = false;
@@ -170,20 +167,8 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-$app.computed.gameLogTabEvent = function () {
-    return {
-        updateSharedFeed: this.updateSharedFeed
-    };
-};
-
-$app.computed.settingsTabEvent = function () {
-    return {
-        updateSharedFeed: this.updateSharedFeed
-    };
-};
-
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;
 
-export { $app, API, t, i18n };
+export { $app, API, t };

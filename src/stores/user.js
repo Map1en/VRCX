@@ -45,6 +45,7 @@ import { usePhotonStore } from './photon';
 import { useSearchStore } from './search';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
+import { useSharedFeedStore } from './sharedFeed';
 import { useWorldStore } from './world';
 
 export const useUserStore = defineStore('User', () => {
@@ -65,11 +66,13 @@ export const useUserStore = defineStore('User', () => {
     const worldStore = useWorldStore();
     const moderationStore = useModerationStore();
     const photonStore = usePhotonStore();
+    const sharedFeedStore = useSharedFeedStore();
 
     const state = reactive({
         currentUser: {
             $userColour: ''
         },
+        currentTravelers: new Map(),
         userDialog: {
             visible: false,
             loading: false,
@@ -88,12 +91,10 @@ export const useUserStore = defineStore('User', () => {
             isInteractOff: false,
             isMuteChat: false,
             isFavorite: false,
-
             $location: {},
             $homeLocationName: '',
             users: [],
             instance: {},
-
             worlds: [],
             avatars: [],
             isWorldsLoading: false,
@@ -115,7 +116,6 @@ export const useUserStore = defineStore('User', () => {
             },
             avatarSorting: 'update',
             avatarReleaseStatus: 'all',
-
             treeData: [],
             memo: '',
             $avatarInfo: {
@@ -179,6 +179,13 @@ export const useUserStore = defineStore('User', () => {
         get: () => state.currentUser,
         set: (value) => {
             state.currentUser = value;
+        }
+    });
+
+    const currentTravelers = computed({
+        get: () => state.currentTravelers,
+        set: (value) => {
+            state.currentTravelers = value;
         }
     });
 
@@ -440,24 +447,24 @@ export const useUserStore = defineStore('User', () => {
             if (ref.location === 'traveling') {
                 ref.$location = parseLocation(ref.travelingToLocation);
                 if (
-                    !API.currentTravelers.has(ref.id) &&
+                    !state.currentTravelers.has(ref.id) &&
                     ref.travelingToLocation
                 ) {
                     const travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
-                    API.currentTravelers.set(ref.id, travelRef);
-                    $app.sharedFeed.pendingUpdate = true;
-                    $app.updateSharedFeed(false);
+                    state.currentTravelers.set(ref.id, travelRef);
+                    sharedFeedStore.sharedFeed.pendingUpdate = true;
+                    sharedFeedStore.updateSharedFeed(false);
                     onPlayerTraveling(travelRef);
                 }
             } else {
                 ref.$location = parseLocation(ref.location);
-                if (API.currentTravelers.has(ref.id)) {
-                    API.currentTravelers.delete(ref.id);
-                    $app.sharedFeed.pendingUpdate = true;
-                    $app.updateSharedFeed(false);
+                if (state.currentTravelers.has(ref.id)) {
+                    state.currentTravelers.delete(ref.id);
+                    sharedFeedStore.sharedFeed.pendingUpdate = true;
+                    sharedFeedStore.updateSharedFeed(false);
                 }
             }
             if (ref.isFriend || ref.id === state.currentUser.id) {
@@ -496,22 +503,22 @@ export const useUserStore = defineStore('User', () => {
             // traveling
             if (ref.location === 'traveling') {
                 ref.$location = parseLocation(ref.travelingToLocation);
-                if (!API.currentTravelers.has(ref.id)) {
+                if (!state.currentTravelers.has(ref.id)) {
                     const travelRef = {
                         created_at: new Date().toJSON(),
                         ...ref
                     };
-                    API.currentTravelers.set(ref.id, travelRef);
-                    $app.sharedFeed.pendingUpdate = true;
-                    $app.updateSharedFeed(false);
+                    state.currentTravelers.set(ref.id, travelRef);
+                    sharedFeedStore.sharedFeed.pendingUpdate = true;
+                    sharedFeedStore.updateSharedFeed(false);
                     onPlayerTraveling(travelRef);
                 }
             } else {
                 ref.$location = parseLocation(ref.location);
-                if (API.currentTravelers.has(ref.id)) {
-                    API.currentTravelers.delete(ref.id);
-                    $app.sharedFeed.pendingUpdate = true;
-                    $app.updateSharedFeed(false);
+                if (state.currentTravelers.has(ref.id)) {
+                    state.currentTravelers.delete(ref.id);
+                    sharedFeedStore.sharedFeed.pendingUpdate = true;
+                    sharedFeedStore.updateSharedFeed(false);
                 }
             }
             for (const prop in ref) {
@@ -1507,7 +1514,7 @@ export const useUserStore = defineStore('User', () => {
             ref.$customTag = data.Tag;
             ref.$customTagColour = data.TagColour;
         }
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
     }
 
     async function initUserNotes() {
@@ -1930,6 +1937,7 @@ export const useUserStore = defineStore('User', () => {
         state,
 
         currentUser,
+        currentTravelers,
         userDialog,
         subsetOfLanguages,
         languageDialog,

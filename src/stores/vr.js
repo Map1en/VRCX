@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import { $app } from '../app';
 import { isRpcWorld } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
@@ -11,6 +10,7 @@ import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUserStore } from './user';
 
 export const useVrStore = defineStore('Vr', () => {
@@ -24,6 +24,7 @@ export const useVrStore = defineStore('Vr', () => {
     const gameStore = useGameStore();
     const gameLogStore = useGameLogStore();
     const userStore = useUserStore();
+    const sharedFeedStore = useSharedFeedStore();
 
     const state = reactive({});
 
@@ -31,13 +32,13 @@ export const useVrStore = defineStore('Vr', () => {
         updateVRConfigVars();
         updateVRLastLocation();
         updateVrNowPlaying();
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
         friendStore.onlineFriendCount = 0;
         friendStore.updateOnlineFriendCoutner();
     }
 
     async function saveOpenVROption() {
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
         updateVRConfigVars();
         updateVRLastLocation();
         AppApi.ExecuteVrOverlayFunction('notyClear', '');

@@ -1862,7 +1862,7 @@
         <ScreenshotMetadataDialog :screenshotMetadataDialog="screenshotMetadataDialog" />
         <RegistryBackupDialog />
         <YouTubeApiDialog :isYouTubeApiDialogVisible.sync="isYouTubeApiDialogVisible" />
-        <FeedFiltersDialog :feedFiltersDialogMode.sync="feedFiltersDialogMode" @updateSharedFeed="updateSharedFeed" />
+        <FeedFiltersDialog :feedFiltersDialogMode.sync="feedFiltersDialogMode" />
         <ChangelogDialog />
         <AvatarProviderDialog :isAvatarProviderDialogVisible.sync="isAvatarProviderDialogVisible" />
     </div>
@@ -2171,8 +2171,6 @@
         setSaveInstanceEmoji
     } = advancedSettingsStore;
 
-    const emit = defineEmits(['updateSharedFeed']);
-
     const instanceTypes = ref([
         'invite',
         'invite+',
@@ -2221,10 +2219,6 @@
 
     function setZoomLevel() {
         AppApi.SetZoom(zoomLevel.value / 10 - 10);
-    }
-
-    function updateSharedFeed($event) {
-        emit('updateSharedFeed', $event);
     }
 
     function showNotyFeedFiltersDialog() {

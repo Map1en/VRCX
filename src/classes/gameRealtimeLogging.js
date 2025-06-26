@@ -1196,7 +1196,7 @@ export default function init() {
                     this.moderationAgainstTable.push(entry);
                 }
                 if (block || mute || block !== row.block || mute !== row.mute) {
-                    this.updateSharedFeed(true);
+                    this.store.sharedFeed.updateSharedFeed(true);
                 }
                 if (block || mute) {
                     database.setModeration({

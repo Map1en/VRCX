@@ -209,6 +209,7 @@
         useInstanceStore,
         useGameLogStore
     } from '../../stores';
+    import { useSharedFeedStore } from '../../stores/sharedFeed';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showWorldDialog } = useWorldStore();
@@ -217,11 +218,12 @@
     const { menuActiveIndex, shiftHeld } = storeToRefs(useUiStore());
     const { gameLogIsFriend, gameLogIsFavorite, gameLogTableLookup } = useGameLogStore();
     const { gameLogTable } = storeToRefs(useGameLogStore());
+    const { updateSharedFeed } = useSharedFeedStore();
 
     const { t } = useI18n();
     const { proxy } = getCurrentInstance();
 
-    const emit = defineEmits(['updateGameLogSessionTable', 'updateSharedFeed']);
+    const emit = defineEmits(['updateGameLogSessionTable']);
 
     function deleteGameLogEntry(row) {
         removeFromArray(gameLogTable.value.data, row);
@@ -229,7 +231,7 @@
         console.log('deleteGameLogEntry', row);
         database.getGamelogDatabase().then((data) => {
             emit('updateGameLogSessionTable', data);
-            emit('updateSharedFeed', true);
+            updateSharedFeed(true);
         });
     }
 

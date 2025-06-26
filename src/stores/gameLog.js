@@ -27,6 +27,7 @@ import { usePhotonStore } from './photon';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
@@ -48,6 +49,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
     const debugStore = useDebugStore();
     const galleryStore = useGalleryStore();
     const photonStore = usePhotonStore();
+    const sharedFeedStore = useSharedFeedStore();
     const state = reactive({
         nowPlaying: {
             url: '',
@@ -335,10 +337,10 @@ export const useGameLogStore = defineStore('GameLog', () => {
 
     function addGameLog(entry) {
         state.gameLogSessionTable.push(entry);
-        $app.updateSharedFeed(false);
+        sharedFeedStore.updateSharedFeed(false);
         if (entry.type === 'VideoPlay') {
             // event time can be before last gameLog entry
-            $app.updateSharedFeed(true);
+            sharedFeedStore.updateSharedFeed(true);
         }
 
         // If the VIP friend filter is enabled, logs from other friends will be ignored.

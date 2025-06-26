@@ -25,6 +25,7 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 
@@ -40,6 +41,7 @@ export const useNotificationStore = defineStore('Notification', () => {
     const wristOverlaySettingsStore = useWristOverlaySettingsStore();
     const uiStore = useUiStore();
     const gameStore = useGameStore();
+    const sharedFeedStore = useSharedFeedStore();
     const state = reactive({
         notificationInitStatus: false,
         notificationTable: {
@@ -349,7 +351,7 @@ export const useNotificationStore = defineStore('Notification', () => {
             }
         }
         state.notificationTable.data.push(ref);
-        $app.updateSharedFeed(true);
+        sharedFeedStore.updateSharedFeed(true);
     });
 
     API.$on('NOTIFICATION:SEE', function (args) {

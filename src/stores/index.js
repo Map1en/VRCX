@@ -24,6 +24,7 @@ import { useDiscordPresenceSettingsStore } from './settings/discordPresence';
 import { useGeneralSettingsStore } from './settings/general';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
+import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
@@ -65,7 +66,8 @@ export function createGlobalStores() {
         game: useGameStore(),
         launch: useLaunchStore(),
         vr: useVrStore(),
-        vrcx: useVrcxStore()
+        vrcx: useVrcxStore(),
+        sharedFeed: useSharedFeedStore()
     };
 }
 
@@ -100,5 +102,6 @@ export {
     useVrStore,
     useVrcxStore,
     useVRCXUpdaterStore,
-    useWorldStore
+    useWorldStore,
+    useSharedFeedStore
 };
