@@ -502,11 +502,11 @@
     import { storeToRefs } from 'pinia';
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { inventoryRequest, miscRequest, userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../../api';
-    import { API } from '../../../app';
-    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../../shared/constants';
-    import { extractFileId, getPrintFileName } from '../../../shared/utils';
-    import { useAdvancedSettingsStore, useGalleryStore } from '../../../stores';
+    import { inventoryRequest, miscRequest, userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../api';
+    import { API } from '../../app';
+    import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../shared/constants';
+    import { extractFileId, getPrintFileName } from '../../shared/utils';
+    import { useAdvancedSettingsStore, useGalleryStore } from '../../stores';
 
     const { t } = useI18n();
 

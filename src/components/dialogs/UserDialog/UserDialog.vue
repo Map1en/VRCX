@@ -1775,7 +1775,6 @@
         <LanguageDialog />
         <BioDialog :bio-dialog="bioDialog" />
         <PronounsDialog :pronouns-dialog="pronounsDialog" />
-        <GalleryDialog @closeGalleryDialog="closeGalleryDialog" />
     </safe-dialog>
 </template>
 
@@ -1841,7 +1840,6 @@
     import InviteGroupDialog from '../InviteGroupDialog.vue';
     import PreviousImagesDialog from '../PreviousImagesDialog.vue';
     import BioDialog from './BioDialog.vue';
-    import GalleryDialog from './GalleryDialog.vue';
     import LanguageDialog from './LanguageDialog.vue';
     import PreviousInstancesUserDialog from './PreviousInstancesUserDialog.vue';
     import PronounsDialog from './PronounsDialog.vue';
@@ -1982,10 +1980,6 @@
     function cleanNote(note) {
         // remove newlines because they aren't supported
         userDialog.value.note = note.replace(/[\r\n]/g, '');
-    }
-
-    function closeGalleryDialog() {
-        galleryDialogVisible.value = false;
     }
 
     function toggleLastActiveTab(userId) {

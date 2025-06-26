@@ -20,6 +20,7 @@ import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
+import GalleryDialog from './components/dialogs/GalleryDialog.vue';
 import GroupDialog from './components/dialogs/GroupDialog/GroupDialog.vue';
 import LaunchDialog from './components/dialogs/LaunchDialog.vue';
 import PreviousInstancesInfoDialog from './components/dialogs/PreviousInstancesDialog/PreviousInstancesInfoDialog.vue';
@@ -123,7 +124,8 @@ let $app = {
         EditInviteMessageDialog,
         VRChatConfigDialog,
         PrimaryPasswordDialog,
-        FullscreenImageDialog
+        FullscreenImageDialog,
+        GalleryDialog
     },
     provide() {
         return {
@@ -141,7 +143,9 @@ let $app = {
         refreshCustomCss();
         refreshCustomScript();
 
-        this.updateLoop();
+        if (LINUX) {
+            this.updateLoop();
+        }
         this.store.gameLog.getGameLogTable();
         this.store.game.checkVRChatDebugLogging();
         this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
