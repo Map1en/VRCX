@@ -531,6 +531,8 @@ export default function init() {
                     ) {
                         $app.store.gallery.refreshEmojiTable();
                     }
+                } else if (contentType === 'sticker') {
+                    // on sticker upload
                 } else if (contentType === 'print') {
                     if (
                         $app.store.advancedSettings.autoDeleteOldPrints &&

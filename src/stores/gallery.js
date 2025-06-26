@@ -9,7 +9,6 @@ import {
     vrcPlusImageRequest
 } from '../api';
 import { $app, t } from '../app';
-import { request } from '../service/apiRequestHandler';
 import { API } from '../service/eventBus';
 import { getPrintFileName, getPrintLocalDate } from '../shared/utils';
 import { useAdvancedSettingsStore } from './settings/advanced';
@@ -32,9 +31,9 @@ export const useGalleryStore = defineStore('Gallery', () => {
         printCropBorder: true,
         printCache: [],
         printQueue: [],
-        printQueueWorker: undefined,
+        printQueueWorker: null,
         stickerTable: [],
-        stickersCache: [],
+        instanceStickersCache: [],
         printTable: [],
         emojiTable: [],
         inventoryTable: [],
@@ -138,10 +137,10 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     });
 
-    const stickersCache = computed({
-        get: () => state.stickersCache,
+    const instanceStickersCache = computed({
+        get: () => state.instanceStickersCache,
         set: (value) => {
-            state.stickersCache = value;
+            state.instanceStickersCache = value;
         }
     });
 
@@ -320,21 +319,25 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     });
 
-    async function trySaveStickerToFile(displayName, fileId) {
-        if (state.stickersCache.includes(fileId)) return;
-        state.stickersCache.push(fileId);
-        if (state.stickersCache.size > 100) {
-            state.stickersCache.shift();
+    async function trySaveStickerToFile(displayName, inventoryId) {
+        if (state.instanceStickersCache.includes(inventoryId)) {
+            return;
         }
-        const args = await request(`file/${fileId}`);
-        const imageUrl = args.versions[1].file.url;
-        const createdAt = args.versions[0].created_at;
+        state.instanceStickersCache.push(inventoryId);
+        if (state.instanceStickersCache.size > 100) {
+            state.instanceStickersCache.shift();
+        }
+        const args = await inventoryRequest.getInventoryItem({
+            inventoryId
+        });
+        const imageUrl = args.json.metadata?.imageUrl ?? args.json.imageUrl;
+        const createdAt = args.json.created_at;
         const monthFolder = createdAt.slice(0, 7);
         const fileNameDate = createdAt
             .replace(/:/g, '-')
             .replace(/T/g, '_')
             .replace(/Z/g, '');
-        const fileName = `${displayName}_${fileNameDate}_${fileId}.png`;
+        const fileName = `${displayName}_${fileNameDate}_${inventoryId}.png`;
         const filePath = await AppApi.SaveStickerToFile(
             imageUrl,
             advancedSettingsStore.ugcFolderPath,
@@ -435,7 +438,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
 
         if (state.printQueue.length === 0) {
             workerTimers.clearInterval(state.printQueueWorker);
-            state.printQueueWorker = undefined;
+            state.printQueueWorker = null;
         }
     }
 
@@ -580,7 +583,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         printUploadNote,
         printCropBorder,
         stickerTable,
-        stickersCache,
+        instanceStickersCache,
         printTable,
         emojiTable,
         inventoryTable,

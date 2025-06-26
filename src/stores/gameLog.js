@@ -867,7 +867,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
 
                 galleryStore.trySaveStickerToFile(
                     gameLog.displayName,
-                    gameLog.fileId
+                    gameLog.inventoryId
                 );
                 break;
         }
