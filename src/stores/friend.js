@@ -275,7 +275,6 @@ export const useFriendStore = defineStore('Friend', () => {
         state.friends.clear();
         state.pendingActiveFriends.clear();
         state.friendNumber = 0;
-        $app.isGroupInstances = false;
         groupStore.groupInstances = [];
         state.vipFriends_ = [];
         state.onlineFriends_ = [];

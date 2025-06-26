@@ -171,8 +171,6 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-$app.data.isGroupInstances = false;
-
 $app.computed.gameLogTabEvent = function () {
     return {
         updateSharedFeed: this.updateSharedFeed
