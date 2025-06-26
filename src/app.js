@@ -177,15 +177,7 @@ $app.data.debugCurrentUserDiff = false;
 $app.data.debugPhotonLogging = false;
 $app.data.debugGameLog = false;
 
-$app.data.friendNumber = 0;
 $app.data.isGroupInstances = false;
-$app.data.groupInstances = [];
-
-$app.computed.sidebarTabBind = function () {
-    return {
-        groupInstances: this.groupInstances
-    };
-};
 
 $app.computed.gameLogTabEvent = function () {
     return {

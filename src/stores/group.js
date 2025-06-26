@@ -61,7 +61,8 @@ export const useGroupStore = defineStore('Group', () => {
             userObject: {}
         },
         cachedGroups: new Map(),
-        inGameGroupOrder: []
+        inGameGroupOrder: [],
+        groupInstances: []
     });
 
     const groupDialog = computed({
@@ -96,6 +97,13 @@ export const useGroupStore = defineStore('Group', () => {
         get: () => state.inGameGroupOrder,
         set: (value) => {
             state.inGameGroupOrder = value;
+        }
+    });
+
+    const groupInstances = computed({
+        get: () => state.groupInstances,
+        set: (value) => {
+            state.groupInstances = value;
         }
     });
 
@@ -691,6 +699,7 @@ export const useGroupStore = defineStore('Group', () => {
         inviteGroupDialog,
         cachedGroups,
         inGameGroupOrder,
+        groupInstances,
         showGroupDialog,
         applyGroup,
         saveCurrentUserGroups,

@@ -50,12 +50,9 @@
 
     const { isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());
     const { showGroupDialog, sortGroupInstancesByInGame } = useGroupStore();
+    const { groupInstances } = storeToRefs(useGroupStore());
 
-    const props = defineProps({
-        groupInstances: {
-            type: Array,
-            default: () => []
-        },
+    defineProps({
         groupOrder: {
             type: Array,
             default: () => []
@@ -67,7 +64,7 @@
     const groupedGroupInstances = computed(() => {
         const groupMap = new Map();
 
-        props.groupInstances.forEach((ref) => {
+        groupInstances.value.forEach((ref) => {
             const groupId = ref.group.groupId;
             if (!groupMap.has(groupId)) {
                 groupMap.set(groupId, []);

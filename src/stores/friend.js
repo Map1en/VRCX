@@ -86,7 +86,8 @@ export const useFriendStore = defineStore('Friend', () => {
                 layout: 'sizes,prev,pager,next,total',
                 pageSizes: [10, 15, 20, 25, 50, 100]
             }
-        }
+        },
+        friendNumber: 0
     });
 
     async function init() {
@@ -273,9 +274,9 @@ export const useFriendStore = defineStore('Friend', () => {
     API.$on('LOGIN', function () {
         state.friends.clear();
         state.pendingActiveFriends.clear();
-        $app.friendNumber = 0;
+        state.friendNumber = 0;
         $app.isGroupInstances = false;
-        $app.groupInstances = [];
+        groupStore.groupInstances = [];
         state.vipFriends_ = [];
         state.onlineFriends_ = [];
         state.activeFriends_ = [];
@@ -1150,13 +1151,13 @@ export const useFriendStore = defineStore('Friend', () => {
             })
             .then((args) => {
                 if (args.json.isFriend && !state.friendLog.has(id)) {
-                    if ($app.friendNumber === 0) {
-                        $app.friendNumber = state.friends.size;
+                    if (state.friendNumber === 0) {
+                        state.friendNumber = state.friends.size;
                     }
-                    ref.$friendNumber = ++$app.friendNumber;
+                    ref.$friendNumber = ++state.friendNumber;
                     configRepository.setInt(
                         `VRCX_friendNumber_${API.currentUser.id}`,
-                        $app.friendNumber
+                        state.friendNumber
                     );
                     addFriend(id, ref.state);
                     const friendLogHistory = {
@@ -1407,13 +1408,13 @@ export const useFriendStore = defineStore('Friend', () => {
      */
     async function getFriendLog(currentUser) {
         let friend;
-        $app.friendNumber = await configRepository.getInt(
+        state.friendNumber = await configRepository.getInt(
             `VRCX_friendNumber_${currentUser.id}`,
             0
         );
         const maxFriendLogNumber = await database.getMaxFriendLogNumber();
-        if ($app.friendNumber < maxFriendLogNumber) {
-            $app.friendNumber = maxFriendLogNumber;
+        if (state.friendNumber < maxFriendLogNumber) {
+            state.friendNumber = maxFriendLogNumber;
         }
 
         const friendLogCurrentArray = await database.getFriendLogCurrent();
@@ -1448,7 +1449,7 @@ export const useFriendStore = defineStore('Friend', () => {
             return;
         }
         var status = false;
-        $app.friendNumber = 0;
+        state.friendNumber = 0;
         for (const ref of state.friendLog.values()) {
             ref.friendNumber = 0;
         }
@@ -1530,13 +1531,13 @@ export const useFriendStore = defineStore('Friend', () => {
         applyFriendLogFriendOrder();
         await configRepository.setInt(
             `VRCX_friendNumber_${API.currentUser.id}`,
-            $app.friendNumber
+            state.friendNumber
         );
         return true;
     }
 
     function applyFriendLogFriendOrderInReverse() {
-        $app.friendNumber = state.friends.size + 1;
+        state.friendNumber = state.friends.size + 1;
         const friendLogTable = getFriendLogFriendOrder();
         for (let i = friendLogTable.length - 1; i > -1; i--) {
             const friendLog = friendLogTable[i];
@@ -1547,7 +1548,7 @@ export const useFriendStore = defineStore('Friend', () => {
             if (ref.friendNumber) {
                 break;
             }
-            ref.friendNumber = --$app.friendNumber;
+            ref.friendNumber = --state.friendNumber;
             state.friendLog.set(ref.userId, ref);
             database.setFriendLogCurrent(ref);
             const friendRef = state.friends.get(friendLog.id);
@@ -1555,7 +1556,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 friendRef.ref.$friendNumber = ref.friendNumber;
             }
         }
-        $app.friendNumber = state.friends.size;
+        state.friendNumber = state.friends.size;
         console.log('Applied friend order from friendLog');
     }
 
@@ -1661,13 +1662,13 @@ export const useFriendStore = defineStore('Friend', () => {
             };
             state.friendLog.set(userId, friendLogCurrent);
             database.setFriendLogCurrent(friendLogCurrent);
-            $app.friendNumber = i + 1;
+            state.friendNumber = i + 1;
         }
     }
 
     function applyFriendLogFriendOrder() {
         const friendLogTable = getFriendLogFriendOrder();
-        if ($app.friendNumber === 0) {
+        if (state.friendNumber === 0) {
             console.log('No backup applied, applying friend log in reverse');
             // this means no FriendOrderBackup was applied
             // will need to apply in reverse order instead
@@ -1678,7 +1679,7 @@ export const useFriendStore = defineStore('Friend', () => {
             if (!ref || ref.friendNumber) {
                 continue;
             }
-            ref.friendNumber = ++$app.friendNumber;
+            ref.friendNumber = ++state.friendNumber;
             state.friendLog.set(ref.userId, ref);
             database.setFriendLogCurrent(ref);
             const friendRef = state.friends.get(friendLog.id);

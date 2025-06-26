@@ -98,17 +98,13 @@
     import FriendsSidebar from './components/FriendsSidebar.vue';
     import GroupsSidebar from './components/GroupsSidebar.vue';
 
-    defineProps({
-        groupInstances: Array
-    });
-
     const { friends, isRefreshFriendsLoading, onlineFriendCount } = storeToRefs(useFriendStore());
     const { refreshFriendsList, confirmDeleteFriend } = useFriendStore();
     const { hideTooltips, asideWidth } = storeToRefs(useAppearanceSettingsStore());
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { quickSearchRemoteMethod, quickSearchChange, directAccessPaste } = useSearchStore();
     const { quickSearchItems } = storeToRefs(useSearchStore());
-    const { inGameGroupOrder } = storeToRefs(useGroupStore());
+    const { inGameGroupOrder, groupInstances } = storeToRefs(useGroupStore());
 
     const isSideBarTabShow = computed(() => {
         return !(menuActiveIndex.value === 'friendList' || menuActiveIndex.value === 'charts');

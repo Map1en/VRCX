@@ -175,7 +175,7 @@ export default function init() {
     });
 
     API.$on('GROUP:USER:INSTANCES', function (args) {
-        $app.groupInstances = [];
+        $app.store.group.groupInstances = [];
         for (const json of args.json.instances) {
             if (args.json.fetchedAt) {
                 // tack on fetchedAt
@@ -194,7 +194,7 @@ export default function init() {
                 }
                 return;
             }
-            $app.groupInstances.push({
+            $app.store.group.groupInstances.push({
                 group: ref,
                 instance: $app.store.instance.applyInstance(json)
             });
