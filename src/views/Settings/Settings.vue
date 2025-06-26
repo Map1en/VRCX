@@ -1253,13 +1253,13 @@
             </el-tab-pane>
 
             <!--//- "Pictures" Tab-->
-            <el-tab-pane lazy :label="$t('view.settings.category.pictures')">
+            <el-tab-pane lazy :label="t('view.settings.category.pictures')">
                 <div class="options-container" style="margin-top: 0">
-                    <span class="header">{{ $t('view.settings.category.pictures') }}</span>
+                    <span class="header">{{ t('view.settings.category.pictures') }}</span>
                     <div class="options-container-item" style="margin-top: 15px">
                         <el-button-group
                             ><el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
-                                $t('view.settings.advanced.advanced.screenshot_metadata')
+                                t('view.settings.advanced.advanced.screenshot_metadata')
                             }}</el-button>
                         </el-button-group>
                     </div>
@@ -1267,19 +1267,19 @@
 
                 <div class="options-container">
                     <el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
-                        $t('view.settings.advanced.advanced.screenshot_metadata')
+                        t('view.settings.advanced.advanced.screenshot_metadata')
                     }}</el-button>
                 </div>
 
                 <div class="options-container">
-                    <span class="header">{{ $t('view.settings.pictures.pictures.open_folder') }}</span>
+                    <span class="header">{{ t('view.settings.pictures.pictures.open_folder') }}</span>
                     <div class="options-container-item" style="margin-top: 15px">
                         <el-button-group>
                             <el-button size="small" icon="el-icon-folder" @click="openVrcPhotosFolder()">{{
-                                $t('view.settings.pictures.pictures.vrc_photos')
+                                t('view.settings.pictures.pictures.vrc_photos')
                             }}</el-button>
                             <el-button size="small" icon="el-icon-folder" @click="openVrcScreenshotsFolder()">{{
-                                $t('view.settings.pictures.pictures.steam_screenshots')
+                                t('view.settings.pictures.pictures.steam_screenshots')
                             }}</el-button>
                         </el-button-group>
                     </div>
@@ -1287,42 +1287,42 @@
 
                 <!--//- Pictures | Screenshot Helper-->
                 <div class="options-container">
-                    <span class="header">{{ $t('view.settings.advanced.advanced.screenshot_helper.header') }}</span>
+                    <span class="header">{{ t('view.settings.advanced.advanced.screenshot_helper.header') }}</span>
                     <div class="options-container-item">
                         <span class="name">{{
-                            $t('view.settings.advanced.advanced.screenshot_helper.description')
+                            t('view.settings.advanced.advanced.screenshot_helper.description')
                         }}</span>
                         <el-tooltip
                             placement="top"
                             style="margin-left: 5px"
-                            :content="$t('view.settings.advanced.advanced.screenshot_helper.description_tooltip')">
+                            :content="t('view.settings.advanced.advanced.screenshot_helper.description_tooltip')">
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
                     <simple-switch
-                        :label="$t('view.settings.advanced.advanced.screenshot_helper.enable')"
+                        :label="t('view.settings.advanced.advanced.screenshot_helper.enable')"
                         :value="screenshotHelper"
                         @change="setScreenshotHelper()"
                         :long-label="true"></simple-switch>
                     <simple-switch
-                        :label="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
+                        :label="t('view.settings.advanced.advanced.screenshot_helper.modify_filename')"
                         :value="screenshotHelperModifyFilename"
                         @change="setScreenshotHelperModifyFilename()"
                         :disabled="!screenshotHelper"
-                        :tooltip="$t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
+                        :tooltip="t('view.settings.advanced.advanced.screenshot_helper.modify_filename_tooltip')"
                         :long-label="true"></simple-switch>
                     <simple-switch
-                        :label="$t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
+                        :label="t('view.settings.advanced.advanced.screenshot_helper.copy_to_clipboard')"
                         :value="screenshotHelperCopyToClipboard"
                         @change="setScreenshotHelperCopyToClipboard()"
                         :long-label="true"></simple-switch>
                 </div>
 
                 <div class="options-container">
-                    <span class="header">{{ $t('view.settings.pictures.pictures.auto_delete_old_prints') }}</span>
+                    <span class="header">{{ t('view.settings.pictures.pictures.auto_delete_old_prints') }}</span>
                     <div class="options-container-item" style="margin-top: 0">
                         <simple-switch
-                            :label="$t('view.settings.pictures.pictures.auto_delete_prints_from_vrc')"
+                            :label="t('view.settings.pictures.pictures.auto_delete_prints_from_vrc')"
                             :value="autoDeleteOldPrints"
                             @change="setAutoDeleteOldPrints()"
                             :long-label="true" />
@@ -1331,12 +1331,10 @@
 
                 <!-- //- Pictures | User Generated Content -->
                 <div class="options-container">
-                    <span class="header">{{
-                        $t('view.settings.advanced.advanced.user_generated_content.header')
-                    }}</span>
+                    <span class="header">{{ t('view.settings.advanced.advanced.user_generated_content.header') }}</span>
                     <div class="options-container-item">
                         <span class="name" style="min-width: 300px">{{
-                            $t('view.settings.advanced.advanced.user_generated_content.description')
+                            t('view.settings.advanced.advanced.user_generated_content.description')
                         }}</span>
                         <br />
                         <el-button
@@ -1344,59 +1342,57 @@
                             icon="el-icon-folder"
                             @click="openUGCFolder()"
                             style="margin-top: 5px"
-                            >{{ $t('view.settings.advanced.advanced.user_generated_content.folder') }}</el-button
+                            >{{ t('view.settings.advanced.advanced.user_generated_content.folder') }}</el-button
                         >
                         <el-button size="small" icon="el-icon-folder-opened" @click="openUGCFolderSelector()">{{
-                            $t('view.settings.advanced.advanced.user_generated_content.set_folder')
+                            t('view.settings.advanced.advanced.user_generated_content.set_folder')
                         }}</el-button>
                         <el-button size="small" icon="el-icon-delete" @click="resetUGCFolder()" v-if="ugcFolderPath">{{
-                            $t('view.settings.advanced.advanced.user_generated_content.reset_override')
+                            t('view.settings.advanced.advanced.user_generated_content.reset_override')
                         }}</el-button>
                         <br />
                         <span class="sub-header">{{
-                            $t('view.settings.advanced.advanced.save_instance_prints_to_file.header')
+                            t('view.settings.advanced.advanced.save_instance_prints_to_file.header')
                         }}</span>
                         <el-tooltip
                             placement="top"
                             style="margin-left: 5px"
-                            :content="
-                                $t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')
-                            ">
+                            :content="t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')">
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                         <simple-switch
-                            :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
+                            :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.description')"
                             :value="saveInstancePrints"
                             @change="setSaveInstancePrints()"
                             :long-label="true" />
                         <simple-switch
-                            :label="$t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
+                            :label="t('view.settings.advanced.advanced.save_instance_prints_to_file.crop')"
                             :value="cropInstancePrints"
                             @change="setCropInstancePrints()"
                             :long-label="true" />
                         <br />
                         <span class="sub-header">{{
-                            $t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
+                            t('view.settings.advanced.advanced.save_instance_stickers_to_file.header')
                         }}</span>
                         <simple-switch
-                            :label="$t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
+                            :label="t('view.settings.advanced.advanced.save_instance_stickers_to_file.description')"
                             :value="saveInstanceStickers"
                             @change="setSaveInstanceStickers()"
                             :long-label="true" />
                         <br />
                         <span class="sub-header"
-                            >{{ $t('view.settings.advanced.advanced.save_instance_emoji_to_file.header') }}
+                            >{{ t('view.settings.advanced.advanced.save_instance_emoji_to_file.header') }}
                             <el-tooltip
                                 placement="top"
                                 style="margin-left: 5px"
                                 :content="
-                                    $t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')
+                                    t('view.settings.advanced.advanced.save_instance_prints_to_file.header_tooltip')
                                 ">
                                 <i class="el-icon-info" />
                             </el-tooltip>
                         </span>
                         <simple-switch
-                            :label="$t('view.settings.advanced.advanced.save_instance_emoji_to_file.description')"
+                            :label="t('view.settings.advanced.advanced.save_instance_emoji_to_file.description')"
                             :value="saveInstanceEmoji"
                             @change="setSaveInstanceEmoji()"
                             :long-label="true" />
