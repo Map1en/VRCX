@@ -303,7 +303,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
             tag: 'sticker'
         };
         vrcPlusIconRequest.getFileList(params).finally(() => {
-            this.galleryDialogStickersLoading = false;
+            state.galleryDialogStickersLoading = false;
         });
     }
 
