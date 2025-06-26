@@ -83,7 +83,7 @@ export default function init() {
                         const logLines = await LogWatcher.GetLogLines();
                         if (logLines) {
                             logLines.forEach((logLine) => {
-                                $app.addGameLogEvent(logLine);
+                                $app.store.gameLog.addGameLogEvent(logLine);
                             });
                         }
                     }

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
@@ -6,11 +7,25 @@ import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
-import { formatSeconds, getGroupName } from '../shared/utils';
+import gameLogService from '../service/gamelog.js';
+import {
+    convertYoutubeTime,
+    formatSeconds,
+    getGroupName,
+    isRpcWorld,
+    replaceBioSymbols
+} from '../shared/utils';
+import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
+import { useGalleryStore } from './gallery';
+import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
+import { useAdvancedSettingsStore } from './settings/advanced';
+import { useAppearanceSettingsStore } from './settings/appearance';
+import { useGeneralSettingsStore } from './settings/general';
 import { useUiStore } from './ui';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
@@ -25,6 +40,13 @@ export const useGameLogStore = defineStore('GameLog', () => {
     const userStore = useUserStore();
     const uiStore = useUiStore();
     const vrcxStore = useVrcxStore();
+    const advancedSettingsStore = useAdvancedSettingsStore();
+    const gameStore = useGameStore();
+    const appearanceSettingsStore = useAppearanceSettingsStore();
+    const generalSettingsStore = useGeneralSettingsStore();
+    const debugStore = useDebugStore();
+    const galleryStore = useGalleryStore();
+    const photonStore = usePhotonStore();
     const state = reactive({
         nowPlaying: {
             url: '',
@@ -58,7 +80,9 @@ export const useGameLogStore = defineStore('GameLog', () => {
             },
             vip: false
         },
-        gameLogSessionTable: []
+        gameLogSessionTable: [],
+        lastVideoUrl: '',
+        lastResourceloadUrl: ''
     });
 
     async function init() {
@@ -92,6 +116,20 @@ export const useGameLogStore = defineStore('GameLog', () => {
         get: () => state.nowPlaying,
         set: (value) => {
             state.nowPlaying = value;
+        }
+    });
+
+    const lastVideoUrl = computed({
+        get: () => state.lastVideoUrl,
+        set: (value) => {
+            state.lastVideoUrl = value;
+        }
+    });
+
+    const lastResourceloadUrl = computed({
+        get: () => state.lastResourceloadUrl,
+        set: (value) => {
+            state.lastResourceloadUrl = value;
         }
     });
 
@@ -438,18 +476,875 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
     }
 
+    function addGameLogEntry(gameLog, location) {
+        if (advancedSettingsStore.gameLogDisabled) {
+            return;
+        }
+        let userId = String(gameLog.userId || '');
+        if (!userId && gameLog.displayName) {
+            for (var ref of API.cachedUsers.values()) {
+                if (ref.displayName === gameLog.displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        switch (gameLog.type) {
+            case 'location-destination':
+                if (gameStore.isGameRunning) {
+                    // needs to be added before OnPlayerLeft entries from LocationReset
+                    addGameLog({
+                        created_at: gameLog.dt,
+                        type: 'LocationDestination',
+                        location: gameLog.location
+                    });
+                    locationStore.lastLocationReset(gameLog.dt);
+                    locationStore.lastLocation.location = 'traveling';
+                    locationStore.lastLocationDestination = gameLog.location;
+                    locationStore.lastLocationDestinationTime = Date.parse(
+                        gameLog.dt
+                    );
+                    instanceStore.removeQueuedInstance(gameLog.location);
+                    locationStore.updateCurrentUserLocation();
+                    clearNowPlaying();
+                    instanceStore.updateCurrentInstanceWorld();
+                    userStore.applyUserDialogLocation();
+                    instanceStore.applyWorldDialogInstances();
+                    instanceStore.applyGroupDialogInstances();
+                }
+                break;
+            case 'location':
+                instanceStore.addInstanceJoinHistory(
+                    locationStore.lastLocation.location,
+                    gameLog.dt
+                );
+                const worldName = replaceBioSymbols(gameLog.worldName);
+                if (gameStore.isGameRunning) {
+                    locationStore.lastLocationReset(gameLog.dt);
+                    clearNowPlaying();
+                    locationStore.lastLocation = {
+                        date: Date.parse(gameLog.dt),
+                        location: gameLog.location,
+                        name: worldName,
+                        playerList: new Map(),
+                        friendList: new Map()
+                    };
+                    instanceStore.removeQueuedInstance(gameLog.location);
+                    locationStore.updateCurrentUserLocation();
+                    vrStore.updateVRLastLocation();
+                    instanceStore.updateCurrentInstanceWorld();
+                    userStore.applyUserDialogLocation();
+                    instanceStore.applyWorldDialogInstances();
+                    instanceStore.applyGroupDialogInstances();
+                }
+                instanceStore.addInstanceJoinHistory(
+                    gameLog.location,
+                    gameLog.dt
+                );
+                const L = parseLocation(gameLog.location);
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'Location',
+                    location: gameLog.location,
+                    worldId: L.worldId,
+                    worldName,
+                    groupName: '',
+                    time: 0
+                };
+                getGroupName(gameLog.location).then((groupName) => {
+                    entry.groupName = groupName;
+                });
+                addGamelogLocationToDatabase(entry);
+                break;
+            case 'player-joined':
+                const joinTime = Date.parse(gameLog.dt);
+                const userMap = {
+                    displayName: gameLog.displayName,
+                    userId,
+                    joinTime,
+                    lastAvatar: ''
+                };
+                locationStore.lastLocation.playerList.set(userId, userMap);
+                var ref = API.cachedUsers.get(userId);
+                if (!userId) {
+                    console.error('Missing userId:', gameLog.displayName);
+                } else if (userId === API.currentUser.id) {
+                    // skip
+                } else if (friendStore.friends.has(userId)) {
+                    locationStore.lastLocation.friendList.set(userId, userMap);
+                    if (
+                        ref.location !== locationStore.lastLocation.location &&
+                        ref.travelingToLocation !==
+                            locationStore.lastLocation.location
+                    ) {
+                        // fix $location_at with private
+                        ref.$location_at = joinTime;
+                    }
+                } else if (typeof ref !== 'undefined') {
+                    // set $location_at to join time if user isn't a friend
+                    ref.$location_at = joinTime;
+                } else {
+                    if ($app.debugGameLog || debugStore.debugWebRequests) {
+                        console.log('Fetching user from gameLog:', userId);
+                    }
+                    userRequest.getUser({ userId });
+                }
+                vrStore.updateVRLastLocation();
+                instanceStore.getCurrentInstanceUserList();
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'OnPlayerJoined',
+                    displayName: gameLog.displayName,
+                    location,
+                    userId,
+                    time: 0
+                };
+                database.addGamelogJoinLeaveToDatabase(entry);
+                break;
+            case 'player-left':
+                var ref = locationStore.lastLocation.playerList.get(userId);
+                if (typeof ref === 'undefined') {
+                    break;
+                }
+                const friendRef = friendStore.friends.get(userId);
+                if (typeof friendRef?.ref !== 'undefined') {
+                    friendRef.ref.$joinCount++;
+                    friendRef.ref.$lastSeen = new Date().toJSON();
+                    friendRef.ref.$timeSpent +=
+                        dayjs(gameLog.dt) - ref.joinTime;
+                    if (
+                        appearanceSettingsStore.sidebarSortMethods.includes(
+                            'Sort by Last Seen'
+                        )
+                    ) {
+                        friendStore.sortVIPFriends = true;
+                        friendStore.sortOnlineFriends = true;
+                    }
+                }
+                const time = dayjs(gameLog.dt) - ref.joinTime;
+                locationStore.lastLocation.playerList.delete(userId);
+                locationStore.lastLocation.friendList.delete(userId);
+                $app.photonLobbyAvatars.delete(userId);
+                vrStore.updateVRLastLocation();
+                instanceStore.getCurrentInstanceUserList();
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'OnPlayerLeft',
+                    displayName: gameLog.displayName,
+                    location,
+                    userId,
+                    time
+                };
+                database.addGamelogJoinLeaveToDatabase(entry);
+                break;
+            case 'portal-spawn':
+                if (vrcxStore.ipcEnabled && gameStore.isGameRunning) {
+                    break;
+                }
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'PortalSpawn',
+                    location,
+                    displayName: '',
+                    userId: '',
+                    instanceId: '',
+                    worldName: ''
+                };
+                database.addGamelogPortalSpawnToDatabase(entry);
+                break;
+            case 'video-play':
+                gameLog.videoUrl = decodeURI(gameLog.videoUrl);
+                if (state.lastVideoUrl === gameLog.videoUrl) {
+                    break;
+                }
+                state.lastVideoUrl = gameLog.videoUrl;
+                addGameLogVideo(gameLog, location, userId);
+                break;
+            case 'video-sync':
+                const timestamp = gameLog.timestamp.replace(/,/g, '');
+                if (state.nowPlaying.playing) {
+                    state.nowPlaying.offset = parseInt(timestamp, 10);
+                }
+                break;
+            case 'resource-load-string':
+            case 'resource-load-image':
+                if (
+                    !generalSettingsStore.logResourceLoad ||
+                    state.lastResourceloadUrl === gameLog.resourceUrl
+                ) {
+                    break;
+                }
+                state.lastResourceloadUrl = gameLog.resourceUrl;
+                var entry = {
+                    created_at: gameLog.dt,
+                    type:
+                        gameLog.type === 'resource-load-string'
+                            ? 'StringLoad'
+                            : 'ImageLoad',
+                    resourceUrl: gameLog.resourceUrl,
+                    location
+                };
+                database.addGamelogResourceLoadToDatabase(entry);
+                break;
+            case 'screenshot':
+                // var entry = {
+                //     created_at: gameLog.dt,
+                //     type: 'Event',
+                //     data: `Screenshot Processed: ${gameLog.screenshotPath.replace(
+                //         /^.*[\\/]/,
+                //         ''
+                //     )}`
+                // };
+                // database.addGamelogEventToDatabase(entry);
+
+                vrcxStore.processScreenshot(gameLog.screenshotPath);
+                break;
+            case 'api-request':
+                // var userId = '';
+                // try {
+                //     var url = new URL(gameLog.url);
+                //     var urlParams = new URLSearchParams(gameLog.url);
+                //     if (url.pathname.substring(0, 13) === '/api/1/users/') {
+                //         var pathArray = url.pathname.split('/');
+                //         userId = pathArray[4];
+                //     } else if (urlParams.has('userId')) {
+                //         userId = urlParams.get('userId');
+                //     }
+                // } catch (err) {
+                //     console.error(err);
+                // }
+                // if (!userId) {
+                //     break;
+                // }
+
+                if (!advancedSettingsStore.saveInstancePrints) {
+                    break;
+                }
+                try {
+                    let printId = '';
+                    const url = new URL(gameLog.url);
+                    if (url.pathname.substring(0, 14) === '/api/1/prints/') {
+                        const pathArray = url.pathname.split('/');
+                        printId = pathArray[4];
+                    }
+                    if (printId && printId.length === 41) {
+                        galleryStore.queueSavePrintToFile(printId);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+                break;
+            case 'avatar-change':
+                var ref = locationStore.lastLocation.playerList.get(userId);
+                if (
+                    photonStore.photonLoggingEnabled ||
+                    typeof ref === 'undefined' ||
+                    ref.lastAvatar === gameLog.avatarName
+                ) {
+                    break;
+                }
+                if (!ref.lastAvatar) {
+                    ref.lastAvatar = gameLog.avatarName;
+                    locationStore.lastLocation.playerList.set(userId, ref);
+                    break;
+                }
+                ref.lastAvatar = gameLog.avatarName;
+                locationStore.lastLocation.playerList.set(userId, ref);
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'AvatarChange',
+                    userId,
+                    name: gameLog.avatarName,
+                    displayName: gameLog.displayName
+                };
+                break;
+            case 'vrcx':
+                // VideoPlay(PyPyDance) "https://jd.pypy.moe/api/v1/videos/jr1NX4Jo8GE.mp4",0.1001,239.606,"0905 : [J-POP] 【まなこ】金曜日のおはよう 踊ってみた (vernities)"
+                const type = gameLog.data.substr(0, gameLog.data.indexOf(' '));
+                if (type === 'VideoPlay(PyPyDance)') {
+                    addGameLogPyPyDance(gameLog, location);
+                } else if (type === 'VideoPlay(VRDancing)') {
+                    addGameLogVRDancing(gameLog, location);
+                } else if (type === 'VideoPlay(ZuwaZuwaDance)') {
+                    addGameLogZuwaZuwaDance(gameLog, location);
+                } else if (type === 'LSMedia') {
+                    addGameLogLSMedia(gameLog, location);
+                } else if (type === 'Movie&Chill') {
+                    addGameLogMovieAndChill(gameLog, location);
+                }
+                break;
+            case 'photon-id':
+                if (
+                    !gameStore.isGameRunning ||
+                    !friendStore.friendLogInitStatus
+                ) {
+                    break;
+                }
+                const photonId = parseInt(gameLog.photonId, 10);
+                var ref = $app.photonLobby.get(photonId);
+                if (typeof ref === 'undefined') {
+                    for (var ctx of API.cachedUsers.values()) {
+                        if (ctx.displayName === gameLog.displayName) {
+                            $app.photonLobby.set(photonId, ctx);
+                            $app.photonLobbyCurrent.set(photonId, ctx);
+                            break;
+                        }
+                    }
+                    var ctx = {
+                        displayName: gameLog.displayName
+                    };
+                    $app.photonLobby.set(photonId, ctx);
+                    $app.photonLobbyCurrent.set(photonId, ctx);
+                    instanceStore.getCurrentInstanceUserList();
+                }
+                break;
+            case 'notification':
+                // var entry = {
+                //     created_at: gameLog.dt,
+                //     type: 'Notification',
+                //     data: gameLog.json
+                // };
+                break;
+            case 'event':
+                var entry = {
+                    created_at: gameLog.dt,
+                    type: 'Event',
+                    data: gameLog.event
+                };
+                database.addGamelogEventToDatabase(entry);
+                break;
+            case 'vrc-quit':
+                if (!gameStore.isGameRunning) {
+                    break;
+                }
+                if (advancedSettingsStore.vrcQuitFix) {
+                    const bias = Date.parse(gameLog.dt) + 3000;
+                    if (bias < Date.now()) {
+                        console.log('QuitFix: Bias too low, not killing VRC');
+                        break;
+                    }
+                    AppApi.QuitGame().then((processCount) => {
+                        if (processCount > 1) {
+                            console.log(
+                                'QuitFix: More than 1 process running, not killing VRC'
+                            );
+                        } else if (processCount === 1) {
+                            console.log('QuitFix: Killed VRC');
+                        } else {
+                            console.log(
+                                'QuitFix: Nothing to kill, no VRC process running'
+                            );
+                        }
+                    });
+                }
+                break;
+            case 'openvr-init':
+                gameStore.isGameNoVR = false;
+                configRepository.setBool('isGameNoVR', gameStore.isGameNoVR);
+                vrStore.updateOpenVR();
+                break;
+            case 'desktop-mode':
+                gameStore.isGameNoVR = true;
+                configRepository.setBool('isGameNoVR', gameStore.isGameNoVR);
+                vrStore.updateOpenVR();
+                break;
+            case 'udon-exception':
+                if (generalSettingsStore.udonExceptionLogging) {
+                    console.log('UdonException', gameLog.data);
+                }
+                // var entry = {
+                //     created_at: gameLog.dt,
+                //     type: 'Event',
+                //     data: gameLog.data
+                // };
+                // database.addGamelogEventToDatabase(entry);
+                break;
+            case 'sticker-spawn':
+                if (!advancedSettingsStore.saveInstanceStickers) {
+                    break;
+                }
+
+                galleryStore.trySaveStickerToFile(
+                    gameLog.displayName,
+                    gameLog.fileId
+                );
+                break;
+        }
+        if (entry) {
+            // add tag colour
+            if (entry.userId) {
+                const tagRef = userStore.customUserTags.get(entry.userId);
+                if (typeof tagRef !== 'undefined') {
+                    entry.tagColour = tagRef.colour;
+                }
+            }
+            notificationStore.queueGameLogNoty(entry);
+            addGameLog(entry);
+        }
+    }
+
+    async function addGameLogVideo(gameLog, location, userId) {
+        let url;
+        const videoUrl = gameLog.videoUrl;
+        let youtubeVideoId = '';
+        let videoId = '';
+        let videoName = '';
+        let videoLength = '';
+        let displayName = '';
+        let videoPos = 8; // video loading delay
+        if (typeof gameLog.displayName !== 'undefined') {
+            displayName = gameLog.displayName;
+        }
+        if (typeof gameLog.videoPos !== 'undefined') {
+            videoPos = gameLog.videoPos;
+        }
+        if (!isRpcWorld(location) || gameLog.videoId === 'YouTube') {
+            // skip PyPyDance and VRDancing videos
+            try {
+                url = new URL(videoUrl);
+                if (
+                    url.origin === 'https://t-ne.x0.to' ||
+                    url.origin === 'https://nextnex.com' ||
+                    url.origin === 'https://r.0cm.org'
+                ) {
+                    url = new URL(url.searchParams.get('url'));
+                }
+                if (videoUrl.startsWith('https://u2b.cx/')) {
+                    url = new URL(videoUrl.substring(15));
+                }
+                const id1 = url.pathname;
+                const id2 = url.searchParams.get('v');
+                if (id1 && id1.length === 12) {
+                    // https://youtu.be/
+                    youtubeVideoId = id1.substring(1, 12);
+                }
+                if (id1 && id1.length === 19) {
+                    // https://www.youtube.com/shorts/
+                    youtubeVideoId = id1.substring(8, 19);
+                }
+                if (id2 && id2.length === 11) {
+                    // https://www.youtube.com/watch?v=
+                    // https://music.youtube.com/watch?v=
+                    youtubeVideoId = id2;
+                }
+                if (advancedSettingsStore.youTubeApi && youtubeVideoId) {
+                    const data =
+                        await advancedSettingsStore.lookupYouTubeVideo(
+                            youtubeVideoId
+                        );
+                    if (data || data.pageInfo.totalResults !== 0) {
+                        videoId = 'YouTube';
+                        videoName = data.items[0].snippet.title;
+                        videoLength = convertYoutubeTime(
+                            data.items[0].contentDetails.duration
+                        );
+                    }
+                }
+            } catch {
+                console.error(`Invalid URL: ${url}`);
+            }
+            const entry = {
+                created_at: gameLog.dt,
+                type: 'VideoPlay',
+                videoUrl,
+                videoId,
+                videoName,
+                videoLength,
+                location,
+                displayName,
+                userId,
+                videoPos
+            };
+            setNowPlaying(entry);
+        }
+    }
+
+    function addGameLogPyPyDance(gameLog, location) {
+        const data =
+            /VideoPlay\(PyPyDance\) "(.+?)",([\d.]+),([\d.]+),"(.*)"/g.exec(
+                gameLog.data
+            );
+        if (!data) {
+            console.error('failed to parse', gameLog.data);
+            return;
+        }
+        const videoUrl = data[1];
+        const videoPos = Number(data[2]);
+        const videoLength = Number(data[3]);
+        const title = data[4];
+        const bracketArray = title.split('(');
+        const text1 = bracketArray.pop();
+        let displayName = text1.slice(0, -1);
+        let text2 = bracketArray.join('(');
+        if (text2 === 'Custom URL') {
+            var videoId = 'YouTube';
+        } else {
+            var videoId = text2.substr(0, text2.indexOf(':') - 1);
+            text2 = text2.substr(text2.indexOf(':') + 2);
+        }
+        const videoName = text2.slice(0, -1);
+        if (displayName === 'Random') {
+            displayName = '';
+        }
+        if (videoUrl === state.nowPlaying.url) {
+            var entry = {
+                created_at: gameLog.dt,
+                videoUrl,
+                videoLength,
+                videoPos
+            };
+            setNowPlaying(entry);
+            return;
+        }
+        let userId = '';
+        if (displayName) {
+            for (const ref of API.cachedUsers.values()) {
+                if (ref.displayName === displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        if (videoId === 'YouTube') {
+            var entry = {
+                dt: gameLog.dt,
+                videoUrl,
+                displayName,
+                videoPos,
+                videoId
+            };
+            addGameLogVideo(entry, location, userId);
+        } else {
+            var entry = {
+                created_at: gameLog.dt,
+                type: 'VideoPlay',
+                videoUrl,
+                videoId,
+                videoName,
+                videoLength,
+                location,
+                displayName,
+                userId,
+                videoPos
+            };
+            setNowPlaying(entry);
+        }
+    }
+
+    function addGameLogVRDancing(gameLog, location) {
+        const data =
+            /VideoPlay\(VRDancing\) "(.+?)",([\d.]+),([\d.]+),(-?[\d.]+),"(.+?)","(.+?)"/g.exec(
+                gameLog.data
+            );
+        if (!data) {
+            console.error('failed to parse', gameLog.data);
+            return;
+        }
+        const videoUrl = data[1];
+        let videoPos = Number(data[2]);
+        const videoLength = Number(data[3]);
+        let videoId = Number(data[4]);
+        const displayName = data[5];
+        const videoName = data[6];
+        if (videoId === -1) {
+            videoId = 'YouTube';
+        }
+        if (parseInt(videoPos, 10) === parseInt(videoLength, 10)) {
+            // ummm okay
+            videoPos = 0;
+        }
+        if (videoUrl === state.nowPlaying.url) {
+            var entry = {
+                created_at: gameLog.dt,
+                videoUrl,
+                videoLength,
+                videoPos
+            };
+            setNowPlaying(entry);
+            return;
+        }
+        let userId = '';
+        if (displayName) {
+            for (let ref of API.cachedUsers.values()) {
+                if (ref.displayName === displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        if (videoId === 'YouTube') {
+            var entry = {
+                dt: gameLog.dt,
+                videoUrl,
+                displayName,
+                videoPos,
+                videoId
+            };
+            addGameLogVideo(entry, location, userId);
+        } else {
+            var entry = {
+                created_at: gameLog.dt,
+                type: 'VideoPlay',
+                videoUrl,
+                videoId,
+                videoName,
+                videoLength,
+                location,
+                displayName,
+                userId,
+                videoPos
+            };
+            setNowPlaying(entry);
+        }
+    }
+
+    function addGameLogZuwaZuwaDance(gameLog, location) {
+        const data =
+            /VideoPlay\(ZuwaZuwaDance\) "(.+?)",([\d.]+),([\d.]+),(-?[\d.]+),"(.+?)","(.+?)"/g.exec(
+                gameLog.data
+            );
+        if (!data) {
+            console.error('failed to parse', gameLog.data);
+            return;
+        }
+        const videoUrl = data[1];
+        const videoPos = Number(data[2]);
+        const videoLength = Number(data[3]);
+        let videoId = Number(data[4]);
+        let displayName = data[5];
+        const videoName = data[6];
+        if (displayName === 'Random') {
+            displayName = '';
+        }
+        if (videoId === 9999) {
+            videoId = 'YouTube';
+        }
+        if (videoUrl === state.nowPlaying.url) {
+            var entry = {
+                created_at: gameLog.dt,
+                videoUrl,
+                videoLength,
+                videoPos
+            };
+            setNowPlaying(entry);
+            return;
+        }
+        let userId = '';
+        if (displayName) {
+            for (const ref of API.cachedUsers.values()) {
+                if (ref.displayName === displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        if (videoId === 'YouTube') {
+            var entry = {
+                dt: gameLog.dt,
+                videoUrl,
+                displayName,
+                videoPos,
+                videoId
+            };
+            addGameLogVideo(entry, location, userId);
+        } else {
+            var entry = {
+                created_at: gameLog.dt,
+                type: 'VideoPlay',
+                videoUrl,
+                videoId,
+                videoName,
+                videoLength,
+                location,
+                displayName,
+                userId,
+                videoPos
+            };
+            setNowPlaying(entry);
+        }
+    }
+
+    function addGameLogLSMedia(gameLog, location) {
+        // [VRCX] LSMedia 0,4268.981,Natsumi-sama,,
+        // [VRCX] LSMedia 0,6298.292,Natsumi-sama,The Outfit (2022), 1080p
+        const data = /LSMedia ([\d.]+),([\d.]+),(.+?),(.+?),(?=[^,]*$)/g.exec(
+            gameLog.data
+        );
+        if (!data) {
+            return;
+        }
+        const videoPos = Number(data[1]);
+        const videoLength = Number(data[2]);
+        const displayName = data[3];
+        const videoName = replaceBioSymbols(data[4]);
+        const videoUrl = videoName;
+        const videoId = 'LSMedia';
+        if (videoUrl === state.nowPlaying.url) {
+            var entry = {
+                created_at: gameLog.dt,
+                videoUrl,
+                videoLength,
+                videoPos
+            };
+            setNowPlaying(entry);
+            return;
+        }
+        let userId = '';
+        if (displayName) {
+            for (let ref of API.cachedUsers.values()) {
+                if (ref.displayName === displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        var entry = {
+            created_at: gameLog.dt,
+            type: 'VideoPlay',
+            videoUrl,
+            videoId,
+            videoName,
+            videoLength,
+            location,
+            displayName,
+            userId,
+            videoPos
+        };
+        setNowPlaying(entry);
+    }
+
+    function addGameLogMovieAndChill(gameLog, location) {
+        // [VRCX] Movie&Chill CurrentTime,Length,PlayerName,MovieName
+        const data = /Movie&Chill ([\d.]+),([\d.]+),(.+?),(.*)/g.exec(
+            gameLog.data
+        );
+        if (!data) {
+            return;
+        }
+        const videoPos = Number(data[1]);
+        const videoLength = Number(data[2]);
+        const displayName = data[3];
+        const videoName = data[4];
+        const videoUrl = videoName;
+        const videoId = 'Movie&Chill';
+        if (!videoName) {
+            return;
+        }
+        if (videoUrl === state.nowPlaying.url) {
+            var entry = {
+                created_at: gameLog.dt,
+                videoUrl,
+                videoLength,
+                videoPos
+            };
+            setNowPlaying(entry);
+            return;
+        }
+        let userId = '';
+        if (displayName) {
+            for (const ref of API.cachedUsers.values()) {
+                if (ref.displayName === displayName) {
+                    userId = ref.id;
+                    break;
+                }
+            }
+        }
+        var entry = {
+            created_at: gameLog.dt,
+            type: 'VideoPlay',
+            videoUrl,
+            videoId,
+            videoName,
+            videoLength,
+            location,
+            displayName,
+            userId,
+            videoPos
+        };
+        setNowPlaying(entry);
+    }
+
+    async function getGameLogTable() {
+        await database.initTables();
+        state.gameLogSessionTable = await database.getGamelogDatabase();
+        const dateTill = await database.getLastDateGameLogDatabase();
+        updateGameLog(dateTill);
+    }
+
+    async function updateGameLog(dateTill) {
+        await gameLogService.setDateTill(dateTill);
+        await gameLogService.reset();
+        await new Promise((resolve) => {
+            workerTimers.setTimeout(resolve, 10000);
+        });
+        let location = '';
+        for (const gameLog of await gameLogService.getAll()) {
+            if (gameLog.type === 'location') {
+                location = gameLog.location;
+            }
+            addGameLogEntry(gameLog, location);
+        }
+    }
+
+    function addGameLogEvent(json) {
+        const rawLogs = JSON.parse(json);
+        const gameLog = gameLogService.parseRawGameLog(
+            rawLogs[1],
+            rawLogs[2],
+            rawLogs.slice(3)
+        );
+        if (
+            $app.debugGameLog &&
+            gameLog.type !== 'photon-id' &&
+            gameLog.type !== 'api-request' &&
+            gameLog.type !== 'udon-exception'
+        ) {
+            console.log('gameLog:', gameLog);
+        }
+        addGameLogEntry(gameLog, locationStore.lastLocation.location);
+    }
+
+    async function disableGameLogDialog() {
+        if (gameStore.isGameRunning) {
+            $app.$message({
+                message:
+                    'VRChat needs to be closed before this option can be changed',
+                type: 'error'
+            });
+            return;
+        }
+        if (!advancedSettingsStore.gameLogDisabled) {
+            $app.$confirm('Continue? Disable GameLog', 'Confirm', {
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel',
+                type: 'info',
+                callback: async (action) => {
+                    if (action === 'confirm') {
+                        advancedSettingsStore.setGameLogDisabled();
+                    }
+                }
+            });
+        } else {
+            advancedSettingsStore.setGameLogDisabled();
+        }
+    }
+
     return {
         state,
         nowPlaying,
         gameLogTable,
         gameLogSessionTable,
+        lastVideoUrl,
+        lastResourceloadUrl,
         clearNowPlaying,
-        setNowPlaying,
         loadPlayerList,
         gameLogIsFriend,
         gameLogIsFavorite,
         gameLogTableLookup,
         addGameLog,
-        addGamelogLocationToDatabase
+        addGamelogLocationToDatabase,
+        getGameLogTable,
+        addGameLogEvent,
+        disableGameLogDialog
     };
 });

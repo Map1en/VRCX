@@ -1869,7 +1869,6 @@
         useFavoriteStore,
         useAppearanceSettingsStore,
         useGeneralSettingsStore,
-        useUserStore,
         useVRCXUpdaterStore,
         useNotificationsSettingsStore,
         useWristOverlaySettingsStore,
@@ -1886,7 +1885,8 @@
         useAvatarStore,
         useLaunchStore,
         useInstanceStore,
-        useGroupStore
+        useGroupStore,
+        useGameLogStore
     } from '../../stores';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
@@ -1902,7 +1902,6 @@
     import { API } from '../../app';
 
     const { messages, t } = useI18n();
-
     const { $message } = getCurrentInstance().proxy;
 
     const generalSettingsStore = useGeneralSettingsStore();
@@ -1923,6 +1922,7 @@
     const { discordActive, discordInstance, discordHideInvite, discordJoinButton, discordHideImage } = storeToRefs(
         useDiscordPresenceSettingsStore()
     );
+    const { disableGameLogDialog } = useGameLogStore();
     const {
         setDiscordActive,
         setDiscordInstance,
@@ -2157,7 +2157,6 @@
         'promptPhotonOverlayMessageTimeout',
         'photonEventTableFilterChange',
         'promptPhotonLobbyTimeoutThreshold',
-        'disableGameLogDialog',
         'promptAutoClearVRCXCacheFrequency'
     ]);
 
@@ -2354,9 +2353,6 @@
     }
     function promptPhotonLobbyTimeoutThreshold() {
         emit('promptPhotonLobbyTimeoutThreshold');
-    }
-    function disableGameLogDialog() {
-        emit('disableGameLogDialog');
     }
     function promptAutoClearVRCXCacheFrequency() {
         emit('promptAutoClearVRCXCacheFrequency');

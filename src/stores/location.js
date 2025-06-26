@@ -240,8 +240,8 @@ export const useLocationStore = defineStore('Location', () => {
         instanceStore.updateCurrentInstanceWorld();
         vrStore.updateVRLastLocation();
         instanceStore.getCurrentInstanceUserList();
-        $app.lastVideoUrl = '';
-        $app.lastResourceloadUrl = '';
+        gameLogStore.lastVideoUrl = '';
+        gameLogStore.lastResourceloadUrl = '';
         userStore.applyUserDialogLocation();
         instanceStore.applyWorldDialogInstances();
         instanceStore.applyGroupDialogInstances();

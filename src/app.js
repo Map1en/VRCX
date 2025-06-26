@@ -10,7 +10,6 @@ import './setup';
 
 import apiLogin from './classes/apiLogin.js';
 import currentUser from './classes/currentUser.js';
-import gameLog from './classes/gameLog.js';
 import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
@@ -143,7 +142,7 @@ let $app = {
         refreshCustomScript();
 
         this.updateLoop();
-        this.getGameLogTable();
+        this.store.gameLog.getGameLogTable();
         this.store.game.checkVRChatDebugLogging();
         this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
         await this.store.auth.migrateStoredUsers();
@@ -165,7 +164,6 @@ prompts();
 apiLogin();
 currentUser();
 updateLoop();
-gameLog();
 gameRealtimeLogging();
 groups();
 
@@ -236,7 +234,6 @@ $app.computed.settingsTabEvent = function () {
         photonEventTableFilterChange: this.photonEventTableFilterChange,
         promptPhotonLobbyTimeoutThreshold:
             this.promptPhotonLobbyTimeoutThreshold,
-        disableGameLogDialog: this.disableGameLogDialog,
         promptAutoClearVRCXCacheFrequency:
             this.promptAutoClearVRCXCacheFrequency,
         updateSharedFeed: this.updateSharedFeed
