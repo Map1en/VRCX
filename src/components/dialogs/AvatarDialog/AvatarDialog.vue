@@ -607,7 +607,6 @@
     import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarModerationRequest, avatarRequest, favoriteRequest, imageRequest, miscRequest } from '../../../api';
-    import { $app } from '../../../app.js';
     import database from '../../../service/database';
     import {
         adjustDialogZ,
@@ -639,6 +638,7 @@
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog, sortUserDialogAvatars } = useUserStore();
+    const { userDialog } = storeToRefs(useUserStore());
     const { currentUser } = storeToRefs(useUserStore());
     const { avatarDialog, cachedAvatarModerations, cachedAvatars, cachedAvatarNames } = storeToRefs(useAvatarStore());
     const { showAvatarDialog, getAvatarGallery, applyAvatarModeration } = useAvatarStore();
@@ -896,7 +896,7 @@
                                         // API.$on('AVATAR:DELETE')
                                         const { json } = args;
                                         cachedAvatars.value.delete(json._id);
-                                        if ($app.store.user.userDialog.id === json.authorId) {
+                                        if (userDialog.value.id === json.authorId) {
                                             const map = new Map();
                                             for (const ref of cachedAvatars.value.values()) {
                                                 if (ref.authorId === json.authorId) {

@@ -1,6 +1,9 @@
-import { $app } from '../../app';
-import { useInstanceStore, useUserStore } from '../../stores';
-import { useLocationStore } from '../../stores/location';
+import {
+    useFriendStore,
+    useInstanceStore,
+    useLocationStore,
+    useUserStore
+} from '../../stores';
 
 /**
  *
@@ -153,8 +156,9 @@ function parseLocation(tag) {
 function checkCanInvite(location) {
     const userStore = useUserStore();
     const locationStore = useLocationStore();
+    const instanceStore = useInstanceStore();
     const L = parseLocation(location);
-    const instance = $app.store.instance.cachedInstances.get(location);
+    const instance = instanceStore.cachedInstances.get(location);
     if (instance?.closedAt) {
         return false;
     }
@@ -182,6 +186,7 @@ function checkCanInvite(location) {
 function checkCanInviteSelf(location) {
     const userStore = useUserStore();
     const instanceStore = useInstanceStore();
+    const friendStore = useFriendStore();
     const L = parseLocation(location);
     const instance = instanceStore.cachedInstances.get(location);
     if (instance?.closedAt) {
@@ -190,10 +195,7 @@ function checkCanInviteSelf(location) {
     if (L.userId === userStore.currentUser.id) {
         return true;
     }
-    if (
-        L.accessType === 'friends' &&
-        !$app.store.friend.friends.has(L.userId)
-    ) {
+    if (L.accessType === 'friends' && !friendStore.friends.has(L.userId)) {
         return false;
     }
     return true;

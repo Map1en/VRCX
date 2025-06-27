@@ -185,6 +185,7 @@ export const useGameStore = defineStore('Game', () => {
         isSteamVRRunning,
         isHmdAfk
     ) {
+        const avatarStore = useAvatarStore();
         if (advancedSettingsStore.gameLogDisabled) {
             return;
         }
@@ -202,7 +203,7 @@ export const useGameStore = defineStore('Game', () => {
                 autoVRChatCacheManagement();
                 checkIfGameCrashed();
                 $app.ipcTimeout = 0;
-                $app.store.avatar.addAvatarWearTime(
+                avatarStore.addAvatarWearTime(
                     userStore.currentUser.currentAvatar
                 );
                 userStore.currentUser.$previousAvatarSwapTime = '';

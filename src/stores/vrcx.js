@@ -12,6 +12,7 @@ import {
     refreshCustomCss,
     removeFromArray
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useAvatarProviderStore } from './avatarProvider';
 import { useFavoriteStore } from './favorite';
@@ -419,7 +420,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
 
     // use in C# side
     function ipcEvent(json) {
-        if (!$app.store.auth.isLoggedIn) {
+        const authStore = useAuthStore();
+        if (!authStore.isLoggedIn) {
             return;
         }
         let data;
@@ -526,7 +528,8 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     });
 
     function eventLaunchCommand(input) {
-        if (!$app.store.auth.isLoggedIn) {
+        const authStore = useAuthStore();
+        if (!authStore.isLoggedIn) {
             return;
         }
         console.log('LaunchCommand:', input);

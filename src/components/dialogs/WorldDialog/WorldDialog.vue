@@ -758,7 +758,6 @@
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
     import { favoriteRequest, imageRequest, miscRequest, userRequest, worldRequest } from '../../../api';
-    import { $app } from '../../../app';
     import { t } from '../../../plugin';
     import database from '../../../service/database.js';
     import { API } from '../../../service/eventBus';
@@ -805,7 +804,7 @@
         setup() {
             const { hideTooltips, isAgeGatedInstancesVisible } = storeToRefs(useAppearanceSettingsStore());
             const { showUserDialog } = useUserStore();
-            const { currentUser } = storeToRefs(useUserStore());
+            const { currentUser, userDialog } = storeToRefs(useUserStore());
             const { worldDialog, cachedWorlds } = storeToRefs(useWorldStore());
             const { showWorldDialog } = useWorldStore();
             const { lastLocation } = storeToRefs(useLocationStore());
@@ -845,7 +844,8 @@
                 checkPreviousImageAvailable,
                 showFullscreenImageDialog,
                 currentUser,
-                t
+                t,
+                userDialog
             };
         },
         data() {
@@ -1090,7 +1090,7 @@
                                                 // API.$on('WORLD:DELETE')
                                                 const { json } = args;
                                                 this.cachedWorlds.delete(json.id);
-                                                if ($app.store.world.worldDialog.ref.authorId === json.authorId) {
+                                                if (this.worldDialog.ref.authorId === json.authorId) {
                                                     const map = new Map();
                                                     for (const ref of this.cachedWorlds.values()) {
                                                         if (ref.authorId === json.authorId) {
@@ -1098,7 +1098,7 @@
                                                         }
                                                     }
                                                     const array = Array.from(map.values());
-                                                    $app.store.user.userDialog.worlds = array;
+                                                    this.userDialog.worlds = array;
                                                 }
                                                 this.$message({
                                                     message: 'World has been deleted',

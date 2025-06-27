@@ -6,6 +6,7 @@ import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { branches } from '../shared/constants';
 import { changeLogRemoveLinks } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useUiStore } from './ui';
 
 export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
@@ -175,6 +176,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
         }
     }
     async function checkForVRCXUpdate() {
+        const authStore = useAuthStore();
         if (
             !currentVersion.value ||
             currentVersion.value === 'VRCX Nightly Build' ||
@@ -263,7 +265,7 @@ export const useVRCXUpdaterStore = defineStore('VRCXUpdater', () => {
                 state.pendingVRCXUpdate = true;
                 uiStore.notifyMenu('settings');
                 const type = 'Auto';
-                if (!$app.store.auth.isLoggedIn) {
+                if (!authStore.isLoggedIn) {
                     showVRCXUpdateDialog();
                 } else if (state.autoUpdateVRCX === 'Notify') {
                     // this.showVRCXUpdateDialog();

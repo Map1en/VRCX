@@ -1,4 +1,4 @@
-import { storeToRefs } from 'pinia';
+import { useAvatarStore } from '../../../stores';
 import { useWorldStore } from '../../../stores/world';
 import { compareUnityVersion } from '../avatar';
 import {
@@ -14,19 +14,18 @@ import {
  */
 async function getBundleLocation(input) {
     const worldStore = useWorldStore();
-    const { worldDialog } = storeToRefs(worldStore);
+    const avatarStore = useAvatarStore();
     let unityPackage;
     let unityPackages;
-    const $app = window.$app;
     let assetUrl = input;
     let variant = '';
     if (assetUrl) {
         // continue
     } else if (
-        $app.store.avatar.avatarDialog.visible &&
-        $app.store.avatar.avatarDialog.ref.unityPackages.length > 0
+        avatarStore.avatarDialog.visible &&
+        avatarStore.avatarDialog.ref.unityPackages.length > 0
     ) {
-        unityPackages = $app.store.avatar.avatarDialog.ref.unityPackages;
+        unityPackages = avatarStore.avatarDialog.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
             unityPackage = unityPackages[i];
             if (
@@ -48,15 +47,15 @@ async function getBundleLocation(input) {
             }
         }
     } else if (
-        $app.store.avatar.avatarDialog.visible &&
-        $app.store.avatar.avatarDialog.ref.assetUrl
+        avatarStore.avatarDialog.visible &&
+        avatarStore.avatarDialog.ref.assetUrl
     ) {
-        assetUrl = $app.store.avatar.avatarDialog.ref.assetUrl;
+        assetUrl = avatarStore.avatarDialog.ref.assetUrl;
     } else if (
-        worldDialog.value.visible &&
-        worldDialog.value.ref.unityPackages.length > 0
+        worldStore.worldDialog.visible &&
+        worldStore.worldDialog.ref.unityPackages.length > 0
     ) {
-        unityPackages = worldDialog.value.ref.unityPackages;
+        unityPackages = worldStore.worldDialog.ref.unityPackages;
         for (let i = unityPackages.length - 1; i > -1; i--) {
             unityPackage = unityPackages[i];
             if (
@@ -67,8 +66,11 @@ async function getBundleLocation(input) {
                 break;
             }
         }
-    } else if (worldDialog.value.visible && worldDialog.value.ref.assetUrl) {
-        assetUrl = worldDialog.value.ref.assetUrl;
+    } else if (
+        worldStore.worldDialog.visible &&
+        worldStore.worldDialog.ref.assetUrl
+    ) {
+        assetUrl = worldStore.worldDialog.ref.assetUrl;
     }
     if (!assetUrl) {
         return null;

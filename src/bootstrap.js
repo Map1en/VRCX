@@ -12,7 +12,6 @@ import vrcxJsonStorage from './service/jsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
 
 Vue.use(PiniaVuePlugin);
-
 Vue.filter('commaNumber', commaNumber);
 Vue.filter('textToHex', textToHex);
 

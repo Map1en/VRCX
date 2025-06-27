@@ -1,6 +1,10 @@
-import { $app } from '../app';
 import { API } from '../service/eventBus';
 import { request } from '../service/request';
+import { useGroupStore } from '../stores';
+
+function getGalleryStore() {
+    return useGroupStore();
+}
 
 const notificationReq = {
     /** @typedef {{
@@ -107,7 +111,7 @@ const notificationReq = {
         return request(`invite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.store.gallery.uploadImage
+            imageData: getGalleryStore().uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -138,7 +142,7 @@ const notificationReq = {
         return request(`requestInvite/${receiverUserId}/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.store.gallery.uploadImage
+            imageData: getGalleryStore().uploadImage
         }).then((json) => {
             const args = {
                 json,
@@ -170,7 +174,7 @@ const notificationReq = {
         return request(`invite/${inviteId}/response/photo`, {
             uploadImageLegacy: true,
             postData: JSON.stringify(params),
-            imageData: $app.store.gallery.uploadImage,
+            imageData: getGalleryStore().uploadImage,
             inviteId
         }).then((json) => {
             const args = {

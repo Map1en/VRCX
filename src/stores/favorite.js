@@ -664,13 +664,12 @@ export const useFavoriteStore = defineStore('Favorite', () => {
     });
 
     API.$on('FAVORITE:@DELETE', function (args) {
+        const favoriteStore = useFavoriteStore();
         const D = worldStore.worldDialog;
         if (D.visible === false || D.id !== args.ref.favoriteId) {
             return;
         }
-        D.isFavorite = $app.store.favorite.localWorldFavoritesList.includes(
-            D.id
-        );
+        D.isFavorite = favoriteStore.localWorldFavoritesList.includes(D.id);
     });
 
     API.$on('FAVORITE', function (args) {

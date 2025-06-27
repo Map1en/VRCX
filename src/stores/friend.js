@@ -17,6 +17,7 @@ import {
     isRealInstance,
     removeFromArray
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useFavoriteStore } from './favorite';
 import { useFeedStore } from './feed';
 import { useGroupStore } from './group';
@@ -863,6 +864,7 @@ export const useFriendStore = defineStore('Friend', () => {
      * @returns {Promise<*[]>}
      */
     async function bulkRefreshFriends(args) {
+        const authStore = useAuthStore();
         // API.bulkRefreshFriends
         let friends = [];
         const params = {
@@ -884,7 +886,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     break retryLoop;
                 } catch (err) {
                     console.error(err);
-                    if (!$app.store.auth.isLoggedIn) {
+                    if (!authStore.isLoggedIn) {
                         console.error(`User isn't logged in`);
                         break mainLoop;
                     }
@@ -956,10 +958,11 @@ export const useFriendStore = defineStore('Friend', () => {
      */
     async function refreshRemainingFriends(friends) {
         // API.refreshRemainingFriends
+        const authStore = useAuthStore();
         for (const userId of userStore.currentUser.friends) {
             if (!friends.some((x) => x.id === userId)) {
                 try {
-                    if (!$app.store.auth.isLoggedIn) {
+                    if (!authStore.isLoggedIn) {
                         console.error(`User isn't logged in`);
                         return friends;
                     }

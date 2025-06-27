@@ -1,9 +1,10 @@
-import { $app } from '../app';
 import { API } from '../service/eventBus';
 import { request } from '../service/request';
+import { useAvatarStore, useWorldStore } from '../stores';
 
 const imageReq = {
     async uploadAvatarFailCleanup(id) {
+        const avatarStore = useAvatarStore();
         const json = await request(`file/${id}`, {
             method: 'GET'
         });
@@ -15,7 +16,7 @@ const imageReq = {
         request(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        $app.store.avatar.avatarDialog.loading = false;
+        avatarStore.avatarDialog.loading = false;
     },
 
     async uploadAvatarImage(params, fileId) {
@@ -130,9 +131,8 @@ const imageReq = {
         });
     },
 
-    // use in uploadWorldImage
-    // need to test
     async uploadWorldFailCleanup(id) {
+        const worldStore = useWorldStore();
         const json = await request(`file/${id}`, {
             method: 'GET'
         });
@@ -144,7 +144,7 @@ const imageReq = {
         request(`file/${fileId}/${fileVersion}/file/finish`, {
             method: 'PUT'
         });
-        $app.store.world.worldDialog.loading = false;
+        worldStore.worldDialog.loading = false;
     },
 
     async uploadWorldImage(params, fileId) {
