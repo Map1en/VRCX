@@ -15,7 +15,6 @@
     import NavMenu from './components/NavMenu.vue';
     import configRepository from './service/config.js';
 
-    import { API } from './service/eventBus';
     import { refreshCustomCss, refreshCustomScript } from './shared/utils';
     import { utils } from './shared/utils/_utils';
     import { createGlobalStores } from './stores';
@@ -50,11 +49,6 @@
             store.appearanceSettings.saveThemeMode(initThemeMode);
             Vue.prototype.store = store;
             Vue.prototype.utils = utils;
-        },
-        data() {
-            return {
-                API
-            };
         },
         methods: {
             /**

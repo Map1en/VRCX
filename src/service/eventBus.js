@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import { useAuthStore } from '../stores';
 
 const eventHandlers = new Map();
@@ -90,6 +91,8 @@ API.$on('CONFIG', function (args) {
     }
     AppApi.PopulateImageHosts(JSON.stringify(args.ref.whiteListedAssetUrls));
 });
+
+Vue.observable(API);
 
 window.API = API;
 
