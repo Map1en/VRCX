@@ -148,8 +148,6 @@ let $app = {
 
 websocket();
 
-API.cachedUsers = new Map();
-
 $app.data.debug = false;
 $app.data.debugWebSocket = false;
 $app.data.debugUserDiff = false;

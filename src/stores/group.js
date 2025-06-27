@@ -915,7 +915,7 @@ export const useGroupStore = defineStore('Group', () => {
                 json.user = userStore.currentUser;
                 json.$displayName = userStore.currentUser.displayName;
             } else {
-                ref = API.cachedUsers.get(json.user.id);
+                ref = userStore.cachedUsers.get(json.user.id);
                 if (typeof ref !== 'undefined') {
                     json.user = ref;
                     json.$displayName = ref.displayName;

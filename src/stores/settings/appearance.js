@@ -4,7 +4,6 @@ import { $app } from '../../app';
 import { i18n, t } from '../../plugin';
 import configRepository from '../../service/config';
 import database from '../../service/database';
-import { API } from '../../service/eventBus';
 import {
     changeAppThemeStyle,
     changeCJKFontsOrder,
@@ -310,7 +309,7 @@ export const useAppearanceSettingsStore = defineStore(
                 userColourInit();
             } else {
                 applyUserTrustLevel(userStore.currentUser);
-                API.cachedUsers.forEach((ref) => {
+                userStore.cachedUsers.forEach((ref) => {
                     applyUserTrustLevel(ref);
                 });
             }
@@ -319,13 +318,13 @@ export const useAppearanceSettingsStore = defineStore(
 
         async function userColourInit() {
             let dictObject = await AppApi.GetColourBulk(
-                Array.from(API.cachedUsers.keys())
+                Array.from(userStore.cachedUsers.keys())
             );
             if (LINUX) {
                 dictObject = Object.fromEntries(dictObject);
             }
             for (const [userId, hue] of Object.entries(dictObject)) {
-                const ref = API.cachedUsers.get(userId);
+                const ref = userStore.cachedUsers.get(userId);
                 if (typeof ref !== 'undefined') {
                     ref.$userColour = HueToHex(hue);
                 }

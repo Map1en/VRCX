@@ -407,7 +407,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         groupStore.cachedGroups.clear();
         avatarStore.cachedAvatars.clear();
         worldStore.cachedWorlds.clear();
-        API.cachedUsers.clear();
+        userStore.cachedUsers.clear();
         instanceStore.cachedInstances.clear();
         avatarStore.cachedAvatarNames.clear();
         avatarStore.cachedAvatarModerations.clear();
@@ -757,7 +757,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 };
                 state.favoriteObjects.set(objectId, ctx);
                 if (type === 'friend') {
-                    ref = API.cachedUsers.get(objectId);
+                    ref = userStore.cachedUsers.get(objectId);
                     if (typeof ref === 'undefined') {
                         ref = friendStore.friendLog.get(objectId);
                         if (typeof ref !== 'undefined' && ref.displayName) {
@@ -797,7 +797,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     }
                 }
                 if (type === 'friend') {
-                    ref = API.cachedUsers.get(objectId);
+                    ref = userStore.cachedUsers.get(objectId);
                     if (typeof ref !== 'undefined') {
                         if (ctx.ref !== ref) {
                             ctx.ref = ref;

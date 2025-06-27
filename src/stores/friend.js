@@ -430,7 +430,7 @@ export const useFriendStore = defineStore('Friend', () => {
         if (typeof ctx === 'undefined') {
             return;
         }
-        const ref = API.cachedUsers.get(id);
+        const ref = userStore.cachedUsers.get(id);
         if (stateInput) {
             ctx.pendingState = stateInput;
             if (typeof ref !== 'undefined') {
@@ -775,7 +775,7 @@ export const useFriendStore = defineStore('Friend', () => {
         if (state.friends.has(id)) {
             return;
         }
-        const ref = API.cachedUsers.get(id);
+        const ref = userStore.cachedUsers.get(id);
         const isVIP = state.localFavoriteFriends.has(id);
         let name = '';
         const friend = state.friendLog.get(id);
@@ -1006,7 +1006,7 @@ export const useFriendStore = defineStore('Friend', () => {
             if (state.pendingActiveFriends.has(userId)) {
                 continue;
             }
-            const user = API.cachedUsers.get(userId);
+            const user = userStore.cachedUsers.get(userId);
             if (typeof user !== 'undefined' && user.status !== 'offline') {
                 continue;
             }
@@ -1131,7 +1131,7 @@ export const useFriendStore = defineStore('Friend', () => {
         ) {
             return;
         }
-        const ref = API.cachedUsers.get(id);
+        const ref = userStore.cachedUsers.get(id);
         if (typeof ref === 'undefined') {
             try {
                 userRequest.getUser({
@@ -1427,7 +1427,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
         // check for friend/name/rank change AFTER friendLogInitStatus is set
         for (friend of friendLogCurrentArray) {
-            const ref = API.cachedUsers.get(friend.userId);
+            const ref = userStore.cachedUsers.get(friend.userId);
             if (typeof ref !== 'undefined') {
                 updateFriendship(ref);
             }

@@ -109,7 +109,7 @@ export const useSearchStore = defineStore('Search', () => {
 
             const map = new Map();
             for (const json of args.json) {
-                const ref = API.cachedUsers.get(json.id);
+                const ref = userStore.cachedUsers.get(json.id);
                 if (typeof ref !== 'undefined') {
                     map.set(ref.id, ref);
                 }
@@ -223,7 +223,7 @@ export const useSearchStore = defineStore('Search', () => {
             .slice(0, 5);
         const results = [];
         userHistory.forEach((userId) => {
-            const ref = API.cachedUsers.get(userId);
+            const ref = userStore.cachedUsers.get(userId);
             if (typeof ref !== 'undefined') {
                 results.push({
                     value: ref.id,

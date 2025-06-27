@@ -273,13 +273,13 @@ export const useVrcxStore = defineStore('Vrcx', () => {
 
     function clearVRCXCache() {
         failedGetRequests.clear();
-        API.cachedUsers.forEach((ref, id) => {
+        userStore.cachedUsers.forEach((ref, id) => {
             if (
                 !friendStore.friends.has(id) &&
                 !locationStore.lastLocation.playerList.has(ref.id) &&
                 id !== userStore.currentUser.id
             ) {
-                API.cachedUsers.delete(id);
+                userStore.cachedUsers.delete(id);
             }
         });
         worldStore.cachedWorlds.forEach((ref, id) => {
@@ -325,7 +325,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             case 'ClearCustomTags':
                 userStore.customUserTags.forEach((value, key) => {
                     userStore.customUserTags.delete(key);
-                    const ref = API.cachedUsers.get(key);
+                    const ref = userStore.cachedUsers.get(key);
                     if (typeof ref !== 'undefined') {
                         ref.$customTag = '';
                         ref.$customTagColour = '';

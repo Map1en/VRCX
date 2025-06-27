@@ -6,7 +6,6 @@ import { userRequest } from '../api';
 import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
-import { API } from '../service/eventBus';
 import gameLogService from '../service/gamelog.js';
 import {
     convertYoutubeTime,
@@ -154,7 +153,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
     function setNowPlaying(ctx) {
         if (state.nowPlaying.url !== ctx.videoUrl) {
             if (!ctx.userId && ctx.displayName) {
-                for (const ref of API.cachedUsers.values()) {
+                for (const ref of userStore.cachedUsers.values()) {
                     if (ref.displayName === ctx.displayName) {
                         ctx.userId = ref.id;
                         break;
@@ -242,7 +241,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 ctx = data[i];
                 if (ctx.type === 'OnPlayerJoined') {
                     if (!ctx.userId) {
-                        for (let ref of API.cachedUsers.values()) {
+                        for (let ref of userStore.cachedUsers.values()) {
                             if (ref.displayName === ctx.displayName) {
                                 ctx.userId = ref.id;
                                 break;
@@ -275,7 +274,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 if (
                     ref1.userId &&
                     typeof ref1.userId === 'string' &&
-                    !API.cachedUsers.has(ref1.userId)
+                    !userStore.cachedUsers.has(ref1.userId)
                 ) {
                     userRequest.getUser({ userId: ref1.userId });
                 }
@@ -485,7 +484,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = String(gameLog.userId || '');
         if (!userId && gameLog.displayName) {
-            for (var ref of API.cachedUsers.values()) {
+            for (var ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === gameLog.displayName) {
                     userId = ref.id;
                     break;
@@ -568,7 +567,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                     lastAvatar: ''
                 };
                 locationStore.lastLocation.playerList.set(userId, userMap);
-                var ref = API.cachedUsers.get(userId);
+                var ref = userStore.cachedUsers.get(userId);
                 if (!userId) {
                     console.error('Missing userId:', gameLog.displayName);
                 } else if (userId === userStore.currentUser.id) {
@@ -809,7 +808,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 const photonId = parseInt(gameLog.photonId, 10);
                 var ref = $app.photonLobby.get(photonId);
                 if (typeof ref === 'undefined') {
-                    for (var ctx of API.cachedUsers.values()) {
+                    for (var ctx of userStore.cachedUsers.values()) {
                         if (ctx.displayName === gameLog.displayName) {
                             $app.photonLobby.set(photonId, ctx);
                             photonStore.photonLobbyCurrent.set(photonId, ctx);
@@ -1024,7 +1023,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = '';
         if (displayName) {
-            for (const ref of API.cachedUsers.values()) {
+            for (const ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === displayName) {
                     userId = ref.id;
                     break;
@@ -1091,7 +1090,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = '';
         if (displayName) {
-            for (let ref of API.cachedUsers.values()) {
+            for (let ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === displayName) {
                     userId = ref.id;
                     break;
@@ -1157,7 +1156,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = '';
         if (displayName) {
-            for (const ref of API.cachedUsers.values()) {
+            for (const ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === displayName) {
                     userId = ref.id;
                     break;
@@ -1217,7 +1216,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = '';
         if (displayName) {
-            for (let ref of API.cachedUsers.values()) {
+            for (let ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === displayName) {
                     userId = ref.id;
                     break;
@@ -1268,7 +1267,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
         }
         let userId = '';
         if (displayName) {
-            for (const ref of API.cachedUsers.values()) {
+            for (const ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === displayName) {
                     userId = ref.id;
                     break;

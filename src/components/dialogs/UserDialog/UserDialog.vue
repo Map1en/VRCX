@@ -1849,7 +1849,7 @@
 
     const { hideTooltips, hideUserNotes, hideUserMemos } = storeToRefs(useAppearanceSettingsStore());
     const { avatarRemoteDatabase } = storeToRefs(useAdvancedSettingsStore());
-    const { userDialog, languageDialog, currentUser } = storeToRefs(useUserStore());
+    const { userDialog, languageDialog, currentUser, cachedUsers } = storeToRefs(useUserStore());
     const { showUserDialog, applyUser, sortUserDialogAvatars, refreshUserDialogAvatars, refreshUserDialogTreeData } =
         useUserStore();
     const { favoriteLimits } = storeToRefs(useFavoriteStore());
@@ -2325,7 +2325,7 @@
 
     function handleSendFriendRequest(args) {
         // API.$on('FRIEND:REQUEST')
-        const ref = API.cachedUsers.get(args.params.userId);
+        const ref = cachedUsers.get(args.params.userId);
         if (typeof ref === 'undefined') {
             return;
         }
@@ -2351,8 +2351,7 @@
     }
 
     function handleCancelFriendRequest(args) {
-        // API.$on('FRIEND:REQUEST:CANCEL')
-        const ref = API.cachedUsers.get(args.params.userId);
+        const ref = cachedUsers.get(args.params.userId);
         if (typeof ref === 'undefined') {
             return;
         }
@@ -2364,8 +2363,6 @@
         };
         friendLogTable.value.data.push(friendLogHistory);
         database.addFriendLogHistory(friendLogHistory);
-
-        // API.$on('FRIEND:REQUEST:CANCEL')
         const D = userDialog.value;
         if (D.visible === false || D.id !== args.params.userId) {
             return;
@@ -2765,7 +2762,6 @@
     }
 
     function handleNoteChange(args) {
-        // API.$on('NOTE')
         let _note = '';
         let targetUserId = '';
         if (typeof args.json !== 'undefined') {
@@ -2783,7 +2779,7 @@
                 userRequest.getUser({ userId: targetUserId });
             }
         }
-        const ref = API.cachedUsers.get(targetUserId);
+        const ref = cachedUsers.get(targetUserId);
         if (typeof ref !== 'undefined') {
             applyUser({
                 id: targetUserId,

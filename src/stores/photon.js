@@ -411,7 +411,7 @@ export const usePhotonStore = defineStore('Photon', () => {
 
     function getDisplayName(userId) {
         if (userId) {
-            const ref = API.cachedUsers.get(userId);
+            const ref = userStore.cachedUsers.get(userId);
             if (ref.displayName) {
                 return ref.displayName;
             }
@@ -1484,7 +1484,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         if (typeof user.tags !== 'undefined') {
             tags = user.tags;
         }
-        let ref = API.cachedUsers.get(user.id);
+        let ref = userStore.cachedUsers.get(user.id);
         const photonUser = {
             id: user.id,
             displayName: user.displayName,

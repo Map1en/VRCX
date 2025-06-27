@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { $app } from '../app';
 import database from '../service/database';
-import { API } from '../service/eventBus';
 import {
     getGroupName,
     getWorldName,
@@ -79,7 +78,7 @@ export const useLocationStore = defineStore('Location', () => {
     });
 
     function updateCurrentUserLocation() {
-        const ref = API.cachedUsers.get(userStore.currentUser.id);
+        const ref = userStore.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref === 'undefined') {
             return;
         }

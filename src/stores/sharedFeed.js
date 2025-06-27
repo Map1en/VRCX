@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { groupRequest, worldRequest } from '../api';
-import { API } from '../service/eventBus';
 import { useFeedStore } from './feed';
 import { useFriendStore } from './friend';
 import { useGameLogStore } from './gameLog';
@@ -311,7 +310,7 @@ export const useSharedFeedStore = defineStore('SharedFeed', () => {
                 isFriend = friendStore.friends.has(ctx.userId);
                 isFavorite = friendStore.localFavoriteFriends.has(ctx.userId);
             } else if (ctx.displayName) {
-                for (var ref of API.cachedUsers.values()) {
+                for (var ref of userStore.cachedUsers.values()) {
                     if (ref.displayName === ctx.displayName) {
                         isFriend = friendStore.friends.has(ref.id);
                         isFavorite = friendStore.localFavoriteFriends.has(

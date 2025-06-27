@@ -5,6 +5,7 @@ import { $app } from '../app.js';
 import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import { escapeTag, parseLocation } from '../shared/utils';
+import { useUserStore } from '../stores';
 
 export default function init() {
     API.webSocket = null;
@@ -35,6 +36,7 @@ export default function init() {
     });
 
     API.connectWebSocket = function (token) {
+        const userStore = useUserStore();
         if (this.webSocket !== null) {
             return;
         }
@@ -90,7 +92,7 @@ export default function init() {
                 });
                 if ($app.debugWebSocket && json.content) {
                     var displayName = '';
-                    var user = this.cachedUsers.get(json.content.userId);
+                    var user = userStore.get(json.content.userId);
                     if (user) {
                         displayName = user.displayName;
                     }
@@ -135,6 +137,7 @@ export default function init() {
     };
 
     API.$on('PIPELINE', function (args) {
+        const userStore = useUserStore();
         var { type, content, err } = args.json;
         if (typeof err !== 'undefined') {
             console.error('PIPELINE: error', args);
@@ -364,7 +367,7 @@ export default function init() {
                     content.travelingToLocation
                 );
                 if (!content?.user?.id) {
-                    var ref = this.cachedUsers.get(content.userId);
+                    var ref = userStore.get(content.userId);
                     if (typeof ref !== 'undefined') {
                         this.$emit('USER', {
                             json: {

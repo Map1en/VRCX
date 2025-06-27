@@ -2127,7 +2127,7 @@ export const useNotificationStore = defineStore('Notification', () => {
         } else if (noty.sourceUserId) {
             userId = noty.sourceUserId;
         } else if (noty.displayName) {
-            for (const ref of API.cachedUsers.values()) {
+            for (const ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === noty.displayName) {
                     userId = ref.id;
                     break;
@@ -2248,7 +2248,7 @@ export const useNotificationStore = defineStore('Notification', () => {
             noty.isFriend = friendStore.friends.has(noty.userId);
             noty.isFavorite = friendStore.localFavoriteFriends.has(noty.userId);
         } else if (noty.displayName) {
-            for (var ref of API.cachedUsers.values()) {
+            for (var ref of userStore.cachedUsers.values()) {
                 if (ref.displayName === noty.displayName) {
                     noty.isFriend = friendStore.friends.has(ref.id);
                     noty.isFavorite = friendStore.localFavoriteFriends.has(

@@ -5,6 +5,9 @@ import { useUserStore } from '../stores';
 function getCurrentUserId() {
     return useUserStore().currentUser.id;
 }
+function getCachedUser() {
+    return useUserStore().cachedUsers;
+}
 
 const userReq = {
     /**
@@ -37,7 +40,7 @@ const userReq = {
      */
     getCachedUser(params) {
         return new Promise((resolve, reject) => {
-            const ref = API.cachedUsers.get(params.userId);
+            const ref = getCachedUser.get(params.userId);
             if (typeof ref === 'undefined') {
                 userReq.getUser(params).catch(reject).then(resolve);
             } else {

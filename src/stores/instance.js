@@ -534,7 +534,9 @@ export const useInstanceStore = defineStore('Instance', () => {
                 ref: {}
             };
         }
-        const cachedCurrentUser = API.cachedUsers.get(userStore.currentUser.id);
+        const cachedCurrentUser = userStore.cachedUsers.get(
+            userStore.currentUser.id
+        );
         const lastLocation$ = cachedCurrentUser.$location;
         const playersInInstance = locationStore.lastLocation.playerList;
         if (lastLocation$.worldId === D.id && playersInInstance.size > 0) {
@@ -556,7 +558,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                     return friend.userId === user.id;
                 });
                 if (addUser) {
-                    ref = API.cachedUsers.get(friend.userId);
+                    ref = userStore.cachedUsers.get(friend.userId);
                     if (typeof ref !== 'undefined') {
                         instance.users.push(ref);
                     }
@@ -595,7 +597,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
             instance.users.push(ref);
         }
-        ref = API.cachedUsers.get(userStore.currentUser.id);
+        ref = userStore.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.worldId === D.id) {
             const { instanceId } = ref.$location;
             instance = instances[instanceId];
@@ -624,7 +626,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
             instance.$location = L;
             if (L.userId) {
-                ref = API.cachedUsers.get(L.userId);
+                ref = userStore.cachedUsers.get(L.userId);
                 if (typeof ref === 'undefined') {
                     userRequest
                         .getUser({
@@ -725,7 +727,9 @@ export const useInstanceStore = defineStore('Instance', () => {
                 };
             }
         }
-        const cachedCurrentUser = API.cachedUsers.get(userStore.currentUser.id);
+        const cachedCurrentUser = userStore.cachedUsers.get(
+            userStore.currentUser.id
+        );
         const lastLocation$ = cachedCurrentUser.$location;
         const currentLocation = lastLocation$.tag;
         const playersInInstance = locationStore.lastLocation.playerList;
@@ -747,7 +751,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                     return friend.userId === user.id;
                 });
                 if (addUser) {
-                    ref = API.cachedUsers.get(friend.userId);
+                    ref = userStore.cachedUsers.get(friend.userId);
                     if (typeof ref !== 'undefined') {
                         instance.users.push(ref);
                     }
@@ -786,7 +790,7 @@ export const useInstanceStore = defineStore('Instance', () => {
             }
             instance.users.push(ref);
         }
-        ref = API.cachedUsers.get(userStore.currentUser.id);
+        ref = userStore.cachedUsers.get(userStore.currentUser.id);
         if (typeof ref !== 'undefined' && ref.$location.groupId === D.id) {
             const { instanceId, tag } = ref.$location;
             instance = instances[tag];
@@ -1118,7 +1122,7 @@ export const useInstanceStore = defineStore('Instance', () => {
 
         const playersInInstance = locationStore.lastLocation.playerList;
         if (playersInInstance.size > 0) {
-            let ref = API.cachedUsers.get(userStore.currentUser.id);
+            let ref = userStore.cachedUsers.get(userStore.currentUser.id);
             if (typeof ref !== 'undefined' && playersInInstance.has(ref.id)) {
                 pushUser(ref);
             }
@@ -1131,7 +1135,7 @@ export const useInstanceStore = defineStore('Instance', () => {
                     return player.displayName === user.displayName;
                 });
                 if (addUser) {
-                    ref = API.cachedUsers.get(player.userId);
+                    ref = userStore.cachedUsers.get(player.userId);
                     if (typeof ref !== 'undefined') {
                         pushUser(ref);
                     } else {

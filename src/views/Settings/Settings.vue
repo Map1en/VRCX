@@ -1726,7 +1726,7 @@
                     <div class="options-container-item">
                         <span class="name"
                             >{{ t('view.settings.advanced.advanced.cache_debug.user_cache') }}
-                            <span v-text="API.cachedUsers.size"></span
+                            <span v-text="cachedUsers.size"></span
                         ></span>
                     </div>
                     <div class="options-container-item">
@@ -1899,7 +1899,8 @@
         useLaunchStore,
         useInstanceStore,
         useGroupStore,
-        useGameLogStore
+        useGameLogStore,
+        useUserStore
     } from '../../stores';
     import { photonEventTableTypeFilterList } from '../../shared/constants';
     import OpenSourceSoftwareNoticeDialog from './dialogs/OpenSourceSoftwareNoticeDialog.vue';
@@ -1912,11 +1913,11 @@
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
-    import { API } from '../../service/eventBus';
 
     const { messages, t } = useI18n();
     const { $message } = getCurrentInstance().proxy;
 
+    const { cachedUsers } = storeToRefs(useUserStore());
     const generalSettingsStore = useGeneralSettingsStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
