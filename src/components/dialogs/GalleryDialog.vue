@@ -504,7 +504,7 @@
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { inventoryRequest, miscRequest, userRequest, vrcPlusIconRequest, vrcPlusImageRequest } from '../../api';
-    import { API } from '../../app';
+    import { API } from '../../service/eventBus';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../shared/constants';
     import { extractFileId, getEmojiFileName, getPrintFileName } from '../../shared/utils';
     import { useAdvancedSettingsStore, useGalleryStore, useUserStore } from '../../stores';

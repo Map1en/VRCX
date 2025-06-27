@@ -1,7 +1,8 @@
 import Noty from 'noty';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
-import { $app, API } from '../app.js';
+import { $app } from '../app.js';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import { escapeTag, parseLocation } from '../shared/utils';
 

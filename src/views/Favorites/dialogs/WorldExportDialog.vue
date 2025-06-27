@@ -83,7 +83,7 @@
 
 <script>
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../app';
+    import { API } from '../../../service/eventBus';
     import { useFavoriteStore } from '../../../stores/favorite';
     import { useWorldStore } from '../../../stores/world';
 

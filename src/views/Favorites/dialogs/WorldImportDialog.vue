@@ -179,7 +179,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, worldRequest } from '../../../api';
-    import { API } from '../../../app';
+    import { API } from '../../../service/eventBus';
     import { adjustDialogZ, removeFromArray } from '../../../shared/utils';
     import { useFavoriteStore, useGalleryStore, useUserStore, useWorldStore } from '../../../stores';
 

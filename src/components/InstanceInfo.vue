@@ -60,7 +60,7 @@
     import { getCurrentInstance, reactive, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { miscRequest } from '../api';
-    import { API } from '../app';
+    import { API } from '../service/eventBus';
     import { hasGroupPermission } from '../shared/utils';
     import { useGroupStore, useLocationStore, useUserStore } from '../stores';
 

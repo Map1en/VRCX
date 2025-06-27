@@ -1,4 +1,4 @@
-import { API } from '../../app';
+import { API } from '../../service/eventBus';
 import { replaceBioSymbols } from './common';
 
 /**

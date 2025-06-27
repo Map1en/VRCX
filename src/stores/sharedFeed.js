@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { groupRequest, worldRequest } from '../api';
+import { API } from '../service/eventBus';
 import { useFeedStore } from './feed';
 import { useFriendStore } from './friend';
 import { useGameLogStore } from './gameLog';

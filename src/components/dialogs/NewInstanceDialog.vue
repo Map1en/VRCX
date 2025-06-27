@@ -459,8 +459,8 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { groupRequest, instanceRequest, worldRequest } from '../../api';
-    import { API } from '../../app';
     import configRepository from '../../service/config';
+    import { API } from '../../service/eventBus';
     import {
         adjustDialogZ,
         copyToClipboard,

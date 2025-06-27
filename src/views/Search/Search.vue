@@ -332,16 +332,19 @@
         compareByUpdatedAt,
         userImage
     } from '../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useAdvancedSettingsStore } from '../../stores/settings/advanced';
-    import { useAvatarProviderStore } from '../../stores/avatarProvider';
-    import { useUserStore } from '../../stores/user';
-    import { API } from '../../app';
-    import { useAvatarStore } from '../../stores/avatar';
-    import { useWorldStore } from '../../stores/world';
-    import { useGroupStore } from '../../stores/group';
-    import { useUiStore } from '../../stores/ui';
-    import { useSearchStore } from '../../stores/search';
+    import {
+        useAppearanceSettingsStore,
+        useAdvancedSettingsStore,
+        useAvatarProviderStore,
+        useUserStore,
+        useAvatarStore,
+        useWorldStore,
+        useGroupStore,
+        useUiStore,
+        useSearchStore
+    } from '../../stores';
+
+    import { API } from '../../service/eventBus';
 
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();

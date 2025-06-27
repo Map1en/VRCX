@@ -18,12 +18,9 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { ref, watch } from 'vue';
-    import { API } from '../app';
+    import { API } from '../service/eventBus';
     import { getGroupName, getWorldName, parseLocation } from '../shared/utils';
-    import { useGroupStore } from '../stores/group';
-    import { useInstanceStore } from '../stores/instance';
-    import { useSearchStore } from '../stores/search';
-    import { useWorldStore } from '../stores/world';
+    import { useGroupStore, useInstanceStore, useSearchStore, useWorldStore } from '../stores';
 
     const worldStore = useWorldStore();
     const { cachedWorlds } = storeToRefs(worldStore);

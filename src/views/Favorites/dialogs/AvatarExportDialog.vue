@@ -81,9 +81,8 @@
 
 <script>
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../app';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAvatarStore } from '../../../stores/avatar';
+    import { API } from '../../../service/eventBus';
+    import { useAvatarStore, useFavoriteStore } from '../../../stores';
 
     export default {
         name: 'AvatarExportDialog',

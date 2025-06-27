@@ -77,10 +77,8 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../app';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUserStore } from '../../../stores/user';
+    import { API } from '../../../service/eventBus';
+    import { useAppearanceSettingsStore, useFavoriteStore, useUserStore } from '../../../stores';
     import FriendExportDialog from '../dialogs/FriendExportDialog.vue';
     import FavoritesFriendItem from './FavoritesFriendItem.vue';
 

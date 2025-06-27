@@ -1789,8 +1789,8 @@
         userRequest,
         worldRequest
     } from '../../../api';
-    import { API } from '../../../app';
     import database from '../../../service/database';
+    import { API } from '../../../service/eventBus';
     import { bulk, request } from '../../../service/request';
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';

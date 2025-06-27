@@ -218,10 +218,8 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../app';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useWorldStore } from '../../../stores/world';
+    import { API } from '../../../service/eventBus';
+    import { useAppearanceSettingsStore, useFavoriteStore, useWorldStore } from '../../../stores';
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
 

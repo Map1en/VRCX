@@ -44,8 +44,8 @@
 
 <script>
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../app';
-    import { useFavoriteStore } from '../../../stores/favorite';
+    import { API } from '../../../service/eventBus';
+    import { useFavoriteStore } from '../../../stores';
 
     export default {
         name: 'FriendExportDialog',

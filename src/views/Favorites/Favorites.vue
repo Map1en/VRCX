@@ -56,10 +56,8 @@
     import { storeToRefs } from 'pinia';
     import * as workerTimers from 'worker-timers';
     import { avatarRequest, favoriteRequest, worldRequest } from '../../api';
-    import { API } from '../../app';
-    import { useFavoriteStore } from '../../stores/favorite';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUiStore } from '../../stores/ui';
+    import { API } from '../../service/eventBus';
+    import { useAppearanceSettingsStore, useFavoriteStore, useUiStore } from '../../stores';
     import FavoritesAvatarTab from './components/FavoritesAvatarTab.vue';
     import FavoritesFriendTab from './components/FavoritesFriendTab.vue';
     import FavoritesWorldTab from './components/FavoritesWorldTab.vue';

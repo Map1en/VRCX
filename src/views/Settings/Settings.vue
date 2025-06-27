@@ -1912,7 +1912,7 @@
     import FeedFiltersDialog from './dialogs/FeedFiltersDialog.vue';
     import AvatarProviderDialog from './dialogs/AvatarProviderDialog.vue';
     import { openExternalLink } from '../../shared/utils';
-    import { API } from '../../app';
+    import { API } from '../../service/eventBus';
 
     const { messages, t } = useI18n();
     const { $message } = getCurrentInstance().proxy;
