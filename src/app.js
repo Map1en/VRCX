@@ -22,5 +22,4 @@ const $app = new Vue({
 }).$mount('#root');
 
 window.$app = $app;
-
 export { $app };
