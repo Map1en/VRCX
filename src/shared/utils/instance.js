@@ -1,7 +1,6 @@
 import { instanceRequest } from '../../api';
 import { parseLocation } from './location';
 
-// TODO: launch, invite, refresh, etc. buttons, better to split into one component
 /**
  *
  * @param {object} instance

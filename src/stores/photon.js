@@ -1319,8 +1319,7 @@ export const usePhotonStore = defineStore('Photon', () => {
             } else if (eventData.EventName === 'ReleaseBones') {
                 var text = 'ResetPhysBones';
             } else if (eventData.EventName === 'SpawnEmojiRPC') {
-                // todo
-                var text = this.oldPhotonEmojis[eventData.Data];
+                // var text = this.oldPhotonEmojis[eventData.Data];
                 type = 'SpawnEmoji';
             } else {
                 let eventVrc = '';

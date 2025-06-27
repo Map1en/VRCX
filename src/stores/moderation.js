@@ -249,7 +249,6 @@ export const useModerationStore = defineStore('Moderation', () => {
                 state.isPlayerModerationsLoading = false;
             })
             .then((res) => {
-                // 'AVATAR-MODERATION:LIST';
                 // TODO: compare with cachedAvatarModerations
                 avatarStore.cachedAvatarModerations = new Map();
                 if (res[1]?.json) {

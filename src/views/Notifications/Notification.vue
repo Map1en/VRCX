@@ -524,7 +524,6 @@
             callback: (action) => {
                 if (action === 'confirm') {
                     let currentLocation = lastLocation.value.location;
-                    // todo
                     if (lastLocation.value.location === 'traveling') {
                         currentLocation = lastLocationDestination.value;
                     }

@@ -27,6 +27,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { notificationRequest } from '../../../api';
     import { useGalleryStore } from '../../../stores/gallery';
+
     const { t } = useI18n();
 
     const instance = getCurrentInstance();
@@ -49,7 +50,6 @@
 
     function cancelInviteResponseConfirm() {
         emit('update:sendInviteResponseConfirmDialog', { visible: false });
-        // TODO: temp fix to close dialog
         props.sendInviteResponseConfirmDialog.visible = false;
     }
 

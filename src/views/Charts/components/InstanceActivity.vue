@@ -585,7 +585,6 @@
                         try {
                             return await getWorldName(item.location);
                         } catch {
-                            // TODO: no notification
                             console.error('getWorldName failed location', item.location);
                             return 'Unknown world';
                         }
