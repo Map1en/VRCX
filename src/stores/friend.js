@@ -6,6 +6,7 @@ import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
+import { reconnectWebSocket } from '../service/websocket';
 import {
     compareByCreatedAtAscending,
     getFriendsSortFunction,
@@ -1030,7 +1031,7 @@ export const useFriendStore = defineStore('Friend', () => {
         await refreshFriends().catch((err) => {
             console.error(err);
         });
-        API.reconnectWebSocket();
+        reconnectWebSocket();
     }
 
     /**

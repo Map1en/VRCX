@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
 import FullscreenImageDialog from './components/dialogs/FullscreenImageDialog.vue';
@@ -145,8 +144,6 @@ let $app = {
         }
     }
 };
-
-websocket();
 
 $app.data.debug = false;
 $app.data.debugWebSocket = false;

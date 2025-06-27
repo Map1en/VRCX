@@ -8,6 +8,7 @@ import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import security from '../service/security';
 import webApiService from '../service/webapi';
+import { initWebsocket } from '../service/websocket';
 import { escapeTag } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useNotificationStore } from './notification';
@@ -753,6 +754,7 @@ export const useAuthStore = defineStore('Auth', () => {
                 API.$emit('USER:2FA', args);
             } else {
                 API.$emit('USER:CURRENT', args);
+                initWebsocket();
             }
             return args;
         });

@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
+import { initWebsocket } from '../service/websocket';
 import { getAllUserMemos, getNameColour, migrateMemos } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
@@ -141,7 +143,7 @@ export const useFeedStore = defineStore('Feed', () => {
         friendStore.sortOnlineFriends = true;
         friendStore.sortActiveFriends = true;
         friendStore.sortOfflineFriends = true;
-        API.getAuth();
+        initWebsocket();
         sharedFeedStore.updateSharedFeed(true);
         if (gameStore.isGameRunning) {
             gameLogStore.loadPlayerList();

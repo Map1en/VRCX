@@ -12,6 +12,7 @@ import { $app } from '../app';
 import database from '../service/database';
 import { API } from '../service/eventBus';
 import { bulk, request } from '../service/request';
+import { initWebsocket } from '../service/websocket';
 import {
     arraysMatch,
     buildTreeData,
@@ -1694,6 +1695,7 @@ export const useUserStore = defineStore('User', () => {
                 }
                 $app.nextCurrentUserRefresh = 420; // 7mins
                 API.$emit('USER:CURRENT', args);
+                initWebsocket();
             }
             return args;
         });
