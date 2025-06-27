@@ -40,6 +40,7 @@
     import SettingsTab from './views/Settings/Settings.vue';
     import Sidebar from './views/Sidebar/Sidebar.vue';
 
+    await configRepository.init();
     const initThemeMode = await configRepository.getString('VRCX_ThemeMode', 'system');
 
     export default {

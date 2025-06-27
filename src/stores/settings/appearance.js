@@ -728,8 +728,6 @@ export const useAppearanceSettingsStore = defineStore(
             trustColor,
 
             setAppLanguage,
-            setThemeMode,
-            // setIsDarkMode,
             setDisplayVRCPlusIconsAsAvatar,
             setHideNicknames,
             setHideTooltips,

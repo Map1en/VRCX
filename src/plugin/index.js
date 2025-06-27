@@ -1,7 +1,6 @@
+import './ipc';
 import './dayjs';
 import './components';
-import './ipc';
 import './noty';
 
-export { API } from '../service/eventBus';
 export { t, i18n } from './i18n';

@@ -8,9 +8,9 @@ import { PiniaVuePlugin } from 'pinia';
 import Vue from 'vue';
 import { DataTables } from 'vue-data-tables';
 import VueLazyload from 'vue-lazyload';
-import configRepository from './service/config';
 import vrcxJsonStorage from './service/jsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
+import './plugin';
 
 Vue.use(PiniaVuePlugin);
 Vue.use(DataTables);
@@ -28,7 +28,6 @@ Vue.filter('commaNumber', commaNumber);
 Vue.filter('textToHex', textToHex);
 
 new vrcxJsonStorage(VRCXStorage);
-await configRepository.init();
 
 // some workaround for failing to get voice list first run
 speechSynthesis.getVoices();
