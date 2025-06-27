@@ -17,7 +17,7 @@
 
     import { API } from './service/eventBus';
     import { refreshCustomCss, refreshCustomScript } from './shared/utils';
-    import { _utils } from './shared/utils/_utils';
+    import { utils } from './shared/utils/_utils';
     import { createGlobalStores } from './stores';
     import ChartsTab from './views/Charts/Charts.vue';
     import AvatarImportDialog from './views/Favorites/dialogs/AvatarImportDialog.vue';
@@ -49,8 +49,7 @@
             const store = createGlobalStores();
             store.appearanceSettings.saveThemeMode(initThemeMode);
             Vue.prototype.store = store;
-            window.$app = window.$app || {};
-            window.$app.store = store;
+            Vue.prototype.utils = utils;
         },
         data() {
             return {
@@ -64,8 +63,7 @@
              */
             dragEnterCef(filePath) {
                 this.store.vrcx.currentlyDroppingFile = filePath;
-            },
-            ..._utils
+            }
         },
         components: {
             LoginPage,
@@ -116,13 +114,13 @@
             this.store.auth.autoLoginAfterMounted();
             this.store.vrcx.checkAutoBackupRestoreVrcRegistry();
             this.store.game.checkVRChatDebugLogging();
-            try {
-                if (await AppApi.IsRunningUnderWine()) {
+            if (await AppApi.IsRunningUnderWine()) {
+                try {
                     this.store.vrcx.isRunningUnderWine = true;
                     this.store.vrcx.applyWineEmojis();
+                } catch (err) {
+                    console.error(err, 'Failed to check if running under Wine');
                 }
-            } catch (err) {
-                console.error(err, 'Failed to check if running under Wine');
             }
         }
     };

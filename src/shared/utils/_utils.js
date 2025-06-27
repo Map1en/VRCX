@@ -6,16 +6,16 @@ import {
     extractFileVersion,
     extractVariantVersion,
     getAvailablePlatforms,
+    getBundleLocation,
     getLaunchURL,
     getPrintFileName,
     getPrintLocalDate,
     isFriendOnline,
     isRealInstance,
-    parseLocation,
-    getBundleLocation
+    parseLocation
 } from './index';
 
-const _utils = {
+const utils = {
     getAvailablePlatforms,
     deleteVRChatCache,
     checkVRChatCache,
@@ -32,4 +32,4 @@ const _utils = {
     getBundleLocation
 };
 
-export { _utils };
+export { utils };
