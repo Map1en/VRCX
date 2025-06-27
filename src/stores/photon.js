@@ -19,6 +19,7 @@ import {
     timeToText
 } from '../shared/utils';
 import { useAvatarStore } from './avatar';
+import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
 import { useGameLogStore } from './gameLog';
 import { useInstanceStore } from './instance';
@@ -38,6 +39,7 @@ export const usePhotonStore = defineStore('Photon', () => {
     const locationStore = useLocationStore();
     const sharedFeedStore = useSharedFeedStore();
     const avatarStore = useAvatarStore();
+    const favoriteStore = useFavoriteStore();
 
     const state = reactive({
         photonLoggingEnabled: false,
@@ -675,7 +677,9 @@ export const usePhotonStore = defineStore('Photon', () => {
                     hudTimeout.forEach((item) => {
                         if (
                             state.timeoutHudOverlayFilter === 'VIP' &&
-                            API.cachedFavoritesByObjectId.has(item.userId)
+                            favoriteStore.cachedFavoritesByObjectId.has(
+                                item.userId
+                            )
                         ) {
                             filteredHudTimeout.push(item);
                         } else if (

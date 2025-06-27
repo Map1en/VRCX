@@ -172,7 +172,6 @@
     import { storeToRefs } from 'pinia';
     import FriendItem from '../../../components/FriendItem.vue';
     import configRepository from '../../../service/config';
-    import { API } from '../../../service/eventBus';
     import { isRealInstance, userImage, userStatusClass } from '../../../shared/utils';
     import {
         useAdvancedSettingsStore,
@@ -209,7 +208,6 @@
                 onlineFriends,
                 activeFriends,
                 offlineFriends,
-                API,
                 userStatusClass,
                 isRealInstance,
                 showUserDialog,

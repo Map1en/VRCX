@@ -256,7 +256,6 @@ export const useUserStore = defineStore('User', () => {
             }); // online/offline
             args.ref = applyUser(args.json); // GPS
         }
-        // API.$on('USER')
         favoriteStore.applyFavorite('friend', args.ref.id);
         friendStore.userOnFriend(args);
     });
@@ -299,12 +298,7 @@ export const useUserStore = defineStore('User', () => {
 
     API.$on('USER', function (args) {
         // refresh user dialog JSON tab
-        if (
-            !state.userDialog.visible ||
-            state.userDialog.id !== args.ref.id ||
-            // TODO: ref now in component, not $app
-            $app.$refs.userDialogTabs?.currentName !== '5'
-        ) {
+        if (!state.userDialog.visible || state.userDialog.id !== args.ref.id) {
             return;
         }
         refreshUserDialogTreeData();

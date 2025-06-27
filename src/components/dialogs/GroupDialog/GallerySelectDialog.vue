@@ -117,7 +117,6 @@
                     message: t('message.gallery.uploaded'),
                     type: 'success'
                 });
-                // API.$on('GALLERYIMAGE:ADD')
                 if (Object.keys(galleryTable.value).length !== 0) {
                     galleryTable.value.unshift(args.json);
                 }

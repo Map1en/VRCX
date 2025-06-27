@@ -548,7 +548,6 @@ export const useNotificationStore = defineStore('Notification', () => {
             for (let i = 0; i < count; i++) {
                 const args =
                     await notificationRequest.getHiddenFriendRequests(params);
-                // API.$on('NOTIFICATION:LIST:HIDDEN');
                 for (const json of args.json) {
                     json.type = 'ignoredFriendRequest';
                     API.$emit('NOTIFICATION', {

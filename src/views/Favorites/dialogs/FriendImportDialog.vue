@@ -125,7 +125,6 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest, userRequest } from '../../../api';
-    import { API } from '../../../service/eventBus';
     import { adjustDialogZ, removeFromArray, userImage, userImageFull } from '../../../shared/utils';
     import { useFavoriteStore, useGalleryStore, useUserStore } from '../../../stores';
 
@@ -138,7 +137,6 @@
                 storeToRefs(useFavoriteStore());
             const { showFullscreenImageDialog } = useGalleryStore();
             return {
-                API,
                 showUserDialog,
                 favoriteFriendGroups,
                 friendImportDialogInput,

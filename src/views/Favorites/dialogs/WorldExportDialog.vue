@@ -83,9 +83,7 @@
 
 <script>
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../service/eventBus';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useWorldStore } from '../../../stores/world';
+    import { useFavoriteStore, useWorldStore } from '../../../stores';
 
     export default {
         name: 'WorldExportDialog',
@@ -106,7 +104,6 @@
             const { cachedWorlds } = storeToRefs(worldStore);
             return {
                 favoriteWorlds,
-                API,
                 favoriteWorldGroups,
                 getLocalWorldFavoriteGroupLength,
                 localWorldFavorites,

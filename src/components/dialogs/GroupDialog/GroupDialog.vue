@@ -1324,7 +1324,6 @@
                 offset: 0
             })
             .then((args) => {
-                // API.$on('GROUP:MEMBERS:SEARCH', function (args) {
                 for (const json of args.json.results) {
                     API.$emit('GROUP:MEMBER', {
                         json,
@@ -1333,7 +1332,6 @@
                         }
                     });
                 }
-                // });
                 if (D.id === args.params.groupId) {
                     D.memberSearchResults = args.json.results;
                 }
@@ -1349,7 +1347,6 @@
                 isRepresenting: isSet
             })
             .then((args) => {
-                // API.$on('GROUP:SETREPRESENTATION', function (args) {
                 if (groupDialog.value.visible && groupDialog.value.id === args.groupId) {
                     updateGroupDialogData({
                         ...groupDialog.value,
@@ -1366,11 +1363,9 @@
                 groupId: id
             })
             .then((args) => {
-                // API.$on('GROUP:CANCELJOINREQUEST', function (args) {
                 if (groupDialog.value.visible && groupDialog.value.id === id) {
                     getGroupDialogGroup(id);
                 }
-                // });
             });
     }
     function confirmDeleteGroupPost(post) {
@@ -1386,7 +1381,6 @@
                             postId: post.id
                         })
                         .then((args) => {
-                            // API.$on('GROUP:POST:DELETE', function (args) {
                             const D = groupDialog.value;
                             if (D.id !== args.params.groupId) {
                                 return;
@@ -1409,7 +1403,6 @@
                                 }
                             }
                             updateGroupPostSearch();
-                            // });
                         });
                 }
             }
@@ -1502,11 +1495,9 @@
                             groupId
                         })
                         .then((args) => {
-                            // API.$on('GROUP:BLOCK', function (args) {
                             if (groupDialog.value.visible && groupDialog.value.id === args.params.groupId) {
                                 showGroupDialog(args.params.groupId);
                             }
-                            // });
                         });
                 }
             }
@@ -1548,12 +1539,10 @@
             D.groupRef = args.ref;
             if (hasGroupPermission(D.groupRef, 'group-audit-view')) {
                 groupRequest.getGroupAuditLogTypes({ groupId }).then((args) => {
-                    // API.$on('GROUP:AUDITLOGTYPES', function (args) {
                     if (groupMemberModeration.id !== args.params.groupId) {
                         return;
                     }
                     groupMemberModeration.auditLogTypes = args.json;
-                    // });
                 });
             }
         });
@@ -1738,7 +1727,6 @@
             for (let i = 0; i < count; i++) {
                 const args = await groupRequest.getGroupGallery(params);
                 if (args) {
-                    // API.$on('GROUP:GALLERY', function (args) {
                     for (const json of args.json) {
                         if (groupDialog.value.id === json.groupId) {
                             if (!groupDialog.value.galleries[json.galleryId]) {
@@ -1747,7 +1735,6 @@
                             groupDialog.value.galleries[json.galleryId].push(json);
                         }
                     }
-                    // });
                 }
                 params.offset += 100;
                 if (args.json.length < 100) {

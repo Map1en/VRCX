@@ -202,7 +202,6 @@
     }
 
     async function avatarImageInit(args) {
-        // API.$on('AVATARIMAGE:INIT')
         const fileId = args.json.id;
         const fileVersion = args.json.versions[args.json.versions.length - 1].version;
         const params = {
@@ -214,7 +213,6 @@
     }
 
     async function avatarImageFileStart(args) {
-        // API.$on('AVATARIMAGE:FILESTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
         const params = {
@@ -248,7 +246,6 @@
     }
 
     async function avatarImageFileAWS(args) {
-        // API.$on('AVATARIMAGE:FILEAWS')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -259,7 +256,6 @@
     }
 
     async function avatarImageFileFinish(args) {
-        // API.$on('AVATARIMAGE:FILEFINISH')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -270,7 +266,6 @@
     }
 
     async function avatarImageSigStart(args) {
-        // API.$on('AVATARIMAGE:SIGSTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
         const params = {
@@ -304,7 +299,6 @@
     }
 
     async function avatarImageSigAWS(args) {
-        // API.$on('AVATARIMAGE:SIGAWS')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -315,7 +309,6 @@
     }
 
     async function avatarImageSigFinish(args) {
-        // API.$on('AVATARIMAGE:SIGFINISH')
         const { fileId, fileVersion } = args.params;
         const parmas = {
             id: avatarImage.value.avatarId,
@@ -326,7 +319,6 @@
     }
 
     async function avatarImageSet(args) {
-        // API.$on('AVATARIMAGE:SET')
         changeAvatarImageDialogLoading.value = false;
         if (args.json.imageUrl === args.params.imageUrl) {
             $message({

@@ -672,7 +672,6 @@
     }
     function getCurrentUserFeedback() {
         userRequest.getUserFeedback({ userId: currentUser.value.id }).then((args) => {
-            // API.$on('USER:FEEDBACK')
             if (args.params.userId === currentUser.value.id) {
                 currentUserFeedbackData.value = buildTreeData(args.json);
             }

@@ -426,7 +426,7 @@ export const useGroupStore = defineStore('Group', () => {
      * @param {object} ref
      */
     function applyPresenceGroups(ref) {
-        if (!API.currentUserGroupsInit) {
+        if (!state.currentUserGroupsInit) {
             // wait for init before diffing
             return;
         }
@@ -514,7 +514,6 @@ export const useGroupStore = defineStore('Group', () => {
             posts,
             params
         };
-        // API.$on('GROUP:POSTS:ALL')
         const D = state.groupDialog;
         if (D.id === args.params.groupId) {
             for (const post of args.json.posts) {
@@ -563,7 +562,6 @@ export const useGroupStore = defineStore('Group', () => {
                                 groupId
                             })
                             .then((args) => {
-                                // API.$on('GROUP:INSTANCES', function (args) {
                                 if (
                                     state.groupDialog.id === args.params.groupId
                                 ) {
@@ -571,9 +569,6 @@ export const useGroupStore = defineStore('Group', () => {
                                         args.json.instances
                                     );
                                 }
-                                // });
-
-                                // API.$on('GROUP:INSTANCES', function (args) {
                                 for (const json of args.json.instances) {
                                     API.$emit('INSTANCE', {
                                         json,

@@ -2097,7 +2097,6 @@
     }
 
     function handleBadgeUpdate(args) {
-        // API.$on('BADGE:UPDATE')
         if (args.json) {
             $message({
                 message: t('message.badge.updated'),
@@ -2325,7 +2324,6 @@
     }
 
     function handleSendFriendRequest(args) {
-        // API.$on('FRIEND:REQUEST')
         const ref = cachedUsers.get(args.params.userId);
         if (typeof ref === 'undefined') {
             return;
@@ -2339,7 +2337,6 @@
         friendLogTable.value.data.push(friendLogHistory);
         database.addFriendLogHistory(friendLogHistory);
 
-        // API.$on('FRIEND:REQUEST')
         const D = userDialog.value;
         if (D.visible === false || D.id !== args.params.userId) {
             return;
@@ -2372,7 +2369,6 @@
     }
 
     function handleSendPlayerModeration(args) {
-        // API.$on('PLAYER-MODERATION:SEND')
         const ref = {
             json: args.json,
             params: {

@@ -200,7 +200,6 @@
     }
 
     async function worldImageInit(args) {
-        // API.$on('WORLDIMAGE:INIT')
         const fileId = args.json.id;
         const fileVersion = args.json.versions[args.json.versions.length - 1].version;
         const params = {
@@ -212,7 +211,6 @@
     }
 
     async function worldImageFileStart(args) {
-        // API.$on('WORLDIMAGE:FILESTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
         const params = {
@@ -247,7 +245,6 @@
     }
 
     async function worldImageFileAWS(args) {
-        // API.$on('WORLDIMAGE:FILEAWS')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -258,7 +255,6 @@
     }
 
     async function worldImageFileFinish(args) {
-        // API.$on('WORLDIMAGE:FILEFINISH')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -269,7 +265,6 @@
     }
 
     async function worldImageSigStart(args) {
-        // API.$on('WORLDIMAGE:SIGSTART')
         const { url } = args.json;
         const { fileId, fileVersion } = args.params;
         const params = {
@@ -304,7 +299,6 @@
     }
 
     async function worldImageSigAWS(args) {
-        // API.$on('WORLDIMAGE:SIGAWS')
         const { fileId, fileVersion } = args.params;
         const params = {
             fileId,
@@ -314,7 +308,6 @@
         return worldImageSigFinish(res);
     }
     async function worldImageSigFinish(args) {
-        // API.$on('WORLDIMAGE:SIGFINISH')
         const { fileId, fileVersion } = args.params;
         const parmas = {
             id: worldImage.value.worldId,

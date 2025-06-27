@@ -893,7 +893,6 @@
                                         avatarId: D.id
                                     })
                                     .then((args) => {
-                                        // API.$on('AVATAR:DELETE')
                                         const { json } = args;
                                         cachedAvatars.value.delete(json._id);
                                         if (userDialog.value.id === json.authorId) {
@@ -1135,7 +1134,6 @@
             return;
         }
         miscRequest.getFileAnalysis({ fileId, version, variant, avatarId }).then((args) => {
-            // API.$on('FILE:ANALYSIS', function (args) {
             if (!avatarDialog.value.visible || avatarDialog.value.id !== args.params.avatarId) {
                 return;
             }
@@ -1152,7 +1150,6 @@
 
             fileAnalysis.value = buildTreeData(args.json);
         });
-        // });
     }
 
     function showSetAvatarTagsDialog(avatarId) {

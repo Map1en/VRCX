@@ -218,7 +218,6 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { favoriteRequest } from '../../../api';
-    import { API } from '../../../service/eventBus';
     import { useAppearanceSettingsStore, useFavoriteStore, useWorldStore } from '../../../stores';
     import WorldExportDialog from '../dialogs/WorldExportDialog.vue';
     import FavoritesWorldItem from './FavoritesWorldItem.vue';
@@ -251,7 +250,6 @@
                 sortFavorites,
                 setSortFavorites,
                 favoriteWorlds,
-                API,
                 favoriteWorldGroups,
                 showWorldImportDialog,
                 getLocalWorldFavoriteGroupLength,

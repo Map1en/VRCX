@@ -81,7 +81,6 @@
 
 <script>
     import { storeToRefs } from 'pinia';
-    import { API } from '../../../service/eventBus';
     import { useAvatarStore, useFavoriteStore } from '../../../stores';
 
     export default {
@@ -103,7 +102,6 @@
             const { cachedAvatars } = storeToRefs(avatarStore);
             return {
                 favoriteAvatars,
-                API,
                 favoriteAvatarGroups,
                 getLocalAvatarFavoriteGroupLength,
                 localAvatarFavorites,

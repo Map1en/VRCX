@@ -864,8 +864,8 @@ export const useFriendStore = defineStore('Friend', () => {
      * @returns {Promise<*[]>}
      */
     async function bulkRefreshFriends(args) {
-        const authStore = useAuthStore();
         // API.bulkRefreshFriends
+        const authStore = useAuthStore();
         let friends = [];
         const params = {
             ...args,

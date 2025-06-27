@@ -1087,7 +1087,6 @@
                                                 worldId: D.id
                                             })
                                             .then((args) => {
-                                                // API.$on('WORLD:DELETE')
                                                 const { json } = args;
                                                 this.cachedWorlds.delete(json.id);
                                                 if (this.worldDialog.ref.authorId === json.authorId) {

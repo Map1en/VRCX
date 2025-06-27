@@ -174,7 +174,6 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { avatarRequest, favoriteRequest } from '../../../api';
-    import { API } from '../../../service/eventBus';
     import { adjustDialogZ, removeFromArray } from '../../../shared/utils';
     import { useAvatarStore, useFavoriteStore, useGalleryStore, useUserStore } from '../../../stores';
 
@@ -192,7 +191,6 @@
             const { showAvatarDialog } = useAvatarStore();
             const { showFullscreenImageDialog } = useGalleryStore();
             return {
-                API,
                 showUserDialog,
                 favoriteAvatarGroups,
                 avatarImportDialogInput,

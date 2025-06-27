@@ -163,7 +163,6 @@
                     tag: 'gallery'
                 };
                 const args = await vrcPlusIconRequest.getFileList(params);
-                // API.$on('FILES:LIST')
                 if (args.params.tag === 'gallery') {
                     this.galleryTable = args.json.reverse();
                 }

@@ -1100,12 +1100,10 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.isFavoriteLoading = true;
         try {
             const args = await favoriteRequest.getFavoriteLimits();
-            // API.$on('FAVORITE:LIMITS', function (args) {
             state.favoriteLimits = {
                 ...state.favoriteLimits,
                 ...args.json
             };
-            // });
         } catch (err) {
             console.error(err);
         }

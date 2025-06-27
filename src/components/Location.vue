@@ -133,8 +133,6 @@
             }
             if (!instanceId && props.hint.length === 8) {
                 verifyShortName('', props.hint);
-                // shortName
-                // this.API.$emit('SHOW_WORLD_DIALOG_SHORTNAME', props.hint);
                 return;
             }
             if (props.isOpenPreviousInstanceInfoDialog) {

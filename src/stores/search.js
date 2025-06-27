@@ -93,7 +93,6 @@ export const useSearchStore = defineStore('Search', () => {
             }
         }
         await userRequest.getUsers(params).then((args) => {
-            // API.$on('USER:LIST')
             for (const json of args.json) {
                 if (!json.displayName) {
                     console.error('getUsers gave us garbage', json);

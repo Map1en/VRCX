@@ -637,8 +637,6 @@
 
     function deleteGalleryImage(fileId) {
         miscRequest.deleteFile(fileId).then((args) => {
-            // API.$emit('GALLERYIMAGE:DELETE', args);
-            // API.$on('GALLERYIMAGE:DELETE')
             const array = galleryTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
@@ -736,8 +734,6 @@
 
     function deleteVRCPlusIcon(fileId) {
         miscRequest.deleteFile(fileId).then((args) => {
-            // API.$emit('VRCPLUSICON:DELETE', args);
-            // API.$on('VRCPLUSICON:DELETE')
             const array = VRCPlusIconsTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
@@ -854,8 +850,6 @@
 
     function deleteEmoji(fileId) {
         miscRequest.deleteFile(fileId).then((args) => {
-            // API.$emit('EMOJI:DELETE', args);
-            // API.$on('EMOJI:DELETE')
             const array = emojiTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
@@ -920,8 +914,6 @@
 
     function deleteSticker(fileId) {
         miscRequest.deleteFile(fileId).then((args) => {
-            // API.$emit('STICKER:DELETE', args);
-            // API.$on('STICKER:DELETE')
             const array = stickerTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
@@ -980,7 +972,6 @@
                     message: t('message.print.uploaded'),
                     type: 'success'
                 });
-                // API.$on('PRINT:ADD')
                 if (Object.keys(printTable.value).length !== 0) {
                     printTable.value.unshift(args.json);
                 }
@@ -998,7 +989,6 @@
 
     function deletePrint(printId) {
         vrcPlusImageRequest.deletePrint(printId).then((args) => {
-            // API.$on('PRINT:DELETE');
             const array = printTable.value;
             const { length } = array;
             for (let i = 0; i < length; ++i) {
