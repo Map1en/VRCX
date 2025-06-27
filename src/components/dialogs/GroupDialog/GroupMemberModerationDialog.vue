@@ -811,10 +811,9 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { getCurrentInstance, ref, watch } from 'vue';
+    import { getCurrentInstance, reactive, ref, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
-    import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
     import { useAppearanceSettingsStore, useGalleryStore, useGroupStore, useUserStore } from '../../../stores';
@@ -826,28 +825,145 @@
     const { groupDialog } = storeToRefs(useGroupStore());
     const { applyGroupMember } = useGroupStore();
     const { showFullscreenImageDialog } = useGalleryStore();
-    const {
-        groupInvitesModerationTable,
-        groupJoinRequestsModerationTable,
-        groupBlockedModerationTable,
-        groupLogsModerationTable,
-        groupBansModerationTable,
-        groupMemberModerationTable,
-        initializePageSize,
-        deselectGroupMember
-    } = useModerationTable();
-
-    const {
-        selectedUsers,
-        selectedUsersArray,
-        groupMemberModerationTableSelectionChange,
-        deselectedUsers,
-        setSelectedUsers
-    } = useSelectedUsers();
-
     const { t } = useI18n();
     const instance = getCurrentInstance();
     const $message = instance.proxy.$message;
+
+    const selectedUsers = reactive({});
+    const selectedUsersArray = ref([]);
+
+    function setSelectedUsers(usersId, user) {
+        if (!user) {
+            return;
+        }
+        selectedUsers[usersId] = user;
+        selectedUsersArray.value = Object.values(selectedUsers);
+    }
+
+    function deselectedUsers(userId, isAll = false) {
+        if (isAll) {
+            for (const id in selectedUsers) {
+                if (Object.prototype.hasOwnProperty.call(selectedUsers, id)) {
+                    delete selectedUsers[id];
+                }
+            }
+        } else {
+            if (Object.prototype.hasOwnProperty.call(selectedUsers, userId)) {
+                delete selectedUsers[userId];
+            }
+        }
+        selectedUsersArray.value = Object.values(selectedUsers);
+    }
+
+    function groupMemberModerationTableSelectionChange(row) {
+        if (row.$selected && !selectedUsers[row.userId]) {
+            setSelectedUsers(row.userId, row);
+        } else if (!row.$selected && selectedUsers[row.userId]) {
+            deselectedUsers(row.userId);
+        }
+    }
+
+    const groupInvitesModerationTable = reactive({
+        data: [],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+    const groupJoinRequestsModerationTable = reactive({
+        data: [],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+    const groupBlockedModerationTable = reactive({
+        data: [],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+    const groupLogsModerationTable = reactive({
+        data: [],
+        filters: [{ prop: ['description'], value: '' }],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+    const groupBansModerationTable = reactive({
+        data: [],
+        filters: [{ prop: ['$displayName'], value: '' }],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+    const groupMemberModerationTable = reactive({
+        data: [],
+        tableProps: { stripe: true, size: 'mini' },
+        pageSize: 15,
+        paginationProps: {
+            small: true,
+            layout: 'sizes,prev,pager,next,total',
+            pageSizes: [10, 15, 20, 25, 50, 100]
+        }
+    });
+
+    async function initializePageSize() {
+        try {
+            const appearanceSettingsStore = useAppearanceSettingsStore();
+            const { tablePageSize } = storeToRefs(appearanceSettingsStore);
+
+            groupMemberModerationTable.pageSize = tablePageSize;
+            groupBansModerationTable.pageSize = tablePageSize;
+            groupLogsModerationTable.pageSize = tablePageSize;
+            groupInvitesModerationTable.pageSize = tablePageSize;
+            groupJoinRequestsModerationTable.pageSize = tablePageSize;
+            groupBlockedModerationTable.pageSize = tablePageSize;
+        } catch (error) {
+            console.error('Failed to initialize table page size:', error);
+        }
+    }
+
+    function deselectGroupMember(userId) {
+        const deselectInTable = (tableData) => {
+            if (userId) {
+                const row = tableData.find((item) => item.userId === userId);
+                if (row) {
+                    row.$selected = false;
+                }
+            } else {
+                tableData.forEach((row) => {
+                    if (row.$selected) {
+                        row.$selected = false;
+                    }
+                });
+            }
+        };
+
+        deselectInTable(groupMemberModerationTable.data);
+        deselectInTable(groupBansModerationTable.data);
+        deselectInTable(groupInvitesModerationTable.data);
+        deselectInTable(groupJoinRequestsModerationTable.data);
+        deselectInTable(groupBlockedModerationTable.data);
+    }
 
     const props = defineProps({
         isGroupMembersLoading: {
@@ -891,6 +1007,7 @@
                 groupBlockedModerationTable.data = [];
                 groupLogsModerationTable.data = [];
                 Object.assign(selectedUsers, {});
+                selectedUsersArray.value = [];
                 selectUserId.value = '';
                 selectedRoles.value = [];
                 note.value = '';
@@ -951,7 +1068,6 @@
     }
 
     function handleGroupMemberRoleChange(args) {
-        // 'GROUP:MEMBER:ROLE:CHANGE'
         if (groupDialog.value.id === args.params.groupId) {
             groupDialog.value.members.forEach((member) => {
                 if (member.userId === args.params.userId) {
@@ -1000,7 +1116,7 @@
         }
         progressCurrent.value = 0;
         progressTotal.value = 0;
-        getAllGroupInvites(D.id, groupInvitesModerationTable);
+        getAllGroupInvites(D.id);
     }
 
     function selectAllGroupMembers() {
@@ -1410,7 +1526,7 @@
         }
         progressCurrent.value = 0;
         progressTotal.value = 0;
-        getAllGroupInvitesAndJoinRequests();
+        getAllGroupInvitesAndJoinRequests(D.id);
         deselectedUsers(null, true);
     }
 
@@ -1446,7 +1562,7 @@
         }
         progressCurrent.value = 0;
         progressTotal.value = 0;
-        getAllGroupInvitesAndJoinRequests();
+        getAllGroupInvitesAndJoinRequests(D.id);
         deselectedUsers(null, true);
     }
 
@@ -1483,7 +1599,7 @@
         }
         progressCurrent.value = 0;
         progressTotal.value = 0;
-        getAllGroupInvitesAndJoinRequests();
+        getAllGroupInvitesAndJoinRequests(D.id);
         deselectedUsers(null, true);
     }
 
@@ -1519,7 +1635,7 @@
         }
         progressCurrent.value = 0;
         progressTotal.value = 0;
-        getAllGroupInvitesAndJoinRequests();
+        getAllGroupInvitesAndJoinRequests(D.id);
         deselectedUsers(null, true);
     }
 
@@ -1635,7 +1751,7 @@
                 type: 'error'
             });
         } finally {
-            updateIsGroupMembersLoading(false); // Use emit
+            updateIsGroupMembersLoading(false);
         }
     }
 
