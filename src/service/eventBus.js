@@ -1,5 +1,5 @@
 import { $app } from '../app.js';
-import { request } from './apiRequestHandler';
+import { request } from './request';
 
 const eventHandlers = new Map();
 const API = {};

@@ -1,5 +1,5 @@
 import { API } from '../app';
-import { request } from '../service/apiRequestHandler';
+import { request } from '../service/request';
 import { useUserStore } from '../stores';
 
 function getCurrentUserId() {

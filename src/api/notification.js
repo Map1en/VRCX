@@ -1,5 +1,5 @@
 import { $app, API } from '../app';
-import { request } from '../service/apiRequestHandler';
+import { request } from '../service/request';
 
 const notificationReq = {
     /** @typedef {{

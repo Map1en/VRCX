@@ -9,9 +9,9 @@ import {
     userRequest
 } from '../api';
 import { $app } from '../app';
-import { bulk, request } from '../service/apiRequestHandler';
 import database from '../service/database';
 import { API } from '../service/eventBus';
+import { bulk, request } from '../service/request';
 import {
     arraysMatch,
     buildTreeData,

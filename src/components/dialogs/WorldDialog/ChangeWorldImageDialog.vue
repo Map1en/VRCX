@@ -48,7 +48,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { imageRequest } from '../../../api';
     import { API } from '../../../app';
-    import { $throw } from '../../../service/apiRequestHandler';
+    import { $throw } from '../../../service/request';
     import { extractFileId } from '../../../shared/utils';
     import { useGalleryStore, useWorldStore } from '../../../stores';
 

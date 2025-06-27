@@ -1,5 +1,5 @@
 import { $app, API, t } from '../app';
-import { request } from '../service/apiRequestHandler';
+import { request } from '../service/request';
 
 const instanceReq = {
     /**

@@ -2,10 +2,10 @@ import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { worldRequest } from '../api';
 import { $app, t } from '../app';
-import { failedGetRequests } from '../service/apiRequestHandler';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
+import { failedGetRequests } from '../service/request';
 import {
     debounce,
     parseLocation,

@@ -16,7 +16,7 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { avatarRequest } from '../../../api';
-    import { bulk } from '../../../service/apiRequestHandler';
+    import { bulk } from '../../../service/request';
     import { useAvatarStore, useUserStore } from '../../../stores';
 
     export default {

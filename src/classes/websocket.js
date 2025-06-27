@@ -2,7 +2,7 @@ import Noty from 'noty';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
 import { $app, API } from '../app.js';
-import { request } from '../service/apiRequestHandler';
+import { request } from '../service/request';
 import { escapeTag, parseLocation } from '../shared/utils';
 
 export default function init() {

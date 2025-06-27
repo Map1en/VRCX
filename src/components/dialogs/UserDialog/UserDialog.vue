@@ -1790,8 +1790,8 @@
         worldRequest
     } from '../../../api';
     import { API } from '../../../app';
-    import { bulk, request } from '../../../service/apiRequestHandler';
     import database from '../../../service/database';
+    import { bulk, request } from '../../../service/request';
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';
     import {

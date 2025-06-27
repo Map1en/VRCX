@@ -1,5 +1,5 @@
-import { request } from '../service/apiRequestHandler';
 import { API } from '../service/eventBus';
+import { request } from '../service/request';
 
 const avatarReq = {
     /**
