@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import { API } from '../service/eventBus';
 import { useAvatarStore } from './avatar';
 import { useUserStore } from './user';

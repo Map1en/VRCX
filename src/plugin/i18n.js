@@ -1,3 +1,4 @@
+import ElementUI from 'element-ui';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import { createI18n } from 'vue-i18n-bridge';
@@ -21,6 +22,9 @@ const i18n = createI18n(
 );
 
 Vue.use(i18n);
+Vue.use(ElementUI, {
+    i18n: (key, value) => i18n.global.t(key, value)
+});
 
 const appLanguage = await configRepository.getString('VRCX_appLanguage', 'en');
 i18n.locale = appLanguage;

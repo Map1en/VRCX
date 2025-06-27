@@ -8,7 +8,7 @@ import Vue from 'vue';
 import './bootstrap';
 import App from './App.vue';
 import { API } from './bootstrap';
-import { i18n, t } from './plugin';
+import { i18n } from './plugin/';
 import { pinia } from './stores';
 
 console.log(`isLinux: ${LINUX}`);
@@ -25,4 +25,4 @@ const $app = new Vue({
 window.$app = $app;
 window.API = API;
 
-export { $app, API, t };
+export { $app, API };

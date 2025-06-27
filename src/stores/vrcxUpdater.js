@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { branches } from '../shared/constants';

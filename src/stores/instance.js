@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';

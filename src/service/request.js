@@ -1,5 +1,6 @@
 import Noty from 'noty';
-import { $app, t } from '../app.js';
+import { $app } from '../app.js';
+import { t } from '../plugin';
 import { statusCodes } from '../shared/constants/api.js';
 import { escapeTag } from '../shared/utils';
 import {

@@ -8,7 +8,8 @@ import {
     vrcPlusIconRequest,
     vrcPlusImageRequest
 } from '../api';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import { API } from '../service/eventBus';
 import {
     getEmojiFileName,
