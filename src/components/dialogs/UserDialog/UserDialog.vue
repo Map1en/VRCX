@@ -1791,7 +1791,7 @@
     } from '../../../api';
     import database from '../../../service/database';
     import { API } from '../../../service/eventBus';
-    import { bulk, request } from '../../../service/request';
+    import { processBulk, request } from '../../../service/request';
     import { userDialogGroupSortingOptions } from '../../../shared/constants';
     import { userDialogWorldOrderOptions, userDialogWorldSortingOptions } from '../../../shared/constants/';
     import {
@@ -2643,7 +2643,7 @@
                 cachedWorlds.value.delete(ref.id);
             }
         }
-        bulk({
+        processBulk({
             fn: worldRequest.getWorlds,
             N: -1,
             params,

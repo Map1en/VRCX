@@ -11,7 +11,7 @@ import {
 import { $app } from '../app';
 import database from '../service/database';
 import { API } from '../service/eventBus';
-import { bulk, request } from '../service/request';
+import { processBulk, request } from '../service/request';
 import { initWebsocket } from '../service/websocket';
 import {
     arraysMatch,
@@ -1077,7 +1077,7 @@ export const useUserStore = defineStore('User', () => {
             }
         }
         const map = new Map();
-        bulk({
+        processBulk({
             fn: avatarRequest.getAvatars,
             N: -1,
             params,

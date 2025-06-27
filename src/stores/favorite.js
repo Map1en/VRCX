@@ -5,7 +5,7 @@ import { favoriteRequest } from '../api';
 import { $app, t } from '../app';
 import database from '../service/database';
 import { API } from '../service/eventBus';
-import { bulk } from '../service/request';
+import { processBulk } from '../service/request';
 import { compareByName, removeFromArray } from '../shared/utils';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
@@ -916,7 +916,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
         state.isFavoriteGroupLoading = true;
         expireFavoriteGroups();
-        bulk({
+        processBulk({
             fn: favoriteRequest.getFavoriteGroups,
             N: -1,
             params: {
@@ -1109,7 +1109,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
         expireFavorites();
         state.cachedFavoriteGroupsByTypeName.clear();
-        bulk({
+        processBulk({
             fn: favoriteRequest.getFavorites,
             N: -1,
             params: {
@@ -1272,7 +1272,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                 if (type === 'avatar') {
                     for (const tag of tags) {
                         const n = Math.floor(Math.random() * (50 + 1)) + 50;
-                        bulk({
+                        processBulk({
                             fn,
                             N,
                             params: {
@@ -1284,7 +1284,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
                     }
                 } else {
                     const n = Math.floor(Math.random() * (36 + 1)) + 64;
-                    bulk({
+                    processBulk({
                         fn,
                         N,
                         params: {

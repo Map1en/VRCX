@@ -274,7 +274,68 @@ export function $throw(code, error, endpoint) {
     throw new Error(text);
 }
 
-function $bulk(options, args) {
+export async function processBulk(options) {
+    const {
+        fn,
+        params: rawParams = {},
+        N = -1,
+        limitParam = 'n',
+        handle,
+        done
+    } = options;
+
+    if (typeof fn !== 'function') {
+        return;
+    }
+
+    const params = { ...rawParams };
+    if (typeof params.offset !== 'number') {
+        params.offset = 0;
+    }
+    const pageSize = params[limitParam];
+
+    let totalFetched = 0;
+
+    try {
+        while (true) {
+            const result = await fn(params);
+            const batchSize = result.json.length;
+
+            if (typeof handle === 'function') {
+                handle(result);
+            }
+            if (batchSize === 0) {
+                break;
+            }
+
+            if (N > 0) {
+                totalFetched += batchSize;
+                if (totalFetched >= N) {
+                    break;
+                }
+            } else if (N === 0) {
+                if (batchSize < pageSize) {
+                    break;
+                }
+                totalFetched += batchSize;
+            } else {
+                totalFetched += batchSize;
+            }
+            params.offset += batchSize;
+        }
+
+        if (typeof done === 'function') {
+            done(true);
+        }
+    } catch (err) {
+        console.error('Bulk processing error:', err);
+        if (typeof done === 'function') {
+            done(false);
+        }
+    }
+}
+
+API.$bulk = function (options, args) {
     if ('handle' in options) {
         options.handle.call(this, args, options);
     }
@@ -288,16 +349,14 @@ function $bulk(options, args) {
               ? args.json.length
               : options.params.n === args.json.length)
     ) {
-        bulk(options);
+        API.bulk(options);
     } else if ('done' in options) {
         options.done.call(this, true, options);
     }
     return args;
-}
+};
 
-export function bulk(options) {
-    // it's stupid, but I won't waste time on the 'this' context
-    // works, that's enough.
+API.bulk = function (options) {
     if (typeof options.fn === 'function') {
         options
             .fn(options.params)
@@ -307,7 +366,7 @@ export function bulk(options) {
                 }
                 throw err;
             })
-            .then((args) => $bulk(options, args));
+            .then((args) => API.$bulk(options, args));
     } else {
         this[options.fn](options.params)
             .catch((err) => {
@@ -316,6 +375,6 @@ export function bulk(options) {
                 }
                 throw err;
             })
-            .then((args) => $bulk(options, args));
+            .then((args) => API.$bulk(options, args));
     }
-}
+};
