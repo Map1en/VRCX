@@ -344,9 +344,6 @@ export const useFriendStore = defineStore('Friend', () => {
         deleteFriendship(args.params.userId);
     });
 
-    /**
-     * API.$on('USER')
-     */
     function userOnFriend(args) {
         updateFriendship(args.ref);
         if (
