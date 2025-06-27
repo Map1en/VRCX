@@ -49,7 +49,7 @@ export const useUiStore = defineStore('Ui', () => {
 
     function selectMenu(index) {
         state.menuActiveIndex = index;
-        removeNotify();
+        removeNotify(index);
         if (index === 'notification') {
             notificationStore.unseenNotifications = [];
         }
