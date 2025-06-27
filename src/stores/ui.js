@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app } from '../app';
 import { useNotificationStore } from './notification';
 
 export const useUiStore = defineStore('Ui', () => {
     const notificationStore = useNotificationStore();
     const state = reactive({
         menuActiveIndex: 'feed',
+        notifiedMenus: [],
         shiftHeld: false
     });
 
@@ -31,26 +31,41 @@ export const useUiStore = defineStore('Ui', () => {
         }
     });
 
+    const notifiedMenus = computed({
+        get: () => state.notifiedMenus,
+        set: (value) => {
+            state.notifiedMenus = value;
+        }
+    });
+
     function notifyMenu(index) {
-        const navRef = $app.$refs.menu.$children[0];
-        if (state.menuActiveIndex !== index) {
-            const item = navRef.items[index];
-            if (item) {
-                item.$el.classList.add('notify');
-            }
+        if (
+            index !== state.menuActiveIndex &&
+            !state.notifiedMenus.includes(index)
+        ) {
+            state.notifiedMenus.push(index);
         }
     }
 
     function selectMenu(index) {
         state.menuActiveIndex = index;
-        const item = $app.$refs.menu.$children[0]?.items[index];
-        if (item) {
-            item.$el.classList.remove('notify');
-        }
+        removeNotify();
         if (index === 'notification') {
             notificationStore.unseenNotifications = [];
         }
     }
 
-    return { state, menuActiveIndex, shiftHeld, notifyMenu, selectMenu };
+    function removeNotify(index) {
+        state.notifiedMenus = state.notifiedMenus.filter((i) => i !== index);
+    }
+
+    return {
+        state,
+        menuActiveIndex,
+        notifiedMenus,
+        shiftHeld,
+        notifyMenu,
+        selectMenu,
+        removeNotify
+    };
 });

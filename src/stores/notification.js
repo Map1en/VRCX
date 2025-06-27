@@ -358,10 +358,7 @@ export const useNotificationStore = defineStore('Notification', () => {
         const { notificationId } = args.params;
         removeFromArray(state.unseenNotifications, notificationId);
         if (state.unseenNotifications.length === 0) {
-            const item = $app.$refs.menu.$children[0]?.items['notification'];
-            if (item) {
-                item.$el.classList.remove('notify');
-            }
+            uiStore.removeNotify('notification');
         }
     });
 

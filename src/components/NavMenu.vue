@@ -23,87 +23,14 @@
             :default-active="menuActiveIndex"
             :collapse-transition="false"
             @select="selectMenu">
-            <el-menu-item index="feed">
-                <i class="el-icon-news"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.feed') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="gameLog">
-                <i class="el-icon-s-data"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.game_log') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="playerList">
-                <i class="el-icon-tickets"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.player_list') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="search">
-                <i class="el-icon-search"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.search') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="favorite">
-                <i class="el-icon-star-off"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.favorites') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="friendLog">
-                <i class="el-icon-notebook-2"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.friend_log') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="moderation">
-                <i class="el-icon-finished"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.moderation') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="notification">
-                <i class="el-icon-bell"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.notification') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="friendList">
-                <i class="el-icon-s-management"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.friend_list') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="charts">
-                <i class="el-icon-data-analysis"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.charts') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="profile">
-                <i class="el-icon-user"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.profile') }}</span>
-                </template>
-            </el-menu-item>
-
-            <el-menu-item index="settings">
-                <i class="el-icon-s-tools"></i>
-                <template slot="title">
-                    <span>{{ $t('nav_tooltip.settings') }}</span>
+            <el-menu-item
+                v-for="item in navItems"
+                :key="item.index"
+                :index="item.index"
+                :class="{ notify: notifiedMenus.includes(item.index) }">
+                <i :class="item.icon" />
+                <template #title>
+                    <span>{{ $t(item.tooltip) }}</span>
                 </template>
             </el-menu-item>
         </el-menu>
@@ -112,14 +39,28 @@
 
 <script setup>
     import { storeToRefs } from 'pinia';
-    import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
-    import { useUiStore } from '../stores/ui';
+    import { useUiStore, useVRCXUpdaterStore } from '../stores';
+
+    const navItems = [
+        { index: 'feed', icon: 'el-icon-news', tooltip: 'nav_tooltip.feed' },
+        { index: 'gameLog', icon: 'el-icon-s-data', tooltip: 'nav_tooltip.game_log' },
+        { index: 'playerList', icon: 'el-icon-tickets', tooltip: 'nav_tooltip.player_list' },
+        { index: 'search', icon: 'el-icon-search', tooltip: 'nav_tooltip.search' },
+        { index: 'favorite', icon: 'el-icon-star-off', tooltip: 'nav_tooltip.favorites' },
+        { index: 'friendLog', icon: 'el-icon-notebook-2', tooltip: 'nav_tooltip.friend_log' },
+        { index: 'moderation', icon: 'el-icon-finished', tooltip: 'nav_tooltip.moderation' },
+        { index: 'notification', icon: 'el-icon-bell', tooltip: 'nav_tooltip.notification' },
+        { index: 'friendList', icon: 'el-icon-s-management', tooltip: 'nav_tooltip.friend_list' },
+        { index: 'charts', icon: 'el-icon-data-analysis', tooltip: 'nav_tooltip.charts' },
+        { index: 'profile', icon: 'el-icon-user', tooltip: 'nav_tooltip.profile' },
+        { index: 'settings', icon: 'el-icon-s-tools', tooltip: 'nav_tooltip.settings' }
+    ];
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
     const { pendingVRCXUpdate, pendingVRCXInstall, updateInProgress, updateProgress, updateProgressText } =
         storeToRefs(VRCXUpdaterStore);
     const { showVRCXUpdateDialog } = VRCXUpdaterStore;
     const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
+    const { menuActiveIndex, notifiedMenus } = storeToRefs(uiStore);
     const { selectMenu } = uiStore;
 </script>
