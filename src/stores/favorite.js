@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { favoriteRequest } from '../api';
 import { $app } from '../app';
@@ -8,7 +8,6 @@ import database from '../service/database';
 import { API } from '../service/eventBus';
 import { processBulk } from '../service/request';
 import { compareByName, removeFromArray } from '../shared/utils';
-import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useGroupStore } from './group';
@@ -403,51 +402,31 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         return groupedByGroupKeyFavoriteFriends;
     });
 
-    watch(
-        () => useAuthStore().isLoggedIn,
-        (isLoggedIn) => {
-            if (isLoggedIn) {
-                friendStore.localFavoriteFriends.clear();
-                groupStore.currentUserGroupsInit = false;
-                groupStore.cachedGroups.clear();
-                avatarStore.cachedAvatars.clear();
-                worldStore.cachedWorlds.clear();
-                userStore.cachedUsers.clear();
-                instanceStore.cachedInstances.clear();
-                avatarStore.cachedAvatarNames.clear();
-                avatarStore.cachedAvatarModerations.clear();
-                moderationStore.cachedPlayerModerations.clear();
-                state.cachedFavorites.clear();
-                state.cachedFavoritesByObjectId.clear();
-                state.cachedFavoriteGroups.clear();
-                state.cachedFavoriteGroupsByTypeName.clear();
-                groupStore.currentUserGroups.clear();
-                advancedSettingsStore.currentUserInventory.clear();
-                instanceStore.queuedInstances.clear();
-                state.favoriteFriendGroups = [];
-                state.favoriteWorldGroups = [];
-                state.favoriteAvatarGroups = [];
-                state.isFavoriteLoading = false;
-                state.isFavoriteGroupLoading = false;
-                refreshFavorites();
-                state.favoriteObjects.clear();
-                state.favoriteFriends_ = [];
-                state.favoriteFriendsSorted = [];
-                state.favoriteWorlds_ = [];
-                state.favoriteWorldsSorted = [];
-                state.favoriteAvatars_ = [];
-                state.favoriteAvatarsSorted = [];
-                state.sortFavoriteFriends = false;
-                state.sortFavoriteWorlds = false;
-                state.sortFavoriteAvatars = false;
-                getLocalWorldFavorites();
-                state.localAvatarFavoriteGroups = [];
-                state.localAvatarFavoritesList = [];
-                state.localAvatarFavorites = {};
-                workerTimers.setTimeout(() => getLocalAvatarFavorites(), 100);
-            }
-        }
-    );
+    API.$on('LOGIN', function () {
+        friendStore.localFavoriteFriends.clear();
+        groupStore.currentUserGroupsInit = false;
+        groupStore.cachedGroups.clear();
+        avatarStore.cachedAvatars.clear();
+        worldStore.cachedWorlds.clear();
+        userStore.cachedUsers.clear();
+        instanceStore.cachedInstances.clear();
+        avatarStore.cachedAvatarNames.clear();
+        avatarStore.cachedAvatarModerations.clear();
+        moderationStore.cachedPlayerModerations.clear();
+        state.cachedFavorites.clear();
+        state.cachedFavoritesByObjectId.clear();
+        state.cachedFavoriteGroups.clear();
+        state.cachedFavoriteGroupsByTypeName.clear();
+        groupStore.currentUserGroups.clear();
+        advancedSettingsStore.currentUserInventory.clear();
+        instanceStore.queuedInstances.clear();
+        state.favoriteFriendGroups = [];
+        state.favoriteWorldGroups = [];
+        state.favoriteAvatarGroups = [];
+        state.isFavoriteLoading = false;
+        state.isFavoriteGroupLoading = false;
+        refreshFavorites();
+    });
 
     API.$on('FAVORITE', function (args) {
         const ref = applyFavoriteCached(args.json);
@@ -622,6 +601,19 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.favoriteAvatarsSorted = [];
     }
 
+    API.$on('LOGIN', function () {
+        state.favoriteObjects.clear();
+        state.favoriteFriends_ = [];
+        state.favoriteFriendsSorted = [];
+        state.favoriteWorlds_ = [];
+        state.favoriteWorldsSorted = [];
+        state.favoriteAvatars_ = [];
+        state.favoriteAvatarsSorted = [];
+        state.sortFavoriteFriends = false;
+        state.sortFavoriteWorlds = false;
+        state.sortFavoriteAvatars = false;
+    });
+
     API.$on('FAVORITE', function (args) {
         applyFavorite(args.ref.type, args.ref.favoriteId, args.sortTop);
     });
@@ -698,6 +690,10 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         D.isFavorite = false;
     });
 
+    API.$on('LOGIN', function () {
+        getLocalWorldFavorites();
+    });
+
     API.$on('AVATAR', function (args) {
         if (state.localAvatarFavoritesList.includes(args.ref.id)) {
             for (let i = 0; i < state.localAvatarFavoriteGroups.length; ++i) {
@@ -720,6 +716,13 @@ export const useFavoriteStore = defineStore('Favorite', () => {
             // update db cache
             database.addAvatarToCache(args.ref);
         }
+    });
+
+    API.$on('LOGIN', function () {
+        state.localAvatarFavoriteGroups = [];
+        state.localAvatarFavoritesList = [];
+        state.localAvatarFavorites = {};
+        workerTimers.setTimeout(() => getLocalAvatarFavorites(), 100);
     });
 
     API.$on('FAVORITE:ADD', function (args) {
