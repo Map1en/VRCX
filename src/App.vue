@@ -94,9 +94,7 @@
             }
         },
         created() {
-            if (LINUX) {
-                this.store.updateLoop.updateLoop();
-            }
+            this.store.updateLoop.updateLoop();
             AppApi.SetUserAgent();
             AppApi.CheckGameRunning();
             refreshCustomCss();
