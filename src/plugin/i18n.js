@@ -1,9 +1,6 @@
-import ElementUI from 'element-ui';
 import Vue from 'vue';
-import { DataTables } from 'vue-data-tables';
 import VueI18n from 'vue-i18n';
 import { createI18n } from 'vue-i18n-bridge';
-import VueLazyload from 'vue-lazyload';
 import * as localizedStrings from '../localization/localizedStrings';
 import configRepository from '../service/config';
 
@@ -22,21 +19,8 @@ const i18n = createI18n(
     },
     VueI18n
 );
-Vue.use(i18n);
 
-Vue.use(DataTables);
-Vue.use(ElementUI, {
-    i18n: (key, value) => i18n.global.t(key, value)
-});
-Vue.use(VueLazyload, {
-    preLoad: 1,
-    observer: true,
-    observerOptions: {
-        rootMargin: '0px',
-        threshold: 0
-    },
-    attempt: 3
-});
+Vue.use(i18n);
 
 const appLanguage = await configRepository.getString('VRCX_appLanguage', 'en');
 i18n.locale = appLanguage;

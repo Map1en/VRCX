@@ -3,15 +3,31 @@ import '@fontsource/noto-sans-jp';
 import '@fontsource/noto-sans-sc';
 import '@fontsource/noto-sans-tc';
 import '@infolektuell/noto-color-emoji';
+import ElementUI from 'element-ui';
 import { PiniaVuePlugin } from 'pinia';
 
 import Vue from 'vue';
+import { DataTables } from 'vue-data-tables';
+import VueLazyload from 'vue-lazyload';
 import { API, i18n, t } from './plugin';
 import configRepository from './service/config';
 import vrcxJsonStorage from './service/jsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
 
 Vue.use(PiniaVuePlugin);
+Vue.use(DataTables);
+Vue.use(ElementUI, {
+    i18n: (key, value) => i18n.global.t(key, value)
+});
+Vue.use(VueLazyload, {
+    preLoad: 1,
+    observer: true,
+    observerOptions: {
+        rootMargin: '0px',
+        threshold: 0
+    },
+    attempt: 3
+});
 Vue.filter('commaNumber', commaNumber);
 Vue.filter('textToHex', textToHex);
 
