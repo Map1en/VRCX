@@ -723,16 +723,19 @@ export const useGameLogStore = defineStore('GameLog', () => {
 
                 if (advancedSettingsStore.saveInstanceEmoji) {
                     try {
-                        // https://api.vrchat.cloud/api/1/inventory/spawn?id=inv_75781d65-92fe-4a80-a1ff-27ee6e843b08
+                        // https://api.vrchat.cloud/api/1/user/usr_032383a7-748c-4fb2-94e4-bcb928e5de6b/inventory/inv_75781d65-92fe-4a80-a1ff-27ee6e843b08
                         const url = new URL(gameLog.url);
                         if (
-                            url.pathname.substring(0, 22) ===
-                            '/api/1/inventory/spawn'
+                            url.pathname.substring(0, 12) === '/api/1/user/' &&
+                            url.pathname.includes('/inventory/inv_')
                         ) {
-                            const inventoryId = url.searchParams.get('id');
-                            if (inventoryId && inventoryId.length === 40) {
+                            const pathArray = url.pathname.split('/');
+                            const userId = pathArray[4];
+                            const inventoryId = pathArray[6];
+                            if (userId && inventoryId.length === 40) {
                                 galleryStore.queueCheckInstanceInventory(
-                                    inventoryId
+                                    inventoryId,
+                                    userId
                                 );
                             }
                         }
@@ -890,6 +893,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
 
                 galleryStore.trySaveStickerToFile(
                     gameLog.displayName,
+                    gameLog.userId,
                     gameLog.inventoryId
                 );
                 break;

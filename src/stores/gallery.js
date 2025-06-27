@@ -326,7 +326,7 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     });
 
-    async function trySaveStickerToFile(displayName, inventoryId) {
+    async function trySaveStickerToFile(displayName, userId, inventoryId) {
         if (state.instanceStickersCache.includes(inventoryId)) {
             return;
         }
@@ -334,9 +334,18 @@ export const useGalleryStore = defineStore('Gallery', () => {
         if (state.instanceStickersCache.size > 100) {
             state.instanceStickersCache.shift();
         }
-        const args = await inventoryRequest.getInventoryItem({
-            inventoryId
+        const args = await inventoryRequest.getUserInventoryItem({
+            inventoryId,
+            userId
         });
+
+        if (
+            args.json.itemType !== 'sticker' ||
+            !args.json.flags.includes('ugc')
+        ) {
+            // Not a sticker or ugc, skipping
+            return;
+        }
         const imageUrl = args.json.metadata?.imageUrl ?? args.json.imageUrl;
         const createdAt = args.json.created_at;
         const monthFolder = createdAt.slice(0, 7);
@@ -575,8 +584,11 @@ export const useGalleryStore = defineStore('Gallery', () => {
         D.visible = true;
     }
 
-    function queueCheckInstanceInventory(inventoryId) {
-        if (state.instanceInventoryCache.includes(inventoryId)) {
+    function queueCheckInstanceInventory(inventoryId, userId) {
+        if (
+            state.instanceInventoryCache.includes(inventoryId) ||
+            state.instanceStickersCache.includes(inventoryId)
+        ) {
             return;
         }
         state.instanceInventoryCache.push(inventoryId);
@@ -584,14 +596,14 @@ export const useGalleryStore = defineStore('Gallery', () => {
             state.instanceInventoryCache.shift();
         }
 
-        state.instanceInventoryQueue.push(inventoryId);
+        state.instanceInventoryQueue.push({ inventoryId, userId });
 
         if (!state.instanceInventoryQueueWorker) {
             state.instanceInventoryQueueWorker = workerTimers.setInterval(
                 () => {
-                    const inventoryId = state.instanceInventoryQueue.shift();
-                    if (inventoryId) {
-                        trySaveEmojiToFile(inventoryId);
+                    const item = state.instanceInventoryQueue.shift();
+                    if (item?.inventoryId) {
+                        trySaveEmojiToFile(item.inventoryId, item.userId);
                     }
                 },
                 2_500
@@ -599,13 +611,17 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     }
 
-    async function trySaveEmojiToFile(inventoryId) {
-        const args = await inventoryRequest.getInventoryItem({
-            inventoryId
+    async function trySaveEmojiToFile(inventoryId, userId) {
+        const args = await inventoryRequest.getUserInventoryItem({
+            inventoryId,
+            userId
         });
 
-        if (args.json.itemType !== 'emoji') {
-            // Not an emoji, skip
+        if (
+            args.json.itemType !== 'emoji' ||
+            !args.json.flags.includes('ugc')
+        ) {
+            // Not an emoji or ugc, skipping
             return;
         }
 

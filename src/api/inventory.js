@@ -2,6 +2,25 @@ import { request } from '../service/request';
 
 const inventoryReq = {
     /**
+     * @param {{ inventoryId: string, userId: string }} params
+     * @returns {Promise<{json: any, params}>}
+     */
+    getUserInventoryItem(params) {
+        return request(
+            `user/${params.userId}/inventory/${params.inventoryId}`,
+            {
+                method: 'GET'
+            }
+        ).then((json) => {
+            const args = {
+                json,
+                params
+            };
+            return args;
+        });
+    },
+
+    /**
      * @param {{ inventoryId: string }} params
      * @returns {Promise<{json: any, params}>}
      */
