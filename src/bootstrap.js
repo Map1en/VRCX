@@ -8,7 +8,6 @@ import { PiniaVuePlugin } from 'pinia';
 import Vue from 'vue';
 import { DataTables } from 'vue-data-tables';
 import VueLazyload from 'vue-lazyload';
-import { API } from './plugin';
 import configRepository from './service/config';
 import vrcxJsonStorage from './service/jsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
@@ -46,5 +45,3 @@ if (process.env.NODE_ENV !== 'production') {
         console.warn('Trace：', trace);
     };
 }
-
-export { API };

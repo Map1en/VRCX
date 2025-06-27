@@ -91,4 +91,6 @@ API.$on('CONFIG', function (args) {
     AppApi.PopulateImageHosts(JSON.stringify(args.ref.whiteListedAssetUrls));
 });
 
+window.API = API;
+
 export { API };
