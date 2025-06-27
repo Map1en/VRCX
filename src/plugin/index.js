@@ -1,5 +1,5 @@
 import './dayjs';
-import './globalComponents';
+import './components';
 import './ipc';
 import './noty';
 

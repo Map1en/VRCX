@@ -20,7 +20,7 @@
             </el-table-column>
             <el-table-column :label="t('table.previous_instances.instance_name')" prop="name">
                 <template slot-scope="scope">
-                    <location-world
+                    <LocationWorld
                         :locationobject="scope.row.$location"
                         :grouphint="scope.row.groupName"
                         :currentuserid="currentUser.id" />
@@ -28,10 +28,10 @@
             </el-table-column>
             <el-table-column :label="t('table.previous_instances.instance_creator')" prop="location">
                 <template slot-scope="scope">
-                    <display-name
+                    <DisplayName
                         :userid="scope.row.$location.userId"
                         :location="scope.row.$location.tag"
-                        :force-update-key="previousInstancesWorldDialog.forceUpdate"></display-name>
+                        :force-update-key="previousInstancesWorldDialog.forceUpdate" />
                 </template>
             </el-table-column>
             <el-table-column :label="t('table.previous_instances.time')" prop="time" width="100" sortable>

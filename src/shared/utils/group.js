@@ -1,4 +1,4 @@
-import { useGameLogStore } from '../../stores';
+import { useGroupStore } from '../../stores';
 import { parseLocation } from './location';
 
 /**
@@ -26,7 +26,7 @@ function hasGroupPermission(ref, permission) {
  * @returns {Promise<string>}
  */
 async function getGroupName(data) {
-    const groupStore = useGameLogStore();
+    const groupStore = useGroupStore();
     if (!data) {
         return '';
     }

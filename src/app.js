@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import uiComponents from './classes/uiComponents.js';
 import websocket from './classes/websocket.js';
 import AvatarDialog from './components/dialogs/AvatarDialog/AvatarDialog.vue';
 import ChooseFavoriteGroupDialog from './components/dialogs/ChooseFavoriteGroupDialog.vue';
@@ -147,7 +146,6 @@ let $app = {
     }
 };
 
-uiComponents();
 websocket();
 
 API.cachedUsers = new Map();

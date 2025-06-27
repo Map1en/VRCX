@@ -331,16 +331,16 @@
                         <template
                             v-if="isAgeGatedInstancesVisible || !(room.ageGate || room.location?.includes('~ageGate'))">
                             <div style="margin: 5px 0">
-                                <location-world
+                                <LocationWorld
                                     :locationobject="room.$location"
                                     :currentuserid="currentUser.id"
                                     :worlddialogshortname="worldDialog.$location.shortName" />
-                                <launch :location="room.tag" style="margin-left: 5px" />
+                                <Launch :location="room.tag" style="margin-left: 5px" />
                                 <el-tooltip
                                     placement="top"
                                     :content="t('dialog.world.instances.self_invite_tooltip')"
                                     :disabled="hideTooltips">
-                                    <invite-yourself
+                                    <InviteYourself
                                         :location="room.$location.tag"
                                         :shortname="room.$location.shortName"
                                         style="margin-left: 5px" />

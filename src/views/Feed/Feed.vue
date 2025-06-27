@@ -83,12 +83,12 @@
                                                 class="x-link"
                                                 style="flex: none; width: 160px; height: 120px; border-radius: 4px" />
                                             <br />
-                                            <avatar-info
+                                            <AvatarInfo
                                                 :imageurl="scope.row.previousCurrentAvatarThumbnailImageUrl"
                                                 :userid="scope.row.userId"
                                                 :hintownerid="scope.row.previousOwnerId"
                                                 :hintavatarname="scope.row.previousAvatarName"
-                                                :avatartags="scope.row.previousCurrentAvatarTags"></avatar-info>
+                                                :avatartags="scope.row.previousCurrentAvatarTags" />
                                         </template>
                                     </div>
                                     <img
@@ -110,12 +110,12 @@
                                                 class="x-link"
                                                 style="flex: none; width: 160px; height: 120px; border-radius: 4px" />
                                             <br />
-                                            <avatar-info
+                                            <AvatarInfo
                                                 :imageurl="scope.row.currentAvatarThumbnailImageUrl"
                                                 :userid="scope.row.userId"
                                                 :hintownerid="scope.row.ownerId"
                                                 :hintavatarname="scope.row.avatarName"
-                                                :avatartags="scope.row.currentAvatarTags"></avatar-info>
+                                                :avatartags="scope.row.currentAvatarTags" />
                                         </template>
                                     </div>
                                     <img
@@ -299,12 +299,12 @@
                         </template>
                     </template>
                     <template v-else-if="scope.row.type === 'Avatar'">
-                        <avatar-info
+                        <AvatarInfo
                             :imageurl="scope.row.currentAvatarImageUrl"
                             :userid="scope.row.userId"
                             :hintownerid="scope.row.ownerId"
                             :hintavatarname="scope.row.avatarName"
-                            :avatartags="scope.row.currentAvatarTags"></avatar-info>
+                            :avatartags="scope.row.currentAvatarTags" />
                     </template>
                     <template v-else-if="scope.row.type === 'Bio'">
                         <span v-text="scope.row.bio"></span>

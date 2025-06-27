@@ -28,9 +28,7 @@
             </el-table-column>
             <el-table-column :label="$t('table.previous_instances.instance_creator')" prop="location" width="170">
                 <template slot-scope="scope">
-                    <display-name
-                        :userid="scope.row.$location.userId"
-                        :location="scope.row.$location.tag"></display-name>
+                    <DisplayName :userid="scope.row.$location.userId" :location="scope.row.$location.tag" />
                 </template>
             </el-table-column>
             <el-table-column :label="$t('table.previous_instances.time')" prop="time" width="100" sortable>

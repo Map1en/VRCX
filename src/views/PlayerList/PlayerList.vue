@@ -132,7 +132,7 @@
                         </el-tag>
                     </div>
                     <div style="margin-top: 5px">
-                        <location-world :locationobject="currentInstanceLocation" :currentuserid="currentUser.id" />
+                        <LocationWorld :locationobject="currentInstanceLocation" :currentuserid="currentUser.id" />
                         <span v-if="lastLocation.playerList.size > 0" style="margin-left: 5px">
                             {{ lastLocation.playerList.size }}
                             <template v-if="lastLocation.friendList.size > 0"

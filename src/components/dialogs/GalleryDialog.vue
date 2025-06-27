@@ -412,12 +412,12 @@
                             :hint="image.worldName"
                             style="display: block"></location>
                         <span v-else style="display: block">&nbsp;</span>
-                        <display-name
+                        <DisplayName
                             class="x-ellipsis"
                             v-if="image.authorId"
                             :userid="image.authorId"
                             :hint="image.authorName"
-                            style="color: #909399; font-family: monospace; display: block"></display-name>
+                            style="color: #909399; font-family: monospace; display: block" />
                         <span v-else style="font-family: monospace; display: block">&nbsp;</span>
                         <span
                             class="x-ellipsis"

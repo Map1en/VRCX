@@ -548,15 +548,15 @@
                             ">
                             <div style="flex: none">
                                 <template v-if="isRealInstance(userDialog.$location.tag)">
-                                    <launch :location="userDialog.$location.tag" />
+                                    <Launch :location="userDialog.$location.tag" />
                                     <el-tooltip
                                         placement="top"
                                         :content="t('dialog.user.info.self_invite_tooltip')"
                                         :disabled="hideTooltips">
-                                        <invite-yourself
+                                        <InviteYourself
                                             :location="userDialog.$location.tag"
                                             :shortname="userDialog.$location.shortName"
-                                            style="margin-left: 5px"></invite-yourself>
+                                            style="margin-left: 5px" />
                                     </el-tooltip>
                                     <el-tooltip
                                         placement="top"
@@ -690,11 +690,11 @@
                                 </span>
                                 <span v-else class="name">{{ t('dialog.user.info.avatar_info') }}</span>
                                 <div class="extra">
-                                    <avatar-info
+                                    <AvatarInfo
                                         :imageurl="userDialog.ref.currentAvatarImageUrl"
                                         :userid="userDialog.id"
                                         :avatartags="userDialog.ref.currentAvatarTags"
-                                        style="display: inline-block"></avatar-info>
+                                        style="display: inline-block" />
                                     <el-tooltip
                                         v-if="
                                             userDialog.ref.profilePicOverride &&

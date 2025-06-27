@@ -95,7 +95,7 @@
                 v-if="screenshotMetadataDialog.metadata.world"
                 :location="screenshotMetadataDialog.metadata.world.instanceId"
                 :hint="screenshotMetadataDialog.metadata.world.name" />
-            <display-name
+            <DisplayName
                 v-if="screenshotMetadataDialog.metadata.author"
                 :userid="screenshotMetadataDialog.metadata.author.id"
                 :hint="screenshotMetadataDialog.metadata.author.displayName"

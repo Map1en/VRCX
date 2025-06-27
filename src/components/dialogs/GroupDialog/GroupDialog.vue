@@ -401,7 +401,7 @@
                             <div style="margin: 5px 0">
                                 <location :location="room.tag" style="display: inline-block" />
                                 <el-tooltip placement="top" content="Invite yourself" :disabled="hideTooltips">
-                                    <invite-yourself :location="room.tag" style="margin-left: 5px" />
+                                    <InviteYourself :location="room.tag" style="margin-left: 5px" />
                                 </el-tooltip>
                                 <el-tooltip placement="top" content="Refresh player count" :disabled="hideTooltips">
                                     <el-button
@@ -510,12 +510,12 @@
                                         </template>
                                         <i class="el-icon-view" style="margin-right: 5px" />
                                     </el-tooltip>
-                                    <display-name
+                                    <DisplayName
                                         :userid="groupDialog.announcement.authorId"
                                         style="margin-right: 5px" />
                                     <span v-if="groupDialog.announcement.editorId" style="margin-right: 5px">
                                         ({{ t('dialog.group.posts.edited_by') }}
-                                        <display-name :userid="groupDialog.announcement.editorId" />)
+                                        <DisplayName :userid="groupDialog.announcement.editorId" />)
                                     </span>
                                     <el-tooltip placement="bottom">
                                         <template #content>
@@ -787,10 +787,10 @@
                                             </template>
                                             <i class="el-icon-view" style="margin-right: 5px" />
                                         </el-tooltip>
-                                        <display-name :userid="post.authorId" style="margin-right: 5px" />
+                                        <DisplayName :userid="post.authorId" style="margin-right: 5px" />
                                         <span v-if="post.editorId" style="margin-right: 5px"
                                             >({{ t('dialog.group.posts.edited_by') }}
-                                            <display-name :userid="post.editorId" />)</span
+                                            <DisplayName :userid="post.editorId" />)</span
                                         >
                                         <el-tooltip placement="bottom">
                                             <template slot="content">
