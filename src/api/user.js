@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../plugin';
 import { request } from '../service/request';
 import { useUserStore } from '../stores';
 
@@ -73,7 +73,6 @@ const userReq = {
                 json,
                 params
             };
-            // API.$emit('USER:LIST', args);
             return args;
         });
     },
@@ -91,7 +90,6 @@ const userReq = {
                 json,
                 params
             };
-            // API.$emit('USER:CURRENT:SAVE', args);
             API.$emit('USER:CURRENT', args);
             return args;
         });
@@ -110,7 +108,6 @@ const userReq = {
                 json,
                 params
             };
-            // API.$emit('USER:CURRENT:SAVE', args);
             API.$emit('USER:CURRENT', args);
             return args;
         });
@@ -131,7 +128,6 @@ const userReq = {
                 json,
                 params
             };
-            // API.$emit('USER:FEEDBACK', args);
             return args;
         });
     },
@@ -157,7 +153,6 @@ const userReq = {
                 json,
                 params
             };
-            // API.$emit('USER:CURRENT:SAVE', args);
             API.$emit('USER:CURRENT', args);
             return args;
         });
@@ -176,7 +171,6 @@ const userReq = {
                 json,
                 params
             };
-            // window.API.$emit('USER:NOTES', args);
             return args;
         });
     }
