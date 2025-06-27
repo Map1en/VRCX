@@ -86,11 +86,13 @@
     import { instanceRequest, worldRequest } from '../../api';
     import configRepository from '../../service/config';
     import { adjustDialogZ, checkCanInvite, getLaunchURL, isRealInstance, parseLocation } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
-    import { useInstanceStore } from '../../stores/instance';
-    import { useLaunchStore } from '../../stores/launch';
-    import { useLocationStore } from '../../stores/location';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+    import {
+        useAppearanceSettingsStore,
+        useFriendStore,
+        useInstanceStore,
+        useLaunchStore,
+        useLocationStore
+    } from '../../stores';
     import InviteDialog from './InviteDialog/InviteDialog.vue';
 
     export default {

@@ -132,10 +132,7 @@
     import { storeToRefs } from 'pinia';
     import { computed, getCurrentInstance } from 'vue';
     import { favoriteRequest } from '../../../api';
-    import { useFavoriteStore } from '../../../stores/favorite';
-    import { useInviteStore } from '../../../stores/invite';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
-    import { useUiStore } from '../../../stores/ui';
+    import { useAppearanceSettingsStore, useFavoriteStore, useInviteStore, useUiStore } from '../../../stores';
 
     const props = defineProps({
         group: [Object, String],

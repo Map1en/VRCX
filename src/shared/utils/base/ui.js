@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia';
-import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+import { useAppearanceSettingsStore } from '../../../stores';
 
 /**
  *

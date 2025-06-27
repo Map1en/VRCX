@@ -36,8 +36,8 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
-    import { useVRCXUpdaterStore } from '../../../stores/vrcxUpdater';
     import { openExternalLink } from '../../../shared/utils';
+    import { useVRCXUpdaterStore } from '../../../stores';
 
     const VueMarkdown = () => import('vue-markdown');
 

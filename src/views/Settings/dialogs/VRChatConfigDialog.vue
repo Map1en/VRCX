@@ -191,9 +191,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { VRChatCameraResolutions, VRChatScreenshotResolutions } from '../../../shared/constants';
     import { getVRChatResolution, openExternalLink } from '../../../shared/utils';
-    import { useGameStore } from '../../../stores/game';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
-    import { useAppearanceSettingsStore } from '../../../stores/settings/appearance';
+    import { useAdvancedSettingsStore, useAppearanceSettingsStore, useGameStore } from '../../../stores';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { VRChatUsedCacheSize, VRChatTotalCacheSize, VRChatCacheSizeLoading } = storeToRefs(useGameStore());

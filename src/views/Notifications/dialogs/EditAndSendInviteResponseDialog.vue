@@ -35,7 +35,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { inviteMessagesRequest, notificationRequest } from '../../../api';
     import { API } from '../../../service/eventBus';
-    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGalleryStore } from '../../../stores';
 
     const { t } = useI18n();
     const instance = getCurrentInstance();

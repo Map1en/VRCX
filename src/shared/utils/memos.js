@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia';
 import database from '../../service/database.js';
-import { useFriendStore } from '../../stores/friend';
+import { useFriendStore } from '../../stores';
 
 /**
  * @returns {Promise<void>}

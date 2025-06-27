@@ -1,5 +1,4 @@
-import { useAvatarStore } from '../../../stores';
-import { useWorldStore } from '../../../stores/world';
+import { useAvatarStore, useWorldStore } from '../../../stores';
 import { compareUnityVersion } from '../avatar';
 import {
     extractFileId,

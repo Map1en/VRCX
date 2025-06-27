@@ -20,7 +20,7 @@
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
     import InstanceActivity from './components/InstanceActivity.vue';
-    import { useUiStore } from '../../stores/ui';
+    import { useUiStore } from '../../stores';
 
     const { t } = useI18n();
 

@@ -42,8 +42,9 @@
 <script setup>
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n-bridge';
+    import { useAuthStore } from '../../../stores';
+
     const { t } = useI18n();
-    import { useAuthStore } from '../../../stores/auth';
 
     const authStore = useAuthStore();
     const { enablePrimaryPasswordDialog } = storeToRefs(authStore);

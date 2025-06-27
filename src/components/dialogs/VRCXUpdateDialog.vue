@@ -68,7 +68,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { branches } from '../../shared/constants';
     import { adjustDialogZ } from '../../shared/utils';
-    import { useVRCXUpdaterStore } from '../../stores/vrcxUpdater';
+    import { useVRCXUpdaterStore } from '../../stores';
 
     const VRCXUpdaterStore = useVRCXUpdaterStore();
 

@@ -36,7 +36,7 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { openExternalLink } from '../../../shared/utils';
-    import { useAdvancedSettingsStore } from '../../../stores/settings/advanced';
+    import { useAdvancedSettingsStore } from '../../../stores';
 
     const advancedSettingsStore = useAdvancedSettingsStore();
 

@@ -100,10 +100,7 @@
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import { removeFromArray } from '../../shared/utils';
-    import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
-    import { useUserStore } from '../../stores/user';
-    import { useFriendStore } from '../../stores/friend';
-    import { useUiStore } from '../../stores/ui';
+    import { useAppearanceSettingsStore, useUiStore, useFriendStore, useUserStore } from '../../stores';
 
     const { hideUnfriends } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();

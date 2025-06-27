@@ -97,7 +97,7 @@
     import { getCurrentInstance, watch } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { avatarRequest } from '../../../api';
-    import { useAvatarStore } from '../../../stores/avatar';
+    import { useAvatarStore } from '../../../stores';
 
     const avatarStore = useAvatarStore();
     const { showAvatarDialog } = avatarStore;

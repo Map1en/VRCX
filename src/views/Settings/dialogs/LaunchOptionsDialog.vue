@@ -61,7 +61,7 @@
     import { useI18n } from 'vue-i18n-bridge';
     import configRepository from '../../../service/config';
     import { openExternalLink } from '../../../shared/utils';
-    import { useLaunchStore } from '../../../stores/launch';
+    import { useLaunchStore } from '../../../stores';
 
     const { t } = useI18n();
 

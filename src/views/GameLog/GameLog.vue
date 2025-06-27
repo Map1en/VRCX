@@ -209,7 +209,7 @@
         useInstanceStore,
         useGameLogStore
     } from '../../stores';
-    import { useSharedFeedStore } from '../../stores/sharedFeed';
+    import { useSharedFeedStore } from '../../stores';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showWorldDialog } = useWorldStore();

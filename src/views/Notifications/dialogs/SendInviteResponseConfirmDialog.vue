@@ -26,7 +26,7 @@
     import { getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { notificationRequest } from '../../../api';
-    import { useGalleryStore } from '../../../stores/gallery';
+    import { useGalleryStore } from '../../../stores';
 
     const { t } = useI18n();
 

@@ -2,9 +2,7 @@ import Noty from 'noty';
 import { storeToRefs } from 'pinia';
 import { miscRequest } from '../../api';
 import { $app } from '../../app';
-import { useAvatarStore } from '../../stores/avatar';
-import { useInstanceStore } from '../../stores/instance';
-import { useWorldStore } from '../../stores/world';
+import { useAvatarStore, useInstanceStore, useWorldStore } from '../../stores';
 import { compareUnityVersion } from './avatar';
 import { escapeTag } from './base/string';
 

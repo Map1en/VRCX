@@ -1,6 +1,5 @@
 import { storeToRefs } from 'pinia';
-import { useUserStore } from '../../stores';
-import { useAppearanceSettingsStore } from '../../stores/settings/appearance';
+import { useAppearanceSettingsStore, useUserStore } from '../../stores';
 import { languageMappings } from '../constants';
 import { timeToText } from './base/format';
 import { HueToHex } from './base/ui';

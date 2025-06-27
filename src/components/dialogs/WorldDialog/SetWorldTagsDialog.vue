@@ -86,7 +86,7 @@
 
 <script>
     import { worldRequest } from '../../../api';
-    import { useWorldStore } from '../../../stores/world';
+    import { useWorldStore } from '../../../stores';
 
     export default {
         name: 'SetWorldTagsDialog',
