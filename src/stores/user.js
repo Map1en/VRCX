@@ -630,8 +630,8 @@ export const useUserStore = defineStore('User', () => {
                     ref1 !== ref
                 ) {
                     photonStore.photonLobby.set(id, ref);
-                    if ($app.photonLobbyCurrent.has(id)) {
-                        $app.photonLobbyCurrent.set(id, ref);
+                    if (photonStore.photonLobbyCurrent.has(id)) {
+                        photonStore.photonLobbyCurrent.set(id, ref);
                     }
                 }
             });

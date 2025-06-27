@@ -23,6 +23,7 @@ import { useFriendStore } from './friend';
 import { useGroupStore } from './group';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
@@ -39,6 +40,7 @@ export const useInstanceStore = defineStore('Instance', () => {
     const uiStore = useUiStore();
     const userStore = useUserStore();
     const sharedFeedStore = useSharedFeedStore();
+    const photonStore = usePhotonStore();
 
     const state = reactive({
         cachedInstances: new Map(),
@@ -1041,7 +1043,7 @@ export const useInstanceStore = defineStore('Instance', () => {
         const pushUser = function (ref) {
             let photonId = '';
             let isFriend = false;
-            $app.photonLobbyCurrent.forEach((ref1, id) => {
+            photonStore.photonLobbyCurrent.forEach((ref1, id) => {
                 if (typeof ref1 !== 'undefined') {
                     if (
                         (typeof ref.id !== 'undefined' &&
@@ -1057,13 +1059,13 @@ export const useInstanceStore = defineStore('Instance', () => {
             });
             let isMaster = false;
             if (
-                $app.photonLobbyMaster !== 0 &&
-                photonId === $app.photonLobbyMaster
+                photonStore.photonLobbyMaster !== 0 &&
+                photonId === photonStore.photonLobbyMaster
             ) {
                 isMaster = true;
             }
             let isModerator = false;
-            const lobbyJointime = $app.photonLobbyJointime.get(photonId);
+            const lobbyJointime = photonStore.photonLobbyJointime.get(photonId);
             let inVRMode = null;
             let groupOnNameplate = '';
             if (typeof lobbyJointime !== 'undefined') {
@@ -1085,13 +1087,13 @@ export const useInstanceStore = defineStore('Instance', () => {
                     $app.timeoutHudOverlayFilter === 'VIP' ||
                     $app.timeoutHudOverlayFilter === 'Friends'
                 ) {
-                    $app.photonLobbyTimeout.forEach((ref1) => {
+                    photonStore.photonLobbyTimeout.forEach((ref1) => {
                         if (ref1.userId === ref.id) {
                             timeoutTime = ref1.time;
                         }
                     });
                 } else {
-                    $app.photonLobbyTimeout.forEach((ref1) => {
+                    photonStore.photonLobbyTimeout.forEach((ref1) => {
                         if (ref1.displayName === ref.displayName) {
                             timeoutTime = ref1.time;
                         }

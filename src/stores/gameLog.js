@@ -627,7 +627,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 const time = dayjs(gameLog.dt) - ref.joinTime;
                 locationStore.lastLocation.playerList.delete(userId);
                 locationStore.lastLocation.friendList.delete(userId);
-                $app.photonLobbyAvatars.delete(userId);
+                photonStore.photonLobbyAvatars.delete(userId);
                 vrStore.updateVRLastLocation();
                 instanceStore.getCurrentInstanceUserList();
                 var entry = {
@@ -812,7 +812,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                     for (var ctx of API.cachedUsers.values()) {
                         if (ctx.displayName === gameLog.displayName) {
                             $app.photonLobby.set(photonId, ctx);
-                            $app.photonLobbyCurrent.set(photonId, ctx);
+                            photonStore.photonLobbyCurrent.set(photonId, ctx);
                             break;
                         }
                     }
@@ -820,7 +820,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                         displayName: gameLog.displayName
                     };
                     $app.photonLobby.set(photonId, ctx);
-                    $app.photonLobbyCurrent.set(photonId, ctx);
+                    photonStore.photonLobbyCurrent.set(photonId, ctx);
                     instanceStore.getCurrentInstanceUserList();
                 }
                 break;

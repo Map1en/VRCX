@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import gameRealtimeLogging from './classes/gameRealtimeLogging.js';
 import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
 import uiComponents from './classes/uiComponents.js';
@@ -153,7 +152,6 @@ let $app = {
 uiComponents();
 websocket();
 prompts();
-gameRealtimeLogging();
 groups();
 
 API.cachedUsers = new Map();

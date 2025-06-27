@@ -444,7 +444,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                         data.OnEventData
                     );
                 }
-                $app.parsePhotonEvent(data.OnEventData, data.dt);
+                photonStore.parsePhotonEvent(data.OnEventData, data.dt);
                 photonStore.photonEventPulse();
                 break;
             case 'OnOperationResponse':
@@ -483,15 +483,15 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                     console.log('Game closed, skipped event', data);
                     return;
                 }
-                $app.parseVRCEvent(data);
+                photonStore.parseVRCEvent(data);
                 photonStore.photonEventPulse();
                 break;
             case 'Event7List':
-                $app.photonEvent7List.clear();
+                photonStore.photonEvent7List.clear();
                 for (const [id, dt] of Object.entries(data.Event7List)) {
-                    $app.photonEvent7List.set(parseInt(id, 10), dt);
+                    photonStore.photonEvent7List.set(parseInt(id, 10), dt);
                 }
-                $app.photonLastEvent7List = Date.parse(data.dt);
+                photonStore.photonLastEvent7List = Date.parse(data.dt);
                 break;
             case 'VrcxMessage':
                 if ($app.debugPhotonLogging) {
