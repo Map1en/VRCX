@@ -16,7 +16,6 @@ import {
     storeAvatarImage
 } from '../shared/utils';
 import { useAvatarProviderStore } from './avatarProvider';
-import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useAdvancedSettingsStore } from './settings/advanced';
 import { useUserStore } from './user';
@@ -26,7 +25,6 @@ export const useAvatarStore = defineStore('Avatar', () => {
     const favoriteStore = useFavoriteStore();
     const avatarProviderStore = useAvatarProviderStore();
     const vrcxUpdaterStore = useVRCXUpdaterStore();
-    const debugStore = useDebugStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
     const userStore = useUserStore();
 
@@ -430,7 +428,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
                     }
                 });
                 const json = JSON.parse(response.data);
-                if (debugStore.debugWebRequests) {
+                if (API.debugWebRequests) {
                     console.log(json, response);
                 }
                 if (response.status === 200 && typeof json === 'object') {
@@ -510,7 +508,7 @@ export const useAvatarStore = defineStore('Avatar', () => {
                 }
             });
             const json = JSON.parse(response.data);
-            if (debugStore.debugWebRequests) {
+            if (API.debugWebRequests) {
                 console.log(json, response);
             }
             if (response.status === 200 && typeof json === 'object') {

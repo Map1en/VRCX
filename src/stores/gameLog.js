@@ -6,6 +6,7 @@ import { userRequest } from '../api';
 import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
+import { API } from '../service/eventBus';
 import gameLogService from '../service/gamelog.js';
 import {
     convertYoutubeTime,
@@ -15,7 +16,6 @@ import {
     parseLocation,
     replaceBioSymbols
 } from '../shared/utils';
-import { useDebugStore } from './debug';
 import { useFriendStore } from './friend';
 import { useGalleryStore } from './gallery';
 import { useGameStore } from './game';
@@ -45,7 +45,6 @@ export const useGameLogStore = defineStore('GameLog', () => {
     const gameStore = useGameStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const generalSettingsStore = useGeneralSettingsStore();
-    const debugStore = useDebugStore();
     const galleryStore = useGalleryStore();
     const photonStore = usePhotonStore();
     const sharedFeedStore = useSharedFeedStore();
@@ -586,7 +585,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                     // set $location_at to join time if user isn't a friend
                     ref.$location_at = joinTime;
                 } else {
-                    if ($app.debugGameLog || debugStore.debugWebRequests) {
+                    if (API.debugGameLog || API.debugWebRequests) {
                         console.log('Fetching user from gameLog:', userId);
                     }
                     userRequest.getUser({ userId });
@@ -702,7 +701,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                 vrcxStore.processScreenshot(gameLog.screenshotPath);
                 break;
             case 'api-request':
-                if ($app.debugWebRequests) {
+                if (API.debugWebRequests) {
                     console.log('API Request:', gameLog.url);
                 }
                 // var userId = '';
@@ -1319,7 +1318,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
             rawLogs.slice(3)
         );
         if (
-            $app.debugGameLog &&
+            API.debugGameLog &&
             gameLog.type !== 'photon-id' &&
             gameLog.type !== 'api-request' &&
             gameLog.type !== 'udon-exception'

@@ -32,7 +32,6 @@ import {
 } from '../shared/utils';
 import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
-import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFeedStore } from './feed';
 import { useFriendStore } from './friend';
@@ -50,7 +49,6 @@ import { useSharedFeedStore } from './sharedFeed';
 import { useWorldStore } from './world';
 
 export const useUserStore = defineStore('User', () => {
-    const debugStore = useDebugStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const friendStore = useFriendStore();
     const favoriteStore = useFavoriteStore();
@@ -565,7 +563,7 @@ export const useUserStore = defineStore('User', () => {
                     ref,
                     props
                 });
-                if (debugStore.debugUserDiff) {
+                if (API.debugUserDiff) {
                     delete props.last_login;
                     delete props.last_activity;
                     if (Object.keys(props).length !== 0) {
@@ -1222,7 +1220,7 @@ export const useUserStore = defineStore('User', () => {
                     time = 0;
                 }
             }
-            if (debugStore.debugFriendState && previousLocation) {
+            if (API.debugFriendState && previousLocation) {
                 console.log(
                     `${ref.displayName} GPS ${previousLocation} -> ${newLocation}`
                 );
@@ -1232,7 +1230,7 @@ export const useUserStore = defineStore('User', () => {
             }
             if (!previousLocation) {
                 // no previous location
-                if (debugStore.debugFriendState) {
+                if (API.debugFriendState) {
                     console.log(
                         ref.displayName,
                         'Ignoring GPS, no previous location',
@@ -1648,7 +1646,7 @@ export const useUserStore = defineStore('User', () => {
             } else if (json.requiresTwoFactorAuth) {
                 API.$emit('USER:2FA', args);
             } else {
-                if ($app.debugCurrentUserDiff) {
+                if (API.debugCurrentUserDiff) {
                     const ref = args.json;
                     const $ref = state.currentUser;
                     const props = {};

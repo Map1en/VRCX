@@ -5,7 +5,6 @@ import { escapeTag } from '../shared/utils';
 import {
     useAuthStore,
     useAvatarStore,
-    useDebugStore,
     useNotificationStore,
     useUserStore
 } from '../stores';
@@ -21,7 +20,6 @@ export let failedGetRequests = new Map();
 
 export function request(endpoint, options) {
     const userStore = useUserStore();
-    const debugStore = useDebugStore();
     const avatarStore = useAvatarStore();
     const authStore = useAuthStore();
     const notificationStore = useNotificationStore();
@@ -82,14 +80,14 @@ export function request(endpoint, options) {
         })
         .then((response) => {
             if (!response.data) {
-                if (debugStore.debugWebRequests) {
+                if (API.debugWebRequests) {
                     console.log(init, response);
                 }
                 return response;
             }
             try {
                 response.data = JSON.parse(response.data);
-                if (debugStore.debugWebRequests) {
+                if (API.debugWebRequests) {
                     console.log(init, response.data);
                 }
                 return response;

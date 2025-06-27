@@ -48,7 +48,7 @@ function connectWebSocket(token) {
     }
     const socket = new WebSocket(`${API.websocketDomain}/?auth=${token}`);
     socket.onopen = () => {
-        if ($app.debugWebSocket) {
+        if (API.debugWebSocket) {
             console.log('WebSocket connected');
         }
     };
@@ -58,8 +58,10 @@ function connectWebSocket(token) {
         }
         try {
             socket.close();
-        } catch (err) {}
-        if ($app.debugWebSocket) {
+        } catch (err) {
+            console.error('Error closing WebSocket:', err);
+        }
+        if (API.debugWebSocket) {
             console.log('WebSocket closed');
         }
         workerTimers.setTimeout(() => {
@@ -96,7 +98,7 @@ function connectWebSocket(token) {
             handlePipeline({
                 json
             });
-            if ($app.debugWebSocket && json.content) {
+            if (API.debugWebSocket && json.content) {
                 let displayName = '';
                 const user = userStore.cachedUsers.get(json.content.userId);
                 if (user) {

@@ -1279,7 +1279,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         const datetime = json.dt;
         const eventData = json.VRCEventData;
         const senderId = eventData.Sender;
-        if ($app.debugPhotonLogging) {
+        if (API.debugPhotonLogging) {
             console.log('VrcEvent:', json);
         }
         if (eventData.EventName === '_SendOnSpawn') {
@@ -1342,7 +1342,7 @@ export const usePhotonStore = defineStore('Photon', () => {
                     '$1:'
                 )}`;
             }
-            if ($app.debugPhotonLogging) {
+            if (API.debugPhotonLogging) {
                 const displayName = getDisplayNameFromPhotonId(senderId);
                 const feed = `RPC ${displayName} ${
                     photonEventType[eventData.EventType]

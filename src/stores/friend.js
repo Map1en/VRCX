@@ -17,7 +17,6 @@ import {
     isRealInstance,
     removeFromArray
 } from '../shared/utils';
-import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFeedStore } from './feed';
 import { useGroupStore } from './group';
@@ -31,7 +30,6 @@ import { useUserStore } from './user';
 export const useFriendStore = defineStore('Friend', () => {
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const generalSettingsStore = useGeneralSettingsStore();
-    const debugStore = useDebugStore();
     const userStore = useUserStore();
     const notificationStore = useNotificationStore();
     const feedStore = useFeedStore();
@@ -439,7 +437,7 @@ export const useFriendStore = defineStore('Friend', () => {
             }
         }
         if (stateInput === 'online') {
-            if (debugStore.debugFriendState && ctx.pendingOffline) {
+            if (API.debugFriendState && ctx.pendingOffline) {
                 const time = (Date.now() - ctx.pendingOfflineTime) / 1000;
                 console.log(`${ctx.name} pendingOfflineCancelTime ${time}`);
             }
@@ -508,7 +506,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 typeof ref !== 'undefined' &&
                 isRealInstance(ref.location)
             ) {
-                if (debugStore.debugFriendState) {
+                if (API.debugFriendState) {
                     console.log(
                         `Fetching offline friend in an instance from getCurrentUser ${ctx.name}`
                     );
@@ -532,12 +530,12 @@ export const useFriendStore = defineStore('Friend', () => {
             }
             // prevent status flapping
             if (ctx.pendingOffline) {
-                if (debugStore.debugFriendState) {
+                if (API.debugFriendState) {
                     console.log(ctx.name, 'pendingOfflineAlreadyWaiting');
                 }
                 return;
             }
-            if (debugStore.debugFriendState) {
+            if (API.debugFriendState) {
                 console.log(ctx.name, 'pendingOfflineBegin');
             }
             ctx.pendingOffline = true;
@@ -545,7 +543,7 @@ export const useFriendStore = defineStore('Friend', () => {
             // wait 2minutes then check if user came back online
             workerTimers.setTimeout(() => {
                 if (!ctx.pendingOffline) {
-                    if (debugStore.debugFriendState) {
+                    if (API.debugFriendState) {
                         console.log(ctx.name, 'pendingOfflineAlreadyCancelled');
                     }
                     return;
@@ -553,7 +551,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 ctx.pendingOffline = false;
                 ctx.pendingOfflineTime = '';
                 if (ctx.pendingState === ctx.state) {
-                    if (debugStore.debugFriendState) {
+                    if (API.debugFriendState) {
                         console.log(
                             ctx.name,
                             'pendingOfflineCancelledStateMatched'
@@ -561,7 +559,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     }
                     return;
                 }
-                if (debugStore.debugFriendState) {
+                if (API.debugFriendState) {
                     console.log(ctx.name, 'pendingOfflineEnd');
                 }
                 updateFriendDelayedCheck(ctx, location, $location_at);
@@ -574,7 +572,7 @@ export const useFriendStore = defineStore('Friend', () => {
 
                 // wtf, from getCurrentUser only, fetch user if online in offline location
                 if (fromGetCurrentUser && stateInput === 'online') {
-                    if (debugStore.debugFriendState) {
+                    if (API.debugFriendState) {
                         console.log(
                             `Fetching friend coming online from getCurrentUser ${ctx.name}`
                         );
@@ -600,7 +598,7 @@ export const useFriendStore = defineStore('Friend', () => {
         let worldName;
         const id = ctx.id;
         const newState = ctx.pendingState;
-        if (debugStore.debugFriendState) {
+        if (API.debugFriendState) {
             console.log(
                 `${ctx.name} updateFriendState ${ctx.state} -> ${newState}`
             );
@@ -923,7 +921,7 @@ export const useFriendStore = defineStore('Friend', () => {
                 }
                 const ref = state.friends.get(friend.id);
                 if (ref?.state !== state_input) {
-                    if (debugStore.debugFriendState) {
+                    if (API.debugFriendState) {
                         console.log(
                             `Refetching friend state it does not match ${friend.displayName} from ${ref?.state} to ${state_input}`,
                             friend
@@ -934,7 +932,7 @@ export const useFriendStore = defineStore('Friend', () => {
                     });
                     friends[i] = args.json;
                 } else if (friend.location === 'traveling') {
-                    if (debugStore.debugFriendState) {
+                    if (API.debugFriendState) {
                         console.log(
                             'Refetching traveling friend',
                             friend.displayName

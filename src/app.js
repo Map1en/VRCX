@@ -145,13 +145,6 @@ let $app = {
     }
 };
 
-$app.data.debug = false;
-$app.data.debugWebSocket = false;
-$app.data.debugUserDiff = false;
-$app.data.debugCurrentUserDiff = false;
-$app.data.debugPhotonLogging = false;
-$app.data.debugGameLog = false;
-
 $app = new Vue($app);
 window.$app = $app;
 window.API = API;

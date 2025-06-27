@@ -1,11 +1,19 @@
-import { $app } from '../app.js';
 import { useAuthStore } from '../stores';
 
 const eventHandlers = new Map();
 const API = {};
 
+API.debug = false;
+API.debugWebSocket = false;
+API.debugUserDiff = false;
+API.debugCurrentUserDiff = false;
+API.debugPhotonLogging = false;
+API.debugGameLog = false;
+API.debugWebRequests = false;
+API.debugFriendState = false;
+
 API.$emit = function (name, ...args) {
-    if ($app.debug) {
+    if (API.debug) {
         console.log(name, ...args);
     }
     const handlers = eventHandlers.get(name);

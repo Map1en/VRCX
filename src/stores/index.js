@@ -2,7 +2,6 @@ import { createPinia } from 'pinia';
 import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useAvatarProviderStore } from './avatarProvider';
-import { useDebugStore } from './debug';
 import { useFavoriteStore } from './favorite';
 import { useFeedStore } from './feed';
 import { useFriendStore } from './friend';
@@ -44,7 +43,6 @@ export function createGlobalStores() {
         notificationsSettings: useNotificationsSettingsStore(),
         wristOverlaySettings: useWristOverlaySettingsStore(),
         avatarProvider: useAvatarProviderStore(),
-        debug: useDebugStore(),
         favorite: useFavoriteStore(),
         friend: useFriendStore(),
         photon: usePhotonStore(),
@@ -77,7 +75,6 @@ export {
     useAuthStore,
     useAvatarStore,
     useAvatarProviderStore,
-    useDebugStore,
     useFavoriteStore,
     useFeedStore,
     useFriendStore,
