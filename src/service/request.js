@@ -11,14 +11,10 @@ import {
 } from '../stores';
 import { API } from './eventBus.js';
 
-function initConfig() {
-    API.cachedConfig = {};
-    API.endpointDomainVrchat = 'https://api.vrchat.cloud/api/1';
-    API.websocketDomainVrchat = 'wss://pipeline.vrchat.cloud';
-    API.endpointDomain = 'https://api.vrchat.cloud/api/1';
-    API.websocketDomain = 'wss://pipeline.vrchat.cloud';
-}
-initConfig();
+API.endpointDomainVrchat = 'https://api.vrchat.cloud/api/1';
+API.websocketDomainVrchat = 'wss://pipeline.vrchat.cloud';
+API.endpointDomain = 'https://api.vrchat.cloud/api/1';
+API.websocketDomain = 'wss://pipeline.vrchat.cloud';
 
 const pendingGetRequests = new Map();
 export let failedGetRequests = new Map();

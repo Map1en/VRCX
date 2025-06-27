@@ -1,4 +1,5 @@
 import { $app } from '../app.js';
+import { useAuthStore } from '../stores';
 
 const eventHandlers = new Map();
 const API = {};
@@ -48,11 +49,12 @@ API.$off = function (name, handler) {
 };
 
 API.$on('CONFIG', function (args) {
+    const authStore = useAuthStore();
     const ref = {
         ...args.json
     };
     args.ref = ref;
-    this.cachedConfig = ref;
+    authStore.cachedConfig = ref;
 });
 
 API.$on('CONFIG', function (args) {

@@ -150,7 +150,7 @@
                 <span slot="label">
                     {{ t('dialog.gallery_icons.emojis') }}
                     <span style="color: #909399; font-size: 12px; margin-left: 5px">
-                        {{ emojiTable.length }}/{{ API.cachedConfig?.maxUserEmoji }}
+                        {{ emojiTable.length }}/{{ cachedConfig?.maxUserEmoji }}
                     </span>
                 </span>
                 <input
@@ -292,7 +292,7 @@
                 <span slot="label">
                     {{ t('dialog.gallery_icons.stickers') }}
                     <span style="color: #909399; font-size: 12px; margin-left: 5px">
-                        {{ stickerTable.length }}/{{ API.cachedConfig?.maxUserStickers }}
+                        {{ stickerTable.length }}/{{ cachedConfig?.maxUserStickers }}
                     </span>
                 </span>
                 <input
@@ -507,7 +507,7 @@
     import { API } from '../../service/eventBus';
     import { emojiAnimationStyleList, emojiAnimationStyleUrl } from '../../shared/constants';
     import { extractFileId, getEmojiFileName, getPrintFileName } from '../../shared/utils';
-    import { useAdvancedSettingsStore, useGalleryStore, useUserStore } from '../../stores';
+    import { useAdvancedSettingsStore, useAuthStore, useGalleryStore, useUserStore } from '../../stores';
 
     const { t } = useI18n();
 
@@ -541,6 +541,7 @@
     const { currentUserInventory } = storeToRefs(useAdvancedSettingsStore());
     const { showFullscreenImageDialog } = useGalleryStore();
     const { currentUser } = storeToRefs(useUserStore());
+    const { cachedConfig } = storeToRefs(useAuthStore());
 
     const emojiAnimFps = ref(15);
     const emojiAnimFrameCount = ref(4);

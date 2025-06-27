@@ -1339,7 +1339,7 @@
                                 }}</span>
                                 <span style="color: #909399; font-size: 12px; margin-left: 5px"
                                     >{{ userGroups.ownGroups.length }}/{{
-                                        API.cachedConfig?.constants?.GROUPS?.MAX_OWNED
+                                        cachedConfig?.constants?.GROUPS?.MAX_OWNED
                                     }}</span
                                 >
                                 <div
@@ -1428,10 +1428,10 @@
                                     <template v-if="currentUser.id === userDialog.id">
                                         /
                                         <template v-if="currentUser.$isVRCPlus">
-                                            {{ API.cachedConfig?.constants?.GROUPS?.MAX_JOINED_PLUS }}
+                                            {{ cachedConfig?.constants?.GROUPS?.MAX_JOINED_PLUS }}
                                         </template>
                                         <template v-else>
-                                            {{ API.cachedConfig?.constants?.GROUPS?.MAX_JOINED }}
+                                            {{ cachedConfig?.constants?.GROUPS?.MAX_JOINED }}
                                         </template>
                                     </template>
                                 </span>
@@ -1872,11 +1872,12 @@
     const { refreshInviteMessageTableData } = useInviteStore();
     const { friendLogTable } = storeToRefs(useFriendStore());
     const { getFriendRequest } = useFriendStore();
-    const { galleryDialogVisible, previousImagesDialogVisible, previousImagesTable } = storeToRefs(useGalleryStore());
+    const { previousImagesDialogVisible, previousImagesTable } = storeToRefs(useGalleryStore());
     const { clearInviteImageUpload, showGalleryDialog, checkPreviousImageAvailable, showFullscreenImageDialog } =
         useGalleryStore();
     const { isGameRunning } = storeToRefs(useGameStore());
     const { logout } = useAuthStore();
+    const { cachedConfig } = storeToRefs(useAuthStore());
 
     watch(
         () => userDialog.value.loading,

@@ -106,7 +106,7 @@
             </div>
             <div class="x-friend-list" style="margin-top: 10px">
                 <div
-                    v-for="(link, item) in API.cachedConfig.downloadUrls"
+                    v-for="(link, item) in cachedConfig.downloadUrls"
                     :key="item"
                     class="x-friend-item"
                     placement="top">
@@ -515,7 +515,6 @@
         useGalleryStore,
         useUiStore
     } from '../../stores';
-    import { API } from '../../service/eventBus';
 
     const { friends } = storeToRefs(useFriendStore());
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
@@ -533,6 +532,7 @@
     const { menuActiveIndex } = storeToRefs(useUiStore());
     const { directAccessWorld } = useSearchStore();
     const { logout } = useAuthStore();
+    const { cachedConfig } = storeToRefs(useAuthStore());
 
     const { t } = useI18n();
 
@@ -664,7 +664,7 @@
     }
     async function refreshConfigTreeData() {
         await getConfig();
-        configTreeData.value = buildTreeData(API.cachedConfig);
+        configTreeData.value = buildTreeData(cachedConfig.value);
     }
     async function refreshCurrentUserTreeData() {
         await getCurrentUser();

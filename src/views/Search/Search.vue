@@ -81,7 +81,7 @@
                     ></el-button>
                     <el-dropdown-menu v-slot="dropdown">
                         <el-dropdown-item
-                            v-for="row in API.cachedConfig.dynamicWorldRows"
+                            v-for="row in cachedConfig.dynamicWorldRows"
                             :key="row.index"
                             :command="row"
                             v-text="row.name"></el-dropdown-item>
@@ -341,35 +341,28 @@
         useWorldStore,
         useGroupStore,
         useUiStore,
-        useSearchStore
+        useSearchStore,
+        useAuthStore
     } from '../../stores';
 
     import { API } from '../../service/eventBus';
 
-    const appearanceSettingsStore = useAppearanceSettingsStore();
-    const advancedSettingsStore = useAdvancedSettingsStore();
-    const avatarProviderStore = useAvatarProviderStore();
-    const userStore = useUserStore();
-    const avatarStore = useAvatarStore();
-    const { hideTooltips, randomUserColours } = storeToRefs(appearanceSettingsStore);
-    const { avatarRemoteDatabase } = storeToRefs(advancedSettingsStore);
-    const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(avatarProviderStore);
-    const { setAvatarProvider } = avatarProviderStore;
-    const { userDialog } = storeToRefs(userStore);
-    const { showUserDialog, refreshUserDialogAvatars } = userStore;
-    const { showAvatarDialog, lookupAvatars } = avatarStore;
-    const { cachedAvatars } = storeToRefs(avatarStore);
-    const worldStore = useWorldStore();
-    const { cachedWorlds } = storeToRefs(worldStore);
-    const { showWorldDialog } = worldStore;
-    const groupStore = useGroupStore();
-    const { showGroupDialog } = groupStore;
-    const { cachedGroups } = storeToRefs(groupStore);
-    const uiStore = useUiStore();
-    const { menuActiveIndex } = storeToRefs(uiStore);
-    const searchStore = useSearchStore();
-    const { searchText, searchUserResults } = storeToRefs(searchStore);
-    const { clearSearch, moreSearchUser } = searchStore;
+    const { hideTooltips, randomUserColours } = storeToRefs(useAppearanceSettingsStore());
+    const { avatarRemoteDatabase } = storeToRefs(useAdvancedSettingsStore());
+    const { avatarRemoteDatabaseProviderList, avatarRemoteDatabaseProvider } = storeToRefs(useAvatarProviderStore());
+    const { setAvatarProvider } = useAvatarProviderStore();
+    const { userDialog } = storeToRefs(useUserStore());
+    const { showUserDialog, refreshUserDialogAvatars } = useUserStore();
+    const { showAvatarDialog, lookupAvatars } = useAvatarStore();
+    const { cachedAvatars } = storeToRefs(useAvatarStore());
+    const { cachedWorlds } = storeToRefs(useWorldStore());
+    const { showWorldDialog } = useWorldStore();
+    const { showGroupDialog } = useGroupStore();
+    const { cachedGroups } = storeToRefs(useGroupStore());
+    const { menuActiveIndex } = storeToRefs(useUiStore());
+    const { searchText, searchUserResults } = storeToRefs(useSearchStore());
+    const { clearSearch, moreSearchUser } = useSearchStore();
+    const { cachedConfig } = storeToRefs(useAuthStore());
 
     const { t } = useI18n();
 
@@ -681,7 +674,6 @@
                 isSearchGroupLoading.value = false;
             })
             .then((args) => {
-                // API.$on('GROUP:SEARCH', function (args) {
                 for (const json of args.json) {
                     API.$emit('GROUP', {
                         json,
@@ -690,7 +682,6 @@
                         }
                     });
                 }
-                // });
                 const map = new Map();
                 for (const json of args.json) {
                     const ref = cachedGroups.value.get(json.id);

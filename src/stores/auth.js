@@ -60,7 +60,8 @@ export const useAuthStore = defineStore('Auth', () => {
         },
         saveCredentials: null,
         twoFactorAuthDialogVisible: false,
-        enableCustomEndpoint: false
+        enableCustomEndpoint: false,
+        cachedConfig: {}
     });
 
     async function init() {
@@ -115,6 +116,13 @@ export const useAuthStore = defineStore('Auth', () => {
         get: () => state.twoFactorAuthDialogVisible,
         set: (value) => {
             state.twoFactorAuthDialogVisible = value;
+        }
+    });
+
+    const cachedConfig = computed({
+        get: () => state.cachedConfig,
+        set: (value) => {
+            state.cachedConfig = value;
         }
     });
 
@@ -844,6 +852,7 @@ export const useAuthStore = defineStore('Auth', () => {
         saveCredentials,
         twoFactorAuthDialogVisible,
         isLoggedIn,
+        cachedConfig,
 
         clearCookiesTryLogin,
         resendEmail2fa,
