@@ -38,6 +38,10 @@ export function initWebsocket() {
     });
 }
 
+/**
+ * @param {string} token
+ * @returns {void}
+ */
 function connectWebSocket(token) {
     const userStore = useUserStore();
     const authStore = useAuthStore();
@@ -116,6 +120,9 @@ API.$on('LOGOUT', function () {
     closeWebSocket();
 });
 
+/**
+ * @returns {void}
+ */
 function closeWebSocket() {
     const socket = webSocket;
     if (socket === null) {
@@ -129,6 +136,9 @@ function closeWebSocket() {
     }
 }
 
+/**
+ * @returns {void}
+ */
 export function reconnectWebSocket() {
     const authStore = useAuthStore();
     const friendStore = useFriendStore();
@@ -139,6 +149,10 @@ export function reconnectWebSocket() {
     initWebsocket();
 }
 
+/**
+ * @param {object} args
+ * @param {string} args.json.type
+ */
 function handlePipeline(args) {
     const userStore = useUserStore();
     const locationStore = useLocationStore();

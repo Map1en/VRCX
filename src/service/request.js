@@ -18,6 +18,11 @@ API.websocketDomain = 'wss://pipeline.vrchat.cloud';
 const pendingGetRequests = new Map();
 export let failedGetRequests = new Map();
 
+/**
+ * @param {string} endpoint
+ * @param {RequestOptions} options
+ * @returns {Promise<any>}
+ */
 export function request(endpoint, options) {
     const userStore = useUserStore();
     const avatarStore = useAvatarStore();
@@ -229,6 +234,11 @@ export function request(endpoint, options) {
 }
 
 // FIXME : extra를 없애줘
+/**
+ * @param {number} code
+ * @param {string|object} [error]
+ * @param {string} [endpoint]
+ */
 export function $throw(code, error, endpoint) {
     let text = [];
     if (code > 0) {

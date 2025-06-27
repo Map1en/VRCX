@@ -16,6 +16,11 @@ API.errorNoty = null;
 
 API.dontLogMeOut = false;
 
+/**
+ * @param {string} name
+ * @param {...*} args
+ * @returns {void}
+ */
 API.$emit = function (name, ...args) {
     if (API.debug) {
         console.log(name, ...args);
@@ -33,6 +38,11 @@ API.$emit = function (name, ...args) {
     }
 };
 
+/**
+ * @param {string} name
+ * @param {function} handler
+ * @returns {void}
+ */
 API.$on = function (name, handler) {
     let handlers = eventHandlers.get(name);
     if (typeof handlers === 'undefined') {
@@ -42,6 +52,11 @@ API.$on = function (name, handler) {
     handlers.push(handler);
 };
 
+/**
+ * @param {string} name
+ * @param {function} handler
+ * @returns {void}
+ */
 API.$off = function (name, handler) {
     const handlers = eventHandlers.get(name);
     if (typeof handlers === 'undefined') {
