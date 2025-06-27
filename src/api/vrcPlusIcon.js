@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const VRCPlusIconsReq = {
@@ -47,8 +47,6 @@ const VRCPlusIconsReq = {
         });
     }
 
-    // unused
-    // images.pug line 63
     // deleteFileVersion(params) {
     //     return request(`file/${params.fileId}/${params.version}`, {
     //         method: 'DELETE'

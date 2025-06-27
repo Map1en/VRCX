@@ -8,7 +8,7 @@ import { PiniaVuePlugin } from 'pinia';
 import Vue from 'vue';
 import { API, i18n, t } from './plugin';
 import configRepository from './service/config';
-import vrcxJsonStorage from './service/vrcxJsonStorage';
+import vrcxJsonStorage from './service/jsonStorage';
 import { commaNumber, textToHex } from './shared/utils';
 
 Vue.use(PiniaVuePlugin);

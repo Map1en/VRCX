@@ -27,7 +27,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('NOTE', args);
             return args;
         });
     },
@@ -54,7 +53,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('FEEDBACK:REPORT:USER', args);
             return args;
         });
     },
@@ -77,7 +75,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('FILE:ANALYSIS', args);
             return args;
         });
     },
@@ -89,7 +86,6 @@ const miscReq = {
             const args = {
                 json
             };
-            // API.$emit('VRCCREDITS', args);
             return args;
         });
     },
@@ -112,7 +108,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('INSTANCE:CLOSE', args);
             return args;
         });
     },
@@ -156,7 +151,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('WORLD:PERSIST:HAS', args);
             return args;
         });
     },
@@ -175,7 +169,6 @@ const miscReq = {
                 json,
                 params
             };
-            // API.$emit('BADGE:UPDATE', args);
             return args;
         });
     },
@@ -187,7 +180,6 @@ const miscReq = {
             const args = {
                 json
             };
-            // API.$emit('VISITS', args);
             return args;
         });
     },

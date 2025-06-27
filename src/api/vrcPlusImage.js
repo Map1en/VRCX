@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import { useUserStore } from '../stores';
 
@@ -62,7 +62,6 @@ const vrcPlusImageReq = {
                 json,
                 printId
             };
-            // API.$emit('PRINT:DELETE', args);
             return args;
         });
     },
@@ -111,8 +110,6 @@ const vrcPlusImageReq = {
             return args;
         });
     }
-
-    // ----------- no place uses this function ------------
 
     // editPrint(params) {
     //     return request(`prints/${params.printId}`, {

@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import { useUserStore } from '../stores';
 
@@ -14,7 +14,6 @@ const favoriteReq = {
             const args = {
                 json
             };
-            // API.$emit('FAVORITE:LIMITS', args);
             return args;
         });
     },

@@ -14,7 +14,6 @@ const loginReq = {
                 json,
                 params
             };
-            // API.$emit('OTP', args);
             return args;
         });
     },
@@ -32,7 +31,6 @@ const loginReq = {
                 json,
                 params
             };
-            // API.$emit('TOTP', args);
             return args;
         });
     },
@@ -50,7 +48,6 @@ const loginReq = {
                 json,
                 params
             };
-            // API.$emit('EMAILOTP', args);
             return args;
         });
     }

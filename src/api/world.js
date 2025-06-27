@@ -1,5 +1,10 @@
-import { $app, API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
+import { useWorldStore } from '../stores';
+
+function getWorldStore() {
+    return useWorldStore();
+}
 
 const worldReq = {
     /**
@@ -25,7 +30,7 @@ const worldReq = {
      */
     getCachedWorld(params) {
         return new Promise((resolve, reject) => {
-            const ref = $app.store.world.cachedWorlds.get(params.worldId);
+            const ref = getWorldStore().cachedWorlds.get(params.worldId);
             if (typeof ref === 'undefined') {
                 worldReq.getWorld(params).catch(reject).then(resolve);
             } else {
@@ -95,7 +100,6 @@ const worldReq = {
                 json,
                 params
             };
-            // API.$emit('WORLD:DELETE', args);
             return args;
         });
     },
@@ -113,8 +117,6 @@ const worldReq = {
                 json,
                 params
             };
-            // API.$emit('WORLD:SAVE', args);
-            // let { json } = args;
             API.$emit('WORLD', {
                 json,
                 params: {
@@ -138,8 +140,6 @@ const worldReq = {
                 json,
                 params
             };
-            // API.$emit('WORLD:SAVE', args);
-            // let { json } = args;
             API.$emit('WORLD', {
                 json,
                 params: {
@@ -163,8 +163,6 @@ const worldReq = {
                 json,
                 params
             };
-            // API.$emit('WORLD:SAVE', args);
-            // let { json } = args;
             API.$emit('WORLD', {
                 json,
                 params: {

@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 import { useUserStore } from '../stores';
 
@@ -196,7 +196,6 @@ const groupReq = {
                 json,
                 params
             };
-            // API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
             return args;
         });
     },
@@ -219,7 +218,6 @@ const groupReq = {
                 json,
                 params
             };
-            // API.$emit('GROUP:MEMBER:ROLE:CHANGE', args);
             return args;
         });
     },
@@ -297,7 +295,6 @@ const groupReq = {
                 json,
                 params
             };
-            // API.$emit('GROUP:MEMBER', args);
             return args;
         });
     },
@@ -415,8 +412,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:MEMBER:KICK', args);
             return args;
         });
     },
@@ -435,8 +430,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:MEMBER:BAN', args);
             return args;
         });
     },
@@ -448,8 +441,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:MEMBER:UNBAN', args);
             return args;
         });
     },
@@ -465,8 +456,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:INVITE:DELETE', args);
             return args;
         });
     },
@@ -478,8 +467,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:BLOCKED:DELETE', args);
             return args;
         });
     },
@@ -494,8 +481,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:INVITE:ACCEPT', args);
             return args;
         });
     },
@@ -510,8 +495,7 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:INVITE:REJECT', args);
+
             return args;
         });
     },
@@ -527,8 +511,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // API.$emit('GROUP:INVITE:BLOCK', args);
             return args;
         });
     },
@@ -604,7 +586,6 @@ const groupReq = {
                 json,
                 params
             };
-            // API.$emit('GROUP:JOINREQUESTS', args);
             return args;
         });
     },
@@ -639,8 +620,6 @@ const groupReq = {
                 json,
                 params
             };
-            // useless code
-            // this.$emit('GROUP:ROLES', args);
             return args;
         });
     },
@@ -706,7 +685,6 @@ const groupReq = {
         });
     }
 
-    // no place to use this
     // getRequestedGroups() {
     //     return request(
     //         `users/${API.currentUser.id}/groups/requested`,
@@ -722,7 +700,6 @@ const groupReq = {
     //     });
     // }
 
-    // ----------------- left over code -----------------
     // /**
     // * @param {{ groupId: string }} params
     // * @return { Promise<{json: any, params}> }

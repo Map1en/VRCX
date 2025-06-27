@@ -1,4 +1,6 @@
-import { $app, API, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const instanceReq = {
@@ -133,6 +135,5 @@ const instanceReq = {
             });
     }
 };
-// #endregion
 
 export default instanceReq;

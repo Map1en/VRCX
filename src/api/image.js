@@ -1,4 +1,5 @@
-import { $app, API } from '../app';
+import { $app } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const imageReq = {
@@ -15,7 +16,6 @@ const imageReq = {
             method: 'PUT'
         });
         $app.store.avatar.avatarDialog.loading = false;
-        // $app.changeAvatarImageDialogLoading = false;
     },
 
     async uploadAvatarImage(params, fileId) {
@@ -29,7 +29,6 @@ const imageReq = {
                     params,
                     fileId
                 };
-                // API.$emit('AVATARIMAGE:INIT', args);
                 return args;
             });
         } catch (err) {
@@ -37,7 +36,6 @@ const imageReq = {
             imageReq.uploadAvatarFailCleanup(fileId);
             throw err;
         }
-        // return void 0;
     },
 
     async uploadAvatarImageFileStart(params) {
@@ -52,14 +50,12 @@ const imageReq = {
                     json,
                     params
                 };
-                // API.$emit('AVATARIMAGE:FILESTART', args);
                 return args;
             });
         } catch (err) {
             console.error(err);
             imageReq.uploadAvatarFailCleanup(params.fileId);
         }
-        return void 0;
     },
 
     uploadAvatarImageFileFinish(params) {
@@ -77,7 +73,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('AVATARIMAGE:FILEFINISH', args);
             return args;
         });
     },
@@ -94,14 +89,12 @@ const imageReq = {
                     json,
                     params
                 };
-                // API.$emit('AVATARIMAGE:SIGSTART', args);
                 return args;
             });
         } catch (err) {
             console.error(err);
             imageReq.uploadAvatarFailCleanup(params.fileId);
         }
-        return void 0;
     },
 
     uploadAvatarImageSigFinish(params) {
@@ -119,7 +112,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('AVATARIMAGE:SIGFINISH', args);
             return args;
         });
     },
@@ -133,7 +125,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('AVATARIMAGE:SET', args);
             API.$emit('AVATAR', args);
             return args;
         });
@@ -154,7 +145,6 @@ const imageReq = {
             method: 'PUT'
         });
         $app.store.world.worldDialog.loading = false;
-        // $app.changeWorldImageDialogLoading = false;
     },
 
     async uploadWorldImage(params, fileId) {
@@ -168,7 +158,6 @@ const imageReq = {
                     params,
                     fileId
                 };
-                // API.$emit('WORLDIMAGE:INIT', args);
                 return args;
             });
         } catch (err) {
@@ -190,7 +179,6 @@ const imageReq = {
                     json,
                     params
                 };
-                // API.$emit('WORLDIMAGE:FILESTART', args);
                 return args;
             });
         } catch (err) {
@@ -215,7 +203,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('WORLDIMAGE:FILEFINISH', args);
             return args;
         });
     },
@@ -232,7 +219,6 @@ const imageReq = {
                     json,
                     params
                 };
-                // API.$emit('WORLDIMAGE:SIGSTART', args);
                 return args;
             });
         } catch (err) {
@@ -257,7 +243,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('WORLDIMAGE:SIGFINISH', args);
             return args;
         });
     },
@@ -271,7 +256,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('WORLDIMAGE:SET', args);
             API.$emit('WORLD', args);
             return args;
         });
@@ -285,7 +269,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('AVATARIMAGE:GET', args);
             return args;
         });
     },
@@ -299,7 +282,6 @@ const imageReq = {
                 json,
                 params
             };
-            // API.$emit('WORLDIMAGE:GET', args);
             return args;
         });
     }

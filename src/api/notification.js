@@ -1,4 +1,5 @@
-import { $app, API } from '../app';
+import { $app } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const notificationReq = {
@@ -26,7 +27,6 @@ const notificationReq = {
                 json,
                 params
             };
-            // API.$emit('NOTIFICATION:LIST', args);
             API.$on('NOTIFICATION:LIST');
             for (const json of args.json) {
                 API.$emit('NOTIFICATION', {
@@ -54,7 +54,6 @@ const notificationReq = {
                 json,
                 params
             };
-            // API.$emit('NOTIFICATION:LIST:HIDDEN', args);
             return args;
         });
     },
@@ -253,8 +252,6 @@ const notificationReq = {
                 return args;
             })
             .catch((err) => {
-                // TODO: need to test
-                // something went wrong, lets assume it's already expired
                 API.$emit('NOTIFICATION:HIDE', { params });
                 notificationReq.hideNotificationV2(params.notificationId);
                 throw err;
@@ -271,8 +268,6 @@ const notificationReq = {
                     notificationId
                 }
             };
-            // useless
-            // API.$emit('NOTIFICATION:V2:HIDE', args);
             return args;
         });
     }

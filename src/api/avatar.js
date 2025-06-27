@@ -46,8 +46,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // API.$emit('AVATAR:LIST', args);
-            // API.$on('AVATAR:LIST')
             for (const json of args.json) {
                 API.$emit('AVATAR', {
                     json,
@@ -74,7 +72,7 @@ const avatarReq = {
                 params
             };
             API.$emit('AVATAR:SAVE', args);
-            // API.$on('AVATAR:SAVE')
+
             const { user } = args;
             API.$emit('AVATAR', {
                 json: user,
@@ -82,7 +80,6 @@ const avatarReq = {
                     avatarId: user.id
                 }
             });
-            // });
             return args;
         });
     },
@@ -151,7 +148,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // API.$emit('AVATAR:IMPOSTER:CREATE', args);
             return args;
         });
     },
@@ -168,7 +164,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // API.$emit('AVATAR:IMPOSTER:DELETE', args);
             return args;
         });
     },
@@ -183,7 +178,6 @@ const avatarReq = {
             const args = {
                 json
             };
-            // API.$emit('AVATAR:STYLES', args);
             return args;
         });
     },
@@ -207,7 +201,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATAR:GALLERY', args);
             return args;
         });
     },
@@ -231,7 +224,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARGALLERYIMAGE:ADD', args);
             return args;
         });
     },
@@ -252,7 +244,6 @@ const avatarReq = {
                 json,
                 params
             };
-            // window.API.$emit('AVATARGALLERYIMAGE:ORDER', args);
             return args;
         });
     }

@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const friendReq = {
@@ -16,7 +16,6 @@ const friendReq = {
                 json,
                 params
             };
-            // API.$emit('FRIEND:LIST', args);
             for (const user of args.json) {
                 if (!user.displayName) {
                     console.error('/friends gave us garbage', user);
@@ -62,7 +61,6 @@ const friendReq = {
                 json,
                 params
             };
-            // API.$emit('FRIEND:REQUEST:CANCEL', args);
             return args;
         });
     },

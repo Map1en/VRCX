@@ -1,4 +1,4 @@
-import { API } from '../app';
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const playerModerationReq = {
@@ -28,7 +28,6 @@ const playerModerationReq = {
                 json,
                 params
             };
-            // API.$emit('PLAYER-MODERATION:SEND', args);
             return args;
         });
     },
