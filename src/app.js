@@ -8,7 +8,6 @@ import Vue from 'vue';
 import pugTemplate from './app.pug';
 import './setup';
 
-import groups from './classes/groups.js';
 import prompts from './classes/prompts.js';
 import uiComponents from './classes/uiComponents.js';
 import websocket from './classes/websocket.js';
@@ -152,7 +151,6 @@ let $app = {
 uiComponents();
 websocket();
 prompts();
-groups();
 
 API.cachedUsers = new Map();
 

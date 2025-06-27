@@ -1,4 +1,4 @@
-import { API } from '../../app';
+import { useGameLogStore } from '../../stores';
 import { parseLocation } from './location';
 
 /**
@@ -26,6 +26,7 @@ function hasGroupPermission(ref, permission) {
  * @returns {Promise<string>}
  */
 async function getGroupName(data) {
+    const groupStore = useGameLogStore();
     if (!data) {
         return '';
     }
@@ -39,7 +40,7 @@ async function getGroupName(data) {
         }
     }
     try {
-        const args = await API.getCachedGroup({
+        const args = await groupStore.getCachedGroup({
             groupId
         });
         groupName = args.ref.name;

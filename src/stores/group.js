@@ -12,6 +12,7 @@ import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { groupDialogFilterOptions } from '../shared/constants/';
 import { replaceBioSymbols } from '../shared/utils';
+import { useFriendStore } from './friend';
 import { useGameStore } from './game';
 import { useInstanceStore } from './instance';
 import { useUserStore } from './user';
@@ -20,6 +21,7 @@ export const useGroupStore = defineStore('Group', () => {
     const instanceStore = useInstanceStore();
     const gameStore = useGameStore();
     const userStore = useUserStore();
+    const friendStore = useFriendStore();
 
     const state = reactive({
         groupDialog: {
@@ -62,7 +64,8 @@ export const useGroupStore = defineStore('Group', () => {
         },
         cachedGroups: new Map(),
         inGameGroupOrder: [],
-        groupInstances: []
+        groupInstances: [],
+        currentUserGroupsInit: false
     });
 
     const groupDialog = computed({
@@ -107,6 +110,13 @@ export const useGroupStore = defineStore('Group', () => {
         }
     });
 
+    const currentUserGroupsInit = computed({
+        get: () => state.currentUserGroupsInit,
+        set: (value) => {
+            state.currentUserGroupsInit = value;
+        }
+    });
+
     function showGroupDialog(groupId) {
         if (!groupId) {
             return;
@@ -128,7 +138,7 @@ export const useGroupStore = defineStore('Group', () => {
         D.galleries = {};
         D.members = [];
         D.memberFilter = groupDialogFilterOptions.everyone;
-        API.getCachedGroup({
+        getCachedGroup({
             groupId
         })
             .catch((err) => {
@@ -293,7 +303,7 @@ export const useGroupStore = defineStore('Group', () => {
             ref.myMember.roleIds = json.roleIds;
         }
         ref.$url = `https://vrc.group/${ref.shortCode}.${ref.discriminator}`;
-        API.applyGroupLanguage(ref);
+        applyGroupLanguage(ref);
 
         const currentUserGroupRef = state.currentUserGroups.get(ref.id);
         if (currentUserGroupRef && currentUserGroupRef !== ref) {
@@ -327,7 +337,7 @@ export const useGroupStore = defineStore('Group', () => {
     }
 
     function groupChange(ref, message) {
-        if (!$app.currentUserGroupsInit) {
+        if (!state.currentUserGroupsInit) {
             return;
         }
         // oh the level of cursed for compibility
@@ -355,7 +365,7 @@ export const useGroupStore = defineStore('Group', () => {
     }
 
     function saveCurrentUserGroups() {
-        if (!$app.currentUserGroupsInit) {
+        if (!state.currentUserGroupsInit) {
             return;
         }
         const groups = [];
@@ -474,7 +484,7 @@ export const useGroupStore = defineStore('Group', () => {
         }
         if (state.currentUserGroups.has(groupId)) {
             state.currentUserGroups.delete(groupId);
-            API.getCachedGroup({ groupId }).then((args) => {
+            getCachedGroup({ groupId }).then((args) => {
                 groupChange(args.ref, 'Left group');
             });
         }
@@ -643,7 +653,7 @@ export const useGroupStore = defineStore('Group', () => {
                     userStore.userDialog.id === userStore.currentUser.id &&
                     userStore.userDialog.representedGroup.id === groupId
                 ) {
-                    userStore.getCurrentUserRepresentedGroup();
+                    getCurrentUserRepresentedGroup();
                 }
             });
     }
@@ -692,6 +702,357 @@ export const useGroupStore = defineStore('Group', () => {
             });
     }
 
+    API.$on('GROUP', function (args) {
+        args.ref = applyGroup(args.json);
+    });
+
+    API.$on('GROUP', function (args) {
+        const { ref } = args;
+        const D = state.groupDialog;
+        if (D.visible === false || D.id !== ref.id) {
+            return;
+        }
+        D.inGroup = ref.membershipStatus === 'member';
+        D.ref = ref;
+    });
+
+    API.$on('GROUP:REPRESENTED', function (args) {
+        const json = args.json;
+        if (!json.groupId) {
+            // no group
+            return;
+        }
+        json.$memberId = json.id;
+        json.id = json.groupId;
+        API.$emit('GROUP', {
+            json,
+            params: {
+                groupId: json.groupId,
+                userId: args.params.userId
+            }
+        });
+    });
+
+    API.$on('GROUP:LIST', function (args) {
+        for (const json of args.json) {
+            json.$memberId = json.id;
+            json.id = json.groupId;
+            API.$emit('GROUP', {
+                json,
+                params: {
+                    groupId: json.id,
+                    userId: args.params.userId
+                }
+            });
+        }
+    });
+
+    API.$on('GROUP:MEMBER:PROPS', function (args) {
+        if (args.userId !== userStore.currentUser.id) {
+            return;
+        }
+        const json = args.json;
+        json.$memberId = json.id;
+        json.id = json.groupId;
+        if (
+            state.groupDialog.visible &&
+            state.groupDialog.id === json.groupId
+        ) {
+            state.groupDialog.ref.myMember.visibility = json.visibility;
+            state.groupDialog.ref.myMember.isSubscribedToAnnouncements =
+                json.isSubscribedToAnnouncements;
+        }
+        if (
+            userStore.userDialog.visible &&
+            userStore.userDialog.id === userStore.currentUser.id
+        ) {
+            getCurrentUserRepresentedGroup();
+        }
+        API.$emit('GROUP:MEMBER', {
+            json,
+            params: {
+                groupId: json.groupId
+            }
+        });
+    });
+
+    API.$on('GROUP:MEMBER:PROPS', function (args) {
+        let member;
+        if (state.groupDialog.id === args.json.groupId) {
+            let i;
+            for (i = 0; i < state.groupDialog.members.length; ++i) {
+                member = state.groupDialog.members[i];
+                if (member.userId === args.json.userId) {
+                    Object.assign(member, applyGroupMember(args.json));
+                    break;
+                }
+            }
+            for (i = 0; i < state.groupDialog.memberSearchResults.length; ++i) {
+                member = state.groupDialog.memberSearchResults[i];
+                if (member.userId === args.json.userId) {
+                    Object.assign(member, applyGroupMember(args.json));
+                    break;
+                }
+            }
+        }
+    });
+
+    API.$on('GROUP:PERMISSIONS', function (args) {
+        if (args.params.userId !== userStore.currentUser.id) {
+            return;
+        }
+        const json = args.json;
+        for (const groupId in json) {
+            const permissions = json[groupId];
+            const group = state.cachedGroups.get(groupId);
+            if (group) {
+                group.myMember.permissions = permissions;
+            }
+        }
+    });
+
+    API.$on('GROUP:POST', function (args) {
+        const D = state.groupDialog;
+        if (D.id !== args.params.groupId) {
+            return;
+        }
+
+        const newPost = args.json;
+        newPost.title = replaceBioSymbols(newPost.title);
+        newPost.text = replaceBioSymbols(newPost.text);
+        let hasPost = false;
+        // update existing post
+        for (const post of D.posts) {
+            if (post.id === newPost.id) {
+                Object.assign(post, newPost);
+                hasPost = true;
+                break;
+            }
+        }
+        // set or update announcement
+        if (newPost.id === D.announcement.id || !D.announcement.id) {
+            D.announcement = newPost;
+        }
+        // add new post
+        if (!hasPost) {
+            D.posts.unshift(newPost);
+        }
+        updateGroupPostSearch();
+    });
+
+    API.$on('GROUP:MEMBERS', function (args) {
+        for (const json of args.json) {
+            API.$emit('GROUP:MEMBER', {
+                json,
+                params: {
+                    groupId: args.params.groupId
+                }
+            });
+        }
+    });
+
+    API.$on('GROUP:MEMBER', function (args) {
+        args.ref = applyGroupMember(args.json);
+    });
+
+    API.$on('GROUP:USER:INSTANCES', function (args) {
+        state.groupInstances = [];
+        for (const json of args.json.instances) {
+            if (args.json.fetchedAt) {
+                // tack on fetchedAt
+                json.$fetchedAt = args.json.fetchedAt;
+            }
+            API.$emit('INSTANCE', {
+                json,
+                params: {
+                    fetchedAt: args.json.fetchedAt
+                }
+            });
+            const ref = state.cachedGroups.get(json.ownerId);
+            if (typeof ref === 'undefined') {
+                if (friendStore.friendLogInitStatus) {
+                    groupRequest.getGroup({ groupId: json.ownerId });
+                }
+                return;
+            }
+            state.groupInstances.push({
+                group: ref,
+                instance: instanceStore.applyInstance(json)
+            });
+        }
+    });
+
+    /**
+     * aka: `API.getCachedGroup`
+     * @param {{ groupId: string }} params
+     * @return { Promise<{json: any, params}> }
+     */
+    function getCachedGroup(params) {
+        return new Promise((resolve, reject) => {
+            const ref = state.cachedGroups.get(params.groupId);
+            if (typeof ref === 'undefined') {
+                groupRequest.getGroup(params).catch(reject).then(resolve);
+            } else {
+                resolve({
+                    cache: true,
+                    json: ref,
+                    params,
+                    ref
+                });
+            }
+        });
+    }
+
+    /**
+     * aka: `API.applyGroupMember`
+     * @param {object} json
+     * @returns {*}
+     */
+    function applyGroupMember(json) {
+        let ref;
+        if (typeof json?.user !== 'undefined') {
+            if (json.userId === userStore.currentUser.id) {
+                json.user = userStore.currentUser;
+                json.$displayName = userStore.currentUser.displayName;
+            } else {
+                ref = API.cachedUsers.get(json.user.id);
+                if (typeof ref !== 'undefined') {
+                    json.user = ref;
+                    json.$displayName = ref.displayName;
+                } else {
+                    json.$displayName = json.user?.displayName;
+                }
+            }
+        }
+        // update myMember without fetching member
+        if (json?.userId === userStore.currentUser.id) {
+            ref = state.cachedGroups.get(json.groupId);
+            if (typeof ref !== 'undefined') {
+                API.$emit('GROUP', {
+                    json: {
+                        ...ref,
+                        memberVisibility: json.visibility,
+                        isRepresenting: json.isRepresenting,
+                        isSubscribedToAnnouncements:
+                            json.isSubscribedToAnnouncements,
+                        joinedAt: json.joinedAt,
+                        roleIds: json.roleIds,
+                        membershipStatus: json.membershipStatus
+                    },
+                    params: {
+                        groupId: json.groupId
+                    }
+                });
+            }
+        }
+
+        return json;
+    }
+
+    /**
+     * aka: `API.applyGroupLanguage`
+     */
+    function applyGroupLanguage(ref) {
+        ref.$languages = [];
+        const { languages } = ref;
+        if (!languages) {
+            return;
+        }
+        for (const language of languages) {
+            const value = userStore.subsetOfLanguages[language];
+            if (typeof value === 'undefined') {
+                continue;
+            }
+            ref.$languages.push({
+                key: language,
+                value
+            });
+        }
+    }
+
+    async function loadCurrentUserGroups(userId, groups) {
+        const savedGroups = JSON.parse(
+            await configRepository.getString(
+                `VRCX_currentUserGroups_${userId}`,
+                '[]'
+            )
+        );
+        state.cachedGroups.clear();
+        state.currentUserGroups.clear();
+        for (const group of savedGroups) {
+            const json = {
+                id: group.id,
+                name: group.name,
+                iconUrl: group.iconUrl,
+                ownerId: group.ownerId,
+                roles: group.roles,
+                myMember: {
+                    roleIds: group.roleIds
+                }
+            };
+            const ref = applyGroup(json);
+            state.currentUserGroups.set(group.id, ref);
+        }
+
+        if (groups) {
+            const promises = groups.map(async (groupId) => {
+                const groupRef = state.cachedGroups.get(groupId);
+
+                if (
+                    typeof groupRef !== 'undefined' &&
+                    groupRef.roles?.length > 0
+                ) {
+                    return;
+                }
+
+                try {
+                    console.log(`Fetching group with missing roles ${groupId}`);
+                    const args = await groupRequest.getGroup({
+                        groupId,
+                        includeRoles: true
+                    });
+                    const ref = applyGroup(args.json);
+                    state.currentUserGroups.set(groupId, ref);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            await Promise.allSettled(promises);
+        }
+
+        state.currentUserGroupsInit = true;
+        getCurrentUserGroups();
+    }
+
+    async function getCurrentUserGroups() {
+        const args = await groupRequest.getGroups({
+            userId: userStore.currentUser.id
+        });
+        state.currentUserGroups.clear();
+        for (const group of args.json) {
+            const ref = applyGroup(group);
+            if (!state.currentUserGroups.has(group.id)) {
+                state.currentUserGroups.set(group.id, ref);
+            }
+        }
+        await groupRequest.getGroupPermissions({
+            userId: userStore.currentUser.id
+        });
+        saveCurrentUserGroups();
+    }
+
+    function getCurrentUserRepresentedGroup() {
+        return groupRequest
+            .getRepresentedGroup({
+                userId: userStore.currentUser.id
+            })
+            .then((args) => {
+                userStore.userDialog.representedGroup = args.json;
+                return args;
+            });
+    }
+
     return {
         state,
         groupDialog,
@@ -700,6 +1061,7 @@ export const useGroupStore = defineStore('Group', () => {
         cachedGroups,
         inGameGroupOrder,
         groupInstances,
+        currentUserGroupsInit,
         showGroupDialog,
         applyGroup,
         saveCurrentUserGroups,
@@ -710,6 +1072,9 @@ export const useGroupStore = defineStore('Group', () => {
         leaveGroup,
         leaveGroupPrompt,
         updateGroupPostSearch,
-        setGroupVisibility
+        setGroupVisibility,
+        getCachedGroup,
+        applyGroupMember,
+        loadCurrentUserGroups
     };
 });

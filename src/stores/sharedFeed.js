@@ -10,6 +10,7 @@ import { useInstanceStore } from './instance';
 import { useLocationStore } from './location';
 import { useModerationStore } from './moderation';
 import { useNotificationStore } from './notification';
+import { usePhotonStore } from './photon';
 import { useNotificationsSettingsStore } from './settings/notifications';
 import { useWristOverlaySettingsStore } from './settings/wristOverlay';
 import { useUserStore } from './user';
@@ -28,6 +29,8 @@ export const useSharedFeedStore = defineStore('SharedFeed', () => {
     const notificationStore = useNotificationStore();
     const feedStore = useFeedStore();
     const worldStore = useWorldStore();
+    const photonStore = usePhotonStore();
+
     const state = reactive({
         sharedFeed: {
             gameLog: {
@@ -548,7 +551,7 @@ export const useSharedFeedStore = defineStore('SharedFeed', () => {
 
     function updateSharedFeedModerationAgainstTable(forceUpdate) {
         // Unblocked, Blocked, Muted, Unmuted
-        const moderationAgainst = $app.moderationAgainstTable;
+        const moderationAgainst = photonStore.moderationAgainstTable;
         var i = moderationAgainst.length;
         if (i > 0) {
             if (

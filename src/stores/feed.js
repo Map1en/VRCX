@@ -9,6 +9,7 @@ import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
 import { useGameLogStore } from './gameLog';
+import { useGroupStore } from './group';
 import { useNotificationStore } from './notification';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useSharedFeedStore } from './sharedFeed';
@@ -29,6 +30,7 @@ export const useFeedStore = defineStore('Feed', () => {
     const userStore = useUserStore();
     const vrcxStore = useVrcxStore();
     const sharedFeedStore = useSharedFeedStore();
+    const groupStore = useGroupStore();
 
     const state = reactive({
         feedTable: {
@@ -103,7 +105,10 @@ export const useFeedStore = defineStore('Feed', () => {
         notificationStore.notificationTable.data =
             await database.getNotifications();
         notificationStore.refreshNotifications();
-        $app.loadCurrentUserGroups(args.json.id, args.json?.presence?.groups);
+        groupStore.loadCurrentUserGroups(
+            args.json.id,
+            args.json?.presence?.groups
+        );
         try {
             if (
                 await configRepository.getBool(`friendLogInit_${args.json.id}`)

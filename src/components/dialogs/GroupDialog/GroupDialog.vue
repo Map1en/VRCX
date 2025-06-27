@@ -1166,7 +1166,8 @@
     import { useI18n } from 'vue-i18n-bridge';
     import * as workerTimers from 'worker-timers';
     import { groupRequest } from '../../../api';
-    import { $app, API } from '../../../app';
+    import { $app } from '../../../app';
+    import { API } from '../../../service/eventBus';
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import {
         adjustDialogZ,
@@ -1197,8 +1198,16 @@
     const { showUserDialog } = useUserStore();
     const { currentUser } = storeToRefs(useUserStore());
     const { groupDialog, inviteGroupDialog } = storeToRefs(useGroupStore());
-    const { getGroupDialogGroup, updateGroupPostSearch, showGroupDialog, leaveGroupPrompt, setGroupVisibility } =
-        useGroupStore();
+    const {
+        getGroupDialogGroup,
+        updateGroupPostSearch,
+        showGroupDialog,
+        leaveGroupPrompt,
+        setGroupVisibility,
+        getCachedGroup,
+        applyGroupMember
+    } = useGroupStore();
+
     const { lastLocation } = storeToRefs(useLocationStore());
     const { showFullscreenImageDialog } = useGalleryStore();
 
@@ -1535,7 +1544,7 @@
 
         D.groupRef = {};
         D.auditLogTypes = [];
-        API.getCachedGroup({ groupId }).then((args) => {
+        getCachedGroup({ groupId }).then((args) => {
             D.groupRef = args.ref;
             if (hasGroupPermission(D.groupRef, 'group-audit-view')) {
                 groupRequest.getGroupAuditLogTypes({ groupId }).then((args) => {
@@ -1617,7 +1626,7 @@
                 selectedImageUrl: post.imageUrl
             };
         }
-        API.getCachedGroup({ groupId }).then((args) => {
+        getCachedGroup({ groupId }).then((args) => {
             D.groupRef = args.ref;
         });
         D.visible = true;
@@ -1645,7 +1654,7 @@
                     userId: currentUser.value.id
                 })
                 .then((args) => {
-                    args.ref = API.applyGroupMember(args.json);
+                    args.ref = applyGroupMember(args.json);
                     if (args.json) {
                         args.json.user = currentUser.value;
                         if (D.memberFilter.id === null) {

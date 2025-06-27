@@ -815,7 +815,6 @@
     import { useI18n } from 'vue-i18n-bridge';
     import { groupRequest, userRequest } from '../../../api';
     import { useModerationTable, useSelectedUsers } from '../../../composables/group/useGroupMemberModeration';
-    import { API } from '../../../service/eventBus';
     import { groupDialogFilterOptions, groupDialogSortingOptions } from '../../../shared/constants';
     import { hasGroupPermission, userImage, userImageFull } from '../../../shared/utils';
     import { useAppearanceSettingsStore, useGalleryStore, useGroupStore, useUserStore } from '../../../stores';
@@ -825,7 +824,26 @@
     const { showUserDialog } = useUserStore();
     const { currentUser } = storeToRefs(useUserStore());
     const { groupDialog } = storeToRefs(useGroupStore());
+    const { applyGroupMember } = useGroupStore();
     const { showFullscreenImageDialog } = useGalleryStore();
+    const {
+        groupInvitesModerationTable,
+        groupJoinRequestsModerationTable,
+        groupBlockedModerationTable,
+        groupLogsModerationTable,
+        groupBansModerationTable,
+        groupMemberModerationTable,
+        initializePageSize,
+        deselectGroupMember
+    } = useModerationTable();
+
+    const {
+        selectedUsers,
+        selectedUsersArray,
+        groupMemberModerationTableSelectionChange,
+        deselectedUsers,
+        setSelectedUsers
+    } = useSelectedUsers();
 
     const { t } = useI18n();
     const instance = getCurrentInstance();
@@ -850,25 +868,6 @@
         'set-group-member-filter',
         'group-members-search'
     ]);
-
-    const {
-        groupInvitesModerationTable,
-        groupJoinRequestsModerationTable,
-        groupBlockedModerationTable,
-        groupLogsModerationTable,
-        groupBansModerationTable,
-        groupMemberModerationTable,
-        initializePageSize,
-        deselectGroupMember
-    } = useModerationTable();
-
-    const {
-        selectedUsers,
-        selectedUsersArray,
-        groupMemberModerationTableSelectionChange,
-        deselectedUsers,
-        setSelectedUsers
-    } = useSelectedUsers();
 
     const selectUserId = ref('');
     const progressCurrent = ref(0);
@@ -1025,7 +1024,7 @@
                         continue;
                     }
                     args.json.forEach((json) => {
-                        const ref = API.applyGroupMember(json);
+                        const ref = applyGroupMember(json);
                         fetchedBans.push(ref);
                     });
                     if (args.json.length < params.n) {
@@ -1321,7 +1320,7 @@
         let member = {};
         const memberArgs = await groupRequest.getGroupMember({ groupId: D.id, userId });
         if (memberArgs && memberArgs.json) {
-            member = API.applyGroupMember(memberArgs.json);
+            member = applyGroupMember(memberArgs.json);
         }
         if (member && member.user) {
             setSelectedUsers(member.userId, member);
@@ -1552,7 +1551,7 @@
                     ? groupBlockedModerationTable
                     : groupJoinRequestsModerationTable;
                 for (const json of args.json) {
-                    const ref = API.applyGroupMember(json);
+                    const ref = applyGroupMember(json);
                     targetTable.data.push(ref);
                 }
                 params.offset += params.n;
@@ -1585,7 +1584,7 @@
                     ? groupBlockedModerationTable
                     : groupJoinRequestsModerationTable;
                 for (const json of args.json) {
-                    const ref = API.applyGroupMember(json);
+                    const ref = applyGroupMember(json);
                     targetTable.data.push(ref);
                 }
                 params.offset += params.n;
@@ -1618,7 +1617,7 @@
                     }
 
                     for (const json of args.json) {
-                        const ref = API.applyGroupMember(json);
+                        const ref = applyGroupMember(json);
                         groupInvitesModerationTable.data.push(ref);
                     }
                 }

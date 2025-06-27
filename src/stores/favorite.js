@@ -403,7 +403,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
 
     API.$on('LOGIN', function () {
         friendStore.localFavoriteFriends.clear();
-        $app.currentUserGroupsInit = false;
+        groupStore.currentUserGroupsInit = false;
         groupStore.cachedGroups.clear();
         avatarStore.cachedAvatars.clear();
         worldStore.cachedWorlds.clear();

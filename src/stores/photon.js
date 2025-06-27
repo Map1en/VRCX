@@ -361,6 +361,13 @@ export const usePhotonStore = defineStore('Photon', () => {
         }
     });
 
+    const moderationAgainstTable = computed({
+        get: () => state.moderationAgainstTable,
+        set: (value) => {
+            state.moderationAgainstTable = value;
+        }
+    });
+
     function setPhotonLoggingEnabled() {
         state.photonLoggingEnabled = !state.photonLoggingEnabled;
         configRepository.setBool('VRCX_photonLoggingEnabled', true);
@@ -1921,6 +1928,7 @@ export const usePhotonStore = defineStore('Photon', () => {
         promptPhotonLobbyTimeoutThreshold,
         photonLobbyWatcherLoopStop,
         parsePhotonEvent,
-        parseVRCEvent
+        parseVRCEvent,
+        moderationAgainstTable
     };
 });

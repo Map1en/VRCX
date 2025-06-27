@@ -169,18 +169,16 @@
 <script>
     import { storeToRefs } from 'pinia';
     import { groupRequest, userRequest } from '../../api';
-    import { API } from '../../app';
+    import { API } from '../../service/eventBus';
     import { adjustDialogZ, hasGroupPermission, userImage, userStatusClass } from '../../shared/utils';
-    import { useFriendStore } from '../../stores/friend';
-    import { useGroupStore } from '../../stores/group';
+    import { useFriendStore, useGroupStore } from '../../stores';
 
     export default {
         name: 'InviteGroupDialog',
         setup() {
-            const friendStore = useFriendStore();
-            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(friendStore);
-            const groupStore = useGroupStore();
-            const { currentUserGroups, inviteGroupDialog } = storeToRefs(groupStore);
+            const { vipFriends, onlineFriends, activeFriends, offlineFriends } = storeToRefs(useFriendStore());
+            const { currentUserGroups, inviteGroupDialog } = storeToRefs(useGroupStore());
+            const { getCachedGroup } = useGroupStore();
             return {
                 vipFriends,
                 onlineFriends,
@@ -191,7 +189,8 @@
                 userStatusClass,
                 userImage,
                 API,
-                adjustDialogZ
+                adjustDialogZ,
+                getCachedGroup
             };
         },
         watch: {
@@ -206,7 +205,7 @@
                 this.$nextTick(() => this.adjustDialogZ(this.$refs.inviteGroupDialogRef.$el));
                 const D = this.inviteGroupDialog;
                 if (D.groupId) {
-                    this.API.getCachedGroup({
+                    this.getCachedGroup({
                         groupId: D.groupId
                     })
                         .then((args) => {

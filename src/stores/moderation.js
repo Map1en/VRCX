@@ -75,7 +75,7 @@ export const useModerationStore = defineStore('Moderation', () => {
         if (
             D.visible === false ||
             (ref.targetUserId !== D.id &&
-                ref.sourceUserId !== this.currentUser.id)
+                ref.sourceUserId !== userStore.currentUser.id)
         ) {
             return;
         }
@@ -102,7 +102,7 @@ export const useModerationStore = defineStore('Moderation', () => {
         if (
             D.visible === false ||
             ref.targetUserId !== D.id ||
-            ref.sourceUserId !== this.currentUser.id
+            ref.sourceUserId !== userStore.currentUser.id
         ) {
             return;
         }
