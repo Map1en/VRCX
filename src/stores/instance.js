@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import Vue, { computed, reactive } from 'vue';
+import Vue, { computed, reactive, watch } from 'vue';
 import { instanceRequest, userRequest, worldRequest } from '../api';
 import { $app } from '../app';
 import { t } from '../plugin';
@@ -20,6 +20,7 @@ import {
     isRealInstance,
     parseLocation
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useFriendStore } from './friend';
 import { useGroupStore } from './group';
 import { useLocationStore } from './location';
@@ -137,14 +138,16 @@ export const useInstanceStore = defineStore('Instance', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.currentInstanceUserList.data = [];
-    });
-
-    API.$on('LOGIN', function () {
-        state.instanceJoinHistory = new Map();
-        getInstanceJoinHistory();
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.currentInstanceUserList.data = [];
+                state.instanceJoinHistory = new Map();
+                getInstanceJoinHistory();
+            }
+        }
+    );
 
     API.$on('INSTANCE', function (args) {
         const { json } = args;

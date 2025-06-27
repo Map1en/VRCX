@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { $app } from '../../app';
 import { t } from '../../plugin';
 import configRepository from '../../service/config';
 import database from '../../service/database';
 import { API } from '../../service/eventBus';
 import webApiService from '../../service/webapi';
+import { useAuthStore } from '../auth';
 import { useGameStore } from '../game';
 import { useVrcxStore } from '../vrcx';
 
@@ -134,6 +135,15 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
     }
 
     initAdvancedSettings();
+
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.currentUserInventory.clear();
+            }
+        }
+    );
 
     const enablePrimaryPassword = computed({
         get: () => state.enablePrimaryPassword,
@@ -450,10 +460,6 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         }
         return data;
     }
-
-    API.$on('LOGIN', function () {
-        state.currentUserInventory.clear();
-    });
 
     function cropPrintsChanged() {
         if (!state.cropInstancePrints) return;

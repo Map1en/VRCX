@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { instanceRequest, userRequest } from '../api';
 import { groupRequest } from '../api/';
 import { $app } from '../app';
@@ -7,6 +7,7 @@ import { t } from '../plugin';
 import removeConfusables, { removeWhitespace } from '../service/confusables';
 import { API } from '../service/eventBus';
 import { compareByName, localeIncludes } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useFriendStore } from './friend';
 import { useGroupStore } from './group';
@@ -65,10 +66,15 @@ export const useSearchStore = defineStore('Search', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.searchText = '';
-        state.searchUserResults = [];
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.searchText = '';
+                state.searchUserResults = [];
+            }
+        }
+    );
 
     function clearSearch() {
         state.searchText = '';

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { friendRequest, userRequest } from '../api';
 import { $app } from '../app';
@@ -271,24 +271,29 @@ export const useFriendStore = defineStore('Friend', () => {
         }
     });
 
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.friends.clear();
+                state.pendingActiveFriends.clear();
+                state.friendNumber = 0;
+                groupStore.groupInstances = [];
+                state.vipFriends_ = [];
+                state.onlineFriends_ = [];
+                state.activeFriends_ = [];
+                state.offlineFriends_ = [];
+                state.sortVIPFriends = false;
+                state.sortOnlineFriends = false;
+                state.sortActiveFriends = false;
+                state.sortOfflineFriends = false;
+                groupStore.updateInGameGroupOrder();
+            }
+        }
+    );
+
     API.$on('USER:CURRENT', function (args) {
         checkActiveFriends(args.json);
-    });
-
-    API.$on('LOGIN', function () {
-        state.friends.clear();
-        state.pendingActiveFriends.clear();
-        state.friendNumber = 0;
-        groupStore.groupInstances = [];
-        state.vipFriends_ = [];
-        state.onlineFriends_ = [];
-        state.activeFriends_ = [];
-        state.offlineFriends_ = [];
-        state.sortVIPFriends = false;
-        state.sortOnlineFriends = false;
-        state.sortActiveFriends = false;
-        state.sortOfflineFriends = false;
-        groupStore.updateInGameGroupOrder();
     });
 
     function updateUserCurrentStatus(args) {

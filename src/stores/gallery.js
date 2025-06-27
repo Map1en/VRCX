@@ -1,6 +1,6 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import * as workerTimers from 'worker-timers';
 import {
     inventoryRequest,
@@ -16,6 +16,7 @@ import {
     getPrintFileName,
     getPrintLocalDate
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useAdvancedSettingsStore } from './settings/advanced';
 
 export const useGalleryStore = defineStore('Gallery', () => {
@@ -194,13 +195,22 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.previousImagesTable = [];
-    });
-
-    API.$on('LOGIN', function () {
-        state.galleryTable = [];
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.previousImagesTable = [];
+                state.galleryTable = [];
+                state.VRCPlusIconsTable = [];
+                state.stickerTable = [];
+                state.printTable = [];
+                if (advancedSettingsStore.autoDeleteOldPrints) {
+                    tryDeleteOldPrints();
+                }
+                state.emojiTable = [];
+            }
+        }
+    );
 
     API.$on('FILES:LIST', function (args) {
         if (args.params.tag === 'gallery') {
@@ -234,10 +244,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
             state.galleryDialogGalleryLoading = false;
         });
     }
-
-    API.$on('LOGIN', function () {
-        state.VRCPlusIconsTable = [];
-    });
 
     function refreshVRCPlusIconsTable() {
         state.galleryDialogIconsLoading = true;
@@ -298,10 +304,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
         buttonList.forEach((button) => (button.value = ''));
         state.uploadImage = '';
     }
-
-    API.$on('LOGIN', function () {
-        state.stickerTable = [];
-    });
 
     function refreshStickerTable() {
         state.galleryDialogStickersLoading = true;
@@ -365,13 +367,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
             console.log(`Sticker saved to file: ${monthFolder}\\${fileName}`);
         }
     }
-
-    API.$on('LOGIN', function () {
-        state.printTable = [];
-        if (advancedSettingsStore.autoDeleteOldPrints) {
-            tryDeleteOldPrints();
-        }
-    });
 
     async function refreshPrintTable() {
         state.galleryDialogPrintsLoading = true;
@@ -461,10 +456,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
 
     // #endregion
     // #region | Emoji
-
-    API.$on('LOGIN', function () {
-        state.emojiTable = [];
-    });
 
     function refreshEmojiTable() {
         state.galleryDialogEmojisLoading = true;

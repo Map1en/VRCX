@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { instanceRequest, inviteMessagesRequest } from '../api';
 import { $app } from '../app';
-import { API } from '../service/eventBus';
 import { parseLocation } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useInstanceStore } from './instance';
 
 export const useInviteStore = defineStore('Invite', () => {
@@ -53,16 +53,21 @@ export const useInviteStore = defineStore('Invite', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.inviteMessageTable.data = [];
-        state.inviteResponseMessageTable.data = [];
-        state.inviteRequestMessageTable.data = [];
-        state.inviteRequestResponseMessageTable.data = [];
-        state.inviteMessageTable.visible = false;
-        state.inviteResponseMessageTable.visible = false;
-        state.inviteRequestMessageTable.visible = false;
-        state.inviteRequestResponseMessageTable.visible = false;
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.inviteMessageTable.data = [];
+                state.inviteResponseMessageTable.data = [];
+                state.inviteRequestMessageTable.data = [];
+                state.inviteRequestResponseMessageTable.data = [];
+                state.inviteMessageTable.visible = false;
+                state.inviteResponseMessageTable.visible = false;
+                state.inviteRequestMessageTable.visible = false;
+                state.inviteRequestResponseMessageTable.visible = false;
+            }
+        }
+    );
 
     const editInviteMessageDialog = computed({
         get: () => state.editInviteMessageDialog,

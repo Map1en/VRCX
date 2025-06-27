@@ -1,6 +1,6 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { loginRequest } from '../api';
 import { $app } from '../app';
 import { t } from '../plugin';
@@ -85,6 +85,47 @@ export const useAuthStore = defineStore('Auth', () => {
 
     init();
 
+    watch(
+        () => state.isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.twoFactorAuthDialogVisible = false;
+            }
+        }
+    );
+
+    API.$on('LOGOUT', function () {
+        if (state.isLoggedIn) {
+            new Noty({
+                type: 'success',
+                text: `See you again, <strong>${escapeTag(
+                    userStore.currentUser.displayName
+                )}</strong>!`
+            }).show();
+        }
+        state.isLoggedIn = false;
+        friendStore.friendLogInitStatus = false;
+        notificationStore.notificationInitStatus = false;
+    });
+
+    API.$on('LOGIN', function (args) {
+        new Noty({
+            type: 'success',
+            text: `Hello there, <strong>${escapeTag(
+                args.ref.displayName
+            )}</strong>!`
+        }).show();
+        updateStoredUser(userStore.currentUser);
+    });
+
+    API.$on('LOGOUT', async function () {
+        await updateStoredUser(userStore.currentUser);
+        webApiService.clearCookies();
+        state.loginForm.lastUserLoggedIn = '';
+        await configRepository.remove('lastUserLoggedIn');
+        // workerTimers.setTimeout(() => location.reload(), 500);
+    });
+
     // LOGIN STATE
     const isLoggedIn = computed({
         get: () => state.isLoggedIn,
@@ -126,42 +167,6 @@ export const useAuthStore = defineStore('Auth', () => {
         set: (value) => {
             state.cachedConfig = value;
         }
-    });
-
-    API.$on('LOGOUT', function () {
-        if (state.isLoggedIn) {
-            new Noty({
-                type: 'success',
-                text: `See you again, <strong>${escapeTag(
-                    userStore.currentUser.displayName
-                )}</strong>!`
-            }).show();
-        }
-        state.isLoggedIn = false;
-        friendStore.friendLogInitStatus = false;
-        notificationStore.notificationInitStatus = false;
-    });
-
-    API.$on('LOGIN', function (args) {
-        new Noty({
-            type: 'success',
-            text: `Hello there, <strong>${escapeTag(
-                args.ref.displayName
-            )}</strong>!`
-        }).show();
-        updateStoredUser(userStore.currentUser);
-    });
-
-    API.$on('LOGOUT', async function () {
-        await updateStoredUser(userStore.currentUser);
-        webApiService.clearCookies();
-        state.loginForm.lastUserLoggedIn = '';
-        await configRepository.remove('lastUserLoggedIn');
-        // workerTimers.setTimeout(() => location.reload(), 500);
-    });
-
-    API.$on('LOGIN', function () {
-        state.twoFactorAuthDialogVisible = false;
     });
 
     /**

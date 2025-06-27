@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { worldRequest } from '../api';
 import { $app } from '../app';
 import { t } from '../plugin';
@@ -523,12 +523,17 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         }
     }
 
-    API.$on('LOGIN', async function () {
-        const command = await AppApi.GetLaunchCommand();
-        if (command) {
-            eventLaunchCommand(command);
+    watch(
+        () => useAuthStore().isLoggedIn,
+        async (isLoggedIn) => {
+            if (isLoggedIn) {
+                const command = await AppApi.GetLaunchCommand();
+                if (command) {
+                    eventLaunchCommand(command);
+                }
+            }
         }
-    });
+    );
 
     function eventLaunchCommand(input) {
         const authStore = useAuthStore();

@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
-import Vue, { computed, reactive } from 'vue';
+import Vue, { computed, reactive, watch } from 'vue';
 import { avatarModerationRequest, playerModerationRequest } from '../api';
 import { $app } from '../app';
 import { t } from '../plugin';
 import { API } from '../service/eventBus';
+import { useAuthStore } from './auth';
 import { useAvatarStore } from './avatar';
 import { useUserStore } from './user';
 
@@ -48,12 +49,18 @@ export const useModerationStore = defineStore('Moderation', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.cachedPlayerModerations.clear();
-        state.cachedPlayerModerationsUserIds.clear();
-        state.isPlayerModerationsLoading = false;
-        refreshPlayerModerations();
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.cachedPlayerModerations.clear();
+                state.cachedPlayerModerationsUserIds.clear();
+                state.isPlayerModerationsLoading = false;
+                refreshPlayerModerations();
+                state.playerModerationTable.data = [];
+            }
+        }
+    );
 
     API.$on('PLAYER-MODERATION', function (args) {
         args.ref = applyPlayerModeration(args.json);
@@ -139,10 +146,6 @@ export const useModerationStore = defineStore('Moderation', () => {
             }
         }
         state.cachedPlayerModerationsUserIds.delete(moderated);
-    });
-
-    API.$on('LOGIN', function () {
-        state.playerModerationTable.data = [];
     });
 
     API.$on('PLAYER-MODERATION', function (args) {

@@ -1,6 +1,6 @@
 import Noty from 'noty';
 import { defineStore } from 'pinia';
-import Vue, { computed, reactive } from 'vue';
+import Vue, { computed, reactive, watch } from 'vue';
 import { notificationRequest, userRequest, worldRequest } from '../api';
 import configRepository from '../service/config';
 import database from '../service/database';
@@ -15,6 +15,7 @@ import {
     parseLocation,
     removeFromArray
 } from '../shared/utils';
+import { useAuthStore } from './auth';
 import { useFavoriteStore } from './favorite';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
@@ -116,9 +117,15 @@ export const useNotificationStore = defineStore('Notification', () => {
         }
     });
 
-    API.$on('LOGIN', function () {
-        state.isNotificationsLoading = false;
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.isNotificationsLoading = false;
+                state.notificationTable.data = [];
+            }
+        }
+    );
 
     API.$on('NOTIFICATION', function (args) {
         args.ref = applyNotification(args.json);
@@ -238,10 +245,6 @@ export const useNotificationStore = defineStore('Notification', () => {
             text: escapeTag(args.json)
         }).show();
         console.log('NOTIFICATION:RESPONSE', args);
-    });
-
-    API.$on('LOGIN', function () {
-        state.notificationTable.data = [];
     });
 
     API.$on('PIPELINE:NOTIFICATION', function (args) {

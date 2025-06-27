@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
 import database from '../service/database';
-import { API } from '../service/eventBus';
 import { useAuthStore } from './auth';
 import { useFriendStore } from './friend';
 import { useGameStore } from './game';
@@ -41,11 +40,16 @@ export const useUpdateLoopStore = defineStore('UpdateLoop', () => {
         nextDatabaseOptimize: 3600
     });
 
-    API.$on('LOGIN', function () {
-        state.nextCurrentUserRefresh = 300;
-        state.nextFriendsRefresh = 3600;
-        state.nextGroupInstanceRefresh = 0;
-    });
+    watch(
+        () => useAuthStore().isLoggedIn,
+        (isLoggedIn) => {
+            if (isLoggedIn) {
+                state.nextCurrentUserRefresh = 300;
+                state.nextFriendsRefresh = 3600;
+                state.nextGroupInstanceRefresh = 0;
+            }
+        }
+    );
 
     async function updateLoop() {
         try {
