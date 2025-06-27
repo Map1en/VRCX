@@ -2,7 +2,6 @@ import Noty from 'noty';
 import { defineStore } from 'pinia';
 import Vue, { computed, reactive } from 'vue';
 import { notificationRequest, userRequest, worldRequest } from '../api';
-import { $app } from '../app';
 import configRepository from '../service/config';
 import database from '../service/database';
 import { API } from '../service/eventBus';
@@ -298,14 +297,14 @@ export const useNotificationStore = defineStore('Notification', () => {
                     )
                     .then((_args) => {
                         const text = `Auto invite sent to ${ref.senderUsername}`;
-                        if ($app.errorNoty) {
-                            $app.errorNoty.close();
+                        if (API.errorNoty) {
+                            API.errorNoty.close();
                         }
-                        $app.errorNoty = new Noty({
+                        API.errorNoty = new Noty({
                             type: 'info',
                             text
                         });
-                        $app.errorNoty.show();
+                        API.errorNoty.show();
                         console.log(text);
                         notificationRequest.hideNotification({
                             notificationId: ref.id

@@ -26,6 +26,7 @@ import { useNotificationStore } from './notification';
 import { usePhotonStore } from './photon';
 import { useSearchStore } from './search';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 import { useWorldStore } from './world';
 
@@ -45,6 +46,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
     const searchStore = useSearchStore();
     const avatarProviderStore = useAvatarProviderStore();
     const gameLogStore = useGameLogStore();
+    const updateLoopStore = useUpdateLoopStore();
 
     const state = reactive({
         isRunningUnderWine: false,
@@ -504,7 +506,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
                     photonStore.setPhotonLoggingEnabled();
                 }
                 state.ipcEnabled = true;
-                $app.ipcTimeout = 60; // 30secs
+                updateLoopStore.ipcTimeout = 60; // 30secs
                 break;
             case 'MsgPing':
                 state.externalNotifierVersion = data.version;

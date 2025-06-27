@@ -12,6 +12,10 @@ API.debugGameLog = false;
 API.debugWebRequests = false;
 API.debugFriendState = false;
 
+API.errorNoty = null;
+
+API.dontLogMeOut = false;
+
 API.$emit = function (name, ...args) {
     if (API.debug) {
         console.log(name, ...args);

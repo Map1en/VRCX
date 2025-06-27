@@ -534,10 +534,10 @@ export const useGalleryStore = defineStore('Gallery', () => {
             for (const printId of idList) {
                 await vrcPlusImageRequest.deletePrint(printId);
                 const text = `Old print automatically deleted: ${printId}`;
-                if ($app.errorNoty) {
-                    $app.errorNoty.close();
+                if (API.errorNoty) {
+                    API.errorNoty.close();
                 }
-                $app.errorNoty = new Noty({
+                API.errorNoty = new Noty({
                     type: 'info',
                     text
                 }).show();

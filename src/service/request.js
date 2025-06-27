@@ -252,14 +252,14 @@ export function $throw(code, error, endpoint) {
     }
     text = text.map((s) => escapeTag(s)).join('<br>');
     if (text.length) {
-        if ($app.errorNoty) {
-            $app.errorNoty.close();
+        if (API.errorNoty) {
+            API.errorNoty.close();
         }
-        $app.errorNoty = new Noty({
+        API.errorNoty = new Noty({
             type: 'error',
             text
         });
-        $app.errorNoty.show();
+        API.errorNoty.show();
     }
     throw new Error(text);
 }

@@ -54,7 +54,6 @@
         },
         data() {
             return {
-                dontLogMeOut: false,
                 API
             };
         },

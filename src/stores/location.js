@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
-import { $app } from '../app';
 import database from '../service/database';
 import {
     getGroupName,
@@ -168,7 +167,7 @@ export const useLocationStore = defineStore('Location', () => {
             database.addGamelogLocationToDatabase(entry);
             notificationStore.queueGameLogNoty(entry);
             gameLogStore.addGameLog(entry);
-            $app.addInstanceJoinHistory(location, dt);
+            instanceStore.addInstanceJoinHistory(location, dt);
 
             userStore.applyUserDialogLocation();
             instanceStore.applyWorldDialogInstances();

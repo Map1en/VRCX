@@ -2027,9 +2027,6 @@
     }
 
     function showSocialStatusDialog() {
-        // this.$nextTick(() =>
-        //     $app.adjustDialogZ(this.$refs.socialStatusDialog.$el)
-        // );
         const D = socialStatusDialog.value;
         const { statusHistory } = currentUser.value;
         const statusHistoryArray = [];

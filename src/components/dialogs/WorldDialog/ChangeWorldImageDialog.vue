@@ -233,7 +233,6 @@
         });
 
         if (json.status !== 200) {
-            // $app.worldDialog.loading = false;
             changeWorldImageDialogLoading.value = false;
             $throw('World image upload failed', json, params.url);
         }
@@ -287,7 +286,6 @@
         });
 
         if (json.status !== 200) {
-            // $app.worldDialog.loading = false;
             changeWorldImageDialogLoading.value = false;
             $throw('World image upload failed', json, params.url);
         }

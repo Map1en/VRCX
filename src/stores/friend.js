@@ -26,6 +26,7 @@ import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useSharedFeedStore } from './sharedFeed';
 import { useUiStore } from './ui';
+import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 
 export const useFriendStore = defineStore('Friend', () => {
@@ -37,6 +38,7 @@ export const useFriendStore = defineStore('Friend', () => {
     const uiStore = useUiStore();
     const groupStore = useGroupStore();
     const sharedFeedStore = useSharedFeedStore();
+    const updateLoopStore = useUpdateLoopStore();
 
     const state = reactive({
         friends: new Map(),
@@ -1024,7 +1026,7 @@ export const useFriendStore = defineStore('Friend', () => {
      */
     async function refreshFriendsList() {
         // If we just got user less then 2 min before code call, don't call it again
-        if ($app.nextCurrentUserRefresh < 300) {
+        if (updateLoopStore.nextCurrentUserRefresh < 300) {
             await userStore.getCurrentUser().catch((err) => {
                 console.error(err);
             });

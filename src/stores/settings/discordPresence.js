@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { userRequest, worldRequest } from '../../api';
-import { $app } from '../../app';
 import configRepository from '../../service/config';
 import {
     getGroupName,
@@ -13,6 +12,7 @@ import {
 import { useGameStore } from '../game';
 import { useGameLogStore } from '../gameLog';
 import { useLocationStore } from '../location';
+import { useUpdateLoopStore } from '../updateLoop';
 import { useUserStore } from '../user';
 import { useWorldStore } from '../world';
 import { useAdvancedSettingsStore } from './advanced';
@@ -26,6 +26,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
         const worldStore = useWorldStore();
         const gameLogStore = useGameLogStore();
         const userStore = useUserStore();
+        const updateLoopStore = useUpdateLoopStore();
 
         const state = reactive({
             discordActive: false,
@@ -386,7 +387,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
 
         async function saveDiscordOption(configLabel = '') {
             locationStore.lastLocation$.tag = '';
-            $app.nextDiscordUpdate = 3;
+            updateLoopStore.nextDiscordUpdate = 3;
             updateDiscord();
         }
 

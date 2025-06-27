@@ -1088,8 +1088,8 @@ export const useInstanceStore = defineStore('Instance', () => {
             if (typeof ref.id !== 'undefined') {
                 isFriend = ref.isFriend;
                 if (
-                    $app.timeoutHudOverlayFilter === 'VIP' ||
-                    $app.timeoutHudOverlayFilter === 'Friends'
+                    photonStore.timeoutHudOverlayFilter === 'VIP' ||
+                    photonStore.timeoutHudOverlayFilter === 'Friends'
                 ) {
                     photonStore.photonLobbyTimeout.forEach((ref1) => {
                         if (ref1.userId === ref.id) {

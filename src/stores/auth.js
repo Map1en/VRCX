@@ -14,6 +14,7 @@ import { escapeTag } from '../shared/utils';
 import { useFriendStore } from './friend';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 
 export const useAuthStore = defineStore('Auth', () => {
@@ -21,6 +22,7 @@ export const useAuthStore = defineStore('Auth', () => {
     const notificationStore = useNotificationStore();
     const friendStore = useFriendStore();
     const userStore = useUserStore();
+    const updateLoopStore = useUpdateLoopStore();
     const state = reactive({
         isLoggedIn: false,
         attemptingAutoLogin: false,
@@ -194,7 +196,7 @@ export const useAuthStore = defineStore('Auth', () => {
                             state.loginForm.loading = false;
                         })
                         .catch((err) => {
-                            $app.nextCurrentUserRefresh = 60; // 1min
+                            updateLoopStore.nextCurrentUserRefresh = 60; // 1min
                             console.error(err);
                         });
                     return args;
@@ -806,20 +808,20 @@ export const useAuthStore = defineStore('Auth', () => {
         state.autoLoginAttempts.add(new Date().getTime());
         relogin(user)
             .then(() => {
-                if ($app.errorNoty) {
-                    $app.errorNoty.close();
+                if (API.errorNoty) {
+                    API.errorNoty.close();
                 }
-                $app.errorNoty = new Noty({
+                API.errorNoty = new Noty({
                     type: 'success',
                     text: 'Automatically logged in.'
                 }).show();
                 console.log('Automatically logged in.');
             })
             .catch((err) => {
-                if ($app.errorNoty) {
-                    $app.errorNoty.close();
+                if (API.errorNoty) {
+                    API.errorNoty.close();
                 }
-                $app.errorNoty = new Noty({
+                API.errorNoty = new Noty({
                     type: 'error',
                     text: 'Failed to login automatically.'
                 }).show();
@@ -827,7 +829,7 @@ export const useAuthStore = defineStore('Auth', () => {
             })
             .finally(() => {
                 if (!navigator.onLine) {
-                    $app.errorNoty = new Noty({
+                    API.errorNoty = new Noty({
                         type: 'error',
                         text: `You're offline.`
                     }).show();

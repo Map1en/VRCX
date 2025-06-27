@@ -46,6 +46,7 @@ import { useSearchStore } from './search';
 import { useAppearanceSettingsStore } from './settings/appearance';
 import { useGeneralSettingsStore } from './settings/general';
 import { useSharedFeedStore } from './sharedFeed';
+import { useUpdateLoopStore } from './updateLoop';
 import { useWorldStore } from './world';
 
 export const useUserStore = defineStore('User', () => {
@@ -66,6 +67,7 @@ export const useUserStore = defineStore('User', () => {
     const moderationStore = useModerationStore();
     const photonStore = usePhotonStore();
     const sharedFeedStore = useSharedFeedStore();
+    const updateLoopStore = useUpdateLoopStore();
 
     const state = reactive({
         currentUser: {
@@ -1481,14 +1483,14 @@ export const useUserStore = defineStore('User', () => {
             })
             .then(() => {
                 const text = `Status automaticly changed to ${newStatus}`;
-                if ($app.errorNoty) {
-                    $app.errorNoty.close();
+                if (API.errorNoty) {
+                    API.errorNoty.close();
                 }
-                $app.errorNoty = new Noty({
+                API.errorNoty = new Noty({
                     type: 'info',
                     text
                 });
-                $app.errorNoty.show();
+                API.errorNoty.show();
                 console.log(text);
             });
     }
@@ -1685,7 +1687,7 @@ export const useUserStore = defineStore('User', () => {
                         console.log('API.getCurrentUser diff', props);
                     }
                 }
-                $app.nextCurrentUserRefresh = 420; // 7mins
+                updateLoopStore.nextCurrentUserRefresh = 420; // 7mins
                 API.$emit('USER:CURRENT', args);
                 initWebsocket();
             }

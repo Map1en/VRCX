@@ -15,6 +15,7 @@ import { useLaunchStore } from './launch';
 import { useLocationStore } from './location';
 import { useNotificationStore } from './notification';
 import { useAdvancedSettingsStore } from './settings/advanced';
+import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 import { useVrStore } from './vr';
 import { useWorldStore } from './world';
@@ -30,6 +31,8 @@ export const useGameStore = defineStore('Game', () => {
     const gameLogStore = useGameLogStore();
     const vrStore = useVrStore();
     const userStore = useUserStore();
+    const updateLoopStore = useUpdateLoopStore();
+
     const state = reactive({
         lastCrashedTime: null,
         VRChatUsedCacheSize: '',
@@ -202,7 +205,7 @@ export const useGameStore = defineStore('Game', () => {
                 instanceStore.removeAllQueuedInstances();
                 autoVRChatCacheManagement();
                 checkIfGameCrashed();
-                $app.ipcTimeout = 0;
+                updateLoopStore.ipcTimeout = 0;
                 avatarStore.addAvatarWearTime(
                     userStore.currentUser.currentAvatar
                 );
@@ -212,7 +215,7 @@ export const useGameStore = defineStore('Game', () => {
             gameLogStore.clearNowPlaying();
             vrStore.updateVRLastLocation();
             workerTimers.setTimeout(() => checkVRChatDebugLogging(), 60000);
-            $app.nextDiscordUpdate = 0;
+            updateLoopStore.nextDiscordUpdate = 0;
             console.log(new Date(), 'isGameRunning', isGameRunning);
         }
 

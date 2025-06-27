@@ -468,7 +468,7 @@ export const usePhotonStore = defineStore('Photon', () => {
                         parsePhotonAvatar(user.avatarDict);
                         parsePhotonAvatar(user.favatarDict);
                         let hasInstantiated = false;
-                        const lobbyJointime = $app.photonLobbyJointime.get(id);
+                        const lobbyJointime = state.photonLobbyJointime.get(id);
                         if (typeof lobbyJointime !== 'undefined') {
                             hasInstantiated = lobbyJointime.hasInstantiated;
                         }

@@ -751,7 +751,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                             printId = pathArray[4];
                         }
                         if (printId && printId.length === 41) {
-                            $app.queueSavePrintToFile(printId);
+                            galleryStore.queueSavePrintToFile(printId);
                         }
                     } catch (err) {
                         console.error(err);
@@ -805,11 +805,11 @@ export const useGameLogStore = defineStore('GameLog', () => {
                     break;
                 }
                 const photonId = parseInt(gameLog.photonId, 10);
-                var ref = $app.photonLobby.get(photonId);
+                var ref = photonStore.photonLobby.get(photonId);
                 if (typeof ref === 'undefined') {
                     for (var ctx of userStore.cachedUsers.values()) {
                         if (ctx.displayName === gameLog.displayName) {
-                            $app.photonLobby.set(photonId, ctx);
+                            photonStore.photonLobby.set(photonId, ctx);
                             photonStore.photonLobbyCurrent.set(photonId, ctx);
                             break;
                         }
@@ -817,7 +817,7 @@ export const useGameLogStore = defineStore('GameLog', () => {
                     var ctx = {
                         displayName: gameLog.displayName
                     };
-                    $app.photonLobby.set(photonId, ctx);
+                    photonStore.photonLobby.set(photonId, ctx);
                     photonStore.photonLobbyCurrent.set(photonId, ctx);
                     instanceStore.getCurrentInstanceUserList();
                 }

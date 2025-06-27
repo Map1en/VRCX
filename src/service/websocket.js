@@ -1,7 +1,6 @@
 import Noty from 'noty';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
-import { $app } from '../app.js';
 import { escapeTag, parseLocation } from '../shared/utils';
 import {
     useAdvancedSettingsStore,
@@ -75,10 +74,10 @@ function connectWebSocket(token) {
         }, 5000);
     };
     socket.onerror = () => {
-        if ($app.errorNoty) {
-            $app.errorNoty.close();
+        if (API.errorNoty) {
+            API.errorNoty.close();
         }
-        $app.errorNoty = new Noty({
+        API.errorNoty = new Noty({
             type: 'error',
             text: 'WebSocket Error'
         }).show();
@@ -154,10 +153,10 @@ function handlePipeline(args) {
     const { type, content, err } = args.json;
     if (typeof err !== 'undefined') {
         console.error('PIPELINE: error', args);
-        if ($app.errorNoty) {
-            $app.errorNoty.close();
+        if (API.errorNoty) {
+            API.errorNoty.close();
         }
-        $app.errorNoty = new Noty({
+        API.errorNoty = new Noty({
             type: 'error',
             text: escapeTag(`WebSocket Error: ${err}`)
         }).show();

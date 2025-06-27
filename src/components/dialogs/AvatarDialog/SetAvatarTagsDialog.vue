@@ -271,15 +271,6 @@
             }
         }
     }
-
-    // useless
-    // $app.data.avatarContentTags = [
-    //     'content_horror',
-    //     'content_gore',
-    //     'content_violence',
-    //     'content_adult',
-    //     'content_sex'
-    // ];
 </script>
 
 <style scoped></style>
