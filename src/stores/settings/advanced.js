@@ -41,7 +41,8 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         autoDeleteOldPrints: false,
         notificationOpacity: 100,
         folderSelectorDialogVisible: false,
-        isVRChatConfigDialogVisible: false
+        isVRChatConfigDialogVisible: false,
+        saveInstanceEmoji: false
     });
 
     async function initAdvancedSettings() {
@@ -198,7 +199,10 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         set: (value) => (state.isVRChatConfigDialogVisible = value)
     });
 
-    const saveInstanceEmoji = computed(() => state.saveInstanceEmoji);
+    const saveInstanceEmoji = computed({
+        get: () => state.saveInstanceEmoji,
+        set: (value) => (state.saveInstanceEmoji = value)
+    });
 
     /**
      * @param {boolean} value
@@ -358,9 +362,12 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         await configRepository.setString('VRCX_userGeneratedContentPath', path);
     }
 
-    async function setAutoDeleteOldPrints(value) {
-        state.autoDeleteOldPrints = value;
-        await configRepository.setBool('VRCX_autoDeleteOldPrints', value);
+    async function setAutoDeleteOldPrints() {
+        state.autoDeleteOldPrints = !state.autoDeleteOldPrints;
+        await configRepository.setBool(
+            'VRCX_autoDeleteOldPrints',
+            state.autoDeleteOldPrints
+        );
     }
 
     async function setNotificationOpacity(value) {

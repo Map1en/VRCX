@@ -180,7 +180,7 @@
     const userStore = useUserStore();
     const { lookupUser } = userStore;
 
-    const { fullscreenImageDialog } = useGalleryStore();
+    const { fullscreenImageDialog } = storeToRefs(useGalleryStore());
 
     const props = defineProps({
         screenshotMetadataDialog: {

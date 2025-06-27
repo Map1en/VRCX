@@ -1266,12 +1266,6 @@
                 </div>
 
                 <div class="options-container">
-                    <el-button size="small" icon="el-icon-picture" @click="showScreenshotMetadataDialog()">{{
-                        t('view.settings.advanced.advanced.screenshot_metadata')
-                    }}</el-button>
-                </div>
-
-                <div class="options-container">
                     <span class="header">{{ t('view.settings.pictures.pictures.open_folder') }}</span>
                     <div class="options-container-item" style="margin-top: 15px">
                         <el-button-group>
