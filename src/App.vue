@@ -50,15 +50,6 @@
             Vue.prototype.store = store;
             Vue.prototype.utils = utils;
         },
-        methods: {
-            /**
-             * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
-             * @param {string} filePath - The full path to the file being dragged into the window
-             */
-            dragEnterCef(filePath) {
-                this.store.vrcx.currentlyDroppingFile = filePath;
-            }
-        },
         components: {
             LoginPage,
             NavMenu,
@@ -92,6 +83,15 @@
             PrimaryPasswordDialog,
             FullscreenImageDialog,
             GalleryDialog
+        },
+        methods: {
+            /**
+             * This function is called by .NET(CefCustomDragHandler#CefCustomDragHandler) when a file is dragged over a drop zone in the app window.
+             * @param {string} filePath - The full path to the file being dragged into the window
+             */
+            dragEnterCef(filePath) {
+                this.store.vrcx.currentlyDroppingFile = filePath;
+            }
         },
         created() {
             if (LINUX) {
