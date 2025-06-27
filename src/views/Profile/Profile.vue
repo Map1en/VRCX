@@ -101,7 +101,7 @@
                         icon="el-icon-refresh"
                         circle
                         style="margin-left: 5px"
-                        @click="API.getConfig()"></el-button>
+                        @click="getConfig"></el-button>
                 </el-tooltip>
             </div>
             <div class="x-friend-list" style="margin-top: 10px">
@@ -499,7 +499,7 @@
     import { storeToRefs } from 'pinia';
     import { ref, getCurrentInstance } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
-    import { miscRequest, userRequest } from '../../api';
+    import { loginRequest, miscRequest, userRequest } from '../../api';
     import { parseAvatarUrl, buildTreeData, openExternalLink, userImage, parseUserUrl } from '../../shared/utils';
     import { useAuthStore } from '../../stores';
     import DiscordNamesDialog from './dialogs/DiscordNamesDialog.vue';
@@ -659,8 +659,11 @@
             }
         });
     }
+    async function getConfig() {
+        await loginRequest.getConfig();
+    }
     async function refreshConfigTreeData() {
-        await API.getConfig();
+        await getConfig();
         configTreeData.value = buildTreeData(API.cachedConfig);
     }
     async function refreshCurrentUserTreeData() {

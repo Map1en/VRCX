@@ -1,5 +1,4 @@
 import { $app } from '../app.js';
-import { request } from './request';
 
 const eventHandlers = new Map();
 const API = {};
@@ -48,20 +47,12 @@ API.$off = function (name, handler) {
     }
 };
 
-API.getConfig = function () {
-    return request('config', {
-        method: 'GET'
-    }).then((json) => {
-        const args = {
-            json
-        };
-        this.$emit('CONFIG', args);
-        return args;
-    });
-};
-
 API.$on('CONFIG', function (args) {
-    args.ref = this.applyConfig(args.json);
+    const ref = {
+        ...args.json
+    };
+    args.ref = ref;
+    this.cachedConfig = ref;
 });
 
 API.$on('CONFIG', function (args) {
@@ -70,13 +61,5 @@ API.$on('CONFIG', function (args) {
     }
     AppApi.PopulateImageHosts(JSON.stringify(args.ref.whiteListedAssetUrls));
 });
-
-API.applyConfig = function (json) {
-    const ref = {
-        ...json
-    };
-    this.cachedConfig = ref;
-    return ref;
-};
 
 export { API };

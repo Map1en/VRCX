@@ -2,7 +2,8 @@ import Noty from 'noty';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 import { loginRequest } from '../api';
-import { $app, t } from '../app';
+import { $app } from '../app';
+import { t } from '../plugin';
 import configRepository from '../service/config';
 import { API } from '../service/eventBus';
 import { request } from '../service/request';
@@ -172,7 +173,8 @@ export const useAuthStore = defineStore('Auth', () => {
             }
             // login at startup
             state.loginForm.loading = true;
-            API.getConfig()
+            loginRequest
+                .getConfig()
                 .catch((err) => {
                     state.loginForm.loading = false;
                     throw err;
@@ -439,12 +441,13 @@ export const useAuthStore = defineStore('Auth', () => {
             if (advancedSettingsStore.enablePrimaryPassword) {
                 checkPrimaryPassword(loginParmas)
                     .then((pwd) => {
-                        return API.getConfig()
+                        return loginRequest
+                            .getConfig()
                             .catch((err) => {
                                 reject(err);
                             })
                             .then(() => {
-                                API.login({
+                                authLogin({
                                     username: loginParmas.username,
                                     password: pwd,
                                     cipher: loginParmas.password,
@@ -468,12 +471,13 @@ export const useAuthStore = defineStore('Auth', () => {
                         reject(_);
                     });
             } else {
-                API.getConfig()
+                loginRequest
+                    .getConfig()
                     .catch((err) => {
                         reject(err);
                     })
                     .then(() => {
-                        API.login({
+                        authLogin({
                             username: loginParmas.username,
                             password: loginParmas.password,
                             endpoint: loginParmas.endpoint,
@@ -523,7 +527,8 @@ export const useAuthStore = defineStore('Auth', () => {
                 API.endpointDomain = API.endpointDomainVrchat;
                 API.websocketDomain = API.websocketDomainVrchat;
             }
-            API.getConfig()
+            loginRequest
+                .getConfig()
                 .catch((err) => {
                     state.loginForm.loading = false;
                     throw err;
@@ -560,7 +565,7 @@ export const useAuthStore = defineStore('Auth', () => {
                                                 value
                                             )
                                             .then((pwd) => {
-                                                API.login({
+                                                authLogin({
                                                     username:
                                                         state.loginForm
                                                             .username,
@@ -586,7 +591,7 @@ export const useAuthStore = defineStore('Auth', () => {
                             });
                         return args;
                     }
-                    API.login({
+                    authLogin({
                         username: state.loginForm.username,
                         password: state.loginForm.password,
                         endpoint: state.loginForm.endpoint,
@@ -721,7 +726,7 @@ export const useAuthStore = defineStore('Auth', () => {
      * @param {{ username: string, password: string }} params credential to login
      * @returns {Promise<{origin: boolean, json: any, params}>}
      */
-    API.login = function (params) {
+    function authLogin(params) {
         let { username, password, saveCredentials, cipher } = params;
         username = encodeURIComponent(username);
         password = encodeURIComponent(password);
@@ -758,7 +763,7 @@ export const useAuthStore = defineStore('Auth', () => {
             }
             return args;
         });
-    };
+    }
 
     API.$on('AUTOLOGIN', function () {
         if (this.attemptingAutoLogin) {

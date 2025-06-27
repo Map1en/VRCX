@@ -1,3 +1,4 @@
+import { API } from '../service/eventBus';
 import { request } from '../service/request';
 
 const loginReq = {
@@ -48,6 +49,18 @@ const loginReq = {
                 json,
                 params
             };
+            return args;
+        });
+    },
+
+    getConfig() {
+        return request('config', {
+            method: 'GET'
+        }).then((json) => {
+            const args = {
+                json
+            };
+            API.$emit('CONFIG', args);
             return args;
         });
     }

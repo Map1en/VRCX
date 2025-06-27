@@ -587,7 +587,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         }
     });
 
-    API.expireFavorites = function () {
+    function expireFavorites() {
         friendStore.localFavoriteFriends.clear();
         state.cachedFavorites.clear();
         state.cachedFavoritesByObjectId.clear();
@@ -598,7 +598,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         state.favoriteWorldsSorted = [];
         state.favoriteAvatars_ = [];
         state.favoriteAvatarsSorted = [];
-    };
+    }
 
     API.$on('LOGIN', function () {
         state.favoriteObjects.clear();
@@ -1110,7 +1110,7 @@ export const useFavoriteStore = defineStore('Favorite', () => {
         } catch (err) {
             console.error(err);
         }
-        API.expireFavorites();
+        expireFavorites();
         state.cachedFavoriteGroupsByTypeName.clear();
         bulk({
             fn: favoriteRequest.getFavorites,

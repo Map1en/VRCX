@@ -3,7 +3,6 @@ import { computed, reactive } from 'vue';
 import { userRequest, worldRequest } from '../../api';
 import { $app } from '../../app';
 import configRepository from '../../service/config';
-import { API } from '../../service/eventBus';
 import {
     getGroupName,
     getLaunchURL,
@@ -98,7 +97,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
         initDiscordPresenceSettings();
 
         // use in csharp
-        API.actuallyGetCurrentLocation = async () => {
+        async function actuallyGetCurrentLocation() {
             let gameLogLocation = locationStore.lastLocation.location;
             if (gameLogLocation.startsWith('local')) {
                 console.warn('PWI: local test mode', 'test_world');
@@ -157,7 +156,7 @@ export const useDiscordPresenceSettingsStore = defineStore(
                 userLocation
             );
             return 'test_world';
-        };
+        }
 
         function updateDiscord() {
             let platform;
