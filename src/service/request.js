@@ -278,6 +278,8 @@ export function $throw(code, error, endpoint) {
 /**
  * Processes data in bulk by making paginated requests until all data is fetched or limits are reached.
  *
+ * _`API.bulk`の代わり_
+ *
  * @async
  * @function processBulk
  * @param {object} options - Configuration options for bulk processing
