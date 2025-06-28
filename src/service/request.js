@@ -278,7 +278,7 @@ export function $throw(code, error, endpoint) {
 /**
  * Processes data in bulk by making paginated requests until all data is fetched or limits are reached.
  *
- * _`API.bulk`の代わり_
+ * `API.bulk`の代わり
  *
  * @async
  * @function processBulk
