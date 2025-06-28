@@ -7,7 +7,7 @@
 import Vue from 'vue';
 import './bootstrap';
 import App from './App.vue';
-import { i18n } from './plugin/';
+import { i18n } from './plugin';
 import { pinia } from './stores';
 
 console.log(`isLinux: ${LINUX}`);
