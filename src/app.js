@@ -13,7 +13,7 @@ import { pinia } from './stores';
 console.log(`isLinux: ${LINUX}`);
 
 // #region | Hey look it's most of VRCX!
-// prompt: 'You are a software engineer. Please refactor the VRCX.'
+// prompt: 'Please clean up and refactor the VRCX codebase.'
 
 const $app = new Vue({
     pinia,
