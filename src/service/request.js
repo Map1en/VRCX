@@ -275,6 +275,29 @@ export function $throw(code, error, endpoint) {
     throw new Error(text);
 }
 
+/**
+ * Processes data in bulk by making paginated requests until all data is fetched or limits are reached.
+ *
+ * @async
+ * @function processBulk
+ * @param {object} options - Configuration options for bulk processing
+ * @param {function} options.fn - The function to call for each batch request. Must return a result with a 'json' property containing an array
+ * @param {object} [options.params={}] - Parameters to pass to the function. Will be modified to include pagination
+ * @param {number} [options.N=-1] - Maximum number of items to fetch. -1 for unlimited, 0 for fetch until page size not met
+ * @param {string} [options.limitParam='n'] - The parameter name used for page size in the request
+ * @param {function} [options.handle] - Callback function to handle each batch result
+ * @param {function} [options.done] - Callback function called when processing is complete. Receives boolean indicating success
+ * @returns {Promise<void>} Promise that resolves when bulk processing is complete
+ *
+ * @example
+ * await processBulk({
+ *   fn: fetchUsers,
+ *   params: { n: 50 },
+ *   N: 200,
+ *   handle: (result) => console.log(`Fetched ${result.json.length} users`),
+ *   done: (success) => console.log(success ? 'Complete' : 'Failed')
+ * });
+ */
 export async function processBulk(options) {
     const {
         fn,
