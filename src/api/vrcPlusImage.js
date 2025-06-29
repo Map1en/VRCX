@@ -106,7 +106,6 @@ const vrcPlusImageReq = {
                 json,
                 params
             };
-            API.$emit('EMOJI:ADD', args);
             return args;
         });
     }

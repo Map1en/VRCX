@@ -42,7 +42,6 @@ const VRCPlusIconsReq = {
                 json,
                 params
             };
-            API.$emit('VRCPLUSICON:ADD', args);
             return args;
         });
     }

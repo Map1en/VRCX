@@ -1829,6 +1829,7 @@
         useGroupStore,
         useInviteStore,
         useLocationStore,
+        useModerationStore,
         useUserStore,
         useWorldStore
     } from '../../../stores';
@@ -1878,6 +1879,7 @@
     const { isGameRunning } = storeToRefs(useGameStore());
     const { logout } = useAuthStore();
     const { cachedConfig } = storeToRefs(useAuthStore());
+    const { handlePlayerModerationAtSend } = useModerationStore();
 
     watch(
         () => userDialog.value.loading,
@@ -2373,7 +2375,7 @@
             }
         };
         API.$emit('PLAYER-MODERATION', ref);
-        API.$emit('PLAYER-MODERATION:@SEND', ref);
+        handlePlayerModerationAtSend(ref);
     }
 
     async function performUserDialogCommand(command, userId) {

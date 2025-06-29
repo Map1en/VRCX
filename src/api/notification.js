@@ -31,15 +31,6 @@ const notificationReq = {
                 json,
                 params
             };
-            API.$on('NOTIFICATION:LIST');
-            for (const json of args.json) {
-                API.$emit('NOTIFICATION', {
-                    json,
-                    params: {
-                        notificationId: json.id
-                    }
-                });
-            }
 
             return args;
         });
@@ -71,7 +62,6 @@ const notificationReq = {
                 json,
                 params
             };
-            API.$emit('NOTIFICATION:V2:LIST', args);
             return args;
         });
     },
@@ -246,22 +236,9 @@ const notificationReq = {
         return request(`notifications/${params.notificationId}/respond`, {
             method: 'POST',
             params
-        })
-            .then((json) => {
-                const args = {
-                    json,
-                    params
-                };
-                API.$emit('NOTIFICATION:RESPONSE', args);
-                return args;
-            })
-            .catch((err) => {
-                API.$emit('NOTIFICATION:HIDE', { params });
-                notificationReq.hideNotificationV2(params.notificationId);
-                throw err;
-            });
+        });
     },
-    // use in sendNotificationResponse
+
     hideNotificationV2(notificationId) {
         return request(`notifications/${notificationId}`, {
             method: 'DELETE'
@@ -275,8 +252,6 @@ const notificationReq = {
             return args;
         });
     }
-
-    // ------------------ look like no place use these requests ------------------
 
     // sendInviteGalleryPhoto(params, receiverUserId) {
     //     return request(`invite/${receiverUserId}/photo`, {

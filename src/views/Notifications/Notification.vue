@@ -418,7 +418,14 @@
     import { getCurrentInstance, ref } from 'vue';
     import { useI18n } from 'vue-i18n-bridge';
     import { friendRequest, notificationRequest, worldRequest } from '../../api';
-    import { parseLocation, convertFileUrlToImageUrl, removeFromArray, checkCanInvite } from '../../shared/utils';
+    import { API } from '../../service/eventBus';
+    import {
+        parseLocation,
+        convertFileUrlToImageUrl,
+        removeFromArray,
+        checkCanInvite,
+        escapeTag
+    } from '../../shared/utils';
     import configRepository from '../../service/config';
     import database from '../../service/database';
     import {
@@ -435,6 +442,7 @@
     } from '../../stores';
     import SendInviteRequestResponseDialog from './dialogs/SendInviteRequestResponseDialog.vue';
     import SendInviteResponseDialog from './dialogs/SendInviteResponseDialog.vue';
+    import Noty from 'noty';
 
     const { hideTooltips } = storeToRefs(useAppearanceSettingsStore());
     const { showUserDialog } = useUserStore();
@@ -566,7 +574,7 @@
 
     function sendNotificationResponse(notificationId, responses, responseType) {
         if (!Array.isArray(responses) || responses.length === 0) {
-            return null;
+            return;
         }
         let responseData = '';
         for (let i = 0; i < responses.length; i++) {
@@ -575,11 +583,30 @@
                 break;
             }
         }
-        return notificationRequest.sendNotificationResponse({
+        const params = {
             notificationId,
             responseType,
             responseData
-        });
+        };
+        notificationRequest
+            .sendNotificationResponse(params)
+            .then((json) => {
+                const args = {
+                    json,
+                    params
+                };
+                API.$emit('NOTIFICATION:HIDE', args);
+                new Noty({
+                    type: 'success',
+                    text: escapeTag(args.json)
+                }).show();
+                console.log('NOTIFICATION:RESPONSE', args);
+            })
+            .catch((err) => {
+                API.$emit('NOTIFICATION:HIDE', { params });
+                notificationRequest.hideNotificationV2(params.notificationId);
+                throw err;
+            });
     }
 
     function hideNotification(row) {

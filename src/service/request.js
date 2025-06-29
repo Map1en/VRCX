@@ -146,7 +146,7 @@ export function request(endpoint, options) {
                 status === 401 &&
                 data.error.message === '"Missing Credentials"'
             ) {
-                API.$emit('AUTOLOGIN');
+                authStore.handleAutoLogin();
                 throw new Error(
                     `401 ${t('api.error.message.missing_credentials')}`
                 );

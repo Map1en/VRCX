@@ -263,7 +263,6 @@ const groupReq = {
                 json,
                 params
             };
-            API.$emit('GROUP:POST', args);
             return args;
         });
     },
@@ -276,7 +275,6 @@ const groupReq = {
                 json,
                 params
             };
-            API.$emit('GROUP:POST', args);
             return args;
         });
     },

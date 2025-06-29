@@ -77,8 +77,12 @@ export const useModerationStore = defineStore('Moderation', () => {
         }
     });
 
-    API.$on('PLAYER-MODERATION:@SEND', function (args) {
-        let { ref } = args;
+    /**
+     * aka: `API.$on('PLAYER-MODERATION:@SEND')`
+     * @param args
+     */
+    function handlePlayerModerationAtSend(args) {
+        const { ref } = args;
         const D = userStore.userDialog;
         if (
             D.visible === false ||
@@ -102,7 +106,7 @@ export const useModerationStore = defineStore('Moderation', () => {
             message: t('message.user.moderated'),
             type: 'success'
         });
-    });
+    }
 
     API.$on('PLAYER-MODERATION:@DELETE', function (args) {
         const { ref } = args;
@@ -267,6 +271,7 @@ export const useModerationStore = defineStore('Moderation', () => {
         isPlayerModerationsLoading,
         playerModerationTable,
 
-        refreshPlayerModerations
+        refreshPlayerModerations,
+        handlePlayerModerationAtSend
     };
 });

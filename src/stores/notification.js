@@ -8,7 +8,6 @@ import { API } from '../service/eventBus';
 import {
     checkCanInvite,
     displayLocation,
-    escapeTag,
     extractFileId,
     extractFileVersion,
     getUserMemo,
@@ -194,28 +193,6 @@ export const useNotificationStore = defineStore('Notification', () => {
         });
     });
 
-    API.$on('NOTIFICATION:V2:LIST', function (args) {
-        for (const json of args.json) {
-            API.$emit('NOTIFICATION:V2', { json });
-        }
-    });
-
-    API.$on('NOTIFICATION:V2', function (args) {
-        const json = args.json;
-        json.created_at = json.createdAt;
-        if (json.title && json.message) {
-            json.message = `${json.title}, ${json.message}`;
-        } else if (json.title) {
-            json.message = json.title;
-        }
-        API.$emit('NOTIFICATION', {
-            json,
-            params: {
-                notificationId: json.id
-            }
-        });
-    });
-
     API.$on('NOTIFICATION:V2:UPDATE', function (args) {
         const notificationId = args.params.notificationId;
         const json = args.json;
@@ -236,15 +213,6 @@ export const useNotificationStore = defineStore('Notification', () => {
                 }
             });
         }
-    });
-
-    API.$on('NOTIFICATION:RESPONSE', function (args) {
-        API.$emit('NOTIFICATION:HIDE', args);
-        new Noty({
-            type: 'success',
-            text: escapeTag(args.json)
-        }).show();
-        console.log('NOTIFICATION:RESPONSE', args);
     });
 
     API.$on('PIPELINE:NOTIFICATION', function (args) {
@@ -522,6 +490,14 @@ export const useNotificationStore = defineStore('Notification', () => {
             count = 50; // 5000 max
             for (let i = 0; i < count; i++) {
                 const args = await notificationRequest.getNotifications(params);
+                for (const json of args.json) {
+                    API.$emit('NOTIFICATION', {
+                        json,
+                        params: {
+                            notificationId: json.id
+                        }
+                    });
+                }
                 state.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {
@@ -536,6 +512,22 @@ export const useNotificationStore = defineStore('Notification', () => {
             for (let i = 0; i < count; i++) {
                 const args =
                     await notificationRequest.getNotificationsV2(params);
+
+                for (const json of args.json) {
+                    json.created_at = json.createdAt;
+                    if (json.title && json.message) {
+                        json.message = `${json.title}, ${json.message}`;
+                    } else if (json.title) {
+                        json.message = json.title;
+                    }
+                    API.$emit('NOTIFICATION', {
+                        json,
+                        params: {
+                            notificationId: json.id
+                        }
+                    });
+                }
+
                 state.unseenNotifications = [];
                 params.offset += 100;
                 if (args.json.length < 100) {

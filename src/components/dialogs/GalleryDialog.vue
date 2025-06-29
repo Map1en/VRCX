@@ -681,6 +681,9 @@
         r.onload = function () {
             const base64Body = btoa(r.result);
             vrcPlusIconRequest.uploadVRCPlusIcon(base64Body).then((args) => {
+                if (Object.keys(VRCPlusIconsTable.value).length !== 0) {
+                    VRCPlusIconsTable.value.unshift(args.json);
+                }
                 proxy.$message({
                     message: t('message.icon.uploaded'),
                     type: 'success'
@@ -814,6 +817,9 @@
             }
             const base64Body = btoa(r.result);
             vrcPlusImageRequest.uploadEmoji(base64Body, params).then((args) => {
+                if (Object.keys(emojiTable).length !== 0) {
+                    emojiTable.unshift(args.json);
+                }
                 proxy.$message({
                     message: t('message.emoji.uploaded'),
                     type: 'success'

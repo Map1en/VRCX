@@ -320,14 +320,6 @@ export const useFriendStore = defineStore('Friend', () => {
         D.outgoingRequest = json.outgoingRequest;
     });
 
-    API.$on('FRIEND:REQUEST:CANCEL', function (args) {
-        const D = userStore.userDialog;
-        if (D.visible === false || D.id !== args.params.userId) {
-            return;
-        }
-        D.outgoingRequest = false;
-    });
-
     API.$on('FRIEND:DELETE', function (args) {
         const D = userStore.userDialog;
         if (D.visible === false || D.id !== args.params.userId) {

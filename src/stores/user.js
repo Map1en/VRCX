@@ -555,10 +555,7 @@ export const useUserStore = defineStore('User', () => {
                     props.location.push(ts - ref.$location_at);
                     ref.$location_at = ts;
                 }
-                API.$emit('USER:UPDATE', {
-                    ref,
-                    props
-                });
+                handleUserUpdate({ ref, props });
                 if (API.debugUserDiff) {
                     delete props.last_login;
                     delete props.last_activity;
@@ -1150,7 +1147,12 @@ export const useUserStore = defineStore('User', () => {
         }
     }
 
-    API.$on('USER:UPDATE', async function (args) {
+    /**
+     * aka: `API.$on('USER:UPDATE')`
+     * @param args
+     * @returns {Promise<void>}
+     */
+    async function handleUserUpdate(args) {
         let feed;
         let newLocation;
         let previousLocation;
@@ -1430,7 +1432,7 @@ export const useUserStore = defineStore('User', () => {
             feedStore.addFeed(feed);
             database.addBioToDatabase(feed);
         }
-    });
+    }
 
     function updateAutoStateChange() {
         if (

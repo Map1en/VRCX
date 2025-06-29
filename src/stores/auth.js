@@ -780,8 +780,11 @@ export const useAuthStore = defineStore('Auth', () => {
         });
     }
 
-    API.$on('AUTOLOGIN', function () {
-        if (this.attemptingAutoLogin) {
+    /**
+     * aka: `API.$on('AUTOLOGIN')`
+     */
+    function handleAutoLogin() {
+        if (state.attemptingAutoLogin) {
             return;
         }
         state.attemptingAutoLogin = true;
@@ -841,7 +844,7 @@ export const useAuthStore = defineStore('Auth', () => {
                     console.error(`You're offline.`);
                 }
             });
-    });
+    }
 
     API.$on('USER:CURRENT', function () {
         state.attemptingAutoLogin = false;
@@ -873,6 +876,7 @@ export const useAuthStore = defineStore('Auth', () => {
         logout,
         relogin,
         deleteSavedLogin,
-        login
+        login,
+        handleAutoLogin
     };
 });

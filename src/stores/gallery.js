@@ -262,12 +262,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
         }
     });
 
-    API.$on('VRCPLUSICON:ADD', function (args) {
-        if (Object.keys(state.VRCPlusIconsTable).length !== 0) {
-            state.VRCPlusIconsTable.unshift(args.json);
-        }
-    });
-
     function inviteImageUpload(e) {
         const files = e.target.files || e.dataTransfer.files;
         if (!files.length) {
@@ -472,12 +466,6 @@ export const useGalleryStore = defineStore('Gallery', () => {
         if (args.params.tag === 'emoji') {
             state.emojiTable = args.json.reverse();
             state.galleryDialogEmojisLoading = false;
-        }
-    });
-
-    API.$on('EMOJI:ADD', function (args) {
-        if (Object.keys(state.emojiTable).length !== 0) {
-            state.emojiTable.unshift(args.json);
         }
     });
 

@@ -806,7 +806,11 @@ export const useGroupStore = defineStore('Group', () => {
         }
     });
 
-    API.$on('GROUP:POST', function (args) {
+    /**
+     * aka: `API.$on('GROUP:POST')`
+     * @param {object} args
+     */
+    function handleGroupPost(args) {
         const D = state.groupDialog;
         if (D.id !== args.params.groupId) {
             return;
@@ -833,7 +837,7 @@ export const useGroupStore = defineStore('Group', () => {
             D.posts.unshift(newPost);
         }
         updateGroupPostSearch();
-    });
+    }
 
     API.$on('GROUP:MEMBERS', function (args) {
         for (const json of args.json) {
@@ -1070,6 +1074,7 @@ export const useGroupStore = defineStore('Group', () => {
         setGroupVisibility,
         getCachedGroup,
         applyGroupMember,
-        loadCurrentUserGroups
+        loadCurrentUserGroups,
+        handleGroupPost
     };
 });

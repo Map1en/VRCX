@@ -112,7 +112,7 @@
 
 <script>
     import { groupRequest, vrcPlusIconRequest } from '../../../api';
-    import { useGalleryStore } from '../../../stores';
+    import { useGalleryStore, useGroupStore } from '../../../stores';
     import GallerySelectDialog from './GallerySelectDialog.vue';
 
     export default {
@@ -122,7 +122,8 @@
         },
         setup() {
             const { showFullscreenImageDialog } = useGalleryStore();
-            return { showFullscreenImageDialog };
+            const { handleGroupPost } = useGroupStore();
+            return { showFullscreenImageDialog, handleGroupPost };
         },
         props: {
             dialogData: {
@@ -185,6 +186,7 @@
                     params.imageId = this.gallerySelectDialog.selectedFileId;
                 }
                 groupRequest.editGroupPost(params).then((args) => {
+                    this.handleGroupPost();
                     this.$message({
                         message: 'Group post edited',
                         type: 'success'
@@ -208,6 +210,7 @@
                     params.imageId = this.gallerySelectDialog.selectedFileId;
                 }
                 groupRequest.createGroupPost(params).then((args) => {
+                    this.handleGroupPost();
                     this.$message({
                         message: 'Group post created',
                         type: 'success'
