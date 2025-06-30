@@ -11,6 +11,7 @@ import {
     useUserStore
 } from '../stores';
 import { API } from './eventBus.js';
+import webApiService from './webapi.js';
 
 API.endpointDomainVrchat = 'https://api.vrchat.cloud/api/1';
 API.websocketDomainVrchat = 'wss://pipeline.vrchat.cloud';
@@ -44,8 +45,10 @@ export function request(endpoint, options) {
             const lastRun = failedGetRequests.get(endpoint);
             if (lastRun >= Date.now() - 900000) {
                 // 15mins
-                throw new Error(
-                    `${t('api.error.message.403_404_bailing_request')}, ${endpoint}`
+                $throw(
+                    0,
+                    t('api.error.message.403_404_bailing_request'),
+                    endpoint
                 );
             }
             failedGetRequests.delete(endpoint);
@@ -89,14 +92,14 @@ export function request(endpoint, options) {
         .then((response) => {
             if (!response.data) {
                 if (API.debugWebRequests) {
-                    console.log(init, response);
+                    console.log(init, response, 'no data');
                 }
                 return response;
             }
             try {
                 response.data = JSON.parse(response.data);
                 if (API.debugWebRequests) {
-                    console.log(init, response.data);
+                    console.log(init, response.data, 'parsed data');
                 }
                 return response;
             } catch (e) {
@@ -114,16 +117,17 @@ export function request(endpoint, options) {
                 init.url.endsWith('/instances/groups')
             ) {
                 updateLoopStore.nextGroupInstanceRefresh = 120; // 1min
-                throw new Error(`${response.status}: rate limited ${endpoint}`);
+                $throw(429, t('api.status_code.429'), endpoint);
             }
             if (response.status === 504 || response.status === 502) {
                 // ignore expected API errors
-                throw new Error(
-                    `${response.status}: ${response.data} ${endpoint}`
-                );
+                $throw(response.status, response.data || '', endpoint);
             }
-            $throw(response.status, endpoint);
-            return {};
+            $throw(
+                response.status,
+                response.data || response.statusText,
+                endpoint
+            );
         })
         .then(({ data, status }) => {
             if (status === 200) {
@@ -149,8 +153,10 @@ export function request(endpoint, options) {
                 data.error.message === '"Missing Credentials"'
             ) {
                 authStore.handleAutoLogin();
-                throw new Error(
-                    `401 ${t('api.error.message.missing_credentials')}`
+                $throw(
+                    401,
+                    t('api.error.message.missing_credentials'),
+                    endpoint
                 );
             }
             if (
@@ -162,7 +168,7 @@ export function request(endpoint, options) {
                 if (!authStore.twoFactorAuthDialogVisible) {
                     userStore.getCurrentUser();
                 }
-                throw new Error(`401 ${t('api.status_code.401')}`);
+                $throw(401, t('api.status_code.401'), endpoint);
             }
             if (status === 403 && endpoint === 'config') {
                 $app.$alert(
@@ -170,7 +176,7 @@ export function request(endpoint, options) {
                     `403 ${t('api.error.message.login_error')}`
                 );
                 API.$emit('LOGOUT');
-                throw new Error(`403 ${endpoint}`);
+                $throw(403, endpoint);
             }
             if (
                 init.method === 'GET' &&
@@ -182,7 +188,7 @@ export function request(endpoint, options) {
                     type: 'error'
                 });
                 avatarStore.avatarDialog.visible = false;
-                throw new Error(`404: ${data.error.message} ${endpoint}`);
+                $throw(404, data.error?.message || '', endpoint);
             }
             if (status === 404 && endpoint.endsWith('/persist/exists')) {
                 return false;
@@ -200,7 +206,7 @@ export function request(endpoint, options) {
                 endpoint.startsWith('users/') &&
                 endpoint.split('/').length - 1 === 1
             ) {
-                throw new Error(`404: ${data.error.message} ${endpoint}`);
+                $throw(404, data.error?.message || '', endpoint);
             }
             if (
                 status === 404 &&
@@ -210,7 +216,7 @@ export function request(endpoint, options) {
                 notificationStore.expireNotification(init.inviteId);
             }
             if (status === 403 && endpoint.startsWith('invite/myself/to/')) {
-                throw new Error(`403: ${data.error.message} ${endpoint}`);
+                $throw(403, data.error?.message || '', endpoint);
             }
             if (data && data.error === Object(data.error)) {
                 $throw(
@@ -222,7 +228,6 @@ export function request(endpoint, options) {
                 $throw(data.status_code || status, data.error, endpoint);
             }
             $throw(status, data, endpoint);
-            return data;
         });
     if (init.method === 'GET') {
         req.finally(() => {
