@@ -148,27 +148,24 @@ export function request(endpoint, options) {
                 }
                 return data;
             }
-            if (
-                status === 401 &&
-                data.error.message === '"Missing Credentials"'
-            ) {
-                authStore.handleAutoLogin();
-                $throw(
-                    401,
-                    t('api.error.message.missing_credentials'),
-                    endpoint
-                );
-            }
-            if (
-                status === 401 &&
-                data.error.message === '"Unauthorized"' &&
-                endpoint !== 'auth/user'
-            ) {
-                // trigger 2FA dialog
-                if (!authStore.twoFactorAuthDialogVisible) {
-                    userStore.getCurrentUser();
+            if (status === 401) {
+                if (data.error?.message === '"Missing Credentials"') {
+                    authStore.handleAutoLogin();
+                    $throw(
+                        401,
+                        t('api.error.message.missing_credentials'),
+                        endpoint
+                    );
+                } else if (
+                    data.error.message === '"Unauthorized"' &&
+                    endpoint !== 'auth/user'
+                ) {
+                    // trigger 2FA dialog                }
+                    if (!authStore.twoFactorAuthDialogVisible) {
+                        userStore.getCurrentUser();
+                    }
+                    $throw(401, t('api.status_code.401'), endpoint);
                 }
-                $throw(401, t('api.status_code.401'), endpoint);
             }
             if (status === 403 && endpoint === 'config') {
                 $app.$alert(
