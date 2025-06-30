@@ -7,6 +7,7 @@ import {
     useAuthStore,
     useAvatarStore,
     useNotificationStore,
+    useUpdateLoopStore,
     useUserStore
 } from '../stores';
 import { API } from './eventBus.js';
@@ -29,6 +30,7 @@ export function request(endpoint, options) {
     const avatarStore = useAvatarStore();
     const authStore = useAuthStore();
     const notificationStore = useNotificationStore();
+    const updateLoopStore = useUpdateLoopStore();
     let req;
     const init = {
         url: `${API.endpointDomain}/${endpoint}`,
@@ -111,7 +113,7 @@ export function request(endpoint, options) {
                 response.status === 429 &&
                 init.url.endsWith('/instances/groups')
             ) {
-                $app.nextGroupInstanceRefresh = 120; // 1min
+                updateLoopStore.nextGroupInstanceRefresh = 120; // 1min
                 throw new Error(`${response.status}: rate limited ${endpoint}`);
             }
             if (response.status === 504 || response.status === 502) {
@@ -234,7 +236,6 @@ export function request(endpoint, options) {
     return req;
 }
 
-// FIXME : extra를 없애줘
 /**
  * @param {number} code
  * @param {string|object} [error]

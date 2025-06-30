@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { reactive, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import * as workerTimers from 'worker-timers';
 import { groupRequest } from '../api';
 import database from '../service/database';
@@ -50,6 +50,13 @@ export const useUpdateLoopStore = defineStore('UpdateLoop', () => {
             }
         }
     );
+
+    const nextGroupInstanceRefresh = computed({
+        get: () => state.nextGroupInstanceRefresh,
+        set: (value) => {
+            state.nextGroupInstanceRefresh = value;
+        }
+    });
 
     async function updateLoop() {
         try {
@@ -140,5 +147,5 @@ export const useUpdateLoopStore = defineStore('UpdateLoop', () => {
         workerTimers.setTimeout(() => updateLoop(), 1000);
     }
 
-    return { state, updateLoop };
+    return { state, nextGroupInstanceRefresh, updateLoop };
 });
