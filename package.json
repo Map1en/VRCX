@@ -6,6 +6,8 @@
     "scripts": {
         "dev": "cross-env PLATFORM=windows vite serve src",
         "dev-linux": "cross-env PLATFORM=linux vite serve src",
+        "dev-mock": "cross-env PLATFORM=linux VITE_MOCK_RUNTIME=1 vite serve src",
+        "dev-mock-large": "cross-env PLATFORM=linux VITE_MOCK_RUNTIME=1 VITE_MOCK_FRIEND_COUNT=10000 VITE_MOCK_GROUP_COUNT=64 VITE_MOCK_WORLD_COUNT=180 VITE_MOCK_INSTANCE_COUNT=320 vite serve src",
         "localization": "node ./src/shared/utils/localizationHelperCLI.js",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",

@@ -70,7 +70,10 @@ function getAssetFilename({ name }) {
 }
 
 export default defineConfig(({ mode }) => {
-    const { SENTRY_AUTH_TOKEN: sentryAuthToken } = loadEnv(
+    const {
+        SENTRY_AUTH_TOKEN: sentryAuthToken,
+        VITE_MOCK_RUNTIME: mockRuntime
+    } = loadEnv(
         mode,
         process.cwd(),
         ''
@@ -140,6 +143,7 @@ export default defineConfig(({ mode }) => {
         define: {
             LINUX: JSON.stringify(process.env.PLATFORM === 'linux'),
             WINDOWS: JSON.stringify(process.env.PLATFORM === 'windows'),
+            MOCK_RUNTIME: JSON.stringify(mockRuntime === '1'),
             VERSION: JSON.stringify(version),
             NIGHTLY: JSON.stringify(nightly)
         },

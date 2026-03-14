@@ -90,6 +90,15 @@ export function applyUser(json) {
     let previousDisplayName = '';
     let hasPropChanged = false;
     let changedProps = {};
+    if (!Array.isArray(json.tags)) {
+        json.tags = [];
+    }
+    if (!Array.isArray(json.badges)) {
+        json.badges = [];
+    }
+    if (!Array.isArray(json.bioLinks)) {
+        json.bioLinks = [];
+    }
     sanitizeUserJson(json, getRobotUrl());
     if (typeof ref === 'undefined') {
         ref = reactive(createDefaultUserRef(json));
@@ -678,9 +687,18 @@ export function handleConfig(args) {
     const ref = {
         ...args.json
     };
+    if (!Array.isArray(ref.whiteListedAssetUrls)) {
+        ref.whiteListedAssetUrls = [
+            'https://assets.vrchat.com',
+            'https://files.vrchat.cloud'
+        ];
+    }
+    if (!ref.sdkUnityVersion) {
+        ref.sdkUnityVersion = '2022.3.22f1';
+    }
     args.ref = ref;
     authStore.setCachedConfig(ref);
-    if (typeof args.ref?.whiteListedAssetUrls !== 'object') {
+    if (!Array.isArray(args.ref.whiteListedAssetUrls)) {
         console.error('Invalid config whiteListedAssetUrls');
     }
     AppApi.PopulateImageHosts(JSON.stringify(args.ref.whiteListedAssetUrls));
@@ -838,6 +856,16 @@ export function applyCurrentUser(json) {
             ...json
         };
         runFirstLoginFlow(ref);
+    }
+
+    if (!Array.isArray(ref.tags)) {
+        ref.tags = [];
+    }
+    if (!Array.isArray(ref.badges)) {
+        ref.badges = [];
+    }
+    if (!Array.isArray(ref.bioLinks)) {
+        ref.bioLinks = [];
     }
 
     ref.$isVRCPlus = ref.tags.includes('system_supporter');

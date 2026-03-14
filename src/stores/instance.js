@@ -594,7 +594,11 @@ export const useInstanceStore = defineStore('Instance', () => {
                     worldId: L.worldId,
                     instanceId: L.instanceId
                 });
-                instanceName = args.ref.displayName;
+                instanceName =
+                    args.ref?.displayName ||
+                    args.json?.displayName ||
+                    args.json?.name ||
+                    '';
             } catch (e) {
                 console.error('getInstanceName failed location', location, e);
             }

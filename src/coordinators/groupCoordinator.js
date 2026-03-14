@@ -930,7 +930,8 @@ export async function handleGroupUserInstances(args) {
     const groupStore = useGroupStore();
     const instanceStore = useInstanceStore();
     groupStore.setGroupInstances([]);
-    for (const json of args.json.instances) {
+    const instances = Array.isArray(args?.json?.instances) ? args.json.instances : [];
+    for (const json of instances) {
         if (args.json.fetchedAt) {
             // tack on fetchedAt
             json.$fetchedAt = args.json.fetchedAt;

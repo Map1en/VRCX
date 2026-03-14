@@ -598,6 +598,7 @@
     } from '../../ui/dropdown-menu';
     import { Badge } from '../../ui/badge';
     import { avatarRequest } from '../../../api';
+    import { AppDebug } from '../../../services/appConfig';
     import { database } from '../../../services/database';
     import { formatJsonVars } from '../../../shared/utils/base/ui';
     import { handleImageUploadInput } from '../../../coordinators/imageUploadCoordinator';

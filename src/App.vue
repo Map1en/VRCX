@@ -7,6 +7,7 @@
             class="flex w-screen h-screen overflow-hidden cursor-default [&>.x-container]:pt-[15px]"
             :class="{ 'pt-7': isMacOS }">
             <RouterView></RouterView>
+            <MockRuntimeControls v-if="isMockRuntime" />
             <Toaster position="top-center" :theme="theme"></Toaster>
 
             <AlertDialogModal></AlertDialogModal>
@@ -34,6 +35,8 @@
     import OtpDialogModal from './components/ui/dialog/OtpDialogModal.vue';
     import PromptDialogModal from './components/ui/dialog/PromptDialogModal.vue';
     import VRCXUpdateDialog from './components/dialogs/VRCXUpdateDialog.vue';
+    import MockRuntimeControls from './mocks/MockRuntimeControls.vue';
+    import { isMockRuntime } from './mocks/mode';
 
     import '@/styles/globals.css';
 

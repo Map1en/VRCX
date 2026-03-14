@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 
 import { useAdvancedSettingsStore, useSearchStore } from '../../../stores';
 import { lookupAvatars } from '../../../coordinators/avatarCoordinator';
+import { isMockRuntime } from '../../../mocks/mode';
 
 /**
  * Avatar search composable for Search view.
@@ -25,7 +26,11 @@ export function useSearchAvatar() {
         const avatars = new Map();
         const query = searchText.value;
 
-        if (query && query.length >= 3 && avatarRemoteDatabase.value) {
+        if (
+            query &&
+            query.length >= 3 &&
+            (avatarRemoteDatabase.value || isMockRuntime)
+        ) {
             const data = await lookupAvatars('search', query);
             if (data && typeof data === 'object') {
                 data.forEach((avatar) => {

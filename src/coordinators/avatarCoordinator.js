@@ -30,6 +30,8 @@ import { useUserStore } from '../stores/user';
 import { useVRCXUpdaterStore } from '../stores/vrcxUpdater';
 
 import webApiService from '../services/webapi';
+import { isMockRuntime } from '../mocks/mode';
+import { getMockAvatars } from '../mocks/api';
 
 /**
  * @param {object} json
@@ -284,6 +286,21 @@ export async function lookupAvatars(type, search) {
     const vrcxUpdaterStore = useVRCXUpdaterStore();
 
     const avatars = new Map();
+    if (isMockRuntime) {
+        const query = String(search || '').toLowerCase();
+        getMockAvatars().forEach((avatar) => {
+            const matches =
+                type === 'authorId'
+                    ? avatar.authorId === search
+                    : `${avatar.name} ${avatar.description} ${avatar.authorName}`
+                          .toLowerCase()
+                          .includes(query);
+            if (matches) {
+                avatars.set(avatar.id, avatar);
+            }
+        });
+        return avatars;
+    }
     if (type === 'search') {
         try {
             const url = `${

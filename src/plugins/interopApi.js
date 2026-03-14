@@ -1,9 +1,19 @@
 // @ts-nocheck
 import InteropApi from '../ipc-electron/interopApi.js';
+import { isMockRuntime } from '../mocks/mode.js';
+import { initMockRuntimeGlobals } from '../mocks/runtime.js';
 import configRepository from '../services/config.js';
 import vrcxJsonStorage from '../services/jsonStorage.js';
 
 export async function initInteropApi(isVrOverlay = false) {
+    if (isMockRuntime && !isVrOverlay) {
+        initMockRuntimeGlobals();
+        await configRepository.init();
+        new vrcxJsonStorage(VRCXStorage);
+        await AppApi.SetUserAgent();
+        return;
+    }
+
     if (isVrOverlay) {
         if (WINDOWS) {
             await CefSharp.BindObjectAsync('AppApiVr');

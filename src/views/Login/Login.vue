@@ -80,6 +80,12 @@
                             <span>{{ t('view.login.field.saveCredentials') }}</span>
                         </label>
 
+                        <p
+                            v-if="isMockRuntime"
+                            class="mt-3 text-xs text-muted-foreground">
+                            Mock login: <code>mock</code> / <code>mock</code>
+                        </p>
+
                         <Field class="mt-4">
                             <Button type="submit" size="lg" style="width: 100%">{{ t('view.login.login') }}</Button>
                         </Field>
@@ -186,6 +192,7 @@
     import { useI18n } from 'vue-i18n';
     import { z } from 'zod';
 
+    import { isMockRuntime } from '../../mocks/mode';
     import { useAppearanceSettingsStore, useAuthStore, useVRCXUpdaterStore } from '../../stores';
     import { getLanguageName, languageCodes } from '../../localization';
     import { openExternalLink } from '../../shared/utils';

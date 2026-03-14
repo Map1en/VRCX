@@ -7,6 +7,7 @@ declare global {
 
     const WINDOWS: boolean;
     const LINUX: boolean;
+    const MOCK_RUNTIME: boolean;
 
     interface Window {
         $pinia: any;

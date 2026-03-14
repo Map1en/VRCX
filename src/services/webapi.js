@@ -1,4 +1,6 @@
 // requires binding of WebApi
+import { handleMockRequest } from '../mocks/api.js';
+import { isMockRuntime } from '../mocks/mode.js';
 
 class WebApiService {
     clearCookies() {
@@ -20,6 +22,9 @@ class WebApiService {
     async execute(options) {
         if (!options) {
             throw new Error('options is required');
+        }
+        if (isMockRuntime) {
+            return handleMockRequest('', options);
         }
         if (LINUX) {
             const requestJson = JSON.stringify(options);

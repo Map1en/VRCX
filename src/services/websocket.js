@@ -1,5 +1,7 @@
 import { reactive } from 'vue';
 import { toast } from 'vue-sonner';
+import { createMockWebSocketLifecycle } from '../mocks/websocket';
+import { isMockRuntime } from '../mocks/mode';
 
 import {
     useFriendStore,
@@ -35,6 +37,7 @@ import * as workerTimers from 'worker-timers';
 
 let webSocket = null;
 let lastWebSocketMessage = '';
+let mockWebSocketLifecycle = null;
 
 /**
  * Reactive WebSocket state for status bar telemetry.
@@ -52,6 +55,23 @@ export const wsState = reactive({
  */
 export function initWebsocket() {
     if (!watchState.isFriendsLoaded || webSocket !== null) {
+        return;
+    }
+    if (isMockRuntime) {
+        wsState.connected = true;
+        mockWebSocketLifecycle = createMockWebSocketLifecycle({
+            onMessage(json) {
+                wsState.messageCount++;
+                wsState.bytesReceived += JSON.stringify(json).length;
+                handlePipeline({
+                    json
+                });
+            }
+        });
+        webSocket = {
+            close() {}
+        };
+        mockWebSocketLifecycle.open();
         return;
     }
     return request('auth', {
@@ -159,6 +179,13 @@ function connectWebSocket(token) {
  * @returns {void}
  */
 export function closeWebSocket() {
+    if (isMockRuntime) {
+        wsState.connected = false;
+        mockWebSocketLifecycle?.close();
+        mockWebSocketLifecycle = null;
+        webSocket = null;
+        return;
+    }
     const socket = webSocket;
     if (socket === null) {
         return;
