@@ -298,7 +298,6 @@ export function showUserDialog(userId) {
     const moderationStore = useModerationStore();
     const favoriteStore = useFavoriteStore();
     const locationStore = useLocationStore();
-    const searchStore = useSearchStore();
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const t = i18n.global.t;
 
@@ -539,7 +538,6 @@ export function showUserDialog(userId) {
         });
     showUserDialogHistory.delete(userId);
     showUserDialogHistory.add(userId);
-    searchStore.setQuickSearchItems(searchStore.quickSearchUserHistory());
 }
 
 /**
