@@ -615,14 +615,19 @@ function createMockScreenshots() {
         const fileName = `VRChat_${resW}x${resH}_${dateStr}_${timeStr}.000`;
         const filePath = `mock://VRChat/${dateStr.substring(0, 7)}/${fileName}.png`;
 
-        const playerCount = 3 + (i % 8);
+        const playerCount = 8 + (i % 23);
         const playerStart = (i * 5) % friends.length;
         const players = [];
         for (let j = 0; j < playerCount; j++) {
             const friend = friends[(playerStart + j) % friends.length];
             players.push({
                 id: friend.id,
-                displayName: friend.displayName
+                displayName: friend.displayName,
+                pos: {
+                    x: ((j * 3.7 + i * 1.1) % 20 - 10).toFixed(1),
+                    y: (((j + i) * 0.5) % 5).toFixed(1),
+                    z: ((j * 2.3 - i * 0.9) % 15).toFixed(1)
+                }
             });
         }
 
