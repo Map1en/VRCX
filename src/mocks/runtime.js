@@ -595,7 +595,76 @@ function createMockSQLite() {
     };
 }
 
+function createMockScreenshots() {
+    const friends = getMockFriends();
+    const worlds = getMockWorlds();
+    const screenshots = [];
+    const count = 24;
+
+    for (let i = 0; i < count; i++) {
+        const world = worlds[i % worlds.length];
+        const day = (i % 14) + 1;
+        const hour = 10 + (i % 12);
+        const minute = (i * 7) % 60;
+        const second = (i * 13) % 60;
+        const dateStr = `2026-03-${String(day).padStart(2, '0')}`;
+        const timeStr = `${String(hour).padStart(2, '0')}-${String(minute).padStart(2, '0')}-${String(second).padStart(2, '0')}`;
+        const resolutions = ['1920x1080', '2560x1440', '3840x2160'];
+        const resolution = resolutions[i % 3];
+        const [resW, resH] = resolution.split('x');
+        const fileName = `VRChat_${resW}x${resH}_${dateStr}_${timeStr}.000`;
+        const filePath = `mock://VRChat/${dateStr.substring(0, 7)}/${fileName}.png`;
+
+        const playerCount = 3 + (i % 8);
+        const playerStart = (i * 5) % friends.length;
+        const players = [];
+        for (let j = 0; j < playerCount; j++) {
+            const friend = friends[(playerStart + j) % friends.length];
+            players.push({
+                id: friend.id,
+                displayName: friend.displayName
+            });
+        }
+
+        const author = friends[i % friends.length];
+        const timestamp = `${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}.000Z`;
+        const fileSizeMB = 2 + (i % 8);
+
+        screenshots.push({
+            filePath,
+            metadata: {
+                application: 'VRCX',
+                version: 1,
+                sourceFile: filePath,
+                author: {
+                    id: author.id,
+                    displayName: author.displayName
+                },
+                world: {
+                    id: world.id,
+                    name: world.name,
+                    instanceId: `${world.id}:${i + 1}`
+                },
+                players,
+                timestamp,
+                note: i % 4 === 0 ? `Mock screenshot note #${i + 1}` : null
+            },
+            extraData: {
+                fileName,
+                filePath,
+                fileResolution: resolution,
+                creationDate: `${dateStr} ${timeStr.replace(/-/g, ':')}`,
+                fileSize: `${fileSizeMB.toFixed(2)} MB`,
+                fileSizeBytes: String(fileSizeMB * 1024 * 1024)
+            }
+        });
+    }
+
+    return screenshots;
+}
+
 function createMockAppApi() {
+    const mockScreenshots = createMockScreenshots();
     const fixedResults = new Map([
         ['GetZoom', 0],
         ['GetClipboard', ''],
@@ -613,10 +682,6 @@ function createMockAppApi() {
         ['VrcClosedGracefully', true],
         ['ReadConfigFileSafe', '{}'],
         ['GetFileBase64', null],
-        ['FindScreenshotsBySearch', []],
-        ['GetExtraScreenshotData', '{}'],
-        ['GetScreenshotMetadata', '[]'],
-        ['GetLastScreenshot', ''],
         ['GetVRChatPhotosLocation', ''],
         ['GetImage', ''],
         ['IsGameRunning', true],
@@ -662,6 +727,71 @@ function createMockAppApi() {
                         }
                         return 0;
                     };
+                }
+                if (prop === 'GetLastScreenshot') {
+                    return async () => mockScreenshots[0]?.filePath || '';
+                }
+                if (prop === 'GetScreenshotMetadata') {
+                    return async (path) => {
+                        const screenshot = mockScreenshots.find((s) => s.filePath === path);
+                        if (!screenshot) {
+                            return JSON.stringify({ sourceFile: path, error: 'Screenshot contains no metadata.' });
+                        }
+                        return JSON.stringify(screenshot.metadata);
+                    };
+                }
+                if (prop === 'GetExtraScreenshotData') {
+                    return async (path, carouselCache) => {
+                        const index = mockScreenshots.findIndex((s) => s.filePath === path);
+                        if (index === -1) {
+                            return '{}';
+                        }
+                        const result = { ...mockScreenshots[index].extraData };
+                        if (carouselCache) {
+                            if (index > 0) {
+                                result.previousFilePath = mockScreenshots[index - 1].filePath;
+                            }
+                            if (index < mockScreenshots.length - 1) {
+                                result.nextFilePath = mockScreenshots[index + 1].filePath;
+                            }
+                        }
+                        return JSON.stringify(result);
+                    };
+                }
+                if (prop === 'FindScreenshotsBySearch') {
+                    return async (query, searchType) => {
+                        const results = [];
+                        const lowerQuery = String(query).toLowerCase();
+                        for (const screenshot of mockScreenshots) {
+                            const m = screenshot.metadata;
+                            switch (searchType) {
+                                case 0: // Player Name
+                                    if (m.players.some((p) => p.displayName.toLowerCase().includes(lowerQuery))) {
+                                        results.push(screenshot.filePath);
+                                    }
+                                    break;
+                                case 1: // Player ID
+                                    if (m.players.some((p) => p.id === query)) {
+                                        results.push(screenshot.filePath);
+                                    }
+                                    break;
+                                case 2: // World Name
+                                    if (m.world.name?.toLowerCase().includes(lowerQuery)) {
+                                        results.push(screenshot.filePath);
+                                    }
+                                    break;
+                                case 3: // World ID
+                                    if (m.world.id === query) {
+                                        results.push(screenshot.filePath);
+                                    }
+                                    break;
+                            }
+                        }
+                        return JSON.stringify(results);
+                    };
+                }
+                if (prop === 'DeleteScreenshotMetadata') {
+                    return async () => true;
                 }
                 if (fixedResults.has(prop)) {
                     return async () => fixedResults.get(prop);
