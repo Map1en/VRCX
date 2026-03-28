@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Threading;
 #if !LINUX
 using System.Windows.Forms;
-using VRCX.Overlay;
 #endif
 
 namespace VRCX
@@ -86,8 +85,6 @@ namespace VRCX
         private static void ConfigureLogger()
         {
             var fileName = Path.Join(AppDataDirectory, "logs", "VRCX.log");
-            if (StartupArgs.LaunchArguments.IsOverlay)
-                fileName = Path.Join(AppDataDirectory, "logs", "VRCX.Overlay.log");
 
             LogManager.Setup().LoadConfiguration(builder =>
             {
@@ -221,8 +218,6 @@ namespace VRCX
             VRCXStorage.Instance.Load();
             ConfigureLogger();
             GetVersion();
-            if (StartupArgs.LaunchArguments.IsOverlay)
-                OverlayProgram.OverlayMain();
 
             Update.Check();
 
@@ -245,13 +240,13 @@ namespace VRCX
             LogWatcher.Instance.Init();
             AutoAppLaunchManager.Instance.Init();
             CefService.Instance.Init();
-            OverlayServer.Instance.Init();
+            NativeVROverlay.Instance.Init();
 
             Application.Run(new MainForm());
 
             logger.Info("{0} Exiting...", Version);
             WebApi.Instance.SaveCookies();
-            OverlayServer.Instance.Exit();
+            NativeVROverlay.Instance.Exit();
             CefService.Instance.Exit();
             AutoAppLaunchManager.Instance.Exit();
             LogWatcher.Instance.Exit();

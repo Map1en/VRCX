@@ -160,16 +160,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             if ((await VRCXStorage.Get('VRCX_DisableGpuAcceleration')) === '') {
                 await VRCXStorage.Set('VRCX_DisableGpuAcceleration', 'false');
             }
-            if (
-                (await VRCXStorage.Get(
-                    'VRCX_DisableVrOverlayGpuAcceleration'
-                )) === ''
-            ) {
-                await VRCXStorage.Set(
-                    'VRCX_DisableVrOverlayGpuAcceleration',
-                    'false'
-                );
-            }
             proxyServer.value = await VRCXStorage.Get('VRCX_ProxyServer');
             state.locationX = parseInt(
                 await VRCXStorage.Get('VRCX_LocationX'),

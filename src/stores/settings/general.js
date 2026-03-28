@@ -23,7 +23,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     const isStartAsMinimizedState = ref(false);
     const disableGpuAcceleration = ref(false);
     const isCloseToTray = ref(false);
-    const disableVrOverlayGpuAcceleration = ref(false);
     const localFavoriteFriendsGroups = ref([]);
     const udonExceptionLogging = ref(false);
     const logResourceLoad = ref(false);
@@ -52,7 +51,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             isCloseToTrayConfig,
             isCloseToTrayConfigBoolConfig,
             disableGpuAccelerationStrConfig,
-            disableVrOverlayGpuAccelerationStrConfig,
             localFavoriteFriendsGroupsStrConfig,
             udonExceptionLoggingConfig,
             logResourceLoadConfig,
@@ -79,7 +77,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             VRCXStorage.Get('VRCX_CloseToTray'),
             configRepository.getBool('VRCX_CloseToTray'),
             VRCXStorage.Get('VRCX_DisableGpuAcceleration'),
-            VRCXStorage.Get('VRCX_DisableVrOverlayGpuAcceleration'),
             configRepository.getString('VRCX_localFavoriteFriendsGroups', '[]'),
             configRepository.getBool('VRCX_udonExceptionLogging', false),
             configRepository.getBool('VRCX_logResourceLoad', false),
@@ -135,8 +132,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
 
         disableGpuAcceleration.value =
             disableGpuAccelerationStrConfig === 'true';
-        disableVrOverlayGpuAcceleration.value =
-            disableVrOverlayGpuAccelerationStrConfig === 'true';
         localFavoriteFriendsGroups.value = JSON.parse(
             localFavoriteFriendsGroupsStrConfig
         );
@@ -195,14 +190,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         VRCXStorage.Set(
             'VRCX_DisableGpuAcceleration',
             disableGpuAcceleration.value.toString()
-        );
-    }
-    function setDisableVrOverlayGpuAcceleration() {
-        disableVrOverlayGpuAcceleration.value =
-            !disableVrOverlayGpuAcceleration.value;
-        VRCXStorage.Set(
-            'VRCX_DisableVrOverlayGpuAcceleration',
-            disableVrOverlayGpuAcceleration.value.toString()
         );
     }
     /**
@@ -447,7 +434,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         isStartAsMinimizedState,
         isCloseToTray,
         disableGpuAcceleration,
-        disableVrOverlayGpuAcceleration,
         localFavoriteFriendsGroups,
         udonExceptionLogging,
         logResourceLoad,
@@ -473,7 +459,6 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         setIsStartAsMinimizedState,
         setIsCloseToTray,
         setDisableGpuAcceleration,
-        setDisableVrOverlayGpuAcceleration,
         setLocalFavoriteFriendsGroups,
         setUdonExceptionLogging,
         setLogResourceLoad,

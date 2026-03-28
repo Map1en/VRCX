@@ -105,15 +105,6 @@
                 <Switch :model-value="disableGpuAcceleration" @update:modelValue="setDisableGpuAcceleration" />
             </SettingsItem>
 
-            <SettingsItem
-                v-if="!isLinux"
-                :label="t('view.settings.general.application.disable_vr_overlay_gpu_acceleration')"
-                :description="t('view.settings.general.application.disable_gpu_acceleration_tooltip')">
-                <Switch
-                    :model-value="disableVrOverlayGpuAcceleration"
-                    @update:modelValue="setDisableVrOverlayGpuAcceleration" />
-            </SettingsItem>
-
             <SettingsItem :label="t('view.settings.general.application.proxy')">
                 <Button size="sm" variant="outline" @click="promptProxySettings">{{
                     t('view.settings.general.application.proxy')
@@ -180,8 +171,7 @@
         isStartAtWindowsStartup,
         isStartAsMinimizedState,
         isCloseToTray,
-        disableGpuAcceleration,
-        disableVrOverlayGpuAcceleration
+        disableGpuAcceleration
     } = storeToRefs(generalSettingsStore);
 
     const {
@@ -189,7 +179,6 @@
         setIsStartAsMinimizedState,
         setIsCloseToTray,
         setDisableGpuAcceleration,
-        setDisableVrOverlayGpuAcceleration,
         promptProxySettings
     } = generalSettingsStore;
 

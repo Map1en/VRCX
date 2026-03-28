@@ -32,15 +32,7 @@ namespace VRCX
 
         public override void SetVR(bool active, bool hmdOverlay, bool wristOverlay, bool menuButton, int overlayHand)
         {
-            var updateVars = new OverlayVars
-            {
-                Active = active,
-                HmdOverlay = hmdOverlay,
-                WristOverlay = wristOverlay,
-                MenuButton = menuButton,
-                OverlayHand = overlayHand
-            };
-            OverlayServer.Instance.UpdateVars(updateVars);
+            NativeVROverlay.Instance.SetActive(active, hmdOverlay, wristOverlay, menuButton, overlayHand);
         }
 
         public override void SetZoom(double zoomLevel)
@@ -117,13 +109,7 @@ namespace VRCX
 
         public override void ExecuteVrOverlayFunction(string function, string json)
         {
-            var message = new OverlayMessage
-            {
-                Type = OverlayMessageType.JsFunctionCall,
-                FunctionName = function,
-                Data = json
-            };
-            OverlayServer.Instance.SendMessage(message);
+            NativeVROverlay.Instance.ExecuteVrOverlayFunction(function, json);
         }
 
         public override void FocusWindow()
